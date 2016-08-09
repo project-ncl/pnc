@@ -110,7 +110,7 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return fromCollection(buildRecordProvider.getRunningandCompletedBuildRecords(pageIndex, pageSize, q, sort));
+        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecords(pageIndex, pageSize, q, sort));
     }
 
     @ApiOperation(value = "Gets a BuildRecord (active or archived)")

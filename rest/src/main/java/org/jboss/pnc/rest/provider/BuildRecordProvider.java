@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -30,6 +31,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
@@ -262,54 +264,73 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return toRESTModel().apply(buildRecords.get(0));
     }
 
-    public CollectionInfo<BuildRecordRest> getRunningandCompletedBuildRecords(Integer pageIndex, Integer pageSize, String search, String sort) {
+
+    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecords(Integer pageIndex, Integer pageSize, String search, String sort) {
+        return getBuilds(pageIndex, pageSize, sort, search);
+    }
+
+    /*
+     * Abstracts away the implementation detail that BuildRecords are not persisted to the database until the build is
+     * complete. This abstraction allows clients to query for a list of all builds whether running or completed.
+     */
+    private CollectionInfo<BuildRecordRest> getBuilds(Integer pageIndex, Integer pageSize, String sort, String... rsqlQueries) {
+
+        Predicate[] dbPredicates = Arrays.stream(rsqlQueries)
+                .map(p -> rsqlPredicateProducer.getPredicate(BuildRecord.class, p))
+                .toArray(Predicate[]::new);
+
         Set<BuildRecordRest> running = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
-                .filter(rsqlPredicateProducer.getStreamPredicate(BuildTask.class, search))
-                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .map(this::createNewBuildRecordRest)
+                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, combineRsqlQueriesMatchAll(rsqlQueries)))
+                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .collect(Collectors.toSet());
 
-        final int maxOffset = running.size();
+        final int totalRunning = running.size();
 
-        CollectionInfo<BuildRecordRest> result = null;
+        CollectionInfo<BuildRecordRest> page = null;
 
         for (int i = 0; i <= pageIndex; i++) {
-            int offset = maxOffset - running.size();
+            final int offset = totalRunning - running.size();
 
-            // Performance optimization
-            if (offset == maxOffset) {
-                result = createInterleavedPage(pageIndex, pageSize, offset, maxOffset, sort, search, running);
+            if (offset == totalRunning) {
+                page = createInterleavedPage(pageIndex, pageSize, offset, totalRunning, sort, running, dbPredicates);
                 break;
             }
 
-            result = createInterleavedPage(i, pageSize, offset, maxOffset, sort, search, running);
-            running.removeAll(result.getContent());
+            page = createInterleavedPage(i, pageSize, offset, totalRunning, sort, running, dbPredicates);
+            running.removeAll(page.getContent());
         }
-
-        return result;
+        return page;
     }
 
-    private CollectionInfo<BuildRecordRest> createInterleavedPage(int index, int size, int offset,
-                int totalRunning, String sort, String search, Set<BuildRecordRest> running) {
+    private CollectionInfo<BuildRecordRest> createInterleavedPage(int pageIndex, int pageSize, int offset, int totalRunning,
+            String sort, Set<BuildRecordRest> running, Predicate<BuildRecord>... dbPredicates) {
 
-        PageInfo pageInfo = new DefaultPageInfo(index * size - offset, size);
+        PageInfo pageInfo = new DefaultPageInfo(pageIndex * pageSize - offset, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sort);
 
-        List<BuildRecordRest> result = nullableStreamOf(((BuildRecordRepository) repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, rsqlPredicateProducer.getPredicate(BuildRecord.class, search)))
+        List<BuildRecordRest> content = nullableStreamOf(((BuildRecordRepository) repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, dbPredicates))
                 .map(toRESTModel())
                 .collect(Collectors.toList());
 
-        result.addAll(running);
+        content.addAll(running);
 
-        result = result.stream()
+        content = content.stream()
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
-                .limit(size)
+                .limit(pageSize)
                 .collect(Collectors.toList());
 
-        double totalCompleted = (double) repository.count(rsqlPredicateProducer.getPredicate(BuildRecord.class, search));
-        int totalPages = (int) Math.ceil((totalCompleted + (double) totalRunning) / size);
+        int totalPages = calculateInterleavedPageCount(totalRunning, repository.count(dbPredicates), pageSize);
 
-        return new CollectionInfo<>(index, size, totalPages, result);
+        return new CollectionInfo<>(pageIndex, pageSize, totalPages, content);
+    }
+
+    private String combineRsqlQueriesMatchAll(String... rsqlQueries) {
+        return nullableStreamOf(Arrays.asList(rsqlQueries)).filter(x -> !StringUtils.isEmpty(x)).collect(Collectors.joining(";"));
+    }
+
+    private int calculateInterleavedPageCount(int totalRunningBuilds, int totalDbBuilds, int pageSize) {
+        return (int) Math.ceil( (totalRunningBuilds + totalDbBuilds) / (double) pageSize );
     }
 
     public CollectionInfo<BuildRecordRest> getRunningAndArchivedBuildRecordsOfBuildConfiguration (Integer pageIndex, Integer pageSize, String search, String sort, Integer configurationId) {
