@@ -142,3 +142,10 @@
 .pnc-multiple-input .input-item {
     width: calc(100% - 50px);
 }
+
+/**
+ *  pnc-product-version-milestones
+ */
+.white_text {
+	color: white;
+}

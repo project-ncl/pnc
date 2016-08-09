@@ -31,6 +31,31 @@
   module.config(['$stateProvider', function ($stateProvider) {
 
     $stateProvider
+    .state('product.detail.version.milestoneDetail', {
+        url: '/milestone/{milestoneId:int}/detail',
+        views: {
+          'content@': {
+            templateUrl: 'milestone/views/milestone.detail.html',
+            controller: 'MilestoneDetailController',
+            controllerAs: 'milestoneDetailCtrl',
+          }
+        },
+        data: {
+          displayName: 'Milestone'
+        },
+        resolve: {
+          milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
+            return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
+                .$promise;
+          },
+          distributedArtifacts: function (ProductMilestoneDAO, $stateParams) {
+            return ProductMilestoneDAO.getPagedDistributedArtifacts({milestoneId: $stateParams.milestoneId});
+          },
+          performedBuilds: function (ProductMilestoneDAO, $stateParams) {
+            return ProductMilestoneDAO.getPagedPerformedBuilds({milestoneId: $stateParams.milestoneId});
+          },
+        },
+      })
     .state('product.detail.version.milestoneCreate', {
       url: '/milestone/create',
       views: {
