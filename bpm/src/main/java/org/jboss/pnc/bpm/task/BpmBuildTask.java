@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.bpm.task;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.common.content.ContentIdentityManager;
@@ -52,16 +51,15 @@ public class BpmBuildTask extends BpmTask {
     }
 
     @Override
-    protected Map<String, Object> getProcessParameters() throws CoreException {
-        LOG.debug("[{}] Creating parameters", buildTask.getId());
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("processParameters", getProcessConfig());
+    protected Map<String, Object> getExtendedProcessParameters() throws CoreException {
+        LOG.debug("[{}] Creating extended parameters", buildTask.getId());
+        Map<String, Object> parameters = super.getExtendedProcessParameters();
         parameters.put("buildExecutionConfiguration", getBuildExecutionConfiguration(buildTask));
         LOG.debug("[{}] Created parameters", parameters);
         return parameters;
     }
 
-    private String getProcessConfig() throws CoreException {
+    protected Map<String, Object> getProcessParameters() throws CoreException {
 
         Map<String, Object> params = new HashMap<>();
 
@@ -72,11 +70,7 @@ public class BpmBuildTask extends BpmTask {
         params.put("communityBuild", Boolean.valueOf(Optional.ofNullable(config.getCommunityBuild()).orElse("true")));
         params.put("versionAdjust", Boolean.valueOf(Optional.ofNullable(config.getVersionAdjust()).orElse("false")));
 
-        try {
-            return MAPPER.writeValueAsString(params);
-        } catch (JsonProcessingException e) {
-            throw new CoreException("Could not serialize build task configuration: " + params, e);
-        }
+        return params;
     }
 
     private String getBuildExecutionConfiguration(BuildTask buildTask) {
