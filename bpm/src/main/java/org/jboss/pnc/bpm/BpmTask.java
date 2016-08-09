@@ -140,7 +140,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      *
      * @throws CoreException
      */
-    /* package */ Map<String, Object> getExtendedProcessParameters() throws CoreException {
+    protected Map<String, Object> getExtendedProcessParameters() throws CoreException {
         Map<String, Object> parameters = getProcessParameters();
         requireNonNull(parameters);
         Map<String, Object> actualParameters = new HashMap<>();
@@ -150,6 +150,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
             throw new CoreException("Could not serialize process parameters '" +
                     parameters + "'.", e);
         }
+
         actualParameters.put("pncBaseUrl", config.getPncBaseUrl());
         actualParameters.put("taskId", taskId);
         return actualParameters;
