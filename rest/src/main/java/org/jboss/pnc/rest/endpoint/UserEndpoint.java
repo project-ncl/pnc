@@ -190,7 +190,6 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
        return super.update(id, userRest);
     }
 
-    // TODO To be removed after testing, will be available via pnc-rest/rest/builds?q=(user.id==1)
     @ApiOperation(value = "Get all BuildRecords (running and archived) triggered by this User, returns empty list if no build records are found")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
@@ -206,7 +205,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
             @ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildRecordProvider.getRunningAndArchivedBuildRecordsOfUser(pageIndex, pageSize, sort, q, id));
+        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsByUserId(pageIndex, pageSize, sort, q, id));
     }
 
 }

@@ -128,6 +128,11 @@ public class UserRestTest {
         assertThat(buildCoordinatorMock).isNotNull();
     }
 
+
+    /*
+     * Tests for /users/{id}/builds endpoint
+     */
+
     @Test
     public void shouldGetAllRunningAndCompletedBuildRecordsForUserId() throws Exception {
         // given
@@ -138,7 +143,7 @@ public class UserRestTest {
         RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(1);
 
         // then
-        assertThat(all.getValue()).hasSize(4);
+        assertThat(all.getValue()).hasSize(4).;
     }
 
     @Test
@@ -154,9 +159,8 @@ public class UserRestTest {
         assertThat(all.getValue()).hasSize(3);
     }
 
-    @Ignore
     @Test
-    public void shouldSortResults() throws Exception {
+    public void shouldSortResultsWhenGettingUserBuilds() throws Exception {
         //given
         String sort = "=desc=id";
 
@@ -171,9 +175,8 @@ public class UserRestTest {
         assertThat(sorted).containsExactly(101, 2, 1);
     }
 
-    @Ignore
     @Test
-    public void shouldSupportPaging() throws Exception {
+    public void shouldSupportPagingWhenGettingUserBuilds() throws Exception {
         //given
         buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
 
@@ -189,7 +192,6 @@ public class UserRestTest {
         assertThat(thirdPage).hasSize(1);
     }
 
-    @Ignore
     @Test
     public void shouldBeAbleToReachAllBuildsWhenPaging() throws Exception {
         //given
@@ -203,14 +205,13 @@ public class UserRestTest {
         List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
 
         //then
-        assertThat(firstPage.get(0).getId()).isEqualTo(99);
+        assertThat(firstPage.get(0).getId()).isEqualTo(101);
         assertThat(secondPage.get(0).getId()).isEqualTo(2);
         assertThat(thirdPage.get(0).getId()).isEqualTo(1);
     }
 
-    @Ignore
     @Test
-    public void shouldReturnCorrectPageCount() throws Exception {
+    public void shouldReturnCorrectPageCountWhenGettingUserBuilds() throws Exception {
         // Given
         buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
 

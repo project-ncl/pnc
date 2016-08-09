@@ -64,6 +64,9 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withU
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private static final String QUERY_BY_USER = "user.id==%d";
+
     private BuildExecutor buildExecutor;
     private BuildCoordinator buildCoordinator;
 
@@ -265,8 +268,12 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
 
-    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecords(Integer pageIndex, Integer pageSize, String search, String sort) {
+    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecords(Integer pageIndex, Integer pageSize, String sort, String search) {
         return getBuilds(pageIndex, pageSize, sort, search);
+    }
+
+    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsByUserId(Integer pageIndex, Integer pageSize, String sort, String search, Integer userId) {
+        return getBuilds(pageIndex, pageSize, sort, search, String.format(QUERY_BY_USER, userId));
     }
 
     /*
