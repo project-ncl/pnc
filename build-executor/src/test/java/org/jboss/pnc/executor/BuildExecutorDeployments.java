@@ -23,6 +23,7 @@ import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.mock.builddriver.BuildDriverMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverMock;
+import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverWithFailedContainerInitializationMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerMock;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -43,7 +44,10 @@ public class BuildExecutorDeployments {
 
     public enum Options {
 
-        NOT_YET_AVAILABLE (() -> noop());
+        ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION (() -> {
+            return ShrinkWrap.create(JavaArchive.class)
+                    .addClass(EnvironmentDriverWithFailedContainerInitializationMock.class);
+        });
 
         Supplier<Archive> archiveSupplier;
 
@@ -59,11 +63,20 @@ public class BuildExecutorDeployments {
     private static final Logger log = LoggerFactory.getLogger(BuildExecutorDeployments.class);
 
     public static JavaArchive deployment(Options... options) {
+        boolean isEnvDriverPresent = false;
 
         JavaArchive jar = defaultLibs();
 
         for (Options option : options) {
             jar.merge(option.getArchive());
+            if (option.equals(Options.ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION)) {
+                isEnvDriverPresent = true;
+            }
+        }
+
+        if (!isEnvDriverPresent) {
+            jar.addClass(EnvironmentDriverMock.class);
+
         }
 
         log.debug(jar.toString(true));
@@ -77,7 +90,6 @@ public class BuildExecutorDeployments {
                 .addClass(DatastoreMock.class)
                 .addClass(TestProjectConfigurationBuilder.class)
                 .addClass(RepositoryManagerMock.class)
-                .addClass(EnvironmentDriverMock.class)
                 .addPackages(true,
                         BuildDriverFactory.class.getPackage(),
                         BuildDriverMock.class.getPackage())
