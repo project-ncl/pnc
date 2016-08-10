@@ -24,6 +24,8 @@ import lombok.ToString;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +48,8 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode(of = "taskId")
 @ToString
 public abstract class BpmTask implements Comparable<BpmTask> {
+
+    private static final Logger log = LoggerFactory.getLogger(BpmTask.class);
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -128,7 +132,9 @@ public abstract class BpmTask implements Comparable<BpmTask> {
 
 
     /* package */ <T extends BpmNotificationRest> void notify(BpmEventType<T> eventType, T data) {
-        listeners.get(eventType).forEach(c -> {
+        List<Consumer<?>> listeners = this.listeners.get(eventType);
+        log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners);
+        listeners.forEach(c -> {
             // Cast is OK because there is no unchecked method declaration to put wrong types
             ((Consumer<T>) c).accept(data);
         });
