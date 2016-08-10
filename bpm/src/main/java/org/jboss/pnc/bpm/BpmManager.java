@@ -59,7 +59,7 @@ import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 @ApplicationScoped
 public class BpmManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BpmManager.class);
+    private static final Logger log = LoggerFactory.getLogger(BpmManager.class);
 
     private static final int AUTHENTICATION_TIMEOUT_S = 2 * 60;
 
@@ -126,12 +126,12 @@ public class BpmManager {
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
             if (processInstance == null) {
-                LOG.warn("Failed to create new process instance.");
+                log.warn("Failed to create new process instance.");
                 return false;
             }
             task.setProcessInstanceId(processInstance.getId());
             task.setProcessName(processInstance.getProcessId());
-            LOG.debug("Created new process instance with id {}", task.getProcessInstanceId());
+            log.debug("Created new process instance with id {}", task.getProcessInstanceId());
             tasks.put(task.getTaskId(), task);
             return true;
 
@@ -141,16 +141,19 @@ public class BpmManager {
     }
 
     public synchronized void notify(int taskId, BpmNotificationRest notification) {
-        LOG.debug("will process notification for taskId: {}", taskId);
-        tasks.values().stream()
-                .filter(t -> t.getTaskId() == taskId)
-                .forEach(t -> {
-                    BpmEventType<?> bpmEventType = valueOf(notification.getEventType());
-                    if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
-                        t.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
-                    }
-                });
-        LOG.info("finished notifying for taskId: {}", taskId);
+        log.debug("will process notification for taskId: {}", taskId);
+        BpmTask task = tasks.get(taskId);
+        if (task == null) {
+            log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
+        } else {
+            BpmEventType<?> bpmEventType = valueOf(notification.getEventType());
+            log.debug("notifying for type: [{}], notification: {}", bpmEventType, notification);
+            if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
+                task.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
+            }
+        }
+
+        log.info("finished notifying for taskId: {}", taskId);
         cleanup();
     }
 
@@ -166,7 +169,7 @@ public class BpmManager {
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
         toBeRemoved.forEach(id -> tasks.remove(id));
-        LOG.debug("finished bpm manager cleanup");
+        log.debug("finished bpm manager cleanup");
     }
 
     /**
