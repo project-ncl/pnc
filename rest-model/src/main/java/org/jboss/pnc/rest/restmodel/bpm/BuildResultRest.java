@@ -135,6 +135,11 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
     }
 
     @Override
+    public String getEventType() {
+        return "BUILD_COMPLETE";
+    }
+
+    @Override
     public String toString() {
         return JsonOutputConverterMapper.apply(this);
     }
