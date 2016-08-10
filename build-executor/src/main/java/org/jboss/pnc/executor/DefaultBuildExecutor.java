@@ -113,6 +113,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        buildExecutionSession.setStartTime(new Date());
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
@@ -258,7 +259,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
             String liveLogWebSocketUrl = runningEnvironment.getBuildAgentUrl();
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
-            buildExecutionSession.setStartTime(new Date());
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver();
             buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment, onComplete, onError);
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_WAITING);
