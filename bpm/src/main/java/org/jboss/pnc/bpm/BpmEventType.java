@@ -19,8 +19,9 @@ package org.jboss.pnc.bpm;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
-import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,10 +37,10 @@ import static java.util.Objects.requireNonNull;
  */
 @EqualsAndHashCode(of = "name")
 @ToString
-public final class BpmEventType<T> {
+public final class BpmEventType<T extends BpmNotificationRest> {
 
-    public static final BpmEventType<BuildResult> BUILD_COMPLETE
-            = new BpmEventType<>("BUILD_COMPLETE", BuildResult.class);
+    public static final BpmEventType<BuildResultRest> BUILD_COMPLETE
+            = new BpmEventType<>("BUILD_COMPLETE", BuildResultRest.class);
 
     public static final BpmEventType<BpmStringMapNotificationRest> BUILD_CONFIGURATION_CREATION_SUCCESS
             = new BpmEventType<>("BUILD_CONFIGURATION_CREATION_SUCCESS", BpmStringMapNotificationRest.class);

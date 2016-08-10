@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import java.util.ArrayList;
@@ -116,7 +117,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      *
      * @param eventType event to follow
      */
-    public <T> void addListener(BpmEventType<T> eventType, Consumer<T> listener) {
+    public <T  extends BpmNotificationRest> void addListener(BpmEventType<T> eventType, Consumer<T> listener) {
         List<Consumer<?>> consumers = listeners.get(eventType);
         if (consumers == null) {
             consumers = new ArrayList<>();
@@ -126,7 +127,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     }
 
 
-    /* package */ <T> void notify(BpmEventType<T> eventType, T data) {
+    /* package */ <T extends BpmNotificationRest> void notify(BpmEventType<T> eventType, T data) {
         listeners.get(eventType).forEach(c -> {
             // Cast is OK because there is no unchecked method declaration to put wrong types
             ((Consumer<T>) c).accept(data);

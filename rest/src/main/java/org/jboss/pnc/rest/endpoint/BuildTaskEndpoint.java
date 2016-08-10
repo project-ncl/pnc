@@ -90,16 +90,16 @@ public class BuildTaskEndpoint {
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer buildId,
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
-        logger.error("Received task completed notification for coordinating task id [{}].", buildId); // mstodo change to debug
+        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
         if(taskId == null) {
-            logger.error("No task for id [{}].", buildId); // mstodo remove
+            logger.error("No task for id [{}].", buildId);
             throw new CoreException("Could not find BPM task for build with ID " + buildId);
         }
-        logger.error("Will notify for taskId[{}].", taskId); // mstodo remove
+        logger.debug("Will notify for taskId[{}].", taskId);
         bpmManager.notify(taskId, buildResult);
-        logger.error("Notified for taskId [{}]. Will return 200", buildId); // mstodo remove
+        logger.debug("Notified for taskId [{}].", buildId);
         return Response.ok().build();
     }
 
