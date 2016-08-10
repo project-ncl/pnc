@@ -141,7 +141,7 @@ public class BpmManager {
     }
 
     public synchronized void notify(int taskId, BpmNotificationRest notification) {
-        LOG.error("will process notification for taskId: {}", taskId);       // mstodo remove
+        LOG.debug("will process notification for taskId: {}", taskId);
         tasks.values().stream()
                 .filter(t -> t.getTaskId() == taskId)
                 .forEach(t -> {
@@ -150,12 +150,11 @@ public class BpmManager {
                         t.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
                     }
                 });
-        LOG.error("finished notifying for taskId: {}", taskId);         // mstodo remove
+        LOG.info("finished notifying for taskId: {}", taskId);
         cleanup();
     }
 
     public synchronized void cleanup() {
-        LOG.error("starting cleanup");         // mstodo remove
         Set<Integer> toBeRemoved = tasks.values().stream()
                 .filter(t -> {
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
@@ -167,7 +166,7 @@ public class BpmManager {
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
         toBeRemoved.forEach(id -> tasks.remove(id));
-        LOG.error("finished cleanup");         // mstodo remove
+        LOG.debug("finished bpm manager cleanup");
     }
 
     /**
