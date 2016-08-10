@@ -99,7 +99,7 @@ public class BuildTaskEndpoint {
         }
         logger.debug("Will notify for taskId[{}].", taskId);
         bpmManager.notify(taskId, buildResult);
-        logger.debug("Notified for taskId [{}].", buildId);
+        logger.debug("Notified for buildId [{}].", buildId);
         return Response.ok().build();
     }
 
