@@ -39,8 +39,7 @@ public class EnvironmentDriverFactory {
     
     /**
      * Gets environment driver, which can manage requested environment
-     * @param buildType Requested build system specification
-     * @return Available driver for given environment
+     * @return Available driver for given systemImageType
      * @throws ExecutorException Throw if no suitable driver for selected environment was found
      */
     public EnvironmentDriver getDriver(SystemImageType systemImageType) throws ExecutorException {
