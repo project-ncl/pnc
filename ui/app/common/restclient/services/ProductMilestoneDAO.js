@@ -47,7 +47,8 @@
         },
         _getByProductVersion: {
           method: 'GET',
-          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId'
+          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId',
+          cache: true
         },
         _getDistributedArtifacts: {
             method: 'GET',

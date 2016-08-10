@@ -21,17 +21,16 @@
 
     var module = angular.module('pnc.milestone');
 
-    module.factory('versionFactory', ['$http',
+    module.factory('versionFactory', ['ProductMilestoneDAO',
 
-        function ($http) {
-            var restUrl = '../pnc-rest/rest/product-milestones/product-versions/',
-                factory = {};
+        function (ProductMilestoneDAO) {
+            var factory = {};
 
             factory.checkUniqueValue = function (productVersionId, milestoneVersion, productVersion) {
-                return $http.get(restUrl + productVersionId, {cache: true}).then(
+               return ProductMilestoneDAO.getAllForProductVersion({versionId: productVersionId}).then(
                     function (results) {
-                        for (var i =0; i < results.data.content.length; i++){
-                            var milestone = results.data.content[i];
+                        for (var i =0; i < results.length; i++){
+                            var milestone = results[i];
                             if(milestone.version === productVersion+'.'+milestoneVersion){
                                 return false;
                             }
