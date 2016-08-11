@@ -23,6 +23,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.junit.Before;
@@ -51,16 +52,6 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     private Configuration configuration = mock(Configuration.class);
 
-//    @BeforeClass
-//    public static void init() throws Exception {
-//        AbstractLocalBuildAgentTest.beforeClass();
-//    }
-//
-//    @AfterClass
-//    public static void destroy() throws Exception {
-//        AbstractLocalBuildAgentTest.afterClass();
-//    }
-
     @Before
     public void before() throws ConfigurationParseException {
         doReturn(new SystemConfig(null, null, null, null, null, null)).when(configuration).getModuleConfig(any());
@@ -82,6 +73,8 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         doReturn("mvn validate").when(buildExecutionConfiguration).getBuildScript();
         doReturn(dirName).when(buildExecutionConfiguration).getName();
         doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
+
+        doReturn(mock(RunningEnvironment.class)).when(buildExecution).getRunningEnvironment();
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
