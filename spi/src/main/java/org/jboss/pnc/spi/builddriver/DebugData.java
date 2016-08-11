@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public class DebugData {
     private String sshHost;
     private Integer sshPort;
-    private String password;
+    private String sshPassword;
     private boolean debugEnabled = false;
     private Consumer<DebugData> sshServiceInitializer = d -> {
         throw new IllegalStateException("No initializer for ssh service provided");
@@ -55,11 +55,11 @@ public class DebugData {
     }
 
     public String getSshPassword() {
-        return password;
+        return sshPassword;
     }
 
     public void setSshPassword(String password) {
-        this.password = password;
+        this.sshPassword = password;
     }
 
     public boolean isDebugEnabled() {
