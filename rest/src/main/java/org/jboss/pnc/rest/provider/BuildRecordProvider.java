@@ -49,7 +49,6 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
@@ -66,6 +65,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String QUERY_BY_USER = "user.id==%d";
+    private static final String QUERY_BY_BUILD_CONFIGURATION_ID = "buildConfigurationAudited.idRev.id==%d";
 
     private BuildExecutor buildExecutor;
     private BuildCoordinator buildCoordinator;
@@ -94,7 +94,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
-    public CollectionInfo<BuildRecordRest> getAllRunningForBuildConfiguration (int pageIndex, int pageSize, String search, String sort, Integer bcId) {
+    public CollectionInfo<BuildRecordRest> getAllRunningForBuildConfiguration(int pageIndex, int pageSize, String search, String sort, Integer bcId) {
         List<BuildTask> x = buildCoordinator.getSubmittedBuildTasks();
         return nullableStreamOf(x)
                 .filter(t -> t != null)
@@ -109,7 +109,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
-    public CollectionInfo<BuildRecordRest> getAllRunningOfUser (int pageIndex, int pageSize, String search, String sort, Integer userId) {
+    public CollectionInfo<BuildRecordRest> getAllRunningOfUser(int pageIndex, int pageSize, String search, String sort, Integer userId) {
         List<BuildTask> x = buildCoordinator.getSubmittedBuildTasks();
         return nullableStreamOf(x)
                 .filter(t -> t != null)
@@ -210,15 +210,15 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public String getBuildRecordLog(Integer id) {
-        BuildRecord buildRecord = ((BuildRecordRepository)repository).findByIdFetchAllProperties(id);
-        if(buildRecord != null)
+        BuildRecord buildRecord = ((BuildRecordRepository) repository).findByIdFetchAllProperties(id);
+        if (buildRecord != null)
             return buildRecord.getBuildLog();
         else
             return null;
     }
 
     public StreamingOutput getLogsForBuild(String buildRecordLog) {
-        if(buildRecordLog == null)
+        if (buildRecordLog == null)
             return null;
 
         return outputStream -> {
@@ -276,6 +276,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return getBuilds(pageIndex, pageSize, sort, search, String.format(QUERY_BY_USER, userId));
     }
 
+    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsByBuildConfigurationId(Integer pageIndex, Integer pageSize, String sort, String search, Integer buildConfigurationId) {
+        return getBuilds(pageIndex, pageSize, sort, search, String.format(QUERY_BY_BUILD_CONFIGURATION_ID, buildConfigurationId));
+    }
+
     /*
      * Abstracts away the implementation detail that BuildRecords are not persisted to the database until the build is
      * complete. This abstraction allows clients to query for a list of all builds whether running or completed.
@@ -310,7 +314,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return page;
     }
 
-    private CollectionInfo<BuildRecordRest> createInterleavedPage(int pageIndex, int pageSize, int offset, int totalRunning,
+    @SafeVarargs
+    private final CollectionInfo<BuildRecordRest> createInterleavedPage(int pageIndex, int pageSize, int offset, int totalRunning,
             String sort, Set<BuildRecordRest> running, Predicate<BuildRecord>... dbPredicates) {
 
         PageInfo pageInfo = new DefaultPageInfo(pageIndex * pageSize - offset, pageSize);
@@ -340,49 +345,6 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return (int) Math.ceil( (totalRunningBuilds + totalDbBuilds) / (double) pageSize );
     }
 
-    public CollectionInfo<BuildRecordRest> getRunningAndArchivedBuildRecordsOfBuildConfiguration (Integer pageIndex, Integer pageSize, String search, String sort, Integer configurationId) {
-        CollectionInfo<BuildRecordRest> archivedBuildRecords = getAllForBuildConfiguration(pageIndex, pageSize, sort, search, configurationId);
-        CollectionInfo<BuildRecordRest> runningBuildRecords  = getAllRunningForBuildConfiguration(pageIndex, pageSize, search, sort, configurationId);
-
-        List<BuildRecordRest> allBuildRecords = new ArrayList<>();
-        allBuildRecords.addAll(archivedBuildRecords.getContent());
-        allBuildRecords.addAll(runningBuildRecords.getContent());
-
-        //We don't need to skip the results... it has been done in the previous steps.
-        //However we need to limit them
-        allBuildRecords = allBuildRecords.stream()
-                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, search))
-                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
-                .limit(pageSize)
-                .collect(Collectors.toList());
-
-        int totalPages = (int) Math.ceil((double) allBuildRecords.size() / pageSize);
-        CollectionInfo<BuildRecordRest> allBuildRecordsWithMetadata = new CollectionInfo<>(pageIndex, pageSize, totalPages, allBuildRecords);
-
-        return allBuildRecordsWithMetadata;
-    }
-
-    public CollectionInfo<BuildRecordRest> getRunningAndArchivedBuildRecordsOfUser (Integer pageIndex, Integer pageSize, String search, String sort, Integer userId) {
-        CollectionInfo<BuildRecordRest> archivedBuildRecords = getAllOfUser(pageIndex, pageSize, sort, search, userId);
-        CollectionInfo<BuildRecordRest> runningBuildRecords  = getAllRunningOfUser(pageIndex, pageSize, search, sort, userId);
-
-        List<BuildRecordRest> allBuildRecords = new ArrayList<>();
-        allBuildRecords.addAll(archivedBuildRecords.getContent());
-        allBuildRecords.addAll(runningBuildRecords.getContent());
-
-        //We don't need to skip the results... it has been done in the previous steps.
-        //However we need to limit them
-        allBuildRecords = allBuildRecords.stream()
-                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, search))
-                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
-                .limit(pageSize)
-                .collect(Collectors.toList());
-
-        int totalPages = (int) Math.ceil((double) allBuildRecords.size() / pageSize);
-        CollectionInfo<BuildRecordRest> allBuildRecordsWithMetadata = new CollectionInfo<>(pageIndex, pageSize, totalPages, allBuildRecords);
-
-        return allBuildRecordsWithMetadata;
-    }
 
     public Map<String, String> putAttribute(Integer id, String name, String value) {
         BuildRecord buildRecord = repository.queryById(id);
