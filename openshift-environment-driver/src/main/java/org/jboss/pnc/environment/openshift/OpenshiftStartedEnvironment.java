@@ -372,12 +372,22 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     .get("ports").asList()
                     .stream()
                     .filter(m -> m.get("name").asString().equals(SSH_SERVICE_PORT_NAME))
-                    .findAny().orElseThrow(() -> new RuntimeException("No ssh service in response!"))
+                    .findAny().orElseThrow(() -> new RuntimeException("No ssh service in response! Service data: " + describeService(resultService)))
                     .get("nodePort").asInt();
         } catch (Throwable e) {
             logger.error("Cannot create service.", e);
             return null;
         }
+    }
+
+    private String describeService(Service resultService) {
+        if (resultService == null) return null;
+
+        ModelNode node = resultService.getNode();
+        return "Service[" +
+                "name = " + resultService.getName() +
+                ", node= '" + (node == null ? null : node.toJSONString(false)) +
+                "]";
     }
 
     private enum Selector {
