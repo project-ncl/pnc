@@ -147,7 +147,6 @@ public class BpmManager {
             log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
         } else {
             BpmEventType<?> bpmEventType = valueOf(notification.getEventType());
-            log.debug("notifying for type: [{}], notification: {}", bpmEventType, notification);
             if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
                 task.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
             }
