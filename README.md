@@ -253,3 +253,19 @@ You can test the connection before saving the datasource settings.
 UI Module Compilation Errors
 ----------------------------
 Due to the need to integrate a modern frontend workflow into a maven project there can occasionally be some complications in a build. Some data is cached by the UI that is not completely cleaned by running `maven clean`. In case of strange build failures with the UI module please try running: `maven clean -Dfrontend.clean.force` and this will completely clean out all data. NOTE: with this profile enabled build times will increase by a few minutes as the ui build system will have to retrieve a large amount of previously cached data.
+
+
+Configuring the Openshift definition files
+------------------------------------------
+When the Openshift Driver is used, we send definition files to the Openshift server to tell it how we want our build agent to be setup. The default files used can be found in `openshift-environment-driver/src/main/resources/openshift.configurations`.
+
+You can override which definition files to use at runtime using Java System Property Names.
+
+To override:
+
+- pnc-builder-pod definition, pass the flag '-Dv1_pnc-builder-pod-file=<file>'
+- pnc-builder-service definition, pass the flag '-Dv1_pnc-builder-service-file=<file>'
+- pnc-builder-route definition, pass the flag '-Dv1_pnc-builder-route-file=<file>'
+- pnc-builder-ssh-service definition, pass the flag '-Dv1_pnc-builder-ssh-service-file=<file>'
+
+The flag could be set in your `standalone.conf` in your EAP deployment.

@@ -28,30 +28,49 @@ import java.lang.invoke.MethodHandles;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public enum Configurations {
+public class Configurations {
 
-    V1_PNC_BUILDER_POD("v1_pnc-builder-pod.json"),
-    V1_PNC_BUILDER_SERVICE("v1_pnc-builder-service.json"),
-    V1_PNC_BUILDER_ROUTE("v1_pnc-builder-route.json"),
-    V1_PNC_BUILDER_SSH_SERVICE("v1_pnc-builder-ssh-service.json");
+    private static final String DEFAULT_V1_PNC_BUILDER_POD = "v1_pnc-builder-pod.json";
+    private static final String DEFAULT_V1_PNC_BUILDER_SERVICE_FILE = "v1_pnc-builder-service.json";
+    private static final String DEFAULT_V1_PNC_BUILDER_ROUTE_FILE = "v1_pnc-builder-route.json";
+    private static final String DEFAULT_V1_PNC_BUILDER_SSH_SERVICE_FILE = "v1_pnc-builder-ssh-service.json";
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private static final String CONFIGURATIONS_FOLDER = "openshift.configurations/";
 
-    private final String filePath;
+    private static final String CUSTOM_V1_PNC_BUILDER_POD_PROPERTY = "v1_pnc-builder-pod-file";
+    private static final String CUSTOM_V1_PNC_BUILDER_SERVICE_PROPERTY = "v1_pnc-builder-service-file";
+    private static final String CUSTOM_V1_PNC_BUILDER_ROUTE_PROPERTY = "v1_pnc-builder-route-file";
+    private static final String CUSTOM_V1_PNC_BUILDER_SSH_SERVICE_PROPERTY = "v1_pnc-builder-ssh-service-file";
 
-    Configurations(String fileName) {
-        this.filePath = CONFIGURATIONS_FOLDER + fileName;
+    public static String get_V1_PNC_BUILDER_POD_Content() {
+        return getContentAsString(CUSTOM_V1_PNC_BUILDER_POD_PROPERTY, DEFAULT_V1_PNC_BUILDER_POD);
     }
 
-    public String getContentAsString() {
+    public static String get_V1_PNC_BUILDER_SERVICE_Content() {
+        return getContentAsString(CUSTOM_V1_PNC_BUILDER_SERVICE_PROPERTY, DEFAULT_V1_PNC_BUILDER_SERVICE_FILE);
+    }
+
+    public static String get_V1_PNC_BUILDER_ROUTE_Content() {
+        return getContentAsString(CUSTOM_V1_PNC_BUILDER_ROUTE_PROPERTY, DEFAULT_V1_PNC_BUILDER_ROUTE_FILE);
+    }
+
+    public static String get_V1_PNC_BUILDER_SSH_SERVICE_Content() {
+        return getContentAsString(CUSTOM_V1_PNC_BUILDER_SSH_SERVICE_PROPERTY, DEFAULT_V1_PNC_BUILDER_SSH_SERVICE_FILE);
+    }
+
+    private static String getContentAsString(String customPropertyName, String defaultResourceFile) {
+        String filePath = CONFIGURATIONS_FOLDER + defaultResourceFile;
         String content;
         try {
-            content = IoUtils.readResource(filePath, Configurations.class.getClassLoader());
+            content = IoUtils.readFileOrResource(customPropertyName, filePath, Configurations.class.getClassLoader());
         } catch (IOException e) {
-            logger.error("Cannot read configuration file " + filePath, e);
-            throw new RuntimeException("Could not read configuration file " + filePath + ": " + e.getMessage());
+            String fileCannotRead = filePath;
+            if (System.getProperty(customPropertyName) != null) {
+                fileCannotRead = System.getProperty(customPropertyName);
+            }
+            throw new RuntimeException("Could not read configuration file " + fileCannotRead + ": " + e.getMessage());
         }
         return content;
     }
