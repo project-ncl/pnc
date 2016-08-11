@@ -59,7 +59,7 @@ import java.util.function.Consumer;
 public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenshiftStartedEnvironment.class);
-    public static final String SSH_SERVICE_PORT_NAME = "22-ssh";
+    private static final String SSH_SERVICE_PORT_NAME = "2222-ssh";
     private boolean serviceCreated = false;
     private boolean podCreated = false;
     private boolean routeCreated = false;
