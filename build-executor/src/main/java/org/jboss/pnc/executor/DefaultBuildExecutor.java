@@ -142,7 +142,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     "-------------------------------------------------------\n" +
                     "SSH server enabled.\n " +
                     "Log in using password: " + debugData.getSshPassword() + " and command: \n" +
-                    "ssh root@" + debugData.getSshHost() + " -p " + debugData.getSshPort() + "\n" +
+                    "ssh worker@" + debugData.getSshHost() + " -p " + debugData.getSshPort() + "\n" +
                     "-------------------------------------------------------\n";
             return appendToBuildLog(completedBuild, text);
         }
@@ -249,9 +249,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
 
         try {
-            Consumer<CompletedBuild> onComplete = (completedBuild) -> {
-                waitToCompleteFuture.complete(completedBuild);
-            };
+            Consumer<CompletedBuild> onComplete = waitToCompleteFuture::complete;
             Consumer<Throwable> onError = (e) -> {
                 waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningEnvironment));
             };
