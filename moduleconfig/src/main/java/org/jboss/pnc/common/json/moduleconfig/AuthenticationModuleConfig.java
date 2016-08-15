@@ -72,6 +72,6 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
     
     @Override
     public String toString() {
-        return "AuthenticationModuleConfig [username=HIDDEN, password=" + password + ", baseAuthUrl=" + baseAuthUrl +"]";
+        return "AuthenticationModuleConfig [username=" + username + ", password=HIDDEN, baseAuthUrl=" + baseAuthUrl +"]";
     }
 }
