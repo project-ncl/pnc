@@ -93,7 +93,6 @@
                 case 'BUILDING':
                   result.eventType = eventTypes.BUILD_STARTED;
                   break;
-                case 'BUILD_COMPLETED':
                 case 'DONE':
                 case 'REJECTED':
                 case 'REJECTED_ALREADY_BUILT':
