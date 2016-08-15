@@ -39,7 +39,8 @@
     'pnc.import',
     'pnc.report',
     'pnc.properties',
-    'pnc.common.authentication'
+    'pnc.common.authentication',
+    'pnc.common.pnc-client'
   ]);
 
   app.config([
@@ -108,7 +109,8 @@
       daConfigProvider.setDaUrl(pncProperties.daUrl);
       daConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
       daConfigProvider.setDaImportRpcUrl(pncProperties.daImportRpcUrl);
-  }]);
+    }
+  ]);
 
   app.run([
     '$rootScope',
