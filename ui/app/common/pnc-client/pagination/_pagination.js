@@ -119,10 +119,14 @@
                 p._config = response.config;
                 p.data = content;
                 p.$resolved = true;
+
+                return p;
               });
 
-              // Return the page, it'll be empty when the user gets it, matching
-              // the ng-resource libraries functionality.
+              // Return the page, it'll be empty when the user gets it, we
+              // populate it with data asynchronously when the http request
+              // is complete, once more this is to match the ng-resource
+              // library's api.
               return p;
 
             };
