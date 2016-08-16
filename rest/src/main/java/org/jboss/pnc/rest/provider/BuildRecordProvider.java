@@ -354,10 +354,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     public BuildRecordRest getSpecificForUser(Integer id, User currentUser) {
         BuildRecord buildRecord = repository.queryById(id);
         if (buildRecord != null) {
-            // TODO: bring back in
+            // TODO NCL-2316: bring back in
 //            User buildRequester = buildRecord.getUser();
 //            boolean addSshCredentials = buildRequester != null && currentUser.getId().equals(buildRequester.getId());
-            // end TODO
+            // end TODO NCL-2316
             boolean addSshCredentials = true;
             return new BuildRecordRest(buildRecord, addSshCredentials);
         }

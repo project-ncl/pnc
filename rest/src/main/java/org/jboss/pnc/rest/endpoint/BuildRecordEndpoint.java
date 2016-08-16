@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -124,7 +125,11 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return fromSingleton(buildRecordProvider.getSpecificForUser(id, authProvider.getCurrentUser(httpServletRequest)));
+        // TODO NCL-2316: bring back in
+//        User user = authProvider.getCurrentUser(httpServletRequest);
+        // end TODO NCL-2316
+        User user = null;
+        return fromSingleton(buildRecordProvider.getSpecificForUser(id, user));
     }
 
     @ApiOperation(value = "Gets logs for specific Build Record")

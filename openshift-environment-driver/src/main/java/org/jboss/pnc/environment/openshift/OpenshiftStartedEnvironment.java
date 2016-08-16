@@ -60,6 +60,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenshiftStartedEnvironment.class);
     private static final String SSH_SERVICE_PORT_NAME = "2222-ssh";
+    private static final String POD_USERNAME = "worker";
+    private static final String POD_USER_PASSWD = "workerUserPassword";
     private boolean serviceCreated = false;
     private boolean podCreated = false;
     private boolean routeCreated = false;
@@ -166,11 +168,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         if (debugData.isEnableDebugOnFailure()) {
             String password = RandomStringUtils.randomAlphanumeric(10);
             debugData.setSshPassword(password);
-            runtimeProperties.put("workerUserPassword", password);
+            runtimeProperties.put(POD_USER_PASSWD, password);
 
             debugData.setSshServiceInitializer(d -> {
                 Integer port = startSshService();
-                d.setSshCommand("ssh worker@" + route.getHost() + " -p " + port);
+                d.setSshCommand("ssh " + POD_USERNAME + "@" + route.getHost() + " -p " + port);
             });
         }
     }
@@ -188,9 +190,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             logger.info("New build environment available on internal url: {}", getInternalEndpointUrl());
 
             try {
-                Runnable onUrlAvailable = () -> {
-                    onComplete.accept(runningEnvironment);
-                };
+                Runnable onUrlAvailable = () -> onComplete.accept(runningEnvironment);
 
                 URL url = new URL(getInternalEndpointUrl());
                 pullingMonitor.monitor(onUrlAvailable, onError, () -> isServletAvailable(url));
@@ -392,7 +392,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private enum Selector {
         POD,
         SERVICE,
-        ROUTE;
+        ROUTE
     }
 
     private boolean connectToPingUrl(URL url) throws IOException {
