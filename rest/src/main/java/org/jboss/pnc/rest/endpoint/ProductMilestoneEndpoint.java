@@ -73,6 +73,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDistributedInMilestone;
 
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDistributedInProductMilestone;
 
@@ -217,17 +219,35 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     })
     @DELETE
     @Path("/{id}/distributed-artifacts/{artifactId}")
-    public Response removeConfiguration(
+    public Response removeDistributedArtifact(
             @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Artifact id", required = true) @PathParam("artifactId") Integer artifactId) throws ValidationException {
         productMilestoneProvider.removeDistributedArtifact(id, artifactId);
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Gets the set of builds which produced artifacts distributed/shipped in a Product Milestone")
+    @ApiOperation(value = "Gets the set of builds performed during in a Product Milestone cycle")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductMilestoneSingleton.class),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = ProductMilestoneSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/performed-builds")
+    public Response getPerformedBuilds(
+            @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+        return fromCollection(buildRecordProvider.queryForCollection(pageIndex, pageSize, sort, q, withPerformedInMilestone(id)));
+    }
+
+    @ApiOperation(value = "Gets the set of builds which produced artifacts distributed/shipped in a Product Milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductMilestonePage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = ProductMilestonePage.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
@@ -241,5 +261,4 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer milestoneId) {
         return fromCollection(buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(pageIndex, pageSize, sort, q, milestoneId));
     }
-
 }

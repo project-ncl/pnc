@@ -49,6 +49,14 @@
           method: 'GET',
           url: REST_BASE_URL + '/product-milestones/product-versions/:versionId'
         },
+        _getDistributedArtifacts: {
+            method: 'GET',
+            url: REST_BASE_URL + '/product-milestones/:milestoneId/distributed-artifacts'
+        },
+        _getPerformedBuilds: {
+            method: 'GET',
+            url: REST_BASE_URL + '/product-milestones/:milestoneId/performed-builds'
+        },
         save: {
           method: 'POST'
         }
@@ -58,6 +66,8 @@
       PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
 
       PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
+      PageFactory.decorate(resource, '_getDistributedArtifacts', 'getPagedDistributedArtifacts');
+      PageFactory.decorate(resource, '_getPerformedBuilds', 'getPagedPerformedBuilds');
 
       return resource;
     }

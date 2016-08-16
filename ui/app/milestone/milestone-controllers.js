@@ -21,6 +21,27 @@
 
   var module = angular.module('pnc.milestone');
 
+  module.controller('MilestoneDetailController', [
+    '$scope',
+    '$state',
+    '$stateParams',
+    'productDetail',
+    'versionDetail',
+    'milestoneDetail',
+    'distributedArtifacts',
+    'performedBuilds',
+    function($scope, $state, $stateParams, productDetail, versionDetail, milestoneDetail,
+        distributedArtifacts, performedBuilds) {
+
+      var that = this;
+      that.product = productDetail;
+      that.productVersion = versionDetail;
+      that.milestone = milestoneDetail;
+      that.distributedArtifacts = distributedArtifacts;
+      that.performedBuilds = performedBuilds;
+    }
+  ]);
+
   module.controller('MilestoneCreateUpdateController', [
     '$scope',
     '$state',
