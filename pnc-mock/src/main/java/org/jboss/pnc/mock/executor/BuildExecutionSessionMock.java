@@ -116,14 +116,29 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
         if (executorException == null) {
             if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
+                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration),
+                        Optional.ofNullable(buildDriverResult),
+                        Optional.ofNullable(repositoryManagerResult),
+                        Optional.empty(),
+                        Optional.empty(),
+                        Optional.empty());
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
+                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration),
+                        Optional.ofNullable(buildDriverResult),
+                        Optional.ofNullable(repositoryManagerResult),
+                        Optional.empty(),
+                        Optional.of(failedReasonStatus),
+                        Optional.empty());
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.ofNullable(failedReasonStatus));
+            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration),
+                    Optional.ofNullable(buildDriverResult),
+                    Optional.ofNullable(repositoryManagerResult),
+                    Optional.of(executorException),
+                    Optional.ofNullable(failedReasonStatus),
+                    Optional.empty());
         }
     }
 

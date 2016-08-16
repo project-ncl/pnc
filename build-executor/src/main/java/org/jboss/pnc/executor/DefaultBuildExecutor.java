@@ -33,7 +33,6 @@ import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.DebugData;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -138,52 +137,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
         DebugData debugData = session.getRunningEnvironment().getDebugData();
         if (debugData.isDebugEnabled()) {
             debugData.getSshServiceInitializer().accept(debugData);
-            String text = "\n" +
-                    "-------------------------------------------------------\n" +
-                    "SSH server enabled.\n " +
-                    "Log in using password: " + debugData.getSshPassword() + " and command: \n" +
-                    "ssh worker@" + debugData.getSshHost() + " -p " + debugData.getSshPort() + "\n" +
-                    "-------------------------------------------------------\n";
-            return appendToBuildLog(completedBuild, text);
         }
         return completedBuild;
-    }
-
-    /**
-     * Ugly hack to display ssh access data in the build log.
-     * Ideally should be replaced with a new widget on build result page
-     *
-     * @param completedBuild build data
-     * @param text message to append to the build log
-     * @return build data with the message appended to the log
-     */
-    private CompletedBuild appendToBuildLog(final CompletedBuild completedBuild, final String text) {
-        return new CompletedBuild() {
-
-            private BuildDriverResult decorateWithSshAccessData(BuildDriverResult result) {
-                return new BuildDriverResult() {
-                    @Override
-                    public String getBuildLog() {
-                        return result.getBuildLog() + text;
-                    }
-
-                    @Override
-                    public BuildStatus getBuildStatus() {
-                        return result.getBuildStatus();
-                    }
-                };
-            }
-
-            @Override
-            public BuildDriverResult getBuildResult() throws BuildDriverException {
-                return decorateWithSshAccessData(completedBuild.getBuildResult());
-            }
-
-            @Override
-            public RunningEnvironment getRunningEnvironment() {
-                return completedBuild.getRunningEnvironment();
-            }
-        };
     }
 
     @Override

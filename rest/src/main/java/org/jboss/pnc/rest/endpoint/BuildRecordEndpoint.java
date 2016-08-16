@@ -32,9 +32,10 @@ import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.AttributeSingleton;
-
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -44,6 +45,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -77,15 +79,22 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     private BuildRecordProvider buildRecordProvider;
     private ArtifactProvider artifactProvider;
+    private EndpointAuthenticationProvider authProvider;
+
+    @Context
+    private HttpServletRequest httpServletRequest;
 
     public BuildRecordEndpoint() {
     }
 
     @Inject
-    public BuildRecordEndpoint(BuildRecordProvider buildRecordProvider, ArtifactProvider artifactProvider) {
+    public BuildRecordEndpoint(BuildRecordProvider buildRecordProvider,
+                               ArtifactProvider artifactProvider,
+                               EndpointAuthenticationProvider authProvider) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.artifactProvider = artifactProvider;
+        this.authProvider = authProvider;
     }
 
     @ApiOperation(value = "Gets all Build Records")
@@ -115,7 +124,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return super.getSpecific(id);
+        return fromSingleton(buildRecordProvider.getSpecificForUser(id, authProvider.getCurrentUser(httpServletRequest)));
     }
 
     @ApiOperation(value = "Gets logs for specific Build Record")

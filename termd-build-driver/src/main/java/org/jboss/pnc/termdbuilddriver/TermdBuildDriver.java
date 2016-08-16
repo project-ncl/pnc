@@ -174,7 +174,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             try {
                 client.executeCommand("/usr/bin/startSshd.sh");
             } catch (TimeoutException | BuildAgentClientException e) {
-                termd.appendToBuildLog("Failed to enable ssh access: " + e.getLocalizedMessage());
                 logger.error("Failed to enable ssh access", e);
             }
         } else {
@@ -222,7 +221,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             } catch (TransferException e) {
                 future.completeExceptionally(new BuildDriverException("Cannot transfer file.", e));
             }
-            stringBuffer.append(termdRunningBuild.getBuildLogFooter());
 
             CompletedBuild completedBuild = new DefaultCompletedBuild(
                     termdRunningBuild.getRunningEnvironment(), getBuildStatus(completionStatus), stringBuffer.toString());

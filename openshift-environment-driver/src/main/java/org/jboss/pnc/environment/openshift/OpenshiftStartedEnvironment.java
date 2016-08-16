@@ -170,8 +170,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
             debugData.setSshServiceInitializer(d -> {
                 Integer port = startSshService();
-                d.setSshPort(port);
-                d.setSshHost(route.getHost());
+                d.setSshCommand("ssh worker@" + route.getHost() + " -p " + port);
             });
         }
     }

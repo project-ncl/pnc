@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
+import org.jboss.pnc.spi.SshCredentials;
+
 import java.util.function.Consumer;
 
 /**
@@ -25,9 +27,8 @@ import java.util.function.Consumer;
  * Time: 11:10 AM
  */
 public class DebugData {
-    private String sshHost;
-    private Integer sshPort;
-    private String sshPassword;
+
+    private SshCredentials sshCredentials = new SshCredentials();
     private boolean debugEnabled = false;
     private Consumer<DebugData> sshServiceInitializer = d -> {
         throw new IllegalStateException("No initializer for ssh service provided");
@@ -38,28 +39,12 @@ public class DebugData {
         this.enableDebugOnFailure = enableDebugOnFailure;
     }
 
-    public String getSshHost() {
-        return sshHost;
-    }
-
-    public void setSshHost(String sshHost) {
-        this.sshHost = sshHost;
-    }
-
-    public Integer getSshPort() {
-        return sshPort;
-    }
-
-    public void setSshPort(Integer sshPort) {
-        this.sshPort = sshPort;
-    }
-
-    public String getSshPassword() {
-        return sshPassword;
+    public void setSshCommand(String sshHost) {
+        this.sshCredentials.setCommand(sshHost);
     }
 
     public void setSshPassword(String password) {
-        this.sshPassword = password;
+        this.sshCredentials.setPassword(password);
     }
 
     public boolean isDebugEnabled() {
@@ -80,5 +65,9 @@ public class DebugData {
 
     public Consumer<DebugData> getSshServiceInitializer() {
         return sshServiceInitializer;
+    }
+
+    public SshCredentials getSshCredentials() {
+        return sshCredentials;
     }
 }

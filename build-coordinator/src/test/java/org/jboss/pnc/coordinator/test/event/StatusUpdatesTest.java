@@ -199,6 +199,6 @@ public class StatusUpdatesTest {
                 return BuildStatus.SUCCESS;
             }
         };
-        return new BuildResult(Optional.empty(), Optional.of(driverResult), Optional.of(repoManagerResult), Optional.empty(), Optional.empty());
+        return new BuildResult(Optional.empty(), Optional.of(driverResult), Optional.of(repoManagerResult), Optional.empty(), Optional.empty(), Optional.empty());
     }
 }

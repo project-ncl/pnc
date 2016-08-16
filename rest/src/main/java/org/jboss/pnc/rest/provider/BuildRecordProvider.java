@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
@@ -52,9 +53,9 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
@@ -186,7 +187,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     @Deprecated
     public Collection<Integer> getAllBuildsInDistributedRecordsetOfProductMilestone(Integer milestoneId) {
         return getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, milestoneId).getContent()
-                .stream().map(buildRecord -> buildRecord.getId()).collect(Collectors.toList());
+                .stream().map(BuildRecordRest::getId).collect(Collectors.toList());
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql,
@@ -196,7 +197,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     @Override
     protected Function<? super BuildRecord, ? extends BuildRecordRest> toRESTModel() {
-        return buildRecord -> new BuildRecordRest(buildRecord);
+        return BuildRecordRest::new;
     }
 
     @Override
@@ -350,4 +351,16 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return buildRecords.stream().map(br -> new BuildRecordRest(br)).collect(Collectors.toList());
     }
 
+    public BuildRecordRest getSpecificForUser(Integer id, User currentUser) {
+        BuildRecord buildRecord = repository.queryById(id);
+        if (buildRecord != null) {
+            // TODO: bring back in
+//            User buildRequester = buildRecord.getUser();
+//            boolean addSshCredentials = buildRequester != null && currentUser.getId().equals(buildRequester.getId());
+            // end TODO
+            boolean addSshCredentials = true;
+            return new BuildRecordRest(buildRecord, addSshCredentials);
+        }
+        return null;
+    }
 }

@@ -22,8 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.StringUtils;
-import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -43,9 +41,9 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,11 +106,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private BuildTriggerer buildTriggerer;
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
-    private Datastore datastore;
-
+    private EndpointAuthenticationProvider authenticationProvider;
     @Context
     private HttpServletRequest httpServletRequest;
-    
+
 
     public BuildConfigurationEndpoint() {
     }
@@ -124,7 +121,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             BuildTriggerer buildTriggerer,
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
-            Datastore datastore) {
+            EndpointAuthenticationProvider authenticationProvider) {
 
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
@@ -132,7 +129,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.buildTriggerer = buildTriggerer;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
-        this.datastore = datastore;
+        this.authenticationProvider = authenticationProvider;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -234,21 +231,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
             @ApiParam(value = "Keep pod alive when the build fails") @QueryParam("keepPodAliveOnFailure") @DefaultValue("false") boolean keepPodAliveOnFailure,
-            @Context UriInfo uriInfo,
-            @Context HttpServletRequest request) throws InvalidEntityException, MalformedURLException, BuildConflictException {
+            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException {
 
-        logger.debug("Endpoint /build requested for buildConfigurationId [{}], by [{}]", id, request.getRemoteAddr());
+        logger.debug("Endpoint /build requested for buildConfigurationId [{}]", id);
 
-        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-        String loggedUser = authProvider.getUserName();
-        User currentUser = null;
-        if(StringUtils.isNotEmpty(loggedUser)) {
-            currentUser = datastore.retrieveUserByUsername(loggedUser);
-        }
-        if(currentUser != null) {
-            currentUser.setLoginToken(authProvider.getTokenString());
-        }
-        else{
+        User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
+        if (currentUser == null) {
             throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
                     + " user must be initialized through /users/getLoggedUser");
         }

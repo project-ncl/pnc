@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -42,6 +41,7 @@ import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -113,10 +113,9 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     
     @Context
     private HttpServletRequest httpServletRequest;
-    
-    @Inject
-    private Datastore datastore;
 
+    private Datastore datastore;
+    private EndpointAuthenticationProvider endpointAuthProvider;
     private BuildConfigurationSetProvider buildConfigurationSetProvider;
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildRecordProvider buildRecordProvider;
@@ -128,14 +127,20 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @Inject
     public BuildConfigurationSetEndpoint(BuildConfigurationSetProvider buildConfigurationSetProvider,
-            BuildTriggerer buildTriggerer, BuildConfigurationProvider buildConfigurationProvider,
-            BuildRecordProvider buildRecordProvider, BuildConfigSetRecordProvider buildConfigSetRecordProvider) {
+                                         BuildTriggerer buildTriggerer,
+                                         BuildConfigurationProvider buildConfigurationProvider,
+                                         BuildRecordProvider buildRecordProvider,
+                                         BuildConfigSetRecordProvider buildConfigSetRecordProvider,
+                                         Datastore datastore,
+                                         EndpointAuthenticationProvider endpointAuthProvider) {
         super(buildConfigurationSetProvider);
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.buildTriggerer = buildTriggerer;
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildRecordProvider = buildRecordProvider;
         this.buildConfigSetRecordProvider = buildConfigSetRecordProvider;
+        this.endpointAuthProvider = endpointAuthProvider;
+        this.datastore = datastore;
     }
 
     @ApiOperation(value = "Gets all Build Configuration Sets")
@@ -296,13 +301,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
         AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
         String loggedUser = authProvider.getUserName();
-        User currentUser = null;
-        if(StringUtils.isNotEmpty(loggedUser)) {
-            currentUser = datastore.retrieveUserByUsername(loggedUser);
-            if(currentUser != null) {
-                currentUser.setLoginToken(authProvider.getTokenString());
-            }
-        }
+        User currentUser = endpointAuthProvider.getCurrentUser(httpServletRequest);
+
         if(currentUser == null) { //TODO remove user creation
             currentUser = User.Builder.newBuilder()
                     .username(loggedUser)
