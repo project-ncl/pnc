@@ -28,9 +28,9 @@
     function ($provide, $resourceProvider) {
 
       /**
-       * Decorate the $resource service to register pagination interceptors with
-       * correct resource actions. This also allows us to grab the resource
-       * constructor so we can pass it to the created page.
+       * Decorates the $resource service so we can transparently wrap paged REST
+       * data in a page object. This must enhance and not break the expected
+       * behaviour of using an ng-resource class.
        */
       $provide.decorator('$resource', function ($delegate) {
         return function (url, paramDefaults, actions, options) {
@@ -38,12 +38,17 @@
 
           var pagedActions = [];
 
+          // ng-resource defines a number of default actions (query, get, save) and
+          // users can create more default actions. We look for these first as we'll
+          // have to override them in order to decorate them.
           Object.keys($resourceProvider.defaults.actions).forEach(function (key) {
             if (!actions.hasOwnProperty(key)) {
               actions[key] = $resourceProvider.defaults.actions[key];
             }
           });
 
+          // Now we add the resource specific actions to the list. And define an
+          // an interceptor.
           Object.keys(actions).forEach(function (key) {
             var action = actions[key];
             var delegateInterceptor;
@@ -51,11 +56,18 @@
             if(action.isPaged) {
               pagedActions.push(key);
 
-              // If the dev provided an interceptor save it so we can apply it after ours.
               if (action.interceptor && angular.isFunction(action.interceptor.response)) {
                 delegateInterceptor = action.interceptor.response;
               }
 
+              // For some reason the ng-resource actions don't resolve the promise with
+              // the fetched data. We add an interceptor that does that, this allows us
+              // to decorate the individual actions to wrap the REST response in a
+              // page object.
+              //
+              // As only one interceptor can be defined we need to check if the user
+              // has already provided one and, if so, call it before ours so as not
+              // to break this functionality.
               action.interceptor = action.interceptor || {};
               action.interceptor.response = function (response) {
                 if (delegateInterceptor) {
@@ -66,9 +78,12 @@
             }
           });
 
+          // Create the resource class so we can decorate it before transparently
+          // returning it to the user.
           Resource = $delegate(url, paramDefaults, actions, options);
 
-          // Decorate the paged action methods
+          // Decorate the paged action methods, so that any paged resources
+          // are wrapped in a page object.
           pagedActions.forEach(function(action) {
             var delegate = Resource[action];
 
@@ -83,8 +98,17 @@
 
               p.$resolved = false;
 
+              // Attach the promise to the "$promise" property of the page, to
+              // match ng-resource's api.
+              // When the request completes we fill the page object with the data,
+              // again to match ng-resource's api so the user doesn't have
+              // to unwrap the promise manually.
               p.$promise = response.$promise.then(function(response) {
                 var content = response.data.content || [];
+
+                // As our interceptor has "stolen" the data from ng-resource we
+                // have to do its job for it of converting each of the items into
+                // a resource class object.
                 for (var i = 0; i < content.length; i++) {
                   content[i] = new Resource(content[i]);
                 }
@@ -97,6 +121,8 @@
                 p.$resolved = true;
               });
 
+              // Return the page, it'll be empty when the user gets it, matching
+              // the ng-resource libraries functionality.
               return p;
 
             };
