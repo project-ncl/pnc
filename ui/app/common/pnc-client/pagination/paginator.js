@@ -33,22 +33,20 @@
    * @author Alex Creasy
    */
   module.factory('paginator', [
-    '$log',
-    'page',
-    function ($log, $page) {
+    function () {
 
       function paginator(page) {
-        var delegate = page; //
+        var delegate = page;
 
         // The paginator inherits all of the page prototype methods,
         // making the paginator a page in itself.
         // The fetch method is overridden so that any actions
         // replace the proxied page object, rather than retuning it
         // to the user.
-        var that = Object.create(Object.getPrototypeOf($page()), {
-          // All of the paginators properties are proxied to
-          // the delegate page. However, as no setters are defined
-          // the properties cannot be altered.
+        // All of the paginators properties are proxied to
+        // the delegate page. However, as no setters are defined
+        // the properties cannot be altered.
+        var that = Object.create(Object.getPrototypeOf(page), {
           data: {
             get: function () {
               return delegate.data;

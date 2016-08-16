@@ -20,7 +20,7 @@
 
   var module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('BUILD_RECORD_ENDPOINT2', '/build-records/:id');
+  module.value('BUILD_RECORD_PATH', '/build-records/:id');
 
   /**
    *
@@ -28,13 +28,19 @@
   module.factory('BuildRecord', [
     '$resource',
     'restConfig',
-    'BUILD_RECORD_ENDPOINT2',
-    function($resource, restConfig, BUILD_RECORD_ENDPOINT2) {
-      var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_ENDPOINT2;
+    'BUILD_RECORD_PATH',
+    'rsqlQuery',
+    function($resource, restConfig, BUILD_RECORD_PATH, rsqlQuery) {
+      var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PATH;
 
       var resource = $resource(ENDPOINT, {
-        id: '@id',
+        id: '@id'
       }, {
+        query: {
+          method: 'GET',
+          isPaged: true,
+          url: ENDPOINT
+        },
         getArtifacts: {
           isPaged: true,
           method: 'GET',
@@ -43,14 +49,24 @@
         getDependencyArtifacts: {
           isPaged: true,
           method: 'GET',
-          url: ENDPOINT + '/dependency-artifacts' //+ qh.searchOnly(['identifier', 'filename', 'checksum'])
+          url: ENDPOINT + '/dependency-artifacts'
         },
         getBuiltArtifacts: {
           isPaged: true,
           method: 'GET',
-          url: ENDPOINT + '/built-artifacts', //+ qh.searchOnly(['identifier', 'filename', 'checksum'])
+          url: ENDPOINT + '/built-artifacts'
         },
       });
+
+      /**
+       * Gets all records with the given user id.
+       *
+       * @example
+       * var records = BuildRecord.queryWithUserId({ userId: 4 });
+       */
+      resource.queryWithUserId = function (params) {
+        return resource.query({ q: rsqlQuery().where('user.id').eq(params.userId).end() });
+      };
 
       return resource;
     }
