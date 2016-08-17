@@ -62,6 +62,7 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
         this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
         this.exception = buildResultRest.getException();
         this.failedReasonStatus = buildResultRest.getFailedReasonStatus();
+        this.sshCredentials = buildResultRest.getSshCredentials();
     }
 
     public BuildResultRest(BuildResult buildResult) {
