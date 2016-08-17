@@ -29,10 +29,10 @@ import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ArtifactPage;
+import org.jboss.pnc.rest.swagger.response.AttributeSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
-import org.jboss.pnc.rest.swagger.response.AttributeSingleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 
 import javax.inject.Inject;
@@ -343,7 +343,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Path("/{id}/completed-or-running")
     public Response getCompletedOrRunnning(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
 
-        Response resp = super.getSpecific(id);
+        Response resp = getSpecific(id);
         if (resp.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
           resp = fromSingleton(buildRecordProvider.getSpecificRunning(id));
         }
