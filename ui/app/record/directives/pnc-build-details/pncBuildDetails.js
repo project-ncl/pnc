@@ -47,8 +47,8 @@
 
           self.record = $scope.pncBuildRecord;
 
-          self.update = function (record) {
-            self.record = record;
+          self.refresh = function () {
+            self.record.$get();
           };
         }
       ]
