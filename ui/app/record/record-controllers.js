@@ -39,11 +39,6 @@
     }
   ]);
 
-  module.controller('RecordInfoController', [
-    function () {
-    }
-  ]);
-
   module.controller('RecordResultController', [
     'buildLog',
     'REST_BASE_URL',

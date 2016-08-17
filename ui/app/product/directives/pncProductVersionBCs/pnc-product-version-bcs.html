@@ -42,7 +42,7 @@
     <td>
       <div ng-repeat="buildRecord in latestBuildRecords[configuration.id]">
         <build-status-icon status="buildRecord.status"></build-status-icon>
-        <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
+        <span><a href ui-sref="record.detail.default({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
         {{ buildRecord.endTime | date:'medium'}},
         <span class="text-bold">   {{ buildRecord.username }}</span>
       </div>
