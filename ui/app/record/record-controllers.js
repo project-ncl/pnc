@@ -51,6 +51,15 @@
       this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/log';
       this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
       this.log = buildLog.payload;
+
+      this.sshCredentialsBtn = {
+        clicked: false
+      };
+
+      this.sshCredentials = {
+        command:  recordDetail.sshCredentials ? recordDetail.sshCredentials.command  : null,
+        password: recordDetail.sshCredentials ? recordDetail.sshCredentials.password : null
+      };
     }
   ]);
 

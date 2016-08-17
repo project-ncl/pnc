@@ -19,6 +19,38 @@
 -->
 <div class="push-down">
 
+  <div class="pull-left">
+
+    <!-- popover template -->
+    <script type="text/ng-template" id="popoverTemplate.html">
+      <table class="nowrap">
+        <tbody>
+          <tr>
+            <td class="text-right p-r-10"><strong>command:</strong></td>
+            <td>{{ resultCtrl.sshCredentials.command }}</td>
+          </tr>
+          <tr>
+            <td class="text-right p-r-10"><strong>password:</strong></td>
+            <td>{{ resultCtrl.sshCredentials.password }}</td>
+          </tr>
+        </tbody>
+      </table>     
+    </script>
+
+    <button 
+      uib-popover-template="'popoverTemplate.html'" 
+      popover-title="SSH credentials" 
+      type="button" 
+      class="btn btn-default btn-sm"
+      popover-placement="right"
+      ng-show="resultCtrl.sshCredentials.command"
+      ng-click="resultCtrl.sshCredentialsBtn.clicked = !resultCtrl.sshCredentialsBtn.clicked">
+        <span ng-hide="resultCtrl.sshCredentialsBtn.clicked">Show</span>
+        <span ng-show="resultCtrl.sshCredentialsBtn.clicked">Hide</span>
+        SSH credentials
+    </button>
+  </div>
+
   <div class="text-right">
     <a class="btn btn-default btn-xs" href="{{resultCtrl.logUrl}}" target="_blank" title="View log as a plain text">View</a>
     <a class="btn btn-primary btn-xs" href="{{resultCtrl.logUrl}}" target="_blank" title="Download log as a plain text" download="{{resultCtrl.logFileName}}">Download</a>
