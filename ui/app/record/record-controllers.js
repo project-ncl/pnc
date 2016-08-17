@@ -15,24 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.record');
 
   module.controller('RecordDetailController', [
     '$scope',
     '$state',
+    '$log',
     'eventTypes',
     'recordDetail',
-    'configurationDetail',
-    function($scope, $state, eventTypes, recordDetail, configurationDetail) {
+    function($scope, $state, $log, eventTypes, recordDetail) {
       this.record = recordDetail;
-      this.configuration = configurationDetail;
 
-      $scope.$on(eventTypes.BUILD_FINISHED, function() {
-        $state.go($state.current, {}, {reload: true});
+      $log.debug('Fetched BuildRecord:\n' + JSON.stringify(recordDetail, null, 4));
+
+      $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
+        if (recordDetail.id === payload.id) {
+          recordDetail.$get();
+        }
       });
     }
   ]);

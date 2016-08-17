@@ -93,7 +93,7 @@
             notifyWaiting();
 
             interval = $interval(function() {
-              $scope.pncBuildRecord.$getCompletedOrRunning().then(function(buildRecord) {
+              $scope.pncBuildRecord.$get().then(function(buildRecord) {
 
                 if (!_.isEmpty(buildRecord.liveLogsUri)) {
                   connect(createWsUri(buildRecord.liveLogsUri));
