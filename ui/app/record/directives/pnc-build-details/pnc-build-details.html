@@ -18,35 +18,33 @@
 
 -->
 <div style="min-height: 239px !important;">
-  <div class="spinner spinner-sm" ng-hide="ctrl.isLoaded()"></div>
-  <dl class="dl-horizontal" ng-show="ctrl.isLoaded()">
-    <dt>Description:</dt>
-    <dd>{{ ctrl.configuration.description || '&mdash;' }}</dd>
-    <dt>Project:</dt>
-    <dd><a href ui-sref="project.detail({ projectId: ctrl.project.id })">{{ ctrl.project.name || '&mdash;' }}</a></dd>
+  <dl class="dl-horizontal">
+    <dt>Job Id:</dt>
+    <dd>{{ ctrl.record.id }}</dd>
+    <dt>Status:</dt>
+    <dd ng-class="ctrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ ctrl.record.status }}</dd>
     <dt>Build Config:</dt>
-    <dd><a href ui-sref="configuration.detail.show({ configurationId: ctrl.configuration.id })">{{ ctrl.configuration.name || '&mdash;' }}</a></dd>
-    <dt>User:</dt>
-    <dd>{{ ctrl.user.username || '&mdash;' }}</dd>
+    <dd><a href ui-sref="configuration.detail.show({ configurationId: ctrl.record.buildConfigurationId })">{{ ctrl.record.buildConfigurationName || '&mdash;' }}</a></dd>
+    <dt>Started By:</dt>
+    <dd>{{ ctrl.record.username || '&mdash;' }}</dd>
     <dt ng-show="ctrl.record.submitTime">Submitted:</dt>
     <dd ng-show="ctrl.record.submitTime">{{ (ctrl.record.submitTime | date : 'medium') }}</dd>
     <dt ng-show="ctrl.record.startTime">Started:</dt>
     <dd ng-show="ctrl.record.startTime">{{ (ctrl.record.startTime | date : 'medium') }}</dd>
     <dt ng-show="ctrl.record.endTime">Finished:</dt>
     <dd ng-show="ctrl.record.endTime">{{ (ctrl.record.endTime | date : 'medium') }}</dd>
-    <dt>Result:</dt>
-    <dd ng-class="ctrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ ctrl.record.status }}</dd>
+
     <dt>Origin SCM Repo:</dt>
-    <dd><a ng-href="{{ ctrl.configuration.scmRepoURL }}">{{ ctrl.configuration.scmRepoURL || '&mdash;' }}</a></dd>
+    <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmRepoURL }}">{{ ctrl.record.buildConfigurationAudited.scmRepoURL || '&mdash;' }}</a></dd>
     <dt>Origin SCM Revision:</dt>
-    <dd>{{ ctrl.configuration.scmRevision || '&mdash;'}}</dd>
+    <dd>{{ ctrl.record.buildConfigurationAudited.scmRevision || '&mdash;'}}</dd>
     <dt>Cloned SCM Repo:</dt>
-    <dd><a ng-href="{{ ctrl.record.scmRepoURL  }}">{{ ctrl.record.scmRepoURL || '&mdash;' }}</a></dd>
+    <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmRepoURL  }}">{{ ctrl.record.scmRepoURL || '&mdash;' }}</a></dd>
     <dt title="The SCM revision after automated source updates">Cloned SCM Revision:</dt>
     <dd>{{ ctrl.record.scmRevision || '&mdash;'}}</dd>
     <dt>Environment:</dt>
-    <dd>{{ ctrl.environment.name || '&mdash;' }}</dd>
+    <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
     <dt>Script:</dt>
-    <dd><pre class="pre-scrollable">{{ ctrl.configuration.buildScript || '&mdash;' }}</pre></dd>
+    <dd><pre class="pre-scrollable">{{ ctrl.record.buildConfigurationAudited.buildScript || '&mdash;' }}</pre></dd>
   </dl>
 </div>
