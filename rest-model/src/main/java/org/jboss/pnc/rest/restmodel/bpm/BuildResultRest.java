@@ -140,6 +140,14 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
         this.failedReasonStatus = failedReasonStatus;
     }
 
+    public SshCredentials getSshCredentials() {
+        return sshCredentials;
+    }
+
+    public void setSshCredentials(SshCredentials sshCredentials) {
+        this.sshCredentials = sshCredentials;
+    }
+
     @Override
     public String getEventType() {
         return "BUILD_COMPLETE";

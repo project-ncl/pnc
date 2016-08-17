@@ -159,7 +159,9 @@ public class BpmManager {
     public synchronized void cleanup() {
         Set<Integer> toBeRemoved = tasks.values().stream()
                 .filter(t -> {
+                    log.debug("attempting to fetch process instance from bpm");
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
+                    log.debug("fetched: {}", processInstance);
                     if (processInstance == null) // instance has been terminated from outside
                         return true;
                     int state = processInstance.getState();

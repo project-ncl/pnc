@@ -60,7 +60,7 @@ public class BpmNotifier { //TODO rename: remove bpm for name
 
     @Inject
     public BpmNotifier(Configuration configuration) throws ConfigurationParseException {
-        bpmConfig = configuration.getModuleConfig(new PncConfigProvider<BpmModuleConfig>(BpmModuleConfig.class));
+        bpmConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
     }
 
     public void sendBuildExecutionCompleted(String uri, BuildResult buildResult) {
