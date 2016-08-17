@@ -150,3 +150,22 @@ form .editable-wrap {
   font-size: 9px;
   margin-left: 5px;
 }
+
+
+/* dl-horizontal */
+.dl-horizontal dt {
+  padding-top: 20px;
+}
+
+.dl-horizontal dt, .dl-horizontal dd {
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .dl-horizontal dt {
+    padding-top: 1px;
+  }
+  .dl-horizontal dt, .dl-horizontal dd {
+    line-height: 3;
+  }
+}

@@ -46,5 +46,11 @@
     <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
     <dt>Script:</dt>
     <dd><pre class="pre-scrollable">{{ ctrl.record.buildConfigurationAudited.buildScript || '&mdash;' }}</pre></dd>
+
+    <!-- attributes -->
+    <dt ng-repeat-start="(key, value) in ctrl.record.attributes">{{key}}</dt>
+    <dd ng-repeat-end>{{value}}</dd>
+    <!-- attributes -->
+
   </dl>
 </div>
