@@ -55,14 +55,17 @@
         },
         _getArtifacts: {
           method: 'GET',
+          cache: true,
           url: ENDPOINT + '/artifacts'
         },
         _getDependencyArtifacts: {
           method: 'GET',
+          cache: true,
           url: ENDPOINT + '/dependency-artifacts' + qh.searchOnly(['identifier', 'filename', 'checksum'])
         },
         _getBuiltArtifacts: {
           method: 'GET',
+          cache: true,
           url: ENDPOINT + '/built-artifacts' + qh.searchOnly(['identifier', 'filename', 'checksum'])
         },
         _getByConfiguration: {
