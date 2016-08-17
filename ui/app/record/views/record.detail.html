@@ -19,7 +19,7 @@
 -->
 <div class="row">
   <div class="col-md-12">
-    <div class="page-header">
+    <div>
       <h1>
         <build-status-icon status="recordCtrl.record.status"></build-status-icon>
         Build #{{ recordCtrl.record.id }} of {{ recordCtrl.record.buildConfigurationName }}
@@ -35,7 +35,7 @@
         <a href ui-sref="record.detail.result">Log</a>
       </li>
       <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
-        <a href ui-sref="record.detail.output">Output</a>
+        <a href ui-sref="record.detail.output">Artifacts</a>
       </li>
       <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
         <a href ui-sref="record.detail.dependencies">Dependencies</a>
