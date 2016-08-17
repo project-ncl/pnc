@@ -17,6 +17,11 @@
     limitations under the License.
 
 -->
+<pf-inline-notification pf-notification-type="formNotification.type"
+                        pf-notification-header="formNotification.header"
+                        pf-notification-message="formNotification.message"
+                        pf-notification-persistent="formNotification.isPersistent">
+</pf-inline-notification>
 <form class="form-horizontal" name="configurationForm" ng-submit="submit(configurationForm)" novalidate>
 
     <div class="panel panel-default" ng-show="isProjectSelectable()">
@@ -73,6 +78,18 @@
             <span class="help-block" ng-show="configurationForm.scmRevision.$error.required && configurationForm.scmRevision.$touched">Required field.</span>
           </div>
         </div>
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="input-scm-is-intenal" name="scmIsInternal" value="true" ng-model="data.scmIsInternal">
+                This repository is internal and does not have to be cloned
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group" ng-class="{ 'has-error': (configurationForm.buildScript.$invalid || configurationForm.buildScript.$error.invalidBuildScript) 
           && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
           <label for="input-build-script" class="col-sm-2 control-label">* Build Script</label>
