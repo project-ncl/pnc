@@ -21,6 +21,7 @@
   var module = angular.module('pnc.common.pnc-client.resources');
 
   module.value('BUILD_RECORD_PATH', '/build-records/:id');
+  module.value('BUILDS_PATH', '/builds/:id');
 
   /**
    *
@@ -29,16 +30,38 @@
     '$resource',
     'restConfig',
     'BUILD_RECORD_PATH',
+    'BUILDS_PATH',
     'rsqlQuery',
-    function($resource, restConfig, BUILD_RECORD_PATH, rsqlQuery) {
+    function($resource, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, rsqlQuery) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PATH;
+      var BUILDS_ENDPOINT = restConfig.getPncUrl() + BUILDS_PATH;
+
 
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
+        /**
+         * Gets all running and completed BuildRecords
+         */
         query: {
           method: 'GET',
           isPaged: true,
+          url: BUILDS_ENDPOINT
+        },
+        /**
+         * Gets running or completed BuildRecord by id.
+         */
+        get: {
+          method: 'GET',
+          url: BUILDS_ENDPOINT
+        },
+        queryCompleted: {
+          method: 'GET',
+          isPaged: true,
+          url: ENDPOINT,
+        },
+        getCompleted: {
+          method: 'GET',
           url: ENDPOINT
         },
         getArtifacts: {

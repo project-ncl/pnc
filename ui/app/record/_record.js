@@ -58,15 +58,8 @@
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
         resolve: {
-          recordDetail: function (BuildRecordDAO, $stateParams) {
-            return BuildRecordDAO.getCompletedOrRunning({
-              recordId: $stateParams.recordId
-            }).$promise;
-          },
-          configurationDetail: function (BuildConfigurationDAO, recordDetail) {
-            return BuildConfigurationDAO.get({
-              configurationId: recordDetail.buildConfigurationId
-            }).$promise;
+          recordDetail: function (BuildRecord, $stateParams) {
+            return BuildRecord.get({ id: $stateParams.recordId }).$promise;
           }
         }
       });
