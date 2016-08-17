@@ -97,6 +97,13 @@ public class DatastoreAdapter {
 
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
 
+            buildResult.getSshCredentials().ifPresent(
+                    c -> {
+                        buildRecordBuilder.sshCommand(c.getCommand());
+                        buildRecordBuilder.sshPassword(c.getPassword());
+                    }
+            );
+
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
                 buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
@@ -155,12 +162,12 @@ public class DatastoreAdapter {
     }
 
     /**
-     * Store build result allong with error information appended to the build log
+     * Store build result along with error information appended to the build log
      *
-     * @param buildTask
-     * @param buildResult
+     * @param buildTask task
+     * @param buildResult result of running the task
      * @param e The error that occurred during the build process
-     * @throws DatastoreException
+     * @throws DatastoreException on failure to store data
      */
     public void storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);

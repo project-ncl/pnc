@@ -19,18 +19,32 @@ package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
-import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.spi.SshCredentials;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
+import javax.ws.rs.core.Response;
+
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,46 +55,117 @@ import static org.mockito.Mockito.when;
  */
 public class BuildRecordEndpointTest {
 
+    private static final int CURRENT_USER = randInt(1000, 100000);
+
+    @Mock
+    private BuildExecutor buildExecutor;
+    @Mock
+    private BuildRecordRepository buildRecordRepository;
+    @Mock
+    private Datastore datastore;
+    @Mock
+    private EndpointAuthenticationProvider authProvider;
+    @InjectMocks
+    private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();  //new BuildRecordProvider(buildRecordRepository, null, null, null, null, buildExecutor);
+    private BuildRecordEndpoint endpoint;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        endpoint = new BuildRecordEndpoint(buildRecordProvider, null, authProvider);
+
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(CURRENT_USER);
+        when(authProvider.getCurrentUser(any())).thenReturn(user);
+    }
+
     @Test
-    public void getLogsNoContentTest() {
+    public void shouldGetLogsNoContent() {
         // given
         int logId = 1;
         String logContent = "";
 
         // when
-        BuildRecordEndpoint buildRecordEndpoint = getLogsPrepareEndpoint(logId, logContent);
+        endpointReturnsLog(logId, logContent);
 
         // then
-        assertEquals(204, buildRecordEndpoint.getLogs(logId).getStatus());
+        assertThat(endpoint.getLogs(logId).getStatus()).isEqualTo(204);
     }
 
     @Test
-    public void getLogsWithContentTest() {
+    public void shouldGetLogsWithContent() {
         // given
         int logId = 1;
         String logContent = "LOG CONTENT";
         
         // when
-        BuildRecordEndpoint buildRecordEndpoint = getLogsPrepareEndpoint(logId, logContent);
+        endpointReturnsLog(logId, logContent);
 
         // then
-        assertEquals(200, buildRecordEndpoint.getLogs(logId).getStatus());
+        assertThat(endpoint.getLogs(logId).getStatus()).isEqualTo(200);
     }
 
-    private BuildRecordEndpoint getLogsPrepareEndpoint(int logId, String logContent) {
-        BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
-        BuildExecutor buildExecutor = mockBuildExecutor(5684, 4538);
-        BuildRecordProvider buildRecordProvider = new BuildRecordProvider(buildRecordRepository, null, null, null, null, buildExecutor);
-        BuildRecordEndpoint buildRecordEndpoint = new BuildRecordEndpoint(buildRecordProvider, null);
+    @Test
+    public void shouldReturnSshCredentialsForBuildRequester() {
+        //given
+        int buildRecordId = randInt(10000, 20000);
+        String sshCommand = randomAlphabetic(20);
+        String sshPassword = randomAlphabetic(20);
+        prepareEndpointForKeepPodAlive(buildRecordId, CURRENT_USER, sshCommand, sshPassword);
+
+        // when
+        BuildRecordRest record = getBuildRecord(buildRecordId);
+
+        // then
+        SshCredentials sshCredentials = record.getSshCredentials();
+        assertThat(sshCredentials).isNotNull();
+        assertThat(sshCredentials.getCommand()).isEqualTo(sshCommand);
+        assertThat(sshCredentials.getPassword()).isEqualTo(sshPassword);
+    }
+
+    @Test
+    public void shouldNotReturnSshCredentialsForOtherUsers() {
+        //given
+        int buildRecordId = randInt(10000, 20000);
+        String sshCommand = randomAlphabetic(20);
+        String sshPassword = randomAlphabetic(20);
+        prepareEndpointForKeepPodAlive(buildRecordId, CURRENT_USER + 1, sshCommand, sshPassword);
+
+        // when
+        BuildRecordRest record = getBuildRecord(buildRecordId);
+
+        // then
+        assertThat(record.getSshCredentials()).isNull();
+    }
+
+    private BuildRecordRest getBuildRecord(int buildRecordId) {
+        Response response = endpoint.getSpecific(buildRecordId);
+        assertThat(response.getStatus()).isEqualTo(200);
+        Singleton<BuildRecordRest> wrappedRecord = (Singleton<BuildRecordRest>) response.getEntity();
+        return wrappedRecord.getContent();
+    }
+
+    private void prepareEndpointForKeepPodAlive(int buildRecordId, int buildRequesterId, String sshCommand, String sshPassword) {
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(buildRequesterId);
+
+        BuildRecord record = mock(BuildRecord.class);
+        when(record.getSshCommand()).thenReturn(sshCommand);
+        when(record.getSshPassword()).thenReturn(sshPassword);
+        when(record.getUser()).thenReturn(user);
+
+        when(buildRecordRepository.queryById(eq(buildRecordId))).thenReturn(record);
+    }
+
+    private void endpointReturnsLog(int logId, String logContent) {
+        configureBuildExecutorMock(5684);
         BuildRecord buildRecord = mock(BuildRecord.class);
 
-        Mockito.when(buildRecord.getBuildLog()).thenReturn(logContent);
-        Mockito.when(buildRecordRepository.findByIdFetchAllProperties(logId)).thenReturn(buildRecord);
-        return buildRecordEndpoint;
+        when(buildRecord.getBuildLog()).thenReturn(logContent);
+        when(buildRecordRepository.findByIdFetchAllProperties(logId)).thenReturn(buildRecord);
     }
 
-    private BuildExecutor mockBuildExecutor(int buildExecutionTaskId, int buildTaskId) {
-        BuildExecutor buildExecutor = mock(DefaultBuildExecutor.class);
+    private void configureBuildExecutorMock(int buildExecutionTaskId) {
 
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 buildExecutionTaskId,
@@ -99,7 +184,6 @@ public class BuildRecordEndpointTest {
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);
-        return buildExecutor;
     }
 
 }

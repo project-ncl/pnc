@@ -34,18 +34,20 @@ public class BuildResult {
     private final Optional<RepositoryManagerResult> repositoryManagerResult;
     private final Optional<ExecutorException> executorException;
     private final Optional<BuildExecutionStatus> failedReasonStatus;
+    private final Optional<SshCredentials> sshCredentials;
 
-    public BuildResult(
-                       Optional<BuildExecutionConfiguration> generatedBuildConfig,
+    public BuildResult(Optional<BuildExecutionConfiguration> generatedBuildConfig,
                        Optional<BuildDriverResult> buildDriverResult,
                        Optional<RepositoryManagerResult> repositoryManagerResult,
                        Optional<ExecutorException> executorException,
-                       Optional<BuildExecutionStatus> failedReasonStatus) {
+                       Optional<BuildExecutionStatus> failedReasonStatus,
+                       Optional<SshCredentials> sshCredentials) {
         this.buildExecutionConfiguration = generatedBuildConfig;
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
         this.executorException = executorException;
         this.failedReasonStatus = failedReasonStatus;
+        this.sshCredentials = sshCredentials;
     }
 
     public Optional<BuildExecutionConfiguration> getBuildExecutionConfiguration() {
@@ -73,5 +75,9 @@ public class BuildResult {
 
     public Optional<BuildExecutionStatus> getFailedReasonStatus() {
         return failedReasonStatus;
+    }
+
+    public Optional<SshCredentials> getSshCredentials() {
+        return sshCredentials;
     }
 }

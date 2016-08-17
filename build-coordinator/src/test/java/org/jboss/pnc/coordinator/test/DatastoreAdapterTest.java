@@ -110,6 +110,7 @@ public class DatastoreAdapterTest {
                 Optional.of(buildDriverResult),
                 Optional.of(repositoryManagerResult),
                 Optional.empty(),
+                Optional.empty(),
                 Optional.empty()
         );
 

@@ -20,7 +20,9 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -114,17 +116,41 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     }
 
     private BuildResult getBuildResult() {
+        Optional<SshCredentials> sshCredentials = Optional.empty();
+        DebugData debugData = getRunningEnvironment() != null ? getRunningEnvironment().getDebugData() : null;
+        if (debugData != null && debugData.isDebugEnabled()) {
+            sshCredentials = Optional.of(getRunningEnvironment().getDebugData().getSshCredentials());
+        }
+
         if (executorException == null) {
             if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
+                return new BuildResult(
+                        Optional.ofNullable(buildExecutionConfiguration),
+                        Optional.ofNullable(buildDriverResult),
+                        Optional.ofNullable(repositoryManagerResult),
+                        Optional.empty(),
+                        Optional.empty(),
+                        sshCredentials);
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
+                return new BuildResult(
+                        Optional.ofNullable(buildExecutionConfiguration),
+                        Optional.ofNullable(buildDriverResult),
+                        Optional.ofNullable(repositoryManagerResult),
+                        Optional.empty(),
+                        Optional.of(failedReasonStatus),
+                        sshCredentials);
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.ofNullable(failedReasonStatus));
+            return new BuildResult(
+                    Optional.ofNullable(buildExecutionConfiguration),
+                    Optional.ofNullable(buildDriverResult),
+                    Optional.ofNullable(repositoryManagerResult),
+                    Optional.of(executorException),
+                    Optional.ofNullable(failedReasonStatus),
+                    sshCredentials);
         }
     }
 

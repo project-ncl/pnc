@@ -32,6 +32,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -74,6 +75,7 @@ public class BuildRecordRestTest extends AbstractTest {
         restWar.addClass(BuildRecordProvider.class);
         restWar.addClass(BuildRecordEndpoint.class);
         restWar.addClass(BuildRecordRest.class);
+        restWar.addClass(EndpointAuthenticationProvider.class);
 
         logger.info(enterpriseArchive.toString(true));
         logger.info("REST WAR: " + restWar.toString(true));

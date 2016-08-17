@@ -17,14 +17,38 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -131,6 +155,14 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Enumerated(value = EnumType.STRING)
     private BuildStatus status;
+
+    @Getter
+    @Setter
+    private String sshCommand;
+
+    @Getter
+    @Setter
+    private String sshPassword;
 
     private boolean tested;
 
@@ -510,6 +542,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildConfigSetRecord buildConfigSetRecord;
 
+        private String sshCommand;
+
+        private String sshPassword;
+
         private Map<String, String> attributes = new HashMap<>();
 
         public Builder() {
@@ -538,6 +574,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setProductMilestone(productMilestone);
             buildRecord.setAttributes(attributes);
+            buildRecord.setSshCommand(sshCommand);
+            buildRecord.setSshPassword(sshPassword);
 
             if (buildConfigSetRecord != null) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
@@ -670,6 +708,16 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public BuildRecord.Builder attributes(Map<String, String> attributes) {
             this.attributes = attributes;
+            return this;
+        }
+
+        public BuildRecord.Builder sshCommand(String sshCommand) {
+            this.sshCommand = sshCommand;
+            return this;
+        }
+
+        public BuildRecord.Builder sshPassword(String sshPassword) {
+            this.sshPassword = sshPassword;
             return this;
         }
 
