@@ -18,9 +18,13 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.
@@ -28,4 +32,6 @@ import java.util.Collection;
 public interface BuildRecordRepository extends Repository<BuildRecord, Integer> {
 
     BuildRecord findByIdFetchAllProperties(Integer id);
+
+    List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates);
 }

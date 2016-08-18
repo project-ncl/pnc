@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories.internal;
 
+import org.jboss.pnc.datastore.limits.CursoredPageRequest;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
@@ -28,6 +29,10 @@ public class PageableMapper {
 
     public static PageRequest map(PageInfo pageInfo, SortInfo sortInfo) {
         return new PageRequest(getPageOffset(pageInfo), getPageSize(pageInfo), getSort(sortInfo));
+    }
+
+    public static CursoredPageRequest mapCursored(PageInfo pageInfo, SortInfo sortInfo) {
+        return new CursoredPageRequest(getPageOffset(pageInfo), getPageSize(pageInfo), getSort(sortInfo));
     }
 
     private static Sort getSort(SortInfo sortInfo) {
