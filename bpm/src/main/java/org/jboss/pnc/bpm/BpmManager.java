@@ -153,11 +153,20 @@ public class BpmManager {
         }
 
         log.info("finished notifying for taskId: {}", taskId);
-        cleanup();
     }
 
-    public synchronized void cleanup() {
-        Set<Integer> toBeRemoved = tasks.values().stream()
+    /**
+     * Regularly cleans finished BPM tasks asynchronously
+     * Immediate cleanup is not usable because of NCL-2300
+     */
+    public void cleanup() {
+        log.debug("Bpm manager tasks cleanup started");
+        Map<Integer, BpmTask> clonnedTasks = null;
+        synchronized(this.tasks) {
+            clonnedTasks = new HashMap<>(this.tasks);
+        }
+        
+        Set<Integer> toBeRemoved = clonnedTasks.values().stream()
                 .filter(t -> {
                     log.debug("attempting to fetch process instance from bpm");
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
@@ -170,7 +179,8 @@ public class BpmManager {
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
         toBeRemoved.forEach(id -> tasks.remove(id));
-        log.debug("finished bpm manager cleanup");
+        
+        log.debug("Bpm manager tasks cleanup finished");
     }
 
     /**
@@ -190,7 +200,6 @@ public class BpmManager {
     }
 
     public synchronized Collection<BpmTask> getActiveTasks() {
-        cleanup();
         return Collections.unmodifiableCollection(new HashSet<>(tasks.values()));
     }
 }
