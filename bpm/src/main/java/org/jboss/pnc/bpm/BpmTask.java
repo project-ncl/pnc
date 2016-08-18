@@ -133,6 +133,10 @@ public abstract class BpmTask implements Comparable<BpmTask> {
 
     /* package */ <T extends BpmNotificationRest> void notify(BpmEventType<T> eventType, T data) {
         List<Consumer<?>> listeners = this.listeners.get(eventType);
+        if(listeners == null) {
+            listeners = new ArrayList<>();
+            this.listeners.put(eventType, listeners);
+        }
         log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners);
         listeners.forEach(c -> {
             // Cast is OK because there is no unchecked method declaration to put wrong types
@@ -159,6 +163,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         }
 
         actualParameters.put("pncBaseUrl", config.getPncBaseUrl());
+        actualParameters.put("repourBaseUrl", config.getRepourBaseUrl());
         actualParameters.put("taskId", taskId);
         return actualParameters;
     }

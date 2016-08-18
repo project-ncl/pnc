@@ -126,11 +126,11 @@ public class BpmEndpoint extends AbstractEndpoint {
         LOG.debug("Received request to start BC creation: " + taskData);
 
         BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData);
-        task.addListener(BpmEventType.BUILD_CONFIGURATION_CREATION_SUCCESS, x -> {
-            LOG.debug("Received BPM event BUILD_CONFIGURATION_CREATION_SUCCESS: " + x);
+        task.addListener(BpmEventType.BCC_CREATION_SUCCESS, x -> {
+            LOG.debug("Received BPM event BCC_CREATION_SUCCESS: " + x);
         });
-        task.addListener(BpmEventType.BUILD_CONFIGURATION_CREATION_ERROR, x -> {
-            LOG.debug("Received BPM event BUILD_CONFIGURATION_CREATION_ERROR: " + x);
+        task.addListener(BpmEventType.BCC_CREATION_ERROR, x -> {
+            LOG.debug("Received BPM event BCC_CREATION_ERROR: " + x);
         });
         try {
             bpmManager.startTask(task);
