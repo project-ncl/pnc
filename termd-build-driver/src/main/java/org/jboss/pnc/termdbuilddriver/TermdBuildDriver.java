@@ -25,6 +25,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -72,18 +73,18 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     @Inject
     public TermdBuildDriver(Configuration configuration) {
-        int executorThreadPoolSize = 12; //TODO configurable
+        int threadPoolSize = 12; //TODO configurable
         try {
             String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
                     .getBuilderThreadPoolSize();
             if (executorThreadPoolSizeStr != null) {
-                executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
+                threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
             }
         } catch (ConfigurationParseException e) {
             logger.warn("Unable parse config. Using defaults.");
         }
 
-        executor = Executors.newFixedThreadPool(executorThreadPoolSize);
+        executor = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
     }
 
     @Override

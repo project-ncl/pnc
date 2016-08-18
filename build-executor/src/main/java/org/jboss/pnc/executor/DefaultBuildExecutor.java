@@ -22,6 +22,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -102,7 +103,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             log.warn("Unable parse config. Using defaults.");
         }
 
-        executor = Executors.newFixedThreadPool(executorThreadPoolSize);
+        executor = Executors.newFixedThreadPool(executorThreadPoolSize, new NamedThreadFactory("default-build-executor"));
     }
 
 

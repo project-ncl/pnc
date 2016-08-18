@@ -23,6 +23,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -50,7 +51,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     public static List<SystemImageType> compatibleImageTypes = Arrays.asList(SystemImageType.DOCKER_IMAGE);
 
-    private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
+    //TODO configurable:
+    private ExecutorService executor = Executors.newFixedThreadPool(4, new NamedThreadFactory("openshift-environment-driver"));
 
     private OpenshiftEnvironmentDriverModuleConfig config;
     private PullingMonitor pullingMonitor;
