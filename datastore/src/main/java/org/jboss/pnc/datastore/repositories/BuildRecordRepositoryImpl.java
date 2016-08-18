@@ -59,7 +59,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     @Override
     public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates) {
         return repository.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo)).getContent();
-       // return springSpecificationsExecutor.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo));
     }
 
 
