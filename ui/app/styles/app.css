@@ -48,26 +48,6 @@ ul.pagination.pull-right {
   margin-top: 0px !important;
 }
 
-.clickable-table {
-  cursor: pointer;
-}
-
-.push-down {
-  margin-top: 3rem;
-}
-
-.margin-bottom-sm {
-  margin-bottom: 1em;
-}
-
-.margin-bottom-md {
-  margin-bottom: 2em;
-}
-
-.margin-bottom-lg {
-  margin-bottom: 3em;
-}
-
 .breadcrumb {
   padding-left: 8px;
   background-color: #fafafa;
@@ -154,14 +134,18 @@ form .editable-wrap {
   margin-left: 5px;
 }
 
-
-/* dl-horizontal */
-.dl-horizontal dt {
-  padding-top: 20px;
+td.td-actions {
+  width: 1% !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
 }
 
-.dl-horizontal dt, .dl-horizontal dd {
-  line-height: 1.5;
+td.td-actions .btn-group {
+  display: flex;
+}
+
+.panel-heading hr {
+  max-width: 100% !important;
 }
 
 @media (min-width: 768px) {

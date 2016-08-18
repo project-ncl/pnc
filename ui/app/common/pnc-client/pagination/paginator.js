@@ -33,10 +33,12 @@
    * @author Alex Creasy
    */
   module.factory('paginator', [
-    function () {
+    '$rootScope',
+    function ($rootScope) {
 
       function paginator(page) {
         var delegate = page;
+        var callbacks = [];
 
         // The paginator inherits all of the page prototype methods,
         // making the paginator a page in itself.
@@ -99,9 +101,27 @@
           // is still useful for executing asynchronous callbacks against the
           // paginator.
           return delegate.fetch(params).then(function(response) {
-            delegate = response;
-            that.isLoaded = true;
+            $rootScope.$apply(function () {
+              delegate = response;
+              that.isLoaded = true;
+              callbacks.forEach(function (fn) {
+                fn(response);
+              });
+            });
           });
+        };
+
+        /**
+         * Register a callback function that gets executed every time
+         * the internal page state is refreshed.
+         *
+         * @param {Function} callbackFn - the callback function to be executed.
+         */
+        that.onUpdate = function (callbackFn) {
+          if (!_.isFunction(callbackFn)) {
+            throw new TypeError('onUpdate expects a function');
+          }
+          callbacks.push(callbackFn);
         };
 
         delegate.$promise.then(function () {

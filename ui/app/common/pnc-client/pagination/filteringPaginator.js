@@ -104,7 +104,7 @@
             params.sort = sortBy;
           }
 
-          return prototype.fetch(params);
+          return prototype.fetch.call(this, params);
         };
 
 
