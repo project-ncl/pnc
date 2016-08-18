@@ -56,6 +56,18 @@ ul.pagination.pull-right {
   margin-top: 3rem;
 }
 
+.margin-bottom-sm {
+  margin-bottom: 1em;
+}
+
+.margin-bottom-md {
+  margin-bottom: 2em;
+}
+
+.margin-bottom-lg {
+  margin-bottom: 3em;
+}
+
 .breadcrumb {
   padding-left: 8px;
   background-color: #fafafa;

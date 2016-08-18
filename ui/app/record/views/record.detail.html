@@ -17,9 +17,9 @@
     limitations under the License.
 
 -->
-<div class="row">
+<div class="row margin-bottom-md">
   <div class="col-md-12">
-    <div class="page-header">
+    <div>
       <h1>
         <build-status-icon status="recordCtrl.record.status"></build-status-icon>
         Build #{{ recordCtrl.record.id }} of {{ recordCtrl.record.buildConfigurationName }}
@@ -29,13 +29,13 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    <ul class="nav nav-tabs push-down">
-      <li role="presentation" ui-sref-active="active"><a href ui-sref="record.detail.info">Details</a></li>
+    <ul class="nav nav-tabs">
+      <li role="presentation" ui-sref-active="active"><a href ui-sref="record.detail.default">Details</a></li>
       <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
         <a href ui-sref="record.detail.result">Log</a>
       </li>
       <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
-        <a href ui-sref="record.detail.output">Output</a>
+        <a href ui-sref="record.detail.output">Artifacts</a>
       </li>
       <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
         <a href ui-sref="record.detail.dependencies">Dependencies</a>

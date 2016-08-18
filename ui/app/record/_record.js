@@ -46,7 +46,9 @@
         }
       });
 
-      $urlRouterProvider.when('/record/:recordId', '/record/:recordId/info');
+      //  Temporary redirect due to changed URL. This should be removed at
+      // some point.
+      $urlRouterProvider.when('/record/:recordId/info', '/record/:recordId');
 
       $stateProvider.state('record.detail', {
         abstract: true,
@@ -64,14 +66,12 @@
         }
       });
 
-      $stateProvider.state('record.detail.info', {
-        url: '/info',
-        templateUrl: 'record/views/record.detail.info.html',
+      $stateProvider.state('record.detail.default', {
+        url: '',
+        templateUrl: 'record/views/record.detail.default.html',
         data: {
           displayName: '{{ recordDetail.id }}',
-        },
-        controller: 'RecordInfoController',
-        controllerAs: 'infoCtrl',
+        }
       });
 
       $stateProvider.state('record.detail.result', {
