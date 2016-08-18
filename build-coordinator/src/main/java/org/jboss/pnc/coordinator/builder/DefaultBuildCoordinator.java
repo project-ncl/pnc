@@ -21,6 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -426,7 +427,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         } catch (ConfigurationParseException e) {
             log.error("Error parsing configuration. Will set BuildCoordinator.threadPoolSize to {}", threadPoolSize, e);
         }
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator"));
         for (int i = 0; i < threadPoolSize; i++) {
             executorService.execute(this::takeAndProcessTask);
         }
