@@ -162,7 +162,7 @@ public class BpmManager {
     public void cleanup() {
         log.debug("Bpm manager tasks cleanup started");
         Map<Integer, BpmTask> clonnedTasks = null;
-        synchronized(this.tasks) {
+        synchronized(this) {
             clonnedTasks = new HashMap<>(this.tasks);
         }
         
