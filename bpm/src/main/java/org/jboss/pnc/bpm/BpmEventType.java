@@ -42,16 +42,36 @@ public final class BpmEventType<T extends BpmNotificationRest> {
     public static final BpmEventType<BuildResultRest> BUILD_COMPLETE
             = new BpmEventType<>("BUILD_COMPLETE", BuildResultRest.class);
 
-    public static final BpmEventType<BpmStringMapNotificationRest> BUILD_CONFIGURATION_CREATION_SUCCESS
-            = new BpmEventType<>("BUILD_CONFIGURATION_CREATION_SUCCESS", BpmStringMapNotificationRest.class);
+    public static final BpmEventType<BpmStringMapNotificationRest> BCC_REPO_CREATION_SUCCESS
+            = new BpmEventType<>("BCC_REPO_CREATION_SUCCESS", BpmStringMapNotificationRest.class);
 
-    public static final BpmEventType<BpmStringMapNotificationRest> BUILD_CONFIGURATION_CREATION_ERROR
-            = new BpmEventType<>("BUILD_CONFIGURATION_CREATION_ERROR", BpmStringMapNotificationRest.class);
+    public static final BpmEventType<BpmStringMapNotificationRest> BCC_REPO_CREATION_ERROR
+            = new BpmEventType<>("BCC_REPO_CREATION_ERROR", BpmStringMapNotificationRest.class);
+
+    public static final BpmEventType<BpmStringMapNotificationRest> BCC_REPO_CLONE_SUCCESS
+            = new BpmEventType<>("BCC_REPO_CLONE_SUCCESS", BpmStringMapNotificationRest.class);
+
+    public static final BpmEventType<BpmStringMapNotificationRest> BCC_REPO_CLONE_ERROR
+            = new BpmEventType<>("BCC_REPO_CLONE_ERROR", BpmStringMapNotificationRest.class);
+
+    public static final BpmEventType<BpmStringMapNotificationRest> BCC_CREATION_SUCCESS
+            = new BpmEventType<>("BCC_CREATION_SUCCESS", BpmStringMapNotificationRest.class);
+
+    public static final BpmEventType<BpmStringMapNotificationRest> BCC_CREATION_ERROR
+            = new BpmEventType<>("BCC_CREATION_ERROR", BpmStringMapNotificationRest.class);
 
     /**
      * Used for {@link BpmEventType#valueOf(String)}.
      */
-    private static final BpmEventType[] events = {BUILD_COMPLETE, BUILD_CONFIGURATION_CREATION_SUCCESS, BUILD_CONFIGURATION_CREATION_ERROR};
+    private static final BpmEventType[] events = {
+            BUILD_COMPLETE,
+            BCC_REPO_CREATION_SUCCESS,
+            BCC_REPO_CREATION_ERROR,
+            BCC_REPO_CLONE_SUCCESS,
+            BCC_REPO_CLONE_ERROR,
+            BCC_CREATION_SUCCESS,
+            BCC_CREATION_ERROR
+    };
 
 
     public static BpmEventType<?> valueOf(String name) {

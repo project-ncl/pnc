@@ -44,8 +44,8 @@ public class ScmUrlValidator implements ConstraintValidator<ScmUrl, String>{
      * STATIC:
      ******************************************************/
     private static final char USERNAME_INDICATOR = '@';
-    private static final Pattern USERNAME_PATTERN = Pattern.compile("[\\._%\\w]+", Pattern.UNICODE_CHARACTER_CLASS);
-    private static final UrlValidator validator = new UrlValidator(new String[]{"http", "https", "git", "ssh"});
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("[\\.\\-_%\\w]+", Pattern.UNICODE_CHARACTER_CLASS);
+    private static final UrlValidator validator = new UrlValidator(new String[]{"http", "https", "git", "ssh", "git+ssh"});
 
     public static boolean isValid(String url) {
         if (url == null) {
