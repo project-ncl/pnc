@@ -58,8 +58,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
@@ -126,7 +126,8 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
 
         Response resp = super.getSpecific(id);
         if (resp.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
-          resp = fromSingleton(buildRecordProvider.getSpecificRunning(id));
+            // TODO NCL-2316: set user
+          resp = fromSingleton(buildRecordProvider.getSpecificForUser(id, null));
         }
         return resp;
     }
