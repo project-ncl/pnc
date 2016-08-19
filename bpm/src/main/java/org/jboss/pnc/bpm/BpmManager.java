@@ -178,7 +178,11 @@ public class BpmManager {
                 })
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
-        toBeRemoved.forEach(id -> tasks.remove(id));
+        toBeRemoved.forEach(id -> {
+            synchronized (this) {
+                tasks.remove(id);
+            }
+        });
         
         log.debug("Bpm manager tasks cleanup finished");
     }
