@@ -123,13 +123,12 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-
-        Response resp = super.getSpecific(id);
-        if (resp.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
-            // TODO NCL-2316: set user
-          resp = fromSingleton(buildRecordProvider.getSpecificForUser(id, null));
+        // TODO NCL-2316: set user
+        BuildRecordRest record = buildRecordProvider.getSpecificForUser(id, null);
+        if (record == null) {
+          record = buildRecordProvider.getSpecificRunning(id);
         }
-        return resp;
+        return fromSingleton(record);
     }
 
 }
