@@ -161,12 +161,12 @@ public class BpmManager {
      */
     public void cleanup() {
         log.debug("Bpm manager tasks cleanup started");
-        Map<Integer, BpmTask> clonnedTasks = null;
+        Map<Integer, BpmTask> clonedTasks = null;
         synchronized(this) {
-            clonnedTasks = new HashMap<>(this.tasks);
+            clonedTasks = new HashMap<>(this.tasks);
         }
         
-        Set<Integer> toBeRemoved = clonnedTasks.values().stream()
+        Set<Integer> toBeRemoved = clonedTasks.values().stream()
                 .filter(t -> {
                     log.debug("attempting to fetch process instance from bpm");
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
