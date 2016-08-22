@@ -142,6 +142,9 @@ form .editable-wrap {
   width: -moz-max-content; /* Firefox/Gecko */
   width: -webkit-max-content; /* Chrome */
 }
+.popover-no-max + .popover {
+  max-width: none;
+}
 
 #loading-bar .bar {
   background: #f39d3c;
