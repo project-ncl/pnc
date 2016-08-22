@@ -250,6 +250,26 @@ Click the "Add" button to add a new datasource and set the required fields.
 
 You can test the connection before saving the datasource settings.
 
+Configuring the Openshift pod definitions
+-----------------------------------------
+If you are using Openshift for building, you can override the pod definitions used to configure the build-agent pod. To do so, put in your `pnc-config.json`:
+
+```json
+{
+  "@module-group": "pnc",
+  "configs": [
+      {
+        "@module-config": "openshift-build-agent",
+          "pncBuilderPod": {...},
+          "pncBuilderService": {...},
+          "pncBuilderRoute": {...},
+          "pncBuilderSshRoute": {...}
+      },
+      ...
+  ]
+```
+You only need to define the key for which you want to modify its definition. There is no need to define all the keys.
+
 UI Module Compilation Errors
 ----------------------------
 Due to the need to integrate a modern frontend workflow into a maven project there can occasionally be some complications in a build. Some data is cached by the UI that is not completely cleaned by running `mvn clean`. In case of strange build failures with the UI module please try running: `mvn clean -Dfrontend.clean.force` and this will completely clean out all data. NOTE: with this profile enabled build times will increase by a few minutes as the ui build system will have to retrieve a large amount of previously cached data.
