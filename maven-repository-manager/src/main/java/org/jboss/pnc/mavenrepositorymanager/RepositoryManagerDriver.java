@@ -30,8 +30,8 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -75,7 +75,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration
-                    .getModuleConfig(new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class));
+                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
             String baseUrl = config.getBaseUrl();
             if (baseUrl.endsWith("/")) {
                 baseUrl = baseUrl.substring(0, baseUrl.length() - 1);

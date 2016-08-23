@@ -17,24 +17,18 @@
  */
 package org.jboss.pnc.datastore;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -52,6 +46,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class DatastoreTest {
@@ -67,6 +66,13 @@ public class DatastoreTest {
     private static String ARTIFACT_2_CHECKSUM = "2";
 
     private static String ARTIFACT_3_CHECKSUM = "3";
+
+    private static Long ARTIFACT_1_SIZE = 111L;
+
+    private static Long ARTIFACT_2_SIZE = 222L;
+
+    private static Long ARTIFACT_3_SIZE = 333L;
+
 
     @Inject
     ArtifactRepository artifactRepository;
@@ -141,10 +147,16 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).checksum(ARTIFACT_1_CHECKSUM)
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER)
+                .checksum(ARTIFACT_1_CHECKSUM)
+                .size(ARTIFACT_1_SIZE)
                 .repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).checksum(ARTIFACT_2_CHECKSUM)
-                .originUrl("http://test/artifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER)
+                .checksum(ARTIFACT_2_CHECKSUM)
+                .size(ARTIFACT_2_SIZE)
+                .originUrl("http://test/artifact2.jar")
+                .importDate(Date.from(Instant.now()))
+                .repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
@@ -179,12 +191,14 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).checksum(ARTIFACT_1_CHECKSUM)
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).size(ARTIFACT_1_SIZE).checksum(ARTIFACT_1_CHECKSUM)
                 .repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).checksum(ARTIFACT_2_CHECKSUM)
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).size(ARTIFACT_2_SIZE).checksum(ARTIFACT_2_CHECKSUM)
                 .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier(ARTIFACT_3_IDENTIFIER).checksum(ARTIFACT_3_CHECKSUM)
-                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
+                .size(ARTIFACT_3_SIZE).originUrl("http://test/importArtifact2.jar")
+
+                .importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
