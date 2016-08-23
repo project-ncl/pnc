@@ -39,7 +39,12 @@ public class ArtifactRepo {
         /**
          * CocoaPod repository for managing Swift and Objective-C Cocoa dependencies
          */
-        COCOA_POD
+        COCOA_POD,
+
+        /**
+         * Generic HTTP proxy that captures artifacts with an unsupported, or no specific, repository type.
+         */
+        GENERIC_PROXY
     }
 
     /**
