@@ -25,7 +25,7 @@
     function () {
       
       function PncConfigurationCreateController($log, $state, $filter, $scope, Notifications, 
-        EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO) {
+        EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
 
         // Selection of Product Versions.
         $scope.productVersions = {
@@ -52,7 +52,7 @@
           selected: []
         };
     	  
-        $scope.data = new BuildConfigurationDAO();
+        $scope.data = {};
         $scope.environments = EnvironmentDAO.getAll();
         $scope.products = ProductDAO.getAll();
         $scope.configurations = BuildConfigurationDAO.getAll();
@@ -73,7 +73,18 @@
           $scope.data.productVersionId = getFirstId($scope.productVersions.selected);
           $scope.data.dependencyIds = gatherIds($scope.dependencies.selected);
 
-          $scope.data.$save().then(
+          // $scope.data.scmRepoURL can't be changed to null directly, otherwise
+          // form validation issue will occur
+          $scope.data.scmExternal = {
+            url:      $scope.data.scmIsInternal ? null : $scope.data.scmRepoURL,
+            revision: $scope.data.scmIsInternal ? null : $scope.data.scmRevision
+          };
+          $scope.data.scmInternal = {
+            url:      $scope.data.scmIsInternal ? $scope.data.scmRepoURL : null,
+            revision: $scope.data.scmIsInternal ? $scope.data.scmRevision : null
+          };
+
+          BpmDAO.startBuildConfigurationCreation($scope.data).then(
 
             // success
             function(result) {
@@ -84,9 +95,12 @@
             });
 
             if (_.isUndefined($scope.fixedProject)) {
-              $state.go('configuration.detail.show', {
-                configurationId: result.id
-              });
+              $scope.formNotification = {
+                type:         'success',
+                isPersistent: false,
+                header:       'Success: ',
+                message:      'Build configuration will be created in a few minutes.'
+              };
             } else {
               $state.go('project.detail', {
                 projectId: $scope.data.project.id
@@ -108,7 +122,7 @@
             $scope.dependencies.selected = [];
             $scope.buildgroupconfigs.selected = [];
             $scope.environmentSelection.selected = [];
-            $scope.data = new BuildConfigurationDAO();
+            $scope.data = {};
 
             if (_.isUndefined($scope.fixedProject)) {
               $scope.projectSelection.selected = [];
