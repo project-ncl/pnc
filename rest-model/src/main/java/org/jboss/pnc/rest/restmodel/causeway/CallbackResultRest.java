@@ -17,21 +17,27 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
+ * <p>
+ * Statuses:
+ * <ul>
+ * <li>201 - on success</li>
+ * <li>4xx - import error</li>
+ * <li>500 - system error</li>
+ * </ul>
+ * </p>
+ *
+ *
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Date: 8/25/16
+ * Time: 11:41 AM
  */
 @Data
-@NoArgsConstructor
-public class BrewPushMilestoneRest {
-    private long milestoneId;
-    private CallbackRest callback;
-
-    public BrewPushMilestoneRest(long milestoneId) {
-        this.milestoneId = milestoneId;
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CallbackResultRest {
+    private String id;
+    private Integer status;
 }

@@ -17,21 +17,19 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Date: 8/25/16
+ * Time: 2:22 PM
  */
-@Data
-@NoArgsConstructor
-public class BrewPushMilestoneRest {
-    private long milestoneId;
-    private CallbackRest callback;
-
-    public BrewPushMilestoneRest(long milestoneId) {
-        this.milestoneId = milestoneId;
-    }
+public enum BuildImportStatus {
+    /**
+     * setting up the import process failed
+     */
+    ERROR,
+    /**
+     * some of the artifacts failed to import
+     */
+    FAILED,
+    SUCCESSFUL
 }

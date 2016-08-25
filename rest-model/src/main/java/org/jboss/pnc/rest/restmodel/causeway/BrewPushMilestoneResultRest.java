@@ -20,8 +20,7 @@ package org.jboss.pnc.rest.restmodel.causeway;
 import lombok.Data;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -32,13 +31,12 @@ import java.util.Map;
 public class BrewPushMilestoneResultRest extends BpmNotificationRest {
     private int milestoneId;
 
-    private Map<Long, String> brewBuildIds = new HashMap<>();
-    private Map<Long, String> errors = new HashMap<>();
-
-    private String url;
+    private List<BuildImportResultRest> builds;
+    private CallbackResultRest callback;
 
     @Override
     public String getEventType() {
         return "BREW_PUSH_COMPLETED";
     }
 }
+

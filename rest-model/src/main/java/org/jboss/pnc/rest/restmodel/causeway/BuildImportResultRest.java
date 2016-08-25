@@ -17,21 +17,41 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Date: 8/25/16
+ * Time: 2:48 PM
  */
 @Data
-@NoArgsConstructor
-public class BrewPushMilestoneRest {
-    private long milestoneId;
-    private CallbackRest callback;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class BuildImportResultRest {
+    /**
+     * id of pnc build record
+     */
+    private Integer buildRecordId;
 
-    public BrewPushMilestoneRest(long milestoneId) {
-        this.milestoneId = milestoneId;
-    }
+    /**
+     * build id assigned by brew
+     */
+    private Integer brewBuildId;
+    /**
+     * link to brew
+     */
+    private String brewBuildUrl;
+
+    private BuildImportStatus status;
+    /**
+     * global errors
+     */
+    private String errorMessage;
+
+    /**
+     * list of errors for artifact imports
+     */
+    private List<ArtifactImportError> errors;
 }
