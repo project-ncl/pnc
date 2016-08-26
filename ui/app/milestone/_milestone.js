@@ -22,6 +22,7 @@
   var module = angular.module('pnc.milestone', [
     'ui.router',
     'ui.bootstrap',
+    'patternfly',
     'pnc.product',
     'pnc.common.restclient',
     'pnc.util.date_utils',

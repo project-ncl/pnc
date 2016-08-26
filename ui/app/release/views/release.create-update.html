@@ -59,15 +59,7 @@
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
-                <div class="input-group">
-                  <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="open($event, 1)">
-                      <i class="glyphicon glyphicon-calendar"></i>
-                    </button>
-                  </span>
-                  <input name="releaseDate" required id="input-end-date" type="text" class="form-control" uib-datepicker-popup="{{format}}"
-                         ng-model="releaseCreateUpdateCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
-                </div>
+                <div pf-datepicker options="milestoneCreateUpdateCtrl.dpOptions" date="milestoneCreateUpdateCtrl.data.releaseDate"></div>
                 <span class="help-block" ng-show="releaseForm.releaseDate.$error.required && !releaseForm.releaseDate.$pristine">Required field.</span>
               </div>
             </div>

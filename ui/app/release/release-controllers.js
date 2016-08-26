@@ -46,6 +46,13 @@
       that.isUpdating = false;
       that.data = new ProductReleaseDAO();
 
+      that.dpOptions = {
+        autoclose: true,
+        todayBtn: 'linked',
+        todayHighlight: true,
+        format: 'yyyy/mm/dd'
+      };
+
       if (releaseDetail !== null) {
         that.isUpdating = true;
         that.data = releaseDetail;
