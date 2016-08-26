@@ -26,7 +26,7 @@
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.startFormInput1.$pristine, 'has-success': startForm.startFormInput1.$valid && startForm.startFormInput1.$touched }">
         <label for="startFormInput1" class="col-sm-3 control-label">
-          * Product&nbsp;<a uib-popover="Select the product you wish to import into." popover-placement="top-left" popover-trigger="outsideClick" href><span class="fa fa-info-circle"></span></a>
+          * Product&nbsp;<a popover="Select the product you wish to import into." popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"  href><span class="fa fa-info-circle"></span></a>
         </label>
 
         <div class="col-sm-9">
@@ -42,9 +42,9 @@
           ng-class="{ 'has-error' : startForm.startFormInput2.$invalid && !startForm.startFormInput2.$pristine, 'has-success': startForm.startFormInput2.$valid && startForm.startFormInput2.$touched }">
         <label for="startFormInput2" class="col-sm-3 control-label">
           * Product Version&nbsp;
-          <a uib-popover="Enter the product version to import into using format major.minor, e.g. 7.0 -- If the version does not exist it will be created for you."
-             popover-placement="top-left"
-             popover-trigger="outsideClick"
+          <a popover="Enter the product version to import into using format major.minor, e.g. 7.0 -- If the version does not exist it will be created for you."
+             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
+             
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -73,9 +73,9 @@
            ng-class="{ 'has-error' : startForm.startFormInput3.$invalid && !startForm.startFormInput3.$pristine, 'has-success': startForm.startFormInput3.$valid && startForm.startFormInput3.$touched }">
         <label for="startFormInput3" class="col-sm-3 control-label">
           * SCM URL&nbsp;
-          <a uib-popover="URL of the source code repository to import from."
-             popover-placement="top-left"
-             popover-trigger="outsideClick"
+          <a popover="URL of the source code repository to import from."
+             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
+             
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -98,9 +98,9 @@
       <div class="form-group">
         <label for="startFormInput4" class="col-sm-3 control-label">
           Revision&nbsp;
-          <a uib-popover="Revision of the source code repository to import from, this can be a branch or tag only, not a commit-sha."
-             popover-placement="top-left"
-             popover-trigger="outsideClick"
+          <a popover="Revision of the source code repository to import from, this can be a branch or tag only, not a commit-sha."
+             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
+             
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -117,9 +117,9 @@
       <div class="form-group">
         <label for="startFormInput5" class="col-sm-3 control-label">
           Path to root POM&nbsp;
-          <a uib-popover="Location of the project's root pom.xml file within the scm repository."
-             popover-placement="top-left"
-             popover-trigger="outsideClick"
+          <a popover="Location of the project's root pom.xml file within the scm repository."
+             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
+             
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -139,9 +139,9 @@
            ng-class="{ 'has-error' : startForm.startFormInput6.$invalid && !startForm.startFormInput6.$pristine, 'has-success': startForm.startFormInput6.$valid  && startForm.startFormInput6.$touched }">
         <label for="startFormInput6" class="col-sm-3 control-label">
           Optional Repositories&nbsp;
-          <a uib-popover="Add additional scm repository URLs used by the project."
-             popover-placement="top-left"
-             popover-trigger="outsideClick"
+          <a popover="Add additional scm repository URLs used by the project."
+             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
+             
              href>
             <span class="fa fa-info-circle"></span>
           </a>

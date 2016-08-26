@@ -30,9 +30,9 @@
             <div class="form-group" ng-class="{ 'has-error' : productVersionForm.version.$invalid && !productVersionForm.version.$pristine, 'has-success': productVersionForm.version.$valid && productVersionForm.version.$touched }">
               <label for="input-version" class="col-sm-2 control-label">
                 * Version&nbsp;
-                <a uib-popover="This represents a set of milestones and releases which correspond to a major.minor version of a product, e.g 7.0"
-                   popover-placement="top-left"
-                   popover-trigger="outsideClick"
+                <a popover="This represents a set of milestones and releases which correspond to a major.minor version of a product, e.g 7.0"
+                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
+                   
                    href>
                   <span class="fa fa-info-circle"></span>
                 </a>
