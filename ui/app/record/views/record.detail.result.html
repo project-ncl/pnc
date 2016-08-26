@@ -34,13 +34,13 @@
             <td>{{ resultCtrl.sshCredentials.password }}</td>
           </tr>
         </tbody>
-      </table>     
+      </table>
     </script>
 
-    <button 
-      uib-popover-template="'popoverTemplate.html'" 
-      popover-title="SSH credentials" 
-      type="button" 
+    <button
+      popover-template="'popoverTemplate.html'"
+      popover-title="SSH credentials"
+      type="button"
       class="btn btn-default btn-sm popover-no-max"
       popover-placement="right"
       ng-show="resultCtrl.sshCredentials.command"
