@@ -19,10 +19,11 @@ package org.jboss.pnc.rest.restmodel.causeway;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 11:39 AM
+ * Date: 8/26/16
+ * Time: 2:39 PM
  */
-public enum CallbackMethod {
-    POST,
-    PUT
+public enum PushStatus {
+    SUCCESS,
+    IMPORT_ERROR,
+    SET_UP_ERROR
 }

@@ -28,10 +28,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class BrewPushMilestoneRest {
-    private long milestoneId;
-    private CallbackRest callback;
+    private int milestoneId;
 
-    public BrewPushMilestoneRest(long milestoneId) {
+    public BrewPushMilestoneRest(int milestoneId) {
         this.milestoneId = milestoneId;
     }
 }
