@@ -22,8 +22,6 @@
     "$": false,
     "Keycloak": false,
     "pnc": false,
-    "buckets": false,
-    "_": false,
-    "$": false
+    "_": false
   }
 }

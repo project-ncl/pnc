@@ -87,7 +87,7 @@
               page.data = add ? page.data.concat(newData) : newData;
             }
             page._searchText = searchText;
-            _(page._onUpdate).each(function (callback) {
+            page._onUpdate.forEach(function (callback) {
               callback(page);
             });
             page.isLoaded = true;
@@ -208,7 +208,7 @@
               pageSize: pageSize,
               search: searchText, // search must be done in backend, either via RSQL or directly
               sort: 'sort=desc=id' // if the data are not sorted, pagination makes no sense
-            }).extend(origArgs); // args overwrite the paging properties, but no sense other that sorting
+            }).extend(origArgs).value(); // args overwrite the paging properties, but no sense other that sorting
             return origMethod(args).$promise;
           });
         };
@@ -232,7 +232,7 @@
             pageSize: 50 // sufficiently large number to prevent to many second calls
             // if this number should be much larger, refactoring the code in question
             // would be the best option
-          });
+          }).value();
           var result = origMethod(args);
           if (_(result).has('$promise')) {
             return result.$promise.then(function (data) {
@@ -294,7 +294,7 @@
           return origMethod(_(args).extend({
             pageIndex: 0,
             pageSize: data.pageSize * data.totalPages
-          })).$promise;
+          })).value().$promise;
         } else {
           return data;
         }
@@ -308,7 +308,7 @@
           } else {
             return e;
           }
-        });
+        }).value();
       };
     }
   ]);
