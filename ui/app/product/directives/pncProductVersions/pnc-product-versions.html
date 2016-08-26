@@ -53,7 +53,7 @@
     <td>
        <span
          ng-repeat="milestone in version.productMilestones | orderBy: '-milestone.startingDate'">
-             <span uib-tooltip-template="'milestoneTooltipTemplate.html'"
+             <span tooltip-template="'milestoneTooltipTemplate.html'"
                    tooltip-placement="right"
                    class="label label-default"
                    ng-class="{ 'label label-primary' : milestone.id == version.currentProductMilestoneId }">
@@ -63,7 +63,7 @@
     </td>
     <td>
          <span ng-repeat="release in version.productReleases | orderBy: '-release.releaseDate'">
-           <span uib-tooltip-template="'releaseTooltipTemplate.html'"
+           <span tooltip-template="'releaseTooltipTemplate.html'"
                  tooltip-placement="right"
                  class="label label-success">
              {{ release.version }}
