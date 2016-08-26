@@ -60,6 +60,12 @@
       that.product = productDetail;
       that.productVersion = versionDetail;
       that.isUpdating = false;
+      that.dpOptions = {
+        autoclose: true,
+        todayBtn: 'linked',
+        todayHighlight: true,
+        format: 'yyyy/mm/dd'
+      };
 
       that.data = new ProductMilestoneDAO();
 
@@ -139,7 +145,7 @@
           if (that.setCurrentMilestone) {
             that.productVersion.currentProductMilestoneId = that.data.id;
           }
-          
+
           that.productVersion.$update().then(function(){
             that.data.$update().then(function() {
               $state.go('product.detail.version', {

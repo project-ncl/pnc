@@ -21,6 +21,7 @@
 
   var module = angular.module('pnc.product', [
     'ui.router',
+    'ui.bootstrap',
     'pnc.common.restclient',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.authentication'

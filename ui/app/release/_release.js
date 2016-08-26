@@ -22,6 +22,7 @@
   var module = angular.module('pnc.release', [
     'ui.router',
     'ui.bootstrap',
+    'patternfly',
     'pnc.product',
     'pnc.common.restclient',
     'pnc.util.date_utils',

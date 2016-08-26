@@ -19,6 +19,7 @@
 
  (function() {
   var app = angular.module('pnc', [
+    'ngAnimate',
     'angular-loading-bar',
     'ui.router',
     'ui.bootstrap',
