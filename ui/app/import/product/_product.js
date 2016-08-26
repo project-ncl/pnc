@@ -49,14 +49,14 @@
 
   module.run([
     '$rootScope',
-    '$uibModal',
+    '$modal',
     '$state',
-    function ($rootScope, $uibModal, $state) {
+    function ($rootScope, $modal, $state) {
       /* jshint unused: false */
       $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
         if(fromState.name === 'import.product' && $rootScope.importProductState === 'bc' && !$rootScope.productImportResetConfirmed) {
           event.preventDefault();
-          $uibModal.open({
+          $modal.open({
             templateUrl: 'common/util/views/confirm-click.html',
             controller: [
               '$scope',
