@@ -73,15 +73,13 @@
           $scope.data.productVersionId = getFirstId($scope.productVersions.selected);
           $scope.data.dependencyIds = gatherIds($scope.dependencies.selected);
 
-          // $scope.data.scmRepoURL can't be changed to null directly, otherwise
-          // form validation issue will occur
           $scope.data.scmExternal = {
-            url:      $scope.data.scmIsInternal ? null : $scope.data.scmRepoURL,
-            revision: $scope.data.scmIsInternal ? null : $scope.data.scmRevision
+            url:      $scope.data.scmRepoURLExternal,
+            revision: $scope.data.scmRevisionExternal
           };
           $scope.data.scmInternal = {
-            url:      $scope.data.scmIsInternal ? $scope.data.scmRepoURL : null,
-            revision: $scope.data.scmIsInternal ? $scope.data.scmRevision : null
+            url:      $scope.data.scmRepoURL,
+            revision: $scope.data.scmRevision
           };
 
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
@@ -139,10 +137,6 @@
 
         $scope.isProjectSelectable = function() {
           return (_.isUndefined($scope.fixedProject));
-        };
-
-        $scope.scmRepoURLChange = function(form){
-          form.scmRepoURL.$setValidity('invalidScmRepoURL', true);
         };
 
         function gatherIds(array) {

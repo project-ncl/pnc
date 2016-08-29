@@ -32,6 +32,14 @@
   pointer-events: auto !important;
 }
 
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) { 
+  .text-right-sm { text-align: right; }
+}
+
 .m-t-5  { margin-top:       5px;  }
 .m-r-5  { margin-right:     5px;  }
 .m-b-5  { margin-bottom:    5px;  }
