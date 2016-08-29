@@ -1,0 +1,258 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jboss.pnc.rest.provider;
+
+import org.assertj.core.api.AbstractCharSequenceAssert;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.rest.endpoint.BpmEndpoint;
+import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
+import org.jboss.pnc.rest.provider.MilestoneTestUtils.ArtifactRepositoryMock;
+import org.jboss.pnc.rest.provider.MilestoneTestUtils.BuildRecordRepositoryMock;
+import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneRepositoryMock;
+import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
+import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneResultRest;
+import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
+import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
+import org.jboss.pnc.rest.utils.mock.BpmMock;
+import org.jboss.pnc.rest.utils.mock.BpmMock.Push;
+import org.jboss.pnc.rest.utils.mock.BpmMock.PushList;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.jboss.pnc.rest.provider.MilestoneTestUtils.createBuildRecord;
+import static org.jboss.pnc.rest.utils.RequestUtils.requestWithEntity;
+
+/**
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
+ * Date: 8/25/16
+ * Time: 3:21 PM
+ */
+public class MilestoneReleaseTest {
+
+    private ProductMilestoneRepositoryMock repoMock = new ProductMilestoneRepositoryMock();
+    private BuildRecordRepository buildRecordRepository = new BuildRecordRepositoryMock();
+    private ArtifactRepository artifactRepository = new ArtifactRepositoryMock();
+
+    private BpmMock bpmMock = new BpmMock();
+    @Mock
+    private RSQLPredicateProducer rsqlPredicateProducer;
+    @Mock
+    private SortInfoProducer sortInfoProducer;
+    @Mock
+    private PageInfoProducer pageInfoProducer;
+    @Mock
+    private ArtifactProvider artifactProvider;
+    @Mock
+    private BuildRecordProvider buildRecordProvider;
+
+    private ProductMilestoneEndpoint milestoneEndpoint;
+
+    private BpmEndpoint bpmEndpoint;
+
+    @Before
+    public void setUp() throws CoreException {
+        MockitoAnnotations.initMocks(this);
+        ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(repoMock,
+                bpmMock,
+                artifactRepository,
+                buildRecordRepository,
+                rsqlPredicateProducer,
+                sortInfoProducer,
+                pageInfoProducer);
+        milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider);
+        bpmEndpoint = new BpmEndpoint(bpmMock);
+        bpmMock.setUp();
+    }
+
+    @Test
+    public void shouldNotTriggerReleaseWoEndDate() {
+        ProductMilestone milestone = MilestoneTestUtils.prepareMilestone(repoMock);
+        assertLog(milestone).isNullOrEmpty();
+    }
+
+    @Test
+    public void shouldProcessSuccessfulCallback() throws Exception {
+        BuildRecord buildRecord = createBuildRecord(buildRecordRepository);
+        ProductMilestone milestone = createAndReleaseMilestone();
+        int taskId = assertBpmCalled(milestone);
+        BrewPushMilestoneResultRest pushResult =
+                createSuccessfulPushResult(milestone, singletonList(createSuccessfulBuildImportResult(buildRecord.getId())));
+        releaseBpmCallback(pushResult, taskId);
+        assertLog(milestone).contains("Brew push SUCCEEDED");
+    }
+
+    @Test
+    public void shouldDescribeImportedBuilds() throws Exception {
+        ProductMilestone milestone = createAndReleaseMilestone();
+        int taskId = assertBpmCalled(milestone);
+
+        BuildRecord record1 = createBuildRecord(buildRecordRepository);
+        BuildRecord record2 = createBuildRecord(buildRecordRepository);
+        BuildImportResultRest buildResult1 = createSuccessfulBuildImportResult(record1.getId());
+        BuildImportResultRest buildResult2 = createSuccessfulBuildImportResult(record2.getId());
+
+        BrewPushMilestoneResultRest pushResult =
+                createSuccessfulPushResult(milestone, asList(buildResult1, buildResult2));
+        releaseBpmCallback(pushResult, taskId);
+
+        assertLog(milestone).contains("Brew push SUCCEEDED")
+                .contains(expectedDescription(record1, buildResult1))
+                .contains(expectedDescription(record2, buildResult2));
+    }
+
+    @Test
+    public void shouldDescribeImportErrors() throws Exception {
+        ProductMilestone milestone = createAndReleaseMilestone();
+        String errorMessage = randomAlphabetic(30);
+        int taskId = assertBpmCalled(milestone);
+
+        BuildRecord record = createBuildRecord(buildRecordRepository);
+        String artifact1 = "org.jboss:artifact1.pom";
+        String artifact2 = "org.jboss:artifact2:1.0.0.GA:jar";
+
+        ArtifactImportError artifactError1 = createArtifactImportError(artifact1);
+        ArtifactImportError artifactError2 = createArtifactImportError(artifact2);
+        BuildImportResultRest buildResult = createBuildResult(record.getId(),
+                BuildImportStatus.FAILED,
+                errorMessage,
+                asList(artifactError1, artifactError2));
+
+        BrewPushMilestoneResultRest pushResult =
+                createSuccessfulPushResult(milestone, singletonList(buildResult));
+        releaseBpmCallback(pushResult, taskId);
+
+        assertLog(milestone).contains("Brew push FAILED")
+                .contains("Error message: " + errorMessage)
+                .contains(String.format("Failed to import %s [artifactId:%d]. Error message: %s",
+                        artifact1, artifactError1.getArtifactId(), artifactError1.getErrorMessage()))
+                .contains(String.format("Failed to import %s [artifactId:%d]. Error message: %s",
+                        artifact2, artifactError2.getArtifactId(), artifactError2.getErrorMessage()))
+                .contains(expectedDescription(record, buildResult));
+    }
+
+    private ArtifactImportError createArtifactImportError(String artifactName) {
+        int artifactId = randInt(1000, 1000000);
+
+        Artifact artifact = new Artifact();
+        artifact.setId(artifactId);
+        artifact.setIdentifier(artifactName);
+        artifactRepository.save(artifact);
+
+        ArtifactImportError artifactImportError = new ArtifactImportError();
+        artifactImportError.setErrorMessage(randomAlphabetic(30));
+        artifactImportError.setArtifactId(artifactId);
+        return artifactImportError;
+    }
+
+    private String expectedDescription(BuildRecord buildRecord, BuildImportResultRest buildResult) {
+
+        return String.format("%s [buildRecordId: %d, built from %s rev %s] import %s. Brew build id: %d, Brew build url: %s\n",
+                buildRecord.getBuildConfigurationAudited().getName(),
+                buildRecord.getId(),
+                buildRecord.getScmRepoURL(),
+                buildRecord.getScmRevision(),
+                buildResult.getStatus(),
+                buildResult.getBrewBuildId(),
+                buildResult.getBrewBuildUrl());
+    }
+
+    private BrewPushMilestoneResultRest createSuccessfulPushResult(ProductMilestone milestone,
+                                                                   List<BuildImportResultRest> buildImportResults) {
+        BrewPushMilestoneResultRest result = new BrewPushMilestoneResultRest();
+        result.setBuilds(buildImportResults);
+        result.setMilestoneId(milestone.getId());
+        return result;
+    }
+
+    private BuildImportResultRest createSuccessfulBuildImportResult(int buildRecordId) {
+        return createBuildResult(buildRecordId, BuildImportStatus.SUCCESSFUL, null, null);
+    }
+
+    private BuildImportResultRest createBuildResult(int buildRecordId,
+                                                    BuildImportStatus status,
+                                                    String errorMessage,
+                                                    List<ArtifactImportError> artifactImportErrors) {
+        BuildImportResultRest importResult = new BuildImportResultRest();
+        importResult.setBrewBuildId(randInt(10000, 200000));
+        importResult.setBrewBuildUrl(String.format("http://broo.redhat.com/bild/%d", importResult.getBrewBuildId()));
+        importResult.setStatus(status);
+        importResult.setBuildRecordId(buildRecordId);
+        importResult.setErrorMessage(errorMessage);
+        importResult.setErrors(artifactImportErrors);
+
+        return importResult;
+    }
+
+    private ProductMilestone createAndReleaseMilestone() throws Exception {
+        ProductMilestone milestone = MilestoneTestUtils.prepareMilestone(repoMock);
+
+        triggerMilestoneRelease(milestone);
+
+        assertLog(milestone).contains("Brew push task started");
+        return milestone;
+    }
+
+    private void releaseBpmCallback(BrewPushMilestoneResultRest result, Integer taskId) throws CoreException, IOException {
+        bpmEndpoint.notifyTask(requestWithEntity(result), taskId);
+    }
+
+    private Integer assertBpmCalled(ProductMilestone milestone) {
+        Response pushesFor = bpmMock.getPushesFor(milestone.getId());
+        PushList pushList = (PushList) pushesFor.getEntity();
+
+        List<Push> pushes = pushList.getPushes();
+        assertThat(pushes).hasSize(1);
+        Push push = pushes.iterator().next();
+        return push.getTaskId();
+    }
+
+    private AbstractCharSequenceAssert<?, String> assertLog(ProductMilestone milestone) {
+        ProductMilestone productMilestone = repoMock.queryById(milestone.getId());
+        String pushLog = productMilestone.getPushLog();
+        return assertThat(pushLog);
+    }
+
+    private void triggerMilestoneRelease(ProductMilestone milestone) throws ValidationException {
+        ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
+        restEntity.setEndDate(new Date());
+        milestoneEndpoint.update(milestone.getId(), restEntity);
+    }
+
+}

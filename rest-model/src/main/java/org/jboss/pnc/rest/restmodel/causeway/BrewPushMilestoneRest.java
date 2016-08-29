@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.restmodel.causeway;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -32,5 +33,10 @@ public class BrewPushMilestoneRest {
 
     public BrewPushMilestoneRest(int milestoneId) {
         this.milestoneId = milestoneId;
+    }
+
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
     }
 }

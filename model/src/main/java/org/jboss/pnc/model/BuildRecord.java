@@ -153,7 +153,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Basic(fetch = FetchType.LAZY)
     private String buildLog;
 
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private BuildStatus status;
 
     @Getter
@@ -222,7 +222,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id"))
     @MapKeyColumn(name="key")
     @Column(name="value")
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = new HashMap<>();
 
     /**
      * Instantiates a new project build result.

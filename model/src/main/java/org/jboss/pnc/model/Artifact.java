@@ -82,7 +82,7 @@ public class Artifact implements GenericEntity<Integer> {
     private Long size;
 
     @NotNull
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private Artifact.Quality artifactQuality;
 
     /**

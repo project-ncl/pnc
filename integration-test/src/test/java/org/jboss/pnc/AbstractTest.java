@@ -28,6 +28,7 @@ import java.io.IOException;
 
 public class AbstractTest {
 
+    protected static final String BPM_NOTIFY_ENDPOINT = "/pnc-rest/bpm/tasks/{taskId}/notify";
     protected static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
     protected static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
     protected static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/projects/%d";
@@ -36,6 +37,10 @@ public class AbstractTest {
     protected static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d";
     protected static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/%d";
     protected static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
+    protected static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/";
+    protected static final String PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/product-versions/%d";
+    protected static final String PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT = PRODUCT_MILESTONE_REST_ENDPOINT + "%d";
+
     public static final String REST_WAR_PATH = "/rest.war";
     protected static final String FIRST_CONTENT_ID = "content[0].id";
     protected static final String CONTENT_ID = "content.id";

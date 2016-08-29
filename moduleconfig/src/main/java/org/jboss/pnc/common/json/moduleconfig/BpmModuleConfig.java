@@ -40,8 +40,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private final String aproxBaseUrl;
     private final String repourBaseUrl;
     private final String daBaseUrl;
+    private final String causewayBaseUrl;
     private String deploymentId;
     private String componentBuildProcessId;
+    private String brewPushProcessId;
     private String bcCreationProcessId;
     private String communityBuild;
     private String versionAdjust;
@@ -51,11 +53,13 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("bpmInstanceUrl") String bpmInstanceUrl,
             @JsonProperty("deploymentId") String deploymentId,
             @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
+            @JsonProperty("brewPushProcessId") String brewPushProcessId,
             @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
             @JsonProperty("pncBaseUrl") String pncBaseUrl,
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
             @JsonProperty("aproxBaseUrl") String aproxBaseUrl,
             @JsonProperty("repourBaseUrl") String repourBaseUrl,
+            @JsonProperty("causewayBasaeUrl") String causewayBaseUrl,
             @JsonProperty("daBaseUrl") String daBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust)
@@ -64,6 +68,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.password = password;
         this.deploymentId = deploymentId;
         this.componentBuildProcessId = componentBuildProcessId;
+        this.brewPushProcessId = brewPushProcessId;
         this.bcCreationProcessId = bcCreationProcessId;
         this.bpmInstanceUrl = bpmInstanceUrl;
         this.pncBaseUrl = pncBaseUrl;
@@ -71,6 +76,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.aproxBaseUrl = aproxBaseUrl;
         this.repourBaseUrl = repourBaseUrl;
         this.daBaseUrl = daBaseUrl;
+        this.causewayBaseUrl = causewayBaseUrl;
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
     }
@@ -107,6 +113,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return bcCreationProcessId;
     }
 
+    public String getMilestoneReleaseProcessId() {
+        return brewPushProcessId;
+    }
+
     public String getPncBaseUrl() {
         return pncBaseUrl;
     }
@@ -135,6 +145,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return versionAdjust;
     }
 
+    public String getCausewayBaseUrl() {
+        return causewayBaseUrl;
+    }
+
     @Override
     public String toString() {
         return "BpmModuleConfig{" +
@@ -148,6 +162,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", deploymentId='" + deploymentId + '\'' +
                 ", bcCreationProcessId='" + bcCreationProcessId + '\'' +
                 ", componentBuildProcessId='" + componentBuildProcessId + '\'' +
+                ", brewPushProcessId='" + brewPushProcessId + '\'' +
+                ", causewayBaseUrl='" + causewayBaseUrl + '\'' +
                 ", communityBuild='" + communityBuild + '\'' +
                 ", versionAdjust='" + versionAdjust + '\'' +
                 '}';

@@ -64,7 +64,7 @@ public class BpmManager {
     private static final int AUTHENTICATION_TIMEOUT_S = 2 * 60;
 
     private Configuration configuration;
-    private BpmModuleConfig bpmConfig;
+    protected BpmModuleConfig bpmConfig;
     private int nextTaskId = 1;
     private Map<Integer, BpmTask> tasks = new HashMap<>();
     private KieSession session;
@@ -80,14 +80,16 @@ public class BpmManager {
 
 
     @PostConstruct
-    private void init() throws CoreException {
+    public void init() throws CoreException {
+        session = initKieSession();
+    }
 
+    protected KieSession initKieSession() throws CoreException {
         try {
             bpmConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new CoreException("BPM manager could not get its configuration.", e);
         }
-
         RuntimeEngine restSessionFactory;
         try {
             restSessionFactory = RemoteRuntimeEngineFactory.newRestBuilder()
@@ -102,7 +104,7 @@ public class BpmManager {
                     bpmConfig.getBpmInstanceUrl() + "' check that the URL is correct.", e);
         }
 
-        session = restSessionFactory.getKieSession();
+        return restSessionFactory.getKieSession();
     }
 
     @PreDestroy
@@ -123,6 +125,8 @@ public class BpmManager {
         try {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
+            tasks.put(task.getTaskId(), task);
+
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
             if (processInstance == null) {
@@ -132,7 +136,6 @@ public class BpmManager {
             task.setProcessInstanceId(processInstance.getId());
             task.setProcessName(processInstance.getProcessId());
             log.debug("Created new process instance with id {}", task.getProcessInstanceId());
-            tasks.put(task.getTaskId(), task);
             return true;
 
         } catch (Exception e) {

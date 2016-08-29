@@ -28,9 +28,9 @@ import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.integration.utils.JsonUtils;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.pnc.test.util.JsonUtils;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -49,10 +49,6 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 public class ProductMilestoneRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/";
-    private static final String PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/product-versions/%d";
-    private static final String PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT = PRODUCT_MILESTONE_REST_ENDPOINT + "%d";
 
     private static int productId;
     private static int productVersionId;
@@ -82,7 +78,7 @@ public class ProductMilestoneRestTest extends AbstractTest {
     @InSequence(2)
     public void prepareProductMilestoneId() {
         given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(PRODUCT_MILESTONE_REST_ENDPOINT))
+                .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_MILESTONE_REST_ENDPOINT)
                 .then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productMilestoneId = Integer.valueOf(value)));
     }
