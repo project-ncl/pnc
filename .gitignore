@@ -14,3 +14,5 @@ settings.xml
 
 # DB test file
 maven-repository-manager/derby.log
+maven-repository-manager/indexedStorePath
+maven-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry

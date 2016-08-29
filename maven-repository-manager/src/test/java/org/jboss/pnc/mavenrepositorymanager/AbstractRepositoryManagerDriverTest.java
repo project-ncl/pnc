@@ -145,6 +145,7 @@ public class AbstractRepositoryManagerDriverTest {
             throws IOException
     {
         writeConfigFile( "conf.d/scheduler.conf", "[scheduler]\nenabled=false" );
+        writeConfigFile( "conf.d/threadpools.conf", "[threadpools]\nenabled=false" );
     }
 
     protected String readTestResource( String resource )

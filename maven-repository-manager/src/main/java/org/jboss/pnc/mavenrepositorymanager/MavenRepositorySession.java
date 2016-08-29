@@ -76,7 +76,7 @@ public class MavenRepositorySession implements RepositorySession {
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList("maven-metadata.xml", ".sha1", ".md5", ".asc")));
 
     private Indy indy;
-    private final String buildRepoId;
+    private final String buildContentId;
 
     private final RepositoryConnectionInfo connectionInfo;
     private boolean isSetBuild;
@@ -86,17 +86,17 @@ public class MavenRepositorySession implements RepositorySession {
     // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
     @Deprecated
-    public MavenRepositorySession(Indy indy, String buildRepoId, boolean isSetBuild,
+    public MavenRepositorySession(Indy indy, String buildContentId, boolean isSetBuild,
                                   MavenRepositoryConnectionInfo info) {
         this.indy = indy;
-        this.buildRepoId = buildRepoId;
+        this.buildContentId = buildContentId;
         this.isSetBuild = isSetBuild;
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, String buildRepoId, MavenRepositoryConnectionInfo info) {
+    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info) {
         this.indy = indy;
-        this.buildRepoId = buildRepoId;
+        this.buildContentId = buildContentId;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
     }
@@ -113,7 +113,7 @@ public class MavenRepositorySession implements RepositorySession {
 
     @Override
     public String getBuildRepositoryId() {
-        return buildRepoId;
+        return buildContentId;
     }
 
     @Override
@@ -131,18 +131,18 @@ public class MavenRepositorySession implements RepositorySession {
         TrackedContentDTO report;
         try {
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
-            boolean sealed = foloAdmin.sealTrackingRecord(buildRepoId);
+            boolean sealed = foloAdmin.sealTrackingRecord(buildContentId);
             if (!sealed) {
-                throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildRepoId);
+                throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildContentId);
             }
 
-            report = foloAdmin.getTrackingReport(buildRepoId);
+            report = foloAdmin.getTrackingReport(buildContentId);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
+            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildContentId,
                     e.getMessage());
         }
         if (report == null) {
-            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s.", buildRepoId);
+            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s.", buildContentId);
         }
 
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
@@ -154,7 +154,7 @@ public class MavenRepositorySession implements RepositorySession {
         Collections.sort(downloads, comp);
 
         try {
-            indy.stores().delete(StoreType.group, buildRepoId, "[Post-Build] Removing build aggregation group: " + buildRepoId );
+            indy.stores().delete(StoreType.group, buildContentId, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
         }
@@ -165,7 +165,7 @@ public class MavenRepositorySession implements RepositorySession {
 
         promoteToBuildContentSet(); //TODO report user readable responses using MavenRepositoryManagerResult with log and status
 
-        return new MavenRepositoryManagerResult(uploads, downloads, buildRepoId); //TODO buildRepoId == buildContentId ?
+        return new MavenRepositoryManagerResult(uploads, downloads, buildContentId);
     }
 
     /**
@@ -369,7 +369,7 @@ public class MavenRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
-        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildRepoId), MavenRepositoryConstants.UNTESTED_BUILDS_GROUP);
+        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildContentId), MavenRepositoryConstants.UNTESTED_BUILDS_GROUP);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
             if (!result.succeeded()) {
