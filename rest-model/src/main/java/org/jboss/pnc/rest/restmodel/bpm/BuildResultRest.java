@@ -18,6 +18,8 @@
 
 package org.jboss.pnc.rest.restmodel.bpm;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
@@ -34,23 +36,45 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Optional;
 
+import static java.util.Optional.*;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildResult")
 public class BuildResultRest extends BpmNotificationRest implements Serializable {
 
+    @Getter
+    @Setter
     private BuildExecutionConfigurationRest buildExecutionConfiguration;
 
+    @Getter
+    @Setter
     private BuildDriverResultRest buildDriverResult;
 
+    @Getter
+    @Setter
     private RepositoryManagerResultRest repositoryManagerResult;
 
+    @Getter
+    @Setter
     private ExecutorException exception;
 
+    @Getter
+    @Setter
     private BuildExecutionStatus failedReasonStatus;
 
+    @Getter
+    @Setter
     private SshCredentials sshCredentials;
+
+    @Getter
+    @Setter
+    private String executionRootName;
+
+    @Getter
+    @Setter
+    private String executionRootVersion;
 
     public BuildResultRest() {
     }
@@ -63,6 +87,8 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
         this.exception = buildResultRest.getException();
         this.failedReasonStatus = buildResultRest.getFailedReasonStatus();
         this.sshCredentials = buildResultRest.getSshCredentials();
+        this.executionRootName = buildResultRest.getExecutionRootName();
+        this.executionRootVersion = buildResultRest.getExecutionRootVersion();
     }
 
     public BuildResultRest(BuildResult buildResult) {
@@ -93,61 +119,16 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
             repositoryManagerResult = getRepositoryManagerResult().toRepositoryManagerResult();
         }
         return new BuildResult(
-                Optional.ofNullable(buildExecutionConfiguration),
-                Optional.ofNullable(buildDriverResult),
-                Optional.ofNullable(repositoryManagerResult),
-                Optional.ofNullable(exception),
-                Optional.ofNullable(failedReasonStatus),
-                Optional.ofNullable(sshCredentials));
+                ofNullable(buildExecutionConfiguration),
+                ofNullable(buildDriverResult),
+                ofNullable(repositoryManagerResult),
+                ofNullable(exception),
+                ofNullable(failedReasonStatus),
+                ofNullable(sshCredentials),
+                ofNullable(executionRootName),
+                ofNullable(executionRootVersion));
     }
 
-    public void setBuildExecutionConfiguration(BuildExecutionConfigurationRest buildExecutionConfiguration) {
-        this.buildExecutionConfiguration = buildExecutionConfiguration;
-    }
-
-    public BuildExecutionConfigurationRest getBuildExecutionConfiguration() {
-        return buildExecutionConfiguration;
-    }
-
-    public BuildDriverResultRest getBuildDriverResult() {
-        return buildDriverResult;
-    }
-
-    public void setBuildDriverResult(BuildDriverResultRest buildDriverResult) {
-        this.buildDriverResult = buildDriverResult;
-    }
-
-    public RepositoryManagerResultRest getRepositoryManagerResult() {
-        return repositoryManagerResult;
-    }
-
-    public void setRepositoryManagerResult(RepositoryManagerResultRest repositoryManagerResult) {
-        this.repositoryManagerResult = repositoryManagerResult;
-    }
-
-    public ExecutorException getException() {
-        return exception;
-    }
-
-    public void setException(ExecutorException exception) {
-        this.exception = exception;
-    }
-
-    public BuildExecutionStatus getFailedReasonStatus() {
-        return failedReasonStatus;
-    }
-
-    public void setFailedReasonStatus(BuildExecutionStatus failedReasonStatus) {
-        this.failedReasonStatus = failedReasonStatus;
-    }
-
-    public SshCredentials getSshCredentials() {
-        return sshCredentials;
-    }
-
-    public void setSshCredentials(SshCredentials sshCredentials) {
-        this.sshCredentials = sshCredentials;
-    }
 
     @Override
     public String getEventType() {

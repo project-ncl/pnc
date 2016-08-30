@@ -97,6 +97,9 @@ public class DatastoreAdapter {
 
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
 
+            buildResult.getExecutionRootName().ifPresent(buildRecordBuilder::executionRootName);
+            buildResult.getExecutionRootVersion().ifPresent(buildRecordBuilder::executionRootVersion);
+
             buildResult.getSshCredentials().ifPresent(
                     c -> {
                         buildRecordBuilder.sshCommand(c.getCommand());
@@ -176,6 +179,10 @@ public class DatastoreAdapter {
         StringBuilder errorLog = new StringBuilder();
 
         buildResult.ifPresent(r -> {
+
+            r.getExecutionRootName().ifPresent(buildRecordBuilder::executionRootName);
+            r.getExecutionRootVersion().ifPresent(buildRecordBuilder::executionRootVersion);
+
             r.getBuildDriverResult().ifPresent(
                 buildDriverResult -> {
                     errorLog.append(buildDriverResult.getBuildLog());

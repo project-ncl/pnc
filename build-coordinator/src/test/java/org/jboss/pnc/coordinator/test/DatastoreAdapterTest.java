@@ -111,8 +111,9 @@ public class DatastoreAdapterTest {
                 Optional.of(repositoryManagerResult),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty()
-        );
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty());
 
         datastoreAdapter.storeResult(buildTask, buildResult);
     }

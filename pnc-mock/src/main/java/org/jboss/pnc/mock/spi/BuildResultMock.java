@@ -58,7 +58,7 @@ public class BuildResultMock {
                 Optional.ofNullable(repositoryManagerResult),
                 Optional.ofNullable(exception),
                 Optional.ofNullable(buildExecutionStatus),
-                Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty());
 
     }
 

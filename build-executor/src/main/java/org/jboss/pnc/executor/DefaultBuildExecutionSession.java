@@ -131,7 +131,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                         Optional.ofNullable(repositoryManagerResult),
                         Optional.empty(),
                         Optional.empty(),
-                        sshCredentials);
+                        sshCredentials,
+                        Optional.empty(),
+                        Optional.empty());
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
                 return new BuildResult(
@@ -140,7 +142,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                         Optional.ofNullable(repositoryManagerResult),
                         Optional.empty(),
                         Optional.of(failedReasonStatus),
-                        sshCredentials);
+                        sshCredentials,
+                        Optional.empty(),
+                        Optional.empty());
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
@@ -150,7 +154,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                     Optional.ofNullable(repositoryManagerResult),
                     Optional.of(executorException),
                     Optional.ofNullable(failedReasonStatus),
-                    sshCredentials);
+                    sshCredentials,
+                    Optional.empty(),
+                    Optional.empty());
         }
     }
 

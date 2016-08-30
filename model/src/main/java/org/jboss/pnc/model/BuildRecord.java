@@ -164,6 +164,24 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Setter
     private String sshPassword;
 
+    /**
+     * This is and identifier of the built project sources.
+     * In case of Maven, it is GA of the POM being built.
+     * This information comes from Repour/PME and has to be stored in the build record
+     * to be used in the release process.
+     */
+    @Getter
+    @Setter
+    private String executionRootName;
+
+    /**
+     * See {@link BuildRecord#executionRootName}.
+     * Contains corresponding version.
+     */
+    @Getter
+    @Setter
+    private String executionRootVersion;
+
     private boolean tested;
 
     private boolean deprecated;
@@ -546,6 +564,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String sshPassword;
 
+        private String executionRootName;
+
+        private String executionRootVersion;
+
         private Map<String, String> attributes = new HashMap<>();
 
         public Builder() {
@@ -576,6 +598,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setAttributes(attributes);
             buildRecord.setSshCommand(sshCommand);
             buildRecord.setSshPassword(sshPassword);
+            buildRecord.setExecutionRootName(executionRootName);
+            buildRecord.setExecutionRootVersion(executionRootVersion);
 
             if (buildConfigSetRecord != null) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
@@ -718,6 +742,16 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public BuildRecord.Builder sshPassword(String sshPassword) {
             this.sshPassword = sshPassword;
+            return this;
+        }
+
+        public BuildRecord.Builder executionRootName(String executionRootName) {
+            this.executionRootName = executionRootName;
+            return this;
+        }
+
+        public BuildRecord.Builder executionRootVersion(String executionRootVersion) {
+            this.executionRootVersion = executionRootVersion;
             return this;
         }
 
