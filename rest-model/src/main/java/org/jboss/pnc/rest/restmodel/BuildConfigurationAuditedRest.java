@@ -55,6 +55,14 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private String scmRevision;
 
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
+
+    @Getter
+    @Setter
+    private String scmExternalRevision;
+
     @Deprecated // no longer used
     @Getter
     @Setter
@@ -91,6 +99,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRepoURL = buildConfigurationAudited.getScmRepoURL();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
+        this.scmExternalRepoURL = buildConfigurationAudited.getScmExternalRepoURL();
+        this.scmExternalRevision = buildConfigurationAudited.getScmExternalRevision();
 
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.project = new ProjectRest(buildConfigurationAudited.getProject()));
@@ -226,11 +236,18 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     @XmlTransient
     public BuildConfigurationAudited.Builder toDBEntityBuilder() {
 
-        BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder().id(id).name(name)
-                .description(description).buildScript(buildScript).scmRepoURL(scmRepoURL)
+        BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .buildScript(buildScript)
+                .scmRepoURL(scmRepoURL)
                 .scmRevision(scmRevision)
+                .scmExternalRepoURL(scmExternalRepoURL)
+                .scmExternalRevision(scmRevision)
                 .creationTime(creationTime)
-                .lastModificationTime(lastModificationTime).repositories(repositories);
+                .lastModificationTime(lastModificationTime)
+                .repositories(repositories);
 
         performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
         performIfNotNull(this.environment,

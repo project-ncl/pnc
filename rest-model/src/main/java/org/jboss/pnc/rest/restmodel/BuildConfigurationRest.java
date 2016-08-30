@@ -60,6 +60,15 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private String scmRevision;
 
     @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
+
+    @Getter
+    @Setter
+    private String scmExternalRevision;
+
+    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Deprecated // no longer used
     @Getter
     @Setter
@@ -98,6 +107,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.buildScript = buildConfiguration.getBuildScript();
         this.scmRepoURL = buildConfiguration.getScmRepoURL();
         this.scmRevision = buildConfiguration.getScmRevision();
+        this.scmExternalRepoURL = buildConfiguration.getScmExternalRepoURL();
+        this.scmExternalRevision = buildConfiguration.getScmExternalRevision();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
@@ -242,6 +253,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .buildScript(this.getBuildScript())
                 .scmRepoURL(this.getScmRepoURL())
                 .scmRevision(this.getScmRevision())
+                .scmExternalRepoURL(this.getScmExternalRepoURL())
+                .scmExternalRevision(this.getScmExternalRevision())
                 .archived(this.isArchived())
                 .repositories(this.getRepositories());
 

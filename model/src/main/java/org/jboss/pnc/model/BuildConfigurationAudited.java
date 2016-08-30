@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -61,6 +63,14 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     private String scmRepoURL;
 
     private String scmRevision;
+
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
+
+    @Getter
+    @Setter
+    private String scmExternalRevision;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -264,6 +274,8 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
             configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
             configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
+            configurationAudited.setScmExternalRepoURL(buildConfiguration.getScmExternalRepoURL());
+            configurationAudited.setScmExternalRevision(buildConfiguration.getScmExternalRevision());
             configurationAudited.setRev(rev);
             configurationAudited.setIdRev(new IdRev(id, rev));
             return configurationAudited;

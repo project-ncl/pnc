@@ -89,7 +89,7 @@ public class TermdRunningBuild implements RunningBuild {
         return buildExecutionConfiguration.getScmRepoURL();
     }
 
-    public String getScmRevision() { 
+    public String getScmRevision() {
         return buildExecutionConfiguration.getScmRevision();
     }
 

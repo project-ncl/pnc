@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -89,16 +91,40 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String buildScript;
 
     /**
-     * The upstream/community scm repo URL submitted by the user.
+     * Repository URL containing project to be build.
+     * This URL *MUST* be read/write.
+     * This SHOULD be internal URL, since build process
+     * may involve source code manipulation and
+     * pushing branches, tags, etc.
      */
     @Size(max=255)
     private String scmRepoURL;
 
     /**
-     * The upstream/community scm revision (commit ID/tag/branch) submitted by the user.
+     * Revision to build.
+     * This may not be the final revision on which the
+     * actual build gets executed, but MUST be the starting point
+     * of the build process.
      */
     @Size(max=255)
     private String scmRevision;
+
+    /**
+     * Repository URL of upstream of {@link BuildConfiguration#scmRepoURL}.
+     * This repo SHOULD NOT be used as the direct source for the actual build,
+     * rather, build process MAY clone the external repo and set
+     * {@link BuildConfiguration#scmRepoURL} accordingly.
+     * This URL SHOULD be read-only, since push access is not needed.
+     */
+    @Size(max=255)
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
+
+    @Size(max=255)
+    @Getter
+    @Setter
+    private String scmExternalRevision;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -650,6 +676,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String scmRevision;
 
+        private String scmExternalRepoURL;
+
+        private String scmExternalRevision;
+
         private String description;
 
         private Project project;
@@ -689,6 +719,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildScript(buildScript);
             buildConfiguration.setScmRepoURL(scmRepoURL);
             buildConfiguration.setScmRevision(scmRevision);
+            buildConfiguration.setScmExternalRepoURL(scmExternalRepoURL);
+            buildConfiguration.setScmExternalRevision(scmExternalRevision);
             buildConfiguration.setDescription(description);
 
             // Set the bi-directional mapping
@@ -748,6 +780,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder scmRevision(String scmRevision) {
             this.scmRevision = scmRevision;
+            return this;
+        }
+
+        public Builder scmExternalRepoURL(String scmExternalRepoURL) {
+            this.scmExternalRepoURL = scmExternalRepoURL;
+            return this;
+        }
+
+        public Builder scmExternalRevision(String scmExternalRevision) {
+            this.scmExternalRevision = scmExternalRevision;
             return this;
         }
 
