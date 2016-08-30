@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -40,6 +41,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @Category(ContainerTest.class)
+@Ignore("Uploaded/Built paths should NOT be contained in downloaded/dependency listing!")
 public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
     extends AbstractImportTest
 {
