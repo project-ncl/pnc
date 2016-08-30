@@ -18,13 +18,16 @@
 package org.jboss.pnc.rest.provider;
 
 import org.assertj.core.api.AbstractCharSequenceAssert;
+import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ArtifactRepositoryMock;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.BuildRecordRepositoryMock;
+import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneReleaseRepositoryMock;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneRepositoryMock;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
@@ -38,6 +41,7 @@ import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -66,11 +70,12 @@ import static org.jboss.pnc.rest.utils.RequestUtils.requestWithEntity;
  */
 public class MilestoneReleaseTest {
 
-    private ProductMilestoneRepositoryMock repoMock = new ProductMilestoneRepositoryMock();
-    private BuildRecordRepository buildRecordRepository = new BuildRecordRepositoryMock();
     private ArtifactRepository artifactRepository = new ArtifactRepositoryMock();
+    private BuildRecordRepository buildRecordRepository = new BuildRecordRepositoryMock();
+    private ProductMilestoneRepositoryMock repoMock = new ProductMilestoneRepositoryMock();
+    private ProductMilestoneReleaseRepository productMilestoneReleaseRepository = new ProductMilestoneReleaseRepositoryMock();
 
-    private BpmMock bpmMock = new BpmMock();
+    private BpmMock bpmMock;
     @Mock
     private RSQLPredicateProducer rsqlPredicateProducer;
     @Mock
@@ -81,22 +86,26 @@ public class MilestoneReleaseTest {
     private ArtifactProvider artifactProvider;
     @Mock
     private BuildRecordProvider buildRecordProvider;
+    @Mock
+    private ProductMilestoneReleaseProvider milestoneReleaseProvider;
 
     private ProductMilestoneEndpoint milestoneEndpoint;
 
     private BpmEndpoint bpmEndpoint;
 
     @Before
-    public void setUp() throws CoreException {
+    public void setUp() throws CoreException, ConfigurationParseException {
+        bpmMock = new BpmMock();
         MockitoAnnotations.initMocks(this);
         ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(repoMock,
                 bpmMock,
                 artifactRepository,
                 buildRecordRepository,
+                productMilestoneReleaseRepository,
                 rsqlPredicateProducer,
                 sortInfoProducer,
                 pageInfoProducer);
-        milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider);
+        milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider);
         bpmEndpoint = new BpmEndpoint(bpmMock);
         bpmMock.setUp();
     }
@@ -245,8 +254,8 @@ public class MilestoneReleaseTest {
 
     private AbstractCharSequenceAssert<?, String> assertLog(ProductMilestone milestone) {
         ProductMilestone productMilestone = repoMock.queryById(milestone.getId());
-        String pushLog = productMilestone.getPushLog();
-        return assertThat(pushLog);
+        ProductMilestoneRelease release = productMilestoneReleaseRepository.findLatestByMilestone(productMilestone);
+        return assertThat(release.getLog());
     }
 
     private void triggerMilestoneRelease(ProductMilestone milestone) throws ValidationException {

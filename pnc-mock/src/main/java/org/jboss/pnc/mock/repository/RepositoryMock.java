@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.utils.mock;
+package org.jboss.pnc.mock.repository;
 
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -35,7 +35,7 @@ import java.util.Optional;
  */
 @SuppressWarnings({"WeakerAccess", "unchecked"})
 public class RepositoryMock<EntityType extends GenericEntity<ID>, ID extends Serializable> implements Repository<EntityType, ID> {
-    private final List<EntityType> data = new ArrayList<>();
+    protected final List<EntityType> data = new ArrayList<>();
 
     @Override
     public EntityType save(EntityType entity) {

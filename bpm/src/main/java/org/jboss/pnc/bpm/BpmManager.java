@@ -46,7 +46,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
-import static org.jboss.pnc.bpm.BpmEventType.valueOf;
+import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_ABORTED;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
@@ -64,7 +64,7 @@ public class BpmManager {
     private static final int AUTHENTICATION_TIMEOUT_S = 2 * 60;
 
     private Configuration configuration;
-    protected BpmModuleConfig bpmConfig;
+    private BpmModuleConfig bpmConfig;
     private int nextTaskId = 1;
     private Map<Integer, BpmTask> tasks = new HashMap<>();
     private KieSession session;
@@ -81,15 +81,15 @@ public class BpmManager {
 
     @PostConstruct
     public void init() throws CoreException {
-        session = initKieSession();
-    }
-
-    protected KieSession initKieSession() throws CoreException {
         try {
             bpmConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new CoreException("BPM manager could not get its configuration.", e);
         }
+        session = initKieSession();
+    }
+
+    protected KieSession initKieSession() throws CoreException {
         RuntimeEngine restSessionFactory;
         try {
             restSessionFactory = RemoteRuntimeEngineFactory.newRestBuilder()
@@ -149,9 +149,9 @@ public class BpmManager {
         if (task == null) {
             log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
         } else {
-            BpmEventType<?> bpmEventType = valueOf(notification.getEventType());
+            BpmEventType bpmEventType = nullableValueOf(notification.getEventType());
             if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
-                task.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
+                task.notify(bpmEventType, notification);
             }
         }
 

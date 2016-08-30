@@ -124,10 +124,7 @@ public class BpmEndpoint extends AbstractEndpoint {
             throw new CoreException("Request JSON does not contain required \"eventType\" field.");
         }
         String eventTypeName = node.get("eventType").asText();
-        BpmEventType<?> eventType = BpmEventType.valueOf(eventTypeName);
-        if (eventType == null) {
-            throw new CoreException("Do not recognize event type named '" + eventTypeName + "'.");
-        }
+        BpmEventType eventType = BpmEventType.valueOf(eventTypeName);
         BpmNotificationRest notification;
         try {
             notification = MAPPER.readValue(node.traverse(), eventType.getType());

@@ -15,28 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
+package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.model.BrewPushStatus;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/26/16
- * Time: 2:39 PM
+ * @author Michal Szynkiewicz
  */
-public enum PushStatus {
-    SUCCESS(BrewPushStatus.SUCCEEDED),
-    IMPORT_ERROR(BrewPushStatus.FAILED),
-    SET_UP_ERROR(BrewPushStatus.SYSTEM_ERROR);
-
-    private final BrewPushStatus brewPushStatus;
-
-
-    PushStatus(BrewPushStatus brewPushStatus) {
-        this.brewPushStatus = brewPushStatus;
-    }
-
-    public BrewPushStatus toBrewPushStatus() {
-        return brewPushStatus;
-    }
+public interface ProductMilestoneReleaseRepository extends Repository<ProductMilestoneRelease, Integer> {
+    public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone);
 }

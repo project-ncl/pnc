@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -30,7 +28,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -141,11 +138,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @Index(name = "idx_product_milestone_distributed_artifacts_map", columnNames = { "product_milestone_id",
             "artifact_id" })
     private Set<Artifact> distributedArtifacts;
-
-    @Lob
-    @Getter
-    @Setter
-    private String pushLog;
 
     @Override
     public Integer getId() {
@@ -275,14 +267,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
         return "ProductMilestone [id=" + id + ", version=" + version + "]";
     }
 
-    public void appendToPushLog(String text) {
-        if (pushLog == null) {
-            pushLog = text;
-        } else {
-            pushLog = pushLog + text;
-        }
-    }
-
     public static class Builder {
 
         private Integer id;
@@ -300,8 +284,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
         private String downloadUrl;
 
         private String issueTrackerUrl;
-
-        private String pushLog;
 
         private Set<BuildRecord> performedBuilds = new HashSet<>();
 
@@ -325,7 +307,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
             productMilestone.setPlannedEndDate(plannedEndDate);
             productMilestone.setDownloadUrl(downloadUrl);
             productMilestone.setIssueTrackerUrl(issueTrackerUrl);
-            productMilestone.setPushLog(pushLog);
 
             if (productVersion != null) {
                 productVersion.addProductMilestone(productMilestone);
@@ -412,11 +393,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         public Builder productRelease(ProductRelease productRelease) {
             this.productRelease = productRelease;
-            return this;
-        }
-
-        public Builder pushLog(String pushLog) {
-            this.pushLog = pushLog;
             return this;
         }
 

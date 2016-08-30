@@ -15,28 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
-
-import org.jboss.pnc.model.BrewPushStatus;
+package org.jboss.pnc.model;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/26/16
- * Time: 2:39 PM
+ * Date: 8/30/16
+ * Time: 1:16 PM
  */
-public enum PushStatus {
-    SUCCESS(BrewPushStatus.SUCCEEDED),
-    IMPORT_ERROR(BrewPushStatus.FAILED),
-    SET_UP_ERROR(BrewPushStatus.SYSTEM_ERROR);
-
-    private final BrewPushStatus brewPushStatus;
-
-
-    PushStatus(BrewPushStatus brewPushStatus) {
-        this.brewPushStatus = brewPushStatus;
-    }
-
-    public BrewPushStatus toBrewPushStatus() {
-        return brewPushStatus;
-    }
+public enum BrewPushStatus {
+    IN_PROGRESS,
+    FAILED,
+    SUCCEEDED,
+    SYSTEM_ERROR
 }

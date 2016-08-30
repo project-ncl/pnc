@@ -43,7 +43,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private final String causewayBaseUrl;
     private String deploymentId;
     private String componentBuildProcessId;
-    private String brewPushProcessId;
+    private String releaseProcessId;
     private String bcCreationProcessId;
     private String communityBuild;
     private String versionAdjust;
@@ -53,7 +53,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("bpmInstanceUrl") String bpmInstanceUrl,
             @JsonProperty("deploymentId") String deploymentId,
             @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
-            @JsonProperty("brewPushProcessId") String brewPushProcessId,
+            @JsonProperty("releaseProcessId") String releaseProcessId,
             @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
             @JsonProperty("pncBaseUrl") String pncBaseUrl,
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
@@ -68,7 +68,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.password = password;
         this.deploymentId = deploymentId;
         this.componentBuildProcessId = componentBuildProcessId;
-        this.brewPushProcessId = brewPushProcessId;
+        this.releaseProcessId = releaseProcessId;
         this.bcCreationProcessId = bcCreationProcessId;
         this.bpmInstanceUrl = bpmInstanceUrl;
         this.pncBaseUrl = pncBaseUrl;
@@ -114,7 +114,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     }
 
     public String getMilestoneReleaseProcessId() {
-        return brewPushProcessId;
+        return releaseProcessId;
     }
 
     public String getPncBaseUrl() {
@@ -162,7 +162,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", deploymentId='" + deploymentId + '\'' +
                 ", bcCreationProcessId='" + bcCreationProcessId + '\'' +
                 ", componentBuildProcessId='" + componentBuildProcessId + '\'' +
-                ", brewPushProcessId='" + brewPushProcessId + '\'' +
+                ", brewPushProcessId='" + releaseProcessId + '\'' +
                 ", causewayBaseUrl='" + causewayBaseUrl + '\'' +
                 ", communityBuild='" + communityBuild + '\'' +
                 ", versionAdjust='" + versionAdjust + '\'' +

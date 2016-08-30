@@ -21,12 +21,15 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.task.BpmBrewPushTask;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BrewPushStatus;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
+import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
 import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
@@ -37,6 +40,7 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
@@ -46,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
@@ -59,6 +64,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     private ArtifactRepository artifactRepository;
     private BpmManager bpmManager;
     private BuildRecordRepository buildRecordRepository;
+    private ProductMilestoneReleaseRepository releaseRepository;
 
     @Inject
     public ProductMilestoneProvider(
@@ -66,12 +72,14 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
             BpmManager bpmManager,
             ArtifactRepository artifactRepository,
             BuildRecordRepository buildRecordRepository,
+            ProductMilestoneReleaseRepository releaseRepository,
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.artifactRepository = artifactRepository;
         this.bpmManager = bpmManager;
         this.buildRecordRepository = buildRecordRepository;
+        this.releaseRepository = releaseRepository;
     }
 
     // needed for EJB/CDI
@@ -120,35 +128,59 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         validateBeforeUpdating(id, restEntity);
         ProductMilestone milestone = toDBModel().apply(restEntity);
 
-        if (restEntity.getEndDate() != null) {
-            triggerBrewPush(milestone);
+        if (restEntity.getEndDate() != null && noReleaseInProgress(milestone)) {
+            ProductMilestoneRelease release = startRelease(milestone);
+            releaseRepository.save(release);
         }
         repository.save(milestone);
     }
 
-    private <T extends BpmNotificationRest> void triggerBrewPush(ProductMilestone milestone) {
-        milestone.appendToPushLog("Starting brew push\n");
+    private boolean noReleaseInProgress(ProductMilestone milestone) {
+        ProductMilestoneRelease latestRelease = releaseRepository.findLatestByMilestone(milestone);
+
+        return latestRelease == null || latestRelease.getStatus() != BrewPushStatus.IN_PROGRESS;
+    }
+
+    private <T extends BpmNotificationRest> ProductMilestoneRelease startRelease(ProductMilestone milestone) {
+        ProductMilestoneRelease release = new ProductMilestoneRelease();
+        release.setStartingDate(new Date());
+        release.setMilestone(milestone);
         try {
             BpmBrewPushTask releaseTask = new BpmBrewPushTask(milestone);
             releaseTask.addListener(BpmEventType.BREW_IMPORT_SUCCESS, this::onSuccessfulPush);
-            releaseTask.addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));
+            releaseTask.<BpmStringMapNotificationRest>addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));
             bpmManager.startTask(releaseTask);
-            milestone.appendToPushLog("Brew push task started\n");
+            release.setLog("Brew push task started\n");
+
+            return release;
         } catch (CoreException e) {
-            milestone.appendToPushLog("Brew push BPM task creation failed. Check log for more details " + e.getMessage() + "\n");
             log.error("Error trying to start brew push task for milestone: {}", milestone.getId(), e);
+            release.setLog("Brew push BPM task creation failed. Check log for more details " + e.getMessage() + "\n");
+            release.setStatus(BrewPushStatus.SYSTEM_ERROR);
+            release.setEndDate(new Date());
+            return release;
         }
     }
 
     private void onSuccessfulPush(BrewPushMilestoneResultRest result) {
         int milestoneId = result.getMilestoneId();
         ProductMilestone milestone = repository.queryById(milestoneId);
-        milestone.appendToPushLog(describeCompletedPush(result));
+        String message = describeCompletedPush(result);
+        updateRelease(milestone, message, result.getPushStatus().toBrewPushStatus());
     }
 
-    private void onFailedPush(Integer milestoneId, BpmNotificationRest result) {
+    private void updateRelease(ProductMilestone milestone, String message, BrewPushStatus status) {
+        ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(milestone);
+        release.setStatus(status);
+        if (status != BrewPushStatus.IN_PROGRESS) {
+            release.setEndDate(new Date());
+        }
+        release.setLog(release.getLog() + message);
+    }
+
+    private void onFailedPush(Integer milestoneId, BpmStringMapNotificationRest result) {
         ProductMilestone milestone = repository.queryById(milestoneId);
-        milestone.appendToPushLog("BREW IMPORT FAILED\nResult: " + result);
+        updateRelease(milestone, "BREW IMPORT FAILED\nResult: " + result, BrewPushStatus.SYSTEM_ERROR);
     }
 
     private String describeCompletedPush(BrewPushMilestoneResultRest result) {

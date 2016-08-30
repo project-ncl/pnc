@@ -62,8 +62,6 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private Integer productReleaseId;
 
-    private String pushLog;
-
     public ProductMilestoneRest() {
     }
 
@@ -87,7 +85,6 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         if (productMilestone.getProductRelease() != null) {
             this.productReleaseId = productMilestone.getProductRelease().getId();
         }
-        this.pushLog = productMilestone.getPushLog();
     }
 
     @Override

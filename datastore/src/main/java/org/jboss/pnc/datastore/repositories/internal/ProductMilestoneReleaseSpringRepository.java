@@ -15,28 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
+package org.jboss.pnc.datastore.repositories.internal;
 
-import org.jboss.pnc.model.BrewPushStatus;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/26/16
- * Time: 2:39 PM
+ * Date: 8/30/16
+ * Time: 1:46 PM
  */
-public enum PushStatus {
-    SUCCESS(BrewPushStatus.SUCCEEDED),
-    IMPORT_ERROR(BrewPushStatus.FAILED),
-    SET_UP_ERROR(BrewPushStatus.SYSTEM_ERROR);
+public interface ProductMilestoneReleaseSpringRepository extends JpaRepository<ProductMilestoneRelease, Integer>, JpaSpecificationExecutor<ProductMilestoneRelease> {
 
-    private final BrewPushStatus brewPushStatus;
-
-
-    PushStatus(BrewPushStatus brewPushStatus) {
-        this.brewPushStatus = brewPushStatus;
-    }
-
-    public BrewPushStatus toBrewPushStatus() {
-        return brewPushStatus;
-    }
+    @Query("select r from ProductMilestoneRelease r where r.id = (select max(id) from ProductMilestoneRelease o where o.milestone = ?1)")
+    ProductMilestoneRelease findLatestForMilestone(ProductMilestone milestone);
 }

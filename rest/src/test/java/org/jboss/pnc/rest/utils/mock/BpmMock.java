@@ -22,7 +22,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.test.util.JsonUtils;
@@ -38,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,17 +56,29 @@ public class BpmMock extends BpmManager {
     private final List<Push> pushes = new ArrayList<>();
     private MockKieSession session = new MockKieSession();
 
-    public BpmMock() {
-        super(null);
+    public BpmMock() throws ConfigurationParseException {
+        super(mockConfiguration());
+    }
+
+    private static Configuration mockConfiguration() throws ConfigurationParseException {
+        BpmModuleConfig bpmConfig = mockBpmConfig();
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getModuleConfig(any(ConfigProvider.class))).thenReturn(bpmConfig);
+        return configuration;
     }
 
     @Override
     protected KieSession initKieSession() throws CoreException {
-        bpmConfig = mock(BpmModuleConfig.class);
-        when(bpmConfig.getMilestoneReleaseProcessId()).thenReturn("1.1.1");
+        mockBpmConfig();
         pushes.clear();
         session.onStartProcess(this::startProcessMock);
         return session;
+    }
+
+    private static BpmModuleConfig mockBpmConfig() {
+        BpmModuleConfig bpmConfig = mock(BpmModuleConfig.class);
+        when(bpmConfig.getMilestoneReleaseProcessId()).thenReturn("1.1.1");
+        return bpmConfig;
     }
 
     private ProcessInstance startProcessMock(String processName, Map params) {

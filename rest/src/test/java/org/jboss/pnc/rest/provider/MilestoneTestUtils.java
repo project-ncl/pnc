@@ -17,20 +17,24 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.mock.repository.RepositoryMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.rest.utils.mock.RepositoryMock;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
@@ -68,7 +72,17 @@ public class MilestoneTestUtils {
         return milestone;
     }
 
-    public static class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone, Integer> implements ProductMilestoneRepository {
+    public static class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone, Integer> implements ProductMilestoneRepository {}
+    public static class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease, Integer> implements ProductMilestoneReleaseRepository {
+        @Override
+        public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
+            List<ProductMilestoneRelease> list =
+                    data.stream()
+                            .filter(r -> Objects.equals(r.getMilestone().getId(), milestone.getId()))
+                            .collect(Collectors.toList());
+            int listSize = list.size();
+            return listSize == 0 ? null : list.get(listSize - 1);
+        }
     }
 
     public static class ArtifactRepositoryMock extends RepositoryMock<Artifact, Integer> implements ArtifactRepository {
