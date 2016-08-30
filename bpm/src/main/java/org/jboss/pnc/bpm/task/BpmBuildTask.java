@@ -86,8 +86,6 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getName(),
                 buildConfiguration.getScmRepoURL(),
                 buildConfiguration.getScmRevision(),
-                buildConfiguration.getScmMirrorRepoURL(),
-                buildConfiguration.getScmMirrorRevision(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),

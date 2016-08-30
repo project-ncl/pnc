@@ -31,9 +31,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final Integer userId;
     private final String buildScript;
     private final String name;
-    private final String scmMirrorRepoURL;
     private final String scmRepoURL;
-    private final String scmMirrorRevision;
     private final String scmRevision;
     private final String systemImageId;
     private final String systemImageRepositoryUrl;
@@ -46,9 +44,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             Integer userId,
             String buildScript,
             String name,
-            String scmMirrorRepoURL,
             String scmRepoURL,
-            String scmMirrorRevision,
             String scmRevision,
             String systemImageId,
             String systemImageRepositoryUrl,
@@ -60,9 +56,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.userId = userId;
         this.buildScript = buildScript;
         this.name = name;
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
         this.scmRepoURL = scmRepoURL;
-        this.scmMirrorRevision = scmMirrorRevision;
         this.scmRevision = scmRevision;
         this.systemImageId = systemImageId;
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
@@ -96,18 +90,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     }
 
     @Override
-    public String getScmMirrorRepoURL() {
-        return scmMirrorRepoURL;
-    }
-
-    @Override
     public String getScmRepoURL() {
         return scmRepoURL;
-    }
-
-    @Override
-    public String getScmMirrorRevision() {
-        return scmMirrorRevision;
     }
 
     @Override
