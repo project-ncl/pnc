@@ -17,13 +17,25 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -63,6 +75,11 @@ public class Artifact implements GenericEntity<Integer> {
     @Size(max=255)
     @Column(updatable=false)
     private String checksum;
+
+    @Getter
+    @Setter
+    @Column(updatable = false)
+    private Long size;
 
     @NotNull
     @Enumerated(value = EnumType.STRING)
@@ -394,6 +411,8 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String checksum;
 
+        private Long size;
+
         private Quality artifactQuality;
 
         private ArtifactRepo.Type repoType;
@@ -424,6 +443,7 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setId(id);
             artifact.setIdentifier(identifier);
             artifact.setChecksum(checksum);
+            artifact.setSize(size);
             if (artifactQuality == null) {
                 artifactQuality = Quality.NEW;
             }
@@ -453,6 +473,11 @@ public class Artifact implements GenericEntity<Integer> {
 
         public Builder checksum(String checksum) {
             this.checksum = checksum;
+            return this;
+        }
+
+        public Builder size(Long size) {
+            this.size = size;
             return this;
         }
 

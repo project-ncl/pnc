@@ -36,6 +36,7 @@ public class ArtifactBuilder {
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
                 .checksum("ABCDABCD" + id)
+                .size(12342L)
                 .deployUrl("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
                 .repoType(ArtifactRepo.Type.MAVEN)
                 .filename("artifactFile" + id + ".jar");

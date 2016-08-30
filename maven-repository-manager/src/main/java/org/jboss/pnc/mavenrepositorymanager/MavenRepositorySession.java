@@ -236,10 +236,15 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getMd5())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
+                        .checksum(download.getMd5())
+                        .size(download.getSize())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .originUrl(originUrl).importDate(Date.from(Instant.now())).filename(new File(path).getName())
-                        .identifier(aref.toString()).repoType(ArtifactRepo.Type.MAVEN);
+                        .originUrl(originUrl)
+                        .importDate(Date.from(Instant.now()))
+                        .filename(new File(path).getName())
+                        .identifier(aref.toString())
+                        .repoType(ArtifactRepo.Type.MAVEN);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 deps.add(artifact);
@@ -286,8 +291,12 @@ public class MavenRepositorySession implements RepositorySession {
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
                 logger.info("Recording upload: {}", aref);
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getMd5())
-                        .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
+                        .checksum(upload.getMd5())
+                        .size(upload.getSize())
+                        .deployUrl(upload.getLocalUrl())
+                        .filename(new File(path).getName())
+                        .identifier(aref.toString())
                         .repoType(ArtifactRepo.Type.MAVEN);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());

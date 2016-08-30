@@ -19,6 +19,7 @@ package org.jboss.pnc.mavenrepositorymanager;
 
 import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
@@ -33,6 +34,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +45,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest 
+public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
  extends AbstractImportTest
 {
 
@@ -51,11 +53,12 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
         String pomPath = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.pom";
         String jarPath = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.jar";
-        String content = "This is a test " + System.currentTimeMillis();
+        String pomContent = "This is a pom test " + System.currentTimeMillis();
+        String jarContent = "This is a jar test " + System.currentTimeMillis();
 
         // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
-        server.expect(server.formatUrl(STORE, pomPath), 200, content);
-        server.expect(server.formatUrl(STORE, jarPath), 200, content);
+        server.expect(server.formatUrl(STORE, pomPath), 200, pomContent);
+        server.expect(server.formatUrl(STORE, jarPath), 200, jarContent);
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
@@ -67,8 +70,8 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
 
         // download the two files via the repo session's dependency URL, which will proxy the test http server
         // using the expectations above
-        assertThat(download(UrlUtils.buildUrl(baseUrl, pomPath)), equalTo(content));
-        assertThat(download(UrlUtils.buildUrl(baseUrl, jarPath)), equalTo(content));
+        assertThat(download(UrlUtils.buildUrl(baseUrl, pomPath)), equalTo(pomContent));
+        assertThat(download(UrlUtils.buildUrl(baseUrl, jarPath)), equalTo(jarContent));
 
         // extract the build artifacts, which should contain the two imported deps.
         // This will also trigger promoting imported artifacts into the shared-imports hosted repo
@@ -78,7 +81,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         System.out.println(deps);
 
         assertThat(deps, notNullValue());
-        assertThat(deps.size(), equalTo(2));
+        assertThat("Expected 2 dependencies, got: " + deps, deps.size(), equalTo(2));
 
         ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
         Set<String> refs = new HashSet<>();
@@ -94,12 +97,14 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         Indy indy = driver.getIndy();
 
         // check that the new imports are available from shared-imports
-        for (String path : new String[] { pomPath, jarPath }) {
-            InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, path);
-            String downloaded = IOUtils.toString(stream);
-            assertThat(downloaded, equalTo(content));
-        }
+        assertAvailableInSharedImports(indy, pomContent, pomPath);
+        assertAvailableInSharedImports(indy, jarContent, jarPath);
+    }
 
+    private void assertAvailableInSharedImports(Indy indy, String content, String path) throws IndyClientException, IOException {
+        InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, path);
+        String downloaded = IOUtils.toString(stream);
+        assertThat(downloaded, equalTo(content));
     }
 
 }
