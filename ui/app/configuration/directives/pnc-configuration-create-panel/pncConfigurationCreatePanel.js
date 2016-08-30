@@ -95,12 +95,8 @@
             });
 
             if (_.isUndefined($scope.fixedProject)) {
-              $scope.formNotification = {
-                type:         'success',
-                isPersistent: false,
-                header:       'Success: ',
-                message:      'Build configuration will be created in a few minutes.'
-              };
+              $state.go('configuration.list');
+              Notifications.success('Build configuration will be created in a few minutes.');
             } else {
               $state.go('project.detail', {
                 projectId: $scope.data.project.id
