@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.rest.manager.ProductMilestoneReleaseManager;
+import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
