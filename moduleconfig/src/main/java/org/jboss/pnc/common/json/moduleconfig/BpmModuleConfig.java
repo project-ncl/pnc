@@ -162,7 +162,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", deploymentId='" + deploymentId + '\'' +
                 ", bcCreationProcessId='" + bcCreationProcessId + '\'' +
                 ", componentBuildProcessId='" + componentBuildProcessId + '\'' +
-                ", brewPushProcessId='" + releaseProcessId + '\'' +
+                ", releaseProcessId='" + releaseProcessId + '\'' +
                 ", causewayBaseUrl='" + causewayBaseUrl + '\'' +
                 ", communityBuild='" + communityBuild + '\'' +
                 ", versionAdjust='" + versionAdjust + '\'' +

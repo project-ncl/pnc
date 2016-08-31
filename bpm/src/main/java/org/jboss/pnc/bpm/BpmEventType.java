@@ -21,7 +21,7 @@ import lombok.ToString;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
-import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneResultRest;
+import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,7 +36,7 @@ import static java.util.Objects.requireNonNull;
 @ToString
 public enum BpmEventType {
     // <T extends BpmNotificationRest>
-    BREW_IMPORT_SUCCESS(BrewPushMilestoneResultRest.class),
+    BREW_IMPORT_SUCCESS(MilestoneReleaseResultRest.class),
     BREW_IMPORT_ERROR(BpmStringMapNotificationRest.class),
     BUILD_COMPLETE(BuildResultRest.class),
     BCC_REPO_CREATION_SUCCESS(BpmStringMapNotificationRest.class),

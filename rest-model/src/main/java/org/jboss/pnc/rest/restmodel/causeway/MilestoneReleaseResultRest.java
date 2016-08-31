@@ -17,26 +17,40 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Date: 8/25/16
+ * Time: 7:34 AM
  */
 @Data
-@NoArgsConstructor
-public class BrewPushMilestoneRest {
-    private int milestoneId;
+public class MilestoneReleaseResultRest extends BpmNotificationRest {
+    private Integer milestoneId;
+    private ReleaseStatus releaseStatus;
+    private String errorMessage;
 
-    public BrewPushMilestoneRest(int milestoneId) {
-        this.milestoneId = milestoneId;
-    }
+
+    private List<BuildImportResultRest> builds = new ArrayList<>();
 
     @Override
-    public String toString() {
-        return JsonOutputConverterMapper.apply(this);
+    public String getEventType() {
+        return "BREW_IMPORT_SUCCESS";
+    }
+
+    @JsonIgnore
+    public boolean isSuccessful() {
+        return !builds.isEmpty()
+                && allBuildsSuccessful();
+    }
+
+    private boolean allBuildsSuccessful() {
+        return builds.stream().allMatch(r -> r.getStatus() == BuildImportStatus.SUCCESSFUL);
     }
 }
+

@@ -58,7 +58,7 @@ public class ProductMilestoneRelease implements GenericEntity<Integer> {
     @JoinColumn(updatable = false)
     private ProductMilestone milestone;
     @Enumerated(EnumType.STRING)
-    private BrewPushStatus status;
+    private MilestoneReleaseStatus status;
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String log;

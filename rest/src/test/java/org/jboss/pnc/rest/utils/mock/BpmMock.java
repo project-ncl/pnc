@@ -26,7 +26,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
-import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneRest;
+import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.test.util.JsonUtils;
 import org.kie.api.definition.process.Process;
@@ -83,9 +83,9 @@ public class BpmMock extends BpmManager {
 
     private ProcessInstance startProcessMock(String processName, Map params) {
         Integer taskId = (Integer) params.get("taskId");
-        BrewPushMilestoneRest milestoneRest;
+        MilestoneReleaseRest milestoneRest;
         try {
-            milestoneRest = JsonUtils.fromJson((String) params.get("brewPush"), BrewPushMilestoneRest.class);
+            milestoneRest = JsonUtils.fromJson((String) params.get("brewPush"), MilestoneReleaseRest.class);
         } catch (IOException e) {
             throw new RuntimeException("failed to read brew push milestone rest from json", e);
         }

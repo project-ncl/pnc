@@ -17,40 +17,26 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.pnc.model.MilestoneReleaseStatus;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 7:34 AM
+ * Date: 8/26/16
+ * Time: 2:39 PM
  */
-@Data
-public class BrewPushMilestoneResultRest extends BpmNotificationRest {
-    private Integer milestoneId;
-    private PushStatus pushStatus;
-    private String errorMessage;
+public enum ReleaseStatus {
+    SUCCESS(MilestoneReleaseStatus.SUCCEEDED),
+    IMPORT_ERROR(MilestoneReleaseStatus.FAILED),
+    SET_UP_ERROR(MilestoneReleaseStatus.SYSTEM_ERROR);
+
+    private final MilestoneReleaseStatus milestoneReleaseStatus;
 
 
-    private List<BuildImportResultRest> builds = new ArrayList<>();
-
-    @Override
-    public String getEventType() {
-        return "BREW_IMPORT_SUCCESS";
+    ReleaseStatus(MilestoneReleaseStatus milestoneReleaseStatus) {
+        this.milestoneReleaseStatus = milestoneReleaseStatus;
     }
 
-    @JsonIgnore
-    public boolean isSuccessful() {
-        return !builds.isEmpty()
-                && allBuildsSuccessful();
-    }
-
-    private boolean allBuildsSuccessful() {
-        return builds.stream().allMatch(r -> r.getStatus() == BuildImportStatus.SUCCESSFUL);
+    public MilestoneReleaseStatus getMilestoneReleaseStatus() {
+        return milestoneReleaseStatus;
     }
 }
-

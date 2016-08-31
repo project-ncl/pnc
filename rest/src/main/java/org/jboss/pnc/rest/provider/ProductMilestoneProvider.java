@@ -17,41 +17,24 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.task.BpmBrewPushTask;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BrewPushStatus;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.rest.manager.ProductMilestoneReleaseManager;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
-import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
-import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
-import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneResultRest;
-import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
-import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Date;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
@@ -62,24 +45,18 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProvider.class);
 
     private ArtifactRepository artifactRepository;
-    private BpmManager bpmManager;
-    private BuildRecordRepository buildRecordRepository;
-    private ProductMilestoneReleaseRepository releaseRepository;
+    private ProductMilestoneReleaseManager releaseManager;
 
     @Inject
     public ProductMilestoneProvider(
             ProductMilestoneRepository productMilestoneRepository,
-            BpmManager bpmManager,
             ArtifactRepository artifactRepository,
-            BuildRecordRepository buildRecordRepository,
-            ProductMilestoneReleaseRepository releaseRepository,
+            ProductMilestoneReleaseManager releaseManager,
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.artifactRepository = artifactRepository;
-        this.bpmManager = bpmManager;
-        this.buildRecordRepository = buildRecordRepository;
-        this.releaseRepository = releaseRepository;
+        this.releaseManager = releaseManager;
     }
 
     // needed for EJB/CDI
@@ -93,7 +70,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     @Override
     protected Function<? super ProductMilestone, ? extends ProductMilestoneRest> toRESTModel() {
-        return productMilestone -> new ProductMilestoneRest(productMilestone);
+        return ProductMilestoneRest::new;
     }
 
     @Override
@@ -124,116 +101,15 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     @Override
     public void update(Integer id, ProductMilestoneRest restEntity) throws ValidationException {
+        log.debug("Updating milestone for id: {}", id);
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
         ProductMilestone milestone = toDBModel().apply(restEntity);
 
-        if (restEntity.getEndDate() != null && noReleaseInProgress(milestone)) {
-            ProductMilestoneRelease release = startRelease(milestone);
-            releaseRepository.save(release);
+        if (restEntity.getEndDate() != null && releaseManager.noReleaseInProgress(milestone)) {
+            log.debug("Milestone end date set and no release in progress, will start release");
+            releaseManager.startRelease(milestone);
         }
         repository.save(milestone);
-    }
-
-    private boolean noReleaseInProgress(ProductMilestone milestone) {
-        ProductMilestoneRelease latestRelease = releaseRepository.findLatestByMilestone(milestone);
-
-        return latestRelease == null || latestRelease.getStatus() != BrewPushStatus.IN_PROGRESS;
-    }
-
-    private <T extends BpmNotificationRest> ProductMilestoneRelease startRelease(ProductMilestone milestone) {
-        ProductMilestoneRelease release = new ProductMilestoneRelease();
-        release.setStartingDate(new Date());
-        release.setMilestone(milestone);
-        try {
-            BpmBrewPushTask releaseTask = new BpmBrewPushTask(milestone);
-            releaseTask.addListener(BpmEventType.BREW_IMPORT_SUCCESS, this::onSuccessfulPush);
-            releaseTask.<BpmStringMapNotificationRest>addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));
-            bpmManager.startTask(releaseTask);
-            release.setLog("Brew push task started\n");
-
-            return release;
-        } catch (CoreException e) {
-            log.error("Error trying to start brew push task for milestone: {}", milestone.getId(), e);
-            release.setLog("Brew push BPM task creation failed. Check log for more details " + e.getMessage() + "\n");
-            release.setStatus(BrewPushStatus.SYSTEM_ERROR);
-            release.setEndDate(new Date());
-            return release;
-        }
-    }
-
-    private void onSuccessfulPush(BrewPushMilestoneResultRest result) {
-        int milestoneId = result.getMilestoneId();
-        ProductMilestone milestone = repository.queryById(milestoneId);
-        String message = describeCompletedPush(result);
-        updateRelease(milestone, message, result.getPushStatus().toBrewPushStatus());
-    }
-
-    private void updateRelease(ProductMilestone milestone, String message, BrewPushStatus status) {
-        ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(milestone);
-        release.setStatus(status);
-        if (status != BrewPushStatus.IN_PROGRESS) {
-            release.setEndDate(new Date());
-        }
-        release.setLog(release.getLog() + message);
-    }
-
-    private void onFailedPush(Integer milestoneId, BpmStringMapNotificationRest result) {
-        ProductMilestone milestone = repository.queryById(milestoneId);
-        updateRelease(milestone, "BREW IMPORT FAILED\nResult: " + result, BrewPushStatus.SYSTEM_ERROR);
-    }
-
-    private String describeCompletedPush(BrewPushMilestoneResultRest result) {
-        boolean success = result.isSuccessful();
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Brew push ").append(success ? "SUCCEEDED" : "FAILED").append("\n");
-        stringBuilder.append("Import details:\n");
-
-        for (BuildImportResultRest buildImport : result.getBuilds()) {
-            describeBuildImport(stringBuilder, buildImport);
-        }
-
-        return stringBuilder.toString();
-    }
-
-    private void describeBuildImport(StringBuilder stringBuilder, BuildImportResultRest buildImport) {
-        Integer buildRecordId = buildImport.getBuildRecordId();
-        BuildRecord record = orNull(buildRecordId, buildRecordRepository::queryById);
-        BuildConfigurationAudited buildConfiguration = orNull(record, BuildRecord::getBuildConfigurationAudited);
-        stringBuilder.append("\n-------------------------------------------------------------------------\n");
-        String buildMessage =
-                String.format("%s [buildRecordId: %d, built from %s rev %s] import %s. Brew build id: %d, Brew build url: %s\n",
-                        orNull(buildConfiguration, BuildConfigurationAudited::getName),
-                        orNull(record, BuildRecord::getId),
-                        orNull(record, BuildRecord::getScmRepoURL),
-                        orNull(record, BuildRecord::getScmRevision),
-                        buildImport.getStatus(),
-                        buildImport.getBrewBuildId(),
-                        buildImport.getBrewBuildUrl());
-        stringBuilder.append(buildMessage);
-        if (buildImport.getStatus() != BuildImportStatus.SUCCESSFUL) {
-            stringBuilder.append("Error message: ").append(buildImport.getErrorMessage());
-            List<ArtifactImportError> errors = buildImport.getErrors();
-            if (errors != null && !errors.isEmpty()) {
-                errors.forEach(e -> describeArtifactImportError(stringBuilder, e));
-            }
-        }
-        stringBuilder.append("\n");
-    }
-
-    private void describeArtifactImportError(StringBuilder stringBuilder, ArtifactImportError e) {
-        Integer artifactId = e.getArtifactId();
-        Artifact artifact = artifactRepository.queryById(artifactId);
-
-        stringBuilder.append(
-                String.format("Failed to import %s [artifactId:%d]. Error message: %s\n",
-                        orNull(artifact, Artifact::getIdentifier),
-                        artifactId,
-                        e.getErrorMessage())
-        );
-    }
-
-    private static <T, R> R orNull(T value, Function<T, R> f) {
-        return value == null ? null : f.apply(value);
     }
 }

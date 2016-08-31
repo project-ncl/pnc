@@ -21,7 +21,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.datastore.DeploymentFactory;
-import org.jboss.pnc.model.BrewPushStatus;
+import org.jboss.pnc.model.MilestoneReleaseStatus;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
@@ -72,22 +72,22 @@ public class ProductMilestoneReleaseRepositoryImplTest {
         milestoneRepository.save(milestone1);
         ProductMilestoneRelease r1 = new ProductMilestoneRelease();
         r1.setMilestone(milestone1);
-        r1.setStatus(BrewPushStatus.FAILED);
+        r1.setStatus(MilestoneReleaseStatus.FAILED);
         releaseRepository.save(r1);
 
         ProductMilestoneRelease r2 = new ProductMilestoneRelease();
         r2.setMilestone(milestone1);
-        r2.setStatus(BrewPushStatus.SUCCEEDED);
+        r2.setStatus(MilestoneReleaseStatus.SUCCEEDED);
         releaseRepository.save(r2);
 
         ProductMilestoneRelease r3 = new ProductMilestoneRelease();
         r3.setMilestone(milestone2);
-        r3.setStatus(BrewPushStatus.IN_PROGRESS);
+        r3.setStatus(MilestoneReleaseStatus.IN_PROGRESS);
         releaseRepository.save(r3);
 
         ProductMilestoneRelease latestByMilestone = releaseRepository.findLatestByMilestone(milestone1);
         assertThat(latestByMilestone).isNotNull();
-        assertThat(latestByMilestone.getStatus()).isEqualTo(BrewPushStatus.SUCCEEDED);
+        assertThat(latestByMilestone.getStatus()).isEqualTo(MilestoneReleaseStatus.SUCCEEDED);
     }
 
     private ProductMilestone createMilestone() {

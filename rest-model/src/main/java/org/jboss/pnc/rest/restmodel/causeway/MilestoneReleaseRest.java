@@ -15,16 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model;
+package org.jboss.pnc.rest.restmodel.causeway;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 1:16 PM
+ * Date: 8/24/16
+ * Time: 3:42 PM
  */
-public enum BrewPushStatus {
-    IN_PROGRESS,
-    FAILED,
-    SUCCEEDED,
-    SYSTEM_ERROR
+@Data
+@NoArgsConstructor
+public class MilestoneReleaseRest {
+    private int milestoneId;
+
+    public MilestoneReleaseRest(int milestoneId) {
+        this.milestoneId = milestoneId;
+    }
+
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
+    }
 }

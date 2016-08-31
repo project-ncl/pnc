@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jboss.pnc.model.BrewPushStatus;
+import org.jboss.pnc.model.MilestoneReleaseStatus;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,7 +31,7 @@ import java.util.Date;
 public class ProductMilestoneReleaseRest implements GenericRestEntity<Integer> {
 
     private Integer id;
-    private BrewPushStatus status;
+    private MilestoneReleaseStatus status;
     private String log;
     private Date endDate;
     private Date startingDate;

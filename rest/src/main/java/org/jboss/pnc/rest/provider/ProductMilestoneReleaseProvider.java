@@ -25,8 +25,6 @@ import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepositor
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -35,10 +33,7 @@ import java.util.function.Function;
 @Stateless
 public class ProductMilestoneReleaseProvider extends AbstractProvider<ProductMilestoneRelease, ProductMilestoneReleaseRest> {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductMilestoneReleaseProvider.class);
-
     private ProductMilestoneRepository milestoneRepository;
-
     private ProductMilestoneReleaseRepository releaseRepository;
 
     @Inject
@@ -52,6 +47,7 @@ public class ProductMilestoneReleaseProvider extends AbstractProvider<ProductMil
     }
 
     // needed for EJB/CDI
+    @Deprecated
     public ProductMilestoneReleaseProvider() {
     }
 
@@ -67,7 +63,6 @@ public class ProductMilestoneReleaseProvider extends AbstractProvider<ProductMil
 
     public ProductMilestoneReleaseRest latestForMilestone(Integer milestoneId) {
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
-
 
         ProductMilestoneRelease release = milestone == null ? null : releaseRepository.findLatestByMilestone(milestone);
         return toRESTModel().apply(release);

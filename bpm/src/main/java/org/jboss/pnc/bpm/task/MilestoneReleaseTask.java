@@ -20,7 +20,7 @@ package org.jboss.pnc.bpm.task;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.rest.restmodel.causeway.BrewPushMilestoneRest;
+import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +32,13 @@ import java.util.Map;
  * @author Michal Szynkiewicz
  */
 @ToString(callSuper = true)
-public class BpmBrewPushTask extends BpmTask {
+public class MilestoneReleaseTask extends BpmTask {
 
-    private static final Logger log = LoggerFactory.getLogger(BpmBrewPushTask.class);
+    private static final Logger log = LoggerFactory.getLogger(MilestoneReleaseTask.class);
 
     private final ProductMilestone milestone;
 
-    public BpmBrewPushTask(ProductMilestone milestone) {
+    public MilestoneReleaseTask(ProductMilestone milestone) {
         this.milestone = milestone;
     }
 
@@ -55,7 +55,7 @@ public class BpmBrewPushTask extends BpmTask {
     }
 
     private String createMilestoneRest(ProductMilestone milestone) {
-        return new BrewPushMilestoneRest(milestone.getId()).toString();
+        return new MilestoneReleaseRest(milestone.getId()).toString();
     }
 
     protected Map<String, Object> getProcessParameters() throws CoreException {
