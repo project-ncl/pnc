@@ -188,6 +188,8 @@
 
       that.data = milestoneDetail;
 
+      that.data.endDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.endDate);
+
       that.submit = function() {
 
         that.data.endDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.endDate);
