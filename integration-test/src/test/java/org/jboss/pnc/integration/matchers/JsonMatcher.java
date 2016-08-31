@@ -35,7 +35,7 @@ public class JsonMatcher {
         return new CustomMatcher<String>("matchesJson") {
             @Override
             public boolean matches(Object o) {
-                String rawJson = String.valueOf(o).intern();
+                String rawJson = String.valueOf(o);
                 logger.debug("Evaluating raw JSON: " + rawJson);
                 Object value = from(rawJson).get(jsonAttribute);
                 logger.debug("Got value from JSon: " + value);

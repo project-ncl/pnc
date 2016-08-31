@@ -19,7 +19,11 @@ package org.jboss.pnc.rest.endpoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
@@ -37,7 +41,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -46,7 +57,20 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 /**
  * This endpoint is used for starting and interacting
@@ -64,12 +88,16 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Inject
     private BpmManager bpmManager;
 
     @Deprecated
     public BpmEndpoint() {
     } // CDI workaround
+
+    @Inject
+    public BpmEndpoint(BpmManager bpmManager) {
+        this.bpmManager = bpmManager;
+    }
 
 
     @ApiOperation(value = "Notify PNC about a BPM task event. " +
@@ -96,13 +124,10 @@ public class BpmEndpoint extends AbstractEndpoint {
             throw new CoreException("Request JSON does not contain required \"eventType\" field.");
         }
         String eventTypeName = node.get("eventType").asText();
-        BpmEventType<?> eventType = BpmEventType.valueOf(eventTypeName);
-        if (eventType == null) {
-            throw new CoreException("Do not recognize event type named '" + eventTypeName + "'.");
-        }
-        BpmNotificationRest notification = null;
+        BpmEventType eventType = BpmEventType.valueOf(eventTypeName);
+        BpmNotificationRest notification;
         try {
-            notification = (BpmNotificationRest) MAPPER.readValue(node.traverse(), eventType.getType());
+            notification = MAPPER.readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
             throw new CoreException("Could not deserialize JSON request for event type '" + eventTypeName + "' " +
                     " into '" + eventType.getType() + "'.");

@@ -15,21 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.utils;
+package org.jboss.pnc.rest.restmodel.causeway;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 
-import java.io.IOException;
+/**
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
+ * Date: 8/24/16
+ * Time: 3:42 PM
+ */
+@Data
+@NoArgsConstructor
+public class MilestoneReleaseRest {
+    private int milestoneId;
 
-public class JsonUtils {
-
-    public static <T> T fromJson(String json, Class<T> aClass) throws IOException {
-        return new ObjectMapper().readValue(json, aClass);
+    public MilestoneReleaseRest(int milestoneId) {
+        this.milestoneId = milestoneId;
     }
 
-    public static String toJson(Object objectToBeMapped) throws JsonProcessingException {
-        return new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(objectToBeMapped);
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
     }
-
 }

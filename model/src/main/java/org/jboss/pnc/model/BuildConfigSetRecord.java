@@ -20,7 +20,16 @@ package org.jboss.pnc.model;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
@@ -77,7 +86,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     /**
      * The status (success/failure) of the overall set. If any builds in the set failed, the status of the set is failed.
      */
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private BuildStatus status;
 
     /**

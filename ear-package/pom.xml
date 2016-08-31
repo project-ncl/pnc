@@ -93,6 +93,10 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>process-managers</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>web</artifactId>
       <type>war</type>
     </dependency>
@@ -161,6 +165,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>spi</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>process-managers</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

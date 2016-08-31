@@ -46,7 +46,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
-import static org.jboss.pnc.bpm.BpmEventType.valueOf;
+import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_ABORTED;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
@@ -80,14 +80,16 @@ public class BpmManager {
 
 
     @PostConstruct
-    private void init() throws CoreException {
-
+    public void init() throws CoreException {
         try {
             bpmConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new CoreException("BPM manager could not get its configuration.", e);
         }
+        session = initKieSession();
+    }
 
+    protected KieSession initKieSession() throws CoreException {
         RuntimeEngine restSessionFactory;
         try {
             restSessionFactory = RemoteRuntimeEngineFactory.newRestBuilder()
@@ -102,7 +104,7 @@ public class BpmManager {
                     bpmConfig.getBpmInstanceUrl() + "' check that the URL is correct.", e);
         }
 
-        session = restSessionFactory.getKieSession();
+        return restSessionFactory.getKieSession();
     }
 
     @PreDestroy
@@ -123,6 +125,8 @@ public class BpmManager {
         try {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
+            tasks.put(task.getTaskId(), task);
+
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
             if (processInstance == null) {
@@ -132,7 +136,6 @@ public class BpmManager {
             task.setProcessInstanceId(processInstance.getId());
             task.setProcessName(processInstance.getProcessId());
             log.debug("Created new process instance with id {}", task.getProcessInstanceId());
-            tasks.put(task.getTaskId(), task);
             return true;
 
         } catch (Exception e) {
@@ -146,9 +149,9 @@ public class BpmManager {
         if (task == null) {
             log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
         } else {
-            BpmEventType<?> bpmEventType = valueOf(notification.getEventType());
+            BpmEventType bpmEventType = nullableValueOf(notification.getEventType());
             if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
-                task.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
+                task.notify(bpmEventType, notification);
             }
         }
 

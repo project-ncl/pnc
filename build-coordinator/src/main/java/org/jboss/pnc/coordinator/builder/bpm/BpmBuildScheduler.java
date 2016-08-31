@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -56,7 +57,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
             BpmBuildTask task = new BpmBuildTask(buildTask);
-            task.addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(b.toBuildResult()));
+            task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(b.toBuildResult()));
             manager.startTask(task);
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);

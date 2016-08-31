@@ -19,8 +19,8 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -30,6 +30,8 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -40,15 +42,21 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 @Stateless
 public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
 
-    ArtifactRepository artifactRepository;
+    private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProvider.class);
+
+    private ArtifactRepository artifactRepository;
+    private ProductMilestoneReleaseManager releaseManager;
 
     @Inject
-    public ProductMilestoneProvider(ProductMilestoneRepository productMilestoneRepository,
+    public ProductMilestoneProvider(
+            ProductMilestoneRepository productMilestoneRepository,
             ArtifactRepository artifactRepository,
+            ProductMilestoneReleaseManager releaseManager,
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.artifactRepository = artifactRepository;
+        this.releaseManager = releaseManager;
     }
 
     // needed for EJB/CDI
@@ -56,13 +64,13 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     public CollectionInfo<ProductMilestoneRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
-            String query, Integer versionId) {
-        return super.queryForCollection(pageIndex, pageSize,sortingRsql, query, withProductVersionId(versionId));
+                                                                        String query, Integer versionId) {
+        return super.queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId));
     }
 
     @Override
     protected Function<? super ProductMilestone, ? extends ProductMilestoneRest> toRESTModel() {
-        return productMilestone -> new ProductMilestoneRest(productMilestone);
+        return ProductMilestoneRest::new;
     }
 
     @Override
@@ -91,4 +99,17 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         repository.save(milestone);
     }
 
+    @Override
+    public void update(Integer id, ProductMilestoneRest restEntity) throws ValidationException {
+        log.debug("Updating milestone for id: {}", id);
+        restEntity.setId(id);
+        validateBeforeUpdating(id, restEntity);
+        ProductMilestone milestone = toDBModel().apply(restEntity);
+
+        if (restEntity.getEndDate() != null && releaseManager.noReleaseInProgress(milestone)) {
+            log.debug("Milestone end date set and no release in progress, will start release");
+            releaseManager.startRelease(milestone);
+        }
+        repository.save(milestone);
+    }
 }

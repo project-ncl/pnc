@@ -18,7 +18,9 @@
 package org.jboss.pnc.rest.restmodel.causeway;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>
@@ -37,6 +39,8 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
+@NoArgsConstructor
 public class CallbackResultRest {
     private String id;
     private Integer status;

@@ -37,8 +37,11 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.jboss.pnc.bpm.BpmEventType.*;
-import static org.junit.Assert.*;
+import static org.jboss.pnc.bpm.BpmEventType.BCC_CREATION_ERROR;
+import static org.jboss.pnc.bpm.BpmEventType.BCC_CREATION_SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_ACTIVE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -95,11 +98,11 @@ public class BpmSchedulerSmokeTest {
                 return params;
             }
         };
-        task.addListener(BCC_CREATION_SUCCESS, t -> {
+        task.<BpmStringMapNotificationRest>addListener(BCC_CREATION_SUCCESS, t -> {
             assertEquals("green", t.getData().get("color"));
             successNotification = true;
         });
-        task.addListener(BCC_CREATION_ERROR, t -> {
+        task.<BpmStringMapNotificationRest>addListener(BCC_CREATION_ERROR, t -> {
             assertEquals("red", t.getData().get("color"));
             errorNotification = true;
         });
@@ -108,7 +111,7 @@ public class BpmSchedulerSmokeTest {
         // notify
         assertEquals(new Integer(1), task.getTaskId());
         BpmStringMapNotificationRest notification = mock(BpmStringMapNotificationRest.class);
-        when(notification.getEventType()).thenReturn(BCC_CREATION_SUCCESS.getName());
+        when(notification.getEventType()).thenReturn(BCC_CREATION_SUCCESS.name());
         Map<String, String> data = new HashMap<>();
         data.put("color", "green");
         when(notification.getData()).thenReturn(data);

@@ -15,22 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
+package org.jboss.pnc.datastore.repositories.internal;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Date: 8/30/16
+ * Time: 1:46 PM
  */
-@Data
-@NoArgsConstructor
-public class BrewPushMilestoneRest {
-    private int milestoneId;
+public interface ProductMilestoneReleaseSpringRepository extends JpaRepository<ProductMilestoneRelease, Integer>, JpaSpecificationExecutor<ProductMilestoneRelease> {
 
-    public BrewPushMilestoneRest(int milestoneId) {
-        this.milestoneId = milestoneId;
-    }
+    @Query("select r from ProductMilestoneRelease r where r.id = (select max(id) from ProductMilestoneRelease o where o.milestone = ?1)")
+    ProductMilestoneRelease findLatestForMilestone(ProductMilestone milestone);
 }

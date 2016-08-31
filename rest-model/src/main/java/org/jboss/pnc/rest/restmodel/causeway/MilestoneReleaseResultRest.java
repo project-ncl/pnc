@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 
@@ -29,9 +30,9 @@ import java.util.List;
  * Time: 7:34 AM
  */
 @Data
-public class BrewPushMilestoneResultRest extends BpmNotificationRest {
+public class MilestoneReleaseResultRest extends BpmNotificationRest {
     private Integer milestoneId;
-    private PushStatus pushStatus;
+    private ReleaseStatus releaseStatus;
     private String errorMessage;
 
 
@@ -39,9 +40,10 @@ public class BrewPushMilestoneResultRest extends BpmNotificationRest {
 
     @Override
     public String getEventType() {
-        return "BREW_PUSH_COMPLETED";
+        return "BREW_IMPORT_SUCCESS";
     }
 
+    @JsonIgnore
     public boolean isSuccessful() {
         return !builds.isEmpty()
                 && allBuildsSuccessful();
