@@ -176,6 +176,13 @@
 
       var that = this;
 
+      that.dpOptions = {
+        autoclose: true,
+        todayBtn: 'linked',
+        todayHighlight: true,
+        format: 'yyyy/mm/dd'
+      };
+
       that.product = productDetail;
       that.productVersion = versionDetail;
 

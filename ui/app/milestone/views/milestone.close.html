@@ -43,15 +43,7 @@
                    href><span class="fa fa-info-circle"></span></a>
       </label>
       <div class="col-sm-10">
-        <div class="input-group">
-          <span class="input-group-btn">
-            <button type="button" class="btn btn-default" ng-click="open($event, 1)">
-              <i class="glyphicon glyphicon-calendar"></i>
-            </button>
-          </span>
-          <input name="endDate" required id="input-end-date" type="text" class="form-control" uib-datepicker-popup="{{format}}"
-                 ng-model="milestoneCloseCtrl.data.endDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
-        </div>
+        <div pf-datepicker options="milestoneCloseCtrl.dpOptions" date="milestoneCloseCtrl.data.endDate"></div>
         <span class="help-block" ng-show="milestoneForm.endDate.$error.required && !milestoneForm.endDate.$pristine">Required field.</span>
       </div>
     </div>
