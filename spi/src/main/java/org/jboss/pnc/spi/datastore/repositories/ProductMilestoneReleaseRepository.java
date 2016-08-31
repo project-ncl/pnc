@@ -25,5 +25,5 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
  * @author Michal Szynkiewicz
  */
 public interface ProductMilestoneReleaseRepository extends Repository<ProductMilestoneRelease, Integer> {
-    public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone);
+    ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone);
 }
