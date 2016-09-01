@@ -52,7 +52,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,9 +116,11 @@ public class BpmEndpoint extends AbstractEndpoint {
             @Context HttpServletRequest request,
             @ApiParam(value = "BPM task ID", required = true) @PathParam("taskId") int taskId) throws CoreException {
 
-        JsonNode node = null;
+        String content;
+        JsonNode node;
         try {
-            node = MAPPER.readTree(request.getInputStream());
+            content = readContent(request.getInputStream());
+            node = MAPPER.readTree(content);
         } catch (IOException e) {
             throw new CoreException("Could not get JSON from request data. " +
                     "Verify it is not empty and in the correct format.", e);
@@ -130,11 +135,25 @@ public class BpmEndpoint extends AbstractEndpoint {
             notification = MAPPER.readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
             throw new CoreException("Could not deserialize JSON request for event type '" + eventTypeName + "' " +
-                    " into '" + eventType.getType() + "'.");
+                    " into '" + eventType.getType() + "'. JSON value: " + content);
         }
         LOG.debug("Received notification {} for BPM task with id {}.", notification, taskId);
         bpmManager.notify(taskId, notification);
         return Response.ok().build();
+    }
+
+    private String readContent(InputStream inputStream) throws IOException {
+        try (InputStreamReader streamReader = new InputStreamReader(inputStream, "UTF-8");
+             BufferedReader reader = new BufferedReader(streamReader)) {
+            StringBuilder result = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                result.append(line).append("\n");
+            }
+
+            return result.toString();
+        }
     }
 
 
