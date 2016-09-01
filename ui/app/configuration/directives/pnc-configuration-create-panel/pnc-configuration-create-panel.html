@@ -47,6 +47,8 @@
 
     <div class="panel panel-default">
       <div class="panel-body">
+
+        <!-- name -->
         <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && configurationForm.name.$touched, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
           <label for="input-name" class="col-sm-2 control-label">* Name</label>
           <div class="col-sm-10">
@@ -55,6 +57,8 @@
             <span class="help-block" ng-show="configurationForm.name.$error.pattern && configurationForm.name.$touched">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
           </div>
         </div>
+
+        <!-- description -->
         <div class="form-group">
           <label for="input-description" class="col-sm-2 control-label">Description</label>
           <div class="col-sm-10">
@@ -62,34 +66,88 @@
           </div>
         </div>
 
-        <!-- no client based success state, backend validation is applied -->
-        <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched }">
-          <label for="input-scm-repo-url" class="col-sm-2 control-label">* SCM Url</label>
-          <div class="col-sm-10">
-            <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="data.scmRepoURL" ng-change="scmRepoURLChange(configurationForm)" required>
-            <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
-            <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.invalidScmRepoURL">Invalid or unsupported format.</span>
-          </div>
-        </div>
-        <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevision.$invalid && configurationForm.scmRevision.$touched, 'has-success': configurationForm.scmRevision.$valid && configurationForm.scmRevision.$touched }">
-          <label for="input-scm-revision" class="col-sm-2 control-label">* SCM Revision</label>
-          <div class="col-sm-10">
-            <input id="input-scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="data.scmRevision" required>
-            <span class="help-block" ng-show="configurationForm.scmRevision.$error.required && configurationForm.scmRevision.$touched">Required field.</span>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading text-center">
+        <strong>SCMs</strong>
+        <small><em>(at least of one of them must be specified)</em></small>
+      </div>
+      <div class="list-group">
+
+        <div class="list-group-item">
+          <div class="text-center">
+            When the internal SCM is not specified, it will be clonned from the external one.
           </div>
         </div>
 
-        <div class="form-group">
-          <div class="col-sm-offset-2 col-sm-10">
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" id="input-scm-is-intenal" name="scmIsInternal" value="true" ng-model="data.scmIsInternal">
-                This repository is internal and does not have to be cloned
-              </label>
+        <div class="list-group-item">
+
+          <div class="row">
+            <div class="col-sm-2 text-right-sm p-b-10">
+              <strong class="text-uppercase">Internal</strong>
             </div>
           </div>
+
+          <!-- scm url -->
+          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched }">
+            <label for="input-scm-repo-url" class="col-sm-2 control-label">* Url</label>
+            <div class="col-sm-10">
+              <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="data.scmRepoURL" ng-required="!data.scmRepoURLExternal" 
+                pnc-scm-validator="git+ssh" pnc-exact-host="pnc-gerrit-stage@code-stage.eng.nay.redhat.com">
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">At least one of the SCMs is required.</span>
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.invalidScmUrl">Only R/W SCM with the following format <code>git+ssh://pnc-gerrit-stage@code-stage.eng.nay.redhat.com</code> is allowed.</span>
+            </div>
+          </div>
+
+          <!-- scm revision -->
+          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevision.$invalid && configurationForm.scmRevision.$touched, 'has-success': configurationForm.scmRevision.$valid && configurationForm.scmRevision.$touched }">
+            <label for="input-scm-revision" class="col-sm-2 control-label">* Revision</label>
+            <div class="col-sm-10">
+              <input id="input-scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="data.scmRevision" ng-required="data.scmRepoURL">
+              <span class="help-block" ng-show="configurationForm.scmRevision.$error.required && configurationForm.scmRevision.$touched">Required field.</span>
+            </div>
+          </div>
+
         </div>
 
+        <div class="list-group-item">
+          
+          <div class="row">
+            <div class="col-sm-2 text-right-sm p-b-10">
+              <strong class="text-uppercase">External</strong>
+            </div>
+          </div>
+
+          <!-- scm url -->
+          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURLExternal.$invalid && configurationForm.scmRepoURLExternal.$touched }">
+            <label for="input-scm-repo-url-external" class="col-sm-2 control-label">* Url</label>
+            <div class="col-sm-10">
+              <input type="text" id="input-scm-repo-url-external" class="form-control" name="scmRepoURLExternal" maxlength="255" ng-model="data.scmRepoURLExternal" ng-required="!data.scmRepoURL" pnc-scm-validator="git|ssh|http|https|git+ssh|git@">
+              <span class="help-block" ng-show="configurationForm.scmRepoURLExternal.$error.required && configurationForm.scmRepoURLExternal.$touched">At least one of the SCMs is required.</span>
+              <span class="help-block" ng-show="configurationForm.scmRepoURLExternal.$error.invalidScmUrl">Invalid or unsupported format.</span>
+            </div>
+          </div>
+
+          <!-- scm revision -->
+          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevisionExternal.$invalid && configurationForm.scmRevisionExternal.$touched, 'has-success': configurationForm.scmRevisionExternal.$valid && configurationForm.scmRevisionExternal.$touched }">
+            <label for="input-scm-revision-external" class="col-sm-2 control-label">* Revision</label>
+            <div class="col-sm-10">
+              <input id="input-scm-revision-external" class="form-control" name="scmRevisionExternal" maxlength="255" ng-model="data.scmRevisionExternal" ng-required="data.scmRepoURLExternal">
+              <span class="help-block" ng-show="configurationForm.scmRevisionExternal.$error.required && configurationForm.scmRevisionExternal.$touched">Required field.</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+
+        <!-- build script -->
         <div class="form-group" ng-class="{ 'has-error': (configurationForm.buildScript.$invalid || configurationForm.buildScript.$error.invalidBuildScript) 
           && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
           <label for="input-build-script" class="col-sm-2 control-label">* Build Script</label>
@@ -106,6 +164,8 @@
             </div>
           </div>
         </div>
+
+        <!-- environment -->
         <div class="form-group" ng-class="{ 'has-error' : !data.environment.id && configurationForm.environmentId.$touched, 'has-success': data.environment.id && configurationForm.environmentId.$touched }">
           <label for="input-environment" class="col-sm-2 control-label">
             * Environment

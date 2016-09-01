@@ -27,27 +27,32 @@
    * @restrict A
    * @param {string} pnc-scm-validator
    * String including list of allowed protocols separated by "|"
+   * @param {string} pnc-exact-host
+   * Optional host restriction
    * @description
+   * <protocol>(://)<host><path>.git<parameters>
    * Check wheter SCM field is valid. 
    * List of allowed protocols (separated by "|"):
    * - "git"   -> example git://github.com/user/project.git#v1.0
    * - "ssh"   -> example ssh://user@host.xz:port/path/to/repo.git/ or ssh://host.xz:port/path/to/repo.git/
    * - "http"  -> example http://github.com/user/project.git
    * - "https" -> example https://github.com/user/project.git
+   * - "git+ssh" -> example git+ssh://github.com/user/project.git
    * - "git@"  -> example git@github.com:user/project.git
    * @example
-   * <input pnc-scm-validator="git|ssh|http|https|git@" ... >
+   * <input pnc-scm-validator="git|ssh|http|https|git+ssh|git@" pnc-exact-host="user@host.xz:port" ... >
    * @author Martin Kelnar
    */
   module.directive('pncScmValidator', function () {
 
-      var isScmUrl = function(allowedProtocols, url) {
-        allowedProtocols = allowedProtocols.replace('git@', 'git@[\\w\\.]+');
+      var isScmUrl = function(allowedProtocols, exactHost, url) {
+        allowedProtocols = allowedProtocols.replace('git@', 'git@[\\w\\.]+').replace('git+ssh', 'git\\+ssh');
 
         var pattern = new RegExp(
-          '(?:'+ allowedProtocols +')' +      // protocols
+          '^(?:'+ allowedProtocols +')' +     // protocols
           ':(?:\\/\\/)?' +                    // protocol separator
-          '[\\w\\.@:\\/~_-]+\\.git' +         // repository
+          (exactHost ? exactHost + '[\\w\\.\\/~_-]+' : '[\\w\\.@:\\/~_-]+') + // repository
+          '\\.git' +                          // suffix
           '(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$');  // parameters
         return pattern.test(url);
       };
@@ -56,12 +61,13 @@
         restrict: 'A',
         require: 'ngModel',
         scope: {
-          allowedProtocols : '@pncScmValidator'
+          allowedProtocols : '@pncScmValidator',
+          exactHost        : '@pncExactHost'
         },
 
         link: function(scope, ele, attrs, ctrl){
           ctrl.$validators.invalidScmUrl = function(value) {
-            return !value || isScmUrl(scope.allowedProtocols, value);
+            return !value || isScmUrl(scope.allowedProtocols, scope.exactHost, value);
           };
 
         }
