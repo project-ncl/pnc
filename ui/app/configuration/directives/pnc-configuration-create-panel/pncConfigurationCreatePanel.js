@@ -86,32 +86,29 @@
 
             // success
             function(result) {
-            // Saving the BuildConfig link into the BuildGroupConfig 
-            _.each($scope.buildgroupconfigs.selected, function(buildgroupconfig) {
-              buildgroupconfig.buildConfigurationIds.push(result.id);
-              buildgroupconfig.$update();
-            });
-
-            if (_.isUndefined($scope.fixedProject)) {
-              $scope.formNotification = {
-                type:         'success',
-                isPersistent: false,
-                header:       'Success: ',
-                message:      'Build configuration will be created in a few minutes.'
-              };
-            } else {
-              $state.go('project.detail', {
-                projectId: $scope.data.project.id
+              // Saving the BuildConfig link into the BuildGroupConfig 
+              _.each($scope.buildgroupconfigs.selected, function(buildgroupconfig) {
+                buildgroupconfig.buildConfigurationIds.push(result.id);
+                buildgroupconfig.$update();
               });
-            }
-          }, 
 
-          // error
-          function(errors) {
-            if (errors.data.details.field === 'scmRepoURL') {
-              form.scmRepoURL.$setValidity('invalidScmRepoURL', false);
+              if (_.isUndefined($scope.fixedProject)) {
+                $state.go('configuration.list');
+                Notifications.success('Build configuration will be created in a few minutes.');
+              } else {
+                $state.go('project.detail', {
+                  projectId: $scope.data.project.id
+                });
+              }
+            }, 
+
+            // error
+            function(errors) {
+              if (errors.data.details.field === 'scmRepoURL') {
+                form.scmRepoURL.$setValidity('invalidScmRepoURL', false);
+              }
             }
-          });
+          );
         };
 
         $scope.reset = function(form) {
