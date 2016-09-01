@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel.causeway;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 
@@ -30,11 +31,11 @@ import java.util.List;
  * Time: 7:34 AM
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MilestoneReleaseResultRest extends BpmNotificationRest {
     private Integer milestoneId;
     private ReleaseStatus releaseStatus;
     private String errorMessage;
-
 
     private List<BuildImportResultRest> builds = new ArrayList<>();
 
