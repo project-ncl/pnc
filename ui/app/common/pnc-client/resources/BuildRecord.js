@@ -55,29 +55,44 @@
           method: 'GET',
           url: BUILDS_ENDPOINT
         },
+        /**
+         * Gets all completed BuildRecords
+         */
         queryCompleted: {
           method: 'GET',
           isPaged: true,
           url: ENDPOINT,
         },
+        /**
+         * Get completed BuildRecord by id.
+         */
         getCompleted: {
           method: 'GET',
           url: ENDPOINT
         },
+        /**
+         * Gets all artifacts for a given BuildRecord.
+         */
         getArtifacts: {
           isPaged: true,
           method: 'GET',
           url: ENDPOINT + '/artifacts'
         },
-        getDependencyArtifacts: {
+        /**
+         * Gets all build dependencies for a given BuildRecord
+         */
+        getDependencies: {
           isPaged: true,
           method: 'GET',
           url: ENDPOINT + '/dependency-artifacts'
         },
+        /**
+         * Get all artifacts produced by the build for a given BuildRecord.
+         */
         getBuiltArtifacts: {
           isPaged: true,
           method: 'GET',
-          url: ENDPOINT + '/built-artifacts'
+          url: ENDPOINT + '/built-artifacts',
         },
       });
 

@@ -60,13 +60,6 @@
     }
   ]);
 
-  module.controller('RecordOutputController', [
-    'artifacts',
-    function(artifacts) {
-      this.builtArtifacts = artifacts;
-    }
-  ]);
-
   module.controller('RecordDependenciesController', [
     'artifacts',
     function(artifacts) {

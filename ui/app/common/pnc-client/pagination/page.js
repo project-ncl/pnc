@@ -99,6 +99,7 @@
       * representing the requested resource.
       */
       proto.fetch = function (params) {
+        $log.debug('Fetching page: this=%O, params: %O', this, params);
         var Resource = this._Resource;
         var config = this._config;
         config.params = params;
@@ -111,7 +112,7 @@
             data: response.data.content,
             Resource: Resource,
             config: response.config,
-            promise: promise
+            $promise: promise
           });
 
           // If the resource class is present convert all the data
@@ -234,12 +235,11 @@
       * representing the requested resource.
       */
       proto.getWithNewSize = function (size) {
-        var params = this.config.params || {};
+        var params = this._config.params || {};
         params.pageSize = size;
         params.pageIndex = 0; // Reset index as it will be meaningless with new size.
         return this.fetch(params);
       };
-
 
       return page;
     }
