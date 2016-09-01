@@ -44,6 +44,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -83,6 +84,7 @@ public class ProductMilestoneReleaseManager {
 
     /**
      * Starts milestone release process
+     *
      * @param milestone product milestone to start the release for
      */
     public void startRelease(ProductMilestone milestone) {
@@ -102,7 +104,8 @@ public class ProductMilestoneReleaseManager {
         release.setMilestone(milestone);
         try {
             MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone);
-            releaseTask.addListener(BpmEventType.BREW_IMPORT_SUCCESS, this::onSuccessfulPush);
+            Integer id = milestone.getId();
+            releaseTask.<MilestoneReleaseResultRest>addListener(BpmEventType.BREW_IMPORT_SUCCESS, r -> onSuccessfulPush(id, r));
             releaseTask.<BpmStringMapNotificationRest>addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));
             bpmManager.startTask(releaseTask);
             release.setLog("Brew push task started\n");
@@ -117,25 +120,47 @@ public class ProductMilestoneReleaseManager {
         }
     }
 
-    private void onSuccessfulPush(MilestoneReleaseResultRest result) {
-        int milestoneId = result.getMilestoneId();
+    private void onSuccessfulPush(Integer milestoneId, MilestoneReleaseResultRest result) {
+        log.debug("Storing milestone release result: {}", result);
+        withMilestone(milestoneId, result, this::storeSuccess);
+    }
+
+    private void onFailedPush(Integer milestoneId, BpmStringMapNotificationRest result) {
+        log.debug("Storing failed milestone release result: {}", result);
+        withMilestone(milestoneId, result, this::storeFailure);
+    }
+
+    private <T> void withMilestone(Integer milestoneId, T result, BiConsumer<ProductMilestone, T> consumer) {
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
+
+        if (milestone == null) {
+            log.error("No milestone found for milestone id {}", milestoneId);
+            return;
+        }
+        consumer.accept(milestone, result);
+    }
+
+    private <T> void storeSuccess(ProductMilestone milestone, MilestoneReleaseResultRest result) {
         String message = describeCompletedPush(result);
         updateRelease(milestone, message, result.getReleaseStatus().getMilestoneReleaseStatus());
     }
 
+    private <T> void storeFailure(ProductMilestone milestone, BpmStringMapNotificationRest result) {
+        updateRelease(milestone, "BREW IMPORT FAILED\nResult: " + result, MilestoneReleaseStatus.SYSTEM_ERROR);
+    }
+
     private void updateRelease(ProductMilestone milestone, String message, MilestoneReleaseStatus status) {
         ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(milestone);
-        release.setStatus(status);
+        if (release == null) {
+            log.error("No milestone release found for milestone {}", milestone.getId());
+            return;
+        }
         if (status != MilestoneReleaseStatus.IN_PROGRESS) {
             release.setEndDate(new Date());
         }
+        release.setStatus(status);
         release.setLog(release.getLog() + message);
-    }
-
-    private void onFailedPush(Integer milestoneId, BpmStringMapNotificationRest result) {
-        ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
-        updateRelease(milestone, "BREW IMPORT FAILED\nResult: " + result, MilestoneReleaseStatus.SYSTEM_ERROR);
+        releaseRepository.save(release);
     }
 
     private String describeCompletedPush(MilestoneReleaseResultRest result) {

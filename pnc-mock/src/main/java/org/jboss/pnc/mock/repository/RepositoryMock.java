@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,12 +34,16 @@ import java.util.Optional;
  * Time: 7:03 AM
  */
 @SuppressWarnings({"WeakerAccess", "unchecked"})
-public class RepositoryMock<EntityType extends GenericEntity<ID>, ID extends Serializable> implements Repository<EntityType, ID> {
+public class RepositoryMock<EntityType extends GenericEntity<Integer>> implements Repository<EntityType, Integer> {
     protected final List<EntityType> data = new ArrayList<>();
 
     @Override
     public EntityType save(EntityType entity) {
-        ID id = entity.getId();
+        Integer id = entity.getId();
+        if (id == null) {
+            entity.setId(RandomUtils.randInt(100000, 1000000));
+            id = entity.getId();
+        }
         getOptionalById(id).ifPresent(data::remove);
         data.add(entity);
         return entity;
@@ -75,19 +79,19 @@ public class RepositoryMock<EntityType extends GenericEntity<ID>, ID extends Ser
         return null;
     }
 
-    private Optional<EntityType> getOptionalById(ID id) {
+    private Optional<EntityType> getOptionalById(Integer id) {
         return data.stream()
                 .filter(m -> id.equals(m.getId()))
                 .findAny();
     }
 
     @Override
-    public EntityType queryById(ID id) {
+    public EntityType queryById(Integer id) {
         return getOptionalById(id).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + id));
     }
 
     @Override
-    public void delete(ID id) {
+    public void delete(Integer id) {
       
     }
 }
