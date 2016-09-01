@@ -51,7 +51,7 @@
         var pattern = new RegExp(
           '^(?:'+ allowedProtocols +')' +     // protocols
           ':(?:\\/\\/)?' +                    // protocol separator
-          (exactHost ? exactHost + '[\\w\\.\\/~_-]+' : '[\\w\\.@:\\/~_-]+') + // repository
+          (exactHost ? exactHost + '[\\w\\.:\\/~_-]+' : '[\\w\\.@:\\/~_-]+') + // repository
           '\\.git' +                          // suffix
           '(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$');  // parameters
         return pattern.test(url);
