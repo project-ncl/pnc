@@ -72,8 +72,8 @@ public class MilestoneTestUtils {
         return milestone;
     }
 
-    public static class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone, Integer> implements ProductMilestoneRepository {}
-    public static class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease, Integer> implements ProductMilestoneReleaseRepository {
+    public static class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone> implements ProductMilestoneRepository {}
+    public static class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease> implements ProductMilestoneReleaseRepository {
         @Override
         public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
             List<ProductMilestoneRelease> list =
@@ -85,10 +85,10 @@ public class MilestoneTestUtils {
         }
     }
 
-    public static class ArtifactRepositoryMock extends RepositoryMock<Artifact, Integer> implements ArtifactRepository {
+    public static class ArtifactRepositoryMock extends RepositoryMock<Artifact> implements ArtifactRepository {
     }
 
-    public static class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord, Integer> implements BuildRecordRepository {
+    public static class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
         @Override
         public BuildRecord findByIdFetchAllProperties(Integer id) {
             return null;
