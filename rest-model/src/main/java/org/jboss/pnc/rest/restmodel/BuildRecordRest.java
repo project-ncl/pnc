@@ -18,6 +18,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -92,6 +94,15 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private SshCredentials sshCredentials;
 
+    @Getter
+    @Setter
+    private String executionRootName;
+
+    @Getter
+    @Setter
+    private String executionRootVersion;
+
+
     public BuildRecordRest() {
     }
 
@@ -133,6 +144,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             sshCredentials.setCommand(buildRecord.getSshCommand());
             sshCredentials.setPassword(buildRecord.getSshPassword());
         }
+
+        executionRootName = buildRecord.getExecutionRootName();
+        executionRootVersion = buildRecord.getExecutionRootVersion();
     }
 
     public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user,

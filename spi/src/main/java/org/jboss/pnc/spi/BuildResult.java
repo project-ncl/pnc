@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi;
 
+import lombok.Getter;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -29,55 +30,56 @@ import java.util.Optional;
  */
 public class BuildResult {
 
+    @Getter
     private final Optional<BuildExecutionConfiguration> buildExecutionConfiguration;
+
+    @Getter
     private final Optional<BuildDriverResult> buildDriverResult;
+
+    /**
+     * Note that RepositoryManagerResult can return nul if build was not successful completed.
+     */
+    @Getter
     private final Optional<RepositoryManagerResult> repositoryManagerResult;
+
     private final Optional<ExecutorException> executorException;
+
+    @Getter
     private final Optional<BuildExecutionStatus> failedReasonStatus;
+
+    @Getter
     private final Optional<SshCredentials> sshCredentials;
+
+    @Getter
+    private final Optional<String> executionRootName;
+
+    @Getter
+    private final Optional<String> executionRootVersion;
 
     public BuildResult(Optional<BuildExecutionConfiguration> generatedBuildConfig,
                        Optional<BuildDriverResult> buildDriverResult,
                        Optional<RepositoryManagerResult> repositoryManagerResult,
                        Optional<ExecutorException> executorException,
                        Optional<BuildExecutionStatus> failedReasonStatus,
-                       Optional<SshCredentials> sshCredentials) {
+                       Optional<SshCredentials> sshCredentials,
+                       Optional<String> executionRootName,
+                       Optional<String> executionRootVersion) {
         this.buildExecutionConfiguration = generatedBuildConfig;
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
         this.executorException = executorException;
         this.failedReasonStatus = failedReasonStatus;
         this.sshCredentials = sshCredentials;
-    }
-
-    public Optional<BuildExecutionConfiguration> getBuildExecutionConfiguration() {
-        return buildExecutionConfiguration;
-    }
-
-    public Optional<BuildDriverResult> getBuildDriverResult() {
-        return buildDriverResult;
-    }
-
-    /**
-     * @return Note that RepositoryManagerResult can return nul if build was not successful completed.
-     */
-    public Optional<RepositoryManagerResult> getRepositoryManagerResult() {
-        return repositoryManagerResult;
-    }
-
-    public boolean hasFailed() {
-        return executorException.isPresent() || failedReasonStatus.isPresent();
+        this.executionRootName = executionRootName;
+        this.executionRootVersion = executionRootVersion;
     }
 
     public Optional<ExecutorException> getException() {
         return executorException;
     }
 
-    public Optional<BuildExecutionStatus> getFailedReasonStatus() {
-        return failedReasonStatus;
+    public boolean hasFailed() {
+        return executorException.isPresent() || failedReasonStatus.isPresent();
     }
 
-    public Optional<SshCredentials> getSshCredentials() {
-        return sshCredentials;
-    }
 }

@@ -121,6 +121,8 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
                         Optional.ofNullable(repositoryManagerResult),
                         Optional.empty(),
                         Optional.empty(),
+                        Optional.empty(),
+                        Optional.empty(),
                         Optional.empty());
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
@@ -129,6 +131,8 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
                         Optional.ofNullable(repositoryManagerResult),
                         Optional.empty(),
                         Optional.of(failedReasonStatus),
+                        Optional.empty(),
+                        Optional.empty(),
                         Optional.empty());
             }
         } else {
@@ -138,6 +142,8 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
                     Optional.ofNullable(repositoryManagerResult),
                     Optional.of(executorException),
                     Optional.ofNullable(failedReasonStatus),
+                    Optional.empty(),
+                    Optional.empty(),
                     Optional.empty());
         }
     }
