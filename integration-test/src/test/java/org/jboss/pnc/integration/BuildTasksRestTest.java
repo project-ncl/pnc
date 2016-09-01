@@ -88,8 +88,8 @@ public class BuildTasksRestTest extends AbstractTest{
         request.addHeader(new BasicHeader(authHeader.getName(), authHeader.getValue()));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master", "scm-mirror",
-                "master", "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false);
+                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master",
+                "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
 

@@ -85,20 +85,12 @@ public class TermdRunningBuild implements RunningBuild {
         return buildExecutionConfiguration.getName();
     }
 
-    public String getScmRepoURL() { //TODO determine this before calling the execution
-        if (buildExecutionConfiguration.getScmMirrorRepoURL() != null) {
-            return buildExecutionConfiguration.getScmMirrorRepoURL();
-        } else {
-            return buildExecutionConfiguration.getScmRepoURL();
-        }
+    public String getScmRepoURL() {
+        return buildExecutionConfiguration.getScmRepoURL();
     }
 
-    public String getScmRevision() { //TODO determine this before calling the execution
-        if (buildExecutionConfiguration.getScmMirrorRevision() != null) {
-            return buildExecutionConfiguration.getScmMirrorRevision();
-        } else {
-            return buildExecutionConfiguration.getScmRevision();
-        }
+    public String getScmRevision() {
+        return buildExecutionConfiguration.getScmRevision();
     }
 
     public void setBuildAgentClient(BuildAgentClient buildAgentClient) {

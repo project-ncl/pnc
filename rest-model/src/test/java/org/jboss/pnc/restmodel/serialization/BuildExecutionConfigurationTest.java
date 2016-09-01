@@ -46,8 +46,6 @@ public class BuildExecutionConfigurationTest {
                 "configuration name",
                 "https://pathToRepo.git",
                 "1111111",
-                "https://pathToMirrorRepo.git",
-                "2222222",
                 "abcd1234",
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,

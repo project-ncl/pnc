@@ -34,13 +34,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getName();  //used to be buildConfiguration.name
 
-    @Deprecated
-    String getScmMirrorRepoURL();
-
     String getScmRepoURL();
-
-    @Deprecated
-    String getScmMirrorRevision();
 
     String getScmRevision();
 
@@ -60,8 +54,6 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String name,
             String scmRepoURL,
             String scmRevision,
-            String scmMirrorRepoURL,
-            String scmMirrorRevision,
             String systemImageId,
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
@@ -94,21 +86,9 @@ public interface BuildExecutionConfiguration extends BuildExecution {
                 return name;
             }
 
-            @Deprecated
-            @Override
-            public String getScmMirrorRepoURL() {
-                return scmMirrorRepoURL;
-            }
-
             @Override
             public String getScmRepoURL() {
                 return scmRepoURL;
-            }
-
-            @Deprecated
-            @Override
-            public String getScmMirrorRevision() {
-                return scmMirrorRevision;
             }
 
             @Override

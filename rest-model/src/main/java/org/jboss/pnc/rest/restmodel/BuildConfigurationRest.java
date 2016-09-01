@@ -18,6 +18,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProductVersion;
@@ -58,8 +60,23 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private String scmRevision;
 
     @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
+
+    @Getter
+    @Setter
+    private String scmExternalRevision;
+
+    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Deprecated // no longer used
+    @Getter
+    @Setter
     private String scmMirrorRepoURL;
 
+    @Deprecated // no longer used
+    @Getter
+    @Setter
     private String scmMirrorRevision;
 
     private Date creationTime;
@@ -90,8 +107,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.buildScript = buildConfiguration.getBuildScript();
         this.scmRepoURL = buildConfiguration.getScmRepoURL();
         this.scmRevision = buildConfiguration.getScmRevision();
-        this.scmMirrorRepoURL = buildConfiguration.getScmMirrorRepoURL();
-        this.scmMirrorRevision = buildConfiguration.getScmMirrorRevision();
+        this.scmExternalRepoURL = buildConfiguration.getScmExternalRepoURL();
+        this.scmExternalRevision = buildConfiguration.getScmExternalRevision();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
@@ -154,42 +171,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-    }
-
-    public String getScmMirrorRepoURL() {
-        return scmMirrorRepoURL;
-    }
-
-    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
-    }
-
-    public String getScmMirrorRevision() {
-        return scmMirrorRevision;
-    }
-
-    public void setScmMirrorRevision(String scmMirrorRevision) {
-        this.scmMirrorRevision = scmMirrorRevision;
-    }
-
-    @Deprecated
-    public String getInternalScm() {
-        return scmMirrorRepoURL;
-    }
-
-    @Deprecated
-    public void setInternalScm(String scmMirrorRepoURL) {
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
-    }
-
-    @Deprecated
-    public String getInternalScmRevison() {
-        return scmMirrorRevision;
-    }
-
-    @Deprecated
-    public void setInternalScmRevison(String scmMirrorRevision) {
-        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public Date getCreationTime() {
@@ -272,8 +253,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .buildScript(this.getBuildScript())
                 .scmRepoURL(this.getScmRepoURL())
                 .scmRevision(this.getScmRevision())
-                .scmMirrorRepoURL(this.getScmMirrorRepoURL())
-                .scmMirrorRevision(this.getScmMirrorRevision())
+                .scmExternalRepoURL(this.getScmExternalRepoURL())
+                .scmExternalRevision(this.getScmExternalRevision())
                 .archived(this.isArchived())
                 .repositories(this.getRepositories());
 

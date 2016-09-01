@@ -31,9 +31,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private Integer userId;
     private String buildScript;
     private String name;
-    private String scmMirrorRepoURL;
     private String scmRepoURL;
-    private String scmMirrorRevision;
     private String scmRevision;
     private String systemImageId;
     private String systemImageRepositoryUrl;
@@ -90,28 +88,12 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.name = name;
     }
 
-    public String getScmMirrorRepoURL() {
-        return scmMirrorRepoURL;
-    }
-
-    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
-    }
-
     public String getScmRepoURL() {
         return scmRepoURL;
     }
 
     public void setScmRepoURL(String scmRepoURL) {
         this.scmRepoURL = scmRepoURL;
-    }
-
-    public String getScmMirrorRevision() {
-        return scmMirrorRevision;
-    }
-
-    public void setScmMirrorRevision(String scmMirrorRevision) {
-        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public String getScmRevision() {

@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
@@ -53,8 +55,22 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private String scmRevision;
 
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
+
+    @Getter
+    @Setter
+    private String scmExternalRevision;
+
+    @Deprecated // no longer used
+    @Getter
+    @Setter
     private String scmMirrorRepoURL;
 
+    @Deprecated // no longer used
+    @Getter
+    @Setter
     private String scmMirrorRevision;
 
     private Date creationTime;
@@ -83,8 +99,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRepoURL = buildConfigurationAudited.getScmRepoURL();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
-        this.scmMirrorRepoURL = buildConfigurationAudited.getScmMirrorRepoURL();
-        this.scmMirrorRevision = buildConfigurationAudited.getScmMirrorRevision();
+        this.scmExternalRepoURL = buildConfigurationAudited.getScmExternalRepoURL();
+        this.scmExternalRevision = buildConfigurationAudited.getScmExternalRevision();
 
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.project = new ProjectRest(buildConfigurationAudited.getProject()));
@@ -161,22 +177,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.scmRevision = scmRevision;
     }
 
-    public String getScmMirrorRepoURL() {
-        return scmMirrorRepoURL;
-    }
-
-    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
-    }
-
-    public String getScmMirrorRevision() {
-        return scmMirrorRevision;
-    }
-
-    public void setScmMirrorRevision(String scmMirrorRevision) {
-        this.scmMirrorRevision = scmMirrorRevision;
-    }
-
     public Date getCreationTime() {
         return creationTime;
     }
@@ -236,10 +236,18 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     @XmlTransient
     public BuildConfigurationAudited.Builder toDBEntityBuilder() {
 
-        BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder().id(id).name(name)
-                .description(description).buildScript(buildScript).scmRepoURL(scmRepoURL).scmMirrorRepoURL(scmMirrorRepoURL)
-                .scmRevision(scmRevision).scmMirrorRevision(scmMirrorRevision).creationTime(creationTime)
-                .lastModificationTime(lastModificationTime).repositories(repositories);
+        BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .buildScript(buildScript)
+                .scmRepoURL(scmRepoURL)
+                .scmRevision(scmRevision)
+                .scmExternalRepoURL(scmExternalRepoURL)
+                .scmExternalRevision(scmRevision)
+                .creationTime(creationTime)
+                .lastModificationTime(lastModificationTime)
+                .repositories(repositories);
 
         performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
         performIfNotNull(this.environment,

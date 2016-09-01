@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -89,30 +91,40 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String buildScript;
 
     /**
-     * The upstream/community scm repo URL submitted by the user.
+     * Repository URL containing project to be build.
+     * This URL *MUST* be read/write.
+     * This SHOULD be internal URL, since build process
+     * may involve source code manipulation and
+     * pushing branches, tags, etc.
      */
     @Size(max=255)
     private String scmRepoURL;
 
     /**
-     * The upstream/community scm revision (commit ID/tag/branch) submitted by the user.
+     * Revision to build.
+     * This may not be the final revision on which the
+     * actual build gets executed, but MUST be the starting point
+     * of the build process.
      */
     @Size(max=255)
     private String scmRevision;
 
     /**
-     * The URL of the internal mirror of the upstream repository. For builds which require the sources to be mirrored to a
-     * secured location before building.
+     * Repository URL of upstream of {@link BuildConfiguration#scmRepoURL}.
+     * This repo SHOULD NOT be used as the direct source for the actual build,
+     * rather, build process MAY clone the external repo and set
+     * {@link BuildConfiguration#scmRepoURL} accordingly.
+     * This URL SHOULD be read-only, since push access is not needed.
      */
     @Size(max=255)
-    private String scmMirrorRepoURL;
+    @Getter
+    @Setter
+    private String scmExternalRepoURL;
 
-    /**
-     * The SCM revision of the internal mirror of the upstream repository. Contains the revision after any automated source
-     * changes have been made by the build system.
-     */
     @Size(max=255)
-    private String scmMirrorRevision;
+    @Getter
+    @Setter
+    private String scmExternalRevision;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -266,22 +278,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-    }
-
-    public String getScmMirrorRepoURL() {
-        return scmMirrorRepoURL;
-    }
-
-    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
-    }
-
-    public String getScmMirrorRevision() {
-        return scmMirrorRevision;
-    }
-
-    public void setScmMirrorRevision(String scmMirrorRevision) {
-        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public String getDescription() {
@@ -680,9 +676,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String scmRevision;
 
-        private String scmMirrorRepoURL;
+        private String scmExternalRepoURL;
 
-        private String scmMirrorRevision;
+        private String scmExternalRevision;
 
         private String description;
 
@@ -723,8 +719,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildScript(buildScript);
             buildConfiguration.setScmRepoURL(scmRepoURL);
             buildConfiguration.setScmRevision(scmRevision);
-            buildConfiguration.setScmMirrorRepoURL(scmMirrorRepoURL);
-            buildConfiguration.setScmMirrorRevision(scmMirrorRevision);
+            buildConfiguration.setScmExternalRepoURL(scmExternalRepoURL);
+            buildConfiguration.setScmExternalRevision(scmExternalRevision);
             buildConfiguration.setDescription(description);
 
             // Set the bi-directional mapping
@@ -787,13 +783,13 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        public Builder scmMirrorRepoURL(String scmMirrorRepoURL) {
-            this.scmMirrorRepoURL = scmMirrorRepoURL;
+        public Builder scmExternalRepoURL(String scmExternalRepoURL) {
+            this.scmExternalRepoURL = scmExternalRepoURL;
             return this;
         }
 
-        public Builder scmMirrorRevision(String scmMirrorRevision) {
-            this.scmMirrorRevision = scmMirrorRevision;
+        public Builder scmExternalRevision(String scmExternalRevision) {
+            this.scmExternalRevision = scmExternalRevision;
             return this;
         }
 

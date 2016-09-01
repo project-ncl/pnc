@@ -147,7 +147,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromCollection(buildConfigurationProvider.getAllNonArchived(pageIndex, pageSize, sort, q));
     }
 
-    @ApiOperation(value = "Creates a new Build Configuration")
+    @ApiOperation(value = "Creates a new Build Configuration. scmMirror* fields are deprecated and values are no longer used.")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSingleton.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),

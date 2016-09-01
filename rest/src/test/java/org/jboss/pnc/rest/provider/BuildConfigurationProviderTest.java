@@ -60,26 +60,6 @@ public class BuildConfigurationProviderTest {
         configuration.setScmRepoURL(INVALID_URL);
         provider.validateBeforeSaving(configuration);
     }
-    @Test(expected = InvalidEntityException.class)
-    public void shouldFailOnInvalidMirrorGitUrl() throws ValidationException {
-        BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.setScmMirrorRepoURL(INVALID_URL);
-        provider.validateBeforeSaving(configuration);
-    }
-
-    @Test
-    public void shouldSucceedOnValidGitUrls() throws ValidationException {
-        BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.setScmMirrorRepoURL(VALID_URL);
-        provider.validateBeforeSaving(configuration);
-    }
-
-    @Test(expected = InvalidEntityException.class)
-    public void shouldFailOnUpdateWithInvalidMirrorGitUrl() throws ValidationException {
-        BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.setScmMirrorRepoURL(INVALID_URL);
-        provider.validateBeforeUpdating(EXISTING_ID, configuration);
-    }
 
     @Test
     public void shouldSucceedOnUpdateWithLackOfMirrorGitUrl() throws ValidationException {

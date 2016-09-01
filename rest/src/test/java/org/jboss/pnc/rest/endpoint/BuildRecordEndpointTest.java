@@ -177,8 +177,6 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 "",
-                "",
-                "",
                 SystemImageType.DOCKER_IMAGE,
                 false);
 

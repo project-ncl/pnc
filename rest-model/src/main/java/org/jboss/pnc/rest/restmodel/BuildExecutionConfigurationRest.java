@@ -20,6 +20,8 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -38,12 +40,20 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private UserRest user;
     private String buildScript;
     private String name;
-    @Deprecated
-    private String scmMirrorRepoURL;
+
     private String scmRepoURL;
-    @Deprecated
-    private String scmMirrorRevision;
     private String scmRevision;
+
+    @Deprecated // no longer used
+    @Getter
+    @Setter
+    private String scmMirrorRepoURL;
+
+    @Deprecated // no longer used
+    @Getter
+    @Setter
+    private String scmMirrorRevision;
+
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
@@ -60,9 +70,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
         name = buildExecutionConfiguration.getName();
-        scmMirrorRepoURL = buildExecutionConfiguration.getScmMirrorRepoURL();
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
-        scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
         scmRevision = buildExecutionConfiguration.getScmRevision();
         systemImageId = buildExecutionConfiguration.getSystemImageId();
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
@@ -77,9 +85,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
         name = buildExecutionConfiguration.getName();
-        scmMirrorRepoURL = buildExecutionConfiguration.getScmMirrorRepoURL();
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
-        scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
         scmRevision = buildExecutionConfiguration.getScmRevision();
         systemImageId = buildExecutionConfiguration.getSystemImageId();
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
@@ -97,8 +103,6 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 name,
                 scmRepoURL,
                 scmRevision,
-                scmMirrorRepoURL,
-                scmMirrorRevision,
                 systemImageId,
                 systemImageRepositoryUrl,
                 systemImageType,
@@ -114,8 +118,6 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         buildConfigAuditedRest.setBuildScript(buildScript);
         buildConfigAuditedRest.setScmRepoURL(scmRepoURL);
         buildConfigAuditedRest.setScmRevision(scmRevision);
-        buildConfigAuditedRest.setScmMirrorRepoURL(scmMirrorRepoURL);
-        buildConfigAuditedRest.setScmMirrorRevision(scmMirrorRevision);
         return buildConfigAuditedRest;
     }
 
@@ -135,18 +137,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.name = name;
     }
 
-    @Deprecated
-    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
-        this.scmMirrorRepoURL = scmMirrorRepoURL;
-    }
-
     public void setScmRepoURL(String scmRepoURL) {
         this.scmRepoURL = scmRepoURL;
-    }
-
-    @Deprecated
-    public void setScmMirrorRevision(String scmMirrorRevision) {
-        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public void setScmRevision(String scmRevision) {
@@ -175,18 +167,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return name;
     }
 
-    @Deprecated
-    public String getScmMirrorRepoURL() {
-        return scmMirrorRepoURL;
-    }
-
     public String getScmRepoURL() {
         return scmRepoURL;
-    }
-
-    @Deprecated
-    public String getScmMirrorRevision() {
-        return scmMirrorRevision;
     }
 
     public String getScmRevision() {
