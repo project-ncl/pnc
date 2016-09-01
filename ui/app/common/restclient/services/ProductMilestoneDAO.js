@@ -58,8 +58,9 @@
             method: 'GET',
             url: REST_BASE_URL + '/product-milestones/:milestoneId/performed-builds'
         },
-        save: {
-          method: 'POST'
+        getLatestRelease: {
+          method: 'GET',
+          url: ENDPOINT + '/releases/latest'
         }
       });
 

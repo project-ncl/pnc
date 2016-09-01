@@ -172,3 +172,9 @@ form .editable-wrap {
     line-height: 3;
   }
 }
+
+.log {
+    font-family: monospace;
+    white-space: pre;
+    overflow: visible;
+}

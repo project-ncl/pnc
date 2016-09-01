@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
-(function() {
+(function () {
+  'use strict';
 
   var module = angular.module('pnc.milestone');
 
@@ -30,8 +29,9 @@
     'milestoneDetail',
     'distributedArtifacts',
     'performedBuilds',
+    'latestRelease',
     function($scope, $state, $stateParams, productDetail, versionDetail, milestoneDetail,
-        distributedArtifacts, performedBuilds) {
+        distributedArtifacts, performedBuilds, latestRelease) {
 
       var that = this;
       that.product = productDetail;
@@ -39,6 +39,15 @@
       that.milestone = milestoneDetail;
       that.distributedArtifacts = distributedArtifacts;
       that.performedBuilds = performedBuilds;
+      that.latestRelease = latestRelease;
+    }
+  ]);
+
+  module.controller('MilestoneLogController', [
+    'latestRelease',
+    function(latestRelease) {
+      var that = this;
+      that.latestRelease = latestRelease;
     }
   ]);
 
