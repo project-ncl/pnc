@@ -102,7 +102,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         client = new ClientFactory().create(environmentConfiguration.getRestEndpointUrl(), new NoopSSLCertificateCallback());
         client.setAuthorizationStrategy(new TokenAuthorizationStrategy(environmentConfiguration.getRestAuthToken()));
-        //TODO use something else as system uer don't have permissions and causes 403 - Unauthorized exception
         client.getCurrentUser(); //make sure client is connected
 
         runtimeProperties = new HashMap<>();

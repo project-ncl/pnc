@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
 import org.jboss.logging.Logger;
-import org.jboss.pnc.model.Artifact;
 
 import java.io.IOException;
 
@@ -44,11 +43,15 @@ public class JsonOutputConverterMapper {
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
+    /**
+     *
+     * @throws RuntimeException
+     */
     public static String apply(Object objectToBeConverted) {
         if(objectToBeConverted != null) {
             try {
                 return mapper.writeValueAsString(objectToBeConverted);
-            } catch (JsonProcessingException e) { //TODO remove exception masking
+            } catch (JsonProcessingException e) {
                 log.warn("Could not convert object to JSON", e);
                 throw new IllegalArgumentException("Could not convert object to JSON", e);
             }

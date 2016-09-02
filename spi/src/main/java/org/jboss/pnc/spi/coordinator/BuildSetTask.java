@@ -21,7 +21,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,11 +115,11 @@ public class BuildSetTask {
         return status;
     }
 
-    public void setStatusDescription(String statusDescription) { //TODO do we still need this, how do reject builds with cycle dependencies ?
+    public void setStatusDescription(String statusDescription) {
         this.statusDescription = statusDescription;
     }
 
-    public String getStatusDescription() { //TODO remove, used only in tests
+    public String getStatusDescription() {
         return statusDescription;
     }
 

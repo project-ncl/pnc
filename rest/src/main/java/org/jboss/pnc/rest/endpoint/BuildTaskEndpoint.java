@@ -112,7 +112,7 @@ public class BuildTaskEndpoint {
     })
     @POST
     @Path("/execute-build")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED) //TODO accept single json
     public Response build(
             @ApiParam(value = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
             @FormParam("buildExecutionConfiguration")

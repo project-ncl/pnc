@@ -52,7 +52,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Stateless
-public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
+public class BuildTriggerer {
 
     public interface BuildConfigurationSetTriggerResult {
         int getBuildRecordSetId();
