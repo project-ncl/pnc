@@ -17,12 +17,15 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -38,6 +41,7 @@ import javax.inject.Inject;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
+import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
 @Stateless
 public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
@@ -60,6 +64,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     // needed for EJB/CDI
+    @Deprecated
     public ProductMilestoneProvider() {
     }
 
@@ -76,6 +81,28 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     @Override
     protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModel() {
         return productMilestoneRest -> productMilestoneRest.toDBEntityBuilder().build();
+    }
+
+    @Override
+    protected void validateBeforeSaving(ProductMilestoneRest restEntity) throws ValidationException {
+        super.validateBeforeSaving(restEntity);
+        validateDoesNotConflict(restEntity);
+    }
+
+    private void validateDoesNotConflict(ProductMilestoneRest restEntity)
+            throws ConflictedEntryException, InvalidEntityException {
+            ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
+                ProductMilestone milestoneFromDB = repository.queryByPredicates(
+                        withProductVersionIdAndVersion(restEntity.getProductVersionId(), restEntity.getVersion())
+                );
+
+                // don't validate against myself
+                if (milestoneFromDB != null && !milestoneFromDB.getId().equals(restEntity.getId())) {
+                    return new ConflictedEntryValidator.ConflictedEntryValidationError(milestoneFromDB.getId(),
+                            ProductMilestone.class, "Product milestone with the same product version and version already exists");
+                }
+                return null;
+            });
     }
 
     public void addDistributedArtifact(Integer milestoneId, Integer artifactId) throws ValidationException {
