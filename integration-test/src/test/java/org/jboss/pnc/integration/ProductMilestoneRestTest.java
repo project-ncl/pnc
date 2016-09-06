@@ -109,11 +109,22 @@ public class ProductMilestoneRestTest extends AbstractTest {
         newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(PRODUCT_MILESTONE_REST_ENDPOINT)
                 + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
         logger.info("Created id of product milestone: " + newProductMilestoneId);
-
     }
 
     @Test
     @InSequence(5)
+    public void shouldFailToCreateExistingMilestone() throws IOException {
+        JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder.fromResource("productMilestone_template");
+        productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
+
+        Response response = given().headers(testHeaders)
+                .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(PRODUCT_MILESTONE_REST_ENDPOINT);
+        Assertions.assertThat(response.statusCode()).isEqualTo(409);
+    }
+
+    @Test
+    @InSequence(6)
     public void shouldUpdateProductMilestone() throws Exception {
 
         logger.info("### newProductMilestoneId: " + newProductMilestoneId);
@@ -147,7 +158,7 @@ public class ProductMilestoneRestTest extends AbstractTest {
     }
 
     @Test
-    @InSequence(6)
+    @InSequence(7)
     public void shouldGetAllProductMilestoneOfProductVersion() {
         given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()

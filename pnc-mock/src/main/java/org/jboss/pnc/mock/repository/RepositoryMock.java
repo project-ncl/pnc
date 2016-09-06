@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -27,6 +26,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -35,13 +35,14 @@ import java.util.Optional;
  */
 @SuppressWarnings({"WeakerAccess", "unchecked"})
 public class RepositoryMock<EntityType extends GenericEntity<Integer>> implements Repository<EntityType, Integer> {
+    private final AtomicInteger idSequence = new AtomicInteger(0);
     protected final List<EntityType> data = new ArrayList<>();
 
     @Override
     public EntityType save(EntityType entity) {
         Integer id = entity.getId();
         if (id == null) {
-            entity.setId(RandomUtils.randInt(100000, 1000000));
+            entity.setId(idSequence.getAndIncrement());
             id = entity.getId();
         }
         getOptionalById(id).ifPresent(data::remove);
