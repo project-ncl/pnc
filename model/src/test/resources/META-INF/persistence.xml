@@ -38,6 +38,7 @@
     <class>org.jboss.pnc.model.License</class>
     <class>org.jboss.pnc.model.Product</class>
     <class>org.jboss.pnc.model.ProductMilestone</class>
+    <class>org.jboss.pnc.model.ProductMilestoneRelease</class>
     <class>org.jboss.pnc.model.ProductRelease</class>
     <class>org.jboss.pnc.model.ProductVersion</class>
     <class>org.jboss.pnc.model.Project</class>
