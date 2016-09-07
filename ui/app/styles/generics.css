@@ -35,6 +35,10 @@
   pointer-events: auto !important;
 }
 
+.border-none {
+  border: none !important;
+}
+
 .text-uppercase {
   text-transform: uppercase;
 }
@@ -51,6 +55,10 @@
 .m-r-10 { margin-right:     10px; }
 .m-b-10 { margin-bottom:    10px; }
 .m-l-10 { margin-left:      10px; }
+.m-t-20 { margin-top:       20px; }
+.m-r-20 { margin-right:     20px; }
+.m-b-20 { margin-bottom:    20px; }
+.m-l-20 { margin-left:      20px; }
 
 .p-t-5  { padding-top:       5px;  }
 .p-r-5  { padding-right:     5px;  }
