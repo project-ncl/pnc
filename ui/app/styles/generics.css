@@ -23,6 +23,9 @@
 .w-min-150 {
   min-width: 150px;
 }
+.w-min-130 {
+  min-width: 130px;
+}
 
 .cursor-pointer {
   cursor: pointer;
