@@ -24,7 +24,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
@@ -92,8 +91,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
      */
     private BuildConfigurationAuditedRest buildConfigurationAudited;
 
-    private SshCredentials sshCredentials;
-
     @Getter
     @Setter
     private String executionRootName;
@@ -107,10 +104,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     }
 
     public BuildRecordRest(BuildRecord buildRecord) {
-        this(buildRecord, false);
-    }
-
-    public BuildRecordRest(BuildRecord buildRecord, boolean withSshCredentials) {
         this.id = buildRecord.getId();
         this.submitTime = buildRecord.getSubmitTime();
         this.startTime = buildRecord.getStartTime();
@@ -138,12 +131,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationAudited = new BuildConfigurationAuditedRest(
                         buildRecord.getBuildConfigurationAudited()));
-
-        if (withSshCredentials && buildRecord.getSshCommand() != null) {
-            sshCredentials = new SshCredentials();
-            sshCredentials.setCommand(buildRecord.getSshCommand());
-            sshCredentials.setPassword(buildRecord.getSshPassword());
-        }
 
         executionRootName = buildRecord.getExecutionRootName();
         executionRootVersion = buildRecord.getExecutionRootVersion();
@@ -342,13 +329,5 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildConfigurationAuditedRest getBuildConfigurationAudited() {
         return buildConfigurationAudited;
-    }
-
-    public SshCredentials getSshCredentials() {
-        return sshCredentials;
-    }
-
-    public void setSshCredentials(SshCredentials sshCredentials) {
-        this.sshCredentials = sshCredentials;
     }
 }

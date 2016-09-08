@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.spi;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -29,6 +31,8 @@ import lombok.Data;
  * Create a separate *Rest class if you wish to add here something that should not be sent via rest
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SshCredentials {
     private String command;
     private String password;

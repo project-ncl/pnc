@@ -25,6 +25,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -47,7 +48,11 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -365,18 +370,18 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     public Collection<BuildRecordRest> getByAttribute(String key, String value) {
         List<BuildRecord> buildRecords = repository.queryWithPredicates(withAttribute(key, value));
-        return buildRecords.stream().map(br -> new BuildRecordRest(br)).collect(Collectors.toList());
+        return buildRecords.stream().map(BuildRecordRest::new).collect(Collectors.toList());
     }
 
-    public BuildRecordRest getSpecificForUser(Integer id, User currentUser) {
+    public SshCredentials getSshCredentialsForUser(Integer id, User currentUser) {
         BuildRecord buildRecord = repository.queryById(id);
         if (buildRecord != null) {
-            // TODO NCL-2316: bring back in
-//            User buildRequester = buildRecord.getUser();
-//            boolean addSshCredentials = buildRequester != null && currentUser.getId().equals(buildRequester.getId());
-            // end TODO NCL-2316
-            boolean addSshCredentials = true;
-            return new BuildRecordRest(buildRecord, addSshCredentials);
+            User buildRequester = buildRecord.getUser();
+            if (buildRequester != null
+                    && currentUser.getId().equals(buildRequester.getId())
+                    && buildRecord.getSshCommand() != null) {
+                return new SshCredentials(buildRecord.getSshCommand(), buildRecord.getSshPassword());
+            }
         }
         return null;
     }
