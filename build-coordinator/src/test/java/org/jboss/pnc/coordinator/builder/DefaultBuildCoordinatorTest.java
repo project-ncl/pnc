@@ -101,6 +101,8 @@ public class DefaultBuildCoordinatorTest {
         sshCredentials.setCommand(RandomStringUtils.randomAlphabetic(30));
         sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
         when(buildResult.getSshCredentials()).thenReturn(Optional.of(sshCredentials));
+        when(buildResult.getExecutionRootName()).thenReturn(Optional.empty());
+        when(buildResult.getExecutionRootVersion()).thenReturn(Optional.empty());
 
         ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
         when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class))).thenAnswer(answer);
