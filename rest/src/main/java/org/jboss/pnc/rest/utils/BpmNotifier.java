@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.utils; //TODO move out of utils
+package org.jboss.pnc.rest.utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -49,7 +49,7 @@ import java.util.List;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
-public class BpmNotifier { //TODO rename: remove bpm for name
+public class BpmNotifier {
 
     private final Logger log = Logger.getLogger(BpmNotifier.class);
     private BpmModuleConfig bpmConfig;

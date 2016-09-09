@@ -29,22 +29,23 @@ import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @Category(ContainerTest.class)
-@Ignore("Uploaded/Built paths should NOT be contained in downloaded/dependency listing!")
 public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
     extends AbstractImportTest
 {
+
+    private static final Logger log = LoggerFactory.getLogger(UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest.class);
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
@@ -71,31 +72,22 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
         assertThat(download(UrlUtils.buildUrl(baseUrl, path)), equalTo(content));
 
         ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
-        String aref = new SimpleArtifactRef(pvr, "pom", null).toString();
+        String artifactRef = new SimpleArtifactRef(pvr, "pom", null).toString();
 
-        // extract the "built" artifacts we uploaded above.
+        // extract the "builtArtifacts" artifacts we uploaded above.
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
         // check that both files are present in extracted result
-        List<Artifact> built = repositoryManagerResult.getBuiltArtifacts();
-        System.out.println(built);
+        List<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
+        log.info("Built artifacts: " + builtArtifacts.toString());
 
-        assertThat(built, notNullValue());
-        assertThat(built.size(), equalTo(1));
+        assertThat(builtArtifacts, notNullValue());
+        assertThat(builtArtifacts.size(), equalTo(1));
 
-        Artifact builtArtifact = built.get(0);
-        assertThat(builtArtifact + " doesn't match pom ref: " + aref,
-                aref.equals(builtArtifact.getIdentifier()),
+        Artifact builtArtifact = builtArtifacts.get(0);
+        assertThat(builtArtifact + " doesn't match pom ref: " + artifactRef,
+                artifactRef.equals(builtArtifact.getIdentifier()),
                 equalTo(true));
-
-        List<Artifact> dependencies = repositoryManagerResult.getDependencies();
-        assertThat(dependencies, notNullValue());
-        assertThat(dependencies.size(), equalTo(1));
-
-        Artifact dep = dependencies.get(0);
-        assertThat(dep.getIdentifier(), equalTo(aref));
-        assertTrue(dep.isImported());
-        assertThat(dep.getOriginUrl(), notNullValue());
 
         client.close();
     }

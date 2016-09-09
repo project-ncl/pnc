@@ -26,7 +26,7 @@ import org.jboss.pnc.spi.environment.DestroyableEnvironment;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
-public class BuildProcessException extends ExecutionExceptionWrapper { //TODO rename
+public class BuildProcessException extends ExecutionExceptionWrapper {
     
     private DestroyableEnvironment destroyableEnvironment;
     
