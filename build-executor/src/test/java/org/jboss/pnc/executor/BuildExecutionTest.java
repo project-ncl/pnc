@@ -50,7 +50,6 @@ import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -180,21 +179,6 @@ public class BuildExecutionTest {
         assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
     }
 
-    @Test
-    public void shouldNotDestroyEnvironmentWhenPodKeptAliveSet() throws ExecutorException, InterruptedException, TimeoutException {
-        BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(4, "build-failed-on-maven", null);
-        Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
-        ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
-
-        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, true);
-
-        checkBuildStatuses(statusChangedEvents, Collections.singletonList(DONE_WITH_ERRORS));
-
-        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
-        assertNoState(statusChangedEvents, BUILD_ENV_DESTROYED);
-        assertNoState(statusChangedEvents, BUILD_ENV_DESTROYING);
-    }
-
     private void assertNoState(Set<BuildExecutionStatusChangedEvent> statusEvents, BuildExecutionStatus state) {
         Assertions.assertThat(statusEvents.stream().anyMatch(e -> e.getNewStatus() == state)).isFalse();
     }
@@ -202,12 +186,6 @@ public class BuildExecutionTest {
     private void runBuild(BuildConfiguration buildConfiguration,
                           Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
                           ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
-        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, false);
-    }
-    private void runBuild(BuildConfiguration buildConfiguration,
-                          Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
-                          ObjectWrapper<BuildResult> buildExecutionResultWrapper,
-                          boolean keepAliveOnFailure) throws ExecutorException {
         DefaultBuildExecutor executor = new DefaultBuildExecutor(
                 repositoryManagerFactory,
                 buildDriverFactory,
@@ -240,7 +218,7 @@ public class BuildExecutionTest {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                keepAliveOnFailure);
+                false);
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
     }
