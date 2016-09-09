@@ -39,10 +39,8 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @Category(ContainerTest.class)
-//@Ignore("Uploaded/Built paths should NOT be contained in downloaded/dependency listing!")
 public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
     extends AbstractImportTest
 {
@@ -90,15 +88,6 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
         assertThat(builtArtifact + " doesn't match pom ref: " + artifactRef,
                 artifactRef.equals(builtArtifact.getIdentifier()),
                 equalTo(true));
-
-        List<Artifact> dependencies = repositoryManagerResult.getDependencies();
-        assertThat(dependencies, notNullValue());
-        assertThat(dependencies.size(), equalTo(1));
-
-        Artifact dep = dependencies.get(0);
-        assertThat(dep.getIdentifier(), equalTo(artifactRef));
-        assertTrue(dep.isImported());
-        assertThat(dep.getOriginUrl(), notNullValue());
 
         client.close();
     }
