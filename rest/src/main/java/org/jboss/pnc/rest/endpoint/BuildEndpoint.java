@@ -159,11 +159,7 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
         if (credentials != null) {
             return fromSingleton(credentials);
         } else {
-            ErrorResponseRest entity = new ErrorResponseRest(
-                    "NOT_FOUND",
-                    "Ssh credentials are not present or the current user has no right to access them"
-            );
-            return Response.status(NO_CONTENT_CODE).entity(entity).build();
+            return Response.status(NO_CONTENT_CODE).build();
         }
     }
 

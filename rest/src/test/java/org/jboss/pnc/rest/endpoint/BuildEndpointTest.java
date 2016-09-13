@@ -21,7 +21,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -101,11 +100,9 @@ public class BuildEndpointTest {
         prepareEndpointForKeepPodAlive(buildRecordId, CURRENT_USER + 1, sshCommand, sshPassword);
 
         // when
-        ErrorResponseRest errorResponseRest = getSshCredentials(buildRecordId, 204);
+        Object entity = getSshCredentials(buildRecordId, 204);
+        assertThat(entity).isNull();
 
-        // then
-        assertThat(errorResponseRest).isNotNull();
-        assertThat(errorResponseRest.getErrorType()).isEqualTo("NOT_FOUND");
     }
 
     private void prepareEndpointForKeepPodAlive(int buildRecordId, int buildRequesterId, String sshCommand, String sshPassword) {
