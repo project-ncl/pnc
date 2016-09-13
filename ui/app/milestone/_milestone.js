@@ -55,10 +55,14 @@
           performedBuilds: function (ProductMilestoneDAO, $stateParams) {
             return ProductMilestoneDAO.getPagedPerformedBuilds({milestoneId: $stateParams.milestoneId});
           },
-          latestRelease: function (ProductMilestoneDAO, $stateParams) {
+          latestRelease: function (ProductMilestoneDAO, $stateParams, $log) {
             return ProductMilestoneDAO
                 .getLatestRelease({ milestoneId: $stateParams.milestoneId })
-                .$promise;
+                .$promise
+                .catch(function (error) {
+                  $log.error('Error loading release workflow: ' + JSON.stringify(error));
+                  return {};
+                });
           }
         }
       })
