@@ -44,7 +44,8 @@
     'REST_BASE_URL',
     'BUILD_RECORD_ENDPOINT',
     'recordDetail',
-    function(buildLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail) {
+    'sshCredentials',
+    function(buildLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail, sshCredentials) {
       this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/log';
       this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
       this.log = buildLog.payload;
@@ -53,10 +54,7 @@
         clicked: false
       };
 
-      this.sshCredentials = {
-        command:  recordDetail.sshCredentials ? recordDetail.sshCredentials.command  : null,
-        password: recordDetail.sshCredentials ? recordDetail.sshCredentials.password : null
-      };
+      this.sshCredentials = sshCredentials;
     }
   ]);
 
@@ -64,8 +62,8 @@
     'artifacts',
     function(artifacts) {
       this.downloadedArtifacts = artifacts;
-   }
- ]);
+    }
+  ]);
 
 
   module.controller('RecordListController', [

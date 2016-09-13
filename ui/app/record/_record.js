@@ -80,11 +80,16 @@
         controllerAs: 'resultCtrl',
         templateUrl: 'record/views/record.detail.result.html',
         data: {
-          displayName: '{{ recordDetail.id }}',
+          displayName: '{{ recordDetail.id }}'
         },
         resolve: {
           buildLog: function (BuildRecordDAO, recordDetail) {
             return BuildRecordDAO.getLog({
+              recordId: recordDetail.id
+            }).$promise;
+          },
+          sshCredentials: function (BuildRecord, recordDetail) {
+            return BuildRecord.getSshCredentials({
               recordId: recordDetail.id
             }).$promise;
           }
