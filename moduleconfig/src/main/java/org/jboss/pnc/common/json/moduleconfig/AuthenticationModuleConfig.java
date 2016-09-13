@@ -17,13 +17,16 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import org.jboss.pnc.common.json.AbstractModuleConfig;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jboss.pnc.common.json.AbstractModuleConfig;
 
+public class AuthenticationModuleConfig extends AbstractModuleConfig {
 
-public class AuthenticationModuleConfig extends AbstractModuleConfig{
-    
     public static String MODULE_NAME = "authentication-config";
 
     /**
@@ -39,39 +42,69 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
     /**
      * Base URL of REST endpoint services to be accessed from external resources
      */
-    private String baseAuthUrl;
+    private String authServerUrl;
 
-    public AuthenticationModuleConfig(@JsonProperty("username") String username, 
-            @JsonProperty("password")String password, @JsonProperty("baseAuthUrl")String baseAuthUrl) {
-        super();
+    private String realmKey;
+
+    private String realm;
+
+    private String resource;
+
+    public AuthenticationModuleConfig(@JsonProperty("username") String username,
+            @JsonProperty("password") String password, @JsonProperty("auth-server-url") String authServerUrl, @JsonProperty("realm-public-key") String realmKey,
+            @JsonProperty("realm") String realm, @JsonProperty("resource") String resource) {
         this.username = username;
         this.password = password;
-        this.baseAuthUrl = baseAuthUrl;
+        this.authServerUrl = authServerUrl;
+        this.realmKey = realmKey;
+        this.realm = realm;
+        this.resource = resource;
     }
-    
+
     public String getUsername() {
         return username;
     }
+
     public void setUsername(String username) {
         this.username = username;
     }
+
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public String getBaseAuthUrl() {
-        return baseAuthUrl;
+    public PublicKey getPublicRealmKey() {
+        try {
+            byte[] byteKey = Base64.getDecoder().decode(realmKey.getBytes());
+            X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            return kf.generatePublic(X509publicKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    public void setBaseAuthUrl(String baseAuthUrl) {
-        this.baseAuthUrl = baseAuthUrl;
-    }
-    
     @Override
     public String toString() {
-        return "AuthenticationModuleConfig [username=" + username + ", password=HIDDEN, baseAuthUrl=" + baseAuthUrl +"]";
+        return "AuthenticationModuleConfig [username=" + username + ", password=HIDDEN, baseAuthUrl=" + authServerUrl +"]";
     }
+
+    public String getAuthServerUrl() {
+        return authServerUrl;
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public String getResource() {
+        return resource;
+    }
+
 }

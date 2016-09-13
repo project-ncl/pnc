@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import java.util.Map;
-
 /**
  * Runtime configuration parameters for the Web UI.
  *

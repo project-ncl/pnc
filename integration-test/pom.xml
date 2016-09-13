@@ -310,7 +310,7 @@
                   <execute-commands>
                     <commands>
                       <command>
-                        /extension=org.keycloak.keycloak-subsystem:add
+                        /extension=org.keycloak.keycloak-adapter-subsystem:add(module=org.keycloak.keycloak-adapter-subsystem)
                       </command>
                       <command>
                         /subsystem=keycloak:add
