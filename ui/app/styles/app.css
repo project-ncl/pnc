@@ -162,3 +162,7 @@ td.td-actions .btn-group {
     white-space: pre;
     overflow: visible;
 }
+
+label.required::before {
+  content: "* ";
+}
