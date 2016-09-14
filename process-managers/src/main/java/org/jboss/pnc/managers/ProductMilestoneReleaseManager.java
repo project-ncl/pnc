@@ -113,7 +113,7 @@ public class ProductMilestoneReleaseManager {
             return release;
         } catch (CoreException e) {
             log.error("Error trying to start brew push task for milestone: {}", milestone.getId(), e);
-            release.setLog("Brew push BPM task creation failed. Check log for more details " + e.getMessage() + "\n");
+            release.setLog("Brew push BPM task creation failed.\nCheck log for more details.\n");
             release.setStatus(MilestoneReleaseStatus.SYSTEM_ERROR);
             release.setEndDate(new Date());
             return release;
