@@ -86,8 +86,8 @@
         that.version = that.data.version.substring(versionDetail.version.length + 1);
 
         // Need to convert from timestamp to date for the datepicker
-        that.data.startingDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.startingDate);
-        that.data.plannedEndDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.plannedEndDate);
+        that.data.startingDate = new Date(that.data.startingDate);
+        that.data.plannedEndDate = new Date(that.data.plannedEndDate);
       }
 
       that.setCurrentMilestone = that.productVersion.currentProductMilestoneId === that.data.id;
@@ -197,7 +197,7 @@
 
       that.data = milestoneDetail;
 
-      that.data.endDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.endDate);
+      that.data.endDate = new Date(that.data.endDate);
 
       that.submit = function() {
 

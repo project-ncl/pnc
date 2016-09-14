@@ -32,20 +32,8 @@
           return null;
         }
 
-        return date.getTime() -
-          (date.getTimezoneOffset() * MINUTE) + // remove local timezone offset
+        return date.getTime() +
           (12 * HOUR); // change from midnight to noon
-      },
-
-      convertFromTimestampNoonUTC: function(msec) {
-         //console.log('Converting msec ' + msec + ' from UTC noon timestamp');
-         var now = new Date();
-         var convertedTimestamp = msec + 
-           (now.getTimezoneOffset() * MINUTE) - // add local timezone offset
-           (12 * HOUR); // change from noon to midnight
-
-         now.setTime(convertedTimestamp);
-         return now;
       },
 
       initDatePicker: function(scope) {
