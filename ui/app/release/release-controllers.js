@@ -62,7 +62,7 @@
         that.version = that.data.version.substring(versionDetail.version.length + 1);
 
         // Need to convert from timestamp to date for the datepicker
-        that.data.releaseDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.releaseDate);
+        that.data.releaseDate = new Date(that.data.releaseDate);
       }
 
       // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
