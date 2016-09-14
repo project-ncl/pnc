@@ -42,6 +42,7 @@
       that.versionMilestones = [];
       that.usedVersionMilestoneIds = [];
       that.supportLevels = [];
+      that.releaseDate = null; // date component, see also that.data.releaseDate
 
       that.isUpdating = false;
       that.data = new ProductReleaseDAO();
@@ -61,8 +62,8 @@
         // Remove the prefix
         that.version = that.data.version.substring(versionDetail.version.length + 1);
 
-        // Need to convert from timestamp to date for the datepicker
-        that.data.releaseDate = new Date(that.data.releaseDate);
+        // date component <- timestamp
+        that.releaseDate = new Date(that.data.releaseDate);
       }
 
       // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
@@ -103,7 +104,8 @@
       that.submit = function() {
 
         that.data.version = versionDetail.version + '.' + that.version; // add the prefix
-        that.data.releaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.releaseDate);
+        // timestamp <- date component
+        that.data.releaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.releaseDate);
         that.data.productVersionId = versionDetail.id;
         that.data.productMilestoneId = parseInt(that.productMilestoneId);
 
