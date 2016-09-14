@@ -48,8 +48,7 @@
       <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="detailCtrl.update()" novalidate>
 
         <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && configurationForm.name.$touched, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
-          <label for="input-name" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* Name</label>
-          <label for="input-name" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">Name</label>
+          <label for="input-name" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">Name</label>
           <div class="col-sm-10">
             <p id="input-name" class="form-control-static" e-pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-maxlength="255" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.name.$error.required && configurationForm.name.$touched">Required field.</span>
@@ -76,8 +75,7 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched, 'has-success': configurationForm.scmRepoURL.$valid && configurationForm.scmRepoURL.$touched }">
-          <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* SCM Url</label>
-          <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">SCM Url</label>
+          <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">SCM Url</label>
           <div class="col-sm-10">
             <p e-required e-type="text" id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL" e-maxlength="255">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
@@ -85,8 +83,7 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevision.$invalid && configurationForm.scmRevision.$touched, 'has-success': configurationForm.scmRevision.$valid && configurationForm.scmRevision.$touched }">
-          <label for="input-scm-revision" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* SCM Revision</label>
-          <label for="input-scm-revision" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">SCM Revision</label>
+          <label for="input-scm-revision" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">SCM Revision</label>
           <div class="col-sm-10">
             <p e-required id="input-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevision" e-name="scmRevision" e-maxlength="255">{{ detailCtrl.configuration.scmRevision || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.scmRevision.$error.required && configurationForm.scmRevision.$touched">Required field.</span>
@@ -94,8 +91,7 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error': configurationForm.buildScript.$invalid && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
-          <label for="input-build-script" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* Build Script</label>
-          <label for="input-build-script" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">Build Script</label>
+          <label for="input-build-script" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">Build Script</label>
           <div class="col-sm-10">
             <pre e-required id="input-build-script" e-class="form-control" editable-textarea="detailCtrl.configuration.buildScript" e-name="buildScript">{{ detailCtrl.configuration.buildScript || 'Empty' }}</pre>
             <span class="help-block" ng-show="configurationForm.buildScript.$error.required && configurationForm.buildScript.$touched">Required field.</span>
@@ -164,8 +160,7 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error' : !detailCtrl.environment.id, 'has-success': detailCtrl.environment.id && configurationForm.environmentId.$touched }">
-          <label for="input-environment" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* Environment</label>
-          <label for="input-environment" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">Environment</label>
+          <label for="input-environment" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">Environment</label>
           <div class="col-sm-10">
 
              <p ng-hide="configurationForm.$visible" id="input-environment" class="form-control-static">{{ detailCtrl.environment.name }}</p>
