@@ -49,18 +49,30 @@ public class OpenshiftBuildAgentConfig extends AbstractModuleConfig {
     }
 
     public String getBuilderPod() {
+        if (pncBuilderPod.isNull()) {
+            return null;
+        }
         return pncBuilderPod.toString();
     }
 
     public String getPncBuilderService() {
+        if (pncBuilderService.isNull()) {
+            return null;
+        }
         return pncBuilderService.toString();
     }
 
     public String getPncBuilderRoute() {
+        if (pncBuilderRoute.isNull()) {
+            return null;
+        }
         return pncBuilderRoute.toString();
     }
 
     public String getPncBuilderSshRoute() {
+        if (pncBuilderSshRoute.isNull()) {
+            return null;
+        }
         return pncBuilderSshRoute.toString();
     }
 }
