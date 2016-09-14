@@ -53,6 +53,6 @@ public interface ConflictedEntryValidator {
         }
     }
 
-    public abstract ConflictedEntryValidationError validate();
+    ConflictedEntryValidationError validate();
 
 }

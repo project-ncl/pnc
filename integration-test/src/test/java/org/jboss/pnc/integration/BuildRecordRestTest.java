@@ -26,6 +26,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -42,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -57,6 +59,7 @@ public class BuildRecordRestTest extends AbstractTest {
     private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/build-records?q=latestBuildConfiguration.name==%s";
     private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-rest/rest/build-records/projects/%d";
     private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/build-records/projects/%d?q=latestBuildConfiguration.name==%s";
+    private static final String BUILD_ENDPOINT_SSH_CREDENTIALS = "/pnc-rest/rest/builds/ssh-credentials/%d";
 
     private static int buildRecordId;
     private static int configurationId;
@@ -175,5 +178,27 @@ public class BuildRecordRestTest extends AbstractTest {
 
         ResponseAssertion.assertThat(response2).hasStatus(200);
         ResponseAssertion.assertThat(response2).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
+    }
+
+    @Test
+    public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() throws IOException {
+        if (AuthUtils.authEnabled()) {
+            Response response = given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(BUILD_ENDPOINT_SSH_CREDENTIALS, buildRecordId));
+
+            ResponseAssertion.assertThat(response).hasStatus(204);
+        }
+    }
+
+    @Test
+    public void shouldFailToGetSshCredentialsForAnonymous() throws IOException {
+        if (AuthUtils.authEnabled()) {
+            Response response = given().header(acceptJsonHeader)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(BUILD_ENDPOINT_SSH_CREDENTIALS, buildRecordId));
+
+            ResponseAssertion.assertThat(response).hasStatus(401);
+        }
     }
 }

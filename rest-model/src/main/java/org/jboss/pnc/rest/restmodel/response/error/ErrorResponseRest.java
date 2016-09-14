@@ -32,6 +32,11 @@ public class ErrorResponseRest {
     public ErrorResponseRest() {
     }
 
+    public ErrorResponseRest(String errorType, String errorMessage) {
+        this.errorType = errorType;
+        this.errorMessage = errorMessage;
+    }
+
     public ErrorResponseRest(Exception e) {
         this.errorType = e.getClass().getSimpleName();
         this.errorMessage = e.getMessage();
