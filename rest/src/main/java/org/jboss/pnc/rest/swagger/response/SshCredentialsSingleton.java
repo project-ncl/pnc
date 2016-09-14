@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-
 package org.jboss.pnc.rest.swagger.response;
 
-import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.spi.SshCredentials;
 
-public class ProductReleasePage extends Page<ProductReleaseRest> {
+public class SshCredentialsSingleton extends Singleton<SshCredentials> {
 
 }

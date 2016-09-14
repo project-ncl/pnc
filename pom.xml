@@ -1546,23 +1546,12 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <executions>
               <execution>
-                <id>container-test</id>
+                <id>tests</id>
                 <goals>
                   <goal>test</goal>
                 </goals>
                 <configuration>
-                  <groups>org.jboss.pnc.test.category.ContainerTest</groups>
                   <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
-                  <test>${test}</test>
-                </configuration>
-              </execution>
-              <execution>
-                <id>default-test</id>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <excludedGroups>org.jboss.pnc.test.category.DebugTest,org.jboss.pnc.test.category.ContainerTest</excludedGroups>
                   <test>${test}</test>
                 </configuration>
               </execution>

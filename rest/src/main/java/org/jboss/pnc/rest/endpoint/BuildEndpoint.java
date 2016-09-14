@@ -41,13 +41,18 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
+import org.jboss.pnc.rest.swagger.response.SshCredentialsSingleton;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.spi.SshCredentials;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -55,6 +60,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -86,14 +92,20 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest> {
 
     private BuildRecordProvider buildRecordProvider;
+    private EndpointAuthenticationProvider endpointAuthProvider;
 
+    @Context
+    private HttpServletRequest request;
+
+    @Deprecated
     public BuildEndpoint() {
     }
 
     @Inject
-    public BuildEndpoint(BuildRecordProvider buildRecordProvider) {
+    public BuildEndpoint(BuildRecordProvider buildRecordProvider, EndpointAuthenticationProvider endpointAuthProvider) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
+        this.endpointAuthProvider = endpointAuthProvider;
     }
 
     @ApiOperation(value = "Gets all Build Records")
@@ -123,12 +135,32 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        // TODO NCL-2316: set user
-        BuildRecordRest record = buildRecordProvider.getSpecificForUser(id, null);
+        BuildRecordRest record = buildRecordProvider.getSpecific(id);
         if (record == null) {
           record = buildRecordProvider.getSpecificRunning(id);
         }
         return fromSingleton(record);
+    }
+
+    @ApiOperation(value = "Gets ssh credentials for a build",
+            notes = "This GET request is for authenticated users only. " +
+                    "The path for the endpoint is not restful to be able to authenticate this GET request only.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = SshCredentialsSingleton.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NOT_FOUND_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/ssh-credentials/{id}")
+    public Response getSshCredentials(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        User currentUser = endpointAuthProvider.getCurrentUser(request);
+        SshCredentials credentials = buildRecordProvider.getSshCredentialsForUser(id, currentUser);
+        if (credentials != null) {
+            return fromSingleton(credentials);
+        } else {
+            return Response.status(NO_CONTENT_CODE).build();
+        }
     }
 
 }

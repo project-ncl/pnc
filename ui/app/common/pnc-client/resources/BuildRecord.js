@@ -22,19 +22,25 @@
 
   module.value('BUILD_RECORD_PATH', '/build-records/:id');
   module.value('BUILDS_PATH', '/builds/:id');
+  module.value('SSH_CREDENTIALS_PATH', '/builds/ssh-credentials/:recordId');
 
   /**
    *
    */
   module.factory('BuildRecord', [
     '$resource',
+    '$q',
     'restConfig',
     'BUILD_RECORD_PATH',
     'BUILDS_PATH',
+    'SSH_CREDENTIALS_PATH',
     'rsqlQuery',
-    function($resource, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, rsqlQuery) {
+    'authService',
+    function($resource, $q, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, SSH_CREDENTIALS_PATH,
+             rsqlQuery, authService) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PATH;
       var BUILDS_ENDPOINT = restConfig.getPncUrl() + BUILDS_PATH;
+      var SSH_CREDENTIALS_ENDPOINT = restConfig.getPncUrl() + SSH_CREDENTIALS_PATH;
 
 
       var resource = $resource(ENDPOINT, {
@@ -61,7 +67,7 @@
         queryCompleted: {
           method: 'GET',
           isPaged: true,
-          url: ENDPOINT,
+          url: ENDPOINT
         },
         /**
          * Get completed BuildRecord by id.
@@ -92,8 +98,13 @@
         getBuiltArtifacts: {
           isPaged: true,
           method: 'GET',
-          url: ENDPOINT + '/built-artifacts',
+          url: ENDPOINT + '/built-artifacts'
         },
+        doGetSshCredentials :{
+          isPaged: false,
+          method: 'GET',
+          url: SSH_CREDENTIALS_ENDPOINT
+        }
       });
 
       /**
@@ -104,6 +115,13 @@
        */
       resource.queryWithUserId = function (params) {
         return resource.query({ q: rsqlQuery().where('user.id').eq(params.userId).end() });
+      };
+
+      resource.getSshCredentials = function(params) {
+            if (authService.isAuthenticated()) {
+              return resource.doGetSshCredentials(params);
+            }
+            return $q.when(null);
       };
 
       return resource;

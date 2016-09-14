@@ -18,12 +18,39 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.repositories.*;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
@@ -342,6 +369,8 @@ public class DatabaseDataInitializer {
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
                     .productMilestone(demoProductMilestone1)
+                    .sshCommand("ssh worker@localhost -P 9999")
+                    .sshPassword("dontchangeme")
                     .build();
 
             buildRecordRepository.save(buildRecord1);
