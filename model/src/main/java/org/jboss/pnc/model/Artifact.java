@@ -105,13 +105,18 @@ public class Artifact implements GenericEntity<Integer> {
     private String deployUrl;
 
     /**
-     * The record of the build which produced this artifact
+     * The record of the build which produced this artifact.
+     * Usualy hare should be only one build record that produced this artifact.
+     * However some other build may produce the same artifact (same checksum)
+     * in such case we link the BuildRecord to the same artifact.
      */
     @ManyToMany(mappedBy = "builtArtifacts")
     private Set<BuildRecord> buildRecords;
 
     /**
-     * The builds which depend on this artifact
+     * The builds which depend on this artifact.
+     * Build records of the dependencies that were downloaded during the build
+     * and has matching record in the PNC.
      */
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
