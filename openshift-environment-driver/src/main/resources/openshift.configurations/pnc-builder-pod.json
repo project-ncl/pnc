@@ -87,7 +87,8 @@
                 "securityContext": {
                     "capabilities": {
                         "add": ["NET_ADMIN"]
-                    }
+                    },
+                    "privileged": true
                 }
             }
         ],
