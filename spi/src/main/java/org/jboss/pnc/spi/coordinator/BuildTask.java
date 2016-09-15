@@ -68,10 +68,12 @@ public class BuildTask {
 
     //called when all dependencies are built
     private final Integer buildConfigSetRecordId;
+    private boolean forcedRebuild;
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
                       boolean podKeptAfterFailure,
+                      boolean forceRebuild,
                       User user,
                       Date submitTime,
                       BuildSetTask buildSetTask,
@@ -83,6 +85,7 @@ public class BuildTask {
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
         this.podKeptAfterFailure = podKeptAfterFailure;
+        this.forcedRebuild = forceRebuild;
         this.user = user;
         this.submitTime = submitTime;
 
@@ -147,7 +150,7 @@ public class BuildTask {
         if (buildConfiguration == null || buildConfiguration.getAllDependencies() == null) {
             return false;
         }
-        return buildConfiguration.getAllDependencies().contains(buildTask.getBuildConfiguration());
+        return buildConfiguration.dependsOn(buildTask.getBuildConfiguration());
     }
 
     public void addDependant(BuildTask buildTask) {
@@ -243,13 +246,13 @@ public class BuildTask {
     }
 
     public static BuildTask build(BuildConfiguration buildConfiguration,
-            BuildConfigurationAudited buildConfigAudited,
-            boolean podKeptAfterFailure,
-            User user,
-            int buildTaskId,
-            BuildSetTask buildSetTask,
-            Date submitTime,
-            ProductMilestone productMilestone) {
+                                  BuildConfigurationAudited buildConfigAudited,
+                                  boolean podKeptAfterFailure,
+                                  boolean forceRebuild, User user,
+                                  int buildTaskId,
+                                  BuildSetTask buildSetTask,
+                                  Date submitTime,
+                                  ProductMilestone productMilestone) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
@@ -260,12 +263,12 @@ public class BuildTask {
                 buildConfiguration,
                 buildConfigAudited,
                 podKeptAfterFailure,
+                forceRebuild,
                 user,
                 submitTime,
                 buildSetTask,
                 buildTaskId,
-                buildConfigSetRecordId,
-                productMilestone);
+                buildConfigSetRecordId, productMilestone);
     }
 
 
@@ -275,5 +278,9 @@ public class BuildTask {
 
     public boolean isPodKeptAfterFailure() {
         return podKeptAfterFailure;
+    }
+
+    public boolean isForcedRebuild() {
+        return forcedRebuild;
     }
 }
