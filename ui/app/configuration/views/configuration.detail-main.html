@@ -75,7 +75,7 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched, 'has-success': configurationForm.scmRepoURL.$valid && configurationForm.scmRepoURL.$touched }">
-          <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">SCM Url</label>
+          <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">Internal SCM Url</label>
           <div class="col-sm-10">
             <p e-required e-type="text" id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL" e-maxlength="255">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
@@ -83,10 +83,26 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevision.$invalid && configurationForm.scmRevision.$touched, 'has-success': configurationForm.scmRevision.$valid && configurationForm.scmRevision.$touched }">
-          <label for="input-scm-revision" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">SCM Revision</label>
+          <label for="input-scm-revision" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">Internal SCM Revision</label>
           <div class="col-sm-10">
             <p e-required id="input-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevision" e-name="scmRevision" e-maxlength="255">{{ detailCtrl.configuration.scmRevision || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.scmRevision.$error.required && configurationForm.scmRevision.$touched">Required field.</span>
+          </div>
+        </div>
+
+        <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURLExternal.$invalid && configurationForm.scmRepoURLExternal.$touched, 'has-success': configurationForm.scmRepoURLExternal.$valid && configurationForm.scmRepoURLExternal.$touched }">
+          <label for="input-external0scm-repo-url" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">External SCM Url</label>
+          <div class="col-sm-10">
+            <p e-type="text" id="input-external0scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURLExternal" e-name="scmRepoURLExternal" e-maxlength="255">{{ detailCtrl.configuration.scmRepoURLExternal || 'Empty' }}</p>
+            <span class="help-block" ng-show="configurationForm.scmRepoURLExternal.$error.required && configurationForm.scmRepoURLExternal.$touched">Required field.</span>
+          </div>
+        </div>
+
+        <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevisionExternal.$invalid && configurationForm.scmRevisionExternal.$touched, 'has-success': configurationForm.scmRevisionExternal.$valid && configurationForm.scmRevisionExternal.$touched }">
+          <label for="input-external-scm-revision" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">External SCM Revision</label>
+          <div class="col-sm-10">
+            <p id="input-external-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevisionExternal" e-name="scmRevisionExternal" e-maxlength="255">{{ detailCtrl.configuration.scmRevisionExternal || 'Empty' }}</p>
+            <span class="help-block" ng-show="configurationForm.scmRevisionExternal.$error.required && configurationForm.scmRevisionExternal.$touched">Required field.</span>
           </div>
         </div>
 
