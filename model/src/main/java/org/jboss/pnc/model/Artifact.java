@@ -106,7 +106,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     /**
      * The record of the build which produced this artifact.
-     * Usualy hare should be only one build record that produced this artifact.
+     * Usually there should be only one build record that produced this artifact.
      * However some other build may produce the same artifact (same checksum)
      * in such case we link the BuildRecord to the same artifact.
      */
@@ -114,9 +114,8 @@ public class Artifact implements GenericEntity<Integer> {
     private Set<BuildRecord> buildRecords;
 
     /**
-     * The builds which depend on this artifact.
-     * Build records of the dependencies that were downloaded during the build
-     * and has matching record in the PNC.
+     * The list of builds which depend on this artifact.
+     * For example, if the build downloaded this artifact as a Maven dependency.
      */
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
