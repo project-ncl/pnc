@@ -19,6 +19,8 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jboss.pnc.common.security.Sha256;
+import org.jboss.pnc.common.util.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,11 +30,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.PersistenceException;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,10 +76,29 @@ public class Artifact implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String identifier;
 
+    /**
+     * Checksum is unique artifact identifier.
+     * In case it is not defined, it is calculated from defined checksum fields (md5, sha1, sha256)
+     */
     @NotNull
     @Size(max=255)
     @Column(updatable=false)
     private String checksum;
+
+    @NotNull
+    @Size(max=32)
+    @Column(updatable=false)
+    private String md5;
+
+    @NotNull
+    @Size(max=40)
+    @Column(updatable=false)
+    private String sha1;
+
+    @NotNull
+    @Size(max=64)
+    @Column(updatable=false)
+    private String sha256;
 
     @Getter
     @Setter
@@ -171,10 +195,12 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to 
+     * Try to use the {@link Artifact.Builder} instead.
+     *
+     * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to
      * empty set.
      */
-    public Artifact() {
+    Artifact() {
         buildRecords = new HashSet<>();
         dependantBuildRecords = new HashSet<>();
         distributedInProductMilestones = new HashSet<>();
@@ -236,6 +262,30 @@ public class Artifact implements GenericEntity<Integer> {
      */
     public void setChecksum(String checksum) {
         this.checksum = checksum;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public String getSha1() {
+        return sha1;
+    }
+
+    public void setSha1(String sha1) {
+        this.sha1 = sha1;
+    }
+
+    public String getSha256() {
+        return sha256;
+    }
+
+    public void setSha256(String sha256) {
+        this.sha256 = sha256;
     }
 
     public Artifact.Quality getArtifactQuality() {
@@ -415,6 +465,12 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String checksum;
 
+        private String md5;
+
+        private String sha1;
+
+        private String sha256;
+
         private Long size;
 
         private Quality artifactQuality;
@@ -447,6 +503,9 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setId(id);
             artifact.setIdentifier(identifier);
             artifact.setChecksum(checksum);
+            artifact.setMd5(md5);
+            artifact.setSha1(sha1);
+            artifact.setSha256(sha256);
             artifact.setSize(size);
             if (artifactQuality == null) {
                 artifactQuality = Quality.NEW;
@@ -461,6 +520,16 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setBuildRecords(buildRecords);
             artifact.setOriginUrl(originUrl);
             artifact.setImportDate(importDate);
+
+            if (StringUtils.isEmpty(checksum)) {
+                if (!StringUtils.isEmpty(md5) || !StringUtils.isEmpty(sha1) || !StringUtils.isEmpty(sha256)) {
+                    try {
+                        checksum = Sha256.digest(md5 + sha1 + sha256);
+                    } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+                        throw new PersistenceException("Unable to calculate identifier field.", e);
+                    }
+                }
+            }
 
             return artifact;
         }
@@ -477,6 +546,21 @@ public class Artifact implements GenericEntity<Integer> {
 
         public Builder checksum(String checksum) {
             this.checksum = checksum;
+            return this;
+        }
+
+        public Builder md5(String md5) {
+            this.md5 = md5;
+            return this;
+        }
+
+        public Builder sha1(String sha1) {
+            this.sha1 = sha1;
+            return this;
+        }
+
+        public Builder sha256(String sha256) {
+            this.sha256 = sha256;
             return this;
         }
 

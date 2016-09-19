@@ -55,11 +55,11 @@ public class ArtifactProviderTest {
     private final ArtifactRest a3Rest = new ArtifactRest(a3);
 
     private Artifact createArtifact(int id, String filename, String checkSum) {
-        Artifact artifact = new Artifact();
-        artifact.setId(id);
-        artifact.setFilename(filename);
-        artifact.setChecksum(checkSum);
-        return artifact;
+        return Artifact.Builder.newBuilder()
+            .id(id)
+            .filename(filename)
+            .checksum(checkSum)
+            .build();
     }
 
     @Test

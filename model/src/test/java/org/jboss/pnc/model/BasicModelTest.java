@@ -17,15 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.Date;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
-import javax.persistence.RollbackException;
-
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
@@ -38,6 +29,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
+import javax.persistence.RollbackException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.Date;
 
 public class BasicModelTest extends AbstractModelTest {
 
@@ -124,10 +123,10 @@ public class BasicModelTest extends AbstractModelTest {
 
         Artifact artifact1 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact1").checksum("ABCD1234")
                 .filename("artifact1.jar").repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact artifact2 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact2").checksum("BBCD1234")
+        Artifact artifact2 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact2").md5("BBCD1234")
                 .filename("artifact2.jar").originUrl("http://central/artifact2.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact artifact3 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact3").checksum("CBCD1234")
+        Artifact artifact3 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact3").sha1("CBCD1234")
                 .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 

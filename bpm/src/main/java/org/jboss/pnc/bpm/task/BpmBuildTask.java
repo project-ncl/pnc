@@ -19,7 +19,7 @@ package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.common.content.ContentIdentityManager;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.coordinator.BuildTask;
