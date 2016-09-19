@@ -41,12 +41,13 @@
       popover-template="'popoverTemplate.html'"
       popover-title="SSH credentials"
       type="button"
-      class="btn btn-default btn-sm popover-no-max"
+      class="btn btn-default btn-sm popover-no-max w-min-130"
       popover-placement="right"
       ng-show="resultCtrl.sshCredentials"
-      ng-click="resultCtrl.sshCredentialsBtn.clicked = !resultCtrl.sshCredentialsBtn.clicked">
-        <span ng-hide="resultCtrl.sshCredentialsBtn.clicked">Show</span>
-        <span ng-show="resultCtrl.sshCredentialsBtn.clicked">Hide</span>
+      ng-click="resultCtrl.sshCredentialsBtn.clicked = !resultCtrl.sshCredentialsBtn.clicked"
+      ng-class="{'active' : resultCtrl.sshCredentialsBtn.clicked }">
+        <span class="hide-when-active">Show</span>
+        <span class="display-when-active">Hide</span>
         SSH credentials
     </button>
   </div>

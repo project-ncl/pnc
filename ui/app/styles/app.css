@@ -100,6 +100,10 @@ button.debutton {
   max-width: 75%;
 }
 
+.popover-no-max + .popover {
+  max-width: none;
+}
+
 /* angular-patternfly override */
 .notification-area {
   word-break: break-all;
@@ -165,4 +169,15 @@ td.td-actions .btn-group {
 
 label.required::before {
   content: "* ";
+}
+
+/* display helpers */
+.display-when-active {
+  display: none;
+}
+.active > .display-when-active {
+  display: inline-block;
+}
+.active > .hide-when-active {
+  display: none;
 }
