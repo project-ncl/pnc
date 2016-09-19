@@ -85,17 +85,14 @@ public class Artifact implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String checksum;
 
-    @NotNull
     @Size(max=32)
     @Column(updatable=false)
     private String md5;
 
-    @NotNull
     @Size(max=40)
     @Column(updatable=false)
     private String sha1;
 
-    @NotNull
     @Size(max=64)
     @Column(updatable=false)
     private String sha256;
@@ -502,7 +499,6 @@ public class Artifact implements GenericEntity<Integer> {
             Artifact artifact = new Artifact();
             artifact.setId(id);
             artifact.setIdentifier(identifier);
-            artifact.setChecksum(checksum);
             artifact.setMd5(md5);
             artifact.setSha1(sha1);
             artifact.setSha256(sha256);
@@ -522,14 +518,23 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setImportDate(importDate);
 
             if (StringUtils.isEmpty(checksum)) {
-                if (!StringUtils.isEmpty(md5) || !StringUtils.isEmpty(sha1) || !StringUtils.isEmpty(sha256)) {
-                    try {
-                        checksum = Sha256.digest(md5 + sha1 + sha256);
-                    } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
-                        throw new PersistenceException("Unable to calculate identifier field.", e);
+                try {
+                    Sha256 sha256Digest = new Sha256();
+                    if (!StringUtils.isEmpty(md5)) {
+                        sha256Digest.add(md5);
                     }
+                    if (!StringUtils.isEmpty(sha1)) {
+                        sha256Digest.add(sha1);
+                    }
+                    if (!StringUtils.isEmpty(sha256)) {
+                        sha256Digest.add(sha256);
+                    }
+                    checksum = sha256Digest.digest();
+                } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+                    throw new PersistenceException("Unable to calculate identifier field.", e);
                 }
             }
+            artifact.setChecksum(checksum);
 
             return artifact;
         }

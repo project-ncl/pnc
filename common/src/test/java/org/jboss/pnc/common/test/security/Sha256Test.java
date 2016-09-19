@@ -20,4 +20,17 @@ public class Sha256Test {
         Assert.assertEquals("Sha 256 should be 64 chars long.", encoded.length(), 64);
         Assert.assertEquals(expected, encoded);
     }
+
+    @Test
+    public void addingToSha256() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String expected = "ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c";
+
+        Sha256 sha256 = new Sha256();
+        sha256.add("The quick brown fox ");
+        sha256.add("jumps over the lazy dog.");
+        String encoded = sha256.digest();
+
+        Assert.assertEquals("Sha 256 should be 64 chars long.", encoded.length(), 64);
+        Assert.assertEquals(expected, encoded);
+    }
 }
