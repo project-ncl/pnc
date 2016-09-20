@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.rest.restmodel.bpm;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.List;
 
 /**
  * @author Jakub Senko
@@ -49,4 +48,8 @@ public class BpmTaskRest {
     @Getter
     @Setter
     private String processName;
+
+    @Getter
+    @Setter
+    private List<BpmNotificationRest> events;
 }
