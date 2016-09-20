@@ -20,6 +20,7 @@ package org.jboss.pnc.bpm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
@@ -59,6 +60,9 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     private Integer taskId;
 
     private Long processInstanceId;
+
+    @Getter
+    private final List<BpmNotificationRest> events = new ArrayList<>();
 
     public String getProcessName() {
         return processName;
@@ -142,6 +146,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
             // Cast is OK because there is no unchecked method declaration to put wrong types
             ((Consumer<T>) c).accept(data);
         });
+        events.add(data);
     }
 
     /**
