@@ -148,11 +148,15 @@ public class DatastoreTest {
         Assert.assertNotNull(buildConfigAud);
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER)
-                .checksum(ARTIFACT_1_CHECKSUM)
+                .md5("md-fake-" + ARTIFACT_1_CHECKSUM)
+                .sha1("sha1-fake-" + ARTIFACT_1_CHECKSUM)
+                .sha256("sha256-fake-" + ARTIFACT_1_CHECKSUM)
                 .size(ARTIFACT_1_SIZE)
                 .repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER)
-                .checksum(ARTIFACT_2_CHECKSUM)
+                .md5("md-fake-" + ARTIFACT_2_CHECKSUM)
+                .sha1("sha1-fake-" + ARTIFACT_2_CHECKSUM)
+                .sha256("sha256-fake-" + ARTIFACT_2_CHECKSUM)
                 .size(ARTIFACT_2_SIZE)
                 .originUrl("http://test/artifact2.jar")
                 .importDate(Date.from(Instant.now()))
@@ -191,13 +195,26 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).size(ARTIFACT_1_SIZE).checksum(ARTIFACT_1_CHECKSUM)
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_1_IDENTIFIER)
+                .size(ARTIFACT_1_SIZE)
+                .md5("md-fake-" + ARTIFACT_1_CHECKSUM)
+                .sha1("sha1-fake-" + ARTIFACT_1_CHECKSUM)
+                .sha256("sha256-fake-" + ARTIFACT_1_CHECKSUM)
                 .repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).size(ARTIFACT_2_SIZE).checksum(ARTIFACT_2_CHECKSUM)
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_2_IDENTIFIER)
+                .size(ARTIFACT_2_SIZE)
+                .md5("md-fake-" + ARTIFACT_2_CHECKSUM)
+                .sha1("sha1-fake-" + ARTIFACT_2_CHECKSUM)
+                .sha256("sha256-fake-" + ARTIFACT_2_CHECKSUM)
                 .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier(ARTIFACT_3_IDENTIFIER).checksum(ARTIFACT_3_CHECKSUM)
+        Artifact builtArtifact3 = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_3_IDENTIFIER)
+                .md5("md-fake-" + ARTIFACT_3_CHECKSUM)
+                .sha1("sha1-fake-" + ARTIFACT_3_CHECKSUM)
+                .sha256("sha256-fake-" + ARTIFACT_3_CHECKSUM)
                 .size(ARTIFACT_3_SIZE).originUrl("http://test/importArtifact2.jar")
-
                 .importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())

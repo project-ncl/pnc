@@ -53,9 +53,27 @@ public class ArtifactPredicates {
         };
     }
 
+    /**
+     * @deprecated use defined checksum
+     */
+    @Deprecated
     public static Predicate<Artifact> withIdentifierAndChecksum(String identifier, String checksum) {
+        return withIdentifierAndMd5(identifier, checksum);
+    }
+
+    public static Predicate<Artifact> withIdentifierAndMd5(String identifier, String md5) {
         return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
-                cb.equal(root.get(Artifact_.checksum), checksum));
+                cb.equal(root.get(Artifact_.md5), md5));
+    }
+
+    public static Predicate<Artifact> withIdentifierAndSha1(String identifier, String sha1) {
+        return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
+                cb.equal(root.get(Artifact_.sha1), sha1));
+    }
+
+    public static Predicate<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
+        return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
+                cb.equal(root.get(Artifact_.sha256), sha256));
     }
 
     public static Predicate<Artifact> withOriginUrl(String originUrl) {

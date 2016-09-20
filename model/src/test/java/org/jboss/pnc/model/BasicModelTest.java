@@ -121,12 +121,26 @@ public class BasicModelTest extends AbstractModelTest {
     public void testCreateBuildRecordAndArtifacts() {
         EntityManager em = getEmFactory().createEntityManager();
 
-        Artifact artifact1 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact1").checksum("ABCD1234")
-                .filename("artifact1.jar").repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact artifact2 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact2").md5("BBCD1234")
+        Artifact artifact1 = Artifact.Builder.newBuilder()
+                .identifier("org.jboss:artifact1")
+                .md5("md-fake-ABCD1234")
+                .sha1("sha1-fake-ABCD1234")
+                .sha256("sha256-fake-ABCD1234")
+                .filename("artifact1.jar")
+                .repoType(ArtifactRepo.Type.MAVEN)
+                .build();
+        Artifact artifact2 = Artifact.Builder.newBuilder()
+                .identifier("org.jboss:artifact2")
+                .md5("md-fake-BBCD1234")
+                .sha1("sha1-fake-BBCD1234")
+                .sha256("sha256-fake-BBCD1234")
                 .filename("artifact2.jar").originUrl("http://central/artifact2.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact artifact3 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact3").sha1("CBCD1234")
+        Artifact artifact3 = Artifact.Builder.newBuilder()
+                .identifier("org.jboss:artifact3")
+                .md5("md-fake-CBCD1234")
+                .sha1("sha1-fake-CBCD1234")
+                .sha256("sha256-fake-CBCD1234")
                 .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 
@@ -151,9 +165,17 @@ public class BasicModelTest extends AbstractModelTest {
 
         EntityManager em = getEmFactory().createEntityManager();
 
-        Artifact builtArtifact = Artifact.Builder.newBuilder().identifier("org.jboss:builtArtifact").checksum("12345678")
+        Artifact builtArtifact = Artifact.Builder.newBuilder()
+                .identifier("org.jboss:builtArtifact")
+                .md5("md-fake-12345678")
+                .sha1("sha1-fake-12345678")
+                .sha256("sha256-fake-12345678")
                 .filename("buildArtifact.jar").repoType(ArtifactRepo.Type.MAVEN).build();
-        Artifact importedArtifact = Artifact.Builder.newBuilder().identifier("org.jboss:importedArtifact").checksum("12345678")
+        Artifact importedArtifact = Artifact.Builder.newBuilder()
+                .identifier("org.jboss:importedArtifact")
+                .md5("md-fake-12345678")
+                .sha1("sha1-fake-12345678")
+                .sha256("sha256-fake-12345678")
                 .filename("importedArtifact.jar").originUrl("http://central/importedArtifact.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 
@@ -182,7 +204,11 @@ public class BasicModelTest extends AbstractModelTest {
         EntityManager em = getEmFactory().createEntityManager();
         ProductMilestone productMilestone1 = em.find(ProductMilestone.class, 1);
 
-        Artifact artifact = Artifact.Builder.newBuilder().identifier("org.test:artifact1:1.0:jar").checksum("987654321")
+        Artifact artifact = Artifact.Builder.newBuilder()
+                .identifier("org.test:artifact1:1.0:jar")
+                .md5("md-fake-987654321")
+                .sha1("sha1-fake-987654321")
+                .sha256("sha256-fake-987654321")
                 .filename("artifact1.jar").originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
         productMilestone1.addDistributedArtifact(artifact);

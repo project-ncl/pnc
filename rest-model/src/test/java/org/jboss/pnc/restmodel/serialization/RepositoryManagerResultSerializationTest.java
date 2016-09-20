@@ -55,7 +55,7 @@ public class RepositoryManagerResultSerializationTest {
 
         Assert.assertEquals(message, repoMngrResult.getBuildContentId(), deserializedRepoMngrResult.getBuildContentId());
         Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0), deserializedRepoMngrResult.getBuiltArtifacts().get(0));
-        Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0).getChecksum(), deserializedRepoMngrResult.getBuiltArtifacts().get(0).getChecksum());
+        Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0).getSha256(), deserializedRepoMngrResult.getBuiltArtifacts().get(0).getSha256());
         Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0).isBuilt(), deserializedRepoMngrResult.getBuiltArtifacts().get(0).isBuilt());
         Assert.assertEquals(message, repoMngrResult.getDependencies().get(0), deserializedRepoMngrResult.getDependencies().get(0));
         Assert.assertEquals(message, repoMngrResult.getDependencies().get(0).getDeployUrl(), deserializedRepoMngrResult.getDependencies().get(0).getDeployUrl());

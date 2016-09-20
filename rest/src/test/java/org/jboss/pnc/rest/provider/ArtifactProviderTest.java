@@ -58,7 +58,9 @@ public class ArtifactProviderTest {
         return Artifact.Builder.newBuilder()
             .id(id)
             .filename(filename)
-            .checksum(checkSum)
+            .md5("md-fake-" + checkSum)
+            .sha1("sha1-fake-" + checkSum)
+            .sha256("sha256-fake-" + checkSum)
             .build();
     }
 
@@ -97,7 +99,7 @@ public class ArtifactProviderTest {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==2 or checksum == asdf or filename==woohoo", 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==2 or sha256 == sha256-fake-asdf or filename==woohoo", 12);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(a1Rest, a2Rest, a3Rest);
     }
@@ -108,12 +110,12 @@ public class ArtifactProviderTest {
         ArtifactProvider provider = artifactProviderWithBuiltResult();
 
 
-        String matchingFilter = "id==100 and checksum == asdf and filename==booya";
+        String matchingFilter = "id==100 and sha256 == sha256-fake-asdf and filename==booya";
         CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, 12);
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest);
 
 
-        String nonMatchingFilter = "id==100 and checksum == asdf and filename==woohoo";
+        String nonMatchingFilter = "id==100 and sha256 == sha256-fake-asdf and filename==woohoo";
         artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, 12);
         assertThat(artifacts.getContent()).isEmpty();
     }
@@ -134,13 +136,13 @@ public class ArtifactProviderTest {
         ArtifactProvider provider = artifactProviderWithBuiltResult();
 
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 1, null, "id == 2 or checksum == asdf", 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 1, null, "id == 2 or sha256 == sha256-fake-asdf", 12);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest);
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
 
         //when
-        artifacts = provider.getBuiltArtifactsForBuildRecord(1, 1, null, "id == 2 or checksum == asdf", 12);
+        artifacts = provider.getBuiltArtifactsForBuildRecord(1, 1, null, "id == 2 or sha256 == sha256-fake-asdf", 12);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a3Rest);
         assertThat(artifacts.getTotalPages()).isEqualTo(2);

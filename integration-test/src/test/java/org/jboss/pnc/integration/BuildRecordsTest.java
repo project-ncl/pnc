@@ -25,11 +25,11 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -65,7 +65,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -132,28 +132,36 @@ public class BuildRecordsTest {
                 .filename("builtArtifact1.jar")
                 .identifier("integration-test:built-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .checksum("abcd1234")
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
                 .build();
 
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact2.jar")
                 .identifier("integration-test:built-artifact2:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .checksum("abcd1234")
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
                 .build();
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact3.jar")
                 .identifier("integration-test:built-artifact3:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .checksum("abcd1234")
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
                 .build();
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
                 .identifier("integration-test:import-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .checksum("abcd1234")
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
                 .importDate(Date.from(Instant.now()))
                 .originUrl("http://central/importedArtifact1.jar")
                 .build();
@@ -186,7 +194,7 @@ public class BuildRecordsTest {
         buildRecord1Id = buildRecord1.getId();
 
         Artifact builtArtifact1FromDb = artifactRepository
-                .queryByPredicates(withIdentifierAndChecksum(builtArtifact1.getIdentifier(), builtArtifact1.getChecksum()));
+                .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
 
         BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
