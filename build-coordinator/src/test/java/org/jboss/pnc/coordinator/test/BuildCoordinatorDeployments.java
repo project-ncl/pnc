@@ -22,7 +22,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.common.content.ContentIdentityManager;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;

@@ -52,8 +52,17 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private ArtifactRepo.Type repoType;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private String checksum;
+    @Getter
+    @Setter
+    private String md5;
+
+    @Getter
+    @Setter
+    private String sha1;
+
+    @Getter
+    @Setter
+    private String sha256;
 
     private String filename;
 
@@ -78,7 +87,9 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.id = artifact.getId();
         this.identifier = artifact.getIdentifier();
         this.repoType = artifact.getRepoType();
-        this.checksum = artifact.getChecksum();
+        this.md5 = artifact.getMd5();
+        this.sha1= artifact.getSha1();
+        this.sha256= artifact.getSha256();
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
         this.artifactQuality = artifact.getArtifactQuality();
@@ -115,14 +126,6 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     public void setRepoType(ArtifactRepo.Type repoType) {
         this.repoType = repoType;
-    }
-
-    public String getChecksum() {
-        return checksum;
-    }
-
-    public void setChecksum(String checksum) {
-        this.checksum = checksum;
     }
 
     public Artifact.Quality getArtifactQuality() {
@@ -204,7 +207,9 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         Artifact.Builder builder = Artifact.Builder.newBuilder()
                 .id(this.getId())
                 .identifier(this.getIdentifier())
-                .checksum(this.getChecksum())
+                .md5(this.getMd5())
+                .sha1(this.getSha1())
+                .sha256(this.getSha256())
                 .size(this.getSize())
                 .repoType(this.getRepoType())
                 .artifactQuality(this.getArtifactQuality())
@@ -230,7 +235,9 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
                 ", identifier='" + identifier + '\'' +
                 ", artifactQuality=" + artifactQuality +
                 ", repoType=" + repoType +
-                ", checksum='" + checksum + '\'' +
+                ", md5='" + md5 + '\'' +
+                ", sha1='" + sha1 + '\'' +
+                ", sha256='" + sha256 + '\'' +
                 ", filename='" + filename + '\'' +
                 ", deployUrl='" + deployUrl + '\'' +
                 ", buildRecordIds=" + buildRecordIds +

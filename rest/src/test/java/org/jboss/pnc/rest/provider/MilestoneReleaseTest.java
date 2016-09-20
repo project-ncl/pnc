@@ -122,9 +122,8 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
     private ArtifactImportError createArtifactImportError(String artifactName) {
         int artifactId = randInt(1000, 1000000);
 
-        Artifact artifact = new Artifact();
-        artifact.setId(artifactId);
-        artifact.setIdentifier(artifactName);
+        Artifact artifact = Artifact.Builder.newBuilder().id(artifactId).identifier(artifactName)
+                .build();
         artifactRepository.save(artifact);
 
         ArtifactImportError artifactImportError = new ArtifactImportError();

@@ -238,7 +238,9 @@ public class MavenRepositorySession implements RepositorySession {
                 }
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
-                        .checksum(download.getMd5())
+                        .md5(download.getMd5())
+                        .sha1(download.getSha1())
+                        .sha256(download.getSha256())
                         .size(download.getSize())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
                         .originUrl(originUrl)
@@ -293,7 +295,9 @@ public class MavenRepositorySession implements RepositorySession {
                 logger.info("Recording upload: {}", aref);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
-                        .checksum(upload.getMd5())
+                        .md5(upload.getMd5())
+                        .sha1(upload.getSha1())
+                        .sha256(upload.getSha256())
                         .size(upload.getSize())
                         .deployUrl(upload.getLocalUrl())
                         .filename(new File(path).getName())

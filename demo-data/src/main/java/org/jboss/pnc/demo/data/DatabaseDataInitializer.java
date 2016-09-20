@@ -66,7 +66,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 
 /**
  * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build configuration
@@ -325,21 +325,33 @@ public class DatabaseDataInitializer {
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier("demo:built-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 1")
-                .checksum("abcd1234").build();
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
+                .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder().identifier("demo:built-artifact2:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 2")
-                .checksum("abcd2345").build();
+                .md5("md-fake-abcd2345")
+                .sha1("sha1-fake-abcd2345")
+                .sha256("sha256-fake-abcd2345")
+                .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder().identifier("demo:imported-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 1").originUrl("http://central/import1.jar")
-                .importDate(Date.from(Instant.now())).checksum("abcd1234")
+                .importDate(Date.from(Instant.now()))
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
                 .deployUrl("http://google.pl/imported1").build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier("demo:imported-artifact2:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 2").originUrl("http://central/import2.jar")
-                .importDate(Date.from(Instant.now())).checksum("abcd1234")
+                .importDate(Date.from(Instant.now()))
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
                 .deployUrl("http://google.pl/imported2").build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
@@ -380,16 +392,24 @@ public class DatabaseDataInitializer {
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 3")
-                .checksum("abcd1234").deployUrl("http://google.pl/built3").build();
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
+                .deployUrl("http://google.pl/built3")
+                .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder().identifier("demo:built-artifact4:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 4")
-                .checksum("abcd1234").deployUrl("http://google.pl/built4").build();
+                .md5("md-fake-abcd1234")
+                .sha1("sha1-fake-abcd1234")
+                .sha256("sha256-fake-abcd1234")
+                .deployUrl("http://google.pl/built4")
+                .build();
 
         builtArtifact3 = artifactRepository.save(builtArtifact3);
         builtArtifact4 = artifactRepository.save(builtArtifact4);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
-                .queryByPredicates(withIdentifierAndChecksum(builtArtifact1.getIdentifier(), builtArtifact1.getChecksum()));
+                .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);

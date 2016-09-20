@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
 
 @Stateless
@@ -90,7 +91,7 @@ public class DefaultDatastore implements Datastore {
                 if (artifactFromDb.getIdentifier().equals(artifact.getIdentifier())) {
                     conflicts.put(artifact, ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE);
                 }
-                if (artifactFromDb.getChecksum().equals(artifact.getChecksum())) {
+                if (artifactFromDb.getSha256().equals(artifact.getSha256())) {
                     conflicts.put(artifact, ARITFACT_ORIGIN_URL_CHECKSUM_CONFLICT_MESSAGE);
                 }
             }
@@ -122,7 +123,7 @@ public class DefaultDatastore implements Datastore {
         for (Artifact artifact : artifacts) {
 
             Artifact artifactFromDb = artifactRepository
-                    .queryByPredicates(withIdentifierAndChecksum(artifact.getIdentifier(), artifact.getChecksum()));
+                    .queryByPredicates(withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()));
             if (artifactFromDb == null) {
                 artifactFromDb = artifactRepository.save(artifact);
             }

@@ -49,7 +49,7 @@ import java.util.Set;
  * 
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "checksum" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "md5", "sha1", "sha256" }) )
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -72,9 +72,19 @@ public class Artifact implements GenericEntity<Integer> {
     private String identifier;
 
     @NotNull
-    @Size(max=255)
+    @Size(max=32)
     @Column(updatable=false)
-    private String checksum;
+    private String md5;
+
+    @NotNull
+    @Size(max=40)
+    @Column(updatable=false)
+    private String sha1;
+
+    @NotNull
+    @Size(max=64)
+    @Column(updatable=false)
+    private String sha256;
 
     @Getter
     @Setter
@@ -171,10 +181,12 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to 
+     * Try to use the {@link Artifact.Builder} instead.
+     *
+     * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to
      * empty set.
      */
-    public Artifact() {
+    Artifact() {
         buildRecords = new HashSet<>();
         dependantBuildRecords = new HashSet<>();
         distributedInProductMilestones = new HashSet<>();
@@ -220,22 +232,28 @@ public class Artifact implements GenericEntity<Integer> {
         this.identifier = identifier;
     }
 
-    /**
-     * Gets the checksum.
-     *
-     * @return the checksum
-     */
-    public String getChecksum() {
-        return checksum;
+    public String getMd5() {
+        return md5;
     }
 
-    /**
-     * Sets the checksum.
-     *
-     * @param checksum the new checksum
-     */
-    public void setChecksum(String checksum) {
-        this.checksum = checksum;
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public String getSha1() {
+        return sha1;
+    }
+
+    public void setSha1(String sha1) {
+        this.sha1 = sha1;
+    }
+
+    public String getSha256() {
+        return sha256;
+    }
+
+    public void setSha256(String sha256) {
+        this.sha256 = sha256;
     }
 
     public Artifact.Quality getArtifactQuality() {
@@ -395,16 +413,19 @@ public class Artifact implements GenericEntity<Integer> {
         if (!(obj instanceof Artifact)) {
             return false;
         }
-        if (identifier == null || checksum == null) {
+        if (identifier == null || md5 == null || sha1 == null || sha256 == null) {
             return this == obj;
         }
         Artifact compare = (Artifact)obj;
-        return (identifier.equals(compare.getIdentifier()) && checksum.equals(compare.getChecksum()));
+        return identifier.equals(compare.getIdentifier())
+                && md5.equals(compare.getMd5())
+                && sha1.equals(compare.getSha1())
+                && sha256.equals(compare.getSha256());
     }
 
     @Override
     public int hashCode() {
-        return (identifier + checksum).hashCode();
+        return (identifier + md5 + sha1 + sha256).hashCode();
     }
 
     public static class Builder {
@@ -413,7 +434,11 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String identifier;
 
-        private String checksum;
+        private String md5;
+
+        private String sha1;
+
+        private String sha256;
 
         private Long size;
 
@@ -446,7 +471,9 @@ public class Artifact implements GenericEntity<Integer> {
             Artifact artifact = new Artifact();
             artifact.setId(id);
             artifact.setIdentifier(identifier);
-            artifact.setChecksum(checksum);
+            artifact.setMd5(md5);
+            artifact.setSha1(sha1);
+            artifact.setSha256(sha256);
             artifact.setSize(size);
             if (artifactQuality == null) {
                 artifactQuality = Quality.NEW;
@@ -475,8 +502,18 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder checksum(String checksum) {
-            this.checksum = checksum;
+        public Builder md5(String md5) {
+            this.md5 = md5;
+            return this;
+        }
+
+        public Builder sha1(String sha1) {
+            this.sha1 = sha1;
+            return this;
+        }
+
+        public Builder sha256(String sha256) {
+            this.sha256 = sha256;
             return this;
         }
 
