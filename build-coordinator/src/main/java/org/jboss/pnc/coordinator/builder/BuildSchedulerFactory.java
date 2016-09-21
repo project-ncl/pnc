@@ -43,15 +43,12 @@ public class BuildSchedulerFactory {
 
     private BuildScheduler configuredBuildScheduler;
 
-    private Configuration configuration;
-
     @Deprecated //CDI workaround
     public BuildSchedulerFactory() {
     }
 
     @Inject
     public BuildSchedulerFactory(Instance<BuildScheduler> availableSchedulers, Configuration configuration) throws CoreException {
-        this.configuration = configuration;
         AtomicReference<String> schedulerId = new AtomicReference<>(null);
         try {
             schedulerId.set(configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuildSchedulerId());
@@ -71,7 +68,7 @@ public class BuildSchedulerFactory {
         }
     }
 
-    BuildScheduler getBuildScheduler() {
+    public BuildScheduler getBuildScheduler() {
         return configuredBuildScheduler;
     }
 }

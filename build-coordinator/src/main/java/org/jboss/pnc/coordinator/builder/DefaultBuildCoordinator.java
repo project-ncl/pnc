@@ -55,6 +55,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.coordinator.utils.BuildConfigDependencyUtils.hasARebuiltDependency;
 
 /**
  *
@@ -78,10 +81,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private BuildTasksInitializer buildTasksInitializer;
 
-    /**
-     * Task ID used for a build which has not yet been assigned a real build record ID
-     */
-    private static final int REJECTED_BUILD_TASK_ID = -1;
 
     @Deprecated
     public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -122,34 +121,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     alreadyActiveBuildTask.get().getId());
         }
 
-        if (forceRebuild || !datastoreAdapter.hasSuccessfulBuildRecord(buildConfiguration)) {
-            BuildTask buildTask = BuildTask.build(
-                    buildConfiguration,
-                    auditedBuildConfig,
-                    keepPodAliveAfterFailure,
-                    user,
-                    datastoreAdapter.getNextBuildRecordId(),
-                    null,
-                    new Date(),
-                    buildConfiguration.getCurrentProductMilestone());
+        BuildTask buildTask = BuildTask.build(
+                buildConfiguration,
+                auditedBuildConfig,
+                keepPodAliveAfterFailure, forceRebuild,
+                user,
+                datastoreAdapter.getNextBuildRecordId(),
+                null,
+                new Date(), buildConfiguration.getCurrentProductMilestone());
 
-            buildQueue.enqueueTask(buildTask);
-            return buildTask;
-        } else {
-            BuildTask buildTask = BuildTask.build(
-                    buildConfiguration,
-                    auditedBuildConfig,
-                    keepPodAliveAfterFailure,
-                    user,
-                    REJECTED_BUILD_TASK_ID,
-                    null,
-                    new Date(),
-                    buildConfiguration.getCurrentProductMilestone());
-
-            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built");
-            return buildTask;
-        }
-
+        buildQueue.enqueueTask(buildTask);
+        return buildTask;
     }
 
     /**
@@ -275,6 +257,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     log.debug("Skipping the execution of build task {} as it has been processed already.", task.getId());
                     return;
                 }
+
+                if (!task.isForcedRebuild() && shouldSkip(task)) {
+                    updateBuildTaskStatus(task,
+                            BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
+                            "The configuration has already been built");
+                    return;
+                }
                 task.setStartTime(new Date());
                 updateBuildTaskStatus(task, BuildCoordinationStatus.BUILDING);
             }
@@ -298,6 +287,25 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
             throw error;
         }
+    }
+
+    private boolean shouldSkip(BuildTask task) {
+        BuildSetTask taskSet = task.getBuildSetTask();
+        BuildConfiguration buildConfiguration = task.getBuildConfiguration();
+        if (buildConfiguration.getLatestSuccesfulBuildRecord() == null) {
+            return false;
+        }
+        if (taskSet != null) {
+            List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
+                    .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
+                    .map(BuildTask::getBuildConfiguration)
+                    .collect(Collectors.toList());
+            boolean hasInGroupDependency = buildConfiguration.dependsOnAny(nonRejectedBuildsInGroup);
+            if (hasInGroupDependency) {
+                return false;
+            }
+        }
+        return !hasARebuiltDependency(buildConfiguration);
     }
 
     public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {

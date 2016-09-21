@@ -29,8 +29,6 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -51,6 +49,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -662,6 +661,21 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         sb.append(new SimpleDateFormat(CLONE_PREFIX_DATE_FORMAT).format(now)).append("_").append(bcNameToAppend);
         return sb.toString();
 
+    }
+
+    public boolean dependsOn(BuildConfiguration other) {
+        return getAllDependencies().contains(other);
+    }
+
+    public boolean dependsOnAny(Collection<BuildConfiguration> otherList) {
+        return otherList.stream().anyMatch(this::dependsOn);
+    }
+
+    public BuildRecord getLatestSuccesfulBuildRecord() {
+        return buildRecords.stream()
+                .filter(b -> b.getStatus() == BuildStatus.SUCCESS)
+                .sorted((o1, o2) -> -o1.getId().compareTo(o2.getId()))
+                .findFirst().orElse(null);
     }
 
     public static class Builder {

@@ -59,7 +59,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
             @JsonProperty("aproxBaseUrl") String aproxBaseUrl,
             @JsonProperty("repourBaseUrl") String repourBaseUrl,
-            @JsonProperty("causewayBasaeUrl") String causewayBaseUrl,
+            @JsonProperty("causewayBaseUrl") String causewayBaseUrl,
             @JsonProperty("daBaseUrl") String daBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust)

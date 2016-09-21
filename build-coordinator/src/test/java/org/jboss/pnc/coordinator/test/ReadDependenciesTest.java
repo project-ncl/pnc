@@ -41,9 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(Arquillian.class)
 public class ReadDependenciesTest extends ProjectBuilder {
 
-    AtomicInteger taskIdGenerator = new AtomicInteger(0);
-    AtomicInteger taskSetIdGenerator = new AtomicInteger(0);
-
     @Inject
     private DatastoreAdapter datastoreAdapter;
 

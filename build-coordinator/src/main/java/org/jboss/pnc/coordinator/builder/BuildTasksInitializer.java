@@ -19,7 +19,12 @@
 package org.jboss.pnc.coordinator.builder;
 
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -28,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -72,7 +78,6 @@ public class BuildTasksInitializer {
         initializeBuildTasksInSet(
                 buildSetTask,
                 user,
-                rebuildAll,
                 buildTaskIdProvider,
                 buildConfigurationSet.getCurrentProductMilestone());
 
@@ -88,35 +93,29 @@ public class BuildTasksInitializer {
     private void initializeBuildTasksInSet(
             BuildSetTask buildSetTask,
             User user,
-            boolean forceRebuildAll,
             Supplier<Integer> buildTaskIdProvider,
             ProductMilestone productMilestone) {
         // Loop to create the build tasks
-        for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
-            if (buildConfig.isArchived()) {
-                log.debug("Ignoring build config [{}]. This build config is archived", buildConfig.getId());
-                continue; // Don't build archived configurations
-            }
+        Set<BuildConfiguration> toBuild =
+                buildSetTask.getBuildConfigurationSet().getBuildConfigurations();
 
-            if (!forceRebuildAll && datastoreAdapter.hasSuccessfulBuildRecord(buildConfig)) {
-                log.debug("Skipping build config [{}]. Already has a successful BuildRecord", buildConfig.getId());
-                continue;
-            }
-
-            BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
+        for (BuildConfiguration buildConfig : toBuild) {
+            BuildConfigurationAudited buildConfigAudited =
+                    datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
 
             BuildTask buildTask = BuildTask.build(
                     buildConfig,
                     buildConfigAudited,
                     buildSetTask.isKeepAfterFailure(),
+                    buildSetTask.getForceRebuildAll(),
                     user,
                     buildTaskIdProvider.get(),
                     buildSetTask,
-                    buildSetTask.getStartTime(),
-                    productMilestone);
+                    buildSetTask.getStartTime(), productMilestone);
 
             buildSetTask.addBuildTask(buildTask);
         }
+
         // Loop again to set dependencies
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
             for (BuildTask checkDepBuildTask : buildSetTask.getBuildTasks()) {

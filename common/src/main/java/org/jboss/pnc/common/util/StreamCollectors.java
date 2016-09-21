@@ -18,6 +18,7 @@
 package org.jboss.pnc.common.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collector;
 
@@ -50,5 +51,23 @@ public class StreamCollectors {
                     return list.get(0);
                 }
         );
+    }
+
+    /**
+     * Flattening collector.
+     * Look at StreamCollectorsTest for example usage
+     *
+     *
+     * @param <T> type of elements in the collections
+     * @return flattened list of elements from all of the collections
+     */
+    public static <T> Collector<Collection<T>, List<T>, List<T>> toFlatList() {
+        return Collector.of(
+                ArrayList::new,
+                List::addAll,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                });
     }
 }
