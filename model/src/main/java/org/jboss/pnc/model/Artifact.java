@@ -49,7 +49,7 @@ import java.util.Set;
  * 
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "md5", "sha1", "sha256" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256" }) )
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
