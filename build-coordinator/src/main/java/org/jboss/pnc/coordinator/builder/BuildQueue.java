@@ -30,7 +30,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -212,7 +216,7 @@ public class BuildQueue {
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return "BuildQueue{" +
                 "readyTasks=" + readyTasks +
                 ", waitingTasks=" + waitingTasks +
