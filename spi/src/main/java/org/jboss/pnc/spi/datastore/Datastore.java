@@ -22,13 +22,11 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Topmost datastore interface.
@@ -101,4 +99,7 @@ public interface Datastore {
      * @return True if there is a successful BuildRecord
      */
     boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration);
+
+    // mstodo javadoc!
+    <T> T runInTransactionWithBuildConfig(Integer buildConfigurationId, Function<BuildConfiguration, T> job);
 }

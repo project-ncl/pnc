@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
@@ -138,6 +139,11 @@ public class DatastoreMock implements Datastore {
                 .map(br -> br.getStatus())
                 .filter(status -> status == BuildStatus.SUCCESS)
                 .count() > 0;
+    }
+
+    @Override
+    public <T> T runInTransactionWithBuildConfig(Integer buildConfigurationId, Function<BuildConfiguration, T> job) {
+        return job.apply(buildConfigurations.get(buildConfigurationId));
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {
