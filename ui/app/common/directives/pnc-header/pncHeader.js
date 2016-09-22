@@ -42,9 +42,11 @@
   module.directive('pncHeader', function() {
     return {
       restrict: 'E',
-      templateUrl: 'common/directives/views/header.html',
+      templateUrl: 'common/directives/pnc-header/pnc-header.html',
       transclude: true,
       link: function(scope, element, attrs, ctrl, transclude) {
+        var subHeader = angular.isDefined(attrs.subHeader);
+
         transclude(scope.$new(), function(clone) {
           element.find('.header-title').append(clone.filter('pnc-header-title'));
         });
@@ -52,7 +54,16 @@
         transclude(scope.$new(), function(clone) {
           element.find('.btn-group').append(clone.filter('pnc-header-buttons'));
           element.find('pnc-header-buttons').addClass('btn-group');
+          element.find('pnc-header-buttons').find('button').removeClass('btn-lg btn-sm').addClass('btn-lg');
         });
+
+        if (subHeader) {
+          element.find('h1').replaceWith(function () {
+            return '<h3>' + angular.element(this).html() + '</h3>';
+          });
+
+          element.find('pnc-header-buttons').find('button').removeClass('btn-lg btn-sm').addClass('btn');
+        }
       }
     };
   });

@@ -17,10 +17,6 @@
     limitations under the License.
 
 -->
-<div class="spinner spinner-sm" ng-hide="page.isLoaded"></div>
-
-<pnc-search-field class="search" page="page" text="product versions"></pnc-search-field>
-
 <script type="text/ng-template" id="milestoneTooltipTemplate.html">
      <strong>-- {{milestone.version}} --</strong><br>
      <strong>Phase: </strong> &lt;tbd&gt; <br>
@@ -37,40 +33,51 @@
      <strong>Support Level: </strong>{{release.supportLevel }}<br>
 </script>
 
-<table class="table table-bordered table-striped" ng-show="page.isLoaded">
-  <thead>
-  <th>Version</th>
-  <th>Milestones</th>
-  <th>Releases</th>
-  </thead>
-  <tbody>
-  <tr ng-repeat="version in page.data">
-    <td class="bigger-text">
-      <a href ui-sref="product.detail.version({ productId: productId, versionId: version.id })">
-        {{ version.version }}
-      </a>
-    </td>
-    <td>
-       <span
-         ng-repeat="milestone in version.productMilestones | orderBy: '-milestone.startingDate'">
-             <span tooltip-template="'milestoneTooltipTemplate.html'"
-                   tooltip-placement="right"
-                   class="label label-default"
-                   ng-class="{ 'label label-primary' : milestone.id == version.currentProductMilestoneId }">
-               {{ milestone.version }}
-             </span>
-       </span>
-    </td>
-    <td>
-         <span ng-repeat="release in version.productReleases | orderBy: '-release.releaseDate'">
-           <span tooltip-template="'releaseTooltipTemplate.html'"
-                 tooltip-placement="right"
-                 class="label label-success">
-             {{ release.version }}
+<div class="row">
+  <div class="col-md-12">
+    <div class="spinner spinner-sm" ng-hide="page.isLoaded"></div>
+    <pnc-search-field class="search" page="page" text="product versions"></pnc-search-field>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+
+    <table class="table table-bordered table-striped" ng-show="page.isLoaded">
+      <thead>
+      <th>Version</th>
+      <th>Milestones</th>
+      <th>Releases</th>
+      </thead>
+      <tbody>
+      <tr ng-repeat="version in page.data">
+        <td class="bigger-text">
+          <a href ui-sref="product.detail.version({ productId: productId, versionId: version.id })">
+            {{ version.version }}
+          </a>
+        </td>
+        <td>
+           <span
+             ng-repeat="milestone in version.productMilestones | orderBy: '-milestone.startingDate'">
+                 <span tooltip-template="'milestoneTooltipTemplate.html'"
+                       tooltip-placement="right"
+                       class="label label-default"
+                       ng-class="{ 'label label-primary' : milestone.id == version.currentProductMilestoneId }">
+                   {{ milestone.version }}
+                 </span>
            </span>
-         </span>
-    </td>
-  </tr>
-  </tbody>
-</table>
-<pnc-pager class="pull-right" page="page"></pnc-pager>
+        </td>
+        <td>
+             <span ng-repeat="release in version.productReleases | orderBy: '-release.releaseDate'">
+               <span tooltip-template="'releaseTooltipTemplate.html'"
+                     tooltip-placement="right"
+                     class="label label-success">
+                 {{ release.version }}
+               </span>
+             </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <pnc-pager class="pull-right" page="page"></pnc-pager>
+  </div>
+</div>

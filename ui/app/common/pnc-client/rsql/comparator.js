@@ -79,6 +79,24 @@
           return ctx.next();
         };
 
+        that.in = function (array) {
+          if (array.length === 0) {
+            ctx.abandonClause();
+          } else {
+            ctx.addToQuery('=in=(' + array.join(',') + ')');
+          }
+          return ctx.next();
+        };
+
+        that.out = function (array) {
+          if (array.length === 0) {
+            ctx.abandonClause();
+          } else {
+            ctx.addToQuery('=out=(' + array.join(',') + ')');
+          }
+          return ctx.next();
+        };
+
         return that;
       };
     }

@@ -95,7 +95,33 @@
             }, {});
           };
 
-        }
+        },
+        controllerAs: 'ctrl',
+        controller: [
+          '$scope',
+          'modalSelectService',
+          'ProductVersion',
+          function ($scope, modalSelectService, ProductVersion) {
+            var ctrl = this;
+            console.log('$scope == %O', $scope);
+            ctrl.edit = function () {
+              var modal = modalSelectService.openForBuildGroup({
+                title: 'Add/Remove Build Groups to ' + $scope.product.name + ': ' + $scope.version.version,
+                selected: $scope.version.buildConfigurationSets
+              });
+
+              modal.result.then(function (result) {
+                // $scope.$evalAsync(function () {
+                  ProductVersion.updateBuildConfigurationSets({ id: $scope.version.id }, result).$promise.then(function () {
+                    $scope.page.loadPageIndex(0);
+                    $scope.version = ProductVersion.get({ id: $scope.version.id }).$promise.then(function (version) {
+                      $scope.version = version;
+                    });
+                  });
+                // });
+              });
+            };
+        }]
       };
     }
   ]);

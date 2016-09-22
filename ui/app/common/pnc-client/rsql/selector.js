@@ -42,6 +42,11 @@
           return ctx.next();
         };
 
+        that.brackets = function (query) {
+          ctx.addToQuery('(' + query + ')');
+          return ctx.jumpTo('operator');
+        };
+
         return that;
       };
     }
