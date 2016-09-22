@@ -18,19 +18,14 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.mock.repository.RepositoryMock;
-import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.List;
 import java.util.Objects;
@@ -82,22 +77,6 @@ public class MilestoneTestUtils {
                             .collect(Collectors.toList());
             int listSize = list.size();
             return listSize == 0 ? null : list.get(listSize - 1);
-        }
-    }
-
-    public static class ArtifactRepositoryMock extends RepositoryMock<Artifact> implements ArtifactRepository {
-    }
-
-    public static class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
-        @Override
-        public BuildRecord findByIdFetchAllProperties(Integer id) {
-            return null;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates) {
-            return null;
         }
     }
 }

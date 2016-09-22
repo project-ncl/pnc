@@ -52,7 +52,7 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
 
     @Override
     public List<EntityType> queryAll() {
-        return null;
+        return data;
     }
 
     @Override
@@ -93,6 +93,10 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
 
     @Override
     public void delete(Integer id) {
-      
+        data.removeIf(e -> id.equals(e.getId()));
+    }
+
+    public void clear() {
+        data.clear();
     }
 }

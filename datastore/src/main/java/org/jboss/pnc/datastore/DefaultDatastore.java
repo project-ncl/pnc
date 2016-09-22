@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.datastore;
 
-import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -32,6 +33,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +49,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
+import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
 
@@ -57,26 +61,39 @@ public class DefaultDatastore implements Datastore {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Inject
-    ArtifactRepository artifactRepository;
+    private ArtifactRepository artifactRepository;
+
+    private BuildRecordRepository buildRecordRepository;
+
+    private BuildConfigurationRepository buildConfigurationRepository;
+
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
+    private UserRepository userRepository;
+
+    private SequenceHandlerRepository sequenceHandlerRepository;
+
+    public DefaultDatastore() {
+    }
 
     @Inject
-    BuildRecordRepository buildRecordRepository;
-
-    @Inject
-    BuildConfigurationRepository buildConfigurationRepository;
-
-    @Inject
-    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
-
-    @Inject
-    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
-
-    @Inject
-    UserRepository userRepository;
-
-    @Inject
-    SequenceHandlerRepository sequenceHandlerRepository;
+    public DefaultDatastore(ArtifactRepository artifactRepository,
+                            BuildRecordRepository buildRecordRepository,
+                            BuildConfigurationRepository buildConfigurationRepository,
+                            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+                            UserRepository userRepository,
+                            SequenceHandlerRepository sequenceHandlerRepository) {
+        this.artifactRepository = artifactRepository;
+        this.buildRecordRepository = buildRecordRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
+        this.userRepository = userRepository;
+        this.sequenceHandlerRepository = sequenceHandlerRepository;
+    }
 
     private static final String ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different identifier already exists";
     private static final String ARITFACT_ORIGIN_URL_CHECKSUM_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different checksum already exists";
@@ -112,10 +129,10 @@ public class DefaultDatastore implements Datastore {
     }
 
     /**
-     * Checks the given list against the existing database and creates a new list containing 
+     * Checks the given list against the existing database and creates a new list containing
      * artifacts which have been saved to or loaded from the database.
-     * 
-     * @param Collection<Artifact> of in-memory artifacts to either insert to the database or find the matching record in the db
+     *
+     * @param artifacts of in-memory artifacts to either insert to the database or find the matching record in the db
      * @return Set of up to date JPA artifact entities
      */
     private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
@@ -161,7 +178,7 @@ public class DefaultDatastore implements Datastore {
 
     /**
      * Save a build config set record to the db.  This requires a new transaction to ensure that
-     * the record is immediately committed to the database so that it's available to use by the 
+     * the record is immediately committed to the database so that it's available to use by the
      * foreign keys set in the individual build records.
      */
     @Override
@@ -172,14 +189,14 @@ public class DefaultDatastore implements Datastore {
 
     /**
      * Get the latest audited revision for the given build configuration ID
-     * 
+     *
      * @param buildConfigurationId
      * @return The latest revision of the given build configuration
      */
     @Override
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
         List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationId);
-        if ( buildConfigRevs.isEmpty() ) {
+        if (buildConfigRevs.isEmpty()) {
             // TODO should we throw an exception?  In theory, this should never happen.
             return null;
         }
@@ -192,15 +209,51 @@ public class DefaultDatastore implements Datastore {
     }
 
     @Override
-    public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
-        BuildConfigurationAudited auditedConfiguration = getLatestBuildConfigurationAudited(buildConfiguration.getId());
-        if(auditedConfiguration != null) {
-            return auditedConfiguration.getBuildRecords().stream()
-                    .map(br -> br.getStatus())
-                    .filter(status -> status == BuildStatus.SUCCESS)
-                    .count() > 0;
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public boolean requiresRebuild(BuildTask task) {
+        BuildSetTask taskSet = task.getBuildSetTask();
+        final BuildConfiguration buildConfiguration = task.getBuildConfiguration();
+        BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(buildConfiguration.getId());
+
+        if (refreshedConfig.getLatestSuccesfulBuildRecord() == null) {
+            return true;
         }
-        return false;
+        if (taskSet != null) {
+            List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
+                    .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
+                    .map(BuildTask::getBuildConfiguration)
+                    .collect(Collectors.toList());
+            boolean hasInGroupDependency = refreshedConfig.dependsOnAny(nonRejectedBuildsInGroup);
+            if (hasInGroupDependency) {
+                return true;
+            }
+        }
+        return hasARebuiltDependency(refreshedConfig);
+    }
+
+    private boolean hasARebuiltDependency(BuildConfiguration config) {
+        BuildRecord record = config.getLatestSuccesfulBuildRecord();
+        if (record == null) {
+            return false;
+        }
+
+        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(record);
+
+        return lastBuiltFrom.stream()
+                .anyMatch(this::hasNewerVersion);
+    }
+
+    private boolean hasNewerVersion(BuildRecord record) {
+        BuildConfiguration buildConfig = record.getLatestBuildConfiguration();
+        BuildRecord newestRecord = buildConfig.getLatestSuccesfulBuildRecord();
+        return !record.getId().equals(newestRecord.getId());
+    }
+
+    private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record) {
+        return ofNullableCollection(record.getDependencies())
+                .stream()
+                .map(Artifact::getBuildRecords)
+                .collect(toFlatList());
     }
 
 }

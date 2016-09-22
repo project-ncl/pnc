@@ -18,7 +18,6 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
@@ -50,6 +49,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
 import javax.ejb.Singleton;
