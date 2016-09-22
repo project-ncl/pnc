@@ -56,7 +56,7 @@
 
           function init() {
             scope.page = PageFactory.build(BuildRecordDAO, function (pageIndex, pageSize, searchText) {
-              return UserDAO.getAuthenticatedUser().$promise.then(function(result) {
+              return authService.getPncUser().then(function(result) {
                 return BuildRecordDAO._getByUser({
                    userId: result.id,
                    pageIndex: pageIndex,
