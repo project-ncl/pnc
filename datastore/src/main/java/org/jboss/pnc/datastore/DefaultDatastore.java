@@ -47,8 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
 
@@ -201,6 +201,14 @@ public class DefaultDatastore implements Datastore {
                     .count() > 0;
         }
         return false;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public <T> T runInTransactionWithBuildConfig(Integer buildConfigurationId, Function<BuildConfiguration, T> job) {
+        BuildConfiguration config = buildConfigurationRepository.queryById(buildConfigurationId);
+
+        return job.apply(config);
     }
 
 }

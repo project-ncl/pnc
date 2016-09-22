@@ -87,9 +87,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @Inject
     public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
-                            BuildQueue buildQueue,
-                            Configuration configuration) {
+                                   Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
+                                   BuildQueue buildQueue,
+                                   Configuration configuration) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -258,7 +258,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     return;
                 }
 
-                if (!task.isForcedRebuild() && shouldSkip(task)) {
+                if (!task.isForcedRebuild() && !requiresRebuild(task)) {
                     updateBuildTaskStatus(task,
                             BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
                             "The configuration has already been built");
@@ -289,23 +289,27 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private boolean shouldSkip(BuildTask task) {
+    private boolean requiresRebuild(BuildTask task) {
         BuildSetTask taskSet = task.getBuildSetTask();
-        BuildConfiguration buildConfiguration = task.getBuildConfiguration();
-        if (buildConfiguration.getLatestSuccesfulBuildRecord() == null) {
-            return false;
-        }
-        if (taskSet != null) {
-            List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
-                    .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
-                    .map(BuildTask::getBuildConfiguration)
-                    .collect(Collectors.toList());
-            boolean hasInGroupDependency = buildConfiguration.dependsOnAny(nonRejectedBuildsInGroup);
-            if (hasInGroupDependency) {
-                return false;
-            }
-        }
-        return !hasARebuiltDependency(buildConfiguration);
+        final BuildConfiguration buildConfiguration = task.getBuildConfiguration();
+        return datastoreAdapter.runInTransactionWithBuildConfig(buildConfiguration.getId(),
+                config -> {
+                    if (config.getLatestSuccesfulBuildRecord() == null) {
+                        return true;
+                    }
+                    if (taskSet != null) {
+                        List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
+                                .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
+                                .map(BuildTask::getBuildConfiguration)
+                                .collect(Collectors.toList());
+                        boolean hasInGroupDependency = config.dependsOnAny(nonRejectedBuildsInGroup);
+                        if (hasInGroupDependency) {
+                            return true;
+                        }
+                    }
+                    return hasARebuiltDependency(config);
+                }
+        );
     }
 
     public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {

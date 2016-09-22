@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static org.jboss.pnc.model.BuildStatus.FAILED;
 import static org.jboss.pnc.model.BuildStatus.REJECTED;
@@ -256,6 +257,10 @@ public class DatastoreAdapter {
         }
 
         return builder;
+    }
+
+    public <T> T runInTransactionWithBuildConfig(Integer buildConfigurationId, Function<BuildConfiguration, T> job) {
+        return datastore.runInTransactionWithBuildConfig(buildConfigurationId, job);
     }
 
     public Integer getNextBuildRecordId() {
