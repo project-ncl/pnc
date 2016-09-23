@@ -19,10 +19,10 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
+import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
-import org.jboss.pnc.rest.provider.MilestoneTestUtils.ArtifactRepositoryMock;
-import org.jboss.pnc.rest.provider.MilestoneTestUtils.BuildRecordRepositoryMock;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneReleaseRepositoryMock;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneRepositoryMock;
 import org.jboss.pnc.rest.utils.mock.BpmMock;

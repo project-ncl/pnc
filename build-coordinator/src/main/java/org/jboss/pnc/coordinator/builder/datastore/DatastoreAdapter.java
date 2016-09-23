@@ -262,7 +262,7 @@ public class DatastoreAdapter {
         return datastore.getNextBuildRecordId();
     }
 
-    public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
-        return datastore.hasSuccessfulBuildRecord(buildConfiguration);
+    public boolean requiresRebuild(BuildTask task) {
+        return datastore.requiresRebuild(task);
     }
 }

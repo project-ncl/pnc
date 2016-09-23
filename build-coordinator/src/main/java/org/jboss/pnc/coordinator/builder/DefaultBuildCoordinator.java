@@ -55,9 +55,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.coordinator.utils.BuildConfigDependencyUtils.hasARebuiltDependency;
 
 /**
  *
@@ -87,9 +84,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @Inject
     public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
-                            BuildQueue buildQueue,
-                            Configuration configuration) {
+                                   Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
+                                   BuildQueue buildQueue,
+                                   Configuration configuration) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -258,7 +255,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     return;
                 }
 
-                if (!task.isForcedRebuild() && shouldSkip(task)) {
+                if (!task.isForcedRebuild() && !datastoreAdapter.requiresRebuild(task)) {
                     updateBuildTaskStatus(task,
                             BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
                             "The configuration has already been built");
@@ -289,24 +286,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private boolean shouldSkip(BuildTask task) {
-        BuildSetTask taskSet = task.getBuildSetTask();
-        BuildConfiguration buildConfiguration = task.getBuildConfiguration();
-        if (buildConfiguration.getLatestSuccesfulBuildRecord() == null) {
-            return false;
-        }
-        if (taskSet != null) {
-            List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
-                    .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
-                    .map(BuildTask::getBuildConfiguration)
-                    .collect(Collectors.toList());
-            boolean hasInGroupDependency = buildConfiguration.dependsOnAny(nonRejectedBuildsInGroup);
-            if (hasInGroupDependency) {
-                return false;
-            }
-        }
-        return !hasARebuiltDependency(buildConfiguration);
-    }
 
     public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
         int buildTaskId = buildTask.getId();

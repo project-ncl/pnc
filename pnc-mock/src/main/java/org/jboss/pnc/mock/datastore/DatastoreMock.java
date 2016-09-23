@@ -22,9 +22,9 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,12 +132,8 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
-        return getBuildRecords().stream()
-                .filter(br -> br.getLatestBuildConfiguration().getId().equals(buildConfiguration.getId()))
-                .map(br -> br.getStatus())
-                .filter(status -> status == BuildStatus.SUCCESS)
-                .count() > 0;
+    public boolean requiresRebuild(BuildTask task) {
+        return true;
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {

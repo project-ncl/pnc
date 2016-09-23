@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -26,7 +27,14 @@ import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.datastore.DefaultDatastore;
+import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
+import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
+import org.jboss.pnc.mock.repository.UserRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -35,18 +43,19 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 
 import javax.enterprise.event.Event;
 import java.time.temporal.ChronoUnit;
@@ -60,7 +69,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,46 +83,58 @@ public abstract class AbstractDependentBuildTest {
     private static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
     private static final AtomicInteger buildRecordIdSequence = new AtomicInteger(0);
 
-    private final List<BuildTask> builtTasks = new ArrayList<>();
+    private List<BuildTask> builtTasks;
 
-    @Mock
-    private Datastore datastore;
-    @InjectMocks
-    private DatastoreAdapter datastoreAdapter = new DatastoreAdapter();
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    private BuildConfigurationRepositoryMock buildConfigurationRepository;
 
     private BuildQueue buildQueue;
 
-    private BuildCoordinator coordinator;
+    protected BuildCoordinator coordinator;
+    protected BuildRecordRepositoryMock buildRecordRepository;
 
     @Before
     @SuppressWarnings("unchecked")
     public void initialize() throws DatastoreException, ConfigurationParseException {
         MockitoAnnotations.initMocks(this);
-        when(datastore.saveBuildConfigSetRecord(any(BuildConfigSetRecord.class)))
-                .thenAnswer(new ReturnsArgumentAt(0));
-        when(datastore.getLatestBuildConfigurationAudited(any(Integer.class)))
-                .thenReturn(buildConfigAudited());
+
+        builtTasks = new ArrayList<>();
+
         Configuration config = mock(Configuration.class);
         SystemConfig systemConfig = mock(SystemConfig.class);
         when(systemConfig.getCoordinatorThreadPoolSize()).thenReturn(1);
         when(systemConfig.getCoordinatorMaxConcurrentBuilds()).thenReturn(1);
         when(config.getModuleConfig(any())).thenReturn(systemConfig);
+
         buildQueue = new BuildQueue(config);
+
+        buildConfigurationRepository = new BuildConfigurationRepositoryMock();
+        buildRecordRepository = new BuildRecordRepositoryMock();
+        buildConfigurationAuditedRepository = new BuildConfigurationAuditedRepositoryMock();
+        DefaultDatastore datastore = new DefaultDatastore(
+                new ArtifactRepositoryMock(),
+                buildRecordRepository,
+                buildConfigurationRepository,
+                buildConfigurationAuditedRepository,
+                new BuildConfigSetRecordRepositoryMock(),
+                new UserRepositoryMock(),
+                new SequenceHandlerRepositoryMock()
+        );
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+
         coordinator = new DefaultBuildCoordinator(datastoreAdapter, mock(Event.class), mock(Event.class),
                 new MockBuildSchedulerFactory(),
                 buildQueue,
                 config);
-        builtTasks.clear();
         buildQueue.initSemaphore();
+        coordinator.start();
     }
 
 
     protected void markAsAlreadyBuilt(BuildConfiguration... configs) {
         Stream.of(configs).forEach(
-                c -> {
-                    when(datastore.hasSuccessfulBuildRecord(eq(c))).thenReturn(true);
-                    c.addBuildRecord(buildRecord(c));
-                }
+                c -> c.addBuildRecord(buildRecord(c))
         );
     }
 
@@ -134,20 +154,14 @@ public abstract class AbstractDependentBuildTest {
         config.setId(id);
         Stream.of(dependencies).forEach(config::addDependency);
 
-        when(datastore.getLatestBuildConfigurationAudited(eq(id))).thenReturn(buildConfigAudited());
+        buildConfigurationRepository.save(config);
+        BuildConfigurationAudited auditedConfig = new BuildConfigurationAudited();
+        auditedConfig.setIdRev(new IdRev(config.getId(), RandomUtils.randInt(1000, 1000000)));
+        Project project = new Project();
+        auditedConfig.setProject(project);
+        buildConfigurationAuditedRepository.save(auditedConfig);
 
         return config;
-    }
-
-    private BuildConfigurationAudited buildConfigAudited() {
-        BuildConfigurationAudited configAudited = new BuildConfigurationAudited();
-
-        configAudited.setIdRev(new IdRev(configAuditedIdSequence.getAndIncrement(), RandomUtils.randInt(100000, 10000000)));
-        //// buildConfigAudited.getProject().getBuildConfigurations().forEach(BuildConfiguration::getId)
-        Project project = new Project();
-        configAudited.setProject(project);
-
-        return configAudited;
     }
 
     protected void build(BuildConfigurationSet configSet, boolean rebuildAll) throws CoreException {
@@ -195,14 +209,26 @@ public abstract class AbstractDependentBuildTest {
 
     private static BuildResult buildResult() {
         return new BuildResult(
+                Optional.of(mock(BuildExecutionConfiguration.class)),
+                Optional.of(buildDriverResult()),
+                Optional.of(repoManagerResult()),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+                Optional.of(RandomStringUtils.randomAlphabetic(3)),
+                Optional.of(RandomStringUtils.randomAlphabetic(3))
         );
+    }
+
+    private static BuildDriverResult buildDriverResult() {
+        BuildDriverResult mock = mock(BuildDriverResult.class);
+        when(mock.getBuildStatus()).thenReturn(BuildStatus.SUCCESS);
+        return mock;
+    }
+
+    private static RepositoryManagerResult repoManagerResult() {
+        RepositoryManagerResult mock = mock(RepositoryManagerResult.class);
+        when(mock.getStatus()).thenReturn(RepositoryManagerStatus.SUCCESS);
+        return mock;
     }
 }
