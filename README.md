@@ -2,6 +2,7 @@ Project-ncl
 ===========
 A system for managing, executing, and tracking cross-platform builds.
 
+
 ## Running the PNC
 
 PNC is composed of multiple services, to run the system you need:
@@ -81,6 +82,7 @@ Example to install server to /tmp folder:
 
 	mvn clean verify -Pcontainer-tests -pl \!:test-arquillian-container -Deap6.zip.url= -DuseTargetBuilds -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4 -Darq.container.wf.configuration.allowConnectingToRunningServer=true
 
+
 ### Running integration tests in Intellij IDEA
 
 1. Install application server (see Installing application server for integration tests manually)
@@ -104,19 +106,7 @@ Example to install server to /tmp folder:
 Property useTargetBuilds can be used together with configuration 'Run maven goal' `mvn package -DskipTests=true` in 'before lunch' tab to deploy code changes without actual need to run mvn clean install
 
 
-## Configuration
-
-
-All configurations are centralized in configuration file `moduleconfig/src/main/resources/pnc-config.json`.
-
-Configuration file is filled with env variables, you can set required variables instead of editing the file itself. See the config file for list of available env variables.*
-
-If you want to use a different (external) config file location you can define a path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
-
-For the configuration descriptions see api doc of classes in `moduleconfig/src/main/java/org/jboss/pnc/common/json/moduleconfig`
-
-
-## Building for Production (Postgresql DB)
+### Building for Production (Postgresql DB)
 
 A Maven profile called `production` is provided to configure the appropriate settings to build a deployment file which is compatible with the postgresql database.
 
@@ -127,12 +117,88 @@ The container tests can also be run against postgresql by activating the `contai
 
     mvn install -Pproduction,container-tests
 
+### UI Module Compilation Errors
+
+Due to the need to integrate a modern frontend workflow into a maven project there can occasionally be some complications in a build. Some data is cached by the UI that is not completely cleaned by running `mvn clean`. In case of strange build failures with the UI module please try running: `mvn clean -Dfrontend.clean.force` and this will completely clean out all data. NOTE: with this profile enabled build times will increase by a few minutes as the ui build system will have to retrieve a large amount of previously cached data.
+
+
+## Configuration
+
+All configurations are centralized in the configuration file `moduleconfig/src/main/resources/pnc-config.json`.
+
+You can copy the file to external location and specify the location via `-Dpnc-config-file=/path/to/pnc-config.json` parameter.
+
+Or you can configure the app using the environment variables listred in the file.
+
+For the configuration descriptions see api doc of classes in `moduleconfig/src/main/java/org/jboss/pnc/common/json/moduleconfig`
+
+
+## Database set-up
+
+### Manually Configuring the Datasource for HSQL DB
+
+You will need to download the [hsqldb jar file](http://repo1.maven.org/maven2/org/hsqldb/hsqldb/2.3.3/hsqldb-2.3.3.jar) and copy the jar file into the standalone/deployments directory of your JBoss server.  Check the server log to see that the driver deployed successfully.
+
+From the EAP/Wildfly admin console, select Configuration-->Connector-->Datasources.
+Click the "Add" button to add a new datasource and set the required fields.
+
+    Name: NewcastleTestDS
+    JNDI Name: java:jboss/datasources/NewcastleTestDS
+    JDBC Driver: hsqldb-2.3.3.jar
+    Connection URL: jdbc:hsqldb:mem:newcastletestmemdb
+
+You can test the connection before saving the datasource settings.  Finally, enable the datasource, and it is ready to be used by the newcastle application.
+
+
+### Installing Postgres
+
+Basic installation instructions for Postgres on recent versions of Fedora can be found on the Fedora wiki: https://fedoraproject.org/wiki/PostgreSQL
+
+(Optional) In addition to the postgresql server, it's useful to install the gui admin tool pgadmin3 (dnf install pgadmin3).
+
+Once postgresql is installed and started, you can create and modify the databases using the psql command.
+
+Connect to postgres
+
+    $ psql -h localhost newcastle -U <ROOT_USERNAME>
+
+Create the user "newcastle
+Create user
+
+    postgres=# CREATE USER newcastle WITH PASSWORD newcastle;
+
+Create the newcastle database
+Create newcastle database
+
+    postgres=# CREATE DATABASE newcastle OWNER newcastle;
+
+Once the database is created, the schema can be built using the SQL files included with the newcastle source code, or it can be created automatically if it doesn't exist.
+
+
+### Configuring the Datasource
+
+You will need to download and install the PostgreSQL JDBC driver into Wildfly (https://jdbc.postgresql.org/download.html).  Copy the postgresql jdbc driver jar into the standalone/deployments directory of your JBoss server.  Check the server log to see whether the driver deployed successfully.
+
+From the EAP/Wildfly admin console, select Configuration-->Connector-->Datasources.
+Click the "Add" button to add a new datasource and set the required fields.
+
+    Name: NewcastleDS
+    JNDI Name: java:jboss/datasources/NewcastleDS
+    JDBC Driver: postgresql-9.3.jar
+    Connection URL: jdbc:postgresql://localhost:5432/newcastle
+    Username: newcastle
+    Password: newcastle
+
+You can test the connection before saving the datasource settings.
+
 
 ## Authentication:
+
 This project comes with possibility to be secured. Security is delivered via Keycloak project http://keycloak.jboss.org/.
 To be able to turn on whole project on secure side you need 2 parts to fulfill.
 1. **Have running and configured Keycloak server instance.** <br/>
 2. **Build & configure security for your PNC installation.**
+
 
 ### Authentication - prepare Keycloak server<br/>
 **PRE-REQUIREMENTS:** <br/>
@@ -186,7 +252,6 @@ By default the Keycloak server comes with "master realm", which is for demo purp
   * "cors-allowed-methods" : "POST,PUT,DELETE,GET",
   * "bearer-only" : false,
 
-         
 
 ### Authentication - build & configure your PNC<br/>
 By default PNC project comes with no security at all, it is up to you to turn it on.
@@ -206,65 +271,10 @@ Enabling authentication means following<br/>
   According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation will be performed on server for the given path.
 
 
-## Manually Configuring the Datasource for HSQL DB
-
-You will need to download the [hsqldb jar file](http://repo1.maven.org/maven2/org/hsqldb/hsqldb/2.3.3/hsqldb-2.3.3.jar) and copy the jar file into the standalone/deployments directory of your JBoss server.  Check the server log to see that the driver deployed successfully.
-
-From the EAP/Wildfly admin console, select Configuration-->Connector-->Datasources.
-Click the "Add" button to add a new datasource and set the required fields.
-
-    Name: NewcastleTestDS
-    JNDI Name: java:jboss/datasources/NewcastleTestDS
-    JDBC Driver: hsqldb-2.3.3.jar
-    Connection URL: jdbc:hsqldb:mem:newcastletestmemdb
-
-You can test the connection before saving the datasource settings.  Finally, enable the datasource, and it is ready to be used by the newcastle application.
-
-
-## Installing Postgres for Development
-
-Basic installation instructions for Postgres on recent versions of Fedora can be found on the Fedora wiki: https://fedoraproject.org/wiki/PostgreSQL
-
-(Optional) In addition to the postgresql server, it's useful to install the gui admin tool pgadmin3 (yum install pgadmin3).
-
-Once postgresql is installed and started, you can create and modify the databases using the psql command.
-
-Connect to postgres
-
-    $ psql -h localhost newcastle -U <ROOT_USERNAME>
-
-Create the user "newcastle
-Create user
-
-    postgres=# CREATE USER newcastle WITH PASSWORD newcastle;
-
-Create the newcastle database
-Create newcastle database
-
-    postgres=# CREATE DATABASE newcastle OWNER newcastle;
-
-Once the database is created, the schema can be built using the SQL files included with the newcastle source code, or it can be created automatically if it doesn't exist.
-
-
-## Configuring the Datasource
-
-You will need to download and install the PostgreSQL JDBC driver into Wildfly (https://jdbc.postgresql.org/download.html).  Copy the postgresql jdbc driver jar into the standalone/deployments directory of your JBoss server.  Check the server log to see whether the driver deployed successfully.
-
-From the EAP/Wildfly admin console, select Configuration-->Connector-->Datasources.
-Click the "Add" button to add a new datasource and set the required fields.
-
-    Name: NewcastleDS
-    JNDI Name: java:jboss/datasources/NewcastleDS
-    JDBC Driver: postgresql-9.3.jar
-    Connection URL: jdbc:postgresql://localhost:5432/newcastle
-    Username: newcastle
-    Password: newcastle
-
-You can test the connection before saving the datasource settings.
-
 ## Configuring the Openshift pod definitions
 
-If you are using Openshift for building, you can override the pod definitions used to configure the build-agent pod. To do so, put in your `pnc-config.json`:
+PNC is using OpenShift to provide clean build environmtn for each build.
+You can override the pod definitions used to configure the build-agent pod via pnc configuration:
 
 ```json
 {
@@ -281,7 +291,3 @@ If you are using Openshift for building, you can override the pod definitions us
   ]
 ```
 You only need to define the key for which you want to modify its definition. There is no need to define all the keys.
-
-## UI Module Compilation Errors
-
-Due to the need to integrate a modern frontend workflow into a maven project there can occasionally be some complications in a build. Some data is cached by the UI that is not completely cleaned by running `mvn clean`. In case of strange build failures with the UI module please try running: `mvn clean -Dfrontend.clean.force` and this will completely clean out all data. NOTE: with this profile enabled build times will increase by a few minutes as the ui build system will have to retrieve a large amount of previously cached data.
