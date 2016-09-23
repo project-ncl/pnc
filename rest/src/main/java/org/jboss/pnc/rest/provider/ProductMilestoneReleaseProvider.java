@@ -65,6 +65,7 @@ public class ProductMilestoneReleaseProvider extends AbstractProvider<ProductMil
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
 
         ProductMilestoneRelease release = milestone == null ? null : releaseRepository.findLatestByMilestone(milestone);
-        return toRESTModel().apply(release);
+
+        return release == null ? null : toRESTModel().apply(release);
     }
 }
