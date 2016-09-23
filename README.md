@@ -58,7 +58,7 @@ To use `verify` phase append property `-DuseTargetBuilds` (no value required) to
 #### Installing application server for integration tests manually
 
 Application server is installed by default to folder target in project top level folder.
-During installation additional modules required to run integration tests are installed into the server.
+During installation additional modules (HSQL, Postgresql JDBC drivers, datasources, RHSSO) required to run integration tests are installed into the server.
 
 To run only installation of application server to specific folder use `-Dtest.server.unpack.dir=`. 
 
@@ -204,18 +204,6 @@ Enabling authentication means following<br/>
 3. Configure your JEE server (EAP) for keycloak
   * Use -Dauth.eap.home=``<path to your EAP installation>`` with you build command, if you want EAP configure for Keycloak.
   According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation will be performed on server for the given path.
-
-
-## Using an alternate JBoss server location
-
-By default, the Maven build will download JBoss EAP and extract it to a local directory such as `target/jboss-eap-6.4`.  However, you can also configure and run tests in an alternate JBoss EAP location.  The first step is to install the necessary HSQL and Postgresql JDBC drivers and datasources.
-
-    $ cd test-arquillian-container
-    $ mvn clean install -Pconfigure-test-container -Dtest.server.build.dir=/path/to/eap/server
-
-The container-tests can be run against this JBoss server using similar command line options.
-
-    $ mvn clean install -Pcontainer-tests -Dtest.server.build.dir=/path/to/eap/server
 
 
 ## Manually Configuring the Datasource for HSQL DB
