@@ -1,6 +1,28 @@
 Project-ncl
 ===========
-A system for managing, executing, and tracking builds
+A system for managing, executing, and tracking cross-platform builds.
+
+Running the PNC
+---------------
+PNC is composed of multiple services, to run the system you need:
+
+Minimal:
+- PNC Orchestrator (this repo)
+- [Indy repository manager](https://github.com/Commonjava/indy)
+- [OpenShift](https://www.openshift.org/)
+- [RHSSO](https://access.redhat.com/products/red-hat-single-sign-on) / [KeyCloak](http://keycloak.jboss.org/)
+- [PostgreSQL database](https://www.postgresql.org/)
+
+Full feature setup:
+- [Dependency analysis](https://github.com/project-ncl/dependency-analysis)
+- [jBPM server](http://www.jbpm.org/)
+
+PNC is delivered as JEE EAR package that can be deployed to [EAP](http://developers.redhat.com/products/eap/) / [WildFly](http://wildfly.org/) or other JEE application server. 
+
+JEE Server requirements:
+- [JBoss EAP/Wildfly Adapter](https://keycloak.gitbooks.io/securing-client-applications-guide/content/topics/oidc/java/jboss-adapter.html) 
+- Hibernate as JPA provider
+- [PostgreSQL JDBC driver](https://jdbc.postgresql.org/)
 
 
 Building
@@ -12,38 +34,41 @@ Requirements:
 
 The default build is executed by running `mvn clean install`.
 
-### Integration tests using application server
+The default build does not run "integration tests" annotated with @ContainerTest.
+Tests annotated with @DebugTest are also skipped by default as they are usually written to run against a remote running server.
 
-By default the integration tests which require application server are disabled.
 
-Integration tests requiring JEE application server (Wildfly 9 or EAP 6.4) are placed in module "integration-test".
-To run integration tests use profile `-Pcontainer-tests` (eg. mvn clean install -Pcontainer-tests).
+### Building with all tests
 
-Remote tests require enabling additional Maven profile `-Premote-tests`.
+To run container tests use profile `-Pcontainer-tests`.
+Extra parameter `-Deap6.zip.url` is required to provide the location of server distribution archive.
+Tests requiring JEE application server (Wildfly 9 or EAP 6.4)
 
-To run integration test you have to specify `install` phase by default.
+Example:
 
-To use phase verify append property `-DuseTargetBuilds` (no value required) to use artifacts generated during package phase in target folder.
+	mvn clean install -Pcontainer-tests -Deap6.zip.url=file:///home/development/JBEAP-6.4.5.GA/jboss-eap-6.4.5.GA.zip
+	mvn clean install -Pcontainer-tests -Deap6.zip.url=https://developers.redhat.com/download-manager/file/jboss-eap-6.4.0.GA.zip
 
-### Installing application server for integration tests
+To run debug tests use `-Pdebug-tests`.
+
+By default it is required to specify `install` phase to run container tests.
+
+To use `verify` phase append property `-DuseTargetBuilds` (no value required) to use artifacts generated during package phase in target folder.
+
+#### Installing application server for integration tests manually
 
 Application server is installed by default to folder target in project top level folder.
 During installation additional modules required to run integration tests are installed into the server.
 
-You must specify url to downloase server zip file `-Deap6.zip.url`.
-To specify local file use `-Deap6.zip.url=file://LOCAL_ZIP_PATH`, for example:
+To run only installation of application server to specific folder use `-Dtest.server.unpack.dir=`. 
 
-	-Deap6.zip.url=file:///home/development/artifacts/JBEAP-6.4.5.GA/jboss-eap-6.4.5.GA.zip)
-
-#### Installation of application server to specific folder
-
-To run only installation of application server to specific folder use `-Dtest.server.unpack.dir=`. For example to install server to /tmp folder:
+Example to install server to /tmp folder:
 
 	mvn clean verify -Pcontainer-tests -Deap6.zip.url=SERVER_ZIP_URL -pl :test-common,:test-arquillian-container -Dtest.server.unpack.dir=/tmp
 
-### Running integration tests using preinstalled and running application server
+#### Running integration tests using pre-installed and running application server
 
-1. Install application server (see Installation of application server to specific folder)
+1. Install application server (see Installing application server for integration tests manually)
 2. start the server
 
 	sh /tmp/jboss-eap-6.4/bin/standalone.sh
@@ -58,7 +83,7 @@ To run only installation of application server to specific folder use `-Dtest.se
 
 ### Running integration tests in Intellij IDEA
 
-1. Install application server (see Installation of application server to specific folder)
+1. Install application server (see Installing application server for integration tests manually)
 2. start the server
 
 	sh /tmp/jboss-eap-6.4/bin/standalone.sh
