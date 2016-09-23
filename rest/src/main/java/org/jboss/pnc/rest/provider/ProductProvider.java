@@ -19,6 +19,13 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.restmodel.ProductRest;
+import org.jboss.pnc.rest.validation.ConflictedEntryValidator.ConflictedEntryValidationError;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.groups.ValidationGroup;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -27,6 +34,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
+
+import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
 @Stateless
 public class ProductProvider extends AbstractProvider<Product, ProductRest> {
@@ -42,7 +51,7 @@ public class ProductProvider extends AbstractProvider<Product, ProductRest> {
 
     @Override
     protected Function<? super Product, ? extends ProductRest> toRESTModel() {
-        return product -> new ProductRest(product);
+        return ProductRest::new;
     }
 
     @Override
@@ -50,4 +59,26 @@ public class ProductProvider extends AbstractProvider<Product, ProductRest> {
         return product -> product.toDBEntityBuilder().build();
     }
 
+    @Override
+    protected void validateBeforeSaving(ProductRest restEntity) throws ValidationException {
+        super.validateBeforeSaving(restEntity);
+        validateIfNotConflicted(restEntity, WhenCreatingNew.class);
+    }
+    @Override
+    protected void validateBeforeUpdating(Integer id, ProductRest restEntity) throws ValidationException {
+        super.validateBeforeUpdating(id, restEntity);
+        validateIfNotConflicted(restEntity, WhenUpdating.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void validateIfNotConflicted(ProductRest productRest, Class<? extends ValidationGroup> group) throws ConflictedEntryException {
+        ValidationBuilder.validateObject(productRest, WhenCreatingNew.class).validateConflict(() -> {
+                    Product product = repository.queryByPredicates(withName(productRest.getName()));
+                    if (product != null && !product.getId().equals(productRest.getId())) {
+                        return new ConflictedEntryValidationError(product.getId(), Product.class, "Product with the same name already exists");
+                    }
+                    return null;
+                }
+        );
+    }
 }
