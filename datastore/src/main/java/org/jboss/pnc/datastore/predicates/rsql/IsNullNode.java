@@ -17,28 +17,31 @@
  */
 package org.jboss.pnc.datastore.predicates.rsql;
 
-import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.UnknownOperatorException;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.RSQLNodesFactory;
+import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
 import java.util.List;
 
 /**
- * Add LIKE operator node to the default nodes by extending default factory
- * and passing it into {@link RSQLParser}
- * in {@link RSQLNodeTravellerPredicate#RSQLNodeTravellerPredicate(Class, String)}.
+ * @author Alex Creasy
  */
-class ExtendedRSQLNodesFactory extends RSQLNodesFactory {
+public class IsNullNode extends ComparisonNode {
+    public static final String OPERATOR = "=isnull=";
+
+    public IsNullNode(String selector, List<String> arguments) {
+        super(selector, arguments);
+    }
+
+    public String getOperator() {
+        return OPERATOR;
+    }
 
     @Override
-    public ComparisonNode createComparisonNode(String operator, String selector, List<String> arguments) throws UnknownOperatorException {
-        if (LikeNode.OPERATOR.equals(operator)) {
-            return new LikeNode(selector, arguments);
-        } else if (IsNullNode.OPERATOR.equals(operator)) {
-            return new IsNullNode(selector, arguments);
+    public <R, A> R accept(RSQLVisitor<R, A> visitor, A param) {
+        if (visitor instanceof RSQLNodeTraveller) {
+            return ((RSQLNodeTraveller<R>) visitor).visit(this);
         } else {
-             return super.createComparisonNode(operator, selector, arguments);
+            throw new IllegalArgumentException("Accepting only RSQLNodeTraveller visitor.");
         }
     }
 }
