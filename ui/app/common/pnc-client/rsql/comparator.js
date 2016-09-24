@@ -69,6 +69,16 @@
           return ctx.next();
         };
 
+        that.isNull = function () {
+          ctx.addToQuery('=isnull=true');
+          return ctx.next();
+        };
+
+        that.isNotNull = function () {
+          ctx.addToQuery('=isnull=false');
+          return ctx.next();
+        };
+
         return that;
       };
     }
