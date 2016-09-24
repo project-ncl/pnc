@@ -90,6 +90,13 @@ public class RSQLNodeTravellerPredicate<Entity> {
         operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
         operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path) selectWithOperand(r, operand, clazz)).in(arguments));
         operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
+        operations.put(IsNullNode.class, (r, cb, clazz, operand, arguments) -> {
+            if (Boolean.parseBoolean(arguments.get(0))) {
+                return cb.isNull((Path) selectWithOperand(r, operand, clazz));
+            } else {
+                return cb.isNotNull((Path) selectWithOperand(r, operand, clazz));
+            }
+        });
 
         rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(preprocessRSQL(rsql));
         selectingClass = entityClass;
@@ -165,6 +172,12 @@ public class RSQLNodeTravellerPredicate<Entity> {
 
                     try {
                         String propertyValue = BeanUtils.getProperty(instance, fieldName);
+
+
+                        if (node.getOperator().equals(IsNullNode.OPERATOR)) {
+                            return Boolean.valueOf(propertyValue == null).equals(Boolean.valueOf(argument));
+                        }
+
                         if (propertyValue == null) {
                             // Null values are considered not equal
                             return false;
@@ -209,6 +222,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
                                 argument = argument.replaceAll(UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
                                 return propertyValue.matches(argument);
                             }
+
 
                             default: {
                                 throw new UnsupportedOperationException("Not Implemented yet!");

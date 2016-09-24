@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 public class JavaUtilPredicateTest {
@@ -84,6 +85,43 @@ public class JavaUtilPredicateTest {
 
         //then
         Assertions.assertThat(numberOfInstances).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldSelectInstanceIfNull() throws Exception {
+        // given
+        List<TestClass> testedList = new ArrayList<>();
+        String rsql = "field=isnull=true";
+
+        testedList.add(new TestClass(null));
+        testedList.add(new TestClass("test1"));
+        testedList.add(new TestClass("test2"));
+
+        RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
+
+        // when
+        Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
+
+        // then
+        Assertions.assertThat(numberOfInstances).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldSelectInstanceIfNotNull() throws Exception {
+        // given
+        List<TestClass> testedList = new ArrayList<>();
+        String rsql = "field=isnull=false";
+
+        testedList.add(new TestClass(null));
+        testedList.add(new TestClass(null));
+        testedList.add(new TestClass("test1"));
+
+        RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
+
+        //when
+        Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
+
+        Assertions.assertThat(numberOfInstances).isEqualTo(1);
     }
 
     @Test
