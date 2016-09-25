@@ -22,7 +22,9 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
@@ -61,6 +63,9 @@ public class RSQLTest {
     private UserRepository userRepository;
 
     @Inject
+    private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
+    @Inject
     private RSQLPredicateProducer rsqlPredicateProducer;
 
     @Inject
@@ -86,6 +91,8 @@ public class RSQLTest {
             userRepository.save(User.Builder.newBuilder().username("Abacki").email("a@rh.com").build());
             userRepository.save(User.Builder.newBuilder().username("Babacki").email("b@rh.com").build());
             userRepository.save(User.Builder.newBuilder().username("Cabacki").email("c@rh.com").build());
+
+            buildConfigurationSetRepository.save(BuildConfigurationSet.Builder.newBuilder().id(101).name("test-unassociated-build-group").build());
         }
     }
 
@@ -191,6 +198,35 @@ public class RSQLTest {
                                 .sorted(String::compareTo)
                                 .collect(Collectors.toList())
                 ).containsExactly(results[i]));
+    }
+
+    @Test
+    public void shouldFilterBuildConfigurationSetsWithoutAssociatedProductVersion() {
+        // given
+        String rsqlQuery = "productVersion=isnull=true";
+
+        // when
+        List<BuildConfigurationSet> results = selectBuildConfigurationSets(rsqlQuery);
+
+        // then
+        assertThat(results).hasSize(1);
+    }
+
+    @Test
+    public void shouldFilterBuildConfigurationSetsWithAssociatedProductVersion() {
+        // given
+        String rsqlQuery = "productVersion=isnull=false";
+
+        // when
+        List<BuildConfigurationSet> results = selectBuildConfigurationSets(rsqlQuery);
+
+        // then
+        assertThat(results).hasSize(2);
+    }
+
+    private List<BuildConfigurationSet> selectBuildConfigurationSets(String rsqlQuery) {
+        Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigurationSet.class, rsqlQuery);
+        return nullableStreamOf(buildConfigurationSetRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
     }
 
     private List<User> selectUsers(String rsqlQuery) {
