@@ -22,9 +22,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
@@ -46,6 +48,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import java.util.List;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -150,6 +154,14 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
         return Response.ok().entity(buildConfigurationSetProvider.getAllForProductVersion(pageIndex, pageSize, sort,
                 q, id)).build();
+    }
+
+    @PUT
+    @Path("/{id}/build-configuration-sets")
+    public Response updateBuildConfigurationSets(@ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
+            List<BuildConfigurationSetRest> buildConfigurationSetRests) throws ValidationException {
+        productVersionProvider.updateBuildConfigurationSets(id, buildConfigurationSetRests);
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Create a new ProductVersion for a Product")
