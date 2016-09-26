@@ -275,5 +275,15 @@ public class ProductVersion implements GenericEntity<Integer> {
             this.product = productBuilder.build();
             return this;
         }
+
+        public Builder buildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
+            this.buildConfigurationSets = buildConfigurationSets;
+            return this;
+        }
+
+        public Builder buildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+            this.buildConfigurationSets.add(buildConfigurationSet);
+            return this;
+        }
     }
 }
