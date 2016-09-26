@@ -206,7 +206,8 @@ public class BpmEndpoint extends AbstractEndpoint {
                 .map(t -> new BpmTaskRest(
                         t.getTaskId(),
                         t.getProcessInstanceId(),
-                        t.getProcessName())).collect(Collectors.toList());
+                        t.getProcessName(),
+                        t.getEvents())).collect(Collectors.toList());
         return fromCollection(new CollectionInfo<>(pageIndex, pageSize, totalPages, pagedTasks));
     }
 }

@@ -36,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 @ToString
 public enum BpmEventType {
     // <T extends BpmNotificationRest>
+    DEBUG(BpmStringMapNotificationRest.class),
     BREW_IMPORT_SUCCESS(MilestoneReleaseResultRest.class),
     BREW_IMPORT_ERROR(BpmStringMapNotificationRest.class),
     BUILD_COMPLETE(BuildResultRest.class),
