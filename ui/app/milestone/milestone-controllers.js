@@ -78,6 +78,9 @@
 
       that.data = new ProductMilestoneDAO();
 
+      that.startingDate = null;
+      that.plannedEndDate = null;
+
       if (milestoneDetail !== null) {
         that.isUpdating = true;
         that.data = milestoneDetail;
@@ -85,9 +88,9 @@
         // Remove the prefix
         that.version = that.data.version.substring(versionDetail.version.length + 1);
 
-        // Need to convert from timestamp to date for the datepicker
-        that.data.startingDate = new Date(that.data.startingDate);
-        that.data.plannedEndDate = new Date(that.data.plannedEndDate);
+        // date component <- timestamp
+        that.startingDate = new Date(that.data.startingDate);
+        that.plannedEndDate = new Date(that.data.plannedEndDate);
       }
 
       that.setCurrentMilestone = that.productVersion.currentProductMilestoneId === that.data.id;
@@ -105,8 +108,11 @@
       that.submit = function() {
 
         that.data.version = versionDetail.version + '.' + that.version; // add the prefix
-        that.data.startingDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.startingDate);
-        that.data.plannedEndDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.plannedEndDate);
+
+        // timestamp <- date component
+        that.data.startingDate = dateUtilConverter.convertToTimestampNoonUTC(that.startingDate);
+        that.data.plannedEndDate = dateUtilConverter.convertToTimestampNoonUTC(that.plannedEndDate);
+
         that.data.productVersionId = versionDetail.id;
 
         // Distinguish between milestone creation and update
@@ -204,7 +210,7 @@
 
         // timestamp <- date component
         that.data.endDate = dateUtilConverter.convertToTimestampNoonUTC(that.endDate);
-        
+
         that.data.$update().then(
           function() {
             $state.go('product.detail.version', {
