@@ -26,12 +26,28 @@ JEE Server requirements:
 - [PostgreSQL JDBC driver](https://jdbc.postgresql.org/)
 
 
+## Developing
+
+**Requirements**
+- JDK 8
+- Maven 3.2
+- Java IDE (IntelliJ IDEA community recommended)
+    - code style template: https://github.com/project-ncl/ide-config
+
+**UI development**
+- Node.js
+- npm
+- Angular JS
+- Bower >= 0.9.1
+
+**REST API documentation and testing**
+
+Swagger api doc is available at http://hostname/pnc-web/apidocs/
+
+*Requires running instance of PNC 
+
+
 ## Building
-
-Requirements:
-
-* JDK 8
-* Maven 3.2
 
 The default build is executed by running `mvn clean install`.
 
