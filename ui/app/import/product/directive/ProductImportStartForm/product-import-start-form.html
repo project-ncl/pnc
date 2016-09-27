@@ -73,9 +73,8 @@
            ng-class="{ 'has-error' : startForm.startFormInput3.$invalid && !startForm.startFormInput3.$pristine, 'has-success': startForm.startFormInput3.$valid && startForm.startFormInput3.$touched }">
         <label for="startFormInput3" class="col-sm-3 control-label">
           * SCM URL&nbsp;
-          <a popover="URL of the source code repository to import from."
+          <a popover="URL of the source code repository to import from. Only following protocols are allowed: git:// , http(s)://"
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-             
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -90,7 +89,7 @@
           <span class="help-block" ng-show="startForm.startFormInput3.$error.required && !startForm.startFormInput3.$pristine">Required field.</span>
           <span class="help-block" ng-show="startForm.startFormInput3.$error.url && !startForm.startFormInput3.$pristine">Invalid URL.</span>
           <span class="help-block" ng-show="startForm.startFormInput3.$error.invalidScmUrl && startForm.startFormInput3.$touched">
-            Only following protocols are allowed: git:// , http(s)://
+            Invalid format (see help for more details)
           </span>
         </div>
       </div>
