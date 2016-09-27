@@ -1562,7 +1562,7 @@
     </profile>
 
     <profile>
-      <id>remote-tests</id>
+      <id>debug-tests</id>
       <build>
         <plugins>
           <plugin>
