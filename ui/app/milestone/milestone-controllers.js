@@ -197,11 +197,14 @@
 
       that.data = milestoneDetail;
 
-      that.data.endDate = new Date(that.data.endDate);
+      // date component <- timestamp
+      that.endDate = new Date(that.data.endDate);
 
       that.submit = function() {
 
-        that.data.endDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.endDate);
+        // timestamp <- date component
+        that.data.endDate = dateUtilConverter.convertToTimestampNoonUTC(that.endDate);
+        
         that.data.$update().then(
           function() {
             $state.go('product.detail.version', {
