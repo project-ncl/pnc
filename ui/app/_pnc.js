@@ -121,7 +121,7 @@
     function($rootScope, $log, $state, authService) {
 
     if (authService.isAuthenticated()) {
-      authService.getPncUser().$promise.then(function(result) {
+      authService.getPncUser().then(function(result) {
         $log.info('Authenticated with PNC as: %O', result);
       });
     }

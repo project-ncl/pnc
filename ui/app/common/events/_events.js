@@ -55,7 +55,7 @@
 
       scope.$on(eventTypes.BUILD_STARTED, function(event, payload) {
         //$log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
-        $log.debug('BUILD_STARTED_EVENT: authService.getPncUser=%O, payload=%O', authService.getPncUser(), JSON.stringify(payload));
+        $log.debug('BUILD_STARTED_EVENT: payload=%O', JSON.stringify(payload));
 
         authService.forUserId(payload.userId).then(function() {
           Notifications.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');

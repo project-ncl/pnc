@@ -39,12 +39,21 @@
         return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
       };
 
+      // returns user only if he is authenticated
       authService.getPncUser = function () {
-        return UserDAO.getAuthenticatedUser();
+        var deferred = $q.defer();
+        if (keycloak.authenticated) {
+          return UserDAO._getAuthenticatedUser().$promise;
+        } else {
+          var msg = 'There is no authenticated user, keycloak.authenticated: ' + keycloak.authenticated;
+          $log.info(msg);
+          deferred.reject(msg);
+        }
+        return deferred.promise;
       };
 
       authService.forUserId = function (userId) {
-        var user = UserDAO.getAuthenticatedUser().$promise;
+        var user = authService.getPncUser();
         var deferred = $q.defer();
         user.then(function(pncUser) {
           if (pncUser.id === userId) {

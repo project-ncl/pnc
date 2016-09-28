@@ -35,13 +35,18 @@
     function ($resource, REST_BASE_URL, USER_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + USER_ENDPOINT;
 
+      
+      // _getAuthenticatedUser  
+      //   Method should not be called directly otherwise it will redirect not logged user 
+      //   when status code 401 is returned (see httpResponseInterceptor for more details), 
+      //   call authService#getPncUser() instead
       var resource = $resource(ENDPOINT, {
         userId: '@id'
       }, {
         _getAll: {
           method: 'GET'
         },
-        getAuthenticatedUser: {
+        _getAuthenticatedUser: {
           method: 'POST',
           url: REST_BASE_URL + '/users/loggedUser',
           isArray: false,
