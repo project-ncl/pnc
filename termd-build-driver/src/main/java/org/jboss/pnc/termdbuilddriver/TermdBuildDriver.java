@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -93,9 +94,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
-                                          RunningEnvironment runningEnvironment,
-                                          Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError)
+    public RunningBuild startProjectBuild(
+            BuildExecutionSession buildExecutionSession,
+            RunningEnvironment runningEnvironment,
+            Consumer<CompletedBuild> onComplete,
+            Consumer<Throwable> onError)
             throws BuildDriverException {
 
         logger.info("[{}] Starting build for Build Execution Session {}", runningEnvironment.getId(), buildExecutionSession.getId());
@@ -105,9 +108,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         String buildScript = prepareBuildScript(termdRunningBuild);
         DebugData debugData = buildExecutionSession.getRunningEnvironment().getDebugData();
 
-        //TODO add an option to cancel at any point
         uploadScript(termdRunningBuild, buildScript)
                 .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, debugData), executor)
+                //no cancellation after this point ... collecting partial results
                 .thenComposeAsync(status -> collectResults(termdRunningBuild, status), executor)
                 .handle((completedBuild, exception) -> complete(termdRunningBuild, completedBuild, exception));
 
@@ -115,23 +118,32 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     private CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, String command) {
-        CompletableFuture<String> future = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture<String> result = new CompletableFuture<>();
+
+        Runnable task = () -> {
             logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
             logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), command);
 
             try {
-                new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)))
-                        .uploadScript(command,
-                                Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
+                new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild))).uploadScript(command,
+                        Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(),
+                                "run.sh"));
             } catch (TransferException e) {
-                future.completeExceptionally(e);
+                result.completeExceptionally(e);
             }
 
-            String result = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
-            future.complete(result);
-        }, executor);
-        return future;
+            String scriptPath =
+                    termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
+            result.complete(scriptPath);
+        };
+
+        if (!termdRunningBuild.isCanceled()) {
+            Future<?> taskFuture = executor.submit(task);
+            termdRunningBuild.setCancelHook(() -> taskFuture.cancel(true));
+        } else {
+            result.complete("");
+        }
+        return result;
     }
 
     private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(
@@ -139,6 +151,12 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             String scriptPath,
             DebugData debugData) {
         CompletableFuture<org.jboss.pnc.buildagent.api.Status> invocation = new CompletableFuture<>();
+
+        if (termdRunningBuild.isCanceled()) {
+            //TODO is this ok ?
+            invocation.complete(INTERRUPTED);
+            return invocation;
+        }
 
         Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
             org.jboss.pnc.buildagent.api.Status newStatus = event.getNewStatus();
@@ -164,9 +182,17 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         } catch (TimeoutException | BuildAgentClientException e) {
             invocation.completeExceptionally(new BuildDriverException("Cannot execute remote script.", e));
         }
+
+        termdRunningBuild.setCancelHook(() -> {
+            try {
+                buildAgentClient.executeNow('C' - 64); //send ctrl+C
+            } catch (BuildAgentClientException e) {
+                invocation.completeExceptionally(new BuildDriverException("Cannot cancel remote script.", e));
+            }
+        });
+
         return invocation;
     }
-
 
     private void enableSsh(TermdRunningBuild termd) {
         Optional<BuildAgentClient> maybeClient = termd.getBuildAgentClient();

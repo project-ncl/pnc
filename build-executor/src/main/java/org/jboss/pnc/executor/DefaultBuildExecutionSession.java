@@ -57,6 +57,10 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     //keep record of first received failed status
     private BuildExecutionStatus failedReasonStatus;
 
+    private boolean cancelRequested = false;
+
+    private Runnable cancelHook;
+
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration,
                                         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         liveLogsUri = Optional.empty();
@@ -227,4 +231,20 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         this.repositoryManagerResult = repositoryManagerResult;
     }
 
+    public synchronized void setCancelHook(Runnable cancelHook) {
+        this.cancelHook = cancelHook;
+    }
+
+    public synchronized void cancel() {
+        cancelRequested = true;
+        if (cancelHook != null) {
+            cancelHook.run();
+        } else {
+            log.warn("Trying to cancel operation while no cancel hook is defined.");
+        }
+    }
+
+    public boolean isCanceled() {
+        return cancelRequested;
+    }
 }

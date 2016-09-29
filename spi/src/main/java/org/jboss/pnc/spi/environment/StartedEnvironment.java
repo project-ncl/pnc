@@ -43,4 +43,5 @@ public interface StartedEnvironment extends DestroyableEnvironment {
      */
     String getId();
 
+    void cancel();
 }

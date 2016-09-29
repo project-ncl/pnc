@@ -34,6 +34,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.DebugData;
+import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -77,7 +78,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
-    private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
+    private final Map<Integer, DefaultBuildExecutionSession> runningExecutions = new HashMap<>();
 
     @Deprecated
     public DefaultBuildExecutor() {} //CDI workaround for constructor injection
@@ -112,7 +113,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
 
-        BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        DefaultBuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStartTime(new Date());
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
@@ -125,6 +126,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration, debugData), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
                 .thenComposeAsync(runningBuild -> runTheBuild(buildExecutionSession), executor)
+                //no cancellation after this point
                 .thenApplyAsync(completedBuild -> optionallyEnableSsh(buildExecutionSession, completedBuild), executor)
                 .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildExecutionSession, completedBuild), executor)
                 .thenApplyAsync(nul -> retrieveRepositoryManagerResults(buildExecutionSession), executor)
@@ -134,10 +136,21 @@ public class DefaultBuildExecutor implements BuildExecutor {
         return buildExecutionSession;
     }
 
+    @Override
+    public void cancel(Integer executionConfigurationId) throws ExecutorException {
+        DefaultBuildExecutionSession buildExecutionSession = runningExecutions.get(executionConfigurationId);
+        buildExecutionSession.cancel();
+    }
+
     private CompletedBuild optionallyEnableSsh(BuildExecutionSession session, CompletedBuild completedBuild) {
-        DebugData debugData = session.getRunningEnvironment().getDebugData();
-        if (debugData.isDebugEnabled()) {
-            debugData.getSshServiceInitializer().accept(debugData);
+        RunningEnvironment runningEnvironment = session.getRunningEnvironment();
+        if (runningEnvironment != null) {
+            DebugData debugData = runningEnvironment.getDebugData();
+            if (debugData.isDebugEnabled()) {
+                debugData.getSshServiceInitializer().accept(debugData);
+            }
+        } else {
+            //TODO log to the result
         }
         return completedBuild;
     }
@@ -147,7 +160,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
         return runningExecutions.get(buildExecutionTaskId);
     }
 
-    private RepositorySession configureRepository(BuildExecutionSession buildExecutionSession) {
+    private RepositorySession configureRepository(DefaultBuildExecutionSession buildExecutionSession) {
+        if (buildExecutionSession.isCanceled()) {
+            return null;
+        }
+
         buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
         try {
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(ArtifactRepo.Type.MAVEN);
@@ -158,9 +175,15 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
     }
 
-    private StartedEnvironment setUpEnvironment(BuildExecutionSession buildExecutionSession,
-                                                RepositorySession repositorySession,
-                                                DebugData debugData) {
+    private StartedEnvironment setUpEnvironment(
+            DefaultBuildExecutionSession buildExecutionSession,
+            RepositorySession repositorySession,
+            DebugData debugData) {
+
+        if (buildExecutionSession.isCanceled()) {
+            return null;
+        }
+
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETTING_UP);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionSession.getBuildExecutionConfiguration();
         try {
@@ -171,14 +194,25 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     buildExecutionConfiguration.getSystemImageType(),
                     repositorySession,
                     debugData);
+
+            buildExecutionSession.setCancelHook(() -> startedEnv.cancel());
+
             return startedEnv;
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
     }
 
-    private CompletableFuture<Void> waitForEnvironmentInitialization(BuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment) {
+    private CompletableFuture<Void> waitForEnvironmentInitialization(
+            DefaultBuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment) {
+
         CompletableFuture<Void> waitToCompleteFuture = new CompletableFuture<>();
+
+        if (buildExecutionSession.isCanceled()) {
+            waitToCompleteFuture.complete(null);
+            return waitToCompleteFuture;
+        }
+
         try {
             Consumer<RunningEnvironment> onComplete = (runningEnvironment) -> {
                 buildExecutionSession.setRunningEnvironment(runningEnvironment);
@@ -198,11 +232,15 @@ public class DefaultBuildExecutor implements BuildExecutor {
         return waitToCompleteFuture;
     }
 
-    private CompletableFuture<CompletedBuild> runTheBuild(BuildExecutionSession buildExecutionSession) {
+    private CompletableFuture<CompletedBuild> runTheBuild(DefaultBuildExecutionSession buildExecutionSession) {
+        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
+        if (buildExecutionSession.isCanceled()) {
+            waitToCompleteFuture.complete(null);
+            return waitToCompleteFuture;
+        }
+
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_SETTING_UP);
         RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
-
-        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
 
         try {
             Consumer<CompletedBuild> onComplete = waitToCompleteFuture::complete;
@@ -214,7 +252,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver();
-            buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment, onComplete, onError);
+            RunningBuild runningBuild = buildDriver
+                    .startProjectBuild(buildExecutionSession, runningEnvironment, onComplete, onError);
+
+            buildExecutionSession.setCancelHook(() -> runningBuild.cancel());
+
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_WAITING);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
@@ -225,6 +267,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private Void retrieveBuildDriverResults(BuildExecutionSession buildExecutionSession, CompletedBuild completedBuild) {
         buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
         try {
+            if (completedBuild == null) {
+                //TODO log build canceled
+                return null;
+            }
             BuildDriverResult buildResult = completedBuild.getBuildResult();
             BuildStatus buildStatus = buildResult.getBuildStatus();
             buildExecutionSession.setBuildDriverResult(buildResult);
@@ -239,14 +285,18 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
     }
 
-    private Void retrieveRepositoryManagerResults(BuildExecutionSession buildExecutionSession) {
+    private Void retrieveRepositoryManagerResults(DefaultBuildExecutionSession buildExecutionSession) {
         try {
             if (!buildExecutionSession.hasFailed()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
                 RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
-                buildExecutionSession.setRunningEnvironment(runningEnvironment);
-
+                if (runningEnvironment == null) {
+                    return null;
+                }
                 RepositorySession repositorySession = runningEnvironment.getRepositorySession();
+                if (repositorySession == null) {
+                    return null;
+                }
                 RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
                 buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
                 if (repositoryManagerResult.getStatus().hasFailed()) {
@@ -262,7 +312,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private void destroyEnvironment(BuildExecutionSession buildExecutionSession) {
         try {
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
-            buildExecutionSession.getRunningEnvironment().destroyEnvironment();
+            RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
+            if (runningEnvironment != null) {
+                runningEnvironment.destroyEnvironment();
+            } else {
+                //TODO log to the result: probably no env due to cancellation
+            }
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYED);
         } catch (Throwable e) {
             throw new BuildProcessException(e);

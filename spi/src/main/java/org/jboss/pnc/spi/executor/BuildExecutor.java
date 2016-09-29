@@ -33,4 +33,7 @@ public interface BuildExecutor {
     BuildExecutionSession getRunningExecution(int buildExecutionTaskId);
 
     void shutdown();
+
+    void cancel(Integer executionConfigurationId) throws ExecutorException;
+
 }

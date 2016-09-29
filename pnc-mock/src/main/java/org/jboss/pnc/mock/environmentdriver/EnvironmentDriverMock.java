@@ -111,6 +111,11 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
             public String getId() {
                 return null;
             }
+
+            @Override
+            public void cancel() {
+
+            }
         };
 
     }

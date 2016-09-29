@@ -73,7 +73,7 @@ public class BuildDriverMock implements BuildDriver {
             }
 
             @Override
-            public void cancel() throws BuildDriverException {
+            public void cancel() {
                 //TODO
             }
         };
