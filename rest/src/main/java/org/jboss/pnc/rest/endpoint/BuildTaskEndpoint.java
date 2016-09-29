@@ -160,4 +160,41 @@ public class BuildTaskEndpoint {
         }
     }
 
+    @ApiOperation(value = "Cancel the build execution defined with given configurationId.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
+            @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
+    })
+    @POST
+    @Path("/cancel-build/{id}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response build(
+            @ApiParam(value = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
+            @PathParam("buildExecutionConfiguration")
+            Integer buildExecutionConfigurationId,
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest request) {
+
+        try {
+            logger.debug("Endpoint /cancel-build requested for buildTaskId [{}], from [{}]", buildExecutionConfigurationId, request.getRemoteAddr());
+
+            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+            String loggedUser = authProvider.getUserName();
+            if (StringUtils.isEmpty(loggedUser)) {
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            logger.info("Cancelling build execution for configuration.id: {}.", buildExecutionConfigurationId);
+            buildExecutorTriggerer.cancelBuild(buildExecutionConfigurationId);
+
+            Response response = Response.ok().build();
+            return response;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
+    }
+
 }

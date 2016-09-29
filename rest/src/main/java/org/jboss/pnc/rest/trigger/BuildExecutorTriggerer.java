@@ -67,4 +67,8 @@ public class BuildExecutorTriggerer {
         return buildExecutionSession;
     }
 
+    public void cancelBuild(Integer buildExecutionConfigId) throws CoreException, ExecutorException {
+        buildExecutor.cancel(buildExecutionConfigId);
+    }
+
 }
