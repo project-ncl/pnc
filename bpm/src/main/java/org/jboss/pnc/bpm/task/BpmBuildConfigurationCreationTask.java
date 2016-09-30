@@ -46,17 +46,7 @@ public class BpmBuildConfigurationCreationTask extends BpmTask {
     protected Map<String, Object> getProcessParameters() throws CoreException {
         Map<String, Object> params = new HashMap<>();
         try {
-            params.put("bc_name", taskData.getName());
-            params.put("bc_description", taskData.getDescription());
-            params.put("bc_buildScript", taskData.getBuildScript());
-            params.put("bc_scmRepoURL", taskData.getScmRepoURL());
-            params.put("bc_scmRevision", taskData.getScmRevision());
-            params.put("bc_scmExternalRepoURL", taskData.getScmExternalRepoURL());
-            params.put("bc_scmExternalRevision", taskData.getScmExternalRevision());
-            params.put("bc_projectId", taskData.getProjectId());
-            params.put("bc_buildEnvironmentId", taskData.getBuildEnvironmentId());
-            params.put("bc_dependencyIds", taskData.getDependencyIds());
-            params.put("bc_productVersionId", MAPPER.writeValueAsString(taskData.getProductVersionId()));
+            params.put("taskData", MAPPER.writeValueAsString(taskData));
         } catch (JsonProcessingException e) {
             throw new CoreException("Could not serialize " + taskData.getProductVersionId(), e);
         }
