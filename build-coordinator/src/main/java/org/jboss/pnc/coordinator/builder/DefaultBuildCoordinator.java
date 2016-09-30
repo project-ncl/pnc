@@ -167,6 +167,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
+    @Override
+    public boolean cancel(int buildTaskId) throws CoreException {
+        Optional<BuildTask> taskOptional = getSubmittedBuildTasks().stream()
+                    .filter(buildTask -> buildTask.getId() == buildTaskId)
+                    .findAny();
+        if (taskOptional.isPresent()) {
+            buildScheduler.cancel(taskOptional.get());
+            return true;
+        } else {
+            log.warn("Cannot find task {} to cancel.", buildTaskId);
+            return false;
+        }
+    }
+
     /**
      * Check if the given build set task is empty and update the status message appropriately
      */

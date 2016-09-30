@@ -283,4 +283,5 @@ public class BuildTask {
     public boolean isForcedRebuild() {
         return forcedRebuild;
     }
+
 }

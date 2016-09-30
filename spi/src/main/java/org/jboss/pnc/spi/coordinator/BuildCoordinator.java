@@ -37,6 +37,8 @@ public interface BuildCoordinator {
 
     void updateBuildStatus(BuildTask buildTask, BuildResult buildResult);
 
+    boolean cancel(int buildTaskId) throws CoreException;
+
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
     void start();

@@ -94,4 +94,15 @@ public class LocalBuildScheduler implements BuildScheduler {
             throw new CoreException("Could not start build execution.", e);
         }
     }
+
+    @Override
+    public boolean cancel(BuildTask buildTask) throws CoreException {
+        try {
+            buildExecutor.cancel(Integer.valueOf(buildTask.getId()));
+        } catch (ExecutorException e) {
+            throw new CoreException("Cannot cancel buildTask " + buildTask.getId(), e);
+        }
+        return false;
+    }
+
 }

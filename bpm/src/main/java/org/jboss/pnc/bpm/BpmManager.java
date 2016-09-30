@@ -69,6 +69,8 @@ public class BpmManager {
     private Map<Integer, BpmTask> tasks = new HashMap<>();
     private KieSession session;
 
+    private static final String SIGNAL_CANCEL = "CANCEL";
+
     @Deprecated
     public BpmManager() { //CDI workaround
     }
@@ -140,6 +142,16 @@ public class BpmManager {
 
         } catch (Exception e) {
             throw new CoreException("Could not start BPM task '" + task + "'.", e);
+        }
+    }
+
+    public boolean cancelTask(BpmTask bpmTask) {
+        ProcessInstance processInstance = session.getProcessInstance(bpmTask.getProcessInstanceId());
+        if (processInstance != null) {
+            processInstance.signalEvent(SIGNAL_CANCEL, new Object());
+            return true;
+        } else {
+            return false;
         }
     }
 
