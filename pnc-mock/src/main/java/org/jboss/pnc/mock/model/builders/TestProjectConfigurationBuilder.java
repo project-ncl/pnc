@@ -32,6 +32,7 @@ public class TestProjectConfigurationBuilder {
 
     public static final String FAIL = "mvn clean install -Dmock.config=Fail";
     public static final String PASS = "mvn clean install -Dmock.config=Pass";
+    public static final String CANCEL = "mvn clean install -Dmock.config=Cancel";
 
     BuildEnvironment javaBuildEnvironment = BuildEnvironment.Builder.newBuilder().build();
 

@@ -20,7 +20,9 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
+import org.jboss.pnc.mock.builddriver.BlockedBuildDriverMock;
 import org.jboss.pnc.mock.builddriver.BuildDriverMock;
+import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverMock;
 import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverWithFailedContainerInitializationMock;
@@ -47,6 +49,16 @@ public class BuildExecutorDeployments {
         ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION (() -> {
             return ShrinkWrap.create(JavaArchive.class)
                     .addClass(EnvironmentDriverWithFailedContainerInitializationMock.class);
+        }),
+
+        BLOCKED_ENV_DRIVER (() -> {
+            return ShrinkWrap.create(JavaArchive.class)
+                    .addClass(BlockedBuildDriverMock.class);
+        }),
+
+        BLOCKED_BUILD_DRIVER (() -> {
+            return ShrinkWrap.create(JavaArchive.class)
+                    .addClass(BlockedBuildDriverMock.class);
         });
 
         Supplier<Archive> archiveSupplier;
@@ -64,6 +76,7 @@ public class BuildExecutorDeployments {
 
     public static JavaArchive deployment(Options... options) {
         boolean isEnvDriverPresent = false;
+        boolean isBuildDriverPresent = false;
 
         JavaArchive jar = defaultLibs();
 
@@ -72,11 +85,17 @@ public class BuildExecutorDeployments {
             if (option.equals(Options.ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION)) {
                 isEnvDriverPresent = true;
             }
+            if (option.equals(Options.BLOCKED_BUILD_DRIVER)) {
+                isBuildDriverPresent = true;
+            }
         }
 
         if (!isEnvDriverPresent) {
             jar.addClass(EnvironmentDriverMock.class);
+        }
 
+        if (!isBuildDriverPresent) {
+            jar.addClass(BuildDriverMock.class);
         }
 
         log.debug(jar.toString(true));
@@ -90,9 +109,8 @@ public class BuildExecutorDeployments {
                 .addClass(DatastoreMock.class)
                 .addClass(TestProjectConfigurationBuilder.class)
                 .addClass(RepositoryManagerMock.class)
-                .addPackages(true,
-                        BuildDriverFactory.class.getPackage(),
-                        BuildDriverMock.class.getPackage())
+                .addPackages(true, BuildDriverFactory.class.getPackage())
+                .addClass(BuildDriverResultMock.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("simplelogger.properties");
 

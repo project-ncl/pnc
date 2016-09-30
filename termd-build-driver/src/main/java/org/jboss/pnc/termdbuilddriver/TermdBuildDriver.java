@@ -153,7 +153,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         CompletableFuture<org.jboss.pnc.buildagent.api.Status> invocation = new CompletableFuture<>();
 
         if (termdRunningBuild.isCanceled()) {
-            //TODO is this ok ?
             invocation.complete(INTERRUPTED);
             return invocation;
         }

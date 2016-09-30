@@ -114,14 +114,13 @@ public class DefaultBuildExecutor implements BuildExecutor {
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
 
         DefaultBuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
+
         buildExecutionSession.setStartTime(new Date());
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
-        runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
-
         DebugData debugData = new DebugData(buildExecutionConfiguration.isPodKeptOnFailure());
 
-        //TODO add an option to cancel at any point
         CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration, debugData), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
@@ -139,7 +138,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
     @Override
     public void cancel(Integer executionConfigurationId) throws ExecutorException {
         DefaultBuildExecutionSession buildExecutionSession = runningExecutions.get(executionConfigurationId);
-        buildExecutionSession.cancel();
+        if (buildExecutionSession != null) {
+            log.info("Cancelling build {}.", buildExecutionSession.getId());
+            buildExecutionSession.cancel();
+        } else {
+            log.warn("Trying to cancel non existing session.");
+        }
     }
 
     private CompletedBuild optionallyEnableSsh(BuildExecutionSession session, CompletedBuild completedBuild) {
@@ -265,12 +269,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void retrieveBuildDriverResults(BuildExecutionSession buildExecutionSession, CompletedBuild completedBuild) {
-        buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
+        if (completedBuild == null) {
+            //TODO log build canceled to result
+            return null;
+        }
         try {
-            if (completedBuild == null) {
-                //TODO log build canceled
-                return null;
-            }
+            buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             BuildDriverResult buildResult = completedBuild.getBuildResult();
             BuildStatus buildStatus = buildResult.getBuildStatus();
             buildExecutionSession.setBuildDriverResult(buildResult);
@@ -287,7 +291,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
     private Void retrieveRepositoryManagerResults(DefaultBuildExecutionSession buildExecutionSession) {
         try {
-            if (!buildExecutionSession.hasFailed()) {
+            if (!buildExecutionSession.hasFailed() && !buildExecutionSession.isCanceled()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
                 RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
                 if (runningEnvironment == null) {
@@ -311,20 +315,20 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
     private void destroyEnvironment(BuildExecutionSession buildExecutionSession) {
         try {
-            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
             RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
             if (runningEnvironment != null) {
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
                 runningEnvironment.destroyEnvironment();
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYED);
             } else {
                 //TODO log to the result: probably no env due to cancellation
             }
-            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYED);
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
     }
 
-    private Void completeExecution(BuildExecutionSession buildExecutionSession, Throwable e) {
+    private Void completeExecution(DefaultBuildExecutionSession buildExecutionSession, Throwable e) {
         if (e != null) {
             log.debug("Finalizing FAILED execution. Exception: {}", e.getMessage());
         } else {
@@ -357,7 +361,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
 
         //check if any of previous statuses indicated "failed" state
-        if (buildExecutionSession.hasFailed()) { //TODO differentiate build and system error
+        if (buildExecutionSession.hasFailed() || buildExecutionSession.isCanceled()) { //TODO differentiate build and system error
             buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS);
         } else {
             buildExecutionSession.setStatus(BuildExecutionStatus.DONE);

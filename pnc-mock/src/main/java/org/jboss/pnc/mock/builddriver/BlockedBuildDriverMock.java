@@ -18,7 +18,7 @@
 package org.jboss.pnc.mock.builddriver;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.common.util.RandomUtils;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -27,19 +27,19 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 /**
+ * Build is never completed, cancel must be called.
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
  */
-public class BuildDriverMock extends BuildDriverBase implements BuildDriver {
+public class BlockedBuildDriverMock extends BuildDriverBase implements BuildDriver {
 
-    public static final Logger log = Logger.getLogger(BuildDriverMock.class);
+    public static final Logger log = Logger.getLogger(BlockedBuildDriverMock.class);
 
-    @Override
-    public String getDriverId() {
-        return "termd-build-driver";
-    }
+    Semaphore semaphore = new Semaphore(0);
 
     protected RunningBuild createRunningBuild(final RunningEnvironment runningEnvironment) {
         return new RunningBuild() {
@@ -51,14 +51,17 @@ public class BuildDriverMock extends BuildDriverBase implements BuildDriver {
 
             @Override
             public void cancel() {
-                throw new UnsupportedOperationException("Not implmented in mock driver");
+                log.info("Cancelling blocked build...");
+                semaphore.release();
             }
         };
     }
 
     protected void complete(BuildExecutionSession buildExecutionSession, final RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete) throws InterruptedException {
-        Thread.sleep(RandomUtils.randInt(100, 300));
-        setBuildStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
+        log.info("Running blocked build ...");
+        semaphore.acquire();
+        setBuildStatus(TestProjectConfigurationBuilder.CANCEL);
+        log.info("Blocked build canceled.");
 
         onComplete.accept(new CompletedBuild() {
             @Override
@@ -73,4 +76,8 @@ public class BuildDriverMock extends BuildDriverBase implements BuildDriver {
         });
     }
 
+    @Override
+    public String getDriverId() {
+        return "termd-build-driver";
+    }
 }
