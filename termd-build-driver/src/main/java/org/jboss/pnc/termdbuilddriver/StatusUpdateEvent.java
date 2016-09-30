@@ -15,25 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.termdbuilddriver;
 
-package org.jboss.pnc.spi.executor;
-
-import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-
-import java.util.function.Consumer;
+import org.jboss.pnc.buildagent.api.Status;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface BuildExecutor {
+public class StatusUpdateEvent {
 
-    BuildExecutionSession startBuilding(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException;
+    private final TermdRunningBuild runningBuild;
 
-    BuildExecutionSession getRunningExecution(int buildExecutionTaskId);
+    private final Status newStatus;
 
-    void shutdown();
+    public StatusUpdateEvent(TermdRunningBuild runningBuild, Status newStatus) {
+        this.runningBuild = runningBuild;
+        this.newStatus = newStatus;
+    }
 
-    void cancel(Integer executionConfigurationId) throws ExecutorException;
+    public TermdRunningBuild getRunningBuild() {
+        return runningBuild;
+    }
+
+    public Status getNewStatus() {
+        return newStatus;
+    }
 
 }

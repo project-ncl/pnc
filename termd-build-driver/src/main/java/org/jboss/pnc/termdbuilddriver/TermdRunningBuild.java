@@ -18,10 +18,8 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
-import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.slf4j.Logger;
@@ -42,7 +40,14 @@ public class TermdRunningBuild implements RunningBuild {
     private Consumer<CompletedBuild> onComplete;
     private Consumer<Throwable> onError;
 
-    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
+    private Runnable cancelHook;
+    private boolean cancelRequested = false;
+
+    public TermdRunningBuild(
+            RunningEnvironment runningEnvironment,
+            BuildExecutionConfiguration buildExecutionConfiguration,
+            Consumer<CompletedBuild> onComplete,
+            Consumer<Throwable> onError) {
         this.runningEnvironment = runningEnvironment;
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onComplete = onComplete;
@@ -64,16 +69,12 @@ public class TermdRunningBuild implements RunningBuild {
     }
 
     @Override
-    public void cancel() throws BuildDriverException {
-        //TODO cancel at any step (if we are not in the running execution the execution is not canceled)
-        try {
-            if (buildAgentClient != null) {
-                buildAgentClient.executeNow('C' - 64); //send ctrl+C
-            } else {
-                logger.warn("Cannot cancel build at his point. It loks like there is no running build. TBD.");
-            }
-        } catch (BuildAgentClientException e) {
-            throw new BuildDriverException("Cannot cancel the execution.", e);
+    public synchronized void cancel() {
+        cancelRequested = true;
+        if (cancelHook != null) {
+            cancelHook.run();
+        } else {
+            logger.warn("Trying to cancel operation while no cancel hook is defined.");
         }
     }
 
@@ -99,5 +100,13 @@ public class TermdRunningBuild implements RunningBuild {
 
     public Optional<BuildAgentClient> getBuildAgentClient() {
         return Optional.ofNullable(buildAgentClient);
+    }
+
+    public synchronized void setCancelHook(Runnable cancelHook) {
+        this.cancelHook = cancelHook;
+    }
+
+    public boolean isCanceled() {
+        return cancelRequested;
     }
 }

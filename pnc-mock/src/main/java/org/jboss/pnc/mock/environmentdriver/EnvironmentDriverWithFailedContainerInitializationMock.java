@@ -59,6 +59,11 @@ public class EnvironmentDriverWithFailedContainerInitializationMock implements E
             public String getId() {
                 return null;
             }
+
+            @Override
+            public void cancel() {
+
+            }
         };
 
     }

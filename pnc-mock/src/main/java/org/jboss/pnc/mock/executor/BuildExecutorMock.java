@@ -125,4 +125,9 @@ public class BuildExecutorMock implements BuildExecutor {
     public void shutdown() {
 
     }
+
+    @Override
+    public void cancel(Integer executionConfigurationId) throws ExecutorException {
+
+    }
 }

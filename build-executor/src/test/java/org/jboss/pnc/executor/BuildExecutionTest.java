@@ -18,10 +18,8 @@
 
 package org.jboss.pnc.executor;
 
-import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -35,10 +33,8 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,14 +43,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 
 import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_DESTROYED;
 import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_DESTROYING;
@@ -64,17 +57,12 @@ import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @RunWith(Arquillian.class)
-public class BuildExecutionTest {
+public class BuildExecutionTest extends BuildExecutionBase {
 
     private static final Logger log = LoggerFactory.getLogger(BuildExecutionTest.class);
 
     @Inject
     TestProjectConfigurationBuilder configurationBuilder;
-
-    @Deployment
-    public static JavaArchive createDeployment() {
-        return BuildExecutorDeployments.deployment();
-    }
 
     @Inject
     RepositoryManagerFactory repositoryManagerFactory;
@@ -85,18 +73,11 @@ public class BuildExecutionTest {
     @Inject
     BuildDriverFactory buildDriverFactory;
 
-    BuildExecutionStatus[] baseBuildStatuses = {
-            BuildExecutionStatus.NEW,
-            BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-            BuildExecutionStatus.BUILD_ENV_WAITING,
-            BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-            BuildExecutionStatus.REPO_SETTING_UP,
-            BuildExecutionStatus.BUILD_SETTING_UP,
-            BuildExecutionStatus.BUILD_WAITING,
-            BUILD_ENV_DESTROYING,
-            BUILD_ENV_DESTROYED,
-            BuildExecutionStatus.FINALIZING_EXECUTION,
-    };
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return BuildExecutorDeployments.deployment();
+    }
+
 
     @Test
     public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
@@ -129,17 +110,6 @@ public class BuildExecutionTest {
 
     }
 
-    private List<BuildExecutionStatus> getBuildExecutionStatusesSuccess() {
-        List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
-        expectedStatuses.add(BuildExecutionStatus.DONE);
-        expectedStatuses.add(BuildExecutionStatus.BUILD_COMPLETED_SUCCESS);
-        return expectedStatuses;
-    }
-
-    private ArrayList<BuildExecutionStatus> getBuildExecutionStatusesBase() {
-        return new ArrayList<>(Arrays.asList(baseBuildStatuses));
-    }
-
     @Test
     public void buildShouldFail() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
         BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(2, "failed-build", null);
@@ -155,17 +125,6 @@ public class BuildExecutionTest {
         checkBuildStatuses(statusChangedEvents, expectedStatuses);
     }
 
-    private void checkBuildStatuses(Set<BuildExecutionStatusChangedEvent> statusChangedEvents, List<BuildExecutionStatus> expectedStatuses) {
-        expectedStatuses.forEach(expectedStatus -> {
-            try {
-                Wait.forCondition(() -> contains(statusChangedEvents, expectedStatus), 1, ChronoUnit.SECONDS, "Did not receive expected status " + expectedStatus.toString());
-            } catch (Exception e) {
-                log.error("Error in tests execution.", e);
-                Assert.fail(e.getMessage());
-            }
-        });
-    }
-
     @Test
     public void shouldNotContinueBuildOnMavenError() throws ExecutorException, InterruptedException, TimeoutException {
         BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(3, "build-failed-on-maven", null);
@@ -179,51 +138,4 @@ public class BuildExecutionTest {
         assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
     }
 
-    private void assertNoState(Set<BuildExecutionStatusChangedEvent> statusEvents, BuildExecutionStatus state) {
-        Assertions.assertThat(statusEvents.stream().anyMatch(e -> e.getNewStatus() == state)).isFalse();
-    }
-
-    private void runBuild(BuildConfiguration buildConfiguration,
-                          Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
-                          ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
-        DefaultBuildExecutor executor = new DefaultBuildExecutor(
-                repositoryManagerFactory,
-                buildDriverFactory,
-                environmentDriverFactory,
-                new Configuration()
-        );
-
-        Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
-            log.debug("Received execution status update {}.", statusChangedEvent);
-            statusChangedEvents.add(statusChangedEvent);
-
-            if (statusChangedEvent.getNewStatus().isCompleted()) {
-                BuildResult buildResult = statusChangedEvent.getBuildResult().get();
-                if (buildResult.hasFailed()) {
-                    log.error("Build execution failed.", buildResult.getException());
-                }
-
-                buildExecutionResultWrapper.set(buildResult);
-            }
-        };
-
-        BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
-                1,
-                "build-content-id",
-                1,
-                buildConfiguration.getBuildScript(),
-                buildConfiguration.getName(),
-                buildConfiguration.getScmRepoURL(),
-                buildConfiguration.getScmRevision(),
-                buildConfiguration.getBuildEnvironment().getSystemImageId(),
-                buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
-                buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                false);
-
-        executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
-    }
-
-    private boolean contains(Set<BuildExecutionStatusChangedEvent> statusChangedEvents, BuildExecutionStatus status) {
-        return statusChangedEvents.stream().anyMatch(event -> event.getNewStatus().equals(status));
-    }
 }

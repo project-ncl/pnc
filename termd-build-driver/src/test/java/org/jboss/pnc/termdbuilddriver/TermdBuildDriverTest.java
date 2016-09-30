@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -27,7 +28,6 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,9 +101,8 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory().resolve(dirName))).isTrue();
     }
 
-    @Ignore
-    @Test(timeout = 15_000)
-    public void shouldStartAndCancelTheCommand() throws ConfigurationParseException, BuildDriverException, InterruptedException {
+    @Test(timeout = 5_000)
+    public void shouldStartAndCancelTheExecutionImmediately() throws ConfigurationParseException, BuildDriverException, InterruptedException {
         //given
         String dirName = "test-workdir";
         String logStart = "Running the command...";
@@ -131,6 +130,47 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
 
         runningBuild.cancel();
+
+        latch.await();
+
+        //then
+        assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
+        assertThat(buildResult.get().getBuildResult().getBuildStatus()).isEqualTo(CANCELLED);
+    }
+
+    @Test(timeout = 5_000)
+    public void shouldStartAndCancelWhileExecutingCommand() throws ConfigurationParseException, BuildDriverException, InterruptedException {
+        //given
+        String dirName = "test-workdir";
+        String logStart = "Running the command...";
+        String logEnd = "Command completed.";
+
+        TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
+        Consumer<StatusUpdateEvent> cancelOnBuildStart = (statusUpdateEvent) -> {
+            if (Status.RUNNING.equals(statusUpdateEvent.getNewStatus())) {
+                statusUpdateEvent.getRunningBuild().cancel();
+            }
+        };
+        driver.addStatusUpdateConsumer(cancelOnBuildStart);
+        BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+        doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
+        doReturn(dirName).when(buildExecutionConfiguration).getName();
+        doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
+
+        AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
+
+        //when
+        CountDownLatch latch = new CountDownLatch(1);
+        Consumer<CompletedBuild> onComplete = (completedBuild) -> {
+            buildResult.set(completedBuild);
+            latch.countDown();
+        };
+        Consumer<Throwable> onError = (throwable) -> {
+            logger.error("Error received: ", throwable);
+            fail(throwable.getMessage());
+        };
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
 
         latch.await();
 

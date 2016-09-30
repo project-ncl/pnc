@@ -48,9 +48,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 /**
@@ -83,6 +85,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private final boolean createRoute;
 
+    private Runnable cancelHook;
+    private boolean cancelRequested = false;
+
+    Optional<Future> creatingPod = Optional.empty();
+    Optional<Future> creatingService = Optional.empty();
+    Optional<Future> creatingRoute = Optional.empty();
 
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
@@ -132,7 +140,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 logger.error("Cannot create pod.", e);
             }
         };
-        executor.submit(createPod);
+        creatingPod = Optional.of(executor.submit(createPod));
 
         ModelNode serviceConfigurationNode = createModelNode(Configurations.PNC_BUILDER_SERVICE.getContentAsString(), runtimeProperties);
         service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
@@ -145,7 +153,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 logger.error("Cannot create service.", e);
             }
         };
-        executor.submit(createService);
+        creatingService = Optional.of(executor.submit(createService));
 
         if (createRoute) {
             ModelNode routeConfigurationNode = createModelNode(Configurations.PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
@@ -159,7 +167,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     logger.error("Cannot create route.", e);
                 }
             };
-            executor.submit(createRoute);
+            creatingRoute = Optional.of(executor.submit(createRoute));
         }
     }
 
@@ -197,6 +205,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 onError.accept(e);
             }
         };
+
+        cancelHook = () -> onComplete.accept(null);
 
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, this::isPodRunning);
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, this::isServiceRunning);
@@ -314,6 +324,22 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     @Override
     public String getId() {
         return pod.getName();
+    }
+
+    @Override
+    public void cancel() {
+        cancelRequested = true;
+
+        creatingPod.ifPresent(f -> f.cancel(false));
+        creatingService.ifPresent(f -> f.cancel(false));
+        creatingRoute.ifPresent(f -> f.cancel(false));
+
+        if (cancelHook != null) {
+            cancelHook.run();
+        } else {
+            logger.warn("Trying to cancel operation while no cancel hook is defined.");
+        }
+        destroyEnvironment();
     }
 
     @Override
