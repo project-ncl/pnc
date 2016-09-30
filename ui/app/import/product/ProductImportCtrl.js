@@ -27,10 +27,10 @@
     'TreeFactory',
     '$scope',
     '$timeout',
-    'Notifications',
+    'pncNotify',
     '$state',
     'ProductVersionDAO',
-    function ($log, productImport, TreeFactory, scope, $timeout, Notifications, $state, ProductVersionDAO) {
+    function ($log, productImport, TreeFactory, scope, $timeout, pncNotify, $state, ProductVersionDAO) {
 
       scope.started = false;
       scope.display = 'start';
@@ -319,7 +319,7 @@
       scope.startProcess = function () {
         scope.startSubmitDisabled = true;
         scope.startTooltipIsOpen = false;
-        Notifications.info('Preparing analysis. This may take a minute, please be patient.');
+        pncNotify.info('Preparing analysis. This may take a minute, please be patient.');
         productImport.start(scope.startData).then(function (r) {
           if (_(r).has('id')) {
             data = r;
@@ -331,11 +331,11 @@
             scope.display = 'bc';
             tree._refresh();
           } else {
-            Notifications.error('Something went wrong. Make sure that you entered correct data.');
+            pncNotify.error('Something went wrong. Make sure that you entered correct data.');
           }
         }, function(error) {
           $log.error('Error starting import process: %s', JSON.stringify(error, null, 2));
-          Notifications.error('RPC Server Error ' + error.code + ': ' + error.message);
+          pncNotify.error('RPC Server Error ' + error.code + ': ' + error.message);
           scope.startTooltipIsOpen = true;
         }).finally(function() {
           scope.startSubmitDisabled = false;
@@ -349,7 +349,7 @@
         node.select();
         node.nodeData.selected = true;
         data = parseTree(tree);
-        Notifications.info('Analyzing \'' + node.gavString + '\'. This may take a minute, please be patient.');
+        pncNotify.info('Analyzing \'' + node.gavString + '\'. This may take a minute, please be patient.');
         productImport.nextLevel(data).then(function (r) {
           if (_(r).has('id')) {
             data = r;
@@ -358,19 +358,19 @@
               tree.nodes[0].select();
               node.select();
               node.expand();
-              Notifications.success('Successfully analyzed ' + (_.isUndefined(node.nodes) ? 0 : node.nodes.length) + ' dependencies for \'' + node.gavString + '\'.');
+              pncNotify.success('Successfully analyzed ' + (_.isUndefined(node.nodes) ? 0 : node.nodes.length) + ' dependencies for \'' + node.gavString + '\'.');
             } else {
-              Notifications.warn('Could not find dependencies of \'' + node.gavString + '\' in a repository.');
+              pncNotify.warn('Could not find dependencies of \'' + node.gavString + '\' in a repository.');
             }
           } else {
             node.nlaSuccessful = false;
             tree.nodes[0].select();
             node.select();
-            Notifications.error('Could not analyze \'' + node.gavString + '\'. Check that the information in the form is correct.');
+            pncNotify.error('Could not analyze \'' + node.gavString + '\'. Check that the information in the form is correct.');
           }
         }, function(error) {
           $log.error('Remote error analyzing next level: ' + JSON.stringify(error, null, 2));
-          Notifications.error('Error analyzing next level: ' + error.message);
+          pncNotify.error('Error analyzing next level: ' + error.message);
         });
       };
 
@@ -383,32 +383,32 @@
 
       scope.finishProcess = function () {
         if(_.isUndefined(tree.nodes[0].state) || tree.nodes[0].state.checked !== true) {
-          Notifications.warn('You have to select at least one BC.');
+          pncNotify.warn('You have to select at least one BC.');
           return;
         }
         data = parseTreeFinish(tree);
         if (validateTree(tree)) {
           scope.finishSubmitDisabled = true;
           scope.finishTooltipIsOpen = false;
-          Notifications.info('Product is being imported. This may take a minute, please be patient.');
+          pncNotify.info('Product is being imported. This may take a minute, please be patient.');
           productImport.finish(data).then(function (r) {
             if(r.success) {
-              Notifications.success('Product import completed!');
+              pncNotify.success('Product import completed!');
               scope.reset();
               goToProductVersion(r.productVersionId);
             } else {
-              Notifications.error('Product import failed. ' + r.message);
+              pncNotify.error('Product import failed. ' + r.message);
             }
           }, function(error) {
             $log.error('Remote error finishing import process: ' + JSON.stringify(error, null, 2));
-            Notifications.error('Product import failed: ' + error.message);
+            pncNotify.error('Product import failed: ' + error.message);
             scope.finishTooltipIsOpen = true;
           }).finally(function() {
             scope.finishSubmitDisabled = false;
           });
         } else {
           tree._refresh();
-          Notifications.warn('Some data is invalid or missing. Verify all checked BCs.');
+          pncNotify.warn('Some data is invalid or missing. Verify all checked BCs.');
         }
       };
 

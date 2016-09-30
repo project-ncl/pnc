@@ -33,6 +33,7 @@
     'pnc.milestone',
     'pnc.release',
     'pnc.common.directives',
+    'pnc.common.notifications',
     'pnc.common.websockets',
     'pnc.common.events',
     'pnc.configuration-set-record',

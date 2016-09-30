@@ -44,9 +44,9 @@
     'eventTypes',
     'BuildRecordDAO',
     'authService',
-    'Notifications',
+    'pncNotify',
     function($log, $rootScope, webSocketBus, eventTypes, BuildRecordDAO,
-             authService, Notifications) {
+             authService, pncNotify) {
       var scope = $rootScope.$new();
 
       //TODO: When backend functionality is available these notifications
@@ -58,7 +58,7 @@
         $log.debug('BUILD_STARTED_EVENT: payload=%O', JSON.stringify(payload));
 
         authService.forUserId(payload.userId).then(function() {
-          Notifications.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');
+          pncNotify.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');
         });
       });
 
@@ -70,18 +70,18 @@
 
         authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'REJECTED') {
-            Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.');
+            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.');
           } else if (payload.buildCoordinationStatus === 'REJECTED_ALREADY_BUILT') {
-            Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.');
+            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.');
           } else if (payload.buildCoordinationStatus === 'SYSTEM_ERROR') {
-            Notifications.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.');
+            pncNotify.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.');
           } else {
             BuildRecordDAO.get({recordId: payload.id}).$promise.then(
               function (result) {
                 if (result.status === 'BUILD_COMPLETED' || result.status === 'DONE' || result.status === 'SUCCESS') {
-                  Notifications.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed');
+                  pncNotify.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed');
                 } else {
-                  Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed');
+                  pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed');
                 }
               }
             );
