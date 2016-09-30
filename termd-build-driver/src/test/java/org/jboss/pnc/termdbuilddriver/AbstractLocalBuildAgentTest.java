@@ -18,6 +18,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.server.BuildAgent;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,6 +45,8 @@ public class AbstractLocalBuildAgentTest {
 
     private static Logger log = LoggerFactory.getLogger(AbstractLocalBuildAgentTest.class);
 
+    private org.jboss.pnc.spi.builddriver.DebugData debugData = new DebugData(false);
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         workingDirectory = Files.createTempDirectory("termd-build-agent");
@@ -67,6 +70,7 @@ public class AbstractLocalBuildAgentTest {
         when(localEnvironmentPointer.getBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getInternalBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getWorkingDirectory()).thenReturn(workingDirectory);
+        when(localEnvironmentPointer.getDebugData()).thenReturn(debugData);
     }
 
 }

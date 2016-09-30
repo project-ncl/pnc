@@ -43,7 +43,11 @@ public class TermdRunningBuild implements RunningBuild {
     private Runnable cancelHook;
     private boolean cancelRequested = false;
 
-    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
+    public TermdRunningBuild(
+            RunningEnvironment runningEnvironment,
+            BuildExecutionConfiguration buildExecutionConfiguration,
+            Consumer<CompletedBuild> onComplete,
+            Consumer<Throwable> onError) {
         this.runningEnvironment = runningEnvironment;
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onComplete = onComplete;
