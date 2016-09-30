@@ -25,8 +25,8 @@
    * @author Jakub Senko
    */
   module.directive('productImportBCForm', [
-    'Notifications',
-    function (Notifications) {
+    'pncNotify',
+    function (pncNotify) {
 
       return {
         restrict: 'E',
@@ -39,8 +39,8 @@
 
           var setFormDirty = function() {
             angular.forEach(scope.bcForm.$error.required, function(field) {
-              field.$setTouched();  
-              field.$setDirty(); 
+              field.$setTouched();
+              field.$setDirty();
             });
           };
 
@@ -58,7 +58,7 @@
               if (!scope.bcForm.$valid || scope.data.environmentId === null || scope.data.projectId === null) {
                 valid = false;
                 setFormDirty();
-                Notifications.warn('Some data is invalid or missing. Verify that form for ' +
+                pncNotify.warn('Some data is invalid or missing. Verify that form for ' +
                   scope.node.gavString + ' is correctly filled in.');
               }
             }

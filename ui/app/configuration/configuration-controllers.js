@@ -34,7 +34,7 @@
     '$log',
     '$state',
     '$filter',
-    'Notifications',
+    'pncNotify',
     'ProductDAO',
     'BuildConfigurationDAO',
     'BuildConfigurationSetDAO',
@@ -46,7 +46,7 @@
     'configurations',
     'configurationSetList',
     'linkedConfigurationSetList',
-    function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
+    function($log, $state, $filter, pncNotify, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
       configurationDetail, environments, products,
       linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList) {
 

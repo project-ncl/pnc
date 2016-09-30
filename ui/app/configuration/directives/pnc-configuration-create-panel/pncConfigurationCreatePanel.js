@@ -24,7 +24,7 @@
   module.directive('pncConfigurationCreatePanel', [
     function () {
       
-      function PncConfigurationCreateController($log, $state, $filter, $scope, Notifications, 
+      function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify, 
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
 
         // Selection of Product Versions.
@@ -86,7 +86,7 @@
 
             // success
             function(result) {
-              // Saving the BuildConfig link into the BuildGroupConfig 
+              // Saving the BuildConfig link into the BuildGroupConfig
               _.each($scope.buildgroupconfigs.selected, function(buildgroupconfig) {
                 buildgroupconfig.buildConfigurationIds.push(result.id);
                 buildgroupconfig.$update();
@@ -94,7 +94,7 @@
 
               if (_.isUndefined($scope.fixedProject)) {
                 $state.go('configuration.list');
-                Notifications.success('Build configuration will be created in a few minutes.');
+                pncNotify.success('Build configuration will be created in a few minutes.');
               } else {
                 $state.go('project.detail', {
                   projectId: $scope.data.project.id

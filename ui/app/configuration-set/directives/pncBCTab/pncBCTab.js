@@ -29,9 +29,9 @@
     '$state',
     'BuildConfigurationSetDAO',
     'BuildRecordDAO',
-    'Notifications',
+    'pncNotify',
     'eventTypes',
-    function ($log, $state, BuildConfigurationSetDAO, BuildRecordDAO, Notifications, eventTypes) {
+    function ($log, $state, BuildConfigurationSetDAO, BuildRecordDAO, pncNotify, eventTypes) {
 
       return {
         restrict: 'E',
@@ -89,7 +89,7 @@
 
           scope.delete = function(bc) {
             bc.$delete().$promise.then(function() {
-              Notifications.success('Build configuration deleted.');
+              pncNotify.success('Build configuration deleted.');
             });
           };
         }

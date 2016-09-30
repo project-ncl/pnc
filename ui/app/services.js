@@ -34,14 +34,14 @@
   app.factory('httpResponseInterceptor', [
     '$q',
     '$log',
-    'Notifications',
+    'pncNotify',
     'keycloak',
-    function($q, $log, Notifications, keycloak) {
+    function($q, $log, pncNotify, keycloak) {
 
       function defaultSuccessNotification(response) {
         if (response.config.method !== 'GET') {
           $log.debug('HTTP response: %O', response);
-          Notifications.success('Request successful');
+          pncNotify.success('Request successful');
         }
       }
 
@@ -53,7 +53,7 @@
         if (rejection && rejection.data && rejection.data.errorMessage) {
           error = rejection.data;
         } else {
-          Notifications.error('PNC REST Api returned an error in an invalid format: ' + rejection.status + ' ' + rejection.statusText);
+          pncNotify.error('PNC REST Api returned an error in an invalid format: ' + rejection.status + ' ' + rejection.statusText);
           $log.error('PNC REST Api returned an error in an invalid format: response: %O', rejection);
           return rejection;
         }
@@ -62,7 +62,7 @@
           error.errorMessage = error.errorMessage.substring(0, MAX_NOTIFICATION_LENGTH -1) + ' ...';
         }
 
-        Notifications.error(error.errorMessage);
+        pncNotify.error(error.errorMessage);
         $log.error('PNC REST API returned the following error: type: "%s", message: "%s", details: "%s"',
             error.errorType, error.errorMessage, error.details);
 
@@ -78,7 +78,7 @@
           } else if (angular.isFunction(notify)) {
             notify(response);
           } else if (angular.isString(notify)) {
-            Notifications.success(notify);
+            pncNotify.success(notify);
           }
 
           return response;
@@ -87,13 +87,13 @@
         responseError: function(rejection) {
           switch(rejection.status) {
             case 0:
-              Notifications.error('Unable to connect to server');
+              pncNotify.error('Unable to connect to server');
               break;
             case 401:
               keycloak.login();
               break;
             case 404:
-              Notifications.error('Requested resource not found');
+              pncNotify.error('Requested resource not found');
               break;
             default:
               handleError(rejection);

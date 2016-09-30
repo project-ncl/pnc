@@ -26,8 +26,8 @@
    */
   module.directive('createProjectModal', [
     'ProjectDAO',
-    'Notifications',
-    function (ProjectDAO, Notifications) {
+    'pncNotify',
+    function (ProjectDAO, pncNotify) {
       return {
         restrict: 'E',
         templateUrl: 'import/product/directive/CreateProjectModal/create-project-modal.html',
@@ -39,9 +39,9 @@
             if (scope.projectForm.$valid) {
               new ProjectDAO(_(scope.data).clone()).$save().then(function (result) {
                 if (_(result).has('errorMessage')) {
-                  Notifications.error(result.errorMessage);
+                  pncNotify.error(result.errorMessage);
                 } else {
-                  Notifications.success('Project \'' + result.name + '\' created.');
+                  pncNotify.success('Project \'' + result.name + '\' created.');
                   $('#projectCreateModal').modal('hide');
                   scope.$emit('projectCreated', {project: result});
                 }

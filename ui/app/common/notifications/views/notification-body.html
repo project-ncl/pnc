@@ -1,0 +1,67 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div ng-if="!drawerExpanded">
+
+  <!-- show kebab menu for menuActions -->
+  <div class="dropdown pull-right dropdown-kebab-pf"
+       ng-if="notification.menuActions && notification.menuActions.length > 0">
+    <button class="btn btn-link dropdown-toggle"
+            type="button" id="dropdownKebabRight"
+            data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="true">
+      <span class="fa fa-ellipsis-v"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownKebabRight">
+      <li ng-repeat="menuAction in notification.menuActions" role="menuitem"
+          ng-class="{'divider': menuAction.isSeparator === true, 'disabled': menuAction.isDisabled === true}">
+        <a ng-if="menuAction.isSeparator !== true"
+           class="secondary-action ng-binding ng-scope"
+           title="{{menuAction.title}}"
+           ng-click="menuAction.actionFn()">
+          {{menuAction.name}}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- show link for actionTitle -->
+  <div class="pull-right toast-pf-action ng-scope"
+       ng-if="notification.actionTitle">
+    <a ng-click="notification.actionCallback()" class="ng-binding">{{ notification.actionTitle }}</a>
+  </div>
+
+  <!-- show status icon -->
+  <span ng-if="notification.type"
+        class="{{'pull-left ' + customScope.getNotficationStatusIconClass(notification)}}"
+        ng-click="customScope.markRead(notification)">
+  </span>
+
+  <!-- show message -->
+  <span class="drawer-pf-notification-message"
+        ng-click="customScope.markRead(notification)">
+    {{notification.message}}
+  </span>
+
+  <!-- show date of notification -->
+  <div class="drawer-pf-notification-info" ng-click="customScope.markRead(notification)">
+    <span class="date">{{notification.timeStamp | date:'mediumDate'}}</span>
+    <span class="time">{{notification.timeStamp | date:'mediumTime'}}</span>
+  </div>
+</div>

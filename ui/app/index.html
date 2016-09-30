@@ -101,8 +101,32 @@
       </div>
       <div class="collapse navbar-collapse navbar-collapse-1">
         <!-- user menu -->
-          <ul class="nav navbar-nav navbar-utility" ng-controller="authenticationController as authCtrl">
-            <li class="dropdown" ng-show="authCtrl.isAuthenticated()">
+          <ul class="nav navbar-nav navbar-utility">
+            <!-- notification bell -->
+            <li class="drawer-pf-trigger dropdown" ng-controller="pncDrawerNotificationController">
+              <a class="nav-item-iconic drawer-pf-trigger-icon" ng-click="toggleShowDrawer()">
+                <span class="fa" ng-class="hasDrawerNotifications() ? 'fa-bell': 'fa-bell-o'" title="Notifications"></span>
+              </a>
+              <!-- show notification drawer -->
+              <div class="layout-pf-fixed">
+                <div class="navbar-pf-vertical">
+                  <div pf-notification-drawer
+                       drawer-hidden="hideDrawer"
+                       drawer-title="Notifications Drawer"
+                       allow-expand="true"
+                       action-button-title="Mark All Read"
+                       action-button-callback="markAllAsRead"
+                       notification-groups="groups"
+                       heading-include="common/notifications/views/heading.html"
+                       subheading-include="common/notifications/views/subheading.html"
+                       notification-body-include="common/notifications/views/notification-body.html"
+                       notification-footer-include="common/notifications/views/notification-footer-include.html"
+                       custom-scope="customScope">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li ng-controller="authenticationController as authCtrl" class="dropdown" ng-show="authCtrl.isAuthenticated()">
               <a href class="dropdown-toggle" data-toggle="dropdown">
                 <span class="pficon pficon-user"></span>{{ authCtrl.username }}<b class="caret"></b>
               </a>
@@ -158,11 +182,16 @@
         </ul>
       </div>
     </nav>
+
+
     <div ng-show="::false" class="notification-area text-right">
       <span class="pficon spinner spinner-md spinner-inline"></span>
     </div>
     <div class="notification-area">
-        <pf-notification-list></pf-notification-list>
+
+      <div ng-controller="pncToastNotificationController">
+        <div pf-toast-notification-list notifications="notifications" show-close="true" close-callback="handleClose"></div>
+      </div>
     </div>
 
     <div class="container-fluid" ng-cloak>
