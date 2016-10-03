@@ -173,6 +173,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         nullableStreamOf(this.getProductMilestones()).forEach(milestone -> {
             builder.productMilestone(ProductMilestone.Builder.newBuilder().id(milestone.getId()).build());
         });
+        nullableStreamOf(this.getBuildConfigurationSets()).forEach(set ->
+                builder.buildConfigurationSet(BuildConfigurationSet.Builder.newBuilder().id(set.getId()).build()));
 
         return builder;
     }
