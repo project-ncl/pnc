@@ -63,16 +63,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     @Setter
     private String scmExternalRevision;
 
-    @Deprecated // no longer used
-    @Getter
-    @Setter
-    private String scmMirrorRepoURL;
-
-    @Deprecated // no longer used
-    @Getter
-    @Setter
-    private String scmMirrorRevision;
-
     private Date creationTime;
 
     private Date lastModificationTime;

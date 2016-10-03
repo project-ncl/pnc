@@ -68,17 +68,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     @Setter
     private String scmExternalRevision;
 
-    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @Deprecated // no longer used
-    @Getter
-    @Setter
-    private String scmMirrorRepoURL;
-
-    @Deprecated // no longer used
-    @Getter
-    @Setter
-    private String scmMirrorRevision;
-
     private Date creationTime;
 
     private Date lastModificationTime;
