@@ -259,11 +259,4 @@ public class RSQLNodeTravellerPredicate<Entity> {
         return result;
     }
 
-//    private String[] parseList(String rsqlList) {
-//        if (!rsqlList.startsWith("(") || !rsqlList.endsWith(")")) {
-//            throw new IllegalArgumentException("Invalid list format");
-//        }
-//
-//        return rsqlList.substring(1, rsqlList.length() - 1).split(",");
-//    }
 }
