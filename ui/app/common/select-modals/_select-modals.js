@@ -19,7 +19,8 @@
   'use strict';
 
   angular.module('pnc.common.select-modals', [
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'pnc.common.pnc-client'
   ]);
 
 })();

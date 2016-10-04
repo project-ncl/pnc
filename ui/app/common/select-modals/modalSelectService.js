@@ -31,10 +31,10 @@
        *  title {String} - The title to display in the modal window
        *  selected {Array} - An array of BuildGroups that are initially selected.
        */
-      this.openForBuildGroup = function (config) {
+      this.openForBuildGroups = function (config) {
         var modal = $modal.open({
           animation: true,
-          size: 'lg',
+          size: 'md',
           templateUrl: 'common/select-modals/build-group-multi-select.html',
           controller: 'BuildGroupMultiSelectController',
           controllerAs: 'ctrl',
@@ -52,6 +52,32 @@
 
         return modal;
       };
+
+      /**
+       *
+       *
+       */
+       this.openForProductVersion = function (config) {
+         var modal = $modal.open({
+           animation: true,
+           size: 'md',
+           templateUrl: 'common/select-modals/product-version-single-select.html',
+           controller: 'ProductVersionSingleSelectController',
+           controllerAs: 'ctrl',
+           bindToController: true,
+           resolve: {
+             modalConfig: function () {
+               return $q.when(config);
+             }
+           },
+         });
+
+         modal.result.then(function () {
+           $rootScope.$evalAsync();
+         });
+
+         return modal;
+       };
     }
   ]);
 

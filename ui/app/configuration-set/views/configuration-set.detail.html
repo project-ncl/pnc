@@ -19,39 +19,47 @@
 -->
 <div>
   <pnc-header>
-    <pnc-header-title>{{ detailSetCtrl.set.name }}</pnc-header-title>
+    <pnc-header-title>Build Group</pnc-header-title>
     <pnc-header-buttons>
-      <div class="btn-group">
-        <button class="btn btn-lg btn-default ng-scope" tooltip="Start a build of this group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailSetCtrl.build()" pnc-requires-auth>
-          <i class="fa fa-play"></i>
-          <span class="shrink">Build</span>
-        </button>
-        <ul class="dropdown-menu"></ul>
-          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a href ng-click="detailSetCtrl.forceBuild()" tooltip="Start a build of this group, forcing a rebuild of any configurations that have already been successfully built" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-requires-auth><span><i class="fa fa-play fa-color-red"></i> Force Rebuild</span></a>
-            </li>
-          </ul>
-      </div>
+      <button class="btn btn-lg btn-default ng-scope" tooltip="Start a build of this group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailSetCtrl.build()" pnc-requires-auth>
+        <i class="fa fa-play"></i>
+        <span class="shrink">Build</span>
+      </button>
       <button type="button" class="btn btn-lg btn-default" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }" pnc-requires-auth>
         <i class="pficon pficon-edit"></i> Edit
       </button>
       <button ng-hide="true" type="button" class="btn btn-lg btn-danger" tooltip="Edit this Config Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}" pnc-requires-auth>
         <i class="pficon pficon-delete"></i> Delete
       </button>
+      <div class="btn-group dropdown dropdown-kebab-pf">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownKebab" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" pnc-requires-auth>
+          <span class="fa fa-ellipsis-v"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right" style="margin-right: 10px;" aria-labelledby="dropdownKebab">
+          <li>
+            <a href ng-click="detailSetCtrl.forceBuild()" tooltip="Start a build of this group, building all components including those that have already been successfully built" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-requires-auth>
+              <span><i class="fa fa-play fa-color-red"></i> Force Rebuild</span>
+            </a>
+          </li>
+          <li><a ng-click="detailSetCtrl.linkWithProductVersion()" ng-hide="detailSetCtrl.set.productVersionId" href><i class="fa fa-link" aria-hidden="true"></i> Link With Product Version</a></li>
+          <li><a ng-show="detailSetCtrl.set.productVersionId" pnc-confirm-click="detailSetCtrl.unlinkFromProductVersion()" pnc-confirm-message="{{ 'Are you sure you want to unlink ' + detailSetCtrl.set.name + ' from its product version?' }}" href><i class="fa fa-chain-broken" aria-hidden="true"></i> Unlink From Product Version</a></li>
+        </ul>
+      </div>
     </pnc-header-buttons>
   </pnc-header>
 
   <form editable-form class="form-horizontal" name="setEditForm" onbeforesave="detailSetCtrl.update()" novalidate>
     <div class="form-group" ng-class="{ 'has-error': setEditForm.name.$invalid && !setEditForm.name.$pristine, 'has-success': setEditForm.name.$valid && setEditForm.name.$touched }">
-      <label for="input-name" class="col-sm-1 control-label" ng-show="setEditForm.$visible">* Name</label>
-      <label for="input-name" class="col-sm-1 control-label" ng-show="!setEditForm.$visible">Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-class="{ 'required': setEditForm.$visible }">Name</label>
       <div class="col-sm-11">
         <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailSetCtrl.set.name" e-name="name" e-maxlength="255" e-required>{{ detailSetCtrl.set.name || 'Empty' }}</p>
         <span class="help-block" ng-show="setEditForm.name.$error.required && !setEditForm.name.$pristine">Required field.</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="product-version-name" class="col-sm-1 control-label">Product Version</label>
+      <div class="col-sm-11">
+        <p id="product-version-name" class="form-control-static" >{{ detailSetCtrl.getFullProductVersionName() }}</p>
       </div>
     </div>
     <div class="form-group" ng-show="setEditForm.$visible">

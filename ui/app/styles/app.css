@@ -181,3 +181,13 @@ label.required::before {
 .active > .hide-when-active {
   display: none;
 }
+
+@media (min-width: 1400px) {
+  .modal-xl {
+      width: 1260px;
+  }
+}
+
+.search-pf-input-group > .dropdown-menu {
+  width: 100%;
+}

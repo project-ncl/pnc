@@ -83,7 +83,7 @@
     'BuildConfigurationDAO',
     'BuildConfigurationSetDAO',
     function($log, $state, configurationSetDetail, projects,
-             BuildConfigurationDAO, BuildConfigurationSetDAO) {
+        BuildConfigurationDAO, BuildConfigurationSetDAO) {
 
       var self = this;
       self.configurationSetDetail = configurationSetDetail;
@@ -152,18 +152,21 @@
     'BuildRecordDAO',
     'BuildConfigurationSetDAO',
     'ProductVersionDAO',
+    'ProductVersion',
     'configurationSetDetail',
     'configurations',
     'records',
+    'productVersion',
     'previousState',
-    function($log, $state, BuildRecordDAO, BuildConfigurationSetDAO, ProductVersionDAO,
-             configurationSetDetail, configurations, records, previousState) {
-      var self = this;
+    'modalSelectService',
+    function($log, $state, BuildRecordDAO, BuildConfigurationSetDAO, ProductVersionDAO, ProductVersion,
+        configurationSetDetail, configurations, records, productVersion, previousState, modalSelectService) {
 
-      $log.debug('ConfigurationSetDetailController >> this=%O', self);
+      var self = this;
       self.set = configurationSetDetail;
       self.configurations = configurations;
       self.records = records;
+      self.productVersion = productVersion;
 
       // Build a wrapper object that contains all is needed (to avoid 'ng-repeat' in the pages)
       self.buildRecordArtifactsWO = [];
@@ -203,7 +206,7 @@
       });
 
       self.forceBuild = function() {
-        $log.debug('**Initiating FORCED build of SET: %s**', self.set.name);
+        $log.info('Initiating forced build of group: %', self.set.name);
 
         BuildConfigurationSetDAO.forceBuild({
           configurationSetId: self.set.id
@@ -211,7 +214,7 @@
       };
 
       self.build = function() {
-        $log.debug('**Initiating build of SET: %s**', self.set.name);
+        $log.info('Initiating build of group: %s', self.set.name);
 
         BuildConfigurationSetDAO.build({
           configurationSetId: self.set.id
@@ -220,7 +223,7 @@
 
       // Update a build configuration set after editing
       self.update = function() {
-        $log.debug('Updating configuration-set: %O', self.set);
+        $log.debug('Updating BuildConfigurationSet: %s', JSON.stringify(self.set));
         self.set.$update(
         ).then(
           function() {
@@ -255,6 +258,35 @@
         self.set.$delete().then(function() {
           // Attempt to fo to previous state
           $state.go(previousState.Name, previousState.Params);
+        });
+      };
+
+      self.getFullProductVersionName = function () {
+        if (_.isEmpty(self.productVersion)) {
+          return 'None';
+        }
+
+        return self.productVersion.productName + ': ' + self.productVersion.version;
+      };
+
+      self.linkWithProductVersion = function () {
+        var modal = modalSelectService.openForProductVersion({
+          title: 'Link ' + self.set.name + ' with a product version',
+          selected: self.set.productVersion
+        });
+
+        modal.result.then(function (result) {
+          self.set.productVersionId = result.id;
+          self.set.$update().then(function () {
+            self.productVersion = ProductVersion.get({ id: result.id });
+          });
+        });
+      };
+
+      self.unlinkFromProductVersion = function () {
+        self.set.productVersionId = null;
+        self.set.$update().then(function () {
+          self.productVersion = null;
         });
       };
     }

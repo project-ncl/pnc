@@ -20,19 +20,18 @@
 
   var module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('BUILD_CONFIGURATION_SET_PATH', '/build-configuration-sets/:id');
+  module.value('PRODUCT_PATH', '/products/:id');
 
   /**
    *
    * @author Alex Creasy
    */
-  module.factory('BuildConfigurationSet', [
+  module.factory('Product', [
     '$resource',
     'restConfig',
-    'BUILD_CONFIGURATION_SET_PATH',
-    'rsqlQuery',
-    function($resource, restConfig, BUILD_CONFIGURATION_SET_PATH, rsqlQuery) {
-      var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIGURATION_SET_PATH;
+    'PRODUCT_PATH',
+    function($resource, restConfig, PRODUCT_PATH) {
+      var ENDPOINT = restConfig.getPncUrl() + PRODUCT_PATH;
 
       var resource = $resource(ENDPOINT, {
         id: '@id'
@@ -44,25 +43,16 @@
         update: {
           method: 'PUT'
         },
-        queryBuildConfigurations: {
-          url: ENDPOINT + '/build-configurations',
+        queryProductVersion: {
+          url: ENDPOINT + 'product-versions',
           method: 'GET',
-          isPaged: true
+          isPaged: true,
         }
       });
-
-      /**
-       * Queries for all BuildConfigurationSets that are not linked to a
-       * product version.
-       */
-      resource.prototype.queryWithNoProductVersion = function () {
-        return resource.query( { q: rsqlQuery().where('productVersion').isNull().end() });
-      };
 
       return resource;
     }
 
   ]);
-
 
 })();
