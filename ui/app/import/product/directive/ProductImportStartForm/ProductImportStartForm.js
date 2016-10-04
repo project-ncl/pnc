@@ -44,7 +44,7 @@
               if(!scope.data.pomPath || scope.data.pomPath.length === 0) { scope.data.pomPath = './pom.xml'; }
               scope.onSubmit();
             } else {
-              _(scope.startForm).each(function (field) {
+              _.forEach(scope.startForm, function (field) {
                 if (_(field).has('$dirty') && field.$pristine) {
                   field.$dirty = true;
                 }
