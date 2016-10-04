@@ -77,7 +77,7 @@ public class EarlyCancellationTest extends BuildExecutionBase {
         BuildExecutionStatus[] expectedStatuses = {
                 BuildExecutionStatus.NEW,
                 BuildExecutionStatus.FINALIZING_EXECUTION,
-                BuildExecutionStatus.DONE_WITH_ERRORS
+                BuildExecutionStatus.CANCELED
         };
 
         BuildExecutionStatus[] unexpectedStatuses = {
@@ -91,7 +91,8 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
                 BuildExecutionStatus.BUILD_ENV_DESTROYING,
                 BuildExecutionStatus.BUILD_ENV_DESTROYED,
-                BuildExecutionStatus.DONE
+                BuildExecutionStatus.DONE,
+                BuildExecutionStatus.DONE_WITH_ERRORS
         };
 
         testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
@@ -110,7 +111,7 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 BuildExecutionStatus.BUILD_ENV_DESTROYING,
                 BuildExecutionStatus.BUILD_ENV_DESTROYED,
                 BuildExecutionStatus.FINALIZING_EXECUTION,
-                BuildExecutionStatus.DONE_WITH_ERRORS
+                BuildExecutionStatus.CANCELED
         };
 
         BuildExecutionStatus[] unexpectedStatuses = {
@@ -118,7 +119,8 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 BuildExecutionStatus.BUILD_WAITING,
                 BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
                 BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
-                BuildExecutionStatus.DONE
+                BuildExecutionStatus.DONE,
+                BuildExecutionStatus.DONE_WITH_ERRORS
         };
 
         testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);

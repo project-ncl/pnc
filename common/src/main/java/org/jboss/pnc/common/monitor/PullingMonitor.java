@@ -106,6 +106,10 @@ public class PullingMonitor {
         runningTaskReference.set(runningTask);
     }
 
+    public ScheduledFuture<?> timer(Runnable task, long delay, TimeUnit timeUnit) {
+        return executorService.schedule(task, delay, timeUnit);
+    }
+
     private void startTimeOutVerifierService() {
         Runnable terminateTimedOutTasks = () -> {
             runningTasks.parallelStream()

@@ -37,4 +37,6 @@ public interface BuildScheduler {
     void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException;
 
     String getId();
+
+    boolean cancel(BuildTask buildTask) throws CoreException;
 }

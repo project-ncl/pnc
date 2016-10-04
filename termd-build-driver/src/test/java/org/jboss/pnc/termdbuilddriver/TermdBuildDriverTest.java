@@ -147,6 +147,11 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
         TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
         Consumer<StatusUpdateEvent> cancelOnBuildStart = (statusUpdateEvent) -> {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                logger.error("Sleep interrupted.", e);
+            }
             if (Status.RUNNING.equals(statusUpdateEvent.getNewStatus())) {
                 statusUpdateEvent.getRunningBuild().cancel();
             }

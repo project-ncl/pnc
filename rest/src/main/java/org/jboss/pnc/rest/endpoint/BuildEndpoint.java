@@ -48,14 +48,20 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.SshCredentialsSingleton;
+import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.spi.SshCredentials;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -91,8 +97,11 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest> {
 
+    private static final Logger logger = LoggerFactory.getLogger(BuildEndpoint.class);
+
     private BuildRecordProvider buildRecordProvider;
     private EndpointAuthenticationProvider endpointAuthProvider;
+    private BuildTriggerer buildTriggerer;
 
     @Context
     private HttpServletRequest request;
@@ -102,10 +111,12 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     }
 
     @Inject
-    public BuildEndpoint(BuildRecordProvider buildRecordProvider, EndpointAuthenticationProvider endpointAuthProvider) {
+    public BuildEndpoint(BuildRecordProvider buildRecordProvider, EndpointAuthenticationProvider endpointAuthProvider,
+            BuildTriggerer buildTriggerer) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.endpointAuthProvider = endpointAuthProvider;
+        this.buildTriggerer = buildTriggerer;
     }
 
     @ApiOperation(value = "Gets all Build Records")
@@ -160,6 +171,29 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
             return fromSingleton(credentials);
         } else {
             return Response.status(NO_CONTENT_CODE).build();
+        }
+    }
+
+    @ApiOperation(value = "Cancel running build.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/{id}/cancel")
+    public Response cancel(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer buildTaskId) {
+        boolean success = false;
+        try {
+            success = buildTriggerer.cancelBuild(buildTaskId);
+        } catch (BuildConflictException | CoreException e) {
+            logger.error("Unable to cancel the build [" + buildTaskId + "].", e);
+        }
+        if (success) {
+            return Response.ok().build();
+        } else {
+            return Response.serverError().build();
         }
     }
 

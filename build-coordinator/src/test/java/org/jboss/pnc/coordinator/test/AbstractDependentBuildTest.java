@@ -205,6 +205,11 @@ public abstract class AbstractDependentBuildTest {
         public String getId() {
             return "MockBuildScheduler";
         }
+
+        @Override
+        public boolean cancel(BuildTask buildTask) throws CoreException {
+            return false;
+        }
     }
 
     private static BuildResult buildResult() {

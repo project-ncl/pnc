@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -61,6 +62,20 @@ public class BpmBuildScheduler implements BuildScheduler {
             manager.startTask(task);
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
+        }
+    }
+
+    @Override
+    public boolean cancel(BuildTask buildTask) {
+        Optional<BpmBuildTask> taskOptional = manager.getActiveTasks().stream()
+                .filter(bpmTask -> bpmTask instanceof BpmBuildTask)
+                .map(bpmTask -> (BpmBuildTask) bpmTask)
+                .filter(bpmTask -> bpmTask.getBuildTask().equals(buildTask))
+                .findAny();
+        if (taskOptional.isPresent()) {
+            return manager.cancelTask(taskOptional.get());
+        } else {
+            return false;
         }
     }
 }

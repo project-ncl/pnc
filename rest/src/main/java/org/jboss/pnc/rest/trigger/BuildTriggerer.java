@@ -121,6 +121,10 @@ public class BuildTriggerer {
                 rebuildAll).getId();
     }
 
+    public boolean cancelBuild(int buildTaskId) throws BuildConflictException, CoreException {
+        return buildCoordinator.cancel(buildTaskId);
+    }
+
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
             User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll, URL callBackUrl)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {

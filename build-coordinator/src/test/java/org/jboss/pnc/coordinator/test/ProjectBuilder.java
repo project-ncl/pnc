@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -61,6 +62,7 @@ import static org.junit.Assert.fail;
 public class ProjectBuilder {
 
     public static final int BUILD_SET_STATUS_UPDATES = 2;
+
     @Inject
     BuildCoordinator buildCoordinator;
 
@@ -89,26 +91,40 @@ public class ProjectBuilder {
     public static JavaArchive createDeployment() {
         return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
+    BuildTask buildProject(
+            BuildConfiguration buildConfiguration,
+            BuildCoordinator buildCoordinator,
+            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate)
+            throws BuildConflictException, InterruptedException {
 
-    void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator) throws BuildConflictException, InterruptedException {
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
-        //Defines a number of callbacks, which are executed after buildStatus update
-        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
+        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
+            receivedStatuses.add(statusUpdate);
+            onStatusUpdate.accept(statusUpdate);
+        };
 
+        //Defines a number of callbacks, which are executed after buildStatus update
+        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdateInternal, N_STATUS_UPDATES_PER_TASK);
 
         BuildTask buildTask = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), false, false);
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
         waitForStatusUpdates(N_STATUS_UPDATES_PER_TASK, semaphore, "");
-        assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
+        return buildTask;
     }
 
-    @Deprecated //provide your own instance of BC
-    void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException, DatastoreException {
-        buildProjects(buildConfigurationSet, buildCoordinator);
+    void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator) throws BuildConflictException, InterruptedException {
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+
+        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
+            receivedStatuses.add(statusUpdate);
+        };
+
+        BuildTask buildTask = buildProject(buildConfiguration, buildCoordinator, onStatusUpdate);
+        assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
@@ -140,9 +156,11 @@ public class ProjectBuilder {
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
         List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
 
-        //Defines a number of callbacks, which are executed after buildStatus update
+        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
+            receivedStatuses.add(statusUpdate);
+        };
 
-        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
+        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdate, nStatusUpdates);
         final Semaphore buildSetSemaphore = registerBuildSetListeners(receivedSetStatuses, BUILD_SET_STATUS_UPDATES);
 
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), false, true);
@@ -161,13 +179,16 @@ public class ProjectBuilder {
         verifier.verify(receivedStatuses, buildSetTask);
     }
 
-    private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildCoordinationStatusChangedEvent> receivedStatuses,
-                                                                  int nStatusUpdates) throws InterruptedException {
+    private Semaphore registerReleaseListenersAndAcquireSemaphore(
+            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate,
+            int nStatusUpdates)
+            throws InterruptedException {
+
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
         statusChangedReceiver.addBuildStatusChangedEventListener(statusUpdate -> {
             log.debug("Received status update {}.", statusUpdate.toString());
             if (!BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.equals(statusUpdate.getNewStatus())) {
-                receivedStatuses.add(statusUpdate);
+                onStatusUpdate.accept(statusUpdate);
                 semaphore.release(1);
                 log.debug("Semaphore released, there are {} free entries", semaphore.availablePermits());
             } else {
@@ -231,7 +252,7 @@ public class ProjectBuilder {
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.REJECTED, buildTaskId);
     }
 
-    private void assertStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatusEvents, BuildCoordinationStatus status, Integer buildTaskId) {
+    void assertStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatusEvents, BuildCoordinationStatus status, Integer buildTaskId) {
         boolean received = false;
         for (BuildCoordinationStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
             if (receivedStatusEvent.getBuildTaskId().equals(buildTaskId) &&
