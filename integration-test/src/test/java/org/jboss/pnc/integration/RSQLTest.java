@@ -224,6 +224,30 @@ public class RSQLTest {
         assertThat(results).hasSize(2);
     }
 
+    @Test
+    public void shouldFilterUsingInOperator() {
+        // given
+        String rsqlQuery = "id=in=(1,2,1000,2000)";
+
+        // when
+        List<User> results = selectUsers(rsqlQuery);
+
+        // then
+        assertThat(results).hasSize(2);
+    }
+
+    @Test
+    public void shouldFilterUsingOutOperator() {
+        // given
+        String rsqlQuery = "id=out=(2,3,4,5,6,7,8,9,10)";
+
+        // when
+        List<User> results = selectUsers(rsqlQuery);
+
+        // then
+        assertThat(results).hasSize(1);
+    }
+
     private List<BuildConfigurationSet> selectBuildConfigurationSets(String rsqlQuery) {
         Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigurationSet.class, rsqlQuery);
         return nullableStreamOf(buildConfigurationSetRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());

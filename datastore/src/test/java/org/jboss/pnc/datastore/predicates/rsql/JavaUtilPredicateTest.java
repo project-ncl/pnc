@@ -125,6 +125,52 @@ public class JavaUtilPredicateTest {
     }
 
     @Test
+    public void shouldSelectItemsUsingInOperator() throws Exception {
+        // given
+        List<TestClass> testedList = new ArrayList<>();
+        String rsql="id=in=(2,3)";
+
+        TestClass testClass1 = new TestClass("Class 1", 1);
+        TestClass testClass2 = new TestClass("Class 2", 2);
+        TestClass testClass3 = new TestClass("Class 3", 3);
+
+        testedList.add(testClass1);
+        testedList.add(testClass2);
+        testedList.add(testClass3);
+
+        RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
+
+        //when
+        Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
+
+        //then
+        Assertions.assertThat(numberOfInstances).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldSelectItemsUsingOutOperator() throws Exception {
+        // given
+        List<TestClass> testedList = new ArrayList<>();
+        String rsql="id=out=(2,3)";
+
+        TestClass testClass1 = new TestClass("Class 1", 1);
+        TestClass testClass2 = new TestClass("Class 2", 2);
+        TestClass testClass3 = new TestClass("Class 3", 3);
+
+        testedList.add(testClass1);
+        testedList.add(testClass2);
+        testedList.add(testClass3);
+
+        RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
+
+        //when
+        Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
+
+        //then
+        Assertions.assertThat(numberOfInstances).isEqualTo(1);
+    }
+
+    @Test
     public void shouldCompareValue() throws Exception {
         //given
         List<TestClass> testedList = new ArrayList<>();

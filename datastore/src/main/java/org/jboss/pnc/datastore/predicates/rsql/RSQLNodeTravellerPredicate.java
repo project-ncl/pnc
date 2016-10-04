@@ -88,7 +88,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
         operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
         operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
         operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
-        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path) selectWithOperand(r, operand, clazz)).in(arguments));
+        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not(((Path) selectWithOperand(r, operand, clazz)).in(arguments)));
         operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
         operations.put(IsNullNode.class, (r, cb, clazz, operand, arguments) -> {
             if (Boolean.parseBoolean(arguments.get(0))) {
@@ -223,6 +223,13 @@ public class RSQLNodeTravellerPredicate<Entity> {
                                 return propertyValue.matches(argument);
                             }
 
+                            case "=in=": {
+                                return node.getArguments().contains(propertyValue);
+                            }
+
+                            case "=out=": {
+                                return !node.getArguments().contains(propertyValue);
+                            }
 
                             default: {
                                 throw new UnsupportedOperationException("Not Implemented yet!");
@@ -251,4 +258,5 @@ public class RSQLNodeTravellerPredicate<Entity> {
         }
         return result;
     }
+
 }
