@@ -160,7 +160,7 @@ public class BuildTaskEndpoint {
         }
     }
 
-    @ApiOperation(value = "Cancel the build execution defined with given configurationId.")
+    @ApiOperation(value = "Cancel the build execution defined with given executionConfigurationId.")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION),

@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -63,10 +64,13 @@ public class BuildEndpointTest {
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();  //new BuildRecordProvider(buildRecordRepository, null, null, null, null, buildExecutor);
     private BuildEndpoint endpoint;
 
+    @Mock
+    private BuildTriggerer buildTriggerer;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        endpoint = new BuildEndpoint(buildRecordProvider, authProvider);
+        endpoint = new BuildEndpoint(buildRecordProvider, authProvider, buildTriggerer);
 
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);
