@@ -223,6 +223,13 @@ public class RSQLNodeTravellerPredicate<Entity> {
                                 return propertyValue.matches(argument);
                             }
 
+                            case "=in=": {
+                                return node.getArguments().contains(propertyValue);
+                            }
+
+                            case "=out=": {
+                                return !node.getArguments().contains(propertyValue);
+                            }
 
                             default: {
                                 throw new UnsupportedOperationException("Not Implemented yet!");
@@ -251,4 +258,12 @@ public class RSQLNodeTravellerPredicate<Entity> {
         }
         return result;
     }
+
+//    private String[] parseList(String rsqlList) {
+//        if (!rsqlList.startsWith("(") || !rsqlList.endsWith(")")) {
+//            throw new IllegalArgumentException("Invalid list format");
+//        }
+//
+//        return rsqlList.substring(1, rsqlList.length() - 1).split(",");
+//    }
 }
