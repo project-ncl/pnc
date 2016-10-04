@@ -62,7 +62,9 @@ public enum BuildCoordinationStatus {
 
     SYSTEM_ERROR(true, true),
 
-    DONE_WITH_ERRORS(true, true);
+    DONE_WITH_ERRORS(true, true),
+
+    CANCELED(true, true);
 
     private boolean isFinal;
 

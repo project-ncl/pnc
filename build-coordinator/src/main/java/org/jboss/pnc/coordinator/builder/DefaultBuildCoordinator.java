@@ -21,6 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -29,6 +30,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -54,6 +56,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -173,12 +176,52 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     .filter(buildTask -> buildTask.getId() == buildTaskId)
                     .findAny();
         if (taskOptional.isPresent()) {
-            buildScheduler.cancel(taskOptional.get());
+            try {
+                boolean cancelSubmitted = buildScheduler.cancel(taskOptional.get());
+                if (cancelSubmitted) {
+                    monitorCancellation(taskOptional.get());
+                } else {
+                    cancelInternal(taskOptional.get());
+                }
+            } catch (CoreException e) {
+                cancelInternal(taskOptional.get());
+            }
             return true;
         } else {
             log.warn("Cannot find task {} to cancel.", buildTaskId);
             return false;
         }
+    }
+
+    private void monitorCancellation(BuildTask buildTask) {
+        int cancellationTimeout = 30;
+        PullingMonitor monitor = new PullingMonitor();
+
+        Runnable invokeCancelInternal = () -> {
+            if (getSubmittedBuildTasks().contains(buildTask)) {
+                log.debug("Task {} cancellation already completed.", buildTask.getId());
+                return;
+            }
+            log.warn("Cancellation did not complete in {} seconds.", cancellationTimeout);
+            cancelInternal(buildTask);
+        };
+        monitor.timer(invokeCancelInternal, cancellationTimeout, TimeUnit.SECONDS);
+    }
+
+    private void cancelInternal(BuildTask buildTask) {
+
+        BuildResult result = new BuildResult(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(BuildExecutionStatus.CANCELED),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty());
+        updateBuildStatus(buildTask, result);
+
+        log.info("Task {} canceled.", buildTask.getId());
     }
 
     /**
@@ -317,7 +360,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 } else if (buildResult.getFailedReasonStatus().isPresent()) {
                     log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus().get());
                     datastoreAdapter.storeResult(buildTask, buildResult);
-                    coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+                    if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELED)) {
+                        coordinationStatus = BuildCoordinationStatus.CANCELED;
+                    } else {
+                        coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+                    }
                 } else {
                     throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
                 }

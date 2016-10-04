@@ -69,7 +69,7 @@ public class BpmManager {
     private Map<Integer, BpmTask> tasks = new HashMap<>();
     private KieSession session;
 
-    private static final String SIGNAL_CANCEL = "CANCEL";
+    private static final String SIGNAL_CANCEL = "CANCELED";
 
     @Deprecated
     public BpmManager() { //CDI workaround

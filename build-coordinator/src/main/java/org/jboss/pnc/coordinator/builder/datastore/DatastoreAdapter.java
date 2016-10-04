@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.jboss.pnc.model.BuildStatus.CANCELLED;
 import static org.jboss.pnc.model.BuildStatus.FAILED;
 import static org.jboss.pnc.model.BuildStatus.REJECTED;
 import static org.jboss.pnc.model.BuildStatus.SYSTEM_ERROR;
@@ -145,8 +146,13 @@ public class DatastoreAdapter {
                 return;
             }
 
-            buildRecordBuilder.status(buildRecordStatus);
+            if (UNKNOWN.equals(buildRecordStatus) && buildResult.getFailedReasonStatus().isPresent()) {
+                if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELED)) {
+                    buildRecordStatus = CANCELLED;
+                }
+            }
 
+            buildRecordBuilder.status(buildRecordStatus);
 
             if (buildResult.getBuildExecutionConfiguration().isPresent()) {
                 BuildExecutionConfiguration buildExecutionConfig = buildResult.getBuildExecutionConfiguration().get();

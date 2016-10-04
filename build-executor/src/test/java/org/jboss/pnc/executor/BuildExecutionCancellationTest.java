@@ -109,8 +109,7 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
                 );
 
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
-        expectedStatuses.add(BuildExecutionStatus.DONE_WITH_ERRORS);
-        expectedStatuses.add(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR); //TODO do we need cancel status ?
+        expectedStatuses.add(BuildExecutionStatus.CANCELED);
 
         //check build statuses
         checkBuildStatuses(statusChangedEvents, expectedStatuses);
