@@ -124,8 +124,6 @@ public class ProductVersionRestTest {
 
     @After
     public void after() {
-        buildConfigurationSetRest1.setProductVersionId(null);
-
         buildConfigurationSetRestClient.delete(buildConfigurationSetRest1.getId());
         buildConfigurationSetRestClient.delete(buildConfigurationSetRest2.getId());
         buildConfigurationSetRestClient.delete(buildConfigurationSetRest3.getId());
