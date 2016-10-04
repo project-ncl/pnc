@@ -46,7 +46,7 @@
           scope.latestBuildRecords = {};
 
           scope.page.onUpdate(function(page) {
-            _(page.data).each(function(bc) {
+            _.forEach(page.data, function(bc) {
               if(!_(scope.latestBuildRecords).has(bc.id)) { // avoid unnecessary requests
                 BuildRecordDAO.getLatestForConfiguration({ configurationId: bc.id }).then(function (data) {
                   scope.latestBuildRecords[bc.id] = data;

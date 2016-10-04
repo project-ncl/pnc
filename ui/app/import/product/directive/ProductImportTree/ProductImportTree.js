@@ -43,7 +43,7 @@
             if (scope.finishForm.$valid) {
               scope.onFinish();
             } else {
-              _(scope.finishForm).each(function (field) {
+              _.forEach(scope.finishForm, function (field) {
                 if (_(field).has('$dirty') && field.$pristine) {
                   field.$dirty = true;
                 }

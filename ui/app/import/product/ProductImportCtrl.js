@@ -126,7 +126,7 @@
                 n.state = {};
               }
               //n.state.checked = false;
-              _(n.nodes).each(function (e) {
+              _.forEach(n.nodes, function (e) {
                 recursiveUncheck(e);
               });
             };
@@ -236,7 +236,7 @@
           processCheckbox(subNode);
           if (_.isArray(dataNode.dependencies)) {
             var res = true;
-            _(dataNode.dependencies).each(function (dependency) {
+            _.forEach(dataNode.dependencies, function (dependency) {
               res = recursiveParse(subNode, dependency) && res;
             });
             return res;
@@ -305,7 +305,7 @@
             valid = node.validate();//isValid;
           }
           if (_(node).has('nodes')) {
-            _(node.nodes).each(function (n) {
+            _.forEach(node.nodes, function (n) {
               valid = recursiveParse(n) && valid;
             });
           }
