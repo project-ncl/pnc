@@ -392,6 +392,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             case REJECTED_FAILED_DEPENDENCIES:
             case SYSTEM_ERROR:
             case DONE_WITH_ERRORS:
+            case CANCELED:
                 handleErroneousFinish(task);
                 break;
             default:
