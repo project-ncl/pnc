@@ -106,11 +106,6 @@ public class ProjectBuilder {
         assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
-    @Deprecated //provide your own instance of BC
-    void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException, DatastoreException {
-        buildProjects(buildConfigurationSet, buildCoordinator);
-    }
-
     void buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
         int numCompletedBuilds = buildConfigurationSet.getBuildConfigurations().size();
         int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds;
