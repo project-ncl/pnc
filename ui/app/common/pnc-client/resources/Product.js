@@ -18,38 +18,41 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.pnc-client.rsql');
+  var module = angular.module('pnc.common.pnc-client.resources');
+
+  module.value('PRODUCT_PATH', '/products/:id');
 
   /**
-   * @ngdoc service
-   * @kind function
-   * @name pnc.common.pnc-client.rsql:selector
-   * @description
-   * This is an internal class used by rsqlQuery, see that for usage instructions.
    *
    * @author Alex Creasy
    */
-  module.factory('selector', [
-    function () {
-      /*
-       * For selecting a field to operate on e.g. `.where('name')`
-       */
-      return function selector(ctx) {
-        var that = {};
+  module.factory('Product', [
+    '$resource',
+    'restConfig',
+    'PRODUCT_PATH',
+    function($resource, restConfig, PRODUCT_PATH) {
+      var ENDPOINT = restConfig.getPncUrl() + PRODUCT_PATH;
 
-        that.where = function (field) {
-          ctx.addToQuery(field);
-          return ctx.next();
-        };
+      var resource = $resource(ENDPOINT, {
+        id: '@id'
+      }, {
+        query: {
+          method: 'GET',
+          isPaged: true,
+        },
+        update: {
+          method: 'PUT'
+        },
+        queryProductVersion: {
+          url: ENDPOINT + 'product-versions',
+          method: 'GET',
+          isPaged: true,
+        }
+      });
 
-        that.brackets = function (query) {
-          ctx.addToQuery('(' + query + ')');
-          return ctx.jumpTo('operator');
-        };
-
-        return that;
-      };
+      return resource;
     }
+
   ]);
 
 })();

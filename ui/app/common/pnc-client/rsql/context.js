@@ -59,8 +59,26 @@
           q.push(str);
         };
 
+        that.popFromQuery = function () {
+          return q.pop();
+        };
+
+        that.abandonClause = function () {
+          var node;
+          do {
+            node = q.pop();
+          } while (angular.isDefined(node) && node !== ',' && node !== ';');
+        };
+
         that.next = function () {
           return nodes.next();
+        };
+
+        that.jumpTo = function (node) {
+          if (!nodes.hasOwnProperty(node)) {
+            throw new Error('Cannot jump to non-existant node: ' + node);
+          }
+          return nodes[node]();
         };
 
         that.end = function () {

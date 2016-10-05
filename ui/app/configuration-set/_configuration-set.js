@@ -25,7 +25,8 @@
     'pnc.common.restclient',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.events',
-    'pnc.common.authentication'
+    'pnc.common.authentication',
+    'pnc.common.pnc-client'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -34,7 +35,6 @@
       views: {
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
-          //templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
       },
       data: {
@@ -46,7 +46,7 @@
       url: '/configuration-set',
       templateUrl: 'configuration-set/views/configuration-set.list.html',
       data: {
-        displayName: 'Build Group Configs'
+        displayName: 'Build Groups'
       },
       controller: 'ConfigurationSetListController',
       controllerAs: 'setlistCtrl',
@@ -66,9 +66,16 @@
       controller: 'ConfigurationSetDetailController',
       controllerAs: 'detailSetCtrl',
       resolve: {
-        configurationSetDetail: function(BuildConfigurationSetDAO, $stateParams) {
-          return BuildConfigurationSetDAO.get({
-            configurationSetId: $stateParams.configurationSetId }).$promise;
+        configurationSetDetail: function(BuildConfigurationSet, $stateParams) {
+          return BuildConfigurationSet.get({
+            id: $stateParams.configurationSetId }).$promise;
+        },
+        productVersion: function ($q, ProductVersion, configurationSetDetail) {
+          var id = configurationSetDetail.productVersionId;
+          if (angular.isUndefined(id) || id === null) {
+            return $q.when();
+          }
+          return ProductVersion.get({ id: configurationSetDetail.productVersionId }).$promise;
         },
         configurations: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.getConfigurations({
@@ -93,7 +100,7 @@
       url: '/configuration-set/create/:productId/:versionId',
       templateUrl: 'configuration-set/views/configuration-set.create.html',
       data: {
-        displayName: 'Create Build Group Config',
+        displayName: 'Create Build Group',
         requireAuth: true
       },
       controller: 'ConfigurationSetCreateController',

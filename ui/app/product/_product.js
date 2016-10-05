@@ -15,16 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
-(function() {
+(function () {
+  'use strict';
 
   var module = angular.module('pnc.product', [
     'ui.router',
     'ui.bootstrap',
     'pnc.common.restclient',
     'angularUtils.directives.uiBreadcrumbs',
-    'pnc.common.authentication'
+    'pnc.common.authentication',
+    'pnc.common.pnc-client',
+    'pnc.common.select-modals',
+    'patternfly',
+    'patternfly.views'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {

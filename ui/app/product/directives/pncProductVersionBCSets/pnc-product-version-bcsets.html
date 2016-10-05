@@ -17,22 +17,25 @@
     limitations under the License.
 
 -->
-<pnc-header>
-  <pnc-header-title><small>Build Group Configs</small></pnc-header-title>
+<pnc-header sub-header="true">
+  <pnc-header-title>Build Groups</pnc-header-title>
   <pnc-header-buttons>
-    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Build Group" ui-sref="configuration-set.create({ productId: product.id, versionId: version.id })">
-      <i class="pficon pficon-add"></i> Create
+    <button type="button" class="btn btn-default" tooltip="Create a new build group and add it to this product version" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ui-sref="configuration-set.create({ productId: product.id, versionId: version.id })">
+      <i class="fa fa-file-text-o"></i>&nbsp;Create
+    </button>
+    <button type="button" class="btn btn-default" tooltip="Create a new build group and add it to this product version" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="ctrl.edit()">
+      <i class="pficon pficon-edit"></i>&nbsp;Edit
     </button>
   </pnc-header-buttons>
 </pnc-header>
 
-<pnc-search-field class="search" page="page" text="build group configs"></pnc-search-field>
+<pnc-search-field class="search" page="page" text="build groups"></pnc-search-field>
 <br><br>
 <table class="table table-bordered table-striped">
   <thead>
   <th>Name</th>
   <th>Last Executed Build</th>
-  <th>Action</th>
+  <th>Actions</th>
   </thead>
   <tbody>
   <tr ng-repeat="buildconfigurationset in page.data">
@@ -46,19 +49,18 @@
       </div>
       <em ng-hide="latestBuildRecordSets[buildconfigurationset.id].length">none</em>
     </td>
-    <td class="table-data-5-column-even-width">
+    <td class="td-actions">
       <div class="btn-group">
-        <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="top" ng-click="buildConfigSet(buildconfigurationset)">
-          <i class="fa fa-play"></i>
-          <span class="shrink">Build</span>
+        <button class="btn btn-default ng-scope" tooltip="Starts a build of this group, building only components that have not already been sucessfully built." tooltip-popup-delay="2500" tooltip-placement="top" ng-click="buildConfigSet(buildconfigurationset)">
+          <i class="pficon pficon-build"></i>&nbsp;<span class="shrink">Build</span>
         </button>
         <span><!-- needs to be wrapped to correct behavior -->
           <button class="btn btn-default dropdown-toggle ng-scope" data-toggle="dropdown">
             <span class="caret"></span>
           </button>
-          <ul class="dropdown-menu">
+          <ul class="dropdown-menu dropdown-menu-right">
             <li>
-              <a href ng-click="forceBuildConfigSet(buildconfigurationset)"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+              <a href ng-click="forceBuildConfigSet(buildconfigurationset)" tooltip="Starts a build of this group, building all components even if they have already been successfully built." tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Rebuild</span></a>
             </li>
           </ul>
         </span>

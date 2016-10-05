@@ -1,0 +1,73 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div>
+  <div class="modal-header">
+    <h3 class="modal-title">{{ ctrl.title }}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12">
+        <form role="form" class="search-pf has-button">
+          <div class="form-group has-clear">
+            <div class="search-pf-input-group">
+              <label for="search1" class="sr-only">Search</label>
+              <input type="text"  name="selectGroup"
+                                  class="form-control combobox"
+                                  id="select-build-group"
+                                  placeholder="Enter product name to start..."
+                                  autocomplete="off"
+                                  ng-model="ctrl.input"
+                                  typeahead="product as product.name for product in ctrl.fetchProducts($viewValue)"
+                                  typeahead-on-select="ctrl.onSelectProduct($item, $model, $label)"
+                                  typeahead-wait-ms="300"
+                                  typeahead-loading="ctrl.isLoading">
+              <button type="button" class="clear" aria-hidden="true"><span ng-show="ctrl.isLoading" class="spinner spinner-xs spinner-inline"></span></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-default" type="button"><span class="fa fa-search"></span></button>
+          </div>
+        </form>
+        <span id="helpBlock" class="help-block">Begin typing to select a product, then select the desired version from the list below. Note: a build group can be associated with <em>only one</em> product version.</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div pf-list-view class="list-group list-view-pf list-view-pf-view cursor-pointer"
+                          id="build-group-list"
+                          config="ctrl.config"
+                          items="ctrl.selectedProduct.productVersions"
+                          action-buttons="ctrl.actionButtons"
+                          ng-show="ctrl.selectedProduct.productVersions">
+
+            <div class="list-view-pf-description">
+              <div class="list-group-item-heading">
+                {{ item.productName }}: {{ item.version }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+      <button class="btn btn-primary" type="button" ng-click="ctrl.save()" ng-disabled="!ctrl.selectedVersion">Save</button>
+      <button class="btn btn-default" type="button" ng-click="ctrl.close()">Cancel</button>
+  </div>
+</div>
