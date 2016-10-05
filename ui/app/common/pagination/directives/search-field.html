@@ -21,9 +21,9 @@
     <div class="input-group" role="search">
       <label class="sr-only" for="{{ inputId }}">Filter Results</label>
       <input id="{{ inputId }}" type="search" class="form-control" ng-model="searchText" ng-change="search()" placeholder="{{ 'Search ' + text + '&hellip;' }}">
-      <div class="input-group-addon">
-        <i class="fa fa-search" ng-show="page.isLoaded"></i>
-        <div class="spinner spinner-xs pull-right" ng-hide="page.isLoaded"></div>
+      <div class="input-group-addon" ng-class="{'active' : page.isLoaded }">
+        <i class="fa fa-search display-when-active"></i>
+        <div class="spinner spinner-xs pull-right hide-when-active"></div>
       </div>
     </div>
   </div>
