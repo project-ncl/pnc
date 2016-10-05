@@ -38,6 +38,7 @@
   ]);
 
   module.run([
+    '$state',
     '$log',
     '$rootScope',
     'webSocketBus',
@@ -45,9 +46,15 @@
     'BuildRecordDAO',
     'authService',
     'pncNotify',
-    function($log, $rootScope, webSocketBus, eventTypes, BuildRecordDAO,
+    function($state, $log, $rootScope, webSocketBus, eventTypes, BuildRecordDAO,
              authService, pncNotify) {
       var scope = $rootScope.$new();
+
+      function buildRecordLinkCallback(recordId) {
+        return function() {
+          $state.go('record.detail.default', {recordId: recordId});
+        };
+      }
 
       //TODO: When backend functionality is available these notifications
       // should only be fired if the userId of the payload matches the
@@ -58,7 +65,8 @@
         $log.debug('BUILD_STARTED_EVENT: payload=%O', JSON.stringify(payload));
 
         authService.forUserId(payload.userId).then(function() {
-          pncNotify.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');
+          pncNotify.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress',
+                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
         });
       });
 
@@ -70,18 +78,23 @@
 
         authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'REJECTED') {
-            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.');
+            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.',
+                           'Build #' + payload.id, buildRecordLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'REJECTED_ALREADY_BUILT') {
-            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.');
+            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.',
+                           'Build #' + payload.id, buildRecordLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'SYSTEM_ERROR') {
-            pncNotify.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.');
+            pncNotify.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.',
+                            'Build #' + payload.id, buildRecordLinkCallback(payload.id));
           } else {
             BuildRecordDAO.get({recordId: payload.id}).$promise.then(
               function (result) {
                 if (result.status === 'BUILD_COMPLETED' || result.status === 'DONE' || result.status === 'SUCCESS') {
-                  pncNotify.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed');
+                  pncNotify.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed',
+                                    'Build #' + payload.id, buildRecordLinkCallback(payload.id));
                 } else {
-                  pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed');
+                  pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed',
+                                 'Build #' + payload.id, buildRecordLinkCallback(payload.id));
                 }
               }
             );
