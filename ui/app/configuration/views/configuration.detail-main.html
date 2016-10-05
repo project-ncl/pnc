@@ -23,7 +23,7 @@
     <pnc-header-buttons>
       <div class="btn-group">
         <button type="button" class="btn btn-lg btn-default ng-scope" tooltip="Start a build of this configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailCtrl.build()" pnc-requires-auth>
-          <i class="fa fa-play"></i>
+          <i class="pficon pficon-build"></i>
           <span class="shrink">Build</span>
         </button>
         <ul class="dropdown-menu"></ul>
@@ -32,8 +32,8 @@
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a href ng-click="detailCtrl.forceBuild()" tooltip="Start a build of this configuration, forcing a rebuild if a successful build already exists" tooltip-popup-delay="2500" tooltip-append-to-body="true"><span><i class="fa fa-play fa-color-red"></i>&nbsp;Force Rebuild</span></a>
-              <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" tooltip="Start a build of this configuration, and keep its pod alive in the case of failure. This is useful for debugging a failed build." tooltip-popup-delay="2500"><span><i class="fa fa-play fa-color-red"></i>&nbsp;Keep Pod Alive</span></a>
+              <a href ng-click="detailCtrl.forceBuild()" tooltip="Start a build of this configuration, forcing a rebuild if a successful build already exists" tooltip-popup-delay="2500" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Rebuild</span></a>
+              <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" tooltip="Start a build of this configuration, and keep its pod alive in the case of failure. This is useful for debugging a failed build." tooltip-popup-delay="2500"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Keep Pod Alive</span></a>
             </li>
           </ul>
       </div>
