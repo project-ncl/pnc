@@ -46,7 +46,7 @@
           scope.latestBuildRecordSets = {};
 
           scope.page.onUpdate(function(page) {
-            _(page.data).each(function(bcset) {
+            _.forEach(page.data, function(bcset) {
               if(!_(scope.latestBuildRecordSets).has(bcset.id)) { // avoid unnecessary requests
                 BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: bcset.id }).then(function (data) {
                   scope.latestBuildRecordSets[bcset.id] = data;

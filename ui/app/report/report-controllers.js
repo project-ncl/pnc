@@ -170,8 +170,8 @@
           that.reportResults = [];
 
           // Show all unique artifacts
-          _(result).each(function(topLevelDependency){
-            _(topLevelDependency.gavs).each(function(a){
+          _.forEach(result, function(topLevelDependency){
+            _.forEach(topLevelDependency.gavs, function(a){
               that.reportResults.push(a);
             });
           });
@@ -502,8 +502,8 @@
 
         var res = { data: {}, productNames: [], moduleNames: [] };
 
-        _(TYPE_NOTES).each(function(note, type) {
-          _(data[type]).each(function(module) {
+        _.forEach(TYPE_NOTES, function(note, type) {
+          _.forEach(data[type], function(module) {
             var moduleName = module.groupId + ':' + module.artifactId;
             if(!_(res.moduleNames).contains(moduleName)) {
               res.moduleNames.push(moduleName);
@@ -513,11 +513,11 @@
             }
 
             if(type === 'internallyBuilt' || type === 'builtInDifferentVersion') {
-              _(module.gavProducts).each(function(dependency) {
+              _.forEach(module.gavProducts, function(dependency) {
                 dependency.name = dependency.groupId + ':' + dependency.artifactId;
                 dependency._type = type;
                 dependency.versions = { '__project': dependency.version };
-                _(dependency.gavProducts).each(function(productAndVersion) {
+                _.forEach(dependency.gavProducts, function(productAndVersion) {
                   var productName = getProductLabel(productAndVersion.product);
                   if(!_(res.productNames).contains(productName)) {
                     res.productNames.push(productName);
@@ -529,7 +529,7 @@
             }
 
             if(type === 'notBuilt' || type === 'blacklisted') {
-              _(module.gavs).each(function(dependency) {
+              _.forEach(module.gavs, function(dependency) {
                 dependency.name = dependency.groupId + ':' + dependency.artifactId;
                 dependency._type = type;
                 dependency.versions = { '__project': dependency.version };
@@ -540,12 +540,12 @@
         });
 
         // add notes to missing version values and find latest version to highlight
-        _(res.data).each(function(dependencies) {
-          _(dependencies).each(function(dependency) {
+        _.forEach(res.data, function(dependencies) {
+          _.forEach(dependencies, function(dependency) {
             // select the latest version to highlight
             dependency._latestVersion = _(dependency.versions).chain().values().sortBy(_.identity).value().reverse()[0];
             // add note to empty version, either plain '-' or 'BLACKLISTED'
-            _(res.productNames).each(function(productName) {
+            _.forEach(res.productNames, function(productName) {
               if(_.isUndefined(dependency.versions[productName])) {
                 if(dependency._type === 'blacklisted') {
                   dependency.versions[productName] = 'BLACKLISTED';
@@ -559,7 +559,7 @@
         });
 
         // sort dependencies inside modules alphabetically by artifactId
-        _(res.data).each(function(dependencies, moduleName) {
+        _.forEach(res.data, function(dependencies, moduleName) {
           res.data[moduleName] = _(dependencies).sortBy(function(dependency) { return dependency.artifactId; });
         });
         return res;

@@ -47,7 +47,7 @@
                 }
               });
             } else {
-              _(scope.projectForm).each(function (field) {
+              _.forEach(scope.projectForm, function (field) {
                 if (_(field).has('$dirty') && field.$pristine) {
                   field.$dirty = true;
                 }
