@@ -33,8 +33,7 @@
   <form editable-form name="projectForm" class="form-horizontal" onbeforesave="detailCtrl.update()" novalidate>
 
     <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && !projectForm.name.$pristine, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
-      <label for="input-name" class="col-sm-1 control-label" ng-show="projectForm.$visible">* Name</label>
-      <label for="input-name" class="col-sm-1 control-label" ng-show="!projectForm.$visible">Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-class="{ 'required': projectForm.$visible }">Name</label>
       <div class="col-sm-11">
         <p id="input-name" e-class="form-control" editable-text="detailCtrl.project.name" e-name="name" e-maxlength="255" e-required>{{ detailCtrl.project.name || 'Empty' }}</p>
         <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>

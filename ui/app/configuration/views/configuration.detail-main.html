@@ -32,8 +32,8 @@
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a href ng-click="detailCtrl.forceBuild()" tooltip="Start a build of this configuration, forcing a rebuild if a successful build already exists" tooltip-popup-delay="2500" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Rebuild</span></a>
-              <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" tooltip="Start a build of this configuration, and keep its pod alive in the case of failure. This is useful for debugging a failed build." tooltip-popup-delay="2500"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Keep Pod Alive</span></a>
+              <a href ng-click="detailCtrl.forceBuild()" tooltip="Starts a build of this config, forcing a rebuild if a successful build already exists" tooltip-popup-delay="1000" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Build</span></a>
+              <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" tooltip="Starts a build of this config and keeps its OSE pod alive. In the event of failure you will be able to SSH into the container to investigate the cause." tooltip-popup-delay="1000"><span><i class="pficon pficon-build"></i>&nbsp;Debug Build</span></a>
             </li>
           </ul>
       </div>

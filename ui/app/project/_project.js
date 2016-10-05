@@ -34,7 +34,6 @@
       views: {
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
-          //templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
       },
       data: {
@@ -52,7 +51,7 @@
       controllerAs: 'listCtrl',
       resolve: {
         projectList: function(ProjectDAO) {
-          return ProjectDAO.getAll();
+          return ProjectDAO.getAll().$promise;
         }
       }
     });

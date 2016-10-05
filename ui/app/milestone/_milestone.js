@@ -50,10 +50,10 @@
                 .$promise;
           },
           distributedArtifacts: function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.getPagedDistributedArtifacts({milestoneId: $stateParams.milestoneId});
+            return ProductMilestoneDAO.getPagedDistributedArtifacts({milestoneId: $stateParams.milestoneId}).$promise;
           },
           performedBuilds: function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.getPagedPerformedBuilds({milestoneId: $stateParams.milestoneId});
+            return ProductMilestoneDAO.getPagedPerformedBuilds({milestoneId: $stateParams.milestoneId}).$promise;
           },
           latestRelease: function (ProductMilestoneDAO, $stateParams, $log) {
             return ProductMilestoneDAO

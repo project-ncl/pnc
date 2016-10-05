@@ -176,8 +176,11 @@
           return page.loadPageIndex(0);
         };
 
-        page._refresh(initialIndex, pageSize, '');
+        var $promise = page._refresh(initialIndex, pageSize, '');
 
+        page.$promise = $promise.then(function () {
+          return page;
+        });
         return page;
       };
 
