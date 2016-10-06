@@ -63,6 +63,7 @@
     <script src="bower_components/google-code-prettify/bin/prettify.min.js"></script>
     <script src="bower_components/matchHeight/dist/jquery.matchHeight.js"></script>
     <script src="bower_components/moment/moment.js"></script>
+    <script src="bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020.js"></script>
     <script src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
     <script src="bower_components/patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
     <script src="bower_components/patternfly/dist/js/patternfly.js"></script>
@@ -126,8 +127,7 @@
                 </div>
               </div>
             </li>
-            <li ng-controller="authenticationController as authCtrl" class="dropdown">
-              <span ng-show="authCtrl.isAuthenticated()">
+            <li ng-controller="authenticationController as authCtrl" class="dropdown" ng-show="authCtrl.isAuthenticated()">
                   <a href class="dropdown-toggle" data-toggle="dropdown">
                     <span class="pficon pficon-user"></span>{{ authCtrl.username }}<b class="caret"></b>
                   </a>
@@ -136,7 +136,6 @@
                       <a href ng-click="authCtrl.logout()">Logout</a>
                     </li>
                   </ul>
-              </span>
             </li>
             <li ng-controller="authenticationController as authCtrl">
               <a ng-hide="authCtrl.isAuthenticated()" href ng-click="authCtrl.login()"><span class="pficon pficon-user"></span>Login</a>
