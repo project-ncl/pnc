@@ -63,7 +63,7 @@ import java.util.Set;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
- * AProx server instance for repository management). This session contains connection information for rendering Maven
+ * Indy server instance for repository management). This session contains connection information for rendering Maven
  * settings.xml files and the like, along with the components necessary to extract the artifacts (dependencies, build uploads)
  * for the associated build.
  *

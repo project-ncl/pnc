@@ -68,7 +68,9 @@ public class BuildExecutorMock implements BuildExecutor {
     @Override
     public BuildExecutionSession startBuilding(
             BuildExecutionConfiguration buildExecutionConfiguration,
-            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
+            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
+            String accessToken)
+            throws ExecutorException {
 
         log.debug("Starting mock build execution for buildExecutionConfiguration.id {}", buildExecutionConfiguration.getId());
 

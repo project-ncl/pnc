@@ -61,6 +61,8 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     private Runnable cancelHook;
 
+    private String accessToken;
+
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration,
                                         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         liveLogsUri = Optional.empty();
@@ -246,5 +248,13 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     public boolean isCanceled() {
         return cancelRequested;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
     }
 }

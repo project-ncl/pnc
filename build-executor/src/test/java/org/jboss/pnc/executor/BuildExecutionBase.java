@@ -156,7 +156,7 @@ class BuildExecutionBase {
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
                 false);
 
-        executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }
 
     private boolean contains(Set<BuildExecutionStatusChangedEvent> statusChangedEvents, BuildExecutionStatus status) {

@@ -40,7 +40,9 @@ public class EnvironmentDriverWithFailedContainerInitializationMock implements E
             String systemImageId,
             String systemImageRepositoryUrl,
             SystemImageType buildType,
-            final RepositorySession repositoryConfiguration, DebugData debugData)
+            final RepositorySession repositoryConfiguration,
+            DebugData debugData,
+            String accessToken)
             throws EnvironmentDriverException {
 
         return new StartedEnvironment() {

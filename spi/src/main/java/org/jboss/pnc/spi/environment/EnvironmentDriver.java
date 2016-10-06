@@ -42,8 +42,13 @@ public interface EnvironmentDriver {
      * @return New started environment in initialization phase
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
      */
-    StartedEnvironment startEnvironment(String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType,
-                                        RepositorySession repositorySession, DebugData debugData) throws EnvironmentDriverException;
+    StartedEnvironment startEnvironment(
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType systemImageType,
+            RepositorySession repositorySession,
+            DebugData debugData,
+            String accessToken) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment

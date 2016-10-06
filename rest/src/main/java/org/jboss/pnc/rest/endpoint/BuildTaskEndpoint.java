@@ -147,7 +147,7 @@ public class BuildTaskEndpoint {
             }
 
             logger.info("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
-            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration.toBuildExecutionConfiguration(), callbackUrl);
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration.toBuildExecutionConfiguration(), callbackUrl, authProvider.getTokenString());
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(buildExecutionConfiguration.getId());

@@ -89,7 +89,10 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.isPodKeptAfterFailure());
 
         try {
-            buildExecutor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+            buildExecutor.startBuilding(
+                    buildExecutionConfiguration,
+                    onBuildExecutionStatusChangedEvent,
+                    buildTask.getUser().getLoginToken());
         } catch (ExecutorException e) {
             throw new CoreException("Could not start build execution.", e);
         }

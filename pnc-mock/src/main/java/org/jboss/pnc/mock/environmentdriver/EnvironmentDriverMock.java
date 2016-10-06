@@ -40,8 +40,13 @@ import java.util.function.Consumer;
 public class EnvironmentDriverMock implements EnvironmentDriver {
 
     @Override
-    public StartedEnvironment startEnvironment(String systemImageId, String systemImageRepositoryUrl, SystemImageType buildType,
-                                               final RepositorySession repositoryConfiguration, DebugData debugData) throws EnvironmentDriverException {
+    public StartedEnvironment startEnvironment(
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType buildType,
+            final RepositorySession repositoryConfiguration,
+            DebugData debugData,
+            String accessToken) throws EnvironmentDriverException {
         return new StartedEnvironment() {
 
             @Override

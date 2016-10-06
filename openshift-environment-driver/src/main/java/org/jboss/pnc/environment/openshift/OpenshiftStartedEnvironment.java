@@ -97,7 +97,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
             PullingMonitor pullingMonitor,
             RepositorySession repositorySession,
-            DebugData debugData) {
+            DebugData debugData,
+            String accessToken) {
 
         logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
 
@@ -126,6 +127,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("route-path", "/" + buildAgentContextPath);
         runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
+        runtimeProperties.put("accessToken", accessToken);
 
         initDebug();
 
@@ -369,7 +371,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         properties.put("isHttpActive", proxyActive.toString().toLowerCase());
         properties.put("proxyServer", environmentConfiguration.getProxyServer());
         properties.put("proxyPort", environmentConfiguration.getProxyPort());
-        properties.put("proxyUsername", repositorySession.getBuildRepositoryId());
         properties.put("nonProxyHosts", environmentConfiguration.getNonProxyHosts());
 
         properties.put("AProxDependencyUrl", repositorySession.getConnectionInfo().getDependencyUrl());
