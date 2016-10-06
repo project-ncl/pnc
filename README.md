@@ -208,7 +208,7 @@ Click the "Add" button to add a new datasource and set the required fields.
 You can test the connection before saving the datasource settings.
 
 
-## Authentication:
+## Authentication
 
 This project comes with possibility to be secured. Security is delivered via Keycloak project http://keycloak.jboss.org/.
 To be able to turn on whole project on secure side you need 2 parts to fulfill.
