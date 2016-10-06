@@ -75,7 +75,7 @@
         };
 
         tree._refresh = function () {
-          _(tree._onUpdate).each(function (f) {
+          _.forEach(tree._onUpdate, function (f) {
             f(tree);
           });
         };
