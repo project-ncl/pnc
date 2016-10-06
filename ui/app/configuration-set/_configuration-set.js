@@ -52,7 +52,7 @@
       controllerAs: 'setlistCtrl',
       resolve: {
         configurationSetList: function(BuildConfigurationSetDAO) {
-          return BuildConfigurationSetDAO.getAll();
+          return BuildConfigurationSetDAO.getAll().$promise;
         }
       }
     });
@@ -79,19 +79,19 @@
         },
         configurations: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.getConfigurations({
-            configurationSetId: $stateParams.configurationSetId });
+            configurationSetId: $stateParams.configurationSetId }).$promise;
         },
         records: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.getRecords({
-            configurationSetId: $stateParams.configurationSetId});
+            configurationSetId: $stateParams.configurationSetId}).$promise;
         },
-        previousState: ['$state', function ($state) {
+        previousState: ['$state', '$q', function ($state, $q) {
           var currentStateData = {
             Name: $state.current.name,
             Params: $state.params,
             URL: $state.href($state.current.name, $state.params)
           };
-          return currentStateData;
+          return $q.when(currentStateData);
         }],
       }
     });

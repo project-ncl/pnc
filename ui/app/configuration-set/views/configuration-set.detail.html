@@ -21,10 +21,21 @@
   <pnc-header>
     <pnc-header-title>Build Group</pnc-header-title>
     <pnc-header-buttons>
-      <button class="btn btn-lg btn-default ng-scope" tooltip="Start a build of this group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailSetCtrl.build()" pnc-requires-auth>
-        <i class="fa fa-play"></i>
-        <span class="shrink">Build</span>
-      </button>
+      <div class="btn-group">
+        <button class="btn btn-lg btn-default ng-scope" tooltip="Start a build of this group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailSetCtrl.build()" pnc-requires-auth>
+          <i class="pficon pficon-build"></i>
+          <span class="shrink">Build</span>
+        </button>
+        <ul class="dropdown-menu"></ul>
+          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a href ng-click="detailSetCtrl.forceBuild()" tooltip="Start a build of this group, forcing a rebuild of any configurations that have already been successfully built" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-requires-auth><span><i class="pficon pficon-build fa-color-red"></i> Force Rebuild</span></a>
+            </li>
+          </ul>
+      </div>
       <button type="button" class="btn btn-lg btn-default" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }" pnc-requires-auth>
         <i class="pficon pficon-edit"></i> Edit
       </button>

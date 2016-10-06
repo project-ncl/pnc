@@ -32,8 +32,7 @@
 
   <form editable-form class="form-horizontal" name="productVersionForm" onbeforesave="versionCtrl.update(productVersionForm)" novalidate>
     <div class="form-group" ng-class="{ 'has-error': productVersionForm.version.$invalid && !productVersionForm.version.$pristine, 'has-success': productVersionForm.version.$valid && productVersionForm.version.$touched }">
-      <label for="input-version" class="col-sm-1 control-label" ng-show="productVersionForm.$visible">* Version</label>
-      <label for="input-version" class="col-sm-1 control-label" ng-show="!productVersionForm.$visible">Version</label>
+      <label for="input-version" class="col-sm-1 control-label" ng-class="{ 'required': productVersionForm.$visible }">Version</label>
 
       <div class="col-sm-11">
         <p id="input-version" e-pattern="^[0-9]+\.[0-9]+$" e-class="form-control" editable-text="versionCtrl.version.version" e-name="version" e-maxlength="255" e-required>{{ versionCtrl.version.version || 'Empty' }} </p>

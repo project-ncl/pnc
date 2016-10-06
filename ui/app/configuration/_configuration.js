@@ -43,7 +43,6 @@
       views: {
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
-          //templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
       },
       data: {
@@ -61,7 +60,7 @@
       controllerAs: 'listCtrl',
       resolve: {
         configurationList: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.getAll();
+          return BuildConfigurationDAO.getAll().$promise;
         }
       }
     });
@@ -113,28 +112,28 @@
         },
         linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getProductVersions({
-            configurationId: $stateParams.configurationId });
+            configurationId: $stateParams.configurationId }).$promise;
         },
         dependencies: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getDependencies({
-            configurationId: $stateParams.configurationId });
+            configurationId: $stateParams.configurationId }).$promise;
         },
         linkedConfigurationSetList: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getConfigurationSets({
-            configurationId: $stateParams.configurationId });
+            configurationId: $stateParams.configurationId }).$promise;
         },
 
         environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.getAll();
+          return EnvironmentDAO.getAll().$promise;
         },
         products: function(ProductDAO) {
-          return ProductDAO.getAll();
+          return ProductDAO.getAll().$promise;
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.getAll();
+          return BuildConfigurationDAO.getAll().$promise;
         },
         configurationSetList: function(BuildConfigurationSetDAO) {
-          return BuildConfigurationSetDAO.getAll();
+          return BuildConfigurationSetDAO.getAll().$promise;
         }
       }
     });

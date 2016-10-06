@@ -123,7 +123,7 @@
             artifacts: function (BuildRecordDAO, recordDetail) {
               return BuildRecordDAO.getPagedDependencyArtifacts({
                 recordId: recordDetail.id
-              });
+              }).$promise;
             }
           }
         });
