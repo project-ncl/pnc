@@ -127,8 +127,7 @@
                 </div>
               </div>
             </li>
-            <li ng-controller="authenticationController as authCtrl" class="dropdown">
-              <span ng-show="authCtrl.isAuthenticated()">
+            <li ng-controller="authenticationController as authCtrl" class="dropdown" ng-show="authCtrl.isAuthenticated()">
                   <a href class="dropdown-toggle" data-toggle="dropdown">
                     <span class="pficon pficon-user"></span>{{ authCtrl.username }}<b class="caret"></b>
                   </a>
@@ -137,7 +136,6 @@
                       <a href ng-click="authCtrl.logout()">Logout</a>
                     </li>
                   </ul>
-              </span>
             </li>
             <li ng-controller="authenticationController as authCtrl">
               <a ng-hide="authCtrl.isAuthenticated()" href ng-click="authCtrl.login()"><span class="pficon pficon-user"></span>Login</a>
