@@ -54,10 +54,13 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
 /**
  *
@@ -164,6 +167,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 () -> datastoreAdapter.getNextBuildRecordId());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
         checkForEmptyBuildSetTask(buildSetTask);
+        checkForCyclicDependencies(buildSetTask);
         build(buildSetTask);
         return buildSetTask;
     }
@@ -229,6 +233,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         updateBuildStatus(buildTask, result);
 
         log.info("Task {} canceled.", buildTask.getId());
+    }
+
+    private void checkForCyclicDependencies(BuildSetTask buildSetTask) {
+        Set<BuildTask> buildTasks = buildSetTask.getBuildTasks();
+        if (hasCycle(buildTasks, BuildTask::getDependencies)) {
+            updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.REJECTED, "Build config set has a cycle");
+        }
     }
 
     /**
