@@ -28,7 +28,11 @@ import java.util.function.Consumer;
  */
 public interface BuildExecutor {
 
-    BuildExecutionSession startBuilding(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException;
+    BuildExecutionSession startBuilding(
+            BuildExecutionConfiguration buildExecutionConfiguration,
+            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
+            String accessToken)
+            throws ExecutorException;
 
     BuildExecutionSession getRunningExecution(int buildExecutionTaskId);
 

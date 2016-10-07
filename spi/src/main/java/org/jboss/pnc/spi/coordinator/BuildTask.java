@@ -92,7 +92,6 @@ public class BuildTask {
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.productMilestone = productMilestone;
-
     }
 
     public void setStatus(BuildCoordinationStatus status) {
@@ -268,7 +267,8 @@ public class BuildTask {
                 submitTime,
                 buildSetTask,
                 buildTaskId,
-                buildConfigSetRecordId, productMilestone);
+                buildConfigSetRecordId,
+                productMilestone);
     }
 
 

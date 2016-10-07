@@ -111,8 +111,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
+    @Override
     public BuildTask build(BuildConfiguration buildConfiguration, User user,
-                           boolean keepPodAliveAfterFailure, boolean forceRebuild) throws BuildConflictException {
+            boolean keepPodAliveAfterFailure,
+            boolean forceRebuild) throws BuildConflictException {
 
         BuildConfigurationAudited auditedBuildConfig = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(auditedBuildConfig);
@@ -128,7 +130,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 user,
                 datastoreAdapter.getNextBuildRecordId(),
                 null,
-                new Date(), buildConfiguration.getCurrentProductMilestone());
+                new Date(),
+                buildConfiguration.getCurrentProductMilestone());
 
         buildQueue.enqueueTask(buildTask);
         return buildTask;
@@ -146,8 +149,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
      */
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user,
-                              boolean keepPodAliveAfterFailure, boolean forceRebuildAll) throws CoreException {
+    @Override
+    public BuildSetTask build(
+            BuildConfigurationSet buildConfigurationSet,
+            User user,
+            boolean keepPodAliveAfterFailure,
+            boolean forceRebuildAll) throws CoreException {
 
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,

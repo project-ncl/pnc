@@ -111,13 +111,15 @@ public class DefaultBuildExecutor implements BuildExecutor {
     @Override
     public BuildExecutionSession startBuilding(
             BuildExecutionConfiguration buildExecutionConfiguration,
-            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
+            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
+            String accessToken) throws ExecutorException {
 
         DefaultBuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
 
         buildExecutionSession.setStartTime(new Date());
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
+        buildExecutionSession.setAccessToken(accessToken);
 
         DebugData debugData = new DebugData(buildExecutionConfiguration.isPodKeptOnFailure());
 
@@ -197,7 +199,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     buildExecutionConfiguration.getSystemImageRepositoryUrl(),
                     buildExecutionConfiguration.getSystemImageType(),
                     repositorySession,
-                    debugData);
+                    debugData,
+                    buildExecutionSession.getAccessToken());
 
             buildExecutionSession.setCancelHook(() -> startedEnv.cancel());
 

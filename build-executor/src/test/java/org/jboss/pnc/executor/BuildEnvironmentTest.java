@@ -156,7 +156,7 @@ public class BuildEnvironmentTest {
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
                 keepAliveOnFailure);
 
-        executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }
 
     private boolean contains(Set<BuildExecutionStatusChangedEvent> statusChangedEvents, BuildExecutionStatus status) {

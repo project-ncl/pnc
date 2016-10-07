@@ -84,9 +84,13 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         String dummyRepoUrl = "test.repo.url/repo";
 
         // Create container
-        final StartedEnvironment startedEnv = environmentDriver.startEnvironment(dummyImageId, dummyRepoUrl,
-                SystemImageType.DOCKER_IMAGE, DUMMY_REPOSITORY_CONFIGURATION,
-                new DebugData(false));
+        final StartedEnvironment startedEnv = environmentDriver.startEnvironment(
+                dummyImageId,
+                dummyRepoUrl,
+                SystemImageType.DOCKER_IMAGE,
+                DUMMY_REPOSITORY_CONFIGURATION,
+                new DebugData(false),
+                "put-access-token-here");
 
         Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
             boolean containerDestroyed = false;

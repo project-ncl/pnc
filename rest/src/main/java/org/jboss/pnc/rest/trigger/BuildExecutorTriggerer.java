@@ -52,7 +52,11 @@ public class BuildExecutorTriggerer {
         this.bpmNotifier = bpmNotifier;
     }
 
-    public BuildExecutionSession executeBuild(BuildExecutionConfiguration buildExecutionConfig, String callbackUrl) throws CoreException, ExecutorException {
+    public BuildExecutionSession executeBuild(
+            BuildExecutionConfiguration buildExecutionConfig,
+            String callbackUrl,
+            String accessToken)
+            throws CoreException, ExecutorException {
 
         Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {
             log.debug("Received BuildExecutionStatusChangedEvent: " + statusChangedEvent);
@@ -62,7 +66,8 @@ public class BuildExecutorTriggerer {
                 });
             }
         };
-        BuildExecutionSession buildExecutionSession = buildExecutor.startBuilding(buildExecutionConfig, onExecutionStatusChange);
+        BuildExecutionSession buildExecutionSession =
+                buildExecutor.startBuilding(buildExecutionConfig, onExecutionStatusChange, accessToken);
 
         return buildExecutionSession;
     }
