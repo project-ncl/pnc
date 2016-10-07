@@ -175,6 +175,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
         this.user = user;
         this.buildConfigurationAudited = buildConfigurationAudited;
+        this.buildConfigurationName = buildConfigurationAudited.getName();
     }
 
     @Override
