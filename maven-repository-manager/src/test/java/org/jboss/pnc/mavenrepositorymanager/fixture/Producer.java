@@ -20,7 +20,6 @@ package org.jboss.pnc.mavenrepositorymanager.fixture;
 import org.commonjava.indy.core.expire.ScheduleManager;
 import org.commonjava.indy.inject.TestData;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
-import org.commonjava.indy.subsys.maven.MavenComponentManager;
 import org.commonjava.maven.galley.auth.AttributePasswordManager;
 import org.commonjava.maven.galley.spi.auth.PasswordManager;
 import org.commonjava.maven.galley.transport.htcli.Http;
@@ -35,8 +34,6 @@ public class Producer {
 
     private IndyObjectMapper objectMapper;
 
-    private MavenComponentManager componentManager;
-
     private ScheduleManager scheduleManager;
 
     private Http http;
@@ -47,13 +44,6 @@ public class Producer {
         http = new HttpImpl(passman);
 
         scheduleManager = new ScheduleManager();
-        componentManager = new MavenComponentManager();
-    }
-
-    // @Produces
-    // @Default
-    public MavenComponentManager getComponentManager() {
-        return componentManager;
     }
 
     // @Produces
