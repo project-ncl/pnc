@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<div style="min-height: 239px !important;">
+<div class="pnc-build-details">
   <dl class="dl-horizontal">
     <dt>Job Id:</dt>
     <dd>{{ ctrl.record.id }}</dd>
@@ -34,14 +34,14 @@
     <dt ng-show="ctrl.record.endTime">Finished:</dt>
     <dd ng-show="ctrl.record.endTime">{{ (ctrl.record.endTime | date : 'medium') }}</dd>
 
-    <dt>Origin SCM Repo:</dt>
+    <dt>Intenal SCM URL:</dt>
     <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmRepoURL }}">{{ ctrl.record.buildConfigurationAudited.scmRepoURL || '&mdash;' }}</a></dd>
-    <dt>Origin SCM Revision:</dt>
+    <dt>Internal SCM Revision:</dt>
     <dd>{{ ctrl.record.buildConfigurationAudited.scmRevision || '&mdash;'}}</dd>
-    <dt>Cloned SCM Repo:</dt>
-    <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmRepoURL  }}">{{ ctrl.record.scmRepoURL || '&mdash;' }}</a></dd>
-    <dt title="The SCM revision after automated source updates">Cloned SCM Revision:</dt>
-    <dd>{{ ctrl.record.scmRevision || '&mdash;'}}</dd>
+    <dt>External SCM URL:</dt>
+    <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmRepoURL  }}">{{ ctrl.record.buildConfigurationAudited.scmExternalRepoURL || '&mdash;' }}</a></dd>
+    <dt title="The SCM revision after automated source updates">External SCM Revision:</dt>
+    <dd>{{ ctrl.record.buildConfigurationAudited.scmExternalRevision || '&mdash;'}}</dd>
     <dt>Environment:</dt>
     <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
     <dt>Script:</dt>
