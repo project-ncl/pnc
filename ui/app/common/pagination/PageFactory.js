@@ -294,7 +294,7 @@
           return origMethod(_(args).extend({
             pageIndex: 0,
             pageSize: data.pageSize * data.totalPages
-          })).value().$promise;
+          }).value()).$promise;
         } else {
           return data;
         }
