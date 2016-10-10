@@ -38,8 +38,9 @@ public class MilestoneReleaseTask extends BpmTask {
 
     private final ProductMilestone milestone;
 
-    public MilestoneReleaseTask(ProductMilestone milestone) {
+    public MilestoneReleaseTask(ProductMilestone milestone, String accessToken) {
         this.milestone = milestone;
+        setAccessToken(accessToken);
     }
 
     @Override

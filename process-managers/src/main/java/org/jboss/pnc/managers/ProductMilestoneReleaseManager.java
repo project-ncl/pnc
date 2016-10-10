@@ -86,9 +86,10 @@ public class ProductMilestoneReleaseManager {
      * Starts milestone release process
      *
      * @param milestone product milestone to start the release for
+     * @param accessToken
      */
-    public void startRelease(ProductMilestone milestone) {
-        ProductMilestoneRelease release = triggerRelease(milestone);
+    public void startRelease(ProductMilestone milestone, String accessToken) {
+        ProductMilestoneRelease release = triggerRelease(milestone, accessToken);
         releaseRepository.save(release);
     }
 
@@ -98,12 +99,12 @@ public class ProductMilestoneReleaseManager {
         return latestRelease == null || latestRelease.getStatus() != MilestoneReleaseStatus.IN_PROGRESS;
     }
 
-    private <T extends BpmNotificationRest> ProductMilestoneRelease triggerRelease(ProductMilestone milestone) {
+    private <T extends BpmNotificationRest> ProductMilestoneRelease triggerRelease(ProductMilestone milestone, String accessToken) {
         ProductMilestoneRelease release = new ProductMilestoneRelease();
         release.setStartingDate(new Date());
         release.setMilestone(milestone);
         try {
-            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone);
+            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
             Integer id = milestone.getId();
             releaseTask.<MilestoneReleaseResultRest>addListener(BpmEventType.BREW_IMPORT_SUCCESS, r -> onSuccessfulPush(id, r));
             releaseTask.<BpmStringMapNotificationRest>addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));

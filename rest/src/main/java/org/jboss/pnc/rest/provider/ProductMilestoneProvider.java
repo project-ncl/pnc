@@ -128,6 +128,10 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     @Override
     public void update(Integer id, ProductMilestoneRest restEntity) throws ValidationException {
+        update(id, restEntity, "");
+    }
+
+    public void update(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
         log.debug("Updating milestone for id: {}", id);
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
@@ -135,7 +139,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
         if (restEntity.getEndDate() != null && releaseManager.noReleaseInProgress(milestone)) {
             log.debug("Milestone end date set and no release in progress, will start release");
-            releaseManager.startRelease(milestone);
+            releaseManager.startRelease(milestone, accessToken);
         }
         repository.save(milestone);
     }

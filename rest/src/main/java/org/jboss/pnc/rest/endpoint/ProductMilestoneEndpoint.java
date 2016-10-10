@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -39,6 +40,7 @@ import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -174,9 +176,15 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     })
     @PUT
     @Path("/{id}")
-    public Response update(@ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
-            ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) throws ValidationException {
-        return super.update(id, productMilestoneRest);
+    public Response update(
+            @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
+            ProductMilestoneRest productMilestoneRest,
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpServletRequest) throws ValidationException {
+
+        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+        productMilestoneProvider.update(id, productMilestoneRest, authProvider.getTokenString());
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Get the artifacts distributed in this milestone")
