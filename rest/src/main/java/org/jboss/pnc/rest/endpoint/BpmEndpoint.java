@@ -8,7 +8,7 @@
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,7 +50,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
@@ -215,11 +217,26 @@ public class BpmEndpoint extends AbstractEndpoint {
         int totalPages = (tasks.size() / pageSize) + (tasks.size() % pageSize == 0 ? 0 : 1);
         List<BpmTaskRest> pagedTasks = tasks.stream()
                 .sorted().skip(pageIndex * pageSize).limit(pageSize)
-                .map(t -> new BpmTaskRest(
-                        t.getTaskId(),
-                        t.getProcessInstanceId(),
-                        t.getProcessName(),
-                        t.getEvents())).collect(Collectors.toList());
+                .map(mapTask).collect(Collectors.toList());
         return fromCollection(new CollectionInfo<>(pageIndex, pageSize, totalPages, pagedTasks));
+    }
+
+    private static Function<BpmTask, BpmTaskRest> mapTask = (BpmTask t) -> new BpmTaskRest(
+            t.getTaskId(),
+            t.getProcessInstanceId(),
+            t.getProcessName(),
+            t.getEvents());
+
+    @GET
+    @Path("/tasks/{taskId}")
+    public Response getBPMTaskById(
+            @ApiParam(value = "BPM task ID", required = true) @PathParam("taskId") int taskId
+    ) {
+        Optional<BpmTask> task = bpmManager.getTaskById(taskId);
+        if (task.isPresent()) {
+            return fromSingleton(mapTask.apply(task.get()));
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 }
