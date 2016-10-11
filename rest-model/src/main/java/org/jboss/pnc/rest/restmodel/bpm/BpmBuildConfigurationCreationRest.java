@@ -25,6 +25,7 @@ import org.jboss.pnc.rest.validation.validators.ScmUrl;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -34,7 +35,7 @@ import java.util.Set;
  */
 @XmlRootElement(name = "BpmBuildConfigurationCreation")
 @ToString
-public class BpmBuildConfigurationCreationRest {
+public class BpmBuildConfigurationCreationRest implements Serializable {
 
     @NotNull
     @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$")

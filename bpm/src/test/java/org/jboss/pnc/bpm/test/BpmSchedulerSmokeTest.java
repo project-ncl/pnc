@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.bpm.test;
 
+import lombok.Getter;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -34,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,10 +94,8 @@ public class BpmSchedulerSmokeTest {
             }
 
             @Override
-            protected Map<String, Object> getProcessParameters() throws CoreException {
-                Map<String, Object> params = new HashMap<>();
-                params.put("color", "blue");
-                return params;
+            protected Serializable getProcessParameters() throws CoreException {
+                return new SimpleParameters();
             }
         };
         task.<BpmStringMapNotificationRest>addListener(BCC_CREATION_SUCCESS, t -> {
@@ -119,5 +119,10 @@ public class BpmSchedulerSmokeTest {
 
         assertTrue(successNotification);
         assertFalse(errorNotification);
+    }
+
+    class SimpleParameters implements Serializable {
+        @Getter
+        String color = "blue";
     }
 }
