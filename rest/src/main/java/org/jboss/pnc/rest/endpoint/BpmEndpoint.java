@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
@@ -165,11 +166,14 @@ public class BpmEndpoint extends AbstractEndpoint {
     @Path("/tasks/start-build-configuration-creation")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response startBCCreationTask(
-            @ApiParam(value = "Task parameters.", required = true) BpmBuildConfigurationCreationRest taskData) throws CoreException {
+            @ApiParam(value = "Task parameters.", required = true) BpmBuildConfigurationCreationRest taskData,
+            @Context HttpServletRequest httpServletRequest) throws CoreException {
 
         LOG.debug("Received request to start BC creation: " + taskData);
 
-        BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData);
+        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+
+        BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData, authProvider.getTokenString());
         task.addListener(BpmEventType.BCC_CREATION_SUCCESS, x -> {
             LOG.debug("Received BPM event BCC_CREATION_SUCCESS: " + x);
         });

@@ -38,8 +38,9 @@ public class BpmBuildConfigurationCreationTask extends BpmTask {
 
     private final BpmBuildConfigurationCreationRest taskData;
 
-    public BpmBuildConfigurationCreationTask(BpmBuildConfigurationCreationRest taskData) {
+    public BpmBuildConfigurationCreationTask(BpmBuildConfigurationCreationRest taskData, String accessToken) {
         this.taskData = taskData;
+        setAccessToken(accessToken);
     }
 
     @Override

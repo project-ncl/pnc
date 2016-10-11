@@ -64,6 +64,21 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     @Getter
     private final List<BpmNotificationRest> events = new ArrayList<>();
 
+    private String processName;
+
+    protected BpmModuleConfig config;
+
+    private Map<BpmEventType, List<Consumer<?>>> listeners = new HashMap<>();
+
+    /**
+     * Users OAuth token used to authenticate requests on remote services
+     */
+    private String accessToken;
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
     public String getProcessName() {
         return processName;
     }
@@ -71,13 +86,6 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     /* package */ void setProcessName(String processName) {
         this.processName = processName;
     }
-
-    private String processName;
-
-    protected BpmModuleConfig config;
-
-    private Map<BpmEventType, List<Consumer<?>>> listeners = new HashMap<>();
-
 
     /**
      * Get the name of the BPM process for this task.
@@ -170,9 +178,9 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         actualParameters.put("pncBaseUrl", config.getPncBaseUrl());
         actualParameters.put("repourBaseUrl", config.getRepourBaseUrl());
         actualParameters.put("taskId", taskId);
+        actualParameters.put("usersAuthToken", accessToken);
         return actualParameters;
     }
-
 
     @Override
     public int compareTo(BpmTask other) {
