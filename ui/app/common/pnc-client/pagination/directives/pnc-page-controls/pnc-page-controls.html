@@ -17,14 +17,15 @@
     limitations under the License.
 
 -->
-<div class="form-inline">
-  <div class="form-group" style="margin-right: 1em;">
-    <label>Display: </label>
-    <select style="vertical-align: middle;" ng-model="ctrl.size" ng-change="ctrl.page.getWithNewSize(ctrl.size)" ng-options="i as i for i in ctrl.pageSizes"></select>
+<div class="form-inline pnc-page-controls">
+  <div class="form-group pnc-page-controls-size">
+    <label for="page-size-{{::$id}}">Page Size:&nbsp;</label>
+    <select pf-select id="page-size-{{::$id}}" ng-model="ctrl.size" ng-change="ctrl.page.getWithNewSize(ctrl.size)" ng-options="i as i for i in ctrl.pageSizes">
+    </select>
   </div>
-    <span>
-      <button type="button" class="btn btn-default btn-md" style="vertical-align: top;" ng-click="ctrl.page.previous()" ng-disabled="!ctrl.page.hasPrevious()"><span class="i fa fa-angle-left"></span> Prev</button>
-      <span style="padding-left: 0.5rem; padding-right: 0.5rem;"><input type="text" ng-model="ctrl.index" size="3" ng-keypress="($event.which === 13) ? ctrl.getPageIfExists(ctrl.index) : false"> of {{ ctrl.total }}</span>
-      <button type="button" class="btn btn-default btn-md" style="vertical-align: top;" ng-click="ctrl.page.next()" ng-disabled="!ctrl.page.hasNext()">Next <span class="i fa fa-angle-right"></span></button>
+    <span class="pnc-page-controls-pager">
+      <button type="button" class="btn btn-default btn-md" ng-click="ctrl.page.previous()" ng-disabled="!ctrl.page.hasPrevious()"><span class="i fa fa-angle-left"></span> Prev</button>
+      <span style="page-input-wrapper"><input type="text" ng-model="ctrl.index" size="3" ng-keypress="($event.which === 13) ? ctrl.getPageIfExists(ctrl.index) : false"></span><span class="of-x-pages">of {{ ctrl.total }}</span>
+      <button type="button" class="btn btn-default btn-md" ng-click="ctrl.page.next()" ng-disabled="!ctrl.page.hasNext()">Next <span class="i fa fa-angle-right"></span></button>
     </span>
 </div>

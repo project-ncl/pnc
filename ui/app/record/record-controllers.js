@@ -58,14 +58,6 @@
     }
   ]);
 
-  module.controller('RecordDependenciesController', [
-    'artifacts',
-    function(artifacts) {
-      this.downloadedArtifacts = artifacts;
-    }
-  ]);
-
-
   module.controller('RecordListController', [
     '$log',
     function ($log) {

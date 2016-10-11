@@ -44,12 +44,6 @@
             filterType: 'text'
           },
           {
-            id: 'checksum',
-            title:  'Checksum',
-            placeholder: 'Filter by Checksum',
-            filterType: 'text'
-          },
-          {
             id: 'repoType',
             title: 'Repo Type',
             placeholder: 'Filter by Repo Type',
@@ -58,6 +52,24 @@
               'MAVEN',
               'GENERIC_PROXY'
             ]
+          },
+          {
+            id: 'md5',
+            title:  'md5',
+            placeholder: 'Filter by md5 checksum',
+            filterType: 'text'
+          },
+          {
+            id: 'sha1',
+            title:  'sha1',
+            placeholder: 'Filter by sha1 checksum',
+            filterType: 'text'
+          },
+          {
+            id: 'sha256',
+            title:  'sha256',
+            placeholder: 'Filter by sha256 checksum',
+            filterType: 'text'
           }
         ],
         resultsCount: adaptor.resultsCount(),
