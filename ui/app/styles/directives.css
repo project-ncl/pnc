@@ -156,3 +156,30 @@
  .pnc-build-details {
    min-height: 239px;
  }
+
+/**
+ * pnc-page-controls
+ */
+.pnc-page-controls label,input,.btn,.of-x-pages {
+    vertical-align: middle;
+}
+
+.pnc-page-controls label {
+  margin-bottom: 0;
+}
+
+.pnc-page-controls > .form-group {
+  margin-right: 1em;
+}
+
+.pnc-page-controls .pnc-page-controls-pager input,.of-x-pages {
+  margin-right: 0.5rem;
+}
+
+.pnc-page-controls .pnc-page-controls-pager label {
+  margin-left: 0.5rem;
+}
+
+.pnc-page-controls > .pnc-page-controls-size .btn-group.bootstrap-select {
+  width: 70px;
+}

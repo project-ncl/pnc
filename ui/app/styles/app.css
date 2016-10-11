@@ -142,14 +142,11 @@ td.td-actions {
   width: 1% !important;
   padding: 0 !important;
   white-space: nowrap !important;
+  vertical-align: middle !important;
 }
 
 td.td-actions .btn-group {
   display: flex;
-}
-
-.panel-heading hr {
-  max-width: 100% !important;
 }
 
 @media (min-width: 768px) {
@@ -190,4 +187,24 @@ label.required::before {
 
 .search-pf-input-group > .dropdown-menu {
   width: 100%;
+}
+
+.panel.pnc-data-panel .panel-heading .filter-pf > .toolbar-pf-results {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.panel.pnc-data-panel .panel-heading .spinner.spinner-inline {
+  vertical-align: middle;
+}
+
+/*
+ * Hides pf-filter "x results" text since we can't accurately calculate this currently.
+ */
+.panel.pnc-data-panel .panel-heading .filter-pf .toolbar-pf-results h5 {
+  display: none;
+}
+
+.panel.pnc-data-panel .filter-pf .toolbar-pf-results > .col-sm-12 {
+  min-height: 41px;
 }
