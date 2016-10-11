@@ -25,8 +25,9 @@
    * @author Jakub Senko
    */
   module.directive('productImportStartForm', [
+    '$log',
     'ProductDAO',
-    function (ProductDAO) {
+    function ($log, ProductDAO) {
 
       return {
         restrict: 'E',
@@ -52,15 +53,19 @@
             }
           };
           scope.addOptionalRepository = function() {
-            // check if it is defined. If no, define it
-            if (typeof scope.data.repositories === 'undefined') {
-              scope.data.repositories = [];
-            }
-            // add to the list
-            scope.data.repositories.push(scope.optionalRepository);
+            if (scope.optionalRepository) {
+              // check if it is defined. If no, define it
+              if (typeof scope.data.repositories === 'undefined') {
+                scope.data.repositories = [];
+              }
+              // add to the list
+              scope.data.repositories.push(scope.optionalRepository);
 
-            // clear the field in the UI
-            scope.optionalRepository = '';
+              // clear the field in the UI
+              scope.optionalRepository = '';
+            } else {
+              $log.warn('Attempt to add empty repository - button should be disabled to prevent this action');
+            }
           };
 
           scope.removeOptionalRepository = function(index) {
