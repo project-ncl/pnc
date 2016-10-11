@@ -44,16 +44,6 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String scmRepoURL;
     private String scmRevision;
 
-    @Deprecated // no longer used
-    @Getter
-    @Setter
-    private String scmMirrorRepoURL;
-
-    @Deprecated // no longer used
-    @Getter
-    @Setter
-    private String scmMirrorRevision;
-
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
