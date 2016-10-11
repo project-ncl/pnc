@@ -86,4 +86,8 @@ public class BpmBuildConfigurationCreationRest {
     @Getter
     @Setter
     private Integer productVersionId;
+
+    @Getter
+    @Setter
+    private Set<Integer> buildConfigurationSetIds;
 }
