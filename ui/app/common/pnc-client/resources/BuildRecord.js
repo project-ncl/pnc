@@ -104,7 +104,13 @@
           isPaged: false,
           method: 'GET',
           url: SSH_CREDENTIALS_ENDPOINT
-        }
+        },
+        getLog: {
+          method: 'GET',
+          url: ENDPOINT + '/log',
+          cache: true,
+          transformResponse: function(data) { return { payload: data }; }
+        },
       });
 
       /**

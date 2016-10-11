@@ -55,7 +55,7 @@
         url: '/{recordId:int}',
         templateUrl: 'record/views/record.detail.html',
         data: {
-          displayName: '{{ recordDetail.name }}',
+          proxy: 'record.detail.default'
         },
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
@@ -70,7 +70,7 @@
         url: '',
         templateUrl: 'record/views/record.detail.default.html',
         data: {
-          displayName: '{{ recordDetail.id }}',
+          displayName: 'Job #{{ recordDetail.id }}',
         }
       });
 
@@ -80,13 +80,11 @@
         controllerAs: 'resultCtrl',
         templateUrl: 'record/views/record.detail.result.html',
         data: {
-          displayName: '{{ recordDetail.id }}'
+          displayName: 'Log'
         },
         resolve: {
-          buildLog: function (BuildRecordDAO, recordDetail) {
-            return BuildRecordDAO.getLog({
-              recordId: recordDetail.id
-            }).$promise;
+          buildLog: function (BuildRecord, recordDetail) {
+            return BuildRecord.getLog({ id: recordDetail.id }).$promise;
           },
           sshCredentials: function (BuildRecord, recordDetail) {
             return BuildRecord.getSshCredentials({
@@ -102,7 +100,7 @@
         controllerAs: 'artifactsCtrl',
         templateUrl: 'record/views/record.detail.artifacts.html',
         data: {
-          displayName: '{{ recordDetail.id }}',
+          displayName: 'Built Artifacts',
         },
         resolve: {
           artifacts: function (recordDetail) {
@@ -117,7 +115,7 @@
           controllerAs: 'artifactsCtrl',
           templateUrl: 'record/views/record.detail.artifacts.html',
           data: {
-            displayName: '{{ recordDetail.id }}',
+            displayName: 'Dependencies',
           },
           resolve: {
             artifacts: function (recordDetail) {
