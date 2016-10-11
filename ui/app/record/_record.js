@@ -113,17 +113,15 @@
 
       $stateProvider.state('record.detail.dependencies', {
           url: '/dependencies',
-          controller: 'RecordDependenciesController',
-          controllerAs: 'depsCtrl',
-          templateUrl: 'record/views/record.detail.dependencies.html',
+          controller: 'RecordArtifactsController',
+          controllerAs: 'artifactsCtrl',
+          templateUrl: 'record/views/record.detail.artifacts.html',
           data: {
             displayName: '{{ recordDetail.id }}',
           },
           resolve: {
-            artifacts: function (BuildRecordDAO, recordDetail) {
-              return BuildRecordDAO.getPagedDependencyArtifacts({
-                recordId: recordDetail.id
-              }).$promise;
+            artifacts: function (recordDetail) {
+              return recordDetail.$getDependencies();
             }
           }
         });
