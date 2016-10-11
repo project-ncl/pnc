@@ -43,13 +43,19 @@
     list-style-type: none;
 }
 
-.pnc-infinite-select .dropdown-item {
+.pnc-infinite-select .dropdown-item, .pnc-infinite-select .dropdown-item-empty {
     margin: 0;
     font-size: 12px;
     padding: 2px 5px;
     border-width: 1px 0;
     border-style: solid;
     border-color: transparent;
+}
+
+.pnc-infinite-select .dropdown-item-empty {
+    color: gray;
+    font-style: italic;
+    pointer-events: none;
 }
 
 .pnc-infinite-select .dropdown-item:hover {
