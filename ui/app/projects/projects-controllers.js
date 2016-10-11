@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
-
-  var module = angular.module('pnc.project');
+  var module = angular.module('pnc.projects');
 
   module.controller('ProjectListController', [
     'projectList',
@@ -42,7 +41,7 @@
         that.project.$update(
         ).then(
           function() {
-            $state.go('project.detail', {
+            $state.go('projects.detail', {
               projectId: that.project.id
             }, {
               reload: true
@@ -63,7 +62,7 @@
       this.create = function(project) {
 
         new ProjectDAO(angular.copy(project)).$save().then(function(result) {
-          $state.go('project.detail', {
+          $state.go('projects.detail', {
             projectId: result.id
           });
         });

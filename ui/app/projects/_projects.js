@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
-
-  var module = angular.module('pnc.project', [
+  var module = angular.module('pnc.projects', [
     'ui.router',
     'pnc.common.restclient',
     'pnc.common.directives',
@@ -29,23 +28,24 @@
 
   module.config(['$stateProvider', function($stateProvider) {
 
-    $stateProvider.state('project', {
+    $stateProvider.state('projects', {
       abstract: true,
+      url: '/projects',
       views: {
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
         }
       },
       data: {
-        proxy: 'project.list'
+        proxy: 'projects.list'
       }
     });
 
-    $stateProvider.state('project.list', {
-      url: '/project',
-      templateUrl: 'project/views/project.list.html',
+    $stateProvider.state('projects.list', {
+      url: '',
+      templateUrl: 'projects/views/projects.list.html',
       data: {
-        displayName: 'Projects Metadata'
+        displayName: 'Projects'
       },
       controller: 'ProjectListController',
       controllerAs: 'listCtrl',
@@ -56,9 +56,9 @@
       }
     });
 
-    $stateProvider.state('project.detail', {
-      url: '/project/{projectId:int}',
-      templateUrl: 'project/views/project.detail.html',
+    $stateProvider.state('projects.detail', {
+      url: '/{projectId:int}',
+      templateUrl: 'projects/views/projects.detail.html',
       data: {
          displayName: '{{ projectDetail.name }}',
       },
@@ -72,9 +72,9 @@
       }
     });
 
-    $stateProvider.state('project.detail.create-bc', {
+    $stateProvider.state('projects.detail.create-bc', {
       url: '/create-bc',
-      templateUrl: 'project/views/project.detail.create-bc.html',
+      templateUrl: 'projects/views/projects.detail.create-bc.html',
       data: {
           displayName: 'Create Build Config',
           requireAuth: true
@@ -89,11 +89,11 @@
       }
     });
 
-    $stateProvider.state('project.create', {
-      url: '/project/create',
-      templateUrl: 'project/views/project.create.html',
+    $stateProvider.state('projects.create', {
+      url: '/create',
+      templateUrl: 'projects/views/projects.create.html',
       data: {
-        displayName: 'Create Project Metadata',
+        displayName: 'Create Project',
         requireAuth: true
       },
       controller: 'ProjectCreateController',

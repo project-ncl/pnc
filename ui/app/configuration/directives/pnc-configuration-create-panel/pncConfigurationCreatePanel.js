@@ -96,7 +96,7 @@
                 $state.go('configuration.list');
                 pncNotify.success('Build configuration will be created in a few minutes.');
               } else {
-                $state.go('project.detail', {
+                $state.go('projects.detail', {
                   projectId: $scope.data.project.id
                 });
               }

@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.record');
+  var module = angular.module('pnc.projects');
 
   /**
    * @ngdoc directive
@@ -37,7 +36,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'project/directives/pnc-build-configurations/pnc-build-configurations.html',
+        templateUrl: 'projects/directives/pnc-build-configurations/pnc-build-configurations.html',
         scope: {
           pncProject: '='
         },
