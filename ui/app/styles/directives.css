@@ -149,3 +149,10 @@
 .white_text {
 	color: white;
 }
+
+/**
+ * pnc-build-details
+ */
+ .pnc-build-details {
+   min-height: 239px;
+ }
