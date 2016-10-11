@@ -165,7 +165,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      *
      * @throws CoreException
      */
-    protected Map<String, Object> getExtendedProcessParameters() throws CoreException {
+    Map<String, Object> getExtendedProcessParameters() throws CoreException {
         Serializable processParameters = getProcessParameters();
         requireNonNull(processParameters);
         Map<String, Object> actualParameters = new HashMap<>();
