@@ -75,7 +75,8 @@ public class CanceledBuildTest extends ProjectBuilder {
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
-        Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
+
+        Assert.assertEquals("Too many build records in datastore: " + buildRecords, 1, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
 
