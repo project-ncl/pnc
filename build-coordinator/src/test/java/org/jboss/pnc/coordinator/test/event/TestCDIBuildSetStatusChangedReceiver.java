@@ -32,8 +32,6 @@ public class TestCDIBuildSetStatusChangedReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(TestCDIBuildSetStatusChangedReceiver.class);
 
-    public static final TestCDIBuildSetStatusChangedReceiver INSTANCE = new TestCDIBuildSetStatusChangedReceiver(); //TODO do not instance in applicationScoped
-
     private List<Consumer<BuildSetStatusChangedEvent>> listeners = new LinkedList<>();
 
     public synchronized void addBuildSetStatusChangedEventListener(Consumer<BuildSetStatusChangedEvent> listener) {
