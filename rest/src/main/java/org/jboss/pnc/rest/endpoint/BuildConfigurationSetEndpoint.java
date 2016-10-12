@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
@@ -43,6 +42,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -296,20 +296,13 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
             @Context UriInfo uriInfo)
             throws InterruptedException, CoreException, DatastoreException, BuildDriverException, RepositoryManagerException,
-            MalformedURLException {
+            MalformedURLException, InvalidEntityException {
         logger.info("Executing build configuration set id: " + id );
 
-        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-        String loggedUser = authProvider.getUserName();
         User currentUser = endpointAuthProvider.getCurrentUser(httpServletRequest);
-
-        if(currentUser == null) { //TODO remove user creation
-            currentUser = User.Builder.newBuilder()
-                    .username(loggedUser)
-                    .firstName(authProvider.getFirstName())
-                    .lastName(authProvider.getLastName())
-                    .email(authProvider.getEmail()).build();
-            datastore.createNewUser(currentUser);
+        if (currentUser == null) {
+            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
+                    + " user must be initialized through /users/getLoggedUser");
         }
 
         BuildTriggerer.BuildConfigurationSetTriggerResult result;
