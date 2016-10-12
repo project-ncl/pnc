@@ -382,6 +382,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private synchronized void markFinished(BuildTask task) {
+        log.debug("Finishing buildTask {} ...", task);
         buildQueue.removeTask(task);
         switch (task.getStatus()) {
             case DONE:
@@ -441,6 +442,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void completeBuildSetTask(BuildSetTask buildSetTask) {
+        log.debug("Completing buildSetTask {} ...", buildSetTask);
         buildQueue.removeSet(buildSetTask);
         buildSetTask.taskStatusUpdatedToFinalState();
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
