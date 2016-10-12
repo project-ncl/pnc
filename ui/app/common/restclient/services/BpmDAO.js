@@ -38,17 +38,18 @@
       resource.startBuildConfigurationCreation = function(data) {
         
         return $http.post(ENDPOINT + '/start-build-configuration-creation', {
-          name:                 data.name,
-          description:          data.description,
-          buildScript:          data.buildScript,
-          scmRepoURL:           data.scmInternal.url,
-          scmRevision:          data.scmInternal.revision,
-          scmExternalRepoURL:   data.scmExternal.url,
-          scmExternalRevision:  data.scmExternal.revision,
-          projectId:            data.project.id,
-          buildEnvironmentId:   data.environment.id,
-          dependencyIds:        data.dependencyIds,
-          productVersionId:     data.productVersionId
+          name:                     data.name,
+          description:              data.description,
+          buildScript:              data.buildScript,
+          scmRepoURL:               data.scmInternal.url,
+          scmRevision:              data.scmInternal.revision,
+          scmExternalRepoURL:       data.scmExternal.url,
+          scmExternalRevision:      data.scmExternal.revision,
+          projectId:                data.project.id,
+          buildEnvironmentId:       data.environment.id,
+          dependencyIds:            data.dependencyIds,
+          buildConfigurationSetIds: data.buildConfigurationSetIds,
+          productVersionId:         data.productVersionId
         });
 
       };
