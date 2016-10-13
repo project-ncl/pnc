@@ -36,13 +36,7 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -220,5 +214,9 @@ public class BpmManager {
 
     public synchronized Collection<BpmTask> getActiveTasks() {
         return Collections.unmodifiableCollection(new HashSet<>(tasks.values()));
+    }
+
+    public synchronized Optional<BpmTask> getTaskById(int taskId) {
+        return Optional.ofNullable(tasks.get(taskId));
     }
 }
