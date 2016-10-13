@@ -25,13 +25,16 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildConfigurationCreationTask;
+import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
+import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BpmTaskPage;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,7 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -72,13 +76,16 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private BpmManager bpmManager;
 
+    private BuildConfigurationSetProvider bcSetProvider;
+
     @Deprecated
     public BpmEndpoint() {
     } // CDI workaround
 
     @Inject
-    public BpmEndpoint(BpmManager bpmManager) {
+    public BpmEndpoint(BpmManager bpmManager, BuildConfigurationSetProvider bcSetProvider) {
         this.bpmManager = bpmManager;
+        this.bcSetProvider = bcSetProvider;
     }
 
 
@@ -135,7 +142,6 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-
     @ApiOperation(value = "Start BC creation task.", response = Singleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = "Success")
@@ -152,9 +158,39 @@ public class BpmEndpoint extends AbstractEndpoint {
         AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
 
         BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData, authProvider.getTokenString());
+
+        /**
+         * Given the successful BC creation, add the BC into the BC sets.
+         * This solution has been selected because if this was done in BPM process
+         * there would have to be a foreach cycle and at least two REST requests
+         * for each BC Set ID. The process would become too complicated.
+         * Notification listeners are ideal for these kind of operations.
+         */
         task.addListener(BpmEventType.BCC_CREATION_SUCCESS, x -> {
             LOG.debug("Received BPM event BCC_CREATION_SUCCESS: " + x);
+            BpmStringMapNotificationRest n = (BpmStringMapNotificationRest) x;
+            int bcId = -1;
+            try {
+                bcId = Integer.valueOf(n.getData().get("buildConfigurationId"));
+            } catch (NumberFormatException ex) {
+                throw new RuntimeException("Receive notification about successful BC creation '" + n +
+                        "' but the ID of the newly created BC '" + n.getData().get("buildConfigurationId") +
+                        "' is not a number. It should be present under 'buildConfigurationId' key.", ex);
+            }
+
+            Set<Integer> bcSetIds = taskData.getBuildConfigurationSetIds();
+            if (bcSetIds == null)
+                throw new RuntimeException("Set of Build Configuration Set IDs is null. Task data: " + taskData);
+            for (Integer setId : bcSetIds) {
+                try {
+                    bcSetProvider.addConfiguration(setId, bcId);
+                } catch (ValidationException e) {
+                    throw new RuntimeException("Could not add BC with ID '" + bcId +
+                            "' to a BC Set with id '" + setId + "'.", e);
+                }
+            }
         });
+
         task.addListener(BpmEventType.BCC_CREATION_ERROR, x -> {
             LOG.debug("Received BPM event BCC_CREATION_ERROR: " + x);
         });
