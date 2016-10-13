@@ -89,10 +89,10 @@
           <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched }">
             <label for="input-scm-repo-url" class="col-sm-2 control-label">* Url</label>
             <div class="col-sm-10">
-              <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="data.scmRepoURL" ng-required="!data.scmRepoURLExternal" 
-                pnc-scm-validator="git+ssh" pnc-exact-host="pnc-gerrit-stage@code-stage.eng.nay.redhat.com">
+              <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="data.scmRepoURL" ng-required="!data.scmRepoURLExternal"
+                  pnc-scm-validator="git+ssh" pnc-exact-host="user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418">
               <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">At least one of the SCMs is required.</span>
-              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.invalidScmUrl">Only R/W SCM with the following format <code>git+ssh://pnc-gerrit-stage@code-stage.eng.nay.redhat.com</code> is allowed.</span>
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.invalidScmUrl">Only R/W SCM with the following format <code>git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418</code> is allowed.</span>
             </div>
           </div>
 
@@ -108,7 +108,7 @@
         </div>
 
         <div class="list-group-item">
-          
+
           <div class="row">
             <div class="col-sm-2 text-right-sm p-b-10">
               <strong class="text-uppercase">External</strong>
@@ -143,18 +143,18 @@
       <div class="panel-body">
 
         <!-- build script -->
-        <div class="form-group" ng-class="{ 'has-error': (configurationForm.buildScript.$invalid || configurationForm.buildScript.$error.invalidBuildScript) 
+        <div class="form-group" ng-class="{ 'has-error': (configurationForm.buildScript.$invalid || configurationForm.buildScript.$error.invalidBuildScript)
           && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
           <label for="input-build-script" class="col-sm-2 control-label">* Build Script</label>
           <div class="col-sm-10">
-            <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" required ng-model="data.buildScript" 
+            <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" required ng-model="data.buildScript"
               pnc-build-script-validator></textarea>
             <span class="help-block" ng-show="configurationForm.buildScript.$error.required && configurationForm.buildScript.$touched">Required field.</span>
             <span class="help-block" ng-show="configurationForm.buildScript.$error.invalidBuildScript && configurationForm.buildScript.$touched">
               The use of 'deploy' is mandatory when using Maven.
             </span>
             <div>
-              Additional parameters can be added into the PME configuration file (e.g. <em>pme.properties</em> ) placed at the execution root, see 
+              Additional parameters can be added into the PME configuration file (e.g. <em>pme.properties</em> ) placed at the execution root, see
               <a href="https://release-engineering.github.io/pom-manipulation-ext/guide/configuration.html" target="_blank">documentation</a>.
             </div>
           </div>
