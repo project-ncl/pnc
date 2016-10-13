@@ -65,13 +65,14 @@
           $scope.data.project = $scope.projectSelection.selected[0];
         }
 
-        $scope.submit = function(form) {
+        $scope.submit = function() {
 
           // The REST API takes integer Ids so we need to extract them from
           // our collection of objects first and attach them to our data object
           // for sending back to the server.
           $scope.data.productVersionId = getFirstId($scope.productVersions.selected);
           $scope.data.dependencyIds = gatherIds($scope.dependencies.selected);
+          $scope.data.buildConfigurationSetIds = gatherIds($scope.buildgroupconfigs.selected);
 
           $scope.data.scmExternal = {
             url:      $scope.data.scmRepoURLExternal,
@@ -85,13 +86,7 @@
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
 
             // success
-            function(result) {
-              // Saving the BuildConfig link into the BuildGroupConfig
-              _.each($scope.buildgroupconfigs.selected, function(buildgroupconfig) {
-                buildgroupconfig.buildConfigurationIds.push(result.id);
-                buildgroupconfig.$update();
-              });
-
+            function() {
               if (_.isUndefined($scope.fixedProject)) {
                 $state.go('configuration.list');
                 pncNotify.success('Build configuration will be created in a few minutes.');
@@ -103,10 +98,8 @@
             }, 
 
             // error
-            function(errors) {
-              if (errors.data.details.field === 'scmRepoURL') {
-                form.scmRepoURL.$setValidity('invalidScmRepoURL', false);
-              }
+            function() {
+              $log.error('Start build configuration creation failed.');
             }
           );
         };
