@@ -32,7 +32,8 @@ import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BpmTaskPage;
+import org.jboss.pnc.rest.swagger.response.BpmTaskRestPage;
+import org.jboss.pnc.rest.swagger.response.BpmTaskRestSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
@@ -199,10 +200,10 @@ public class BpmEndpoint extends AbstractEndpoint {
     }
 
 
-    @ApiOperation(value = "List of active BPM tasks.")
+    @ApiOperation(value = "List of (recently) active BPM tasks.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BpmTaskPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BpmTaskPage.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BpmTaskRestPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BpmTaskRestPage.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
@@ -227,6 +228,11 @@ public class BpmEndpoint extends AbstractEndpoint {
             t.getProcessName(),
             t.getEvents());
 
+    @ApiOperation(value = "Get single (recently) active BPM task.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BpmTaskRestSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BpmTaskRestSingleton.class),
+    })
     @GET
     @Path("/tasks/{taskId}")
     public Response getBPMTaskById(

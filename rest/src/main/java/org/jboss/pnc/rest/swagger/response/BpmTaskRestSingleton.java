@@ -19,8 +19,8 @@
 package org.jboss.pnc.rest.swagger.response;
 
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 
-public class BpmTaskPage extends Page<BpmTaskRest> {
+public class BpmTaskRestSingleton extends Singleton<BpmTaskRest> {
 
 }
