@@ -124,10 +124,20 @@
   <div class="panel panel-default" ng-hide="data.useExistingBc">
     <div class="panel-body">
 
-      <div class="form-group">
-        <label for="bcFormInput5" class="col-sm-3 control-label">Build script</label>
+      <!-- build script -->
+      <div class="form-group" ng-class="{ 'has-error': (bcForm.bcFormInput5.$invalid || bcForm.bcFormInput5.$error.invalidBuildScript) 
+          && bcForm.bcFormInput5.$touched, 'has-success': bcForm.bcFormInput5.$valid && bcForm.bcFormInput5.$touched }">
+        <label for="bcFormInput5" class="col-sm-3 control-label">* Build Script</label>
         <div class="col-sm-9">
-          <textarea id="bcFormInput5" name="bcFormInput5" rows="3" class="form-control" ng-model="data.buildScript"></textarea>
+          <textarea id="bcFormInput5" name="bcFormInput5" rows="3" class="form-control" required ng-model="data.buildScript" pnc-build-script-validator></textarea>
+          <span class="help-block" ng-show="bcForm.bcFormInput5.$error.required && bcForm.bcFormInput5.$touched">Required field.</span>
+          <span class="help-block" ng-show="bcForm.bcFormInput5.$error.invalidBuildScript && bcForm.bcFormInput5.$touched">
+            The use of 'deploy' is mandatory when using Maven.
+          </span>
+          <div>
+            Additional parameters can be added into the PME configuration file (e.g. <em>pme.properties</em> ) placed at the execution root, see 
+            <a href="https://release-engineering.github.io/pom-manipulation-ext/guide/configuration.html" target="_blank">documentation</a>.
+          </div>
         </div>
       </div>
 
