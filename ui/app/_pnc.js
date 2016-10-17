@@ -26,7 +26,7 @@
     'patternfly.notification',
     'pnc.dashboard',
     'pnc.product',
-    'pnc.project',
+    'pnc.projects',
     'pnc.configuration',
     'pnc.record',
     'pnc.configuration-set',

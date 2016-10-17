@@ -21,7 +21,7 @@
 <pnc-header>
   <pnc-header-title>Projects Metadata</pnc-header-title>
   <pnc-header-buttons>
-    <button type="button" ui-sref="project.create" class="btn btn-lg btn-default" data-toggle="tooltip"
+    <button type="button" ui-sref="projects.create" class="btn btn-lg btn-default" data-toggle="tooltip"
             title="Create Project Metadata">
       <i class="fa fa-file-text-o"></i> Create
     </button>
@@ -40,7 +40,7 @@
       <tbody>
 
       <tr ng-repeat="project in listCtrl.projects.data">
-        <td><a href ui-sref="project.detail({ projectId: project.id })">{{ project.name }}</a></td>
+        <td><a href ui-sref="projects.detail({ projectId: project.id })">{{ project.name }}</a></td>
         <td>{{ project.description }}</td>
       </tr>
       </tbody>
