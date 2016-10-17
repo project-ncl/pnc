@@ -26,80 +26,89 @@
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
-  module.config(['$stateProvider', function($stateProvider) {
 
-    $stateProvider.state('projects', {
-      abstract: true,
-      url: '/projects',
-      views: {
-        'content@': {
-          templateUrl: 'common/templates/single-col.tmpl.html'
+
+  module.config([
+    '$stateProvider',
+    '$urlRouterProvider',
+    function($stateProvider, $urlRouterProvider) {
+
+      // NCL-2402 changed the project module URL, this redirect should
+      // be removed at some point in the future.
+      $urlRouterProvider.when('/project/:id', '/projects/:id');
+
+      $stateProvider.state('projects', {
+        abstract: true,
+        url: '/projects',
+        views: {
+          'content@': {
+            templateUrl: 'common/templates/single-col.tmpl.html'
+          }
+        },
+        data: {
+          proxy: 'projects.list'
         }
-      },
-      data: {
-        proxy: 'projects.list'
-      }
-    });
+      });
 
-    $stateProvider.state('projects.list', {
-      url: '',
-      templateUrl: 'projects/views/projects.list.html',
-      data: {
-        displayName: 'Projects'
-      },
-      controller: 'ProjectListController',
-      controllerAs: 'listCtrl',
-      resolve: {
-        projectList: function(ProjectDAO) {
-          return ProjectDAO.getAll().$promise;
+      $stateProvider.state('projects.list', {
+        url: '',
+        templateUrl: 'projects/views/projects.list.html',
+        data: {
+          displayName: 'Projects'
+        },
+        controller: 'ProjectListController',
+        controllerAs: 'listCtrl',
+        resolve: {
+          projectList: function(ProjectDAO) {
+            return ProjectDAO.getAll().$promise;
+          }
         }
-      }
-    });
+      });
 
-    $stateProvider.state('projects.detail', {
-      url: '/{projectId:int}',
-      templateUrl: 'projects/views/projects.detail.html',
-      data: {
-         displayName: '{{ projectDetail.name }}',
-      },
-      controller: 'ProjectDetailController',
-      controllerAs: 'detailCtrl',
-      resolve: {
-        projectDetail: function(ProjectDAO, $stateParams) {
-          return ProjectDAO.get({
-            projectId: $stateParams.projectId}).$promise;
+      $stateProvider.state('projects.detail', {
+        url: '/{projectId:int}',
+        templateUrl: 'projects/views/projects.detail.html',
+        data: {
+           displayName: '{{ projectDetail.name }}',
+        },
+        controller: 'ProjectDetailController',
+        controllerAs: 'detailCtrl',
+        resolve: {
+          projectDetail: function(ProjectDAO, $stateParams) {
+            return ProjectDAO.get({
+              projectId: $stateParams.projectId}).$promise;
+          }
         }
-      }
-    });
+      });
 
-    $stateProvider.state('projects.detail.create-bc', {
-      url: '/create-bc',
-      templateUrl: 'projects/views/projects.detail.create-bc.html',
-      data: {
-          displayName: 'Create Build Config',
+      $stateProvider.state('projects.detail.create-bc', {
+        url: '/create-bc',
+        templateUrl: 'projects/views/projects.detail.create-bc.html',
+        data: {
+            displayName: 'Create Build Config',
+            requireAuth: true
+          },
+        controller: 'CreateBCController',
+        controllerAs: 'ctrl',
+        resolve: {
+          projectDetail: function(ProjectDAO, $stateParams) {
+            return ProjectDAO.get({
+              projectId: $stateParams.projectId}).$promise;
+          }
+        }
+      });
+
+      $stateProvider.state('projects.create', {
+        url: '/create',
+        templateUrl: 'projects/views/projects.create.html',
+        data: {
+          displayName: 'Create Project',
           requireAuth: true
         },
-      controller: 'CreateBCController',
-      controllerAs: 'ctrl',
-      resolve: {
-        projectDetail: function(ProjectDAO, $stateParams) {
-          return ProjectDAO.get({
-            projectId: $stateParams.projectId}).$promise;
-        }
-      }
-    });
-
-    $stateProvider.state('projects.create', {
-      url: '/create',
-      templateUrl: 'projects/views/projects.create.html',
-      data: {
-        displayName: 'Create Project',
-        requireAuth: true
-      },
-      controller: 'ProjectCreateController',
-      controllerAs: 'createCtrl'
-    });
-
-  }]);
+        controller: 'ProjectCreateController',
+        controllerAs: 'createCtrl'
+      });
+    }
+  ]);
 
 })();
