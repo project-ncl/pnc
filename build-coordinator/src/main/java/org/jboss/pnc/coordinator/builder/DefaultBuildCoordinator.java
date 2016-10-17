@@ -80,8 +80,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private BuildQueue buildQueue;
 
-    private Optional<BuildSetStatusChangedEvent> buildSetStatusChangedEvent;
-
     private BuildTasksInitializer buildTasksInitializer;
 
 
@@ -302,7 +300,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Integer userId = Optional.ofNullable( buildSetTask.getBuildConfigSetRecord().getUser()).map(User::getId).orElse(null);
 
-        buildSetStatusChangedEvent = Optional.of(new DefaultBuildSetStatusChangedEvent(
+        Optional<BuildSetStatusChangedEvent> buildSetStatusChangedEvent = Optional.of(new DefaultBuildSetStatusChangedEvent(
                 oldStatus,
                 status,
                 buildSetTask.getId(),
@@ -469,7 +467,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         buildQueue.removeSet(buildSetTask);
         buildSetTask.taskStatusUpdatedToFinalState();
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
-        buildSetStatusChangedEvent.ifPresent(buildSetStatusChangedEventNotifier::fire);
         try {
             datastoreAdapter.saveBuildConfigSetRecord(buildSetTask.getBuildConfigSetRecord());
         } catch (DatastoreException e) {
