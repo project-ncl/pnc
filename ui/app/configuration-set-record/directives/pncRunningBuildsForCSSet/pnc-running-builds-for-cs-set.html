@@ -31,7 +31,7 @@
     <tbody>
     <tr ng-repeat="record in page.data">
       <td>{{ record.getBuildConfiguration().getProject().name }}</td>
-      <td><a href ui-sref="configuration.detail.show({configurationId: record.buildConfigurationId})})">{{
+      <td><a href ui-sref="build-configs.detail({configurationId: record.buildConfigurationId})})">{{
         record.buildConfigurationName }}</a></td>
       <td>{{ record.username }}</td>
       <td>

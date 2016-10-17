@@ -27,7 +27,7 @@
               tooltip-popup-delay="2500"
               tooltip-placement="top"
               tooltip-append-to-body="true"
-              ui-sref="configuration.create">
+              ui-sref="build-configs.create">
         <i class="fa fa-file-text-o"></i> Create
       </button>
     </pnc-header-buttons>
@@ -47,7 +47,7 @@
     <tbody>
       <tr ng-repeat="configuration in listCtrl.configurations.data">
         <td>
-          <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
+          <a ui-sref="build-configs.detail({configurationId: configuration.id})" href>
             {{ configuration.name }}
           </a>
         </td>

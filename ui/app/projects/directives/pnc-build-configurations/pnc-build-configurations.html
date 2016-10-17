@@ -31,7 +31,7 @@
   <tbody>
   <tr ng-repeat="configuration in page.data">
     <td>
-      <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
+      <a ui-sref="build-configs.detail({configurationId: configuration.id})" href>
         {{ configuration.name }}
       </a>
     </td>

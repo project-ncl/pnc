@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.configuration');
+  var module = angular.module('pnc.build-configs');
 
   module.controller('ConfigurationListController', [
     '$log',
@@ -131,7 +131,7 @@
             BuildConfigurationSetDAO.update(buildgroupconfig);
           });
 
-          $state.go('configuration.detail.show', {
+          $state.go('build-configs.detail', {
             configurationId: that.configuration.id
           }, {
             reload: true
@@ -142,7 +142,7 @@
       // Cloning a build configuration
       that.clone = function() {
         that.configuration.$clone().then(function(result) {
-          $state.go('configuration.detail.show', {
+          $state.go('build-configs.detail', {
             configurationId: result.id
           }, {
             reload: true
@@ -153,7 +153,7 @@
       // Deleting a build configuration
       that.delete = function() {
         that.configuration.$delete().then(function() {
-          $state.go('configuration.list', {}, {
+          $state.go('build-configs.list', {}, {
             reload: true,
             inherit: false,
             notify: true
@@ -163,7 +163,7 @@
 
       that.cancel = function(form) {
         if (form) {
-          $state.go('configuration.detail.show', {
+          $state.go('build-configs.detail', {
             configurationId: that.configuration.id
           }, {
             reload: true

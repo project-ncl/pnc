@@ -27,7 +27,7 @@
     'pnc.dashboard',
     'pnc.product',
     'pnc.projects',
-    'pnc.configuration',
+    'pnc.build-configs',
     'pnc.record',
     'pnc.configuration-set',
     'pnc.milestone',

@@ -162,7 +162,7 @@
           <div class="col-sm-10">
             <ul class="list-unstyled form-control-static" ng-hide="configurationForm.$visible">
               <li ng-repeat="dependency in detailCtrl.dependencies.selected">
-                <a href ui-sref="configuration.detail.show({ configurationId: dependency.id })">{{ dependency.name }}</a>
+                <a href ui-sref="build-configs.detail({ configurationId: dependency.id })">{{ dependency.name }}</a>
               </li>
             </ul>
             <pnc-infinite-select-items

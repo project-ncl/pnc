@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.configuration');
+  var module = angular.module('pnc.build-configs');
 
   module.directive('pncConfigurationCreatePanel', [
     function () {
@@ -88,7 +88,7 @@
             // success
             function() {
               if (_.isUndefined($scope.fixedProject)) {
-                $state.go('configuration.list');
+                $state.go('build-configs.list');
                 pncNotify.success('Build configuration will be created in a few minutes.');
               } else {
                 $state.go('projects.detail', {
@@ -147,7 +147,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'configuration/directives/pnc-configuration-create-panel/pnc-configuration-create-panel.html',
+        templateUrl: 'build-configs/directives/pnc-configuration-create-panel/pnc-configuration-create-panel.html',
         scope: {
           fixedProject: '@'
         },
