@@ -282,10 +282,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 task.getEndTime(),
                 userId);
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
-        task.setStatus(status);
-        task.setStatusDescription(statusDescription);
         if (status.isCompleted()) {
-            markFinished(task);
+            markFinished(task, status, statusDescription);
+        } else {
+            task.setStatus(status);
+            task.setStatusDescription(statusDescription);
         }
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
@@ -397,10 +398,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private synchronized void markFinished(BuildTask task) {
+    private synchronized void markFinished(BuildTask task, BuildCoordinationStatus status, String statusDescription) {
+        task.setStatus(status);
+        task.setStatusDescription(statusDescription);
         log.debug("Finishing buildTask {} ...", task);
         buildQueue.removeTask(task);
-        switch (task.getStatus()) {
+        switch (status) {
             case DONE:
             case REJECTED_ALREADY_BUILT:
                 buildQueue.executeNewReadyTasks();
@@ -418,12 +421,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         BuildSetTask buildSetTask = task.getBuildSetTask();
         if (buildSetTask != null && isFinished(buildSetTask)) {
-            // check if buildSetTask.getStatus().isCompleted() to avoid double completion which can happen when
-            // two tasks complete at the same time, second task will wait to enter into this synchronized method
-            // and isFinished(buildSetTask) will return true for the first task
-            if (buildSetTask.getStatus() == null || !buildSetTask.getStatus().isCompleted()) {
-                completeBuildSetTask(buildSetTask);
-            }
+            completeBuildSetTask(buildSetTask);
         }
     }
 
