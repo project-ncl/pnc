@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
-(function() {
+(function () {
+  'use strict';
 
   var module = angular.module('pnc.build-configs');
 
@@ -131,8 +130,9 @@
             BuildConfigurationSetDAO.update(buildgroupconfig);
           });
 
-          $state.go('build-configs.detail', {
-            configurationId: that.configuration.id
+          $state.go('projects.detail.build-configs.detail', {
+            configurationId: that.configuration.id,
+            projectId: that.configuration.project.id
           }, {
             reload: true
           });
@@ -142,8 +142,9 @@
       // Cloning a build configuration
       that.clone = function() {
         that.configuration.$clone().then(function(result) {
-          $state.go('build-configs.detail', {
-            configurationId: result.id
+          $state.go('projects.detail.build-configs.detail', {
+            configurationId: result.id,
+            projectId: result.project.id
           }, {
             reload: true
           });
@@ -153,7 +154,9 @@
       // Deleting a build configuration
       that.delete = function() {
         that.configuration.$delete().then(function() {
-          $state.go('build-configs.list', {}, {
+          $state.go('projects.detail', {
+            projectId: that.configuration.project.id
+          }, {
             reload: true,
             inherit: false,
             notify: true
@@ -163,8 +166,9 @@
 
       that.cancel = function(form) {
         if (form) {
-          $state.go('build-configs.detail', {
-            configurationId: that.configuration.id
+          $state.go('projects.detail.build-configs.detail', {
+            configurationId: that.configuration.id,
+            projectId: that.configuration.project.id
           }, {
             reload: true
           });

@@ -156,11 +156,14 @@
         },
         onEnter: [
           '$state',
+          '$timeout',
           'configurationDetail',
-          function ($state, configurationDetail) {
-            $state.go('projects.detail.build-configs.detail', {
-              projectId: configurationDetail.project.id,
-              configurationId: configurationDetail.id
+          function ($state, $timeout, configurationDetail) {
+            $timeout(function () { // Works around bug in ui.router https://github.com/angular-ui/ui-router/issues/1434
+              $state.go('projects.detail.build-configs.detail', {
+                projectId: configurationDetail.project.id,
+                configurationId: configurationDetail.id
+              });
             });
           }
         ]
