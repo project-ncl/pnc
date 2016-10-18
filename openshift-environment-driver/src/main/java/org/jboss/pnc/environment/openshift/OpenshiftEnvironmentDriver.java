@@ -22,7 +22,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.environment.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.common.test.monitor;
+package org.jboss.pnc.environment.monitor;
 
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -37,9 +37,12 @@ public class PullingMonitorTest {
 
     static PullingMonitor pullingMonitor;
 
+    private static Configuration configuration;
+
     @BeforeClass
     public static void init() {
-        pullingMonitor = new PullingMonitor();
+        configuration = new Configuration();
+        pullingMonitor = new PullingMonitor(configuration);
     }
 
     @AfterClass
@@ -106,7 +109,7 @@ public class PullingMonitorTest {
     }
 
     private void failingMonitor(Supplier<Boolean> condition) throws InterruptedException {
-        PullingMonitor pullingMonitor = new PullingMonitor();
+        PullingMonitor pullingMonitor = new PullingMonitor(configuration);
 
         CountDownLatch latch = new CountDownLatch(1);
 
