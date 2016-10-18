@@ -58,6 +58,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer buildConfigurationRev;
 
+    private Integer projectId;
+
+    private String projectName;
+
     private Integer userId;
 
     private String username;
@@ -117,6 +121,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 () -> buildConfigurationName = buildRecord.getBuildConfigurationAudited().getName());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationRev = buildRecord.getBuildConfigurationAudited().getRev());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+                () -> projectId = buildRecord.getBuildConfigurationAudited().getProject().getId());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+                () -> projectName = buildRecord.getBuildConfigurationAudited().getName());
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
         performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
@@ -159,6 +167,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildConfigurationName = buildExecutionConfig.getName();
         this.scmRepoURL = buildExecutionConfig.getScmRepoURL();
         this.scmRevision = buildExecutionConfig.getScmRevision();
+
+        this.projectId = buildConfigurationAudited.getProjectId();
+        performIfNotNull(buildConfigurationAudited.getProject(),
+                () -> this.projectName = buildConfigurationAudited.getProject().getName());
     }
 
     public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime,
@@ -175,7 +187,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
         this.user = user;
         this.buildConfigurationAudited = buildConfigurationAudited;
+        this.buildConfigurationId = buildConfigurationAudited.getId();
         this.buildConfigurationName = buildConfigurationAudited.getName();
+        this.projectId = buildConfigurationAudited.getProjectId();
+
+        performIfNotNull(buildConfigurationAudited.getProject(),
+                () -> this.projectName = buildConfigurationAudited.getProject().getName());
+
     }
 
     @Override
@@ -330,5 +348,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildConfigurationAuditedRest getBuildConfigurationAudited() {
         return buildConfigurationAudited;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public String getProjectName() {
+        return projectName;
     }
 }
