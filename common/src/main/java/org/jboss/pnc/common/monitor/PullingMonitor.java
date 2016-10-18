@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 public class PullingMonitor {
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
-    private static final int DEFAULT_TIMEOUT = 30;
+    private static final int DEFAULT_TIMEOUT = 60;
 
     /** Interval between two checks if the services are fully up and running (in second) */
     private static final int DEFAULT_CHECK_INTERVAL = 1;
