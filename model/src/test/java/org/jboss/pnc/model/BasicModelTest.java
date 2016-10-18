@@ -17,14 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.database.DatabaseConnection;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
-import org.dbunit.operation.DatabaseOperation;
-import org.hibernate.internal.SessionImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
-import java.io.InputStream;
+
 import java.time.Instant;
 import java.util.Date;
 
@@ -50,13 +42,7 @@ public class BasicModelTest extends AbstractModelTest {
     public void initTestData() throws Exception {
         // Initialize data from xml dataset file
         EntityManager em = getEmFactory().createEntityManager();
-        IDatabaseConnection connection = new DatabaseConnection(em.unwrap(SessionImpl.class).connection());
-        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
-        FlatXmlDataSetBuilder flatXmlDataSetBuilder = new FlatXmlDataSetBuilder();
-        flatXmlDataSetBuilder.setColumnSensing(true);
-        InputStream dataSetStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(DBUNIT_DATASET_FILE);
-        IDataSet dataSet = flatXmlDataSetBuilder.build(dataSetStream);
-        DatabaseOperation.INSERT.execute(connection, dataSet);
+        initDatabaseUsingDataset(em, DBUNIT_DATASET_FILE);
 
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
         BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")

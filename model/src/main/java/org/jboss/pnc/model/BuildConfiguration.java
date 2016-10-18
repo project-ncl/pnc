@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -26,35 +27,22 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PersistenceException;
-import javax.persistence.PrePersist;
-import javax.persistence.PreRemove;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+
+import javax.persistence.*;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -206,6 +194,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     // manager...so hard to say what format is required.
     // @Column(name = "repositories")
     private String repositories;
+    
+    @Getter
+    @Setter
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "build_configuration_parameters")
+    @MapKeyColumn(length = 50, name = "key", nullable = false)
+    @Column(nullable = false)
+    private Map<String, String> genericParameters = new HashMap<>();
 
     /**
      * Instantiates a new project build configuration.
@@ -716,6 +712,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         private boolean archived = false;
 
         private String repositories;
+        
+        private Map<String, String> genericParameters = new HashMap<>();
 
         private Builder() {
             dependencies = new HashSet<>();
@@ -749,6 +747,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setLastModificationTime(lastModificationTime);
             buildConfiguration.setArchived(archived);
             buildConfiguration.setRepositories(repositories);
+            buildConfiguration.setGenericParameters(genericParameters);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
             buildConfiguration.setProductVersion(productVersion);
 
@@ -865,6 +864,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder repositories(String repositories) {
             this.repositories = repositories;
+            return this;
+        }
+        
+        public Builder genericParameters(Map<String, String> genericParameters) {
+            this.genericParameters = genericParameters;
             return this;
         }
 
