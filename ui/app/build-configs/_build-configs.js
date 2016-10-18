@@ -47,58 +47,34 @@
         return $location.url().replace('/configuration/', '/build-configs/');
       });
 
-      $stateProvider.state('build-configs', {
+      $stateProvider.state('projects.detail.build-configs', {
         abstract: true,
         url: '/build-configs',
         views: {
           'content@': {
-            templateUrl: 'common/templates/single-col.tmpl.html'
+            templateUrl: 'common/templates/two-col-right-sidebar.tmpl.html'
           }
         },
         data: {
-          proxy: 'build-configs.list'
+          proxy: 'projects.detail.build-configs.detail'
         }
       });
 
-      $stateProvider.state('build-configs.list', {
-        url: '',
-        templateUrl: 'build-configs/views/build-configs.list.html',
-        data: {
-          displayName: 'Build Configs'
-        },
-        controller: 'ConfigurationListController',
-        controllerAs: 'listCtrl',
-        resolve: {
-          configurationList: function(BuildConfigurationDAO) {
-            return BuildConfigurationDAO.getAll().$promise;
-          }
-        }
-      });
-
-      $stateProvider.state('build-configs.create', {
-        url: '/create',
-        templateUrl: 'build-configs/views/build-configs.create.html',
-        data: {
-          displayName: 'Create Build Config',
-          requireAuth: true
-        }
-      });
-
-      $stateProvider.state('build-configs.detail', {
+      $stateProvider.state('projects.detail.build-configs.detail', {
         url: '/{configurationId:int}',
         data: {
            displayName: '{{ configurationDetail.name }}',
         },
+        templateUrl: 'build-configs/views/build-configs.detail-main.html',
+        controller: 'ConfigurationDetailController',
+        controllerAs: 'detailCtrl',
         views: {
-          'content@': {
-            templateUrl: 'common/templates/two-col-right-sidebar.tmpl.html'
-          },
-          '@build-configs.detail': {
+          '': {
             templateUrl: 'build-configs/views/build-configs.detail-main.html',
             controller: 'ConfigurationDetailController',
             controllerAs: 'detailCtrl'
           },
-          'sidebar@build-configs.detail': {
+          'sidebar': {
             templateUrl: 'build-configs/views/build-configs.detail-sidebar.html',
             controller: 'ConfigurationSidebarController',
             controllerAs: 'sidebarCtrl'
@@ -134,6 +110,68 @@
           configurationSetList: function(BuildConfigurationSetDAO) {
             return BuildConfigurationSetDAO.getAll().$promise;
           }
+        }
+      });
+
+
+      /*
+       * Shortcut states
+       */
+
+      $stateProvider.state('build-configs', {
+        abstract: true,
+        url: '/build-configs',
+        views: {
+          'content@': {
+            templateUrl: 'common/templates/single-col.tmpl.html'
+          }
+        },
+        data: {
+          proxy: 'build-configs.list'
+        }
+      });
+
+      $stateProvider.state('build-configs.list', {
+        url: '',
+        templateUrl: 'build-configs/views/build-configs.list.html',
+        data: {
+          displayName: 'Build Configs'
+        },
+        controller: 'ConfigurationListController',
+        controllerAs: 'listCtrl',
+        resolve: {
+          configurationList: function(BuildConfigurationDAO) {
+            return BuildConfigurationDAO.getAll().$promise;
+          }
+        }
+      });
+
+      $stateProvider.state('build-configs.detail', {
+        url: '/{configurationId:int}',
+        resolve: {
+          configurationDetail: function(BuildConfigurationDAO, $stateParams) {
+            return BuildConfigurationDAO.get({
+              configurationId: $stateParams.configurationId }).$promise;
+          }
+        },
+        onEnter: [
+          '$state',
+          'configurationDetail',
+          function ($state, configurationDetail) {
+            $state.go('projects.detail.build-configs.detail', {
+              projectId: configurationDetail.project.id,
+              configurationId: configurationDetail.id
+            });
+          }
+        ]
+      });
+
+      $stateProvider.state('build-configs.create', {
+        url: '/create',
+        templateUrl: 'build-configs/views/build-configs.create.html',
+        data: {
+          displayName: 'Create Build Config',
+          requireAuth: true
         }
       });
     }

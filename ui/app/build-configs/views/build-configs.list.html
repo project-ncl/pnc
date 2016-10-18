@@ -47,7 +47,7 @@
     <tbody>
       <tr ng-repeat="configuration in listCtrl.configurations.data">
         <td>
-          <a ui-sref="build-configs.detail({configurationId: configuration.id})" href>
+          <a ui-sref="projects.detail.build-configs.detail({ projectId: configuration.project.id, configurationId: configuration.id })" href>
             {{ configuration.name }}
           </a>
         </td>
