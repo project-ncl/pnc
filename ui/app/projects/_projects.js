@@ -26,16 +26,16 @@
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
-
-
   module.config([
     '$stateProvider',
     '$urlRouterProvider',
     function($stateProvider, $urlRouterProvider) {
 
-      // NCL-2402 changed the project module URL, this redirect should
+      // NCL-2402 changed the module base URL, this redirect should
       // be removed at some point in the future.
-      $urlRouterProvider.when('/project/:id', '/projects/:id');
+      $urlRouterProvider.when(/^\/project\/.*/, function ($location) {
+        return $location.url().replace('/project/', '/projects/');
+      });
 
       $stateProvider.state('projects', {
         abstract: true,

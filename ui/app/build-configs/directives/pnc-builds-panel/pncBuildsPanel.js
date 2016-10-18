@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.configuration');
+  var module = angular.module('pnc.build-configs');
 
   /**
    * @ngdoc directive
@@ -54,7 +54,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'configuration/directives/pnc-builds-panel/pnc-builds-panel.html',
+        templateUrl: 'build-configs/directives/pnc-builds-panel/pnc-builds-panel.html',
         scope: {
           pncConfigurationId: '='
         },

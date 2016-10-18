@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.configuration');
+  var module = angular.module('pnc.build-configs');
 
   /**
    * Check whether Build Script input is valid.

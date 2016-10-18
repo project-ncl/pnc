@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 'use strict';
+(function () {
+  'use strict';
 
- (function() {
   var app = angular.module('pnc', [
     'ngAnimate',
     'angular-loading-bar',
@@ -27,7 +27,7 @@
     'pnc.dashboard',
     'pnc.product',
     'pnc.projects',
-    'pnc.configuration',
+    'pnc.build-configs',
     'pnc.record',
     'pnc.configuration-set',
     'pnc.milestone',
