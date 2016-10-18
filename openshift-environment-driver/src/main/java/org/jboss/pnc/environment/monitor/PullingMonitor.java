@@ -16,14 +16,19 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.common.monitor;
+package org.jboss.pnc.environment.monitor;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.util.collection.ConcurrentSet;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -40,12 +45,6 @@ import java.util.function.Supplier;
 @ApplicationScoped
 public class PullingMonitor {
 
-    /** Time how long to wait until all services are fully up and running (in seconds) */
-    private static final int DEFAULT_TIMEOUT = 60;
-
-    /** Interval between two checks if the services are fully up and running (in second) */
-    private static final int DEFAULT_CHECK_INTERVAL = 1;
-
     /** */
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
 
@@ -54,14 +53,22 @@ public class PullingMonitor {
 
     private ConcurrentSet<RunningTask> runningTasks;
 
-    public PullingMonitor() {
+    private OpenshiftEnvironmentDriverModuleConfig config;
+
+    @Inject
+    public PullingMonitor(Configuration configuration) {
+        try {
+            config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+        } catch (ConfigurationParseException e) {
+            throw new RuntimeException("PullingMonitor could not get its configuration.", e);
+        }
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
         executorService = Executors.newScheduledThreadPool(4); //TODO configurable, keep global ScheduledThreadPool and inject it
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
-        monitor(onMonitorComplete, onMonitorError, condition, DEFAULT_CHECK_INTERVAL, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
+        monitor(onMonitorComplete, onMonitorError, condition, config.getBuildStartCheckIntervalSeconds(), config.getBuildStartTimeoutSeconds(), DEFAULT_TIME_UNIT);
     }
 
     /**
