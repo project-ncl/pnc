@@ -13,7 +13,9 @@
               "containerPort":"${env.PNC_CONTAINER_PORT}",
               "imageId":"${env.PNC_BUILDER_IMAGE_ID}",
               "workingDirectory":"/tmp",
-              "disabled":"false"
+              "disabled":"false",
+              "buildStartTimeoutSeconds": "30",
+              "buildStartCheckIntervalSeconds": "1"
           }
         ]
 }

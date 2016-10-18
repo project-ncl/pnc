@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.common.monitor;
+package org.jboss.pnc.environment.monitor;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
