@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.TimeUtils;
+import org.jboss.pnc.environment.openshift.OpenshiftEnvironmentDriver;
 import org.jboss.util.collection.ConcurrentSet;
 
 import javax.annotation.PreDestroy;
@@ -53,21 +54,22 @@ public class PullingMonitor {
 
     private ConcurrentSet<RunningTask> runningTasks;
 
-    private OpenshiftEnvironmentDriverModuleConfig config;
+    @Inject
+    private Configuration configuration;
+
+    public PullingMonitor() {
+    }
 
     @Inject
     public PullingMonitor(Configuration configuration) {
-        try {
-            config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
-        } catch (ConfigurationParseException e) {
-            throw new RuntimeException("PullingMonitor could not get its configuration.", e);
-        }
+        this.configuration = configuration;
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
         executorService = Executors.newScheduledThreadPool(4); //TODO configurable, keep global ScheduledThreadPool and inject it
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
+        OpenshiftEnvironmentDriverModuleConfig config = getConfig();
         monitor(onMonitorComplete, onMonitorError, condition, config.getBuildStartCheckIntervalSeconds(), config.getBuildStartTimeoutSeconds(), DEFAULT_TIME_UNIT);
     }
 
@@ -126,5 +128,13 @@ public class PullingMonitor {
     public void destroy() {
         executorService.shutdownNow();
         timeOutVerifierService.shutdownNow();
+    }
+
+    private OpenshiftEnvironmentDriverModuleConfig getConfig() {
+        try {
+            return configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+        } catch (ConfigurationParseException e) {
+            throw new RuntimeException("PullingMonitor could not get its configuration.", e);
+        }
     }
 }
