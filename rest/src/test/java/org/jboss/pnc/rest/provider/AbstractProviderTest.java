@@ -73,7 +73,7 @@ public class AbstractProviderTest {
     @Test
     public void shouldReturnCollectionWithPagingInfo() throws Exception {
         //given
-        BuildConfiguration exampleConfiguration = new BuildConfiguration();
+        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder().build();
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(Arrays.asList(exampleConfiguration)).when(repository).queryWithPredicates(any(), any(), any());
@@ -92,8 +92,8 @@ public class AbstractProviderTest {
     @Test
     public void shouldReturnSingleton() throws Exception {
         //given
-        BuildConfiguration exampleConfiguration = new BuildConfiguration();
-        exampleConfiguration.setId(1);
+        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder()
+                .id(1).build();;
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(exampleConfiguration).when(repository).queryById(1);
@@ -108,8 +108,8 @@ public class AbstractProviderTest {
     @Test
     public void shouldCallStore() throws Exception {
         //given
-        BuildConfiguration exampleConfiguration = new BuildConfiguration();
-        exampleConfiguration.setId(1);
+        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder()
+                .id(1).build();
 
         BuildConfigurationRest exampleConfigurationRest = new BuildConfigurationRest(exampleConfiguration);
 

@@ -42,6 +42,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -68,6 +70,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Audited
+@Table(uniqueConstraints = {@UniqueConstraint(name = "UK_BUILD_CONFIGURATION_NAME", columnNames = {"name", "active"})})
 public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
@@ -80,7 +83,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    @Column(unique = true)
     @NotNull
     @Size(max=255)
     private String name;
@@ -171,13 +173,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Date lastModificationTime;
 
     /**
-     * If true, indicates that this build configuration should no longer be used.
-     * An archived build configuration should normally not be included in search 
-     * results.  It should only be visible if the user is looking for that specific
-     * configuration.  Defaults to false.
+     * Normally set to true.
+     * If BuildConfiguration is no longer to be used (is archived) - this is set to **null**
+     *
+     * Workaround to have a database constraint for active configuration name
      */
-    @NotNull
-    private boolean archived;
+    private Boolean active;
 
     /**
      * The set of build configs upon which this build depends. The build configs contained in dependencies should normally be
@@ -524,11 +525,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @return true if this build config should no longer be used for builds
      */
     public boolean isArchived() {
-        return archived;
+        return !Boolean.TRUE.equals(active);
     }
 
     public void setArchived(boolean archived) {
-        this.archived = archived;
+        this.active = archived ? null : true;
     }
 
     /**
@@ -568,7 +569,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @Override
     public String toString() {
-        return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + "]";
+        return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active=" + active + "]";
     }
 
     @Override
@@ -717,9 +718,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         private String repositories;
 
         private Builder() {
-            dependencies = new HashSet<BuildConfiguration>();
-            dependants = new HashSet<BuildConfiguration>();
-            buildConfigurationSets = new HashSet<BuildConfigurationSet>();
+            dependencies = new HashSet<>();
+            dependants = new HashSet<>();
+            buildConfigurationSets = new HashSet<>();
         }
 
         public static Builder newBuilder() {

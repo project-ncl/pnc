@@ -38,9 +38,9 @@ import org.mockito.MockitoAnnotations;
  */
 public class BuildConfigurationProviderTest {
 
-    public static final int EXISTING_ID = 1243;
-    public static final String VALID_URL = "https://github.com/project-ncl/pnc";
-    public static final String INVALID_URL = "invalid url";
+    private static final int EXISTING_ID = 1243;
+    private static final String VALID_URL = "https://github.com/project-ncl/pnc";
+    private static final String INVALID_URL = "invalid url";
 
     @Mock
     protected Repository<BuildConfiguration, Integer> repository;
@@ -51,7 +51,7 @@ public class BuildConfigurationProviderTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(repository.queryById(EXISTING_ID)).thenReturn(new BuildConfiguration());
+        Mockito.when(repository.queryById(EXISTING_ID)).thenReturn(BuildConfiguration.Builder.newBuilder().build());
     }
 
     @Test(expected = InvalidEntityException.class)

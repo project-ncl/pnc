@@ -79,9 +79,7 @@ public class BuildConfigurationSetProviderTest {
     }
 
     private BuildConfiguration createBuildConfiguration(int id){
-        BuildConfiguration retVal = new BuildConfiguration();
-        retVal.setId(id);
-        return retVal;
+        return BuildConfiguration.Builder.newBuilder().id(id).build();
     }
 
     private BuildConfigurationSet createBuildConfigurationSet(int id){

@@ -149,9 +149,8 @@ public abstract class AbstractDependentBuildTest {
     protected BuildConfiguration config(String name, BuildConfiguration... dependencies) {
         int id = configIdSequence.getAndIncrement();
 
-        BuildConfiguration config = new BuildConfiguration();
-        config.setName(name);
-        config.setId(id);
+        BuildConfiguration config =
+                BuildConfiguration.Builder.newBuilder().name(name).id(id).build();
         Stream.of(dependencies).forEach(config::addDependency);
 
         buildConfigurationRepository.save(config);
