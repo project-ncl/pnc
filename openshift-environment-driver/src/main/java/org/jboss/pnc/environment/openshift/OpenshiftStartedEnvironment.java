@@ -55,6 +55,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -64,22 +65,25 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String SSH_SERVICE_PORT_NAME = "2222-ssh";
     private static final String POD_USERNAME = "worker";
     private static final String POD_USER_PASSWD = "workerUserPassword";
+    private static final String OSE_API_VERSION = "v1";
+
     private boolean serviceCreated = false;
     private boolean podCreated = false;
     private boolean routeCreated = false;
 
-    private static final String OSE_API_VERSION = "v1";
     private final IClient client;
     private final RepositorySession repositorySession;
     private final OpenshiftEnvironmentDriverModuleConfig environmentConfiguration;
     private final PullingMonitor pullingMonitor;
+    private final String imageId;
+    private final DebugData debugData;
+    private final Set<Selector> initialized = new HashSet<>();
+    private final Map<String, String> runtimeProperties;
+
     private Pod pod;
     private Service service;
     private Route route;
     private Service sshService;
-    private final DebugData debugData;
-    private final Set<Selector> initialized = new HashSet<>();
-    private final Map<String, String> runtimeProperties;
 
     private final String buildAgentContextPath;
 
@@ -97,6 +101,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
             PullingMonitor pullingMonitor,
             RepositorySession repositorySession,
+            String systemImageId,
             DebugData debugData,
             String accessToken) {
 
@@ -105,6 +110,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         this.environmentConfiguration = environmentConfiguration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
+        this.imageId = systemImageId == null ? environmentConfiguration.getImageId() : systemImageId;
         this.debugData = debugData;
 
         createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
@@ -365,7 +371,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
 
         Properties properties = new Properties();
-        properties.put("image", environmentConfiguration.getImageId());
+        properties.put("image", imageId);
         properties.put("containerPort", environmentConfiguration.getContainerPort());
         properties.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
         properties.put("isHttpActive", proxyActive.toString().toLowerCase());
