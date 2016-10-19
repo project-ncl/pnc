@@ -82,7 +82,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
 
         //TODO: Need to pass the systemImageId and repoUrl to the new environment instead of using system wide environment config
-        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, debugData, accessToken);
+        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, systemImageId, debugData, accessToken);
     }
 
     @Override
