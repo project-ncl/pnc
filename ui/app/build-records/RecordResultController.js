@@ -15,33 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.build-records');
+  angular.module('pnc.build-records').controller('RecordResultController', [
+    'buildLog',
+    'REST_BASE_URL',
+    'BUILD_RECORD_ENDPOINT',
+    'recordDetail',
+    'sshCredentials',
+    function(buildLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail, sshCredentials) {
+      this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/log';
+      this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
+      this.log = buildLog.payload;
 
-  /**
-   * @author Jakub Senko
-   */
-  module.directive('pncProductVersionReleases', [
-    function () {
-
-      return {
-        restrict: 'E',
-        templateUrl: 'product/directives/pncProductVersionReleases/pnc-product-version-releases.html',
-        scope: {
-          version: '='
-        },
-        link: function (scope) {
-
-          var productmilestones = scope.version.productMilestones;
-          scope.versionMilestoneNames = {};
-          angular.forEach(productmilestones, function(versionMilestone) {
-            scope.versionMilestoneNames[versionMilestone.id] = versionMilestone.version;
-          });
-        }
+      this.sshCredentialsBtn = {
+        clicked: false
       };
+
+      this.sshCredentials = sshCredentials;
     }
   ]);
 

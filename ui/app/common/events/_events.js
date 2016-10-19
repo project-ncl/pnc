@@ -52,7 +52,7 @@
 
       function buildRecordLinkCallback(recordId) {
         return function() {
-          $state.go('record.detail.default', {recordId: recordId});
+          $state.go('build-records.detail.default', {recordId: recordId});
         };
       }
 

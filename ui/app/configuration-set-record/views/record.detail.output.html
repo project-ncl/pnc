@@ -38,7 +38,7 @@
         <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self"
                                    class="btn btn-primary">Download</a></td>
         <td>{{ record.getBuildConfiguration().name }}</td>
-        <td><a href ui-sref="record.detail.default({recordId: record.id})"># {{ record.id }}</a></td>
+        <td><a href ui-sref="build-records.detail.default({recordId: record.id})"># {{ record.id }}</a></td>
       </tr>
       </tbody>
     </table>

@@ -28,7 +28,7 @@
     'pnc.product',
     'pnc.projects',
     'pnc.build-configs',
-    'pnc.record',
+    'pnc.build-records',
     'pnc.configuration-set',
     'pnc.milestone',
     'pnc.release',

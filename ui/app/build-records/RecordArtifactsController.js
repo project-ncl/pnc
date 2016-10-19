@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.record').controller('RecordArtifactsController', [
+  angular.module('pnc.build-records').controller('RecordArtifactsController', [
     '$log',
     'artifacts',
     'filteringPaginator',

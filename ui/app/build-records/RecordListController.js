@@ -15,33 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.build-records');
+  angular.module('pnc.build-records').controller('RecordListController', [
+    '$log',
+    function ($log) {
 
-  /**
-   * @author Jakub Senko
-   */
-  module.directive('pncProductVersionReleases', [
-    function () {
-
-      return {
-        restrict: 'E',
-        templateUrl: 'product/directives/pncProductVersionReleases/pnc-product-version-releases.html',
-        scope: {
-          version: '='
-        },
-        link: function (scope) {
-
-          var productmilestones = scope.version.productMilestones;
-          scope.versionMilestoneNames = {};
-          angular.forEach(productmilestones, function(versionMilestone) {
-            scope.versionMilestoneNames[versionMilestone.id] = versionMilestone.version;
-          });
-        }
-      };
+      $log.debug('RecordListCtrl');
     }
   ]);
 

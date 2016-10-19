@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.record');
+  var module = angular.module('pnc.build-records');
   /**
    * @ngdoc directive
    * @name pnc.common.eventbus:pncBuildDetail
@@ -30,7 +30,7 @@
   module.directive('pncBuildDetails', [
     function() {
 
-    var DEFAULT_TEMPLATE = 'record/directives/pnc-build-details/pnc-build-details.html';
+    var DEFAULT_TEMPLATE = 'build-records/directives/pnc-build-details/pnc-build-details.html';
 
     return {
       restrict: 'EA',

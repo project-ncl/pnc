@@ -34,7 +34,7 @@
     <tbody>
       <tr ng-repeat="record in page.data">
         <td><build-status-icon status="record.status"></build-status-icon> {{ record.status }}</td>
-        <td><a href ui-sref="record.detail.default({ recordId: record.id })"># {{ record.id }}</a></td>
+        <td><a href ui-sref="build-records.detail.default({ recordId: record.id })"># {{ record.id }}</a></td>
         <td><a href ui-sref="build-configs.detail({ configurationId: record.buildConfigurationId })">{{ record.buildConfigurationName }}</a></td>
         <td>{{ record.startTime | date:'medium' }}</td>
         <td>{{ record.endTime | date:'medium' }}</td>
