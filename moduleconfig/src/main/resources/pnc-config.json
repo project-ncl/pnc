@@ -47,7 +47,9 @@
                     "imageId": "${env.PNC_BUILDER_IMAGE_ID}",
                     "disabled": "false",
                     "keepBuildAgentInstance": true,
-                    "exposeBuildAgentOnPublicUrl": false
+                    "exposeBuildAgentOnPublicUrl": false,
+                    "buildEnvironmentReadyTimeoutSeconds": "30",
+                    "buildEnvironmentReadyCheckIntervalSeconds": "1"
                 },
                 {
                     "@module-config": "authentication-config",

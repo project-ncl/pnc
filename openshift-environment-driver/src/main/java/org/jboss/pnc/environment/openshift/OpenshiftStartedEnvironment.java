@@ -51,7 +51,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -193,23 +195,30 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 Runnable onUrlAvailable = () -> onComplete.accept(runningEnvironment);
 
                 URL url = new URL(getInternalEndpointUrl());
-                pullingMonitor.monitor(onUrlAvailable, onError, () -> isServletAvailable(url));
+                monitor(onUrlAvailable, onError, () -> isServletAvailable(url));
             } catch (IOException e) {
                 onError.accept(e);
             }
         };
 
-        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, this::isPodRunning);
-        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, this::isServiceRunning);
+        monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, this::isPodRunning);
+        monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, this::isServiceRunning);
 
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
 
         if (createRoute) {
-            pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, this::isRouteRunning);
+            monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, this::isRouteRunning);
             logger.info("Route [{}].", route.getName());
         }
 
         //logger.info("Waiting to start a pod [{}], service [{}].", pod.getName(), service.getName());
+    }
+
+    private void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
+        pullingMonitor.monitor(onMonitorComplete, onMonitorError, condition,
+                environmentConfiguration.getBuildEnvironmentReadyCheckIntervalSeconds(),
+                environmentConfiguration.getBuildEnvironmentReadyTimeoutSeconds(),
+                TimeUnit.SECONDS);
     }
 
     private boolean isServletAvailable(URL servletUrl) {

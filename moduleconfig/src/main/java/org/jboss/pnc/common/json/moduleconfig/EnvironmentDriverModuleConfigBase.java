@@ -59,6 +59,16 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     private String workingDirectory;
     protected boolean disabled;
 
+    /**
+     * Time how long to wait until all services are fully up and running (in seconds)
+     */
+    private final int buildEnvironmentReadyTimeoutSeconds;
+
+    /**
+     * Interval between two checks if the services are fully up and running (in second)
+     */
+    private final int buildEnvironmentReadyCheckIntervalSeconds;
+
     public EnvironmentDriverModuleConfigBase(
             String imageId,
             String firewallAllowedDestinations,
@@ -66,7 +76,9 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
             String proxyPort,
             String nonProxyHosts,
             String workingDirectory,
-            boolean disabled) {
+            boolean disabled,
+            String buildEnvironmentReadyTimeoutSeconds,
+            String buildEnvironmentReadyCheckIntervalSeconds) {
 
         this.imageId = imageId;
         this.firewallAllowedDestinations = firewallAllowedDestinations;
@@ -75,6 +87,8 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
         this.nonProxyHosts = nonProxyHosts;
         this.workingDirectory = workingDirectory;
         this.disabled = disabled;
+        this.buildEnvironmentReadyTimeoutSeconds = Integer.valueOf(buildEnvironmentReadyTimeoutSeconds);
+        this.buildEnvironmentReadyCheckIntervalSeconds = Integer.valueOf(buildEnvironmentReadyCheckIntervalSeconds);
     }
 
     public String getImageId() {
@@ -104,4 +118,11 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
         return disabled;
     }
 
+    public int getBuildEnvironmentReadyTimeoutSeconds() {
+        return buildEnvironmentReadyTimeoutSeconds;
+    }
+
+    public int getBuildEnvironmentReadyCheckIntervalSeconds() {
+        return buildEnvironmentReadyCheckIntervalSeconds;
+    }
 }
