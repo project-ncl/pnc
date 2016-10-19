@@ -18,9 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.record');
-
-  module.controller('RecordDetailController', [
+  angular.module('pnc.build-records').controller('RecordDetailController', [
     '$scope',
     '$state',
     '$log',
@@ -36,33 +34,6 @@
           recordDetail.$get();
         }
       });
-    }
-  ]);
-
-  module.controller('RecordResultController', [
-    'buildLog',
-    'REST_BASE_URL',
-    'BUILD_RECORD_ENDPOINT',
-    'recordDetail',
-    'sshCredentials',
-    function(buildLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail, sshCredentials) {
-      this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/log';
-      this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
-      this.log = buildLog.payload;
-
-      this.sshCredentialsBtn = {
-        clicked: false
-      };
-
-      this.sshCredentials = sshCredentials;
-    }
-  ]);
-
-  module.controller('RecordListController', [
-    '$log',
-    function ($log) {
-
-      $log.debug('RecordListCtrl');
     }
   ]);
 

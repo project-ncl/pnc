@@ -15,20 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+(function () {
+  'use strict';
 
-'use strict';
-
-/**
- * @ngdoc directive
- * @name pnc.record:pncLogCanvas
- * @restrict EA
- * @interface
- * @description
- * @example
- * @author Alex Creasy
- */
-angular.module('pnc.record')
-  .directive('pncLogCanvas', function() {
+  /**
+   * @ngdoc directive
+   * @name pnc.record:pncLogCanvas
+   * @restrict EA
+   * @interface
+   * @description
+   * @example
+   * @author Alex Creasy
+   */
+  angular.module('pnc.build-records').directive('pncLogCanvas', function() {
 
     return {
       restrict: 'EA',
@@ -76,5 +75,6 @@ angular.module('pnc.record')
         scope.$on('pnc-log-canvas::add_line', addToLog);
       }
     };
+  });
 
-});
+})();

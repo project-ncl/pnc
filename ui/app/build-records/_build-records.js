@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.record', [
+  var module = angular.module('pnc.build-records', [
     'ui.router',
     'angularUtils.directives.uiBreadcrumbs',
     'angular-websocket',
@@ -33,29 +32,31 @@
     '$urlRouterProvider',
     function ($stateProvider, $urlRouterProvider) {
 
-      $stateProvider.state('record', {
+      // NCL-2402 changed the module base URL, this redirect should
+      // be removed at some point in the future.
+      $urlRouterProvider.when(/^\/record\/?.*/, function ($location) {
+        return $location.url().replace('/record', '/build-records');
+      });
+
+      $stateProvider.state('build-records', {
         abstract: true,
-        url: '/record',
+        url: '/build-records',
         views: {
           'content@': {
             templateUrl: 'common/templates/single-col.tmpl.html'
           }
         },
         data: {
-          proxy: 'record.list',
+          proxy: 'build-records.list',
         }
       });
 
-      //  Temporary redirect due to changed URL. This should be removed at
-      // some point.
-      $urlRouterProvider.when('/record/:recordId/info', '/record/:recordId');
-
-      $stateProvider.state('record.detail', {
+      $stateProvider.state('build-records.detail', {
         abstract: true,
         url: '/{recordId:int}',
-        templateUrl: 'record/views/record.detail.html',
+        templateUrl: 'build-records/views/build-records.detail.html',
         data: {
-          proxy: 'record.detail.default'
+          proxy: 'build-records.detail.default'
         },
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
@@ -66,19 +67,19 @@
         }
       });
 
-      $stateProvider.state('record.detail.default', {
+      $stateProvider.state('build-records.detail.default', {
         url: '',
-        templateUrl: 'record/views/record.detail.default.html',
+        templateUrl: 'build-records/views/build-records.detail.default.html',
         data: {
           displayName: 'Job #{{ recordDetail.id }}',
         }
       });
 
-      $stateProvider.state('record.detail.result', {
+      $stateProvider.state('build-records.detail.result', {
         url: '/result',
         controller: 'RecordResultController',
         controllerAs: 'resultCtrl',
-        templateUrl: 'record/views/record.detail.result.html',
+        templateUrl: 'build-records/views/build-records.detail.result.html',
         data: {
           displayName: 'Log'
         },
@@ -94,11 +95,11 @@
         }
       });
 
-      $stateProvider.state('record.detail.artifacts', {
+      $stateProvider.state('build-records.detail.artifacts', {
         url: '/artifacts',
         controller: 'RecordArtifactsController',
         controllerAs: 'artifactsCtrl',
-        templateUrl: 'record/views/record.detail.artifacts.html',
+        templateUrl: 'build-records/views/build-records.detail.artifacts.html',
         data: {
           displayName: 'Built Artifacts',
         },
@@ -109,11 +110,11 @@
         }
       });
 
-      $stateProvider.state('record.detail.dependencies', {
+      $stateProvider.state('build-records.detail.dependencies', {
           url: '/dependencies',
           controller: 'RecordArtifactsController',
           controllerAs: 'artifactsCtrl',
-          templateUrl: 'record/views/record.detail.artifacts.html',
+          templateUrl: 'build-records/views/build-records.detail.artifacts.html',
           data: {
             displayName: 'Dependencies',
           },
@@ -124,9 +125,9 @@
           }
         });
 
-      $stateProvider.state('record.list', {
+      $stateProvider.state('build-records.list', {
         url: '',
-        templateUrl: 'record/views/record.list.html',
+        templateUrl: 'build-records/views/build-records.list.html',
         data: {
           displayName: 'Builds'
         },

@@ -27,7 +27,7 @@
    * @example
    * @author Alex Creasy
    */
-  angular.module('pnc.record')
+  angular.module('pnc.build-records')
     .directive('pncLiveLog', function() {
       return {
         restrict: 'EA',

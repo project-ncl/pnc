@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.record');
+  var module = angular.module('pnc.build-records');
 
   /**
    * @author Jakub Senko

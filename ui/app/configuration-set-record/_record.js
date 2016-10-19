@@ -47,7 +47,7 @@
 
       $stateProvider.state('configuration-set-record.list', {
         url: '',
-        templateUrl: 'configuration-set-record/views/record.list.html',
+        templateUrl: 'configuration-set-record/views/build-records.list.html',
         data: {
           displayName: 'Build Groups'
         },
@@ -61,7 +61,7 @@
 
       $stateProvider.state('configuration-set-record.detail', {
         url: '/{recordId:int}',
-        templateUrl: 'configuration-set-record/views/record.detail.html',
+        templateUrl: 'configuration-set-record/views/build-records.detail.html',
         data: {
           displayName: '# {{ csRecordDetail.id }} \u2014 {{ csRecordDetail.configurationSet.name }} '
         },
@@ -105,7 +105,7 @@
         url: '/result',
         controller: 'CsRecordResultController',
         controllerAs: 'ctrl',
-        templateUrl: 'configuration-set-record/views/record.detail.result.html',
+        templateUrl: 'configuration-set-record/views/build-records.detail.result.html',
         data: {
           displayName: 'Build Group Result'
         },

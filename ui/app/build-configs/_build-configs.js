@@ -26,7 +26,7 @@
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
-    'pnc.record',
+    'pnc.build-records',
     'infinite-scroll',
     'pnc.common.authentication'
   ]);
