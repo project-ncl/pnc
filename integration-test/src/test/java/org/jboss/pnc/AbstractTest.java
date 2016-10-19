@@ -21,7 +21,6 @@ package org.jboss.pnc;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.junit.BeforeClass;
 
 import java.io.IOException;
@@ -49,11 +48,10 @@ public class AbstractTest {
     protected static final Header acceptJsonHeader = new Header("Accept", "application/json");
     protected static Header authHeader;
     protected static Headers testHeaders;
-    protected static String access_token;
+    protected static String access_token = "TEST-AUTH-TOKEN"; //TODO do we need generated token
 
     @BeforeClass
     public static void setupAuth() throws IOException, ConfigurationParseException {
-        access_token = AuthUtils.generateToken();
         authHeader = new Header("Authorization", "Bearer " + access_token);
         testHeaders = new Headers(acceptJsonHeader, authHeader);
     }

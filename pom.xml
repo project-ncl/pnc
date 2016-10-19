@@ -102,7 +102,7 @@
     <version.jclouds>1.8.1</version.jclouds>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
-    <version.keycloak>1.2.0.Final</version.keycloak>
+    <version.keycloak>1.2.0.Final</version.keycloak> <!--TODO update to 1.9.8.Final: issue with tests as it extract to /modules/system/add-ons/keycloak/ -->
     <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>

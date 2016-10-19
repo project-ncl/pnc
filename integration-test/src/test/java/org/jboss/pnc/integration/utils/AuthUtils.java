@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.integration.utils;
 
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.ExternalAuthentication;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -40,18 +33,5 @@ public class AuthUtils {
             return value.equals("true");
         }
         return false;
-    }
-
-    public static String generateToken() throws IOException, ConfigurationParseException {
-        if (AuthUtils.authEnabled()) {
-            Configuration configuration = new Configuration();
-            AuthenticationModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
-            InputStream is = AuthUtils.class.getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            AuthenticationProvider authProvider = ea.authenticate(config.getUsername(), config.getPassword());
-            return authProvider.getTokenString();
-        } else {
-            return "no-auth";
-        }
     }
 }
