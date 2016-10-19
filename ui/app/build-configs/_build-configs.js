@@ -87,15 +87,15 @@
           },
           linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
             return BuildConfigurationDAO.getProductVersions({
-              configurationId: $stateParams.configurationId }).$promise;
+              configurationId: $stateParams.configurationId });
           },
           dependencies: function(BuildConfigurationDAO, $stateParams) {
             return BuildConfigurationDAO.getDependencies({
-              configurationId: $stateParams.configurationId }).$promise;
+              configurationId: $stateParams.configurationId });
           },
           linkedConfigurationSetList: function(BuildConfigurationDAO, $stateParams) {
             return BuildConfigurationDAO.getConfigurationSets({
-              configurationId: $stateParams.configurationId }).$promise;
+              configurationId: $stateParams.configurationId });
           },
 
           environments: function(EnvironmentDAO) {
