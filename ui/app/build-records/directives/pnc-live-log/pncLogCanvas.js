@@ -27,7 +27,7 @@
    * @example
    * @author Alex Creasy
    */
-  angular.module('pnc.build-records').directive('pncLogCanvas', function() {
+  angular.module('pnc.build-records').directive('pncLogCanvas', function () {
 
     return {
       restrict: 'EA',

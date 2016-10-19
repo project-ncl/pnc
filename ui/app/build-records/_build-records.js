@@ -54,9 +54,107 @@
       $stateProvider.state('build-records.detail', {
         abstract: true,
         url: '/{recordId:int}',
+        resolve: {
+          recordDetail: function (BuildRecord, $stateParams) {
+            return BuildRecord.get({ id: $stateParams.recordId }).$promise;
+          }
+        }
+      });
+
+      $stateProvider.state('build-records.detail.default', {
+        url: '',
+        onEnter: [
+          '$state',
+          '$timeout',
+          'recordDetail',
+          function ($state, $timeout, recordDetail) {
+            $timeout(function () { // Works around bug in ui.router https://github.com/angular-ui/ui-router/issues/1434
+              $state.go('projects.detail.build-configs.detail.build-records.detail.default', {
+                projectId: recordDetail.projectId,
+                configurationId: recordDetail.buildConfigurationId,
+                recordId: recordDetail.id
+              });
+            });
+          }
+        ]
+      });
+
+      // $stateProvider.state('build-records.detail.result', {
+      //   url: '/result',
+      //   controller: 'RecordResultController',
+      //   controllerAs: 'resultCtrl',
+      //   templateUrl: 'build-records/views/build-records.detail.result.html',
+      //   data: {
+      //     displayName: 'Log'
+      //   },
+      //   resolve: {
+      //     buildLog: function (BuildRecord, recordDetail) {
+      //       return BuildRecord.getLog({ id: recordDetail.id }).$promise;
+      //     },
+      //     sshCredentials: function (BuildRecord, recordDetail) {
+      //       return BuildRecord.getSshCredentials({
+      //         recordId: recordDetail.id
+      //       }).$promise;
+      //     }
+      //   }
+      // });
+      //
+      // $stateProvider.state('build-records.detail.artifacts', {
+      //   url: '/artifacts',
+      //   controller: 'RecordArtifactsController',
+      //   controllerAs: 'artifactsCtrl',
+      //   templateUrl: 'build-records/views/build-records.detail.artifacts.html',
+      //   data: {
+      //     displayName: 'Built Artifacts',
+      //   },
+      //   resolve: {
+      //     artifacts: function (recordDetail) {
+      //       return recordDetail.$getBuiltArtifacts();
+      //     }
+      //   }
+      // });
+      //
+      // $stateProvider.state('build-records.detail.dependencies', {
+      //     url: '/dependencies',
+      //     controller: 'RecordArtifactsController',
+      //     controllerAs: 'artifactsCtrl',
+      //     templateUrl: 'build-records/views/build-records.detail.artifacts.html',
+      //     data: {
+      //       displayName: 'Dependencies',
+      //     },
+      //     resolve: {
+      //       artifacts: function (recordDetail) {
+      //         return recordDetail.$getDependencies();
+      //       }
+      //     }
+      //   });
+
+      $stateProvider.state('build-records.list', {
+        url: '',
+        templateUrl: 'build-records/views/build-records.list.html',
+        data: {
+          displayName: 'Builds'
+        },
+        controller: 'RecordListController',
+        controllerAs: 'ctrl'
+      });
+
+      $stateProvider.state('projects.detail.build-configs.detail.build-records', {
+        abstract: true,
+        url: '/build-records',
+        views: {
+          'content@': {
+            templateUrl: 'common/templates/single-col.tmpl.html'
+          }
+        }
+      });
+
+      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail', {
+        abstract: true,
+        url: '/{recordId:int}',
         templateUrl: 'build-records/views/build-records.detail.html',
         data: {
-          proxy: 'build-records.detail.default'
+          proxy: 'projects.detail.build-configs.detail.build-records.detail.default'
         },
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
@@ -67,7 +165,7 @@
         }
       });
 
-      $stateProvider.state('build-records.detail.default', {
+      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.default', {
         url: '',
         templateUrl: 'build-records/views/build-records.detail.default.html',
         data: {
@@ -75,7 +173,7 @@
         }
       });
 
-      $stateProvider.state('build-records.detail.result', {
+      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.result', {
         url: '/result',
         controller: 'RecordResultController',
         controllerAs: 'resultCtrl',
@@ -95,7 +193,7 @@
         }
       });
 
-      $stateProvider.state('build-records.detail.artifacts', {
+      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.artifacts', {
         url: '/artifacts',
         controller: 'RecordArtifactsController',
         controllerAs: 'artifactsCtrl',
@@ -110,7 +208,7 @@
         }
       });
 
-      $stateProvider.state('build-records.detail.dependencies', {
+      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.dependencies', {
           url: '/dependencies',
           controller: 'RecordArtifactsController',
           controllerAs: 'artifactsCtrl',
@@ -124,16 +222,6 @@
             }
           }
         });
-
-      $stateProvider.state('build-records.list', {
-        url: '',
-        templateUrl: 'build-records/views/build-records.list.html',
-        data: {
-          displayName: 'Builds'
-        },
-        controller: 'RecordListController',
-        controllerAs: 'ctrl'
-      });
 
     }]);
 
