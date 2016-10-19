@@ -105,6 +105,7 @@ public class TestProjectConfigurationBuilder {
         buildConfiguration.setName(id + "");
         buildConfiguration.setBuildEnvironment(javaBuildEnvironment);
         buildConfiguration.setProject(project);
+        buildConfiguration.setArchived(false);
         project.addBuildConfiguration(buildConfiguration);
         if (buildConfigurationSet != null) {
             buildConfigurationSet.addBuildConfiguration(buildConfiguration);

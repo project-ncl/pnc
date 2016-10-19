@@ -152,6 +152,7 @@
           <groupId>org.hsqldb</groupId>
           <artifactId>hsqldb</artifactId>
           <scope>compile</scope>
+          <classifier>jdk6debug</classifier>
         </dependency>
         <dependency>
           <groupId>org.postgresql</groupId>
@@ -253,7 +254,7 @@
                 <configuration>
                   <groupId>org.hsqldb</groupId>
                   <artifactId>hsqldb</artifactId>
-                  <name>hsqldb.jar</name>
+                  <name>hsqldb-jdk6debug.jar</name>
                 </configuration>
               </execution>
               <execution>
@@ -271,7 +272,7 @@
                       <enabled>true</enabled>
                       <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
                       <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
-                      <driver-name>hsqldb.jar</driver-name>
+                      <driver-name>hsqldb-jdk6debug.jar</driver-name>
                     </properties>
                   </resource>
                 </configuration>
