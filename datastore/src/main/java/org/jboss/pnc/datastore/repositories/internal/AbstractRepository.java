@@ -73,7 +73,8 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
 
     @Override
     public int count(Predicate<T>... predicates) {
-        return queryWithPredicates(predicates).size();
+        long countAsLong = springSpecificationsExecutor.count(SpecificationsMapper.map(predicates));
+        return (int)countAsLong;
     }
 
     @Override
