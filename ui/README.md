@@ -1,4 +1,4 @@
-# PNC - UI 
+# PNC - UI
 
 ### Setting Up The Development Environment
 
@@ -10,74 +10,58 @@ Pre-reqs:
 Once the pre-reqs have been taken care of, run:
 
     npm install -g grunt-cli bower
-    
+
     npm install
 
     bower install
 
+### Running a live reload server
+During development it is useful to run the UI in a local server that will watch the file system and automatically reload whenever any files are changed. In order to do this you'll need to set up some environment variables to tell the UI where to find the various PNC services:
 
-Run:
+```bash
+PNC_UI_PNC_URL #The location of the PNC REST API
+PNC_UI_PNC_NOTIFICATIONS_URL #The location of the PNC REST websocket notifications endpoint
+PNC_UI_DA_URL #The location of the Dependency Analyzer REST API
+PNC_UI_DA_IMPORT_URL #The location of the Dependency Analyzer Build Configuration Generator endpoint
+PNC_UI_DA_IMPORT_RPC_URL #The location of the Dependency Analyzer WebSocket JSON-RPC endpoint
+PNC_UI_KEYCLOAK_URL #The location of the keycloak server
+PNC_UI_KEYCLOAK_REALM #The keycloak realm to authenticate with
+PNC_UI_KEYCLOAK_CLIENT_ID #The keycloak client id
+```
+Example configuration:
 
-    grunt initRestConfig
+```bash
+export PNC_UI_PNC_URL=http://127.0.0.1:8080/pnc-rest/rest
+export PNC_UI_PNC_NOTIFICATIONS_URL=ws://127.0.0.1:8080/pnc-rest/ws/build-records/notifications
+export PNC_UI_DA_URL=http://127.0.0.1/da/rest/v-0.4
+export PNC_UI_DA_IMPORT_URL=http://127.0.0.1/da-bcg/rest/v-0.3
+export PNC_UI_DA_IMPORT_RPC_URL=ws://127.0.0.1/da-bcg/ws
+export PNC_UI_KEYCLOAK_URL=https://127.0.0.1/auth
+export PNC_UI_KEYCLOAK_REALM=pnc
+export PNC_UI_KEYCLOAK_CLIENT_ID=pncweb
+```
 
-This task will create a file `rest-config.json` with default values:
-
-    {
-        "endpointsLocalhost": "localhost"
-    };
-    
-`endpointsLocalhost` points to a local installation of PNC application.
-
-
- while `endpointsCIServer` points to a remote installation of PNC application (defaults to PNC CI environment). This is useful if you want to develop UI without having a local installation of PNC, as you would consume REST endpoints from the remote installation.
-
-If you wish to develop without a local installation of PNC, you can edit `rest-config.json` to add a remote server as an additional profile like so:
-    
-    {
-        "endpointsLocalhost": "localhost",
-        "endpointsCIServer": "my-ci-server.example.com"
-    };
-
-To run consuming REST endpoints from the local installation (`endpointsLocalhost` value):
+With these configurations set you can run a development server by simply running:
 
     grunt serve
 
+### Building the UI
 
-To run consuming REST endpoints from the remote installation (`endpointsCIServer` value):
-
-    grunt serve --target=CIEndpoints 
-
-    
-Now everytime you save a file (html, css, js), Grunt is watching and will copy to configured directories, performing a livereload.
-
-_note: To make the consuming of remote REST endpoints working without incurring in the Cross-origin resource sharing (CORS) restriction, the `grunt-connect-proxy` has been used. Basically, all the request sent to `/pnc-web/rest` are proxied to `<endpointsLocalhost>`:`8080` (or `<endpointsCIServer>`:`8080`), while letting the browser think that they are all in the right domain._
-
-
-#### Grunt watch ENOSPC error
-
-The system has a limit to how many files can be watched by a user. You can run out of watches pretty quickly if you have Grunt running with other programs like Dropbox. This command increases the maximum amount of watches a user can have (refer to http://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc):
-
-    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-
-_note: For Arch Linux add `fs.inotify.max_user_watches=524288` to `/etc/sysctl.d/99-sysctl.conf` and then execute `sysctl --system`. This will also persist across reboots_
-
-### Generate distribution
-
-To create a distribution in `pnc-ui/dist/` directory:
+To build the UI:
 
     grunt dist
-    
-In order to create a WAR application, go into `../pnc-web/` folder and run Maven build:
 
-    cd ../pnc-web/
-    mvn clean install
-    
-Similarly, in order to create the full EAR application, go into the root path of PNC and run Maven build:
+This will produce a set of minified resources in the `/dist` folder.
 
-    cd ../
-    mvn clean install
+### Generating a distribution
 
-### Cleaning the PNC UI build
+To create a .jar package of the ui:
+
+    mvn clean package
+
+This will build the UI as listed above and then package it in a jar file.
+
+### Invalidating build caches
 
 For sake of quick development turnaround, the `$ mvn clean` will clean just `dist/` and `.tmp/` build directories, but some frontend build related directories will be still cached (`node/`, `node_modules/`, `app/bower_components/`, `.build-tmp`). In order to clean all build related caches, execute:
 
@@ -114,33 +98,14 @@ To lock down version again:
 
 Alternatively, you can remove `npm-shrinkwrap.json` and generate a new one.
 
-### Authentication
-
-The UI can be built with authentication either enabled or disabled, by default it is disabled. Authentication can be enabled at build time, for both the UI and backend, by adding the flag: `-Dauth=true` to your maven build command.
-
-At the UI level authentication can be enabled through grunt by adding the flag `--enable-auth=true` to your grunt command. This will also work when using the grunt live-reload server, for example by using the command `grunt serve --enable-auth=true`.
-
 ### Build errors
 
-The `frontend-maven-plugin` build may suffer from inconsistent downloads when you killed the previous build prematurely. This typically leads to such errors:
+In case of build errors with the UI, the first troubleshooting step should always be to run to flush the UI build caches, [see here](#invalidating-build-caches).
 
-    [INFO] --- frontend-maven-plugin:0.0.16:grunt (grunt build) @ unifiedpush-admin-ui ---
-    [INFO] Running 'grunt dist --no-color'
-    [INFO] module.js:340
-    [INFO]     throw err;
-    [INFO]           ^
-    [INFO] Error: Cannot find module 'findup-sync'
+#### Grunt watch ENOSPC error
 
-or
+The system has a limit to how many files can be watched by a user. You can run out of watches pretty quickly if you have Grunt running with other programs like Dropbox. This command increases the maximum amount of watches a user can have (refer to http://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc):
 
-    [INFO] --- frontend-maven-plugin:0.0.16:npm (npm install) @ unifiedpush-admin-ui ---
-    [INFO] Running 'npm install --color=false'
-    [INFO] npm ERR! cb() never called!
-    [INFO] npm ERR! not ok code 0
+    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-The build currently can't recover itself from these error.
-
-In order to fix this issue, you should fully clean the `pnc-ui/` build resources:
-
-    mvn clean install -Dfrontend.clean.force
-
+_note: For Arch Linux add `fs.inotify.max_user_watches=524288` to `/etc/sysctl.d/99-sysctl.conf` and then execute `sysctl --system`. This will also persist across reboots_
