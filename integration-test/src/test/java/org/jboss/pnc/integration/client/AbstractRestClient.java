@@ -83,7 +83,7 @@ public abstract class AbstractRestClient<T> {
 
     protected void initAuth() throws IOException, ConfigurationParseException {
         if (AuthUtils.authEnabled() && !authInitialized) {
-            AuthenticationProvider authProvider = null; //TODO use mock authProvider
+            AuthenticationProvider authProvider = null; //TODO auth provider is used to get user credentials on server side, create a client authenticator
             access_token = authProvider.getTokenString();
             authInitialized = true;
         }
