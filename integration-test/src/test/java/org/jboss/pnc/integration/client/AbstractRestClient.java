@@ -21,14 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.integration.client.util.RestResponse;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,22 +67,6 @@ public abstract class AbstractRestClient<T> {
         } else {
             this.collectionUrl = collectionUrl + "/";
         }
-
-        if(withAuth) {
-            try {
-                initAuth();
-            } catch (IOException | ConfigurationParseException e) {
-                throw new AssertionError("Error while initializing auth", e);
-            }
-        }
-    }
-
-    protected void initAuth() throws IOException, ConfigurationParseException {
-        if (AuthUtils.authEnabled() && !authInitialized) {
-            AuthenticationProvider authProvider = null; //TODO auth provider is used to get user credentials on server side, create a client authenticator
-            access_token = authProvider.getTokenString();
-            authInitialized = true;
-        }
     }
 
     protected Response post(String path, Object body) {
@@ -116,9 +96,9 @@ public abstract class AbstractRestClient<T> {
 
     protected RequestSpecification request() {
         return given()
+                .auth().basic("admin", "user.1234")
                 .log().all()
                 .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                     .expect().log().all()
