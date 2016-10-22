@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.auth;
 
-import org.jboss.logging.Logger;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -37,7 +38,7 @@ import java.util.Set;
  *
  */
 public class AuthenticationProvider {
-    public final static Logger log = Logger.getLogger(AuthenticationProvider.class);
+    public final static Logger log = LoggerFactory.getLogger(AuthenticationProvider.class);
     public final static String MSG = "Authentication could not be enabled";
 
     private static boolean enabled;

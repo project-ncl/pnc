@@ -20,10 +20,12 @@ package org.jboss.pnc;
 
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+import org.apache.http.message.BasicHeader;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.junit.BeforeClass;
 
 import java.io.IOException;
+import java.util.Base64;
 
 public class AbstractTest {
 
@@ -48,8 +50,25 @@ public class AbstractTest {
     protected static final Header acceptJsonHeader = new Header("Accept", "application/json");
     protected static Headers testHeaders;
 
+    public static final String TEST_USER = "admin";
+    public static final String TEST_PASS = "user.1234";
+
     @BeforeClass
     public static void setupAuth() throws IOException, ConfigurationParseException {
-        testHeaders = new Headers(acceptJsonHeader);
+        Header authenticationHeader = getAuthenticationHeader();
+        testHeaders = new Headers(authenticationHeader, acceptJsonHeader);
     }
+
+    public static Header getAuthenticationHeader() {
+        return new Header("Authorization", "Basic " + encodedCredentials());
+    }
+
+    public static org.apache.http.Header getAuthenticationHeaderApache() {
+        return new BasicHeader("Authorization", "Basic " + encodedCredentials());
+    }
+
+    public static String encodedCredentials() {
+        return Base64.getEncoder().encodeToString((TEST_USER + ":" + TEST_PASS).getBytes());
+    }
+
 }

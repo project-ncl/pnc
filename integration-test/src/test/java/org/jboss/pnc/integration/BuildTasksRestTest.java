@@ -84,6 +84,7 @@ public class BuildTasksRestTest extends AbstractTest{
     @Test
     public void shouldTriggerBuildExecution() {
         HttpPost request = new HttpPost(url + "/pnc-rest/rest/build-tasks/execute-build");
+        request.addHeader(getAuthenticationHeaderApache());
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master",
