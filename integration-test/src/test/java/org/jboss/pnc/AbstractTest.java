@@ -46,13 +46,10 @@ public class AbstractTest {
     protected static final String CONTENT_NAME = "content.name";
 
     protected static final Header acceptJsonHeader = new Header("Accept", "application/json");
-    protected static Header authHeader;
     protected static Headers testHeaders;
-    protected static String access_token = "TEST-AUTH-TOKEN"; //TODO do we need generated token
 
     @BeforeClass
     public static void setupAuth() throws IOException, ConfigurationParseException {
-        authHeader = new Header("Authorization", "Bearer " + access_token);
-        testHeaders = new Headers(acceptJsonHeader, authHeader);
+        testHeaders = new Headers(acceptJsonHeader);
     }
 }

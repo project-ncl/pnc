@@ -172,7 +172,7 @@ public class SystemErrorTest extends AbstractTest {
     }
 
     private boolean logHasCorrectFailedReason() {
-        Response response = authenticatedTextCall().get(String.format(BUILD_RECORD_LOG, buildTaskId));
+        Response response = given().header("Accept", "text/plain").contentType(ContentType.JSON).get(String.format(BUILD_RECORD_LOG, buildTaskId));
 
         String expectedLastStatus = "Last build status: DONE_WITH_ERRORS";
         return response.getStatusCode() == 200
@@ -181,9 +181,5 @@ public class SystemErrorTest extends AbstractTest {
 
     private RequestSpecification authenticatedJsonCall() {
         return given().headers(testHeaders).contentType(ContentType.JSON);
-    }
-
-    private RequestSpecification authenticatedTextCall() {
-        return given().header("Accept", "text/plain").header(authHeader).contentType(ContentType.JSON);
     }
 }
