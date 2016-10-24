@@ -19,17 +19,17 @@ package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
+import org.jboss.pnc.rest.restmodel.bpm.ComponentBuildParameters;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
 import java.util.Optional;
 
 /**
@@ -52,29 +52,20 @@ public class BpmBuildTask extends BpmTask {
     }
 
     @Override
-    protected Map<String, Object> getExtendedProcessParameters() throws CoreException {
-        LOG.debug("[{}] Creating extended parameters", buildTask.getId());
-        Map<String, Object> parameters = super.getExtendedProcessParameters();
-        parameters.put("buildExecutionConfiguration", getBuildExecutionConfiguration(buildTask));
-        LOG.debug("[{}] Created parameters", parameters);
-        return parameters;
+    protected Serializable getProcessParameters() throws CoreException {
+
+        return new ComponentBuildParameters(
+                config.getPncBaseUrl(),
+                config.getAproxBaseUrl(),
+                config.getRepourBaseUrl(),
+                config.getDaBaseUrl(),
+                Boolean.valueOf(Optional.ofNullable(config.getCommunityBuild()).orElse("true")),
+                Boolean.valueOf(Optional.ofNullable(config.getVersionAdjust()).orElse("false")),
+                getBuildExecutionConfiguration(buildTask)
+        );
     }
 
-    protected Map<String, Object> getProcessParameters() throws CoreException {
-
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("pncBaseUrl", config.getPncBaseUrl());
-        params.put("aproxBaseUrl", config.getAproxBaseUrl());
-        params.put("repourBaseUrl", config.getRepourBaseUrl());
-        params.put("daBaseUrl", config.getDaBaseUrl());
-        params.put("communityBuild", Boolean.valueOf(Optional.ofNullable(config.getCommunityBuild()).orElse("true")));
-        params.put("versionAdjust", Boolean.valueOf(Optional.ofNullable(config.getVersionAdjust()).orElse("false")));
-
-        return params;
-    }
-
-    private String getBuildExecutionConfiguration(BuildTask buildTask) {
+    private BuildExecutionConfigurationRest getBuildExecutionConfiguration(BuildTask buildTask) {
 
         BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
         String contentId = ContentIdentityManager.getBuildContentId(buildConfiguration.getName());
@@ -92,9 +83,7 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
                 buildTask.isPodKeptAfterFailure());
 
-        BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
-
-        return buildExecutionConfigurationREST.toString();
+        return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
     }
 
     @Override

@@ -40,19 +40,7 @@ public class BuildExecutionConfigurationTest {
     @Test
     public void serializeAndDeserializeBuildResult() throws IOException, BuildDriverException {
 
-        BuildExecutionConfiguration buildExecutionConfiguration = new  DefaultBuildExecutionConfiguration(
-                1,
-                "condent-id",
-                1,
-                "mvn clean install",
-                "configuration name",
-                "https://pathToRepo.git",
-                "1111111",
-                "abcd1234",
-                "image.repo.url/repo",
-                SystemImageType.DOCKER_IMAGE,
-                false
-        );
+        BuildExecutionConfiguration buildExecutionConfiguration = getBuildExecutionConfigurationMock();
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 
         JSonOutputConverter converter = new JSonOutputConverter();
@@ -74,5 +62,20 @@ public class BuildExecutionConfigurationTest {
         Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
     }
 
+    private BuildExecutionConfiguration getBuildExecutionConfigurationMock() {
+        return new DefaultBuildExecutionConfiguration(
+                    1,
+                    "condent-id",
+                    1,
+                    "mvn clean install",
+                    "configuration name",
+                    "https://pathToRepo.git",
+                    "1111111",
+                    "abcd1234",
+                    "image.repo.url/repo",
+                    SystemImageType.DOCKER_IMAGE,
+                    false
+            );
+    }
 
 }

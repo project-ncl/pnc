@@ -28,6 +28,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,7 +107,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      * @return a map of process parameters
      * @throws CoreException
      */
-    protected abstract Map<String, Object> getProcessParameters() throws CoreException;
+    protected abstract Serializable getProcessParameters() throws CoreException;
 
     /* package */ void setBpmConfig(BpmModuleConfig config) {
         this.config = config;
@@ -164,21 +165,21 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      *
      * @throws CoreException
      */
-    protected Map<String, Object> getExtendedProcessParameters() throws CoreException {
-        Map<String, Object> parameters = getProcessParameters();
-        requireNonNull(parameters);
+    Map<String, Object> getExtendedProcessParameters() throws CoreException {
+        Serializable processParameters = getProcessParameters();
+        requireNonNull(processParameters);
         Map<String, Object> actualParameters = new HashMap<>();
         try {
-            actualParameters.put("processParameters", MAPPER.writeValueAsString(parameters));
+            actualParameters.put("processParameters", MAPPER.writeValueAsString(processParameters));
         } catch (JsonProcessingException e) {
-            throw new CoreException("Could not serialize process parameters '" +
-                    parameters + "'.", e);
+            throw new CoreException("Could not serialize process processParameters '" +
+                    processParameters + "'.", e);
         }
 
-        actualParameters.put("pncBaseUrl", config.getPncBaseUrl());
-        actualParameters.put("repourBaseUrl", config.getRepourBaseUrl());
+        //global not process related parameters
         actualParameters.put("taskId", taskId);
         actualParameters.put("usersAuthToken", accessToken);
+
         return actualParameters;
     }
 

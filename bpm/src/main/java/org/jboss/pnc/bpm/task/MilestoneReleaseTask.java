@@ -20,13 +20,13 @@ package org.jboss.pnc.bpm.task;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.rest.restmodel.bpm.MilestoneReleaseParameters;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * @author Michal Szynkiewicz
@@ -43,26 +43,17 @@ public class MilestoneReleaseTask extends BpmTask {
         setAccessToken(accessToken);
     }
 
+    private MilestoneReleaseRest createMilestoneRest(ProductMilestone milestone) {
+        return new MilestoneReleaseRest(milestone.getId());
+    }
+
     @Override
-    protected Map<String, Object> getExtendedProcessParameters() throws CoreException {
-        log.debug("[{}] Creating extended parameters", milestone.getId());
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("brewPush", createMilestoneRest(milestone));
-        parameters.put("pncBaseUrl", config.getPncBaseUrl());
-        parameters.put("causewayBaseUrl", config.getCausewayBaseUrl());
-        parameters.put("taskId", getTaskId());
-        log.debug("[{}] Created parameters", parameters);
-        return parameters;
-    }
-
-    private String createMilestoneRest(ProductMilestone milestone) {
-        return new MilestoneReleaseRest(milestone.getId()).toString();
-    }
-
-    protected Map<String, Object> getProcessParameters() throws CoreException {
-        Map<String, Object> params = new HashMap<>();
-        params.put("pncBaseUrl", config.getPncBaseUrl());
-        return params;
+    protected Serializable getProcessParameters() throws CoreException {
+        return new MilestoneReleaseParameters(
+                createMilestoneRest(milestone),
+                config.getPncBaseUrl(),
+                config.getCausewayBaseUrl()
+        );
     }
 
     @Override
