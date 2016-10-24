@@ -53,7 +53,7 @@ public class EndpointAuthenticationProvider {
     }
 
     public User getCurrentUser(HttpServletRequest httpServletRequest) {
-        LoggedInUser loginInUser = authenticationProvider.getLoginInUser(httpServletRequest);
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         String loggedUser = loginInUser.getUserName();
         User currentUser = null;
         if(StringUtils.isNotEmpty(loggedUser)) {

@@ -132,7 +132,7 @@ public class BuildTaskEndpoint {
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
 
             AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
-            LoggedInUser loginInUser = authenticationProvider.getLoginInUser(request);
+            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
             logger.info("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
             BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(

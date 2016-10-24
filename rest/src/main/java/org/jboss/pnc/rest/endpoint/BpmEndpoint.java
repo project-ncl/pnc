@@ -187,7 +187,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         LOG.debug("Received request to start BC creation: " + taskData);
 
-        LoggedInUser loginInUser = authenticationProvider.getLoginInUser(httpServletRequest);
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData, loginInUser.getTokenString());
 
         /**

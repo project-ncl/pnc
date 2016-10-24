@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface AuthenticationProvider {
 
-    LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest);
+    LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest);
 
     String getId();
 }

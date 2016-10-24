@@ -37,7 +37,7 @@ public class NoAuthAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest) {
+    public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
         return new NoAuthLoggedInUser();
     }
 

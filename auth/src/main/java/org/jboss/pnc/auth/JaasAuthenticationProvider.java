@@ -32,7 +32,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
     public final static Logger log = LoggerFactory.getLogger(JaasAuthenticationProvider.class);
 
     @Override
-    public LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest) {
+    public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
         return new JAASLoggedInUser(httpServletRequest);
     }
 

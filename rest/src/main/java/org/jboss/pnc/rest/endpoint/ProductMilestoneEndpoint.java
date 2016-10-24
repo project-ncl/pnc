@@ -189,7 +189,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             @Context UriInfo uriInfo,
             @Context HttpServletRequest httpServletRequest) throws ValidationException {
 
-        LoggedInUser loginInUser = authenticationProvider.getLoginInUser(httpServletRequest);
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
         productMilestoneProvider.update(id, productMilestoneRest, loginInUser.getTokenString());
         return Response.ok().build();

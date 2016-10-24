@@ -163,7 +163,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             @Context HttpServletRequest httpServletRequest
     ) throws ValidationException {
         try {
-            LoggedInUser loginInUser = authenticationProvider.getLoginInUser(httpServletRequest);
+            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
             String loggedUser = loginInUser.getUserName();
             User currentUser = null;

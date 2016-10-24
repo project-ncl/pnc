@@ -38,7 +38,7 @@ public class KeycloakAuthenticationProvider implements AuthenticationProvider {
     public final static Logger log = LoggerFactory.getLogger(KeycloakAuthenticationProvider.class);
 
     @Override
-    public LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest) {
+    public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
         return new KeycloakLoggedInUser(httpServletRequest);
     }
 
