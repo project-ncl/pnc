@@ -103,10 +103,6 @@
       </exclusions>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>spi</artifactId>
-    </dependency>
 
   </dependencies>
 
