@@ -30,6 +30,8 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private String buildSchedulerId;
 
+    private final String authenticationProviderId;
+
     /**
      * Number of threads that are used to run executor operations
      * (setting up the repos, configuring the build, triggering the build, collecting the results)
@@ -56,12 +58,14 @@ public class SystemConfig extends AbstractModuleConfig {
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
+            @JsonProperty("authenticationProviderId") String authenticationProviderId,
             @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
             @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
+        this.authenticationProviderId = authenticationProviderId;
         this.executorThreadPoolSize = executorThreadPoolSize;
         this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
@@ -115,10 +119,14 @@ public class SystemConfig extends AbstractModuleConfig {
         return "SystemConfig ["
                 + (buildDriverId != null ? "buildDriverId=" + buildDriverId + ", " : "")
                 + (buildSchedulerId != null ? "buildSchedulerId=" + buildSchedulerId + ", " : "")
+                + (authenticationProviderId != null ? "authenticationProviderId=" + authenticationProviderId + ", " : "")
                 + (executorThreadPoolSize != null ? "executorThreadPoolSize="
                         + executorThreadPoolSize + ", " : "")
                 + (builderThreadPoolSize != null ? "builderThreadPoolSize=" + builderThreadPoolSize
                         : "") + "]";
     }
 
+    public String getAuthenticationProviderId() {
+        return authenticationProviderId;
+    }
 }

@@ -17,14 +17,33 @@
  */
 package org.jboss.pnc.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * This class provides access to authenticated user info. In case no authentication
+ * is configured or there are problems with authentication the default demo-user is
+ * returned instead
+ *
+ * @author pslegr
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
  */
-public interface AuthenticationProvider {
+public class KeycloakAuthenticationProvider implements AuthenticationProvider {
 
-    LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest);
+    public static final String ID = "Keycloak";
 
-    String getId();
+    public final static Logger log = LoggerFactory.getLogger(KeycloakAuthenticationProvider.class);
+
+    @Override
+    public LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest) {
+        return new KeycloakLoggedInUser(httpServletRequest);
+    }
+
+    @Override
+    public String getId() {
+        return ID;
+    }
 }

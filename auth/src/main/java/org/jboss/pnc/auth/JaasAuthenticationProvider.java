@@ -17,14 +17,27 @@
  */
 package org.jboss.pnc.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface AuthenticationProvider {
+public class JaasAuthenticationProvider implements AuthenticationProvider {
 
-    LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest);
+    public static final String ID = "JAAS";
 
-    String getId();
+    public final static Logger log = LoggerFactory.getLogger(JaasAuthenticationProvider.class);
+
+    @Override
+    public LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest) {
+        return new JAASLoggedInUser(httpServletRequest);
+    }
+
+    @Override
+    public String getId() {
+        return ID;
+    }
 }

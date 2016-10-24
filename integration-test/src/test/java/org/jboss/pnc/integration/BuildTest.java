@@ -23,6 +23,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
+import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.ResponseUtils;
@@ -47,6 +48,7 @@ public class BuildTest {
     private static BuildConfigurationRestClient buildConfigurationRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
     private static BuildRecordRestClient buildRecordRestClient;
+    private static UserRestClient userRestClient;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -67,6 +69,9 @@ public class BuildTest {
         if(buildRecordRestClient == null) {
             buildRecordRestClient = new BuildRecordRestClient();
         }
+        if(userRestClient == null) {
+            userRestClient = new UserRestClient();
+        }
     }
 
     @Test
@@ -75,6 +80,7 @@ public class BuildTest {
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.firstNotNull().getValue();
 
         //when
+        userRestClient.getLoggedUser(); //initialize user
         RestResponse<BuildConfigurationRest> triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), true);
         Integer buildRecordId = ResponseUtils.getIdFromLocationHeader(triggeredConfiguration.getRestCallResponse());
 
@@ -90,6 +96,7 @@ public class BuildTest {
         BuildConfigurationSetRest buildConfigurationSet = buildConfigurationSetRestClient.firstNotNull().getValue();
 
         //when
+        userRestClient.getLoggedUser(); //initialize user
         RestResponse<BuildConfigurationSetRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), true);
         Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(response.getRestCallResponse());
 

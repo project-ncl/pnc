@@ -17,14 +17,23 @@
  */
 package org.jboss.pnc.auth;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface AuthenticationProvider {
+public interface LoggedInUser {
+    String getEmail();
 
-    LoggedInUser getLoginInUser(HttpServletRequest httpServletRequest);
+    String getUserName();
 
-    String getId();
+    String getFirstName();
+
+    String getLastName();
+
+    Set<String> getRole();
+
+    boolean isUserInRole(String role);
+
+    String getTokenString();
 }

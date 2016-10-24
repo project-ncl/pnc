@@ -23,6 +23,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -91,20 +93,25 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     private BuildRecordProvider buildRecordProvider;
     private ProductMilestoneProvider productMilestoneProvider;
     private ProductMilestoneReleaseProvider milestoneReleaseProvider;
+    private AuthenticationProvider authenticationProvider;
 
     public ProductMilestoneEndpoint() {
     }
 
     @Inject
-    public ProductMilestoneEndpoint(ProductMilestoneProvider productMilestoneProvider,
-                                    ArtifactProvider artifactProvider,
-                                    BuildRecordProvider buildRecordProvider,
-                                    ProductMilestoneReleaseProvider milestoneReleaseProvider) {
+    public ProductMilestoneEndpoint(
+            ProductMilestoneProvider productMilestoneProvider,
+            ArtifactProvider artifactProvider,
+            BuildRecordProvider buildRecordProvider,
+            ProductMilestoneReleaseProvider milestoneReleaseProvider,
+            AuthenticationProviderFactory authenticationProviderFactory) {
+
         super(productMilestoneProvider);
         this.productMilestoneProvider = productMilestoneProvider;
         this.artifactProvider = artifactProvider;
         this.buildRecordProvider = buildRecordProvider;
         this.milestoneReleaseProvider = milestoneReleaseProvider;
+        this.authenticationProvider = authenticationProviderFactory.getProvider();
     }
 
     @ApiOperation(value = "Gets all Product Milestones")
@@ -182,8 +189,9 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             @Context UriInfo uriInfo,
             @Context HttpServletRequest httpServletRequest) throws ValidationException {
 
-        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-        productMilestoneProvider.update(id, productMilestoneRest, authProvider.getTokenString());
+        LoggedInUser loginInUser = authenticationProvider.getLoginInUser(httpServletRequest);
+
+        productMilestoneProvider.update(id, productMilestoneRest, loginInUser.getTokenString());
         return Response.ok().build();
     }
 

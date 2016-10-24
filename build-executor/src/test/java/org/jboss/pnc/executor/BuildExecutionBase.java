@@ -114,7 +114,7 @@ class BuildExecutionBase {
                 repositoryManagerFactory,
                 buildDriverFactory,
                 environmentDriverFactory,
-                new Configuration()
+                new Configuration() //TODO inject instance
         );
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, (e) -> {}, executor);

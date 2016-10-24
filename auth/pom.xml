@@ -34,6 +34,12 @@
   <description>Authentication related classes and KeyCloak integration.</description>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>spi</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
@@ -55,6 +61,12 @@
     <dependency>
       <groupId>org.jboss.spec.javax.ws.rs</groupId>
       <artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -91,71 +103,11 @@
       </exclusions>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>spi</artifactId>
+    </dependency>
 
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>auth</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-auth</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <overwrite>true</overwrite>
-                  <outputDirectory>${project.build.directory}/classes/</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${project.basedir}/src/main/config/auth</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>noauth</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-nonauth</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <overwrite>true</overwrite>
-                  <outputDirectory>${project.build.directory}/classes/</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${project.basedir}/src/main/config/noauth</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

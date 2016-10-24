@@ -69,6 +69,10 @@ public abstract class AbstractRestClient<T> {
         }
     }
 
+    protected Response post(String path) {
+        return request().when().post(path);
+    }
+
     protected Response post(String path, Object body) {
         return request().when().body(body).post(path);
     }

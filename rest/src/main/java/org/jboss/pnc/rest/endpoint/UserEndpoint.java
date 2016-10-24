@@ -24,6 +24,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.UserProvider;
@@ -88,18 +90,23 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
 
     private BuildRecordProvider buildRecordProvider;
 
-    @Context
-    private HttpServletRequest httpServletRequest;
+    private AuthenticationProvider authenticationProvider;
+
     private Datastore datastore;
     
     public UserEndpoint() {
     }
 
     @Inject
-    public UserEndpoint(UserProvider userProvider, BuildRecordProvider buildRecordProvider, Datastore datastore) {
+    public UserEndpoint(
+            UserProvider userProvider,
+            BuildRecordProvider buildRecordProvider,
+            Datastore datastore,
+            AuthenticationProviderFactory authenticationProviderFactory) {
         super(userProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.datastore = datastore;
+        this.authenticationProvider = authenticationProviderFactory.getProvider();
     }
 
     @ApiOperation(value = "Gets all Users")
@@ -151,10 +158,14 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     })
     @POST
     @Path("/loggedUser")
-    public Response getLoggedUser(@Context UriInfo uriInfo) throws ValidationException {
+    public Response getLoggedUser(
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpServletRequest
+    ) throws ValidationException {
         try {
-            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            String loggedUser = authProvider.getUserName();
+            LoggedInUser loginInUser = authenticationProvider.getLoginInUser(httpServletRequest);
+
+            String loggedUser = loginInUser.getUserName();
             User currentUser = null;
             if(StringUtils.isNotEmpty(loggedUser)) {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
@@ -164,9 +175,9 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             }
             currentUser = User.Builder.newBuilder()
                     .username(loggedUser)
-                    .firstName(authProvider.getFirstName())
-                    .lastName(authProvider.getLastName())
-                    .email(authProvider.getEmail()).build();
+                    .firstName(loginInUser.getFirstName())
+                    .lastName(loginInUser.getLastName())
+                    .email(loginInUser.getEmail()).build();
             return super.createNew(new UserRest(currentUser), uriInfo);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
