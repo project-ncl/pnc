@@ -166,6 +166,9 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     @Path("/ssh-credentials/{id}")
     public Response getSshCredentials(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         User currentUser = endpointAuthProvider.getCurrentUser(request);
+        if (currentUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         SshCredentials credentials = buildRecordProvider.getSshCredentialsForUser(id, currentUser);
         if (credentials != null) {
             return fromSingleton(credentials);
