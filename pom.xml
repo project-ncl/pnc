@@ -147,7 +147,7 @@
 
   <dependencyManagement>
     <dependencies>
-        
+
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlets</artifactId>
@@ -882,6 +882,12 @@
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
         <version>1.5.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>1.7.4</version>
       </dependency>
 
     </dependencies>
