@@ -29,6 +29,7 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -36,7 +37,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildTest {
+
+    protected Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
@@ -76,13 +82,19 @@ public class BuildTest {
 
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() throws Exception {
+        logger.debug("Running shouldTriggerBuildAndFinishWithoutProblems");
+
         //given
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.firstNotNull().getValue();
 
         //when
-        userRestClient.getLoggedUser(); //initialize user
+        RestResponse<UserRest> loggedUser = userRestClient.getLoggedUser();//initialize user
+        logger.debug("LoggedUser: {}", loggedUser.hasValue() ? loggedUser.getValue() : "-no-logged-user-");
+
         RestResponse<BuildConfigurationRest> triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), true);
+        logger.debug("Response from triggered build: {}.", triggeredConfiguration.hasValue() ? triggeredConfiguration.getValue() : "-response-not-available-");
         Integer buildRecordId = ResponseUtils.getIdFromLocationHeader(triggeredConfiguration.getRestCallResponse());
+        logger.info("New build record id: {}.", buildRecordId);
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
