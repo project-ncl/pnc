@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.integration.deployments;
 
-import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
-
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.Assignable;
@@ -45,6 +43,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
+import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
 
 public class Deployments {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -99,6 +99,9 @@ public class Deployments {
 
     private static void setTestableWar(EnterpriseArchive ear) {
         WebArchive restWar = ear.getAsType(WebArchive.class, "/rest.war");
+        restWar.addAsWebInfResource("WEB-INF/web.xml");
+        restWar.addAsWebInfResource("WEB-INF/jboss-web.xml");
+        logger.info("REST archive listing: {}", restWar.toString(true));
         ear.addAsModule(archiveToTest(restWar));
     }
 

@@ -25,6 +25,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
+import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
@@ -88,6 +89,8 @@ public class BuildRecordRestTest extends AbstractTest {
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
+        new UserRestClient().getLoggedUser();
+
         Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BuildRecordRestClient.BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);

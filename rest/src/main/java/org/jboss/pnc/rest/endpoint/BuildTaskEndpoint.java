@@ -23,8 +23,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -66,14 +67,14 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildTaskEndpoint {
 
-    @Context
-    private HttpServletRequest httpServletRequest;
-
     @Inject
     private BpmManager bpmManager;
 
     @Inject
     private BuildExecutorTriggerer buildExecutorTriggerer;
+
+    @Inject
+    private AuthenticationProviderFactory authenticationProviderFactory;
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
 
@@ -130,24 +131,14 @@ public class BuildTaskEndpoint {
 
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
 
-//TODO input validation
-//            Integer buildTaskId;
-//            Response errorResponse = validateRequiredField(buildTaskIdParam, "buildTaskId");
-//            if (errorResponse != null) {
-//                return errorResponse;
-//            } else {
-//                buildTaskId = Integer.parseInt(buildTaskIdParam);
-//            }
-
-
-            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            String loggedUser = authProvider.getUserName();
-            if (StringUtils.isEmpty(loggedUser)) {
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
+            AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
+            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
             logger.info("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
-            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration.toBuildExecutionConfiguration(), callbackUrl, authProvider.getTokenString());
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
+                    buildExecutionConfiguration.toBuildExecutionConfiguration(),
+                    callbackUrl,
+                    loginInUser.getTokenString());
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(buildExecutionConfiguration.getId());
@@ -179,12 +170,6 @@ public class BuildTaskEndpoint {
 
         try {
             logger.debug("Endpoint /cancel-build requested for buildTaskId [{}], from [{}]", buildExecutionConfigurationId, request.getRemoteAddr());
-
-            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            String loggedUser = authProvider.getUserName();
-            if (StringUtils.isEmpty(loggedUser)) {
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
 
             logger.info("Cancelling build execution for configuration.id: {}.", buildExecutionConfigurationId);
             buildExecutorTriggerer.cancelBuild(buildExecutionConfigurationId);

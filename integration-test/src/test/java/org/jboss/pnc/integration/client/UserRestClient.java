@@ -89,4 +89,13 @@ public class UserRestClient extends AbstractRestClient<UserRest> {
     public RestResponse<List<BuildRecordRest>> allUserBuilds(int userId) {
         return allUserBuilds(userId, true, 0, 50, null, null);
     }
+
+    public RestResponse<UserRest> getLoggedUser() {
+        String requestUrl = USER_REST_ENDPOINT + "/loggedUser";
+        Response response = post(requestUrl);
+
+        logger.info("response {} ", response.prettyPrint());
+        return new RestResponse(response, response.body());
+
+    }
 }

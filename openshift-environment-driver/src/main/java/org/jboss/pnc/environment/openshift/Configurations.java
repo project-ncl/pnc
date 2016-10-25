@@ -49,7 +49,7 @@ public enum Configurations {
 
     Configurations(String fileName) {
         this.filePath = CONFIGURATIONS_FOLDER + fileName;
-        this.configuration = new Configuration();
+        this.configuration = new Configuration(); //TODO Inject managed instance
     }
 
     public String getContentAsString() {

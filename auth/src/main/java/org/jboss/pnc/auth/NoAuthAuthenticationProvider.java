@@ -17,14 +17,32 @@
  */
 package org.jboss.pnc.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface AuthenticationProvider {
+public class NoAuthAuthenticationProvider implements AuthenticationProvider {
 
-    LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest);
+    public static final String ID = "NO_AUTH";
 
-    String getId();
+    public final static Logger log = LoggerFactory.getLogger(NoAuthAuthenticationProvider.class);
+
+    private HttpServletRequest httpServletRequest = null;
+
+    public NoAuthAuthenticationProvider() {
+    }
+
+    @Override
+    public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
+        return new NoAuthLoggedInUser();
+    }
+
+    @Override
+    public String getId() {
+        return ID;
+    }
 }

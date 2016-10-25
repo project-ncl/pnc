@@ -21,19 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.ExternalAuthentication;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.integration.client.util.RestResponse;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +47,6 @@ public abstract class AbstractRestClient<T> {
 
     protected Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    protected AuthenticationProvider authProvider;
     protected String access_token = "no-auth";
     protected boolean authInitialized = false;
     public static final String CONTENT = "content";
@@ -77,25 +67,10 @@ public abstract class AbstractRestClient<T> {
         } else {
             this.collectionUrl = collectionUrl + "/";
         }
-
-        if(withAuth) {
-            try {
-                initAuth();
-            } catch (IOException | ConfigurationParseException e) {
-                throw new AssertionError("Error while initializing auth", e);
-            }
-        }
     }
 
-    protected void initAuth() throws IOException, ConfigurationParseException {
-        if (AuthUtils.authEnabled() && !authInitialized) {
-            AuthenticationModuleConfig config = new Configuration().getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
-            InputStream is = AbstractRestClient.class.getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(config.getUsername(), config.getPassword());
-            access_token = authProvider.getTokenString();
-            authInitialized = true;
-        }
+    protected Response post(String path) {
+        return request().when().post(path);
     }
 
     protected Response post(String path, Object body) {
@@ -125,9 +100,9 @@ public abstract class AbstractRestClient<T> {
 
     protected RequestSpecification request() {
         return given()
+                .auth().basic("admin", "user.1234")
                 .log().all()
                 .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                     .expect().log().all()

@@ -38,7 +38,7 @@ public class ResponseUtils {
                 throw new AssertionError("Unexpected interruption", e);
             }
             if(System.currentTimeMillis() > stopTime) {
-                throw new AssertionError("Timeout while waiting for condition");
+                throw new AssertionError("Timeout " + timeout + " " + timeUnit + " reached while waiting for condition");
             }
         } while(!condition.get());
     }

@@ -314,31 +314,6 @@
         </activation>
       <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>copy-keycloak-adapter</id>
-                    <phase>generate-test-resources</phase>
-                    <goals>
-                      <goal>unpack</goal>
-                    </goals>
-                    <configuration>
-                      <artifactItems>
-                        <artifactItem>
-                            <groupId>org.keycloak</groupId>
-                            <artifactId>keycloak-eap6-adapter-dist</artifactId>
-                            <version>${version.keycloak}</version>
-                            <type>zip</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${auth.eap.home}</outputDirectory>
-                        </artifactItem>
-                      </artifactItems>
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>
               <plugin>
                 <groupId>org.jboss.as.plugins</groupId>
                 <artifactId>jboss-as-maven-plugin</artifactId>
@@ -351,31 +326,6 @@
                     </goals>
                     <configuration>
                       <jbossHome>${auth.eap.home}</jbossHome>
-                    </configuration>
-                  </execution>
-                  <execution>
-                    <id>add-keycloak</id>
-                    <phase>generate-test-resources</phase>
-                    <goals>
-                      <goal>execute-commands</goal>
-                    </goals>
-                    <configuration>
-                      <execute-commands>
-                        <commands>
-                          <command>
-                           /extension=org.keycloak.keycloak-subsystem:add
-                          </command>
-                          <command>
-                            /subsystem=keycloak:add
-                          </command>
-                          <command>
-                            /subsystem=security/security-domain=keycloak:add
-                          </command>
-                          <command>
-                           /subsystem=security/security-domain=keycloak/authentication=classic:add(login-modules=[{"code"=&gt;"org.keycloak.adapters.jboss.KeycloakLoginModule", "flag"=&gt;"required"}])
-                          </command>
-                        </commands>
-                      </execute-commands>
                     </configuration>
                   </execution>
                   <execution>

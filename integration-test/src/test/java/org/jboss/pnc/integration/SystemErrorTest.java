@@ -27,6 +27,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
+import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
@@ -81,6 +82,8 @@ public class SystemErrorTest extends AbstractTest {
     private static int buildTaskId;
 
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
+    private static UserRestClient userRestClient;
+
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -105,6 +108,9 @@ public class SystemErrorTest extends AbstractTest {
     public void before() {
         if(buildConfigurationSetRestClient == null) {
             buildConfigurationSetRestClient = new BuildConfigurationSetRestClient();
+        }
+        if(userRestClient == null) {
+            userRestClient = new UserRestClient();
         }
     }
 
@@ -153,6 +159,8 @@ public class SystemErrorTest extends AbstractTest {
     @Test
     @InSequence(2)
     public void testBuildNewConfSet() throws Exception {
+        userRestClient.getLoggedUser(); //initialize user
+
         String url = String.format(BUILD_CONFIGURATION_SET_REST_BUILD_ENDPOINT, newBuildConfSetId) + "?rebuildAll=true";
         Response response = authenticatedJsonCall().post(url);
 
@@ -172,7 +180,7 @@ public class SystemErrorTest extends AbstractTest {
     }
 
     private boolean logHasCorrectFailedReason() {
-        Response response = authenticatedTextCall().get(String.format(BUILD_RECORD_LOG, buildTaskId));
+        Response response = given().header("Accept", "text/plain").contentType(ContentType.JSON).get(String.format(BUILD_RECORD_LOG, buildTaskId));
 
         String expectedLastStatus = "Last build status: DONE_WITH_ERRORS";
         return response.getStatusCode() == 200
@@ -181,9 +189,5 @@ public class SystemErrorTest extends AbstractTest {
 
     private RequestSpecification authenticatedJsonCall() {
         return given().headers(testHeaders).contentType(ContentType.JSON);
-    }
-
-    private RequestSpecification authenticatedTextCall() {
-        return given().header("Accept", "text/plain").header(authHeader).contentType(ContentType.JSON);
     }
 }

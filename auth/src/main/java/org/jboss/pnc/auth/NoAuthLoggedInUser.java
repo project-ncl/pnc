@@ -18,13 +18,52 @@
 package org.jboss.pnc.auth;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface AuthenticationProvider {
+public class NoAuthLoggedInUser implements LoggedInUser {
 
-    LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest);
+    private HttpServletRequest httpServletRequest;
 
-    String getId();
+    public NoAuthLoggedInUser() {
+    }
+
+    @Override
+    public String getEmail() {
+        return "demo-user@pnc.com";
+    }
+
+    @Override
+    public String getUserName() {
+        return "demo-user";
+    }
+
+    @Override
+    public String getFirstName() {
+        return "Demo First Name";
+    }
+
+    @Override
+    public String getLastName() {
+        return "Demo Last Name";
+    }
+
+    @Override
+    public Set<String> getRole() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public boolean isUserInRole(String role) {
+        return role.contains(role);
+    }
+
+    @Override
+    public String getTokenString() {
+        return "sso-not-enabled-no-token";
+    }
+
 }

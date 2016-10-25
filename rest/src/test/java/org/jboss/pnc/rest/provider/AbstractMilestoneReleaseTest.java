@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
@@ -61,6 +62,8 @@ public class AbstractMilestoneReleaseTest {
     BuildRecordProvider buildRecordProvider;
     @Mock
     ProductMilestoneReleaseProvider milestoneReleaseProvider;
+    @Mock
+    AuthenticationProviderFactory authenticationProviderFactory;
 
     @Mock
     private BuildConfigurationSetProvider bcSetProvider;
@@ -80,8 +83,9 @@ public class AbstractMilestoneReleaseTest {
                 rsqlPredicateProducer,
                 sortInfoProducer,
                 pageInfoProducer);
-        milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider);
-        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider);
+        milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
+                authenticationProviderFactory);
+        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory);
         bpmMock.setUp();
     }
 }

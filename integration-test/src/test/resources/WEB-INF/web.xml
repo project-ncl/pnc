@@ -77,8 +77,8 @@
     </security-constraint>
 
     <login-config>
-        <auth-method>KEYCLOAK</auth-method>
-        <realm-name>this is ignored currently</realm-name>
+        <auth-method>BASIC</auth-method>
+        <realm-name>ApplicationRealm</realm-name>
     </login-config>
 
     <security-role>

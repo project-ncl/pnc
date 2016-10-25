@@ -69,17 +69,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-core</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-installed-adapter</artifactId>
-        <scope>test</scope>
-    </dependency>    
-
-    <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
       <scope>test</scope>
@@ -208,6 +197,12 @@
                     <get usetimestamp="true" src="${eap6.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
                     <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
 
+                    <echo file="${test.server.unpack.dir}/jboss-eap-6.4/standalone/configuration/application-users.properties" append="true">admin=c69ec5f656856757f633c7c4619f79be${line.separator}</echo> <!-- pass is user.1234 -->
+                    <echo file="${test.server.unpack.dir}/jboss-eap-6.4/standalone/configuration/application-roles.properties" append="true">admin=user${line.separator}</echo>
+
+                    <echo file="${test.server.unpack.dir}/jboss-eap-6.4/standalone/configuration/application-users.properties" append="true">user=03fe1faad605609791524ce0b2c0ca30${line.separator}</echo> <!-- pass is pass.1234 -->
+                    <echo file="${test.server.unpack.dir}/jboss-eap-6.4/standalone/configuration/application-roles.properties" append="true">user=user${line.separator}</echo>
+
                   </target>
                 </configuration>
               </execution>
@@ -245,32 +240,6 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-keycloak-adapter</id>
-                <phase>test-compile</phase>
-                <goals>
-                  <goal>unpack</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>org.keycloak</groupId>
-                      <artifactId>keycloak-eap6-adapter-dist</artifactId>
-                      <version>${version.keycloak}</version>
-                      <type>zip</type>
-                      <overWrite>true</overWrite>
-                      <outputDirectory>${test.server.build.dir}</outputDirectory>
-                    </artifactItem>
-                  </artifactItems>
-                  <!-- other configurations here -->
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.jboss.as.plugins</groupId>
             <artifactId>jboss-as-maven-plugin</artifactId>
             <executions>
@@ -296,31 +265,6 @@
                     <commands>
                       <command>
                         /subsystem=web/connector=http/:write-attribute(name=protocol,value=org.apache.coyote.http11.Http11NioProtocol)
-                      </command>
-                    </commands>
-                  </execute-commands>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-keycloak</id>
-                <phase>test-compile</phase>
-                <goals>
-                  <goal>execute-commands</goal>
-                </goals>
-                <configuration>
-                  <execute-commands>
-                    <commands>
-                      <command>
-                        /extension=org.keycloak.keycloak-subsystem:add
-                      </command>
-                      <command>
-                        /subsystem=keycloak:add
-                      </command>
-                      <command>
-                        /subsystem=security/security-domain=keycloak:add
-                      </command>
-                      <command>
-                        /subsystem=security/security-domain=keycloak/authentication=classic:add(login-modules=[{"code"=&gt;"org.keycloak.adapters.jboss.KeycloakLoginModule", "flag"=&gt;"required"}])
                       </command>
                     </commands>
                   </execute-commands>

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -36,9 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
 
-import static com.jayway.restassured.RestAssured.given;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -80,12 +77,6 @@ public class ProductRestTest extends AbstractTest {
         dto.setName(randomAlphabetic(20));
 
         productRestClient.createNew(dto).getRestCallResponse().then().statusCode(201);
-
-        given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort())
-                .body(dto)
-        .when()
-                .post(PRODUCT_REST_ENDPOINT)
-        .then().statusCode(409);
+        productRestClient.createNew(dto, false).getRestCallResponse().then().statusCode(409);
     }
 }

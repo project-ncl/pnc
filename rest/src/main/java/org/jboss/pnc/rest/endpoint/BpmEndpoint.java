@@ -19,8 +19,14 @@ package org.jboss.pnc.rest.endpoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
@@ -42,7 +48,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,7 +70,22 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 /**
  * This endpoint is used for starting and interacting
@@ -79,14 +107,17 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private BuildConfigurationSetProvider bcSetProvider;
 
+    AuthenticationProvider authenticationProvider;
+
     @Deprecated
     public BpmEndpoint() {
     } // CDI workaround
 
     @Inject
-    public BpmEndpoint(BpmManager bpmManager, BuildConfigurationSetProvider bcSetProvider) {
+    public BpmEndpoint(BpmManager bpmManager, BuildConfigurationSetProvider bcSetProvider, AuthenticationProviderFactory authenticationProviderFactory) {
         this.bpmManager = bpmManager;
         this.bcSetProvider = bcSetProvider;
+        this.authenticationProvider = authenticationProviderFactory.getProvider();
     }
 
 
@@ -156,9 +187,8 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         LOG.debug("Received request to start BC creation: " + taskData);
 
-        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-
-        BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData, authProvider.getTokenString());
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+        BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData, loginInUser.getTokenString());
 
         /**
          * Given the successful BC creation, add the BC into the BC sets.

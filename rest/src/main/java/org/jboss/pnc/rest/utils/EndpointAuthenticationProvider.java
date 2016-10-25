@@ -20,8 +20,12 @@ package org.jboss.pnc.rest.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,28 +39,35 @@ import javax.servlet.http.HttpServletRequest;
 @ApplicationScoped
 public class EndpointAuthenticationProvider {
 
+    private static final Logger logger = LoggerFactory.getLogger(EndpointAuthenticationProvider.class);
 
     private Datastore datastore;
+
+    private AuthenticationProvider authenticationProvider;
 
     @Deprecated
     public EndpointAuthenticationProvider() {
     }
 
     @Inject
-    public EndpointAuthenticationProvider(Datastore datastore) {
+    public EndpointAuthenticationProvider(Datastore datastore, AuthenticationProviderFactory authenticationProviderFactory) {
         this.datastore = datastore;
+        this.authenticationProvider = authenticationProviderFactory.getProvider();
     }
 
     public User getCurrentUser(HttpServletRequest httpServletRequest) {
-        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-        String loggedUser = authProvider.getUserName();
+        logger.debug("Getting current user using authenticationProvider: {}.", authenticationProvider.getId());
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+        logger.debug("LoggedInUser: {}.", loginInUser);
+        String loggedUser = loginInUser.getUserName();
         User currentUser = null;
         if(StringUtils.isNotEmpty(loggedUser)) {
             currentUser = datastore.retrieveUserByUsername(loggedUser);
             if(currentUser != null) {
-                currentUser.setLoginToken(authProvider.getTokenString());
+                currentUser.setLoginToken(loginInUser.getTokenString());
             }
         }
+        logger.debug("Returning user: {}.", currentUser);
         return currentUser;
     }
 }

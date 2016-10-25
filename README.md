@@ -286,6 +286,7 @@ Enabling authentication means following<br/>
   * Use -Dauth.eap.home=``<path to your EAP installation>`` with you build command, if you want EAP configure for Keycloak.
   According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation will be performed on server for the given path.
 
+Before running the PNC it is recommended to update the pnc-config.json and set "authenticationProviderId" to "Keycloak" instead of the default "JAAS".
 
 ## Configuring the Openshift pod definitions
 
