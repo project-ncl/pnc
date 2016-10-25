@@ -85,6 +85,8 @@ public class BuildTest {
         }
     }
 
+    //TODO do not run the build that requires remote services, currently the build should fail due to missing configuration
+    //but the test still makes sure the error result is properly stored
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() throws Exception {
         logger.debug("Running shouldTriggerBuildAndFinishWithoutProblems");
@@ -110,6 +112,8 @@ public class BuildTest {
         ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 2, TimeUnit.MINUTES);
     }
 
+    //TODO do not run the build that requires remote services, currently the build should fail due to missing configuration
+    //but the test still makes sure the error result is properly stored
     @Test
     public void shouldTriggerBuildSetAndFinishWithoutProblems() throws Exception {
         //given
