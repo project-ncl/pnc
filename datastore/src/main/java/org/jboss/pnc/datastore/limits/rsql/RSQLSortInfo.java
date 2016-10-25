@@ -58,7 +58,7 @@ public class RSQLSortInfo implements SortInfo {
                 public Boolean visit(AscendingSortingNode node, Void param) {
                     sortingDirection = SortingDirection.ASC;
                     sortingFields.addAll(node.getArguments());
-                    logger.debug("Sorting direction - ASC, arguments {}", node.getArguments());
+                    logger.trace("Sorting direction - ASC, arguments {}", node.getArguments());
                     return true;
                 }
 
@@ -66,7 +66,7 @@ public class RSQLSortInfo implements SortInfo {
                 public Boolean visit(DescendingSortingNode node, Void param) {
                     sortingDirection = SortingDirection.DESC;
                     sortingFields.addAll(node.getArguments());
-                    logger.debug("Sorting direction - DESC, arguments {}", node.getArguments());
+                    logger.trace("Sorting direction - DESC, arguments {}", node.getArguments());
                     return true;
                 }
             });

@@ -107,12 +107,12 @@ public class RSQLNodeTravellerPredicate<Entity> {
             RSQLNodeTraveller<Predicate> visitor = new RSQLNodeTraveller<Predicate>() {
 
                 public Predicate visit(LogicalNode node) {
-                    logger.info("Parsing LogicalNode {}", node);
+                    logger.trace("Parsing LogicalNode {}", node);
                     return proceedEmbeddedNodes(node);
                 }
 
                 public Predicate visit(ComparisonNode node) {
-                    logger.info("Parsing ComparisonNode {}", node);
+                    logger.trace("Parsing ComparisonNode {}", node);
                     return proceedSelection(node);
                 }
 
@@ -143,7 +143,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
             RSQLNodeTraveller<Boolean> visitor = new RSQLNodeTraveller<Boolean>() {
 
                 public Boolean visit(LogicalNode node) {
-                    logger.info("Parsing LogicalNode {}", node);
+                    logger.trace("Parsing LogicalNode {}", node);
                     Iterator<Node> iterator = node.iterator();
                     if (node instanceof AndNode) {
                         boolean result = true;
@@ -165,7 +165,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
                 }
 
                 public Boolean visit(ComparisonNode node) {
-                    logger.info("Parsing ComparisonNode {}", node);
+                    logger.trace("Parsing ComparisonNode {}", node);
 
                     String fieldName = node.getSelector();
                     String argument = node.getArguments().get(0);
