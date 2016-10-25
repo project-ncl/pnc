@@ -40,6 +40,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
@@ -164,9 +165,17 @@ public class MavenRepositorySession implements RepositorySession {
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
-        promoteToBuildContentSet(); //TODO report user readable responses using MavenRepositoryManagerResult with log and status
+        String log = "";
+        RepositoryManagerStatus status = RepositoryManagerStatus.SUCCESS;
+        try {
+            promoteToBuildContentSet();
+        } catch (RepositoryManagerException rme) {
+            status = RepositoryManagerStatus.VALIDATION_ERROR;
+            log = rme.getMessage();
+            logger.error("Promotion validation error(s): \n" + log);
+        }
 
-        return new MavenRepositoryManagerResult(uploads, downloads, buildContentId);
+        return new MavenRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
     }
 
     /**
@@ -392,10 +401,10 @@ public class MavenRepositorySession implements RepositorySession {
                     ValidationResult validations = result.getValidations();
                     if (validations != null) {
                         StringBuilder sb = new StringBuilder();
-                        sb.append("One or more validation rules failed in rule-set: ").append(validations.getRuleSet());
+                        sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
 
                         validations.getValidatorErrors().forEach((rule, error) -> {
-                            sb.append(rule).append(":\n  ").append(error).append("\n\n");
+                            sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
                         });
 
                         reason = sb.toString();
