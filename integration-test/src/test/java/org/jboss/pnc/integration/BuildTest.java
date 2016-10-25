@@ -23,6 +23,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
+import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
@@ -54,6 +55,7 @@ public class BuildTest {
     private static BuildConfigurationRestClient buildConfigurationRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
     private static BuildRecordRestClient buildRecordRestClient;
+    private static BuildRestClient buildRestClient;
     private static UserRestClient userRestClient;
 
     @Deployment(testable = false)
@@ -75,6 +77,9 @@ public class BuildTest {
         if(buildRecordRestClient == null) {
             buildRecordRestClient = new BuildRecordRestClient();
         }
+        if (buildRestClient == null) {
+            buildRestClient = new BuildRestClient();
+        }
         if(userRestClient == null) {
             userRestClient = new UserRestClient();
         }
@@ -91,6 +96,7 @@ public class BuildTest {
         RestResponse<UserRest> loggedUser = userRestClient.getLoggedUser();//initialize user
         logger.debug("LoggedUser: {}", loggedUser.hasValue() ? loggedUser.getValue() : "-no-logged-user-");
 
+        logger.info("About to trigger build: {} with id: {}.", buildConfiguration.getName(), buildConfiguration.getId());
         RestResponse<BuildConfigurationRest> triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), true);
         logger.debug("Response from triggered build: {}.", triggeredConfiguration.hasValue() ? triggeredConfiguration.getValue() : "-response-not-available-");
         Integer buildRecordId = ResponseUtils.getIdFromLocationHeader(triggeredConfiguration.getRestCallResponse());
@@ -98,8 +104,10 @@ public class BuildTest {
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 2,
-                TimeUnit.MINUTES);
+        //should be running
+        ResponseUtils.waitSynchronouslyFor(() -> buildRestClient.get(buildRecordId, false).hasValue(), 10, TimeUnit.SECONDS);
+        //should be completed/stored
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 2, TimeUnit.MINUTES);
     }
 
     @Test
