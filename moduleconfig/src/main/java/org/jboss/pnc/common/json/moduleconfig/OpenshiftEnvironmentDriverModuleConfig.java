@@ -57,8 +57,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("workingDirectory") String workingDirectory,
                                                   @JsonProperty("disabled") Boolean disabled,
                                                   @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
-                                                  @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl) {
-        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
+                                                  @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl,
+                                                  @JsonProperty("buildEnvironmentReadyTimeoutSeconds") String buildEnvironmentReadyTimeoutSeconds,
+                                                  @JsonProperty("buildEnvironmentReadyCheckIntervalSeconds") String buildEnvironmentReadyCheckIntervalSeconds) {
+        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled, buildEnvironmentReadyTimeoutSeconds, buildEnvironmentReadyCheckIntervalSeconds);
 
         this.restEndpointUrl = restEndpointUrl;
         this.buildAgentHost = buildAgentHost;
