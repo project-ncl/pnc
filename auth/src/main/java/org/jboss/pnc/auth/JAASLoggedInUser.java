@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
@@ -25,10 +28,13 @@ import java.util.Set;
  */
 public class JAASLoggedInUser implements LoggedInUser {
 
+    public final static Logger log = LoggerFactory.getLogger(JAASLoggedInUser.class);
+
     private HttpServletRequest httpServletRequest;
 
     public JAASLoggedInUser(HttpServletRequest httpServletRequest) {
         this.httpServletRequest = httpServletRequest;
+        log.debug("Instantiated new object for username: {}.", getUserName());
     }
 
     @Override

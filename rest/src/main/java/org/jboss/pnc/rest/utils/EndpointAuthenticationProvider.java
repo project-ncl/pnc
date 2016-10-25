@@ -24,6 +24,8 @@ import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 @ApplicationScoped
 public class EndpointAuthenticationProvider {
 
+    private static final Logger logger = LoggerFactory.getLogger(EndpointAuthenticationProvider.class);
 
     private Datastore datastore;
 
@@ -53,7 +56,9 @@ public class EndpointAuthenticationProvider {
     }
 
     public User getCurrentUser(HttpServletRequest httpServletRequest) {
+        logger.debug("Getting current user using authenticationProvider: {}.", authenticationProvider.getId());
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+        logger.debug("LoggedInUser: {}.", loginInUser);
         String loggedUser = loginInUser.getUserName();
         User currentUser = null;
         if(StringUtils.isNotEmpty(loggedUser)) {
@@ -62,6 +67,7 @@ public class EndpointAuthenticationProvider {
                 currentUser.setLoginToken(loginInUser.getTokenString());
             }
         }
+        logger.debug("Returning user: {}.", currentUser);
         return currentUser;
     }
 }
