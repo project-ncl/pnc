@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.bpm.task;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
@@ -25,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jakub Senko
@@ -43,7 +46,16 @@ public class BpmBuildConfigurationCreationTask extends BpmTask {
 
     @Override
     protected Serializable getProcessParameters() throws CoreException {
-        return taskData;
+
+        try {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("pncBaseUrl", config.getPncBaseUrl());
+            params.put("repourBaseUrl", config.getRepourBaseUrl());
+            params.put("taskData", MAPPER.writeValueAsString(taskData));
+            return params;
+        } catch (JsonProcessingException e) {
+            throw new CoreException("BC Creation task could not get its parameters.", e);
+        }
     }
 
     @Override
