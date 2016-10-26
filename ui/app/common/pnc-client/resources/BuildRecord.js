@@ -124,10 +124,10 @@
       };
 
       resource.getSshCredentials = function(params) {
-            if (authService.isAuthenticated()) {
-              return resource.doGetSshCredentials(params);
-            }
-            return $q.when(null);
+        if (authService.isAuthenticated()) {
+          return resource.doGetSshCredentials(params).$promise;
+        }
+        return $q.when(null);
       };
 
       return resource;
