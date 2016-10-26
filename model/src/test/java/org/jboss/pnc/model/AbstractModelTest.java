@@ -22,6 +22,18 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
+import java.io.InputStream;
+
+import org.dbunit.DatabaseUnitException;
+import org.dbunit.database.DatabaseConfig;
+import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
+import org.dbunit.operation.DatabaseOperation;
+import org.hibernate.HibernateException;
+import org.hibernate.internal.SessionImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -81,5 +93,22 @@ public abstract class AbstractModelTest {
         } finally {
             em.close();
         }
+    }
+    
+    /**
+     * Inserts data into database from the dbunit XML file
+     * 
+     * @param em Entity manager
+     * @param datasetPath Path to DBunit dataset file
+     * @throws Exception Thrown in case of any error during the operation
+     */
+    protected void initDatabaseUsingDataset(EntityManager em, String datasetPath) throws Exception {
+        IDatabaseConnection connection = new DatabaseConnection(em.unwrap(SessionImpl.class).connection());
+        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+        FlatXmlDataSetBuilder flatXmlDataSetBuilder = new FlatXmlDataSetBuilder();
+        flatXmlDataSetBuilder.setColumnSensing(true);
+        InputStream dataSetStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(datasetPath);
+        IDataSet dataSet = flatXmlDataSetBuilder.build(dataSetStream);
+        DatabaseOperation.INSERT.execute(connection, dataSet);
     }
 }

@@ -22,8 +22,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import org.hibernate.mapping.Map;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.configuration.BuildConfigurationSupportedGenericParameters;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -65,6 +68,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -109,6 +113,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private EndpointAuthenticationProvider authenticationProvider;
     @Context
     private HttpServletRequest httpServletRequest;
+    
+    private java.util.Map<String, String> buildConfigurationSupportedGenericParameters;
 
 
     public BuildConfigurationEndpoint() {
@@ -121,7 +127,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             BuildTriggerer buildTriggerer,
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
-            EndpointAuthenticationProvider authenticationProvider) {
+            EndpointAuthenticationProvider authenticationProvider,
+            BuildConfigurationSupportedGenericParameters supportedGenericParameters) {
 
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
@@ -130,6 +137,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.authenticationProvider = authenticationProvider;
+        
+        this.buildConfigurationSupportedGenericParameters = supportedGenericParameters
+                .getSupportedGenericParameters();
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -158,6 +168,15 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response createNew(BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo)
             throws ValidationException {
         return super.createNew(buildConfigurationRest, uriInfo);
+    }
+    
+    @GET
+    @Path("/supportedGenericParameters")
+    @ApiOperation(value = "Gets the minimal set of supported genericParameters and their description for the BuildConfiguration. "
+            + "There can be also other supported parameters not know by core.")
+    @ApiResponse(response = Map.class, code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION)
+    public Response getSupportedGenericParameters() {
+        return Response.ok().entity(buildConfigurationSupportedGenericParameters).build();
     }
 
     @ApiOperation(value = "Gets a specific Build Configuration")

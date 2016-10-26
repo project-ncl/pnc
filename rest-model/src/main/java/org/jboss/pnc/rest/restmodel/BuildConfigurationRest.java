@@ -17,11 +17,10 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -31,12 +30,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 @XmlRootElement(name = "Configuration")
 public class BuildConfigurationRest implements GenericRestEntity<Integer> {
@@ -86,6 +87,10 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private Integer productVersionId;
 
+    @Getter
+    @Setter
+    private Map<String, String> genericParameters ;
+
     public BuildConfigurationRest() {
     }
 
@@ -102,6 +107,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
         this.repositories = buildConfiguration.getRepositories();
+        this.genericParameters = buildConfiguration.getGenericParameters();
         performIfNotNull(buildConfiguration.getProject(),
                 () -> this.project = new ProjectRest(buildConfiguration.getProject()));
         performIfNotNull(buildConfiguration.getBuildEnvironment(),
@@ -245,7 +251,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .scmExternalRepoURL(this.getScmExternalRepoURL())
                 .scmExternalRevision(this.getScmExternalRevision())
                 .archived(this.isArchived())
-                .repositories(this.getRepositories());
+                .repositories(this.getRepositories())
+                .genericParameters(this.getGenericParameters());
 
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
         performIfNotNull(this.getEnvironment(), () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
