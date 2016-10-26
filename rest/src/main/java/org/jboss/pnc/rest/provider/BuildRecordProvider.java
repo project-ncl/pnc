@@ -375,7 +375,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     public SshCredentials getSshCredentialsForUser(Integer id, User currentUser) {
         BuildRecord buildRecord = repository.queryById(id);
-        if (buildRecord != null) {
+        if (buildRecord != null && currentUser != null) {
             User buildRequester = buildRecord.getUser();
             if (buildRequester != null
                     && currentUser.getId().equals(buildRequester.getId())
