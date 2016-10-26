@@ -256,10 +256,12 @@ By default the Keycloak server comes with "master realm", which is for demo purp
 
 **HINTS** <br/>
 
-1. pncrest keycloak.json additional props -> use these below for skipping ssl & defining rest for accepting only access_token for authentication/authorization.
+Configure keycloak subsystem secure-deployment in EAP/wildfly stanbdalone.xml
+
+1. pncrest additional props -> use these below for skipping ssl & defining rest for accepting only access_token for authentication/authorization.
   * "ssl-required": "none",
   * "bearer-only" : true,
-2. pncweb keycloak.json additional props -> look at http://keycloak.github.io/docs/userguide/html/ch08.html#adapter-config to find more about adapter's config.
+2. pncweb additional props -> look at http://keycloak.github.io/docs/userguide/html/ch08.html#adapter-config to find more about adapter's config.
   * "ssl-required" : "none",
   * "use-resource-role-mappings" : false,
   * "enable-basic-auth" : false,
@@ -275,9 +277,7 @@ In case you want to enable authentication use `-Pauth` together with your build 
 Enabling authentication means following<br/>
 
 1. Your backend REST endpoints will become secured
-  * inside rest.war under folder WEB-INF are added files from rest/src/main/auth
-  * keycloak.json file is configuration file managing connection to Keycloak server
-  * web.xml file where you define security-constraints & security-roles, which specifies users authrorization's to each REST endpoint
+  * rest.war will use the web.xml with security-constraints & security-roles (rest/src/main/webconfig/auth/web.xml)
 2. Your pnc web UI gain the SSO ability and authentication via Keycloak login page.
   * with your first unauthenticated session you will be redirected from pnc web UI into Keycloak login page.
   * you will be asked to provide your credentials.
@@ -286,7 +286,7 @@ Enabling authentication means following<br/>
   * Use -Dauth.eap.home=``<path to your EAP installation>`` with you build command, if you want EAP configure for Keycloak.
   According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation will be performed on server for the given path.
 
-Before running the PNC it is recommended to update the pnc-config.json and set "authenticationProviderId" to "Keycloak" instead of the default "JAAS".
+Before running the PNC you have to update the pnc-config.json and set "authenticationProviderId" to "Keycloak" instead of the default "JAAS" if you want to use Keycloank authentication.
 
 ## Configuring the Openshift pod definitions
 
