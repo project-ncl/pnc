@@ -159,11 +159,11 @@ public class BuildTaskEndpoint {
             @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
     })
     @POST
-    @Path("/cancel-build/{id}")
+    @Path("/cancel-build/{buildExecutionConfigurationId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response build(
             @ApiParam(value = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
-            @PathParam("buildExecutionConfiguration")
+            @PathParam("buildExecutionConfigurationId")
             Integer buildExecutionConfigurationId,
             @Context UriInfo uriInfo,
             @Context HttpServletRequest request) {
