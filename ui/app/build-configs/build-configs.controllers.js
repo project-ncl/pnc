@@ -64,7 +64,7 @@
 
       // Selection of dependencies
       that.dependencies = {
-        selected: dependencies
+        selected: dependencies || []
       };
 
       // Selection of environments
@@ -109,7 +109,8 @@
         // for sending back to the server.
         that.configuration.productVersionId =
           getFirstId(that.productVersions.selected);
-        that.configuration.dependencyIds = gatherIds(that.dependencies.selected);
+        that.configuration.dependencyIds = that.dependencies.selected.map(function (d) { return d.id; });
+
         that.configuration.environment.id = that.environment.id;
 
         var added = _.difference(that.buildgroupconfigs.selected, linkedConfigurationSetList);
@@ -190,18 +191,10 @@
     }
   ]);
 
-  function gatherIds(array) {
-    var result = [];
-    for (var i = 0; i < array.length; i++) {
-      result.push(array[i].id);
-    }
-    return result;
-  }
-
   function getFirstId(array) {
-      if (array.length > 0) {
-          return array[0].id;
-      }
+    if (!array || array.length === 0) {
       return null;
+    }
+    return array[0].id;
   }
 })();
