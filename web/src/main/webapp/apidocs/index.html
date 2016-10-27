@@ -52,6 +52,7 @@
  <!-- ${enable.security.start}
   <script src="lib/keycloak.min.js"></script>
         <script>
+          $("document").ready(function () {
             var keycloak = Keycloak({
               url: pnc.config.keycloak.url,
               realm: pnc.config.keycloak.realm,
@@ -74,7 +75,7 @@
                 console.log.apply(console, arguments);
               }
             }
-              
+          });
        </script>
     ${enable.security.end} -->
 
