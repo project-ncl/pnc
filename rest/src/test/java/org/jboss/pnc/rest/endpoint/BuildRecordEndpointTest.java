@@ -35,6 +35,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.HashMap;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
 import static org.mockito.Matchers.any;
@@ -119,7 +121,8 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 SystemImageType.DOCKER_IMAGE,
-                false);
+                false,
+                new HashMap<>());
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);

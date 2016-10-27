@@ -86,7 +86,8 @@ public class LocalBuildScheduler implements BuildScheduler {
                 configuration.getBuildEnvironment().getSystemImageId(),
                 configuration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 configuration.getBuildEnvironment().getSystemImageType(),
-                buildTask.isPodKeptAfterFailure());
+                buildTask.isPodKeptAfterFailure(),
+                configuration.getGenericParameters());
 
         try {
             buildExecutor.startBuilding(

@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -88,7 +89,7 @@ public class BuildTasksRestTest extends AbstractTest{
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master",
-                "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false);
+                "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false, new HashMap<>());
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
 

@@ -81,7 +81,8 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                buildTask.isPodKeptAfterFailure());
+                buildTask.isPodKeptAfterFailure(),
+                buildConfiguration.getGenericParameters());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
     }

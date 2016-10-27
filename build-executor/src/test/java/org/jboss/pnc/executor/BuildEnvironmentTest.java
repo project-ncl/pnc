@@ -154,7 +154,8 @@ public class BuildEnvironmentTest {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                keepAliveOnFailure);
+                keepAliveOnFailure,
+                buildConfiguration.getGenericParameters());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }
