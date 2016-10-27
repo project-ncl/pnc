@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -60,9 +62,13 @@ public class BuildExecutionConfigurationTest {
         Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageRepositoryUrl(), buildExecutionConfigurationFromJson.getSystemImageRepositoryUrl());
         Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageType(), buildExecutionConfigurationFromJson.getSystemImageType());
         Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
+        Assert.assertEquals(message, buildExecutionConfiguration.getGenericParameters(), buildExecutionConfigurationFromJson.getGenericParameters());
     }
 
     private BuildExecutionConfiguration getBuildExecutionConfigurationMock() {
+        Map<String, String> genericParameters = new HashMap<>();
+        genericParameters.put("KEY", "VALUE");
+       
         return new DefaultBuildExecutionConfiguration(
                     1,
                     "condent-id",
@@ -74,7 +80,8 @@ public class BuildExecutionConfigurationTest {
                     "abcd1234",
                     "image.repo.url/repo",
                     SystemImageType.DOCKER_IMAGE,
-                    false
+                    false,
+                    genericParameters
             );
     }
 

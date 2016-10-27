@@ -154,7 +154,8 @@ class BuildExecutionBase {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                false);
+                false,
+                buildConfiguration.getGenericParameters());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }

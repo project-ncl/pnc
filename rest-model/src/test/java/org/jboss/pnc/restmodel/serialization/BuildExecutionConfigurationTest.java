@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -49,7 +50,8 @@ public class BuildExecutionConfigurationTest {
                 "abcd1234",
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,
-                false
+                false,
+                new HashMap<>()
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 

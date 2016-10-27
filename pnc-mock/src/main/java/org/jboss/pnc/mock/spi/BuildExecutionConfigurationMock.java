@@ -20,6 +20,8 @@ package org.jboss.pnc.mock.spi;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
+import java.util.HashMap;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -38,7 +40,8 @@ public class BuildExecutionConfigurationMock {
                 "1111111", DEFAULT_SYSTEM_IMAGE_ID,
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,
-                false
+                false,
+                new HashMap<>()
         );
     }
 }

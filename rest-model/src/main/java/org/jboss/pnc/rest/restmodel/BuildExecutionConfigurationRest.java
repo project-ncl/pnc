@@ -20,14 +20,18 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -48,6 +52,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
     private boolean podKeptOnFailure = false;
+    private Map<String, String> genericParameters;
 
     public BuildExecutionConfigurationRest() {}
 
@@ -56,21 +61,14 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = mapper.readValue(serialized, BuildExecutionConfigurationRest.class);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
 
-        id = buildExecutionConfiguration.getId();
-        buildContentId = buildExecutionConfiguration.getBuildContentId();
-        buildScript = buildExecutionConfiguration.getBuildScript();
-        name = buildExecutionConfiguration.getName();
-        scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
-        scmRevision = buildExecutionConfiguration.getScmRevision();
-        systemImageId = buildExecutionConfiguration.getSystemImageId();
-        systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
-        systemImageType = buildExecutionConfiguration.getSystemImageType();
-        user = new UserRest(buildExecutionConfiguration.getUserId());
-        podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
-
+        init(buildExecutionConfiguration);
     }
 
     public BuildExecutionConfigurationRest(BuildExecutionConfiguration buildExecutionConfiguration) {
+        init(buildExecutionConfiguration);
+    }
+
+    private void init(BuildExecutionConfiguration buildExecutionConfiguration) {
         id = buildExecutionConfiguration.getId();
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
@@ -82,6 +80,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         systemImageType = buildExecutionConfiguration.getSystemImageType();
         user = new UserRest(buildExecutionConfiguration.getUserId());
         podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
+        genericParameters = buildExecutionConfiguration.getGenericParameters();
     }
 
     public BuildExecutionConfiguration toBuildExecutionConfiguration() {
@@ -96,7 +95,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 systemImageId,
                 systemImageRepositoryUrl,
                 systemImageType,
-                podKeptOnFailure
+                podKeptOnFailure,
+                genericParameters
         );
     }
 
@@ -220,9 +220,19 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     public void setSystemImageType(SystemImageType systemImageType) {
         this.systemImageType = systemImageType;
     }
+    
+    public void setGenericParameters(Map<String, String> genericParameters) {
+        this.genericParameters = genericParameters;
+    }
+    
+    @Override
+    public Map<String, String> getGenericParameters() {
+        return genericParameters;
+    }
 
     @Override
     public String toString() {
         return JsonOutputConverterMapper.apply(this);
     }
+
 }

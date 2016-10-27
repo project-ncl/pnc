@@ -21,6 +21,9 @@ package org.jboss.pnc.mock.executor;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -36,6 +39,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
+    
+    private Map<String, String> genericParameters;
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
@@ -46,6 +51,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setSystemImageId("abcd1234");
         mock.setSystemImageRepositoryUrl("image.repo.url/repo");
         mock.setSystemImageType(SystemImageType.DOCKER_IMAGE);
+        mock.setGenericParameters(new HashMap<>());
+        
         return mock;
     }
     public int getId() {
@@ -127,6 +134,15 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setSystemImageType(SystemImageType systemImageType) {
         this.systemImageType = systemImageType;
+    }
+
+    @Override
+    public Map<String, String> getGenericParameters() {
+        return genericParameters;
+    }
+    
+    public void setGenericParameters(Map<String, String> genericParameters) {
+        this.genericParameters = genericParameters;
     }
 
 }

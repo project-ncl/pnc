@@ -21,6 +21,8 @@ package org.jboss.pnc.spi.executor;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
+import java.util.Map;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -45,6 +47,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     SystemImageType getSystemImageType();
 
     boolean isPodKeptOnFailure();
+    
+    Map<String, String> getGenericParameters();
 
     static BuildExecutionConfiguration build(
             int id,
@@ -57,7 +61,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String systemImageId,
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
-            boolean podKeptAfterFailure) {
+            boolean podKeptAfterFailure,
+            Map<String, String> genericParameters) {
 
         return new BuildExecutionConfiguration() {
 
@@ -114,6 +119,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public boolean isPodKeptOnFailure() {
                 return podKeptAfterFailure;
+            }
+
+            @Override
+            public Map<String, String> getGenericParameters() {
+                return genericParameters;
             }
         };
     }
