@@ -33,6 +33,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,12 +46,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildTest {
 
-    protected Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    protected static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
@@ -61,8 +63,16 @@ public class BuildTest {
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
-        war.addClass(BuildTest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
+        restWar.addClass(BuildTest.class);
+        restWar.addAsWebInfResource("beans-use-mock-executor.xml", "beans.xml");
+
+        JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
+        coordinatorJar.addAsManifestResource("beans-use-mock-executor.xml", "beans.xml");
+
+        addBuildExecutorMock(enterpriseArchive);
+
+        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 
@@ -85,8 +95,8 @@ public class BuildTest {
         }
     }
 
-    //TODO do not run the build that requires remote services, currently the build should fail due to missing configuration
-    //but the test still makes sure the error result is properly stored
+
+    // The test is not running the actual build it uses BuildExecutorMock
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() throws Exception {
         logger.debug("Running shouldTriggerBuildAndFinishWithoutProblems");
@@ -106,14 +116,11 @@ public class BuildTest {
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        //should be running
-        ResponseUtils.waitSynchronouslyFor(() -> buildRestClient.get(buildRecordId, false).hasValue(), 10, TimeUnit.SECONDS);
-        //should be completed/stored
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 2, TimeUnit.MINUTES);
+
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 15, TimeUnit.SECONDS);
     }
 
-    //TODO do not run the build that requires remote services, currently the build should fail due to missing configuration
-    //but the test still makes sure the error result is properly stored
+    // The test is not running the actual build it uses BuildExecutorMock
     @Test
     public void shouldTriggerBuildSetAndFinishWithoutProblems() throws Exception {
         //given

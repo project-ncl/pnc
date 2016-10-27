@@ -72,7 +72,7 @@ public class BuildExecutorMock implements BuildExecutor {
             String accessToken)
             throws ExecutorException {
 
-        log.debug("Starting mock build execution for buildExecutionConfiguration.id {}", buildExecutionConfiguration.getId());
+        log.info("Starting mock build execution for buildExecutionConfiguration.id {}", buildExecutionConfiguration.getId());
 
         BuildExecutionSession buildExecutionSession = new BuildExecutionSessionMock(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
@@ -85,11 +85,16 @@ public class BuildExecutorMock implements BuildExecutor {
         };
 
         CompletableFuture.supplyAsync(() -> mockBuild(buildExecutionSession), executor)
-                .thenApplyAsync((buildPassed) -> complete(buildPassed, onCompleteInternal), executor);
+                .handleAsync((buildPassed, e) ->  complete(buildPassed, e, onCompleteInternal), executor);
         return buildExecutionSession;
     }
 
-    private Integer complete(Boolean buildPassed, Consumer<BuildExecutionStatus> onCompleteInternal) {
+    private Integer complete(Boolean buildPassed, Throwable e, Consumer<BuildExecutionStatus> onCompleteInternal) {
+        if (e != null) {
+            log.error("Error in mock build.", e);
+        }
+
+        log.debug("Completing mock build.");
         if (buildPassed) {
             onCompleteInternal.accept(BuildExecutionStatus.DONE);
         } else {

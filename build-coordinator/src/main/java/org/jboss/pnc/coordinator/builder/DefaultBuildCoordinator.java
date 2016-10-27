@@ -390,7 +390,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 datastoreAdapter.storeResult(buildTask, buildResult);
                 coordinationStatus = BuildCoordinationStatus.DONE;
             }
-        } catch (DatastoreException | BuildCoordinationException e ) {
+        } catch (Throwable e ) {
             log.error("Cannot store results to datastore.", e);
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {

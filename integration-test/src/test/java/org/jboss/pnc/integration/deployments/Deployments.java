@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.integration.deployments;
 
+import org.jboss.pnc.executor.DefaultBuildExecutor;
+import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.executor.BuildExecutorMock;
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
+import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.Assignable;
@@ -45,6 +50,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
+import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
 
 public class Deployments {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -68,6 +74,25 @@ public class Deployments {
         addTestPersistenceXml(ear);
 
         return ear;
+    }
+
+    public static void addBuildExecutorMock(EnterpriseArchive enterpriseArchive) {
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, EXECUTOR_JAR);
+
+        jar.deleteClass(DefaultBuildExecutor.class);
+
+        jar.addPackage(BuildExecutorMock.class.getPackage());
+        jar.addClass(BuildDriverResultMock.class);
+        jar.addClass(RepositoryManagerResultMock.class);
+        jar.addClass(ArtifactBuilder.class);
+
+
+        jar.addAsManifestResource("beans-use-mock-executor.xml", "beans.xml");
+
+        logger.info(jar.toString(true));
+
+        enterpriseArchive.addAsModule(jar);
+
     }
 
     public static EnterpriseArchive baseEarWithTestDependencies() {
