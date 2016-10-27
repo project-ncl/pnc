@@ -75,6 +75,8 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -228,6 +230,14 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
         return fromCollection(buildConfigurationProvider.getAllForBuildConfigurationSet(pageIndex, pageSize, sort, q,
                 id));
+    }
+
+    @PUT
+    @Path("/{id}/build-configurations")
+    public Response updateConfigurations(@ApiParam(value = "Build Configuration Set Id", required = true) @PathParam("id") Integer id,
+            List<BuildConfigurationRest> buildConfigurationRests) throws ValidationException {
+        buildConfigurationSetProvider.updateConfigurations(id, buildConfigurationRests);
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Adds a configuration to the Specified Set")
