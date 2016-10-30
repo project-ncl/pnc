@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
@@ -44,7 +44,7 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
 
     private Integer productVersionId;
 
-    private List<Integer> buildConfigurationIds;
+    private List<Integer> buildConfigurationIds = new LinkedList<>();
 
     public BuildConfigurationSetRest() {
     }
@@ -53,9 +53,8 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
         this.id = buildConfigurationSet.getId();
         this.name = buildConfigurationSet.getName();
         performIfNotNull(buildConfigurationSet.getProductVersion(), () ->this.productVersionId = buildConfigurationSet.getProductVersion().getId());
-        this.buildConfigurationIds = nullableStreamOf(buildConfigurationSet.getBuildConfigurations())
-                .map(buildConfiguration -> buildConfiguration.getId())
-                .collect(Collectors.toList());
+
+        buildConfigurationSet.getBuildConfigurations().forEach(bc -> buildConfigurationIds.add(bc.getId()));
     }
 
     @Override
@@ -90,6 +89,14 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
 
     public void setBuildConfigurationIds(List<Integer> buildConfigurationIds) {
         this.buildConfigurationIds = buildConfigurationIds;
+    }
+
+    public void addBuildConfiguration(BuildConfigurationRest buildConfigurationRest) {
+        buildConfigurationIds.add(buildConfigurationRest.getId());
+    }
+
+    public void addBuildConfigurations(Collection<BuildConfigurationRest> buildConfigurationRestCollection) {
+        buildConfigurationIds.addAll(buildConfigurationRestCollection.stream().map(BuildConfigurationRest::getId).collect(Collectors.toList()));
     }
 
     public BuildConfigurationSet.Builder toDBEntityBuilder() {

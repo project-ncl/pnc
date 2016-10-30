@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
@@ -35,6 +36,9 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
@@ -60,7 +64,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         BuildConfigurationSet buildConfigurationSetFromDB = repository
                 .queryByPredicates(withName(buildConfigurationSetRest.getName()));
         if (buildConfigurationSetFromDB != null) {
-            throw new ConflictedEntryException("BuildConfiguration with this name already exists", BuildConfigurationSet.class,
+            throw new ConflictedEntryException("BuildConfigurationSet with this name already exists", BuildConfigurationSet.class,
                     buildConfigurationSetFromDB.getId());
         }
     }
@@ -100,6 +104,28 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigSet);
     }
 
+    public void updateConfigurations(Integer configSetId, Collection<BuildConfigurationRest> buildConfigurationRests) throws ValidationException {
+        BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
+
+        if (buildConfigSet == null) {
+            throw new InvalidEntityException("No BuildConfigurationSet exists with id: " + configSetId);
+        }
+
+        Set<BuildConfiguration> buildConfigurations = new HashSet<>();
+
+        for (BuildConfigurationRest restModel : buildConfigurationRests) {
+            BuildConfiguration dbModel = buildConfigurationRepository.queryById(restModel.getId());
+            if (dbModel == null) {
+                throw new InvalidEntityException("No BuildConfiguration exists with id: " + restModel.getId());
+            }
+
+            buildConfigurations.add(dbModel);
+        }
+
+        buildConfigSet.setBuildConfigurations(buildConfigurations);
+        repository.save(buildConfigSet);
+    }
+
     public CollectionInfo<BuildConfigurationSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
             String rsql, Integer productVersionId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
@@ -111,5 +137,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
                 BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId));
     }
+
+
 
 }

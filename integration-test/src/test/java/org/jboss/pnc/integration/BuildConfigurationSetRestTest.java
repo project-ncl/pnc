@@ -25,17 +25,23 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
+import org.jboss.pnc.integration.client.ProjectRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -49,7 +55,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +84,11 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     private static int buildConfId;
     private static int buildConfId2;
     private static int newBuildConfSetId;
+
+    private static boolean setupComplete = false;
+    private static BuildConfigurationSetRest bcsetRest;
+    private static BuildConfigurationRest bcRest1;
+    private static BuildConfigurationRest bcRest2;
     
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
 
@@ -99,6 +113,32 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     public void before() {
         if(buildConfigurationSetRestClient == null) {
             buildConfigurationSetRestClient = new BuildConfigurationSetRestClient();
+        }
+
+        // Setup data for build-configurations sub-endpoint tests
+        if (!setupComplete) {
+            setupComplete = true;
+//            ProjectRest projectRest = new ProjectRestClient().firstNotNull();
+//
+//            BuildConfigurationRestClient buildConfigurationRestClient = new BuildConfigurationRestClient();
+//            bcRest1 = new BuildConfigurationRest();
+//            bcRest1.setName("BuildConfigurationSetRestTest-bc-1");
+//            bcRest1.setProject(projectRest);
+//            bcRest1 = buildConfigurationRestClient.createNew(bcRest1).getValue();
+//
+//            bcRest2 = new BuildConfigurationRest();
+//            bcRest2.setName("BuildConfigurationSetRestTest-bc-2");
+//            bcRest2.setProject(projectRest);
+//            bcRest2 = buildConfigurationRestClient.createNew(bcRest2).getValue();
+
+            List<BuildConfigurationRest> bcs = new BuildConfigurationRestClient().all(false, 0, 2, null, null).getValue();
+            bcRest1 = bcs.get(0);
+            bcRest2 = bcs.get(1);
+
+            bcsetRest = new BuildConfigurationSetRest();
+            bcsetRest.setName("BuildConfigurationSetRestTest-bcset-1");
+            bcsetRest.addBuildConfiguration(bcRest1);
+            bcsetRest = buildConfigurationSetRestClient.createNew(bcsetRest).getValue();
         }
     }
 
@@ -263,6 +303,32 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         //than
         assertThat(firstResponse.hasValue()).isEqualTo(true);
         assertThat(secondResponse.getRestCallResponse().getStatusCode()).isEqualTo(409);
+    }
+
+    @Test
+    public void shouldUpdateAllBuildConfigurations() throws Exception {
+        //given
+        List<BuildConfigurationRest> buildConfigurationRestList = new LinkedList<>();
+        buildConfigurationRestList.add(bcRest2);
+
+        //when
+        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient.updateBuildConfigurations(bcsetRest.getId(), buildConfigurationRestList, true);
+
+        //then
+        assertThat(response.getValue().stream().map(BuildConfigurationRest::getId).collect(Collectors.toList())).containsOnly(bcRest2.getId());
+    }
+
+    @Test
+    public void shouldUpdateAllBuildConfigurationsWithEmptyList() throws Exception {
+        //given
+        List<BuildConfigurationRest> buildConfigurationRestList = new LinkedList<>();
+
+        //when
+        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient.updateBuildConfigurations(bcsetRest.getId(), buildConfigurationRestList, false);
+
+        //then
+        assertThat(response.getRestCallResponse().statusCode()).isEqualTo(200);
+        assertThat(response.getValue()).isNullOrEmpty();
     }
 
 }
