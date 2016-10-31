@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.junit.Assert.*;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -48,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response.Status;
+
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
@@ -56,9 +60,8 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -76,6 +79,8 @@ public class BuildConfigurationRestTest extends AbstractTest {
     private static int projectId;
     private static int configurationId;
     private static int environmentId;
+    
+    private static int createdConfigurationId;
 
     private static AtomicBoolean isInitialized = new AtomicBoolean();
 
@@ -97,6 +102,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         return enterpriseArchive;
     }
 
+    @SuppressWarnings("unchecked")
     @Before
     public void prepareData() throws Exception {
         if (!isInitialized.getAndSet(true)) {
@@ -131,6 +137,22 @@ public class BuildConfigurationRestTest extends AbstractTest {
     }
 
     @Test
+    @InSequence(1)
+    public void shouldCreateNewBuildConfiguration() throws IOException {
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+
+        Response response = given().headers(testHeaders)
+                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(CONFIGURATION_REST_ENDPOINT);
+        createdConfigurationId = response.jsonPath().<Integer>get(CONTENT_ID);
+        assertEquals(201, response.getStatusCode());
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
     public void shouldGetSpecificBuildConfiguration() {
         given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -138,17 +160,6 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
-    @Test
-    public void shouldCreateNewBuildConfiguration() throws IOException {
-        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
-        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
-        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
-        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
-
-        given().headers(testHeaders)
-                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(201);
-    }
 
     @Test
     public void shouldFailToCreateBuildConfigurationWhichDoesntMatchRegexp() throws IOException {
@@ -186,6 +197,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         final String updatedBuildScript = "mvn clean deploy -Dmaven.test.skip=true";
         final String updatedName = UUID.randomUUID().toString();
         final String updatedProjectId = String.valueOf(projectId);
+        final String updatedGenParamValue = "VALUE_NEW_1";
 
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
         configurationTemplate.addValue("_name", updatedName);
@@ -196,6 +208,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         configurationTemplate.addValue("_repositories", "");
         configurationTemplate.addValue("_projectId", updatedProjectId);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_genParamValue1", updatedGenParamValue);
 
         Response projectResponseBeforeTheUpdate = given().headers(testHeaders).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
@@ -221,6 +234,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_ID, configurationId)
                 .hasJsonValueEqual(CONTENT_NAME, updatedName).hasJsonValueEqual("content.buildScript", updatedBuildScript)
                 .hasJsonValueEqual("content.scmRepoURL", PNC_REPO).hasJsonValueEqual("content.project.id", updatedProjectId)
+                .hasJsonValueEqual("content.genericParameters.KEY1", updatedGenParamValue)
                 .hasJsonValueEqual("content.environment.id", environmentId);
         assertThat(projectResponseBeforeTheUpdate.getBody().print()).isEqualTo(projectResponseAfterTheUpdate.getBody().print());
         assertThat(environmentResponseBeforeTheUpdate.getBody().print())
@@ -228,8 +242,9 @@ public class BuildConfigurationRestTest extends AbstractTest {
     }
 
     @Test
+    @InSequence(2)
     public void shouldCloneBuildConfiguration() {
-        String buildConfigurationRestURI = String.format(CONFIGURATION_CLONE_REST_ENDPOINT, configurationId);
+        String buildConfigurationRestURI = String.format(CONFIGURATION_CLONE_REST_ENDPOINT, createdConfigurationId);
         Response response = given().headers(testHeaders)
                 .body("").contentType(ContentType.JSON).port(getHttpPort()).when().post(buildConfigurationRestURI);
 
@@ -238,7 +253,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         logger.info("Cloned id of buildConfiguration: " + clonedBuildConfigurationId);
 
         Response originalBuildConfiguration = given().headers(testHeaders).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, createdConfigurationId));
 
         Response clonedBuildConfiguration = given().headers(testHeaders).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, clonedBuildConfigurationId));
@@ -265,15 +280,14 @@ public class BuildConfigurationRestTest extends AbstractTest {
         }
 
         assertThat(clonedBcPrefixDate).isNotNull();
-
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.buildScript"))
                 .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.buildScript"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.scmRepoURL"))
                 .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.scmRepoURL"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.lastModificationTime"))
-                .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.lastModificationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.repositories"))
                 .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.repositories"));
+        assertTrue(originalBuildConfiguration.body().jsonPath().getString("content.genericParameters.KEY1")
+                .equals(clonedBuildConfiguration.body().jsonPath().getString("content.genericParameters.KEY1")));
     }
 
     @Test
@@ -327,8 +341,8 @@ public class BuildConfigurationRestTest extends AbstractTest {
     @Test
     public void shouldAddDependencyBuildConfiguration() throws Exception {
         // given
-        RestResponse<ProjectRest> projectRestClient = this.projectRestClient.firstNotNull();
-        RestResponse<BuildEnvironmentRest> environmentRestClient = this.environmentRestClient.firstNotNull();
+        RestResponse<ProjectRest> projectRestClient = BuildConfigurationRestTest.projectRestClient.firstNotNull();
+        RestResponse<BuildEnvironmentRest> environmentRestClient = BuildConfigurationRestTest.environmentRestClient.firstNotNull();
 
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
         buildConfiguration.setName(UUID.randomUUID().toString());
@@ -343,9 +357,9 @@ public class BuildConfigurationRestTest extends AbstractTest {
         dependencyBuildConfiguration.setScmRepoURL(PNC_REPO);
 
         // when
-        RestResponse<BuildConfigurationRest> configurationResponse = this.buildConfigurationRestClient
+        RestResponse<BuildConfigurationRest> configurationResponse = buildConfigurationRestClient
                 .createNew(buildConfiguration);
-        RestResponse<BuildConfigurationRest> depConfigurationResponse = this.buildConfigurationRestClient
+        RestResponse<BuildConfigurationRest> depConfigurationResponse = buildConfigurationRestClient
                 .createNew(dependencyBuildConfiguration);
 
         Integer configId = configurationResponse.getValue().getId();
@@ -356,7 +370,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         Response addDepResponse = given().headers(testHeaders)
                 .body("{ \"id\": " + depConfigId + " }").contentType(ContentType.JSON).port(getHttpPort()).when().post(buildConfigDepRestURI);
 
-        RestResponse<BuildConfigurationRest> getUpdatedConfigResponse = this.buildConfigurationRestClient
+        RestResponse<BuildConfigurationRest> getUpdatedConfigResponse = buildConfigurationRestClient
                 .get(configId);
 
         // then
@@ -369,11 +383,11 @@ public class BuildConfigurationRestTest extends AbstractTest {
     @InSequence(999)
     public void shouldDeleteBuildConfiguration() throws Exception {
         // given
-        RestResponse<BuildConfigurationRest> configuration = this.buildConfigurationRestClient.firstNotNull();
+        RestResponse<BuildConfigurationRest> configuration = buildConfigurationRestClient.firstNotNull();
 
         // when
         buildConfigurationRestClient.delete(configuration.getValue().getId());
-        RestResponse<BuildConfigurationRest> returnedConfiguration = this.buildConfigurationRestClient
+        RestResponse<BuildConfigurationRest> returnedConfiguration = buildConfigurationRestClient
                 .get(configuration.getValue().getId(), false);
 
         // then

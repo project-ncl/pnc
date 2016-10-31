@@ -10,5 +10,8 @@
     },
     "environment": {
       "id": ${_environmentId}
+    },
+    "genericParameters": {
+        "KEY1": "VALUE1"  
     }
 }
