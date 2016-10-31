@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.build-configs');
 
   module.directive('pncConfigurationCreatePanel', [
     function () {
-      
-      function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify, 
+
+      function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify,
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
 
         // Selection of Product Versions.
@@ -51,7 +50,7 @@
         $scope.environmentSelection = {
           selected: []
         };
-    	  
+
         $scope.data = {};
         $scope.environments = EnvironmentDAO.getAll();
         $scope.products = ProductDAO.getAll();
@@ -95,7 +94,7 @@
                   projectId: $scope.data.project.id
                 });
               }
-            }, 
+            },
 
             // error
             function() {
@@ -157,4 +156,3 @@
     }
   ]);
 })();
-
