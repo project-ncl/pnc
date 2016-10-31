@@ -173,7 +173,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     }
     
     @GET
-    @Path("/supportedGenericParameters")
+    @Path("/supported-generic-parameters")
     @ApiOperation(value = "Gets the minimal set of supported genericParameters and their description for the BuildConfiguration. "
             + "There can be also other supported parameters not know by core.")
     @ApiResponse(response = Map.class, code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION)
