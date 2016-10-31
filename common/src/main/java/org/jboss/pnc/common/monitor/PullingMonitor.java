@@ -40,15 +40,6 @@ import java.util.function.Supplier;
 @ApplicationScoped
 public class PullingMonitor {
 
-    /** Time how long to wait until all services are fully up and running (in seconds) */
-    private static final int DEFAULT_TIMEOUT = 30;
-
-    /** Interval between two checks if the services are fully up and running (in second) */
-    private static final int DEFAULT_CHECK_INTERVAL = 1;
-
-    /** */
-    private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
-
     private ScheduledExecutorService executorService;
     private ScheduledExecutorService timeOutVerifierService;
 
@@ -58,10 +49,6 @@ public class PullingMonitor {
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
         executorService = Executors.newScheduledThreadPool(4); //TODO configurable, keep global ScheduledThreadPool and inject it
-    }
-
-    public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
-        monitor(onMonitorComplete, onMonitorError, condition, DEFAULT_CHECK_INTERVAL, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
     }
 
     /**
