@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.configuration-set');
+  var module = angular.module('pnc.build-groups');
 
   /**
    * @author Jakub Senko
@@ -35,7 +34,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'configuration-set/directives/pncBCTab/pnc-bc-tab.html',
+        templateUrl: 'build-groups/directives/pncBCTab/pnc-bc-tab.html',
         scope: {
           buildConfigurationSet: '='
         },
@@ -78,7 +77,7 @@
                 var params = {
                   configurationSetId: scope.buildConfigurationSet.id
                 };
-                $state.go('configuration-set.detail', params, {
+                $state.go('build-groups.detail', params, {
                   reload: true,
                   inherit: false,
                   notify: true

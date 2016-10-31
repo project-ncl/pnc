@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
-
-  var module = angular.module('pnc.configuration-set');
+  var module = angular.module('pnc.build-groups');
 
   module.controller('ConfigurationSetListController', [
     '$log',
@@ -58,7 +57,7 @@
                 notify: true
               });
             } else {
-              $state.go('configuration-set.list');
+              $state.go('build-groups.list');
             }
           }
         );
@@ -134,7 +133,7 @@
               var params = {
                 configurationSetId: self.configurationSetDetail.id
               };
-              $state.go('configuration-set.detail', params, {
+              $state.go('build-groups.detail', params, {
                 reload: true,
                 inherit: false,
                 notify: true
@@ -227,7 +226,7 @@
         self.set.$update(
         ).then(
           function() {
-            $state.go('configuration-set.detail', {
+            $state.go('build-groups.detail', {
               configurationSetId: self.set.id
             }, {
               reload: true

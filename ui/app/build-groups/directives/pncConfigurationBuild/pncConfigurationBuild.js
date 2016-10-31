@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.configuration-set');
+  var module = angular.module('pnc.build-groups');
 
   /**
    * @ngdoc directive
@@ -38,7 +37,7 @@
 
       function PncConfigurationBuildCtrl($log, $scope, BuildsDAO, eventTypes) {
 
-        /* 
+        /*
          * Paged resources is used to be consistent with pnc.configuration:pncBuildsPanel directive
          * and be able to easily extend functionality to display more than one record in the future.
          */
@@ -59,7 +58,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'configuration-set/directives/pncConfigurationBuild/pnc-configuration-build.html',
+        templateUrl: 'build-groups/directives/pncConfigurationBuild/pnc-configuration-build.html',
         scope: {
           pncConfigurationId: '='
         },
