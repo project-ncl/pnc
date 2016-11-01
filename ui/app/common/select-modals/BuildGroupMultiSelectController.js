@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product').controller('BuildGroupMultiSelectController', [
+  angular.module('pnc.common.select-modals').controller('BuildGroupMultiSelectController', [
     '$log',
     'modalConfig',
     'BuildConfigurationSet',

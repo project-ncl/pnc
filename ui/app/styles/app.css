@@ -179,10 +179,26 @@ label.required::before {
   display: none;
 }
 
+.modal-xl {
+  width: auto;
+  margin: 30px 10px;
+}
+
 @media (min-width: 1400px) {
   .modal-xl {
-      width: 1260px;
+    width: 1260px;
+    margin: 30px auto;
   }
+}
+
+.border-before:before {
+  background: #d0d0d0;
+  bottom: 0;
+  content: " ";
+  left: 0;
+  position: absolute;
+  width: 1px;
+  top: 0;
 }
 
 .search-pf-input-group > .dropdown-menu {
@@ -207,4 +223,13 @@ label.required::before {
 
 .panel.pnc-data-panel .filter-pf .toolbar-pf-results > .col-sm-12 {
   min-height: 41px;
+}
+
+.toolbar-search-right {
+  max-width: 250px;
+  margin-left: 1em;
+}
+
+.dropdown-kebab-pf > .dropdown-menu-right {
+  margin-right: 10px;
 }

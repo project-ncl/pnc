@@ -68,6 +68,7 @@
       });
 
       $stateProvider.state('build-groups.detail', {
+        abstract: true,
         url: '/{configurationSetId:int}',
         templateUrl: 'build-groups/views/build-groups.detail.html',
         data: {
@@ -81,11 +82,11 @@
               id: $stateParams.configurationSetId }).$promise;
           },
           productVersion: function ($q, ProductVersion, configurationSetDetail) {
-            var id = configurationSetDetail.productVersionId;
-            if (angular.isUndefined(id) || id === null) {
-              return $q.when();
-            }
-            return ProductVersion.get({ id: configurationSetDetail.productVersionId }).$promise;
+            return $q.when(configurationSetDetail.productVersionId).then(function (id) {
+              if (id) {
+                return ProductVersion.get({ id: id }).$promise;
+              }
+            });
           },
           configurations: function(BuildConfigurationSetDAO, $stateParams) {
             return BuildConfigurationSetDAO.getConfigurations({
@@ -103,7 +104,23 @@
             };
             return $q.when(currentStateData);
           }],
+          buildConfigsPage: ['$stateParams', 'BuildConfigurationSetDAO', function ($stateParams, BuildConfigurationSetDAO) {
+            return BuildConfigurationSetDAO.getPagedConfigurations({
+              configurationSetId: $stateParams.configurationSetId }).$promise;
+
+          }]
         }
+      });
+
+      $stateProvider.state('build-groups.detail.build-configs', {
+        url: '',
+        template: '<pnc-build-group-build-configs build-group="$ctrl.buildGroup" page="$ctrl.page"></pnc-build-group-build-configs>',
+        controller: ['buildConfigsPage', 'configurationSetDetail', function (buildConfigsPage, configurationSetDetail) {
+          this.page = buildConfigsPage;
+          this.buildGroup = configurationSetDetail;
+        }],
+        controllerAs: '$ctrl',
+        bindToController: true
       });
 
       $stateProvider.state('build-groups.create', {

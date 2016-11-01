@@ -34,7 +34,7 @@
     </thead>
     <tbody>
       <tr ng-repeat="buildconfigurationset in setlistCtrl.buildconfigurationsets.data | filter:searchText">
-        <td><a href ui-sref="build-groups.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+        <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
       </tr>
     </tbody>
   </table>

@@ -133,7 +133,7 @@
               var params = {
                 configurationSetId: self.configurationSetDetail.id
               };
-              $state.go('build-groups.detail', params, {
+              $state.go('build-groups.detail.build-configs', params, {
                 reload: true,
                 inherit: false,
                 notify: true
@@ -148,6 +148,7 @@
   module.controller('ConfigurationSetDetailController', [
     '$log',
     '$state',
+    '$scope',
     'BuildRecordDAO',
     'BuildConfigurationSetDAO',
     'ProductVersionDAO',
@@ -158,7 +159,7 @@
     'productVersion',
     'previousState',
     'modalSelectService',
-    function($log, $state, BuildRecordDAO, BuildConfigurationSetDAO, ProductVersionDAO, ProductVersion,
+    function($log, $state, $scope, BuildRecordDAO, BuildConfigurationSetDAO, ProductVersionDAO, ProductVersion,
         configurationSetDetail, configurations, records, productVersion, previousState, modalSelectService) {
 
       var self = this;
@@ -226,7 +227,7 @@
         self.set.$update(
         ).then(
           function() {
-            $state.go('build-groups.detail', {
+            $state.go('build-groups.detail.build-configs', {
               configurationSetId: self.set.id
             }, {
               reload: true

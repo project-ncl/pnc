@@ -39,7 +39,7 @@
   </thead>
   <tbody>
   <tr ng-repeat="buildconfigurationset in page.data">
-    <td><a href ui-sref="build-groups.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+    <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
     <td>
       <div ng-repeat="buildRecordSet in latestBuildRecordSets[buildconfigurationset.id]">
         <build-status-icon status="buildRecordSet.status"></build-status-icon>

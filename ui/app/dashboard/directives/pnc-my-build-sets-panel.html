@@ -37,7 +37,7 @@
           <build-status-icon status="record.status"></build-status-icon> {{ record.status }}
         </td>
         <td><a href ui-sref="configuration-set-record.detail.info({recordId: record.id})"># {{ record.id }} </a></td>
-        <td><a href ui-sref="build-groups.detail({ configurationSetId: record.buildConfigurationSetId })">{{ record.buildConfigurationSetName }}</a></td>
+        <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: record.buildConfigurationSetId })">{{ record.buildConfigurationSetName }}</a></td>
         <td>{{ record.startTime | date:'medium'}}</td>
         <td>{{ record.endTime | date:'medium'}}</td>
       </tr>
