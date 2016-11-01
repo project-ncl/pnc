@@ -74,7 +74,7 @@
       restrict: 'E',
       scope: {
         singleItem: '@',
-    	selectedItems: '=',
+        selectedItems: '=',
         items: '=',
         itemId: '=',
         placeholder: '@',
@@ -107,7 +107,7 @@
             return -1;
           };
 
-       	  var PLACEHOLDER = 'Scroll & Filter';
+          var PLACEHOLDER = 'Scroll & Filter';
           $scope.placeholder = _.isUndefined($scope.placeholder) ? PLACEHOLDER : $scope.placeholder;
           $scope.selectRequired = _.isUndefined($scope.selectRequired) ? false : $scope.selectRequired;
           $scope.singleItem = (_.isUndefined($scope.singleItem) || $scope.singleItem !== 'true') ? 'false' : 'true';
@@ -145,14 +145,14 @@
            * Mousedown event handler
            */
           $scope.selectItem = function(item) {
-        	if ($scope.singleItem === 'false') {
+            if ($scope.singleItem === 'false') {
               $scope.itemId = undefined;
               $scope.searchText  = undefined;
-        	}
-        	else {
+            }
+            else {
               $scope.itemId = item.id;
               $scope.searchText = item[$scope.displayProperty];
-        	}
+            }
 
             if (findInArray(item, $scope.selectedItems) < 0) {
               // If single item, clear the $scope.selectedItems
@@ -171,15 +171,15 @@
           // When resetting the forms, itemId is reset because it's bound in the form via the 'item-id' property, but 'searchText' is not.
           // This makes sure the 'searchText' is reset also, to avoid refreshing problems
           $scope.$watch('itemId', function(newValue) {
-        	if (_.isUndefined(newValue)) {
+            if (_.isUndefined(newValue)) {
               $scope.searchText = undefined;
-        	}
+            }
           });
 
           control.reset = function() {
-              $scope.selectedItems = [];
-              $scope.itemId = undefined;
-              $scope.searchText = undefined;
+            $scope.selectedItems = [];
+            $scope.itemId = undefined;
+            $scope.searchText = undefined;
           };
         }
       ]
