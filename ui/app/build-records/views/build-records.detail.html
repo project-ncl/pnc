@@ -20,6 +20,10 @@
 <div class="row margin-bottom-md">
   <div class="col-md-12">
     <div class="page-header border-none">
+      <div class="btn-group pull-right" role="group" aria-label="Build Actions">
+        <button ng-if="recordCtrl.record.status === 'BUILDING'" ng-click="recordCtrl.record.$cancel()" type="button" class="btn btn-danger"><i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort</button>
+      </div>
+
       <h1>
         <build-status-icon status="recordCtrl.record.status"></build-status-icon>
         Build #{{ recordCtrl.record.id }} of {{ recordCtrl.record.buildConfigurationName }}
