@@ -63,7 +63,7 @@ abstract class AbstractTransformer<Entity> implements Transformer<Entity> {
             }
 
             if (isFieldEmbedded) {
-                logger.info("field {} is EMBEDDED {}", fields[i], isFieldEmbedded);
+                logger.trace("field {} is EMBEDDED {}", fields[i], isFieldEmbedded);
             }
 
             if (i == 0) {
