@@ -111,6 +111,10 @@
           cache: true,
           transformResponse: function(data) { return { payload: data }; }
         },
+        cancel: {
+          method: 'POST',
+          url: BUILDS_ENDPOINT + '/cancel'
+        }
       });
 
       /**
