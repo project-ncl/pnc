@@ -22,9 +22,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.model.BuildConfigurationSet;
+
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
@@ -81,6 +82,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, ProductVersionRest> {
 
     private ProductVersionProvider productVersionProvider;
+    private ProductProvider productProvider;
     private BuildConfigurationSetProvider buildConfigurationSetProvider;
 
     public ProductVersionEndpoint() {
@@ -88,10 +90,12 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
 
     @Inject
     public ProductVersionEndpoint(ProductVersionProvider productVersionProvider,
-            BuildConfigurationSetProvider buildConfigurationSetProvider) {
+            BuildConfigurationSetProvider buildConfigurationSetProvider,
+            ProductProvider productProvider) {
         super(productVersionProvider);
         this.productVersionProvider = productVersionProvider;
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
+        this.productProvider = productProvider;
     }
 
     @ApiOperation(value = "Gets all Product Versions")
@@ -174,6 +178,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @POST
     public Response createNewProductVersion(ProductVersionRest productVersionRest, @Context UriInfo uriInfo)
             throws ValidationException {
+        productVersionRest.setProduct(productProvider.getSpecific(productVersionRest.getProductId()));
         return super.createNew(productVersionRest, uriInfo);
     }
 

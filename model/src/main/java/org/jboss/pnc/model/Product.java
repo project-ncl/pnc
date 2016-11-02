@@ -53,6 +53,7 @@ public class Product implements GenericEntity<Integer> {
     private String description;
 
     @Column(unique = true)
+    @NotNull
     @Size(max=20)
     private String abbreviation;
 

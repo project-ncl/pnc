@@ -20,22 +20,16 @@ package org.jboss.pnc.model;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class that contains all the versions for a Product
@@ -85,6 +79,11 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfiguration> buildConfigurations;
+    
+    @Column(length = 50, nullable = false, updatable = false)
+    @Getter
+    @Setter
+    private String brewTagPrefix;
 
     public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
@@ -207,6 +206,8 @@ public class ProductVersion implements GenericEntity<Integer> {
         private Set<BuildConfigurationSet> buildConfigurationSets = new HashSet<>();
 
         private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
+        
+        private String brewTagPrefix;
 
         private Builder() {
         }
@@ -237,6 +238,8 @@ public class ProductVersion implements GenericEntity<Integer> {
                 productMilestone.setProductVersion(productVersion);
             }
             productVersion.setProductMilestones(productMilestones);
+            
+            productVersion.setBrewTagPrefix(brewTagPrefix);
 
             return productVersion;
         }
@@ -283,6 +286,11 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         public Builder buildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
             this.buildConfigurationSets.add(buildConfigurationSet);
+            return this;
+        }
+        
+        public Builder brewTagPrefix(String brewTagPrefix) {
+            this.brewTagPrefix = brewTagPrefix;
             return this;
         }
     }

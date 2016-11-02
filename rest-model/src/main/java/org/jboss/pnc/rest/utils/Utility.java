@@ -30,5 +30,17 @@ public class Utility {
             action.run();
         }
     }
+    
+    /**
+     * Perform the given action if the object is null
+     * 
+     * @param obj The object to check for null
+     * @param action The action to perform if object is null
+     */
+    public static void performIfNull(Object obj, Runnable action) {
+        if(obj == null) {
+            action.run();
+        }
+    }
 
 }

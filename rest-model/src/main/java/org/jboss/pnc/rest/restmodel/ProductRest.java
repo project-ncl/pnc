@@ -42,6 +42,7 @@ public class ProductRest implements GenericRestEntity<Integer> {
 
     private String description;
 
+    @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
     private String abbreviation;
 
     private String productCode;
