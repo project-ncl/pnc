@@ -28,6 +28,7 @@ import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.RandomUtils;
@@ -40,6 +41,7 @@ import org.jboss.util.StringPropertyReplacer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -84,6 +86,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private Service service;
     private Route route;
     private Service sshService;
+
+    @Inject
+    private Configuration configuration;
 
     private final String buildAgentContextPath;
 
@@ -137,7 +142,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         initDebug();
 
-        ModelNode podConfigurationNode = createModelNode(Configurations.PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
+        ModelNode podConfigurationNode = createModelNode(Configurations.PNC_BUILDER_POD.getContentAsString(configuration), runtimeProperties);
         pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
         pod.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createPod = () -> {
@@ -150,7 +155,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         };
         creatingPod = Optional.of(executor.submit(createPod));
 
-        ModelNode serviceConfigurationNode = createModelNode(Configurations.PNC_BUILDER_SERVICE.getContentAsString(), runtimeProperties);
+        ModelNode serviceConfigurationNode = createModelNode(Configurations.PNC_BUILDER_SERVICE.getContentAsString(configuration), runtimeProperties);
         service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         service.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createService = () -> {
@@ -164,7 +169,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         creatingService = Optional.of(executor.submit(createService));
 
         if (createRoute) {
-            ModelNode routeConfigurationNode = createModelNode(Configurations.PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
+            ModelNode routeConfigurationNode = createModelNode(Configurations.PNC_BUILDER_ROUTE.getContentAsString(configuration), runtimeProperties);
             route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
             route.setNamespace(environmentConfiguration.getPncNamespace());
             Runnable createRoute = () -> {
@@ -393,7 +398,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * @return port, to which ssh is forwarded
      */
     private Integer startSshService() {
-        ModelNode serviceConfigurationNode = createModelNode(Configurations.PNC_BUILDER_SSH_SERVICE.getContentAsString(), runtimeProperties);
+        ModelNode serviceConfigurationNode = createModelNode(Configurations.PNC_BUILDER_SSH_SERVICE.getContentAsString(configuration), runtimeProperties);
         sshService = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         sshService.setNamespace(environmentConfiguration.getPncNamespace());
         try {
