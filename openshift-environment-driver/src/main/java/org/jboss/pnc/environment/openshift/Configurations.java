@@ -26,6 +26,7 @@ import org.jboss.pnc.common.util.IoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
@@ -45,11 +46,11 @@ public enum Configurations {
 
     private final String filePath;
 
+    @Inject
     private Configuration configuration;
 
     Configurations(String fileName) {
         this.filePath = CONFIGURATIONS_FOLDER + fileName;
-        this.configuration = new Configuration(); //TODO Inject managed instance
     }
 
     public String getContentAsString() {
