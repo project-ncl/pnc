@@ -20,12 +20,15 @@ package org.jboss.pnc.rest.restmodel.bpm;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.jboss.pnc.rest.validation.validators.ScmUrl;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -91,4 +94,8 @@ public class BpmBuildConfigurationCreationRest implements Serializable {
     @Getter
     @Setter
     private Set<Integer> buildConfigurationSetIds;
+    
+    @Getter
+    @Setter
+    private Map<String, String> genericParameters ;
 }
