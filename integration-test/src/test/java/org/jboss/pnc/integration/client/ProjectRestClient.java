@@ -17,13 +17,28 @@
  */
 package org.jboss.pnc.integration.client;
 
+import org.jboss.pnc.integration.client.util.RestResponse;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+
+import java.util.List;
+
+import static java.lang.String.*;
 
 public class ProjectRestClient extends AbstractRestClient<ProjectRest> {
 
     private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
+    private static final String BUILD_CONFIGURATION_SUB_ENDPOINT = PROJECT_REST_ENDPOINT + "%d/build-configurations";
 
     public ProjectRestClient() {
         super(PROJECT_REST_ENDPOINT, ProjectRest.class);
+    }
+
+    public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(int id, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
+        return all(BuildConfigurationRest.class, format(BUILD_CONFIGURATION_SUB_ENDPOINT, id), withValidation, pageIndex, pageSize, rsql, sort);
+    }
+
+    public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(int id, boolean withValidation) {
+        return getBuildConfigurations(id, withValidation, 0, 50, null, null);
     }
 }
