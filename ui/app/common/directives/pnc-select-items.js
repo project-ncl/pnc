@@ -27,6 +27,8 @@
    * @restrict E
    * @param {string@} single-item
    * Indicates if the list of selected items is single (selecting a new item will replace the existing one, if any). Defaults to 'false'
+   * @param {string@} custom-item
+   * Indicates if custom item can be inserted after enter is pressed, be careful not to cause form "double-submission", see https://docs.angularjs.org/api/ng/directive/form#submitting-a-form-and-preventing-the-default-action
    * @param {array=} selected-items
    * An array on the in scope controller that will hold the items selected by
    * the user. The array can be pre-populated to show items that are already
@@ -74,6 +76,7 @@
       restrict: 'E',
       scope: {
         singleItem: '@',
+        customItem: '@',
         selectedItems: '=',
         items: '=',
         itemId: '=',
@@ -164,8 +167,22 @@
             }
           };
 
+          $scope.saveCustomItem = function(text) {
+            if (text) {
+              var item = {
+                fullDisplayText: text
+              };
+              $scope.selectedItems.push(item);
+              $scope.itemId = text;
+            }
+          };
+
           $scope.viewDropdown = function(isDropdown) {
-            $scope.isDropdown = isDropdown;
+            if ($scope.searchText && !$scope.selectedItems.length) {
+              $scope.isDropdown = true;
+            } else {
+              $scope.isDropdown = isDropdown;
+            }
           };
 
           // When resetting the forms, itemId is reset because it's bound in the form via the 'item-id' property, but 'searchText' is not.

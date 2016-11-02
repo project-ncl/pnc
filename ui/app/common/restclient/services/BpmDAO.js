@@ -49,7 +49,8 @@
           buildEnvironmentId:       data.environment.id,
           dependencyIds:            data.dependencyIds,
           buildConfigurationSetIds: data.buildConfigurationSetIds,
-          productVersionId:         data.productVersionId
+          productVersionId:         data.productVersionId,
+          genericParameters:        data.genericParameters
         });
 
       };
