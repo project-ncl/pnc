@@ -194,12 +194,9 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         nullableStreamOf(this.getBuildConfigurationSets()).forEach(set ->
                 builder.buildConfigurationSet(BuildConfigurationSet.Builder.newBuilder().id(set.getId()).build()));
 
-        performIfNull(brewTagPrefix, () -> builder.brewTagPrefix(generateBrewTagPrefix(product.getAbbreviation(), version)));
+        performIfNull(brewTagPrefix, () -> builder.generateBrewTagPrefix(product.getAbbreviation(), version));
+        
         return builder;
     }
     
-    private String generateBrewTagPrefix(String abbreviation, String productVersion) {
-        return "pnc-jb-" + abbreviation + "-" + productVersion;
-    }
-
 }

@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Class that contains all the versions for a Product
@@ -82,7 +81,6 @@ public class ProductVersion implements GenericEntity<Integer> {
     
     @Column(length = 50, nullable = false, updatable = false)
     @Getter
-    @Setter
     private String brewTagPrefix;
 
     public ProductVersion() {
@@ -208,7 +206,7 @@ public class ProductVersion implements GenericEntity<Integer> {
         private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
         
         private String brewTagPrefix;
-
+        
         private Builder() {
         }
 
@@ -238,9 +236,9 @@ public class ProductVersion implements GenericEntity<Integer> {
                 productMilestone.setProductVersion(productVersion);
             }
             productVersion.setProductMilestones(productMilestones);
-            
-            productVersion.setBrewTagPrefix(brewTagPrefix);
 
+            productVersion.brewTagPrefix = this.brewTagPrefix;
+            
             return productVersion;
         }
 
@@ -289,8 +287,15 @@ public class ProductVersion implements GenericEntity<Integer> {
             return this;
         }
         
-        public Builder brewTagPrefix(String brewTagPrefix) {
-            this.brewTagPrefix = brewTagPrefix;
+        /**
+         * Will generate read-only value for Brew tag prefix for import of binaries
+         * 
+         * @param productAbbreviation Abbreviation, which corresponds to product.getAbbreviation()
+         * @param version Version of this product version in format \d+\.\d+
+         * @return
+         */
+        public Builder generateBrewTagPrefix(String productAbbreviation, String version) {
+            this.brewTagPrefix = "pnc-jb-" + productAbbreviation.toLowerCase() + "-" + version;
             return this;
         }
     }

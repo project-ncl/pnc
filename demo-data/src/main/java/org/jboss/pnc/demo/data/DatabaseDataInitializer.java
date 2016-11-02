@@ -232,11 +232,13 @@ public class DatabaseDataInitializer {
         // Example product version, release, and milestone of the product
         ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_1).product(product)
+                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_1)
                 .build();
         productVersion1 = productVersionRepository.save(productVersion1);
 
         ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_2).product(product)
+                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_2)
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 

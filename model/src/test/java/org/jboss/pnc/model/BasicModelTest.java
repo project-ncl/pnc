@@ -269,7 +269,7 @@ public class BasicModelTest extends AbstractModelTest {
             em.close();
         }
     }
-
+    
     @Test(expected = RollbackException.class)
     public void testProjectInsertConstraintFailure() throws Exception {
 
@@ -294,4 +294,27 @@ public class BasicModelTest extends AbstractModelTest {
         }
     }
 
+    @Test
+    public void testProductVersionBrewTagGeneration() {
+        EntityManager em = getEmFactory().createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        
+        final String version = "10.1";
+        Product product = Product.Builder.newBuilder().id(1)
+                .build();
+
+        ProductVersion productVersionOriginal = ProductVersion.Builder.newBuilder()
+                .version(version).product(product)
+                .generateBrewTagPrefix("TP1", version)
+                .build();
+
+        tx.begin();
+        em.persist(productVersionOriginal);
+        tx.commit();
+
+        ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
+        Assert.assertEquals("pnc-jb-tp1-" + version, productVersionLoaded.getBrewTagPrefix());
+        
+        
+    }
 }
