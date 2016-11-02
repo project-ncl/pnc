@@ -27,6 +27,8 @@
    * @restrict E
    * @param {string@} single-item
    * Indicates if the list of selected items is single (selecting a new item will replace the existing one, if any). Defaults to 'false'
+   * @param {string@} custom-item
+   * Indicates if custom item can be inserted after enter is pressed, be careful not to cause form "double-submission", see https://docs.angularjs.org/api/ng/directive/form#submitting-a-form-and-preventing-the-default-action
    * @param {array=} selected-items
    * An array on the in scope controller that will hold the items selected by
    * the user. The array can be pre-populated to show items that are already
@@ -74,7 +76,8 @@
       restrict: 'E',
       scope: {
         singleItem: '@',
-    	selectedItems: '=',
+        customItem: '@',
+        selectedItems: '=',
         items: '=',
         itemId: '=',
         placeholder: '@',
@@ -107,7 +110,7 @@
             return -1;
           };
 
-       	  var PLACEHOLDER = 'Scroll & Filter';
+          var PLACEHOLDER = 'Scroll & Filter';
           $scope.placeholder = _.isUndefined($scope.placeholder) ? PLACEHOLDER : $scope.placeholder;
           $scope.selectRequired = _.isUndefined($scope.selectRequired) ? false : $scope.selectRequired;
           $scope.singleItem = (_.isUndefined($scope.singleItem) || $scope.singleItem !== 'true') ? 'false' : 'true';
@@ -145,14 +148,14 @@
            * Mousedown event handler
            */
           $scope.selectItem = function(item) {
-        	if ($scope.singleItem === 'false') {
+            if ($scope.singleItem === 'false') {
               $scope.itemId = undefined;
               $scope.searchText  = undefined;
-        	}
-        	else {
+            }
+            else {
               $scope.itemId = item.id;
               $scope.searchText = item[$scope.displayProperty];
-        	}
+            }
 
             if (findInArray(item, $scope.selectedItems) < 0) {
               // If single item, clear the $scope.selectedItems
@@ -164,22 +167,36 @@
             }
           };
 
+          $scope.saveCustomItem = function(text) {
+            if (text) {
+              var item = {
+                fullDisplayText: text
+              };
+              $scope.selectedItems.push(item);
+              $scope.itemId = text;
+            }
+          };
+
           $scope.viewDropdown = function(isDropdown) {
-            $scope.isDropdown = isDropdown;
+            if ($scope.searchText && !$scope.selectedItems.length) {
+              $scope.isDropdown = true;
+            } else {
+              $scope.isDropdown = isDropdown;
+            }
           };
 
           // When resetting the forms, itemId is reset because it's bound in the form via the 'item-id' property, but 'searchText' is not.
           // This makes sure the 'searchText' is reset also, to avoid refreshing problems
           $scope.$watch('itemId', function(newValue) {
-        	if (_.isUndefined(newValue)) {
+            if (_.isUndefined(newValue)) {
               $scope.searchText = undefined;
-        	}
+            }
           });
 
           control.reset = function() {
-              $scope.selectedItems = [];
-              $scope.itemId = undefined;
-              $scope.searchText = undefined;
+            $scope.selectedItems = [];
+            $scope.itemId = undefined;
+            $scope.searchText = undefined;
           };
         }
       ]

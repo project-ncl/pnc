@@ -29,13 +29,14 @@
    */
   module.factory('BuildConfigurationDAO', [
     '$resource',
+    '$http',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_ENDPOINT',
     'ProjectDAO',
     'cachedGetter',
     'PageFactory',
     'QueryHelper',
-    function ($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, ProjectDAO, cachedGetter, PageFactory, qh) {
+    function ($resource, $http, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, ProjectDAO, cachedGetter, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -108,6 +109,12 @@
           url: REST_BASE_URL + '/build-configurations/projects/:projectId'
         }
       });
+
+      resource.getSupportedGenericParameters = function() {
+        return $http.get(REST_BASE_URL + '/build-configurations/supported-generic-parameters').then(function (r) {
+          return r.data;
+        });
+      };
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
       PageFactory.decorateNonPaged(resource, '_getBuildRecords', 'getBuildRecords');
