@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,10 +71,10 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         BuildConfiguration testConfiguration = config("shouldNotBuildTheSameBuildConfigurationTwice");
 
         //when
-        coordinator.build(testConfiguration, null, false, false);
+        coordinator.build(testConfiguration, null, BuildScope.SINGLE, false);
         waitForEmptyBuildQueue();
 
-        coordinator.build(testConfiguration, null, false, false);
+        coordinator.build(testConfiguration, null, BuildScope.SINGLE, false);
         waitForEmptyBuildQueue();
 
         //then
@@ -85,10 +86,10 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildRecordRepository.clear();
 
         //when
-        coordinator.build(configA, null, false, true);
+        coordinator.build(configA, null, BuildScope.REBUILD, false);
         waitForEmptyBuildQueue();
 
-        coordinator.build(configA, null, false, true);
+        coordinator.build(configA, null, BuildScope.REBUILD, false);
         waitForEmptyBuildQueue();
 
         //then

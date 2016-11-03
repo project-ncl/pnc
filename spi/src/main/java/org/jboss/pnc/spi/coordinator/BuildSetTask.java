@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ public class BuildSetTask {
 
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
-    private final BuildConfigSetRecord buildConfigSetRecord;
+    private final Optional<BuildConfigSetRecord> buildConfigSetRecord;
 
     private final boolean forceRebuildAll;
     private final boolean keepAfterFailure;
@@ -46,6 +47,8 @@ public class BuildSetTask {
     private BuildSetStatus status;
 
     private String statusDescription;
+
+    private Date startTime;
 
     private final Set<BuildTask> buildTasks = new HashSet<>();
 
@@ -56,17 +59,17 @@ public class BuildSetTask {
      * @param forceRebuildAll Rebuild all configs in the set regardless of whether they were built previously
      * @param keepAfterFailure Don't stop the pod after build failure
      */
-    public BuildSetTask(
+    private BuildSetTask(
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
             boolean forceRebuildAll,
             boolean keepAfterFailure) {
-        this.buildConfigSetRecord = buildConfigSetRecord;
+        this.buildConfigSetRecord = Optional.ofNullable(buildConfigSetRecord);
         this.forceRebuildAll = forceRebuildAll;
         this.keepAfterFailure = keepAfterFailure;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
-        return buildConfigSetRecord.getBuildConfigurationSet();
+        return buildConfigSetRecord.map(BuildConfigSetRecord::getBuildConfigurationSet).orElse(null);
     }
 
     public void setStatus(BuildSetStatus status) {
@@ -84,11 +87,11 @@ public class BuildSetTask {
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
             }
-            buildConfigSetRecord.setStatus(BuildStatus.FAILED);
+            buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.FAILED));
             finishBuildSetTask();
         } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
             log.debug("Marking build set as SUCCESS.");
-            buildConfigSetRecord.setStatus(BuildStatus.SUCCESS);
+            buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.SUCCESS));
             finishBuildSetTask();
         } else {
             if (log.isTraceEnabled()) {
@@ -108,7 +111,7 @@ public class BuildSetTask {
     }
 
     private void finishBuildSetTask() {
-        buildConfigSetRecord.setEndTime(new Date());
+        buildConfigSetRecord.ifPresent(r -> r.setEndTime(new Date()));
     }
 
     public BuildSetStatus getStatus() {
@@ -124,7 +127,7 @@ public class BuildSetTask {
     }
 
     public Date getStartTime() {
-        return this.getBuildConfigSetRecord().getStartTime();
+        return startTime;
     }
 
     public Set<BuildTask> getBuildTasks() {
@@ -146,10 +149,10 @@ public class BuildSetTask {
     }
 
     public Integer getId() {
-        return buildConfigSetRecord.getId();
+        return buildConfigSetRecord.map(BuildConfigSetRecord::getId).orElse(null);
     }
 
-    public BuildConfigSetRecord getBuildConfigSetRecord() {
+    public Optional<BuildConfigSetRecord> getBuildConfigSetRecord() {
         return buildConfigSetRecord;
     }
 
@@ -159,6 +162,45 @@ public class BuildSetTask {
 
     public boolean isKeepAfterFailure() {
         return keepAfterFailure;
+    }
+
+    public static class Builder {
+        private BuildConfigSetRecord buildConfigSetRecord; //TODO decouple datastore entity
+        private boolean forceRebuildAll;
+        private boolean keepAfterFailure;
+        private Date startTime;
+
+        private Builder() {}
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public Builder buildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+            this.buildConfigSetRecord = buildConfigSetRecord;
+            this.startTime(buildConfigSetRecord.getStartTime());
+            return this;
+        }
+        public Builder forceRebuildAll(boolean forceRebuildAll) {
+            this.forceRebuildAll = forceRebuildAll;
+            return this;
+        }
+
+        public Builder keepAfterFailure(boolean keepAfterFailure) {
+            this.keepAfterFailure = keepAfterFailure;
+            return this;
+        }
+
+        public Builder startTime(Date startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public BuildSetTask build() {
+            BuildSetTask buildSetTask = new BuildSetTask(buildConfigSetRecord, forceRebuildAll, keepAfterFailure);
+            buildSetTask.startTime = this.startTime;
+            return buildSetTask;
+        }
     }
 
     @Override

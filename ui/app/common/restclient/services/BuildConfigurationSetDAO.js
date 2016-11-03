@@ -78,7 +78,7 @@
         _getLatestBuildConfigSetRecordsForConfigSet: {
           method: 'GET',
           url: ENDPOINT + '/build-config-set-records?pageIndex=0&pageSize=1&sort==desc=id'
-        },
+        }
       });
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');

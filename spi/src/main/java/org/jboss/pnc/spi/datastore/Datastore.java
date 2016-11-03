@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.datastore;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
@@ -97,4 +98,11 @@ public interface Datastore {
      * @param task task to check
      */
     boolean requiresRebuild(BuildTask task);
+
+    /**
+     * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild)
+     *
+     * @param configuration configuration to check
+     */
+    boolean hasARebuiltDependency(BuildConfiguration configuration);
 }

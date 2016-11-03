@@ -85,6 +85,13 @@
         }, {});
       };
 
+      that.buildSingle = function() {
+        $log.debug('Initiating single build of :%0', that.configuration);
+        BuildConfigurationDAO.buildSingle({
+          configurationId: that.configuration.id
+        }, {});
+      };
+
       that.buildAndKeepAliveOnError = function() {
         $log.debug('Initiating FORCED build of :%0 with keeping pod alive on failure enabled', that.configuration);
         BuildConfigurationDAO.buildAndKeepAliveOnError({
@@ -94,7 +101,7 @@
 
       // Executing a build of a configuration
       that.build = function() {
-        $log.debug('Initiating build of: %O', that.configuration);
+        $log.debug('Initiating build of: %O with dependencies', that.configuration);
         BuildConfigurationDAO.build({
           configurationId: that.configuration.id
         }, {});

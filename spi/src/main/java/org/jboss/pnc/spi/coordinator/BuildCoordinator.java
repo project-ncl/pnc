@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 
@@ -29,7 +30,11 @@ import java.util.List;
 
 public interface BuildCoordinator {
 
-    BuildTask build(BuildConfiguration buildConfiguration, User user, boolean keepPodAliveAfterFailure, boolean forceRebuild) throws BuildConflictException;
+    BuildSetTask build(BuildConfiguration buildConfiguration,
+                       User user,
+                       BuildScope scope,
+                       boolean keepPodAliveAfterFailure) throws BuildConflictException, CoreException;
+
 
     BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean keepPodAliveAfterFailure, boolean forceRebuild) throws CoreException;
 

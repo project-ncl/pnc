@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import org.hibernate.mapping.Map;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
@@ -47,7 +46,9 @@ import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -76,6 +76,8 @@ import java.net.URL;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -96,8 +98,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 
 @Api(value = "/build-configurations", description = "Build configuration entities")
 @Path("/build-configurations")
@@ -250,9 +250,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/build")
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
-            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
+            @ApiParam(value = "Build scope: SINGLE, WITH_DEPENDENCIES, REBUILD.") @QueryParam("scope") @DefaultValue("WITH_DEPENDENCIES") BuildScope scope,
             @ApiParam(value = "Keep pod alive when the build fails") @QueryParam("keepPodAliveOnFailure") @DefaultValue("false") boolean keepPodAliveOnFailure,
-            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException {
+            @ApiParam(value = "Build the unbuilt dependencies") @QueryParam("buildDependencies") @DefaultValue("false") boolean buildDependencies,
+            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
 
         logger.debug("Endpoint /build requested for buildConfigurationId [{}]", id);
 
@@ -266,10 +267,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl == null || callbackUrl.isEmpty()) {
             logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, rebuildAll);
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, scope);
         } else {
             logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, rebuildAll, new URL(callbackUrl));
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, scope, new URL(callbackUrl));
         }
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");

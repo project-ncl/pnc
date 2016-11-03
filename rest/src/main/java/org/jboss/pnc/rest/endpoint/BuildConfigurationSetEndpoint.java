@@ -28,17 +28,15 @@ import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
+import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
@@ -69,16 +67,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -315,7 +308,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
                     + " user must be initialized through /users/getLoggedUser");
         }
 
-        BuildTriggerer.BuildConfigurationSetTriggerResult result;
+        BuildConfigurationSetTriggerResult result;
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl == null || callbackUrl.isEmpty()) {
             result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll);
@@ -323,18 +316,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll, new URL(callbackUrl));
         }
 
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
-        URI uri = uriBuilder.build(result.getBuildRecordSetId());
-
-        Page<BuildRecordRest> resultsToBeReturned = new Page<>(new CollectionInfo<>(0,
-                result.getBuildTasks().size(),
-                1,
-                result.getBuildTasks().stream()
-                    .map(runningBuildRecordId -> buildRecordProvider.getBuildRecordForTask(runningBuildRecordId))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList())));
-
-        return Response.ok(uri).header("location", uri).entity(resultsToBeReturned).build();
+        return buildRecordProvider.createResultSet(result, uriInfo);
     }
 
     @ApiOperation(value = "Get all build config set execution records associated with this build config set, returns empty list if none are found")

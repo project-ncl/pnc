@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.rest.configuration.BuildConfigurationSupportedGenericParameters;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 
@@ -43,8 +43,7 @@ public class BuildConfigurationSupportedGenericParametersTest {
 
     @Test
     public void testGetPMEParameter() {
-        assertNotNull(bcSupportedGenericParameters.getSupportedGenericParameters().get(CUSTOM_PME_PARAMETERS));
-        assertTrue(bcSupportedGenericParameters.getSupportedGenericParameters()
-                .get(CUSTOM_PME_PARAMETERS).startsWith("User"));
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters()).containsKey(CUSTOM_PME_PARAMETERS);
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters().get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
     }
 }

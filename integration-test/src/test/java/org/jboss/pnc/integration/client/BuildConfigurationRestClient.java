@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.client;
 import com.jayway.restassured.response.Response;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.spi.BuildScope;
 
 public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfigurationRest> {
 
@@ -29,8 +30,8 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
         super(BUILD_CONFIGURATION_REST_ENDPOINT, BuildConfigurationRest.class);
     }
 
-    public RestResponse<BuildConfigurationRest> trigger(int id, boolean rebuildAll) {
-        Response response = request().when().queryParam("rebuildAll", rebuildAll).post(collectionUrl + id + "/build");
+    public RestResponse<BuildConfigurationRest> trigger(int id, BuildScope scope) {
+        Response response = request().when().queryParam("scope", scope).post(collectionUrl + id + "/build");
 
         response.then().statusCode(200);
 

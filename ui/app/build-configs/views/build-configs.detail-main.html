@@ -32,6 +32,7 @@
           </button>
           <ul class="dropdown-menu">
             <li>
+              <a href ng-click="detailCtrl.buildSingle()" tooltip="Starts a build of this config. Does not start builds of dependencies." tooltip-popup-delay="1000" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Single Build</span></a>
               <a href ng-click="detailCtrl.forceBuild()" tooltip="Starts a build of this config, forcing a rebuild if a successful build already exists" tooltip-popup-delay="1000" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Build</span></a>
               <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" tooltip="Starts a build of this config and keeps its OSE pod alive. In the event of failure you will be able to SSH into the container to investigate the cause." tooltip-popup-delay="1000"><span><i class="pficon pficon-build"></i>&nbsp;Debug Build</span></a>
             </li>

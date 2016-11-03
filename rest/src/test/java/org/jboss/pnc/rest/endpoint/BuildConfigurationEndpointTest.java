@@ -17,11 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import static org.jboss.pnc.common.util.RandomUtils.randInt;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.configuration.BuildConfigurationSupportedGenericParameters;
@@ -39,9 +34,14 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import javax.ws.rs.core.Response;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * 
@@ -101,14 +101,14 @@ public class BuildConfigurationEndpointTest {
         
 
         // then
-        assertEquals(200, response.getStatus());
+        assertThat(response.getStatus()).isEqualTo(200);
         @SuppressWarnings("unchecked")
         BuildConfigurationRest bcRest = (BuildConfigurationRest) 
             ((Singleton<BuildConfigurationRest>) response.getEntity()).getContent();
 
         Map<String, String> supportedParameters = bcRest.getGenericParameters();
-        assertTrue(supportedParameters.containsKey(KEY));
-        assertTrue(supportedParameters.get(KEY).startsWith(VALUE));
+        assertThat(supportedParameters).containsKey(KEY);
+        assertThat(supportedParameters.get(KEY)).startsWith(VALUE);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,15 +118,13 @@ public class BuildConfigurationEndpointTest {
         Response response = bcEndpoint.getSupportedGenericParameters();
 
         // then
-        assertEquals(200, response.getStatus());
+        assertThat(response.getStatus()).isEqualTo(200);
 
         Map<String, String> supportedParameters = (Map<String, String>) bcEndpoint
                 .getSupportedGenericParameters().getEntity();
 
-        assertTrue(supportedParameters.containsKey(CUSTOM_PME_PARAMETERS));
-        assertTrue(supportedParameters
-                .get(CUSTOM_PME_PARAMETERS)
-                .startsWith("User"));
+        assertThat(supportedParameters).containsKey(CUSTOM_PME_PARAMETERS);
+        assertThat(supportedParameters.get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
     }
 
 }

@@ -28,6 +28,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -45,19 +46,14 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Stateless
 public class BuildTriggerer {
 
-    public interface BuildConfigurationSetTriggerResult {
-        int getBuildRecordSetId();
-        Collection<BuildTask> getBuildTasks();
-    }
+
 
     private final Logger log = Logger.getLogger(BuildTriggerer.class);
 
@@ -96,8 +92,12 @@ public class BuildTriggerer {
         this.sortInfoProducer = sortInfoProducer;
     }
 
-    public int triggerBuild(final Integer buildConfigurationId, User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll, URL callBackUrl)
-            throws BuildConflictException {
+    public int triggerBuild(final Integer buildConfigurationId,
+                            User currentUser,
+                            boolean keepPodAliveAfterFailure,
+                            BuildScope scope,
+                            URL callBackUrl)
+            throws BuildConflictException, CoreException {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
@@ -105,28 +105,53 @@ public class BuildTriggerer {
             }
         };
 
-        int buildTaskId = triggerBuild(buildConfigurationId, currentUser, keepPodAliveAfterFailure, rebuildAll);
-        buildStatusNotifications.subscribe(new BuildCallBack(buildTaskId, onStatusUpdate));
-        return buildTaskId;
+        BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, currentUser, keepPodAliveAfterFailure, scope);
+        result.getBuildTasks().forEach(t -> buildStatusNotifications.subscribe(new BuildCallBack(t.getId(), onStatusUpdate)));
+        return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigurationId);
     }
 
-    public int triggerBuild(final Integer configurationId, User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll) throws BuildConflictException {
+    private int selectBuildRecordIdOf(Collection<BuildTask> buildTasks, Integer buildConfigurationId) throws CoreException {
+        Optional<BuildTask> maybeTask = buildTasks.stream()
+                .filter(t -> t.getBuildConfiguration().getId().equals(buildConfigurationId))
+                .findAny();
+        return maybeTask.map(BuildTask::getId)
+                .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
+    }
+
+    public int triggerBuild(final Integer configurationId,
+                            User currentUser,
+                            boolean keepPodAliveAfterFailure,
+                            BuildScope scope) throws BuildConflictException, CoreException {
+        BuildConfigurationSetTriggerResult result =
+                doTriggerBuild(configurationId, currentUser, keepPodAliveAfterFailure, scope);
+        return selectBuildRecordIdOf(result.getBuildTasks(), configurationId);
+    }
+
+    private BuildConfigurationSetTriggerResult doTriggerBuild(final Integer configurationId,
+                                                              User currentUser,
+                                                              boolean keepPodAliveAfterFailure,
+                                                              BuildScope scope) throws BuildConflictException, CoreException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
-        return buildCoordinator.build(
+        BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 currentUser,
-                keepPodAliveAfterFailure,
-                rebuildAll).getId();
+                scope,
+                keepPodAliveAfterFailure);
+        return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
 
     public boolean cancelBuild(int buildTaskId) throws BuildConflictException, CoreException {
         return buildCoordinator.cancel(buildTaskId);
     }
 
-    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
-            User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll, URL callBackUrl)
+    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
+            final Integer buildConfigurationSetId,
+            User currentUser,
+            boolean keepPodAliveAfterFailure,
+            boolean rebuildAll,
+            URL callBackUrl)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
@@ -155,26 +180,6 @@ public class BuildTriggerer {
                 keepPodAliveAfterFailure,
                 rebuildAll);
 
-        return new BuildConfigurationSetTriggerResult() {
-
-            @Override
-            public int getBuildRecordSetId() {
-                return buildSetTask.getId();
-            }
-
-            @Override
-            public Collection<BuildTask> getBuildTasks() {
-                return buildSetTask.getBuildTasks();
-            }
-        };
+        return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
-
-    private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {
-        if (buildRecordSetIdsCSV != null && !buildRecordSetIdsCSV.equals("") && !buildRecordSetIdsCSV.equals("null") ) {
-            return Arrays.asList(buildRecordSetIdsCSV.split(",")).stream().map(Integer::parseInt).collect(Collectors.toSet());
-        } else {
-            return null;
-        }
-    }
-
 }
