@@ -36,7 +36,7 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
         response.then().statusCode(200);
 
         try {
-            return new RestResponse(response, null);
+            return new RestResponse<>(response, null);
         } catch (Exception e) {
             throw new AssertionError("JSON unmarshalling error", e);
         }

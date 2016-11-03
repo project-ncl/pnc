@@ -23,9 +23,13 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.ProjectPage;
 import org.jboss.pnc.rest.swagger.response.ProjectSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -75,12 +79,15 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
 
+    private BuildConfigurationProvider buildConfigurationProvider;
+
     public ProjectEndpoint() {
     }
 
     @Inject
-    public ProjectEndpoint(ProjectProvider projectProvider) {
+    public ProjectEndpoint(ProjectProvider projectProvider, BuildConfigurationProvider buildConfigurationProvider) {
         super(projectProvider);
+        this.buildConfigurationProvider = buildConfigurationProvider;
     }
 
     @ApiOperation(value = "Gets all Projects")
@@ -148,6 +155,24 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
     public Response deleteSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id)
             throws ValidationException {
         return super.delete(id);
+    }
+
+    @ApiOperation(value = "Gets all BuildConfigurations associated with the specified Project Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/build-configurations")
+    public Response getBuildConfigurations(@ApiParam(value = "Project Id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+
+        return Response.ok(buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sort, q, id)).build();
     }
 
 }

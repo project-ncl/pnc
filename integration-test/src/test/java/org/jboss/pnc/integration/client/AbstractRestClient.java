@@ -206,6 +206,14 @@ public abstract class AbstractRestClient<T> {
     }
 
     public RestResponse<List<T>> all(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
+        return all(entityClass, collectionUrl, withValidation, pageIndex, pageSize, rsql, sort);
+    }
+
+    public RestResponse<List<T>> all() {
+        return all(true, 0, 50, null, null);
+    }
+
+    protected final <U> RestResponse<List<U>> all (Class<U> type, String url, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
         QueryParam rsqlQueryParam = null;
         QueryParam sortQueryParam = null;
         if(rsql != null) {
@@ -216,11 +224,11 @@ public abstract class AbstractRestClient<T> {
         }
         QueryParam pageIndexQueryParam = new QueryParam("pageIndex", Integer.toString(pageIndex));
         QueryParam pageSizeQueryParam = new QueryParam("pageSize", "" + Integer.toString(pageSize));
-        Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
+        Response response = get(url, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
 
         logger.info("response {} ", response.prettyPrint());
 
-        List<T> object = new ArrayList<>();
+        List<U> object = new ArrayList<>();
         String responseBody = response.getBody().asString();
 
         // Response body may be null, if the query did not return any result! This would need to deliver a response with 204
@@ -231,7 +239,7 @@ public abstract class AbstractRestClient<T> {
                 ObjectMapper objectMapper = new ObjectMapper();
                 for (Map obj : beforeMappingList) {
                     // because of the bug in RestAssured - we need to use another mapping library...
-                    object.add(objectMapper.convertValue(obj, entityClass));
+                    object.add(objectMapper.convertValue(obj, type));
                 }
             } catch (Exception e) {
                 logger.error("JSON unmarshalling error", e);
@@ -248,11 +256,7 @@ public abstract class AbstractRestClient<T> {
             }
         }
 
-        return new RestResponse(response, object);
-    }
-
-    public RestResponse<List<T>> all() {
-        return all(true, 0, 50, null, null);
+        return new RestResponse<>(response, object);
     }
 
 }
