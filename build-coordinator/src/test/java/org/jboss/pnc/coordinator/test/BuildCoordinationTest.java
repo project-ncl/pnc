@@ -27,6 +27,7 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifi
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -48,11 +49,13 @@ import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments.Options.WITH_DATASTORE;
 
@@ -98,7 +101,9 @@ public class BuildCoordinationTest {
 
         //check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
-        Assert.assertEquals(BuildStatus.SUCCESS, buildSetTask.getBuildConfigSetRecord().getStatus());
+        Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
+        assertThat(maybeSetRecord.isPresent()).isTrue();
+        Assert.assertEquals(BuildStatus.SUCCESS, maybeSetRecord.get().getStatus());
         assertEmptyQueue();
     }
 
@@ -117,7 +122,9 @@ public class BuildCoordinationTest {
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
         datastoreMock.getBuildConfigSetRecordById(buildConfigurationSet.getId());
 
-        Assert.assertEquals(BuildStatus.FAILED, buildSetTask.getBuildConfigSetRecord().getStatus());
+        Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
+        assertThat(maybeSetRecord.isPresent()).isTrue();
+        Assert.assertEquals(BuildStatus.FAILED, maybeSetRecord.get().getStatus());
         Collection<BuildStatus> statuses = getBuildStatuses();
         Assert.assertTrue(statuses.contains(BuildStatus.FAILED));
         Assert.assertFalse(statuses.contains(BuildStatus.SYSTEM_ERROR));

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductMilestone;
@@ -254,8 +255,9 @@ public class BuildTask {
                                   ProductMilestone productMilestone) {
 
         Integer buildConfigSetRecordId = null;
-        if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
-            buildConfigSetRecordId = buildSetTask.getBuildConfigSetRecord().getId();
+        if (buildSetTask != null) {
+            buildConfigSetRecordId =
+                    buildSetTask.getBuildConfigSetRecord().map(BuildConfigSetRecord::getId).orElse(null);
         }
 
         return new BuildTask(

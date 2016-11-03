@@ -271,4 +271,8 @@ public class DatastoreAdapter {
     public boolean requiresRebuild(BuildTask task) {
         return datastore.requiresRebuild(task);
     }
+
+    public boolean hasARebuiltDependency(BuildConfiguration configuration) {
+        return datastore.hasARebuiltDependency(configuration);
+    }
 }

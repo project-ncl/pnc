@@ -25,6 +25,8 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -43,15 +45,20 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -384,5 +391,20 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             }
         }
         return null;
+    }
+
+    public Response createResultSet(BuildConfigurationSetTriggerResult result, UriInfo uriInfo) {
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
+        URI uri = uriBuilder.build(result.getBuildRecordSetId());
+
+        Page<BuildRecordRest> resultsToBeReturned = new Page<>(new CollectionInfo<>(0,
+                result.getBuildTasks().size(),
+                1,
+                result.getBuildTasks().stream()
+                        .map(this::getBuildRecordForTask)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())));
+
+        return Response.ok(uri).header("location", uri).entity(resultsToBeReturned).build();
     }
 }

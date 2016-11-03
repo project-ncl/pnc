@@ -57,12 +57,20 @@
           method: 'POST',
           url: ENDPOINT + '/clone'
         },
+        buildSingle: {
+          method: 'POST',
+          url: ENDPOINT + '/build',
+          successNotification: false,
+          params: {
+            scope: 'SINGLE'
+          }
+        },
         buildAndKeepAliveOnError: {
           method: 'POST',
           url: ENDPOINT + '/build',
           successNotification: false,
           params: {
-            rebuildAll: true,
+            scope: 'REBUILD',
             keepPodAliveOnFailure: true
           }
         },
@@ -71,7 +79,7 @@
           url: ENDPOINT + '/build',
           successNotification: false,
           params: {
-            rebuildAll: true
+            scope: 'REBUILD'
           }
         },
         build: {

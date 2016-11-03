@@ -28,6 +28,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -52,6 +53,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -95,7 +97,7 @@ public class ProjectBuilder {
             BuildConfiguration buildConfiguration,
             BuildCoordinator buildCoordinator,
             Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate)
-            throws BuildConflictException, InterruptedException {
+            throws BuildConflictException, InterruptedException, CoreException {
 
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
@@ -108,7 +110,10 @@ public class ProjectBuilder {
         //Defines a number of callbacks, which are executed after buildStatus update
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdateInternal, N_STATUS_UPDATES_PER_TASK);
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), false, false);
+        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), BuildScope.SINGLE, false);
+        Set<BuildTask> buildTasks = taskSet.getBuildTasks();
+        assertThat(buildTasks).hasSize(1);
+        BuildTask buildTask = buildTasks.iterator().next();
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
@@ -116,14 +121,11 @@ public class ProjectBuilder {
         return buildTask;
     }
 
-    void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator) throws BuildConflictException, InterruptedException {
+    void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator)
+            throws BuildConflictException, InterruptedException, CoreException {
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
-            receivedStatuses.add(statusUpdate);
-        };
-
-        BuildTask buildTask = buildProject(buildConfiguration, buildCoordinator, onStatusUpdate);
+        BuildTask buildTask = buildProject(buildConfiguration, buildCoordinator, receivedStatuses::add);
         assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
@@ -232,7 +234,8 @@ public class ProjectBuilder {
 
     private void waitForStatusUpdates(int nStatusUpdates, Semaphore semaphore, String message) throws InterruptedException {
         if (!semaphore.tryAcquire(nStatusUpdates, 15, TimeUnit.SECONDS)) { //wait for callback to release
-            fail("Timeout while waiting for status updates. Received " + semaphore.availablePermits() + " of " + nStatusUpdates + " status updates." + message);
+            fail("Timeout while waiting for status updates. " +
+                    "Received " + semaphore.availablePermits() + " of " + nStatusUpdates + " status updates." + message);
         }
     }
 

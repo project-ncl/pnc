@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -33,6 +34,9 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -51,7 +55,10 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         User user = User.Builder.newBuilder().id(1).build();
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, false, false);
+        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, user, BuildScope.SINGLE, false);
+        Set<BuildTask> buildTasks = taskSet.getBuildTasks();
+        assertThat(buildTasks).hasSize(1);
+        BuildTask buildTask = buildTasks.iterator().next();
         Assert.assertEquals(BuildCoordinationStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }

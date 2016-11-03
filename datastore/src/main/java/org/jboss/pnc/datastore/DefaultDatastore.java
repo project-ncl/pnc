@@ -231,7 +231,7 @@ public class DefaultDatastore implements Datastore {
         return hasARebuiltDependency(refreshedConfig);
     }
 
-    private boolean hasARebuiltDependency(BuildConfiguration config) {
+    public boolean hasARebuiltDependency(BuildConfiguration config) {
         BuildRecord record = config.getLatestSuccesfulBuildRecord();
         if (record == null) {
             return false;

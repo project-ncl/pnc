@@ -25,6 +25,7 @@ import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -32,6 +33,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -107,15 +109,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * build config will be built.
      * @param user The user who triggered the build.
      * @param keepPodAliveAfterFailure Don't stop the pod in which the build is running after build failure
-     * @param forceRebuild Run the build even if it has been already built
+     * @param scope Build scope.
      *
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
     @Override
-    public BuildTask build(BuildConfiguration buildConfiguration, User user,
-            boolean keepPodAliveAfterFailure,
-            boolean forceRebuild) throws BuildConflictException {
+    public BuildSetTask build(BuildConfiguration buildConfiguration,
+                           User user,
+                           BuildScope scope,
+                           boolean keepPodAliveAfterFailure) throws BuildConflictException, CoreException {
 
         BuildConfigurationAudited auditedBuildConfig = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(auditedBuildConfig);
@@ -124,18 +127,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     alreadyActiveBuildTask.get().getId());
         }
 
-        BuildTask buildTask = BuildTask.build(
-                buildConfiguration,
-                auditedBuildConfig,
-                keepPodAliveAfterFailure, forceRebuild,
-                user,
-                datastoreAdapter.getNextBuildRecordId(),
-                null,
-                new Date(),
-                buildConfiguration.getCurrentProductMilestone());
+        BuildSetTask buildSetTask =
+                buildTasksInitializer.createBuildSetTask(buildConfiguration, user, scope, keepPodAliveAfterFailure, this::buildRecordIdSupplier);
 
-        buildQueue.enqueueTask(buildTask);
-        return buildTask;
+        buildQueue.enqueueTaskSet(buildSetTask);
+        buildSetTask.getBuildTasks().forEach(buildQueue::enqueueTask);
+        return buildSetTask;
+    }
+
+    private Integer buildRecordIdSupplier() {
+        return datastoreAdapter.getNextBuildRecordId();
     }
 
     /**
@@ -162,7 +163,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 user,
                 forceRebuildAll,
                 keepPodAliveAfterFailure,
-                () -> datastoreAdapter.getNextBuildRecordId());
+                this::buildRecordIdSupplier);
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
         checkForEmptyBuildSetTask(buildSetTask);
         checkForCyclicDependencies(buildSetTask);
@@ -299,21 +300,31 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status, String description) {
         log.debug("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
         BuildSetStatus oldStatus = buildSetTask.getStatus();
-        Integer userId = Optional.ofNullable( buildSetTask.getBuildConfigSetRecord().getUser()).map(User::getId).orElse(null);
-
-        Optional<BuildSetStatusChangedEvent> buildSetStatusChangedEvent = Optional.of(new DefaultBuildSetStatusChangedEvent(
-                oldStatus,
-                status,
-                buildSetTask.getId(),
-                buildSetTask.getBuildConfigSetRecord().getBuildConfigurationSet().getId(),
-                buildSetTask.getBuildConfigSetRecord().getBuildConfigurationSet().getName(),
-                buildSetTask.getBuildConfigSetRecord().getStartTime(),
-                buildSetTask.getBuildConfigSetRecord().getEndTime(),
-                userId));
-        log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
-        buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent.get());
+        Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
+        sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord);
         buildSetTask.setStatus(status);
         buildSetTask.setStatusDescription(description);
+    }
+
+    private void sendSetStatusChangeEvent(BuildSetTask buildSetTask,
+                                          BuildSetStatus status,
+                                          BuildSetStatus oldStatus,
+                                          Optional<BuildConfigSetRecord> maybeRecord) {
+        maybeRecord.ifPresent(record -> {
+            Integer userId = Optional.ofNullable(record.getUser()).map(User::getId).orElse(null);
+
+            BuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(
+                    oldStatus,
+                    status,
+                    buildSetTask.getId(),
+                    record.getBuildConfigurationSet().getId(),
+                    record.getBuildConfigurationSet().getName(),
+                    record.getStartTime(),
+                    record.getEndTime(),
+                    userId);
+            log.debug("Notifying build set status update {}.", event);
+            buildSetStatusChangedEventNotifier.fire(event);
+        });
     }
 
     private void processBuildTask(BuildTask task) {
@@ -465,11 +476,15 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         buildQueue.removeSet(buildSetTask);
         buildSetTask.taskStatusUpdatedToFinalState();
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
-        try {
-            datastoreAdapter.saveBuildConfigSetRecord(buildSetTask.getBuildConfigSetRecord());
-        } catch (DatastoreException e) {
-            log.error("Unable to save build config set record", e);
-        }
+
+        buildSetTask.getBuildConfigSetRecord().ifPresent(r -> {
+                    try {
+                        datastoreAdapter.saveBuildConfigSetRecord(r);
+                    } catch (DatastoreException e) {
+                        log.error("Unable to save build config set record", e);
+                    }
+                }
+        );
     }
 
     private void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {

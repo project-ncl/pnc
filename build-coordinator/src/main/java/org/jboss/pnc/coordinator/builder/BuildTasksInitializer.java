@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -48,6 +50,42 @@ public class BuildTasksInitializer {
     public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
     }
+
+    public BuildSetTask createBuildSetTask(
+            BuildConfiguration configuration,
+            User user,
+            BuildScope scope,
+            boolean keepAfterFailure,
+            Supplier<Integer> buildTaskIdProvider) throws CoreException {
+        BuildSetTask buildSetTask =
+                BuildSetTask.Builder.newBuilder()
+                        .forceRebuildAll(scope.isForceRebuild())
+                        .startTime(new Date())
+                        .keepAfterFailure(keepAfterFailure).build();
+
+
+        Set<BuildConfiguration> buildTasks = new HashSet<>();
+        createBuildTasks(configuration, scope, buildTasks);
+        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), buildTasks);
+        return buildSetTask;
+    }
+
+    private void createBuildTasks(BuildConfiguration configuration, BuildScope scope, Set<BuildConfiguration> configs) {
+        if (configs.contains(configuration)) {
+            return;
+        }
+        if (scope.isRecursive()) {
+            if (configuration.getLatestSuccesfulBuildRecord() == null || datastoreAdapter.hasARebuiltDependency(configuration)) {
+                configs.add(configuration);
+                configuration.getDependencies().stream()
+                        .filter(c -> !configs.contains(c))
+                        .forEach(c -> createBuildTasks(c, scope, configs));
+            }
+        } else {
+            configs.add(configuration);
+        }
+    }
+
 
     public BuildSetTask createBuildSetTask(
             BuildConfigurationSet buildConfigurationSet,
@@ -70,10 +108,11 @@ public class BuildTasksInitializer {
             throw new CoreException(e);
         }
 
-        BuildSetTask buildSetTask = new BuildSetTask(
-                configSetRecord,
-                rebuildAll,
-                keepAfterFailure);
+        BuildSetTask buildSetTask =
+                BuildSetTask.Builder.newBuilder()
+                .buildConfigSetRecord(configSetRecord)
+                .forceRebuildAll(rebuildAll)
+                .keepAfterFailure(keepAfterFailure).build();
 
         initializeBuildTasksInSet(
                 buildSetTask,
@@ -99,6 +138,14 @@ public class BuildTasksInitializer {
         Set<BuildConfiguration> toBuild =
                 buildSetTask.getBuildConfigurationSet().getBuildConfigurations();
 
+        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, productMilestone, toBuild);
+    }
+
+    private void fillBuildTaskSet(BuildSetTask buildSetTask,
+                                  User user,
+                                  Supplier<Integer> buildTaskIdProvider,
+                                  ProductMilestone productMilestone,
+                                  Set<BuildConfiguration> toBuild) {
         for (BuildConfiguration buildConfig : toBuild) {
             BuildConfigurationAudited buildConfigAudited =
                     datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
