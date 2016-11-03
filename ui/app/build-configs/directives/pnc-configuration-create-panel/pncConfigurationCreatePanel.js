@@ -108,11 +108,9 @@
             revision: $scope.data.scmRevision
           };
 
+          $scope.data.genericParameters = {};
           if ($scope.genericParameter.key.selectedId && $scope.genericParameter.value) {
-            $scope.data.genericParameters = {};
             $scope.data.genericParameters[$scope.genericParameter.key.selectedId] = $scope.genericParameter.value;
-          } else {
-            $scope.data.genericParameters = null;
           }
 
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
