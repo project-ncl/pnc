@@ -18,13 +18,28 @@
 package org.jboss.pnc.spi;
 
 /**
+ * Scope of a build of a build configuration.
+ *
+ * <p>
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 10/27/16
  * Time: 11:34 AM
+ * </p>
  */
 public enum BuildScope {
+    /**
+     * Build only the build configuration for which the build was triggered.
+     */
     SINGLE(false, false),
+
+    /**
+     * Build all the dependencies of give build configuration that are not yet built and then build this configuration.
+     */
     WITH_DEPENDENCIES(false, true),
+
+    /**
+     * Force building this configuration.
+     */
     REBUILD(true, false);
 
     private final boolean forceRebuild;
@@ -35,10 +50,18 @@ public enum BuildScope {
         this.recursive = recursive;
     }
 
+    /**
+     * Should dependencies of given build configuration be built
+     * @return true if the dependencies should be built
+     */
     public boolean isRecursive() {
         return recursive;
     }
 
+    /**
+     * Should the configuration be rebuilt if it has been built already
+     * @return true if the configuration should be rebuilt
+     */
     public boolean isForceRebuild() {
         return forceRebuild;
     }

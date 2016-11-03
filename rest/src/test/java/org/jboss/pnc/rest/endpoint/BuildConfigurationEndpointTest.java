@@ -124,7 +124,7 @@ public class BuildConfigurationEndpointTest {
                 .getSupportedGenericParameters().getEntity();
 
         assertThat(supportedParameters).containsKey(CUSTOM_PME_PARAMETERS);
-        assertThat(supportedParameters.get(CUSTOM_PME_PARAMETERS)).startsWith("User");
+        assertThat(supportedParameters.get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
     }
 
 }

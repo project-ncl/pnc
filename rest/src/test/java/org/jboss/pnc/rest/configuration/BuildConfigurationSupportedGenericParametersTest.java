@@ -44,6 +44,6 @@ public class BuildConfigurationSupportedGenericParametersTest {
     @Test
     public void testGetPMEParameter() {
         assertThat(bcSupportedGenericParameters.getSupportedGenericParameters()).containsKey(CUSTOM_PME_PARAMETERS);
-        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters().get(CUSTOM_PME_PARAMETERS)).startsWith("User");
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters().get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
     }
 }
