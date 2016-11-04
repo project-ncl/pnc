@@ -94,6 +94,7 @@ public class ProductVersionRestTest {
         if (!isInitialised.getAndSet(true)) {
             productRest1 = new ProductRest();
             productRest1.setName("product-version-rest-test-product-1");
+            productRest1.setAbbreviation("PVR");
             productRest1 = productRestClient.createNew(productRest1).getValue();
 
             productVersionRest1 = new ProductVersionRest();
@@ -143,7 +144,7 @@ public class ProductVersionRestTest {
     public void shouldCreateNewProductVersion() throws Exception {
         //given
         int productId = productVersionRestClient.firstNotNull().getValue().getProductId();
-
+        
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productId);
         productVersion.setVersion("99.0");
@@ -166,7 +167,7 @@ public class ProductVersionRestTest {
         
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productVersionId);
-        productVersion.setVersion("99.0");
+        productVersion.setVersion("98.0");
         productVersion.setProduct(product);
 
         //when
@@ -174,7 +175,7 @@ public class ProductVersionRestTest {
 
         //then
         assertTrue(clientResponse.hasValue());
-        assertEquals("pnc-jb-" + product.getAbbreviation() + "99.0", clientResponse.getValue().getBrewTagPrefix());
+        assertEquals("pnc-jb-" + product.getAbbreviation().toLowerCase() + "-98.0", clientResponse.getValue().getBrewTagPrefix());
     }
 
     @Test

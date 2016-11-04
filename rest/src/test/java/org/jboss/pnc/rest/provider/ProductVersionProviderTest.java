@@ -67,8 +67,10 @@ public class ProductVersionProviderTest {
 
         product1 = Product.Builder.newBuilder().id(1).name("product-1").build();
 
-        productVersion1 = ProductVersion.Builder.newBuilder().id(1).version("1.0").product(product1).build();
-        productVersion2 = ProductVersion.Builder.newBuilder().id(2).version("2.0").product(product1).build();
+        productVersion1 = ProductVersion.Builder.newBuilder().id(1).version("1.0").product(product1)
+                .generateBrewTagPrefix("TMP", "1.0").build();
+        productVersion2 = ProductVersion.Builder.newBuilder().id(2).version("2.0").product(product1)
+                .generateBrewTagPrefix("TMP", "2.0").build();
 
         when(mockProductVersionRepository.queryById(1)).thenReturn(productVersion1);
         when(mockProductVersionRepository.queryById(2)).thenReturn(productVersion2);

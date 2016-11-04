@@ -99,16 +99,23 @@ public class ProductMilestoneReleaseRepositoryImplTest {
     }
 
     private ProductVersion createProductVersion() {
-        ProductVersion version = new ProductVersion();
-        version.setVersion(randomNumeric(2) + "." + randomNumeric(2));
-        version.setProduct(createProduct());
-        productVersionRepository.save(version);
-        return version;
+        final String version = randomNumeric(2) + "." + randomNumeric(2);
+        final Product product = createProduct();
+                
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder()
+                .version(version)
+                .product(product)
+                .generateBrewTagPrefix(product.getAbbreviation(), version)
+                .build();
+        
+        productVersionRepository.save(productVersion);
+        return productVersion;
     }
 
     private Product createProduct() {
         Product product = new Product();
         product.setName(RandomStringUtils.randomAlphabetic(10));
+        product.setAbbreviation(RandomStringUtils.randomAlphabetic(3));
         productRepository.save(product);
         return product;
     }

@@ -97,5 +97,5 @@ public class BpmBuildConfigurationCreationRest implements Serializable {
     
     @Getter
     @Setter
-    private Map<String, String> genericParameters ;
+    private Map<String, String> genericParameters;
 }
