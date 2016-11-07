@@ -111,41 +111,16 @@ public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment,
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Environment")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildEnvironmentSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
-    @POST
     public Response createNew(BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo)
             throws ValidationException {
         return super.createNew(environmentRest, uriInfo);
     }
 
-    @ApiOperation(value = "Updates an existing Environment")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
-    @PUT
-    @Path("/{id}")
     public Response update(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId,
             BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(environmentId, environmentRest);
     }
 
-    @ApiOperation(value = "Deletes an existing Environment")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
-    @DELETE
-    @Path("/{id}")
     public Response delete(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id)
             throws ValidationException {
         return super.delete(id);
