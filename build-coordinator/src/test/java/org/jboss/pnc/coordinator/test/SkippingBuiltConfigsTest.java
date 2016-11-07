@@ -62,7 +62,6 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         configSet = configSet(configA, configB, configC, configD, configE);
     }
 
-
     @Test
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
         coordinator.start();
@@ -79,6 +78,44 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
 
         //then
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldBuildConfigurationAndUnbuiltDependency() throws Exception {
+        coordinator.start();
+        buildRecordRepository.clear();
+        //given
+        BuildConfiguration testConfiguration = config("shouldBuildConfigurationAndUnbuiltDependency");
+        BuildConfiguration dependency = config("dependency");
+        testConfiguration.addDependency(dependency);
+
+        //when
+        coordinator.build(testConfiguration, null, BuildScope.WITH_DEPENDENCIES, false);
+        waitForEmptyBuildQueue();
+
+        //then
+        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotRebuildAlreadyBuiltDependency() throws Exception {
+        coordinator.start();
+        buildRecordRepository.clear();
+        //given
+        BuildConfiguration testConfiguration = config("shouldNotRebuildAlreadyBuiltDependency");
+        BuildConfiguration dependency = config("dependency");
+        testConfiguration.addDependency(dependency);
+
+        coordinator.build(dependency, null, BuildScope.WITH_DEPENDENCIES, false);
+        waitForEmptyBuildQueue();
+        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+
+        //when
+        coordinator.build(testConfiguration, null, BuildScope.WITH_DEPENDENCIES, false);
+        waitForEmptyBuildQueue();
+
+        //then
+        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
     }
 
     @Test
