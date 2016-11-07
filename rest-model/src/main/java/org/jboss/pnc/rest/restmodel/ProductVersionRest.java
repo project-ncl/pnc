@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+import static org.jboss.pnc.rest.utils.Utility.performIfNull;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
@@ -29,11 +33,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 @XmlRootElement(name = "ProductVersion")
 public class ProductVersionRest implements GenericRestEntity<Integer> {
@@ -60,7 +66,17 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     List<BuildConfigurationSetRest> buildConfigurationSets = new ArrayList<BuildConfigurationSetRest>();
 
     List<BuildConfigurationRest> buildConfigurations = new ArrayList<BuildConfigurationRest>();
+    
+    @Setter
+    @XmlTransient
+    private ProductRest product;
 
+    @Getter
+    @Setter
+    @NotNull(groups = {WhenUpdating.class})
+    @Null(groups = WhenCreatingNew.class)
+    private String brewTagPrefix;
+    
     public ProductVersionRest() {
     }
 
@@ -86,6 +102,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         for (BuildConfigurationSet buildConfigurationSet : productVersion.getBuildConfigurationSets()) {
             buildConfigurationSets.add(new BuildConfigurationSetRest(buildConfigurationSet));
         }
+        
+        this.brewTagPrefix = productVersion.getBrewTagPrefix();
     }
 
     @Override
@@ -161,7 +179,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     public void setCurrentProductMilestoneId(Integer currentProductMilestoneId) {
         this.currentProductMilestoneId = currentProductMilestoneId;
     }
-
+    
     public ProductVersion.Builder toDBEntityBuilder() {
         ProductVersion.Builder builder = ProductVersion.Builder.newBuilder()
                 .id(id)
@@ -176,7 +194,9 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         nullableStreamOf(this.getBuildConfigurationSets()).forEach(set ->
                 builder.buildConfigurationSet(BuildConfigurationSet.Builder.newBuilder().id(set.getId()).build()));
 
+        performIfNull(brewTagPrefix, () -> builder.generateBrewTagPrefix(product.getAbbreviation(), version));
+        
         return builder;
     }
-
+    
 }

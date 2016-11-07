@@ -109,9 +109,11 @@ public class DatastoreTest {
     @Test
     @InSequence(-2)
     public void prepareDataForAuditTest() throws Exception {
-        Product product = Product.Builder.newBuilder().name("test").build();
+        Product product = Product.Builder.newBuilder().name("test").abbreviation("tt").build();
         product = productRepository.save(product);
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(product).build();
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(product)
+                .generateBrewTagPrefix(product.getAbbreviation(), "1.0")
+                .build();
         BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("DatastoreTest Test Environment")
                 .systemImageType(SystemImageType.DOCKER_IMAGE).systemImageId("92387492739").build();
         Project project = Project.Builder.newBuilder().name("test").build();

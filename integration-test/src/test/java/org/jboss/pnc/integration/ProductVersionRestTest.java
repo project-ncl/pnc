@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -56,7 +57,6 @@ public class ProductVersionRestTest {
 
     private static ProductVersionRestClient productVersionRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
-    private static ProductVersionRestTest productVersionRestTest;
     private static ProductRestClient productRestClient;
 
     private static ProductRest productRest1;
@@ -94,6 +94,7 @@ public class ProductVersionRestTest {
         if (!isInitialised.getAndSet(true)) {
             productRest1 = new ProductRest();
             productRest1.setName("product-version-rest-test-product-1");
+            productRest1.setAbbreviation("PVR");
             productRest1 = productRestClient.createNew(productRest1).getValue();
 
             productVersionRest1 = new ProductVersionRest();
@@ -142,8 +143,8 @@ public class ProductVersionRestTest {
     @Test
     public void shouldCreateNewProductVersion() throws Exception {
         //given
-        int productId = productVersionRestClient.firstNotNull().getValue().getId();
-
+        int productId = productVersionRestClient.firstNotNull().getValue().getProductId();
+        
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productId);
         productVersion.setVersion("99.0");
@@ -154,6 +155,27 @@ public class ProductVersionRestTest {
         //then
         assertThat(clientResponse.hasValue()).isEqualTo(true);
         assertThat(clientResponse.getValue().getId()).isNotNegative();
+    }
+    
+
+    @Test
+    public void shouldGenerateBrewTagWhenCreatingProductVersion() throws Exception {
+        //given
+        int productVersionId = productVersionRestClient.firstNotNull().getValue().getProductId();
+
+        ProductRest product = productRestClient.get(productVersionId).getValue();
+        
+        ProductVersionRest productVersion = new ProductVersionRest();
+        productVersion.setProductId(productVersionId);
+        productVersion.setVersion("98.0");
+        productVersion.setProduct(product);
+
+        //when
+        RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
+
+        //then
+        assertTrue(clientResponse.hasValue());
+        assertEquals("pnc-jb-" + product.getAbbreviation().toLowerCase() + "-98.0", clientResponse.getValue().getBrewTagPrefix());
     }
 
     @Test

@@ -78,12 +78,19 @@ public class DatabaseDataInitializer {
     public static final Logger log = Logger.getLogger(DatabaseDataInitializer.class.getName());
 
     private static final String PNC_PRODUCT_NAME = "Project Newcastle Demo Product";
+
     private static final String PNC_PRODUCT_VERSION_1 = "1.0";
+
     private static final String PNC_PRODUCT_VERSION_2 = "2.0";
+
     private static final String PNC_PRODUCT_RELEASE = "1.0.0.GA";
+
     private static final String PNC_PRODUCT_MILESTONE1 = "1.0.0.Build1";
+
     private static final String PNC_PRODUCT_MILESTONE2 = "1.0.0.Build2";
+
     private static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
+
     private static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
 
     @Inject
@@ -140,45 +147,60 @@ public class DatabaseDataInitializer {
     ProductMilestone demoProductMilestone1;
 
     User demoUser;
+
     User pncAdminUser;
 
     public void verifyData() {
         // Check number of entities in DB
         Preconditions.checkState(projectRepository.count() > 0, "Expecting number of Projects > 0");
         Preconditions.checkState(productRepository.count() > 0, "Expecting number of Products > 0");
-        Preconditions.checkState(buildConfigurationRepository.count() > 0, "Expecting number of BuildConfigurations > 0");
-        Preconditions.checkState(productVersionRepository.count() > 0, "Expecting number of ProductVersions > 0");
-        Preconditions.checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
-        Preconditions.checkState(artifactRepository.count() > 0, "Expecting number of Artifacts > 0");
+        Preconditions.checkState(buildConfigurationRepository.count() > 0,
+                "Expecting number of BuildConfigurations > 0");
+        Preconditions.checkState(productVersionRepository.count() > 0,
+                "Expecting number of ProductVersions > 0");
+        Preconditions.checkState(buildConfigurationSetRepository.count() > 0,
+                "Expecting number of BuildRepositorySets > 0");
+        Preconditions.checkState(artifactRepository.count() > 0,
+                "Expecting number of Artifacts > 0");
 
         BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll().get(0);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
         Preconditions.checkState(
-                buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion() != null,
+                buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+                        .getProductVersion() != null,
                 "Product version of buildConfiguration must be not null");
 
-        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll().get(0);
+        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll()
+                .get(0);
 
         Preconditions.checkState(buildConfigurationSetDB.getProductVersion() != null,
                 "Product version of buildConfigurationSet must be not null");
 
         // Check that mapping between Product and Build Configuration via BuildConfigurationSet is correct
-        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
+        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getProduct().getName()
+                .equals(PNC_PRODUCT_NAME),
                 "Product mapped to Project must be " + PNC_PRODUCT_NAME);
-        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION_1),
+        Preconditions.checkState(
+                buildConfigurationSetDB.getProductVersion().getVersion()
+                        .equals(PNC_PRODUCT_VERSION_1),
                 "Product version mapped to Project must be " + PNC_PRODUCT_VERSION_1);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
-        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion()
-                .getVersion().equals(PNC_PRODUCT_VERSION_1), "Product version mapped to BuildConfiguration must be "
-                + PNC_PRODUCT_VERSION_1);
-        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion()
-                .getProduct().getName().equals(PNC_PRODUCT_NAME), "Product mapped to BuildConfiguration must be "
-                + PNC_PRODUCT_NAME);
+        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+                .getProductVersion()
+                .getVersion().equals(PNC_PRODUCT_VERSION_1),
+                "Product version mapped to BuildConfiguration must be "
+                        + PNC_PRODUCT_VERSION_1);
+        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+                .getProductVersion()
+                .getProduct().getName().equals(PNC_PRODUCT_NAME),
+                "Product mapped to BuildConfiguration must be "
+                        + PNC_PRODUCT_NAME);
 
         // Check data of BuildConfiguration
-        Preconditions.checkState(buildConfigurationDB.getProject().getName().equals(PNC_PROJECT_1_NAME),
+        Preconditions.checkState(
+                buildConfigurationDB.getProject().getName().equals(PNC_PROJECT_1_NAME),
                 "Project mapped to BuildConfiguration must be " + PNC_PROJECT_1_NAME);
 
     }
@@ -202,37 +224,48 @@ public class DatabaseDataInitializer {
          */
         // Example product and product version
         Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).abbreviation("PNC")
-                .description("Example Product for Project Newcastle Demo").productCode("PNC").pgmSystemName("newcastle")
+                .description("Example Product for Project Newcastle Demo").productCode("PNC")
+                .pgmSystemName("newcastle")
                 .build();
         product = productRepository.save(product);
 
         // Example product version, release, and milestone of the product
-        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION_1).product(product)
+        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
+                .version(PNC_PRODUCT_VERSION_1).product(product)
+                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_1)
                 .build();
         productVersion1 = productVersionRepository.save(productVersion1);
 
-        ProductVersion productVersion2 = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION_2).product(product)
+        ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
+                .version(PNC_PRODUCT_VERSION_2).product(product)
+                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_2)
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 
         final int DAYS_IN_A_WEEK = 7;
-        final Date TODAY = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-        final Date ONE_WEEK_BEFORE_TODAY = Date.from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
-        final Date ONE_WEEK_AFTER_TODAY = Date.from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
+        final Date TODAY = Date
+                .from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        final Date ONE_WEEK_BEFORE_TODAY = Date.from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK)
+                .atZone(ZoneId.systemDefault()).toInstant());
+        final Date ONE_WEEK_AFTER_TODAY = Date.from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK)
+                .atZone(ZoneId.systemDefault()).toInstant());
 
-        demoProductMilestone1 = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE1)
+        demoProductMilestone1 = ProductMilestone.Builder.newBuilder()
+                .version(PNC_PRODUCT_MILESTONE1)
                 .startingDate(ONE_WEEK_BEFORE_TODAY)
                 .plannedEndDate(TODAY)
                 .productVersion(productVersion1).build();
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
-        ProductMilestone demoProductMilestone2 = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE2)
+        ProductMilestone demoProductMilestone2 = ProductMilestone.Builder.newBuilder()
+                .version(PNC_PRODUCT_MILESTONE2)
                 .startingDate(TODAY)
                 .plannedEndDate(ONE_WEEK_AFTER_TODAY)
                 .productVersion(productVersion1).build();
         demoProductMilestone2 = productMilestoneRepository.save(demoProductMilestone2);
 
-        ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
+        ProductRelease productRelease = ProductRelease.Builder.newBuilder()
+                .version(PNC_PRODUCT_RELEASE)
                 .productMilestone(demoProductMilestone1).supportLevel(SupportLevel.EARLYACCESS)
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
@@ -242,15 +275,21 @@ public class DatabaseDataInitializer {
 
         // Example projects
         Project project1 = Project.Builder.newBuilder().name(PNC_PROJECT_1_NAME)
-                .description("Example Project for Newcastle Demo").projectUrl("https://github.com/project-ncl/pnc").build();
-        Project project2 = Project.Builder.newBuilder().name("JBoss Modules").description("JBoss Modules Project")
+                .description("Example Project for Newcastle Demo")
+                .projectUrl("https://github.com/project-ncl/pnc").build();
+        Project project2 = Project.Builder.newBuilder().name("JBoss Modules")
+                .description("JBoss Modules Project")
                 .projectUrl("https://github.com/jboss-modules/jboss-modules")
                 .issueTrackerUrl("https://issues.jboss.org/browse/MODULES").build();
         Project project3 = Project.Builder.newBuilder().name("JBoss JavaEE Servlet Spec API")
-                .description("JavaEE Servlet Spec API").projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
+                .description("JavaEE Servlet Spec API")
+                .projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
                 .issueTrackerUrl("https://issues.jboss.org/browse/JBEE").build();
-        Project project4 = Project.Builder.newBuilder().name("Fabric8")
-                .description("Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
+        Project project4 = Project.Builder
+                .newBuilder()
+                .name("Fabric8")
+                .description(
+                        "Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
                 .projectUrl("https://github.com/fabric8io/fabric8")
                 .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
         Project project5 = Project.Builder.newBuilder().name("Maven Plugin Test")
@@ -264,50 +303,67 @@ public class DatabaseDataInitializer {
         projectRepository.save(project5);
 
         // Example build configurations
-        buildConfiguration1 = BuildConfiguration.Builder.newBuilder().name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
-                .description("Test build config for project newcastle").buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/project-ncl/pnc.git")
+        buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
+                .name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
+                .description("Test build config for project newcastle")
+                .buildEnvironment(environment1)
+                .buildScript("mvn clean deploy -DskipTests=true")
+                .scmRepoURL("https://github.com/project-ncl/pnc.git")
                 .productVersion(productVersion1).scmRevision("*/v0.2").build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
-        buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0").project(project2)
-                .description("Test config for JBoss modules build master branch.").buildEnvironment(environment1)
+        buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0")
+                .project(project2)
+                .description("Test config for JBoss modules build master branch.")
+                .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion1)
                 .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
                 .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
-        BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder().name("jboss-servlet-spec-api-1.0.1")
-                .project(project3).description("Test build for jboss java servlet api").buildEnvironment(environment1)
+        BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
+                .name("jboss-servlet-spec-api-1.0.1")
+                .project(project3).description("Test build for jboss java servlet api")
+                .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion2)
-                .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2).build();
+                .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git")
+                .dependency(buildConfiguration2).build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
-        BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder().name("io-fabric8-2.2-SNAPSHOT")
-                .project(project4).description("Test build for Fabric8").buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/fabric8io/fabric8.git")
+        BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
+                .name("io-fabric8-2.2-SNAPSHOT")
+                .project(project4).description("Test build for Fabric8")
+                .buildEnvironment(environment1)
+                .buildScript("mvn clean deploy -DskipTests=true")
+                .scmRepoURL("https://github.com/fabric8io/fabric8.git")
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
-        BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder().name("maven-plugin-test")
-                .project(project5).description("Test build for Plugins with external downloads").buildEnvironment(environment1)
-                .buildScript("mvn clean deploy").scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
+        BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder()
+                .name("maven-plugin-test")
+                .project(project5).description("Test build for Plugins with external downloads")
+                .buildEnvironment(environment1)
+                .buildScript("mvn clean deploy")
+                .scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
                 .build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
 
         // Build config set containing the three example build configs
-        buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Example Build Group 1")
+        buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder()
+                .name("Example Build Group 1")
                 .buildConfiguration(buildConfiguration1).buildConfiguration(buildConfiguration2)
                 .buildConfiguration(buildConfiguration3).productVersion(productVersion1).build();
 
         BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
                 .name("Fabric Build Group").buildConfiguration(buildConfiguration4).
-                        productVersion(productVersion1).build();
+                productVersion(productVersion1).build();
 
-        demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name").lastName("Demo Last Name")
+        demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
+                .lastName("Demo Last Name")
                 .email("demo-user@pnc.com").build();
 
-        pncAdminUser = User.Builder.newBuilder().username("pnc-admin").firstName("pnc-admin").lastName("pnc-admin")
+        pncAdminUser = User.Builder.newBuilder().username("pnc-admin").firstName("pnc-admin")
+                .lastName("pnc-admin")
                 .email("pnc-admin@pnc.com").build();
 
         buildConfigurationSetRepository.save(buildConfigurationSet1);
@@ -323,13 +379,15 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier("demo:built-artifact1:jar:1.0")
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 1")
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .build();
-        Artifact builtArtifact2 = Artifact.Builder.newBuilder().identifier("demo:built-artifact2:jar:1.0")
+        Artifact builtArtifact2 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact2:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 2")
                 .md5("md-fake-abcd2345")
                 .sha1("sha1-fake-abcd2345")
@@ -339,15 +397,19 @@ public class DatabaseDataInitializer {
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
 
-        Artifact importedArtifact1 = Artifact.Builder.newBuilder().identifier("demo:imported-artifact1:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 1").originUrl("http://central/import1.jar")
+        Artifact importedArtifact1 = Artifact.Builder.newBuilder()
+                .identifier("demo:imported-artifact1:jar:1.0")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 1")
+                .originUrl("http://central/import1.jar")
                 .importDate(Date.from(Instant.now()))
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .deployUrl("http://google.pl/imported1").build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier("demo:imported-artifact2:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 2").originUrl("http://central/import2.jar")
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder()
+                .identifier("demo:imported-artifact2:jar:1.0")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 2")
+                .originUrl("http://central/import2.jar")
                 .importDate(Date.from(Instant.now()))
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
@@ -361,7 +423,8 @@ public class DatabaseDataInitializer {
 
         final int INITIAL_REVISION = 1;
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
-        BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfig1AuditIdRev);
+        BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository
+                .findOne(buildConfig1AuditIdRev);
         if (buildConfigAudited1 != null) {
 
             int nextId = datastore.getNextBuildRecordId();
@@ -390,14 +453,16 @@ public class DatabaseDataInitializer {
 
         }
 
-        Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
+        Artifact builtArtifact3 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact3:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 3")
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .deployUrl("http://google.pl/built3")
                 .build();
-        Artifact builtArtifact4 = Artifact.Builder.newBuilder().identifier("demo:built-artifact4:jar:1.0")
+        Artifact builtArtifact4 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact4:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 4")
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
@@ -409,10 +474,12 @@ public class DatabaseDataInitializer {
         builtArtifact4 = artifactRepository.save(builtArtifact4);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
-                .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
+                .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(),
+                        builtArtifact1.getSha256()));
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
-        BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
+        BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository
+                .findOne(buildConfig2AuditIdRev);
         if (buildConfigAudited2 != null) {
 
             int nextId = datastore.getNextBuildRecordId();
@@ -439,13 +506,15 @@ public class DatabaseDataInitializer {
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet1)
-                .startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now())).user(demoUser)
+                .startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
+                .user(demoUser)
                 .status(BuildStatus.FAILED).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
         BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet1)
-                .buildRecords(buildRecords).startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
+                .buildRecords(buildRecords).startTime(Timestamp.from(Instant.now()))
+                .endTime(Timestamp.from(Instant.now()))
                 .user(demoUser).status(BuildStatus.SUCCESS).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
 

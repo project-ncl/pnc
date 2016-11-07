@@ -28,8 +28,8 @@
   <product id="2" name="Test Product 2" description="Test Product 2 Description"
     abbreviation="TP2" />
 
-  <productversion id="1" product_id="1" version="1.0" />
-  <productversion id="2" product_id="2" version="1.0" />
+  <productversion id="1" product_id="1" version="1.0" brewTagPrefix="pnc-jb-tp1-1.0"/>
+  <productversion id="2" product_id="2" version="1.0" brewTagPrefix="pnc-jb-tp2-1.0" />
 
   <productmilestone id="1" productversion_id="1"
     version="1.0.0.ER1" />

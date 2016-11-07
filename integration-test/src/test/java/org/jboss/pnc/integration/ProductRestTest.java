@@ -67,6 +67,7 @@ public class ProductRestTest extends AbstractTest {
     public void shouldAddProduct() throws ValidationException, URISyntaxException {
         ProductRest dto = new ProductRest();
         dto.setName(randomAlphabetic(20));
+        dto.setAbbreviation(randomAlphabetic(3));
         Response response = productRestClient.createNew(dto).getRestCallResponse();
         response.then().statusCode(201);
     }
@@ -75,6 +76,7 @@ public class ProductRestTest extends AbstractTest {
     public void shouldFailToAddConflictingProduct() throws ValidationException, URISyntaxException {
         ProductRest dto = new ProductRest();
         dto.setName(randomAlphabetic(20));
+        dto.setAbbreviation(randomAlphabetic(3));
 
         productRestClient.createNew(dto).getRestCallResponse().then().statusCode(201);
         productRestClient.createNew(dto, false).getRestCallResponse().then().statusCode(409);
