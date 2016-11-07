@@ -174,6 +174,7 @@
               };
               $scope.selectedItems.push(item);
               $scope.itemId = text;
+              $scope.isDropdown = false;
             }
           };
 

@@ -55,7 +55,6 @@
 .pnc-infinite-select .dropdown-item-empty {
     color: gray;
     font-style: italic;
-    pointer-events: none;
 }
 
 .pnc-infinite-select .dropdown-item:hover {
