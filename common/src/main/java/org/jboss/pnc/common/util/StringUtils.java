@@ -65,4 +65,17 @@ public class StringUtils {
         buildRecordSetIds.forEach(el -> joiner.add(el.toString()));
         return joiner.toString();
     }
+
+    /**
+     * Remove ending slash if present and return the string without ending slash
+     *
+     * @param string
+     * @return
+     */
+    public static String stripEndingSlash(String string) {
+        if (string.endsWith("/")) {
+            string = string.substring(0, string.length() - 1);
+        }
+        return string;
+    }
 }

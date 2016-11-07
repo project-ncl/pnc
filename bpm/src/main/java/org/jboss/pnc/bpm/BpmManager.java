@@ -17,11 +17,17 @@
  */
 package org.jboss.pnc.bpm;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.kie.api.runtime.KieSession;
@@ -35,8 +41,17 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -140,11 +155,24 @@ public class BpmManager {
     }
 
     public boolean cancelTask(BpmTask bpmTask) {
-        ProcessInstance processInstance = session.getProcessInstance(bpmTask.getProcessInstanceId());
-        if (processInstance != null) {
-            processInstance.signalEvent(SIGNAL_CANCEL, new Object());
-            return true;
-        } else {
+        String cancelEndpointUrl = StringUtils.stripEndingSlash(bpmConfig.getBpmInstanceUrl()) + "/nclcancelhandler";
+
+        try {
+            URIBuilder uriBuilder = new URIBuilder(cancelEndpointUrl);
+            uriBuilder.addParameter("processInstanceId", bpmTask.getProcessInstanceId().toString());
+        } catch (URISyntaxException e) {
+            log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
+            return false;
+        }
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpget = new HttpGet(cancelEndpointUrl);
+            CloseableHttpResponse httpResponse = httpClient.execute(httpget);
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            httpResponse.close();
+            return statusCode == 200;
+        } catch (IOException e) {
+            log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
             return false;
         }
     }
