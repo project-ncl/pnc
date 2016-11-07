@@ -52,6 +52,14 @@
         updateBuildConfigurations: {
           url: ENDPOINT + '/build-configurations',
           method: 'PUT'
+        },
+        addBuildConfiguration: {
+          url: ENDPOINT + '/build-configurations',
+          method: 'POST'
+        },
+        removeBuildConfiguration: {
+          url: ENDPOINT + '/build-configurations/:configId',
+          method: 'DELETE'
         }
       });
 

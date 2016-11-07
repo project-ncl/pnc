@@ -17,9 +17,16 @@
     limitations under the License.
 
 -->
-<div class="row m-t-10">
-  <div class="col-md-12">
+<!-- Template used for action buttons in build configs table -->
+<script type="text/ng-template" id="pnc-build-group-build-config-actions-template">
+  <div class="btn-group" role="group" aria-label="Item Actions">
+    <button class="btn btn-block btn-default" tooltip="Remove Build Configuration from Build Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' from this Build Group?'}}">Remove</button>
+  </div>
+</script>
 
+<!-- Normal State -->
+<div ng-show="$ctrl.showTable()">
+  <div>
     <div class="toolbar-search-right pull-right">
       <pnc-search-field page="$ctrl.page" text="build configs"></pnc-search-field>
     </div>
@@ -35,44 +42,28 @@
         <i class="pficon pficon-edit"></i> Edit
       </button>
     </div>
+  </div>
 
+  <div class="row">
+    <div class="col-md-12">
+      <pnc-build-configs-list build-configs="$ctrl.page.data" display-fields="$ctrl.displayFields" actions-data="$ctrl.actionsData" actions-template-url="pnc-build-group-build-config-actions-template"></pnc-build-configs-list>
+      <pnc-pager class="pull-right" page="$ctrl.page"></pnc-pager>
+    </div>
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-12">
-
-    <table class="table table-bordered table-striped table-hover">
-      <thead>
-      <th>Name</th>
-      <th>Project</th>
-      <th>Created</th>
-      <th>Modified</th>
-      <th>Last Executed Build</th>
-      <th>Actions</th>
-      </thead>
-      <tbody>
-      <tr ng-repeat="configuration in $ctrl.page.data">
-        <td>
-          <a ui-sref="build-configs.detail({configurationId: configuration.id})" href>
-            {{ configuration.name }}
-          </a>
-        </td>
-        <td>{{ configuration.project.name}}</td>
-        <td>{{ configuration.creationTime | date:'medium'}}</td>
-        <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
-        <td>
-          <pnc-configuration-build pnc-configuration-id="configuration.id"></pnc-configuration-build>
-        </td>
-        <td class="td-actions">
-          <div class="btn-group" role="group" aria-label="Item Actions">
-            <button class="btn btn-block btn-default" tooltip="Remove Build Configuration from Build Configuration Set" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">Remove</button>
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <pnc-pager class="pull-right" page="$ctrl.page"></pnc-pager>
-
+<!-- Empty State -->
+<div ng-hide="$ctrl.showTable()">
+  <div class="blank-slate-pf">
+    <div class="blank-slate-pf-icon">
+      <span class="pficon pficon pficon-add-circle-o"></span>
+    </div>
+    <h2>Empty Build Group</h2>
+    <p>
+      This Build Group does not contain any Build Configs, click below to add some.
+    </p>
+    <div class="blank-slate-pf-main-action">
+      <button class="btn btn-primary btn-lg" ng-click="$ctrl.edit()"><span class="fa fa-plus"></span>&nbsp;Add Build Configs</button>
+    </div>
   </div>
 </div>

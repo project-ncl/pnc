@@ -25,34 +25,56 @@
       buildGroup: '<'
     },
     templateUrl: 'build-groups/directives/pnc-build-group-build-configs/pnc-build-group-build-configs.html',
-    controller: ['modalSelectService', 'BuildConfigurationSet', Controller]
+    controller: ['$scope', 'modalEditService', 'BuildConfigurationSet', Controller]
   });
 
 
-  function Controller(modalSelectService, BuildConfigurationSet) {
+  function Controller($scope, modalEditService, BuildConfigurationSet) {
     var $ctrl = this;
 
     // -- Controller API --
 
+    $ctrl.showTable = showTable;
     $ctrl.edit = edit;
+    $ctrl.remove = remove;
+    $ctrl.displayFields = ['name', 'project', 'buildStatus'];
+    $ctrl.actionsData = { remove: remove };
 
     // --------------------
 
 
-    function edit() {
-      console.log('EDIT BUILD CONFIGS!');
-      var modal = modalSelectService.openForBuildConfigs({
-        title: 'Add / Remove Build Configs from ' + $ctrl.buildGroup.name,
-        buildConfigs: $ctrl.page.data
-      });
-      modal.result.then(function (result) {
-        console.debug('Selected Build Configs: %O', result);
-        BuildConfigurationSet.updateBuildConfigurations({ id: $ctrl.buildGroup.id }, result).$promise.then(function () {
-          $ctrl.page.reload();
-        });
-      });
+    var doNotShowEmptyState = false;
+
+    // Make sure we don't show the empty state accidentally when the
+    // Build Group is not empty. This can happen for example when
+    // searching and no results are found.
+    var unregister = $scope.$watch('$ctrl.page.data', function () {
+      if ($ctrl.page.data && $ctrl.page.data.length > 0) {
+        doNotShowEmptyState = true;
+        unregister();
+      }
+    });
+
+    function showTable() {
+      return doNotShowEmptyState || $ctrl.page && $ctrl.page.data && $ctrl.page.data.length > 0;
     }
 
+    function edit() {
+      modalEditService
+        .editBuildGroupBuildConfigs($ctrl.buildGroup, $ctrl.page.data)
+        .then(function () {
+          $ctrl.page.reload();
+        });
+    }
+
+    function remove(buildConfig) {
+      BuildConfigurationSet
+          .removeBuildConfiguration({ id: $ctrl.buildGroup.id, configId: buildConfig.id })
+          .$promise
+          .then(function () {
+            $ctrl.page.reload();
+          });
+    }
   }
 
 })();

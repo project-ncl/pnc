@@ -1,0 +1,50 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
+  <thead>
+    <th ng-if="::$ctrl.showColumn('name')">Name</th>
+    <th ng-if="::$ctrl.showColumn('project')">Project</th>
+    <th ng-if="::$ctrl.showColumn('creationTime')">Created</th>
+    <th ng-if="::$ctrl.showColumn('lastModificationTime')">Modified</th>
+    <th ng-if="::$ctrl.showColumn('buildStatus')">Build Status</th>
+    <th ng-if="::$ctrl.actionsTemplateUrl">Actions</th>
+  </thead>
+  <tbody>
+    <tr ng-repeat="buildConfig in $ctrl.buildConfigs">
+      <td ng-if="$ctrl.showColumn('name')">
+        <a ui-sref="projects.detail.build-configs.detail({ projectId: buildConfig.project.id, configurationId: buildConfig.id })" href>
+          {{ buildConfig.name }}
+        </a>
+      </td>
+      <td ng-if="::$ctrl.showColumn('project')">
+        <a ui-sref="projects.detail({ projectId: buildConfig.project.id })" href>
+          {{ buildConfig.project.name }}
+        </a>
+      </td>
+      <td ng-if="::$ctrl.showColumn('creationTime')">{{ buildConfig.creationTime | date:'medium' }}</td>
+      <td ng-if="::$ctrl.showColumn('lastModificationTime')">{{ buildConfig.lastModificationTime | date:'medium' }}</td>
+      <td ng-if="::$ctrl.showColumn('buildStatus')">
+        <pnc-configuration-build pnc-configuration-id="buildConfig.id"></pnc-configuration-build>
+      </td>
+      <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
+    </tr>
+  </tbody>
+</table>
+<p ng-hide="$ctrl.showTable()" class="text-center"><em>There are no Build Configs to display</em></p>

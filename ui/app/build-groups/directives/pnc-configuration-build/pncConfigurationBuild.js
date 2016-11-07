@@ -58,7 +58,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'build-groups/directives/pncConfigurationBuild/pnc-configuration-build.html',
+        templateUrl: 'build-groups/directives/pnc-configuration-build/pnc-configuration-build.html',
         scope: {
           pncConfigurationId: '='
         },

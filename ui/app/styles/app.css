@@ -138,15 +138,19 @@ form .editable-wrap {
   margin-left: 5px;
 }
 
-td.td-actions {
+.td-actions {
   width: 1% !important;
   padding: 0 !important;
   white-space: nowrap !important;
   vertical-align: middle !important;
 }
 
-td.td-actions .btn-group {
+.td-actions .btn-group {
   display: flex;
+}
+
+.td-actions .btn-block + .btn-block {
+  margin-top: 0;
 }
 
 @media (min-width: 768px) {
