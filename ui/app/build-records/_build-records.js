@@ -188,7 +188,7 @@
           sshCredentials: function (BuildRecord, recordDetail) {
             return BuildRecord.getSshCredentials({
               recordId: recordDetail.id
-            }).$promise;
+            });
           }
         }
       });
