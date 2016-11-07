@@ -26,23 +26,6 @@
       function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify,
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
 
-        function prepareSupportedGenericParameters() {
-          var result = [];
-
-          BuildConfigurationDAO.getSupportedGenericParameters().then(function(restData) {
-            _.forOwn(restData, function(value, key) {
-              result.push({
-                id: key,
-                displayBoldText: key,
-                displayText: ' - ' + value,
-                fullDisplayText: key
-              });
-            });
-          });
-
-          return result;
-        }
-
         // Selection of Product Versions.
         $scope.productVersions = {
           selected: []
@@ -74,15 +57,6 @@
         $scope.configurations = BuildConfigurationDAO.getAll();
         $scope.configurationSetList = BuildConfigurationSetDAO.getAll();
 
-        $scope.genericParameter = {
-          key: {
-            selected: [],
-            suggestions: { 
-              data: prepareSupportedGenericParameters() 
-            }
-          }
-        };
-
         $scope.genericParameters = {};
 
         if (_.isUndefined($scope.fixedProject)) {
@@ -90,18 +64,6 @@
         } else {
           $scope.projectSelection.selected[0] = JSON.parse($scope.fixedProject);
           $scope.data.project = $scope.projectSelection.selected[0];
-        }
-
-        $scope.addGenericParameter = function() {
-          if ($scope.genericParameter.key.selectedId && $scope.genericParameter.value) {
-            $scope.genericParameters[$scope.genericParameter.key.selectedId] = $scope.genericParameter.value;
-            $scope.genericParameter.key.control.reset();
-            $scope.genericParameter.value = '';
-          }
-        };
-
-        $scope.removeGenericParameter = function(key) {
-          delete $scope.genericParameters[key];
         }
 
         $scope.submit = function() {
@@ -152,9 +114,7 @@
             $scope.buildgroupconfigs.selected = [];
             $scope.environmentSelection.selected = [];
             $scope.data = {};
-            $scope.genericParameter.key.control.reset();
-            $scope.genericParameter.value = '';
-            $scope.genericParameters = {};
+            $scope.genericParametersControl.reset();
 
             if (_.isUndefined($scope.fixedProject)) {
               $scope.projectSelection.selected = [];
