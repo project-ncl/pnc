@@ -83,11 +83,25 @@
           }
         };
 
+        $scope.genericParameters = {};
+
         if (_.isUndefined($scope.fixedProject)) {
           $scope.projects = ProjectDAO.getAll();
         } else {
           $scope.projectSelection.selected[0] = JSON.parse($scope.fixedProject);
           $scope.data.project = $scope.projectSelection.selected[0];
+        }
+
+        $scope.addGenericParameter = function() {
+          if ($scope.genericParameter.key.selectedId && $scope.genericParameter.value) {
+            $scope.genericParameters[$scope.genericParameter.key.selectedId] = $scope.genericParameter.value;
+            $scope.genericParameter.key.control.reset();
+            $scope.genericParameter.value = '';
+          }
+        };
+
+        $scope.removeGenericParameter = function(key) {
+          delete $scope.genericParameters[key];
         }
 
         $scope.submit = function() {
@@ -108,10 +122,7 @@
             revision: $scope.data.scmRevision
           };
 
-          $scope.data.genericParameters = {};
-          if ($scope.genericParameter.key.selectedId && $scope.genericParameter.value) {
-            $scope.data.genericParameters[$scope.genericParameter.key.selectedId] = $scope.genericParameter.value;
-          }
+          $scope.data.genericParameters = $scope.genericParameters;
 
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
 
@@ -141,8 +152,9 @@
             $scope.buildgroupconfigs.selected = [];
             $scope.environmentSelection.selected = [];
             $scope.data = {};
-            $scope.genericParameter.key.selected = [];
-            $scope.genericParameter.key.selectedId = null;
+            $scope.genericParameter.key.control.reset();
+            $scope.genericParameter.value = '';
+            $scope.genericParameters = {};
 
             if (_.isUndefined($scope.fixedProject)) {
               $scope.projectSelection.selected = [];
