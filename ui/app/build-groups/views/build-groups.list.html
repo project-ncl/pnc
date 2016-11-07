@@ -21,7 +21,7 @@
   <pnc-header>
     <pnc-header-title>Build Group Configs</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" tooltip="Create Build Group Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ui-sref="configuration-set.create({ productId: -1, versionId: -1 })">
+      <button type="button" class="btn btn-lg btn-default" tooltip="Create Build Group Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ui-sref="build-groups.create({ productId: -1, versionId: -1 })">
         <i class="fa fa-file-text-o"></i> Create
       </button>
     </pnc-header-buttons>
@@ -34,7 +34,7 @@
     </thead>
     <tbody>
       <tr ng-repeat="buildconfigurationset in setlistCtrl.buildconfigurationsets.data | filter:searchText">
-        <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+        <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
       </tr>
     </tbody>
   </table>

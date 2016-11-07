@@ -24,6 +24,22 @@
     '$rootScope',
     function ($modal, $q, $rootScope) {
 
+     /*
+      * Creates a modal that will start an async digest cycle
+      * ensuring any chained promises are updated in the view.
+      * This function passes through all arguments given to the $modal.open
+      * method and returns the same $modal promise.
+      */
+      function asyncModal () {
+        var modal = $modal.open.apply($modal, arguments);
+
+        modal.result.then(function () {
+          $rootScope.$evalAsync();
+        });
+
+        return modal;
+      }
+
       /**
        * Opens a modal window for multiple selection of Build Groups (aka BuildConfigurationSets).
        * Takes a config object that can have the following properties:
@@ -32,7 +48,7 @@
        *  selected {Array} - An array of BuildGroups that are initially selected.
        */
       this.openForBuildGroups = function (config) {
-        var modal = $modal.open({
+        return asyncModal({
           animation: true,
           size: 'md',
           templateUrl: 'common/select-modals/build-group-multi-select.html',
@@ -43,14 +59,8 @@
             modalConfig: function () {
               return $q.when(config);
             }
-          },
+          }
         });
-
-        modal.result.then(function () {
-          $rootScope.$evalAsync();
-        });
-
-        return modal;
       };
 
       /**
@@ -58,7 +68,7 @@
        *
        */
        this.openForProductVersion = function (config) {
-         var modal = $modal.open({
+         return asyncModal({
            animation: true,
            size: 'md',
            templateUrl: 'common/select-modals/product-version-single-select.html',
@@ -69,14 +79,29 @@
              modalConfig: function () {
                return $q.when(config);
              }
-           },
+           }
          });
+       };
 
-         modal.result.then(function () {
-           $rootScope.$evalAsync();
+      /**
+       *
+       */
+       this.openForBuildConfigs = function (config) {
+         return asyncModal({
+           animation: true,
+           size: 'xl',
+           template: '<build-config-multi-select modal-ctrl="$ctrl"></build-config-multi-select>',
+           controller: ['config', function (config) {
+             this.config = config;
+           }],
+           controllerAs: '$ctrl',
+           bindToController: true,
+           resolve: {
+             config: function () {
+               return $q.when(config);
+             }
+           }
          });
-
-         return modal;
        };
     }
   ]);

@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product').controller('ProductVersionSingleSelectController', [
+  angular.module('pnc.common.select-modals').controller('ProductVersionSingleSelectController', [
     '$log',
     'modalConfig',
     'Product',

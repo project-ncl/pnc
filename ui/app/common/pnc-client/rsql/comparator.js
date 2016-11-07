@@ -65,7 +65,9 @@
         };
 
         that.like = function (value) {
-          ctx.addToQuery('=like="' + value +'"');
+          value = value.replace(/\*/g, '%');
+          value = value.replace(/\?/g, '_');
+          ctx.addToQuery('=like="' + value + '"');
           return ctx.next();
         };
 

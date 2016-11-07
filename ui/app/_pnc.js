@@ -29,7 +29,7 @@
     'pnc.projects',
     'pnc.build-configs',
     'pnc.build-records',
-    'pnc.configuration-set',
+    'pnc.build-groups',
     'pnc.milestone',
     'pnc.release',
     'pnc.common.directives',

@@ -4,7 +4,7 @@
   "dependencies": {
     "angular": "1.5.6",
     "angular-loading-bar": "0.8.0",
-    "angular-patternfly": "3.9.0",
+    "angular-patternfly": "3.13.0",
     "jquery": "2.1.4",
     "angular-resource": "1.5.6",
     "angular-animate": "1.5.6",

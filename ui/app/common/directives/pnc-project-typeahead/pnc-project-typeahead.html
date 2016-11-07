@@ -1,0 +1,42 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="search-pf has-button">
+  <div class="form-group has-clear">
+    <div class="search-pf-input-group">
+      <label for="select-project-{{::$id}}" class="sr-only">Search Projects</label>
+      <input type="text"  class="form-control combobox"
+                          id="select-project-{{::$id}}"
+                          placeholder="Enter project name to search..."
+                          autocomplete="off"
+                          ng-model="$ctrl.input"
+                          typeahead="project as project.name for project in $ctrl.search($viewValue)"
+                          typeahead-on-select="$ctrl.select($item, $model, $label)"
+                          typeahead-wait-ms="300"
+                          typeahead-loading="$ctrl.isLoading"
+                          ng-focus="$ctrl.setTouched()"
+                          ng-change="$ctrl.setDirty()">
+      <button ng-if="$ctrl.isLoading" type="button" class="clear" aria-hidden="true"><span class="spinner spinner-xs spinner-inline"></span></button>
+      <button ng-if="!$ctrl.isLoading && $ctrl.input" type="button" class="clear" aria-hidden="true" ng-click="$ctrl.input = ''"><span class="pficon pficon-close"></span></button>
+    </div>
+  </div>
+  <div class="form-group">
+    <button class="btn btn-default" type="button"><span class="fa fa-search"></span></button>
+  </div>
+</div>

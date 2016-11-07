@@ -138,15 +138,19 @@ form .editable-wrap {
   margin-left: 5px;
 }
 
-td.td-actions {
+.td-actions {
   width: 1% !important;
   padding: 0 !important;
   white-space: nowrap !important;
   vertical-align: middle !important;
 }
 
-td.td-actions .btn-group {
+.td-actions .btn-group {
   display: flex;
+}
+
+.td-actions .btn-block + .btn-block {
+  margin-top: 0;
 }
 
 @media (min-width: 768px) {
@@ -179,10 +183,26 @@ label.required::before {
   display: none;
 }
 
+.modal-xl {
+  width: auto;
+  margin: 30px 10px;
+}
+
 @media (min-width: 1400px) {
   .modal-xl {
-      width: 1260px;
+    width: 1260px;
+    margin: 30px auto;
   }
+}
+
+.border-before:before {
+  background: #d0d0d0;
+  bottom: 0;
+  content: " ";
+  left: 0;
+  position: absolute;
+  width: 1px;
+  top: 0;
 }
 
 .search-pf-input-group > .dropdown-menu {
@@ -207,4 +227,13 @@ label.required::before {
 
 .panel.pnc-data-panel .filter-pf .toolbar-pf-results > .col-sm-12 {
   min-height: 41px;
+}
+
+.toolbar-search-right {
+  max-width: 250px;
+  margin-left: 1em;
+}
+
+.dropdown-kebab-pf > .dropdown-menu-right {
+  margin-right: 10px;
 }
