@@ -59,4 +59,10 @@ public class StringUtilsTest {
         return env.keySet().iterator().next();
     }
 
+    @Test
+    public void stripEndingSlash() {
+        String string = "http://host.com/path";
+        Assert.assertEquals(string, StringUtils.stripEndingSlash(string + "/"));
+        Assert.assertEquals(string, StringUtils.stripEndingSlash(string));
+    }
 }
