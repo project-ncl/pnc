@@ -247,7 +247,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         if (maybeClient.isPresent()) {
             BuildAgentClient client = maybeClient.get();
             try {
-                client.executeCommand("/usr/bin/startSshd.sh");
+                client.executeCommand("/usr/local/bin/startSshd.sh");
             } catch (TimeoutException | BuildAgentClientException e) {
                 logger.error("Failed to enable ssh access", e);
             }
