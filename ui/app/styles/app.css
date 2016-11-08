@@ -237,3 +237,27 @@ label.required::before {
 .dropdown-kebab-pf > .dropdown-menu-right {
   margin-right: 10px;
 }
+
+.checksum-md5:before {
+  content: "md5:\0000a0";
+  font-weight: bold;
+}
+.checksum-sha1:before {
+  content: "sha1:\0000a0";
+  font-weight: bold;
+}
+.checksum-sha256:before {
+  content: "sha256:\0000a0";
+  font-weight: bold;
+}
+
+.dl-checksum {
+  margin-bottom: 0;
+}
+
+.dl-checksum dt {
+  padding: 0;
+}
+.dl-checksum dd {
+  margin: 0;
+}

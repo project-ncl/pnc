@@ -35,9 +35,7 @@
         <th>Identifier</th>
         <th>File Name</th>
         <th>Repository Type</th>
-        <th>md5</th>
-        <th>sha1</th>
-        <th>sha256</th>
+        <th>Checksums</th>
         <th>Actions</th>
       </thead>
       <tbody>
@@ -45,9 +43,17 @@
           <td>{{ artifact.identifier }}</td>
           <td>{{ artifact.filename }}</td>
           <td>{{ artifact.repoType }}</td>
-          <td>{{ artifact.md5 }}</td>
-          <td>{{ artifact.sha1 }}</td>
-          <td>{{ artifact.sha256 }}</td>
+          <td>
+            <div class="checksum checksum-md5">
+              {{ artifact.md5 }}
+            </div>
+            <div class="checksum checksum-sha1">
+              {{ artifact.sha1 }}
+            </div>
+            <div class="checksum checksum-sha256">
+              {{ artifact.sha256 }}
+            </div>
+          </td>
           <td class="td-actions">
             <div class="btn-group" role="group" aria-label="Row Actions">
               <a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-default">Download</a>
