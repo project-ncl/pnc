@@ -313,7 +313,7 @@ public class BasicModelTest extends AbstractModelTest {
         tx.commit();
 
         ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
-        Assert.assertEquals("pnc-jb-tp1-" + version, productVersionLoaded.getBrewTagPrefix());
+        Assert.assertEquals("pnc-jb-tp1-" + version, productVersionLoaded.getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
         
         
     }

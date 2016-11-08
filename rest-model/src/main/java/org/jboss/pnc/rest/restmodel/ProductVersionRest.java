@@ -36,7 +36,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -75,7 +77,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     @Setter
     @NotNull(groups = {WhenUpdating.class})
     @Null(groups = WhenCreatingNew.class)
-    private String brewTagPrefix;
+    private Map<String, String> attributes = new HashMap<>();
     
     public ProductVersionRest() {
     }
@@ -103,7 +105,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
             buildConfigurationSets.add(new BuildConfigurationSetRest(buildConfigurationSet));
         }
         
-        this.brewTagPrefix = productVersion.getBrewTagPrefix();
+        this.attributes = productVersion.getAttributes();
     }
 
     @Override
@@ -183,7 +185,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     public ProductVersion.Builder toDBEntityBuilder() {
         ProductVersion.Builder builder = ProductVersion.Builder.newBuilder()
                 .id(id)
-                .version(version);
+                .version(version)
+                .attributes(attributes);
 
         performIfNotNull(productId, () -> builder.product(Product.Builder.newBuilder().id(productId).build()));
         performIfNotNull(currentProductMilestoneId, () -> builder
@@ -194,7 +197,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         nullableStreamOf(this.getBuildConfigurationSets()).forEach(set ->
                 builder.buildConfigurationSet(BuildConfigurationSet.Builder.newBuilder().id(set.getId()).build()));
 
-        performIfNull(brewTagPrefix, () -> builder.generateBrewTagPrefix(product.getAbbreviation(), version));
+        performIfNull(this.attributes.get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX), 
+                () -> builder.generateBrewTagPrefix(product.getAbbreviation(), version));
         
         return builder;
     }
