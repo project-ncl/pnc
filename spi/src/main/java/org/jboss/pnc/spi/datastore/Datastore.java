@@ -93,16 +93,17 @@ public interface Datastore {
     BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
 
     /**
-     * Check if a build task should be rebuilt (if some of its dependencies were rebuild)
+     * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was modified)
+     *
+     * @param configuration configuration to check
+     */
+    boolean requiresRebuild(BuildConfiguration configuration);
+
+    /**
+     * Check if a build task should be rebuilt (if some of its dependencies were rebuild or the configuration was modified)
      *
      * @param task task to check
      */
     boolean requiresRebuild(BuildTask task);
 
-    /**
-     * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild)
-     *
-     * @param configuration configuration to check
-     */
-    boolean hasARebuiltDependency(BuildConfiguration configuration);
 }

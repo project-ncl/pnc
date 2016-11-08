@@ -137,8 +137,8 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public boolean hasARebuiltDependency(BuildConfiguration configuration) {
-        return false;
+    public boolean requiresRebuild(BuildConfiguration configuration) {
+        return true;
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {
