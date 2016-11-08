@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -35,6 +36,7 @@ import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -69,6 +71,7 @@ public class EnvironmentRestTest extends AbstractTest {
         return enterpriseArchive;
     }
 
+    @Ignore("Ignored as the creation of environment is disabled until we'll implement authorization")
     @Test
     @InSequence(0)
     public void shouldCreateNewEnvironment() throws Exception {
@@ -87,6 +90,7 @@ public class EnvironmentRestTest extends AbstractTest {
         assertThat(environmentId).isNotNull();
     }
 
+    @Ignore("Ignored as the creation of environment is disabled until we'll implement authorization")
     @Test
     @InSequence(1)
     public void shouldUpdateEnvironment() throws Exception {
@@ -113,6 +117,7 @@ public class EnvironmentRestTest extends AbstractTest {
         assertThat(noLoremIpsum.getSystemImageType()).isEqualTo(SystemImageType.DOCKER_IMAGE);
     }
 
+    @Ignore("Ignored as the creation of environment is disabled until we'll implement authorization")
     @Test
     @InSequence(2)
     public void shouldDeleteEnvironment() throws Exception {
