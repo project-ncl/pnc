@@ -138,11 +138,14 @@ public abstract class AbstractDependentBuildTest {
         );
     }
 
-    protected static BuildRecord buildRecord(BuildConfiguration config) {
+    protected BuildRecord buildRecord(BuildConfiguration config) {
+        BuildConfigurationAudited configurationAudited =
+                buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(config.getId()).iterator().next();
         return BuildRecord.Builder.newBuilder()
                 .id(buildRecordIdSequence.getAndIncrement())
                 .status(BuildStatus.SUCCESS)
                 .latestBuildConfiguration(config)
+                .buildConfigurationAudited(configurationAudited)
                 .build();
     }
 

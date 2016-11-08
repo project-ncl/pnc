@@ -81,9 +81,7 @@ public class BuildTasksInitializer {
     }
 
     private void createDependencyBuildTasks(BuildConfiguration configuration, Set<BuildConfiguration> configs) {
-        if (!configs.contains(configuration) &&
-                (configuration.getLatestSuccesfulBuildRecord() == null
-                        || datastoreAdapter.hasARebuiltDependency(configuration))) {
+        if (!configs.contains(configuration) && datastoreAdapter.requiresRebuild(configuration)) {
             configs.add(configuration);
             configuration.getDependencies().stream()
                     .filter(c -> !configs.contains(c))

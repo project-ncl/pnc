@@ -210,12 +210,27 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public boolean requiresRebuild(BuildConfiguration configuration) {
+        BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(configuration.getId());
+
+        BuildRecord record = refreshedConfig.getLatestSuccesfulBuildRecord();
+        if (record == null) {
+            return true;
+        }
+        BuildConfigurationAudited configurationAudited = record.getBuildConfigurationAudited();
+        BuildConfigurationAudited latestConfigurationAudited = getLatestBuildConfigurationAudited(configuration.getId());
+
+        return !configurationAudited.equals(latestConfigurationAudited)
+                || hasARebuiltDependency(refreshedConfig) ;
+    }
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
         BuildSetTask taskSet = task.getBuildSetTask();
         final BuildConfiguration buildConfiguration = task.getBuildConfiguration();
         BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(buildConfiguration.getId());
 
-        if (refreshedConfig.getLatestSuccesfulBuildRecord() == null) {
+        if (requiresRebuild(refreshedConfig)) {
             return true;
         }
         if (taskSet != null) {
@@ -228,10 +243,10 @@ public class DefaultDatastore implements Datastore {
                 return true;
             }
         }
-        return hasARebuiltDependency(refreshedConfig);
+        return false;
     }
 
-    public boolean hasARebuiltDependency(BuildConfiguration config) {
+    private boolean hasARebuiltDependency(BuildConfiguration config) {
         BuildRecord record = config.getLatestSuccesfulBuildRecord();
         if (record == null) {
             return false;
