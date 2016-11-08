@@ -169,6 +169,7 @@ public class BpmManager {
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            log.debug("Triggering the cancellation using url: {}", uri.toString());
             HttpGet httpget = new HttpGet(uri);
             CloseableHttpResponse httpResponse = httpClient.execute(httpget);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
