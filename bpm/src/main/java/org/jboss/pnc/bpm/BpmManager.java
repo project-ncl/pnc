@@ -42,6 +42,7 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
@@ -157,19 +158,23 @@ public class BpmManager {
     public boolean cancelTask(BpmTask bpmTask) {
         String cancelEndpointUrl = StringUtils.stripEndingSlash(bpmConfig.getBpmInstanceUrl()) + "/nclcancelhandler";
 
+        URI uri;
         try {
             URIBuilder uriBuilder = new URIBuilder(cancelEndpointUrl);
             uriBuilder.addParameter("processInstanceId", bpmTask.getProcessInstanceId().toString());
+            uri = uriBuilder.build();
         } catch (URISyntaxException e) {
             log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
             return false;
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet httpget = new HttpGet(cancelEndpointUrl);
+            HttpGet httpget = new HttpGet(uri);
             CloseableHttpResponse httpResponse = httpClient.execute(httpget);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             httpResponse.close();
+            log.info("Cancel request for taskId: {} and processId: {} completed with status: {}.",
+                    bpmTask.getTaskId(), bpmTask.getProcessId(), statusCode);
             return statusCode == 200;
         } catch (IOException e) {
             log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
