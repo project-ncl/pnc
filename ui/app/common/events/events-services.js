@@ -38,7 +38,9 @@
 
     BUILD_SET_STARTED: 'BUILD_SET_STARTED',
 
-    BUILD_SET_FINISHED: 'BUILD_SET_FINISHED'
+    BUILD_SET_FINISHED: 'BUILD_SET_FINISHED',
+
+    BCC_BPM_NOTIFICATION: 'BCC_BPM_NOTIFICATION'
   }));
 
   module.factory('eventBroadcastingWebSocketListener', [
@@ -105,7 +107,6 @@
             }
           });
 
-
           adaptors.push({
             supports: function (event) {
               return event.eventType === 'BUILD_SET_STATUS_CHANGED' &&
@@ -129,6 +130,17 @@
             }
           });
 
+          adaptors.push({
+            supports: function (event) {
+              return _.has(event, 'eventType') && event.eventType.startsWith('BCC_');
+            },
+            convert: function (event) {
+              // BCC events have no prescribed structure apart from having 'eventType' attribute.
+              // Creating a wrapper:
+              return {'eventType': eventTypes.BCC_BPM_NOTIFICATION, 'payload': event};
+            }
+          });
+
           var adaptor = _(adaptors).find(function (e) {
             return e.supports(event);
           });
@@ -141,6 +153,83 @@
         }
       };
     }
+  ]);
+
+
+  /**
+   * Get a function that will show human readable BCC notification
+   * from a few pieces of data.
+   */
+  module.factory('bccEventHandler', [
+      '$log',
+      '$q',
+      '$rootScope',
+      'eventTypes',
+      'pncNotify',
+      function ($log, $q, $rootScope, eventTypes, pncNotify) {
+
+        var res = {};
+
+        // keeps state for each registered (BPM) taskId
+        var _taskIdHandlers = {};
+
+        $rootScope.$on(eventTypes.BCC_BPM_NOTIFICATION, function(event, payload) {
+          if (_.has(payload, 'data.taskId') && _.has(_taskIdHandlers, payload.data.taskId)) {
+            _taskIdHandlers[payload.data.taskId].handle(payload);
+          } else {
+            $log.warn('No handler for ', payload);
+          }
+        });
+
+        var _translate = function(eventType, bcName) {
+          var meta = { // human readable message and whether it is a success
+            'BCC_REPO_CREATION_SUCCESS': [0, 'Created the repository for "' + bcName + '".'],
+            'BCC_REPO_CREATION_ERROR': [-1, 'Failed to create the repository for "' + bcName + '".'],
+            'BCC_REPO_CLONE_SUCCESS': [0, 'Cloned data into internal repository for "' + bcName + '".'],
+            'BCC_REPO_CLONE_ERROR': [-1, 'Failed to clone data into internal repository for "' + bcName + '". Verify that the URL and revision are correct.'],
+            'BCC_CREATION_SUCCESS': [1, 'Created "' + bcName + '".'],
+            'BCC_CREATION_ERROR': [-1, 'Failed to create "' + bcName + '".']
+          };
+          return meta[eventType];
+        };
+
+        // Given a taskId from start BCC process endpoint,
+        // Return a promise corresponding to the success of the operation,
+        // While issuing notifications in the process.
+        // Also provide BC name for human readability.
+        res.register = function(taskId, bcName) {
+          // TODO tidy up
+          var deferred = $q.defer();
+          _taskIdHandlers[taskId] = {
+            handle: function(payload) {
+              if(_.isUndefined(_translate(payload.eventType, bcName))) {
+                return;
+              }
+              var msg = '';
+              if(_.has(payload, 'data.message')) {
+                var m = payload.data.message;
+                $log.warn('', _translate(payload.eventType, bcName)[1] + m);
+                msg = ' ' + m.substring(0, 125);
+                if(m.length > 125) {
+                  msg = msg + '...';
+                }
+              }
+              if(_translate(payload.eventType, bcName)[0] === 1) {
+                pncNotify.success(_translate(payload.eventType, bcName)[1] + msg);
+                deferred.resolve(parseInt(payload.data.buildConfigurationId));
+              } else if(_translate(payload.eventType, bcName)[0] === -1) {
+                pncNotify.error(_translate(payload.eventType, bcName)[1] + msg);
+                deferred.reject();
+              } else {
+                pncNotify.info(_translate(payload.eventType, bcName)[1] + msg);
+              }
+            }
+          };
+          return deferred.promise;
+        };
+
+        return res;
+      }
   ]);
 
 })();
