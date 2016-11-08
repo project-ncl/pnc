@@ -169,12 +169,13 @@ public class BpmManager {
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            log.debug("Triggering the cancellation using url: {}", uri.toString());
             HttpGet httpget = new HttpGet(uri);
             CloseableHttpResponse httpResponse = httpClient.execute(httpget);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             httpResponse.close();
-            log.info("Cancel request for taskId: {} and processId: {} completed with status: {}.",
-                    bpmTask.getTaskId(), bpmTask.getProcessId(), statusCode);
+            log.info("Cancel request for bpmTask.id: {} and processInstanceId: {} completed with status: {}.",
+                    bpmTask.getTaskId(), bpmTask.getProcessInstanceId(), statusCode);
             return statusCode == 200;
         } catch (IOException e) {
             log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
