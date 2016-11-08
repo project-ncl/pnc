@@ -74,15 +74,20 @@ public class BuildTasksInitializer {
         if (configs.contains(configuration)) {
             return;
         }
+        configs.add(configuration);
         if (scope.isRecursive()) {
-            if (configuration.getLatestSuccesfulBuildRecord() == null || datastoreAdapter.hasARebuiltDependency(configuration)) {
-                configs.add(configuration);
-                configuration.getDependencies().stream()
-                        .filter(c -> !configs.contains(c))
-                        .forEach(c -> createBuildTasks(c, scope, configs));
-            }
-        } else {
+            createDependencyBuildTasks(configuration, configs);
+        }
+    }
+
+    private void createDependencyBuildTasks(BuildConfiguration configuration, Set<BuildConfiguration> configs) {
+        if (!configs.contains(configuration) &&
+                (configuration.getLatestSuccesfulBuildRecord() == null
+                        || datastoreAdapter.hasARebuiltDependency(configuration))) {
             configs.add(configuration);
+            configuration.getDependencies().stream()
+                    .filter(c -> !configs.contains(c))
+                    .forEach(c -> createDependencyBuildTasks(c, configs));
         }
     }
 
@@ -110,9 +115,9 @@ public class BuildTasksInitializer {
 
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
-                .buildConfigSetRecord(configSetRecord)
-                .forceRebuildAll(rebuildAll)
-                .keepAfterFailure(keepAfterFailure).build();
+                        .buildConfigSetRecord(configSetRecord)
+                        .forceRebuildAll(rebuildAll)
+                        .keepAfterFailure(keepAfterFailure).build();
 
         initializeBuildTasksInSet(
                 buildSetTask,
@@ -127,7 +132,7 @@ public class BuildTasksInitializer {
      * Creates build tasks and sets up the appropriate dependency relations
      *
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
-     * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
+     *                     initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
     private void initializeBuildTasksInSet(
             BuildSetTask buildSetTask,
