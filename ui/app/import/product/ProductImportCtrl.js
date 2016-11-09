@@ -277,7 +277,6 @@
        */
       var parseTree = function (tree) {
         return parseTree0(tree, function (node) {
-          node.nodeData.cloneRepo = false;
           return _.clone(node.nodeData);
         });
       };
@@ -288,7 +287,6 @@
        */
       var parseTreeFinish = function (tree) {
         return parseTree0(tree, function (node) {
-          node.nodeData.cloneRepo = false;
           var n = _.clone(node.nodeData);
           n.selected = !_.isUndefined(node.state) && node.state.checked;
           return n;
