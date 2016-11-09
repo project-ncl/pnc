@@ -19,33 +19,16 @@
 
 (function () {
 
-  var module = angular.module('pnc.import');
-
-
-  module.config([
-    '$stateProvider',
-    function ($stateProvider) {
-
-      $stateProvider.state('import.product', {
-        url: '/product',
-        views: {
-          'content@': {
-            templateUrl: 'import/product/views/import.product.html',
-            controller: 'ProductImportCtrl',
-            controllerAs: 'ctrl'
-          }
-        },
-        data: {
-          //proxy: 'Create Release'
-        },
-        resolve: {
-          //releaseDetail: function() { return null; }
-        }
-      });
-
-    }
+  var module = angular.module('pnc.import', [
+    'ui.router',
+    'ui.bootstrap',
+    'pnc.common.restclient',
+    'pnc.util.date_utils',
+    'angularUtils.directives.uiBreadcrumbs',
+    'pnc.util.confirmClick',
+    'angular-websocket',
+    'pnc.common.daclient'
   ]);
-
 
   module.run([
     '$rootScope',

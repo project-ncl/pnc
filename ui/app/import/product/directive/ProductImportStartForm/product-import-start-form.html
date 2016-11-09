@@ -24,21 +24,6 @@
     <div class="panel-body">
 
       <div class="form-group"
-          ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.startFormInput1.$pristine, 'has-success': startForm.startFormInput1.$valid && startForm.startFormInput1.$touched }">
-        <label for="startFormInput1" class="col-sm-3 control-label">
-          * Product&nbsp;<a popover="Select the product you wish to import into." popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"  href><span class="fa fa-info-circle"></span></a>
-        </label>
-
-        <div class="col-sm-9">
-          <!-- <input id="startFormInput1" name="startFormInput1" maxlength="255" class="form-control" ng-model="data.name" required> -->
-          <pnc-infinite-select infinite-select-required="true" infinite-select-id="startFormInput1" infinite-select-name="startFormInput1" placeholder="Scroll & Filter Products..."
-              items="products" item-id="data.id"></pnc-infinite-select>
-          <span class="help-block" ng-show="startForm.startFormInput1.$error.required && !startForm.startFormInput1.$pristine">Required field.</span>
-        </div>
-      </div>
-
-
-      <div class="form-group"
           ng-class="{ 'has-error' : startForm.startFormInput2.$invalid && !startForm.startFormInput2.$pristine, 'has-success': startForm.startFormInput2.$valid && startForm.startFormInput2.$touched }">
         <label for="startFormInput2" class="col-sm-3 control-label">
           * Product Version&nbsp;

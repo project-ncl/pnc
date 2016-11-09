@@ -75,6 +75,26 @@
       }
     });
 
+    $stateProvider.state('product.detail.import-product', {
+      url: '/import-product',
+      views: {
+        'content@': {
+          templateUrl: 'import/product/views/import.product.html',
+          controller: 'ProductImportCtrl',
+          controllerAs: 'ctrl'
+        }
+      },
+      data: {
+        displayName: 'Import {{ productDetail.name }}'
+      },
+      resolve: {
+        productDetail: function(ProductDAO, $stateParams) {
+          return ProductDAO.get({ productId: $stateParams.productId })
+          .$promise;
+        }
+      }
+    });
+
     $stateProvider.state('product.detail.version', {
       //parent: 'product.detail',
       url: '/version/{versionId:int}',

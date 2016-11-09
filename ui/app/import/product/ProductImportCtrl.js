@@ -30,7 +30,8 @@
     'pncNotify',
     '$state',
     'ProductVersionDAO',
-    function ($log, productImport, TreeFactory, scope, $timeout, pncNotify, $state, ProductVersionDAO) {
+    'productDetail',
+    function ($log, productImport, TreeFactory, scope, $timeout, pncNotify, $state, ProductVersionDAO, productDetail) {
 
       scope.started = false;
       scope.display = 'start';
@@ -39,6 +40,8 @@
       });
       var data = {}; // data loaded from analyzer endpoints
       scope.startData = {};
+      scope.startData.id = productDetail.id;
+      scope.productName = productDetail.name;
       scope.startSubmitDisabled = false;
       scope.startTooltipIsOpen = false;
       scope.finishSubmitDisabled = false;

@@ -83,9 +83,22 @@
   <pnc-header sub-header="true">
     <pnc-header-title>Product Versions</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product Version" ui-sref="product.detail.createVersion({ productId: detailCtrl.product.id })" pnc-requires-auth>
-          <i class="fa fa-file-text-o"></i> Create
-      </button>
+      <div class="p-l-10">
+
+        <button class="btn btn-lg btn-default dropdown-toggle ng-scope m-r-5 m-l-5" data-toggle="dropdown">
+          <i class="pficon pficon-import"></i>&nbsp;Import&nbsp;<span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a href ui-sref="product.detail.import-product({ productId: detailCtrl.product.id })"><span>From Maven POM File</span></a>
+          </li>
+        </ul>
+
+        <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product Version" ui-sref="product.detail.createVersion({ productId: detailCtrl.product.id })" pnc-requires-auth>
+            <i class="fa fa-file-text-o"></i> Create
+        </button>
+
+      </div>
     </pnc-header-buttons>
   </pnc-header>
 
