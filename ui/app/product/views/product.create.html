@@ -27,16 +27,16 @@
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : productForm.name.$invalid && !productForm.name.$pristine, 'has-success': productForm.name.$valid && productForm.name.$touched }">
-              <label for="input-name" class="col-sm-2 control-label">
-                * Name&nbsp;
+            <div class="form-group" ng-class="{ 'has-error' : productForm.name.$invalid && productForm.name.$touched, 'has-success': productForm.name.$valid && productForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label required">
+                Name&nbsp;
                 <a popover="The extended name of the Product, e.g. JBoss® Enterprise Application Platform" popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
                   <span class="fa fa-info-circle"></span>
                 </a>
               </label>
               <div class="col-sm-10">
                 <input id="input-name" class="form-control" name="name" ng-model="productCreateCtrl.data.name" maxlength="255" required>
-                <span class="help-block" ng-show="productForm.name.$error.required && !productForm.name.$pristine">Required field.</span>
+                <span class="help-block" ng-show="productForm.name.$error.required && productForm.name.$touched">Required field.</span>
               </div>
             </div>
 
@@ -53,13 +53,9 @@
                 <textarea id="input-description" class="form-control" name="description" ng-model="productCreateCtrl.data.description"></textarea>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <div class="form-group">
-              <label for="input-abbreviation" class="col-sm-2 control-label">Short Name&nbsp;
+            
+            <div class="form-group" ng-class="{ 'has-error' : productForm.abbreviation.$invalid && productForm.abbreviation.$touched, 'has-success': productForm.abbreviation.$valid && productForm.abbreviation.$touched }">
+              <label for="input-abbreviation" class="col-sm-2 control-label required">Short Name&nbsp;
                 <a popover="The abbreviation of the Product, e.g. EAP"
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
@@ -68,7 +64,8 @@
                 </a>
               </label>
               <div class="col-sm-10">
-                <input id="input-abbreviation" class="form-control" name="abbreviation" maxlength="255" ng-model="productCreateCtrl.data.abbreviation">
+                <input id="input-abbreviation" class="form-control" name="abbreviation" maxlength="255" ng-model="productCreateCtrl.data.abbreviation" required>
+                <span class="help-block" ng-show="productForm.abbreviation.$error.required && productForm.abbreviation.$touched">Required field.</span>
               </div>
             </div>
 
