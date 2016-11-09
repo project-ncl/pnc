@@ -79,6 +79,7 @@ public class MavenRepositorySession implements RepositorySession {
 
     private Indy indy;
     private final String buildContentId;
+    private List<String> internalRepoPatterns;
 
     private final RepositoryConnectionInfo connectionInfo;
     private boolean isSetBuild;
@@ -96,9 +97,10 @@ public class MavenRepositorySession implements RepositorySession {
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info) {
+    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns) {
         this.indy = indy;
         this.buildContentId = buildContentId;
+        this.internalRepoPatterns = internalRepoPatterns;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
     }
@@ -218,7 +220,7 @@ public class MavenRepositorySession implements RepositorySession {
                 // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
                 // New binary imports will be coming from a remote repository...
                 // TODO: Enterprise maven repository (product repo) handling...
-                if (!sharedImports.equals(sk) && StoreType.hosted != sk.getType()) {
+                if (isExternalOrigin(sk) && StoreType.hosted != sk.getType()) {
                     // this has not been captured, so promote it.
                     Set<String> paths = toPromote.get(sk);
                     if (paths == null) {
@@ -269,6 +271,21 @@ public class MavenRepositorySession implements RepositorySession {
         }
 
         return deps;
+    }
+
+    private boolean isExternalOrigin(StoreKey sk) {
+        String skStr = sk.toString();
+        for (String pattern : internalRepoPatterns) {
+            if (pattern.equals(skStr)) {
+                return false;
+            }
+
+            if (skStr.matches(pattern)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

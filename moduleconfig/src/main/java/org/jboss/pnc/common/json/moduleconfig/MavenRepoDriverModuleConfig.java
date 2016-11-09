@@ -31,8 +31,14 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      */
     private String baseUrl;
 
-    public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
-        super();
+    /**
+     * Comma-separated list of repository name patterns to use when considering whether a remote repository
+     * represents an internal build (from a trusted build system, for instance).
+     */
+    @JsonProperty("internal-repo-patterns")
+    private String internalRepoPatterns;
+
+    public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
     }
 
@@ -43,9 +49,17 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
     }
-    
+
+    public String getInternalRepoPatterns() {
+        return internalRepoPatterns;
+    }
+
+    public void setInternalRepoPatterns(String internalRepoPatterns) {
+        this.internalRepoPatterns = internalRepoPatterns;
+    }
+
     @Override
     public String toString() {
-        return "MavenRepoDriverModuleConfig [baseUrl=" + baseUrl + "]";
+        return "MavenRepoDriverModuleConfig [baseUrl=" + baseUrl + ", internalRepoPatterns=" + internalRepoPatterns +"]";
     }
 }
