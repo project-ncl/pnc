@@ -17,9 +17,12 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
+import org.commonjava.indy.client.core.auth.OAuth20BearerTokenAuthenticator;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
 import org.commonjava.indy.model.core.Group;
@@ -42,13 +45,13 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
@@ -68,7 +71,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Indy indy;
+    private String baseUrl;
+    private Map<String, Indy> indyMap = new HashMap<>();
 
     private List<String> internalRepoPatterns;
 
@@ -76,46 +80,55 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
     }
 
-    @SuppressWarnings("resource")
     @Inject
     public  RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration
                     .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
-            String baseUrl = config.getBaseUrl();
-            if (baseUrl.endsWith("/")) {
-                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-            }
-
-            if (!baseUrl.endsWith("/api")) {
-                baseUrl += "/api";
-            }
-
-            internalRepoPatterns = new ArrayList<>();
-            internalRepoPatterns.add(MavenRepositoryConstants.SHARED_IMPORTS_ID);
-
-            List<String> extraInternalRepoPatterns = config.getInternalRepoPatterns();
-            if (extraInternalRepoPatterns != null) {
-                internalRepoPatterns.addAll(extraInternalRepoPatterns);
-            }
-
-            indy = new Indy(baseUrl, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
-                    new IndyPromoteClientModule()).connect();
-
-            setupGlobalRepos();
-
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
-        } catch (IndyClientException e) {
-            throw new IllegalStateException("Failed to setup shared-releases or shared-imports hosted repository: "
-                    + e.getMessage(), e);
+        }
+
+        baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
+        if (!baseUrl.endsWith("/api")) {
+            baseUrl += "/api";
+        }
+
+        internalRepoPatterns = new ArrayList<>();
+        internalRepoPatterns.add(MavenRepositoryConstants.SHARED_IMPORTS_ID);
+
+        List<String> extraInternalRepoPatterns = config.getInternalRepoPatterns();
+        if (extraInternalRepoPatterns != null) {
+            internalRepoPatterns.addAll(extraInternalRepoPatterns);
         }
     }
 
-    @PreDestroy
-    public void shutdown() {
-        indy.close();
+    @SuppressWarnings("resource")
+    private Indy init(String accessToken) {
+        Indy indy = indyMap.get(accessToken);
+        if (indy == null) {
+            IndyClientAuthenticator authenticator = null;
+            if (accessToken != null) {
+                authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
+            }
+            try {
+                indy = new Indy(baseUrl, authenticator, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
+                        new IndyPromoteClientModule()).connect();
+                indyMap.put(accessToken, indy);
+            } catch (IndyClientException e) {
+                throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
+            }
+        }
+        return indy;
+    }
+
+    @Override
+    public void close(String accessToken) {
+        if (indyMap.containsKey(accessToken)) {
+            IOUtils.closeQuietly(indyMap.get(accessToken));
+            indyMap.remove(accessToken);
+        }
     }
 
     /**
@@ -135,11 +148,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *                                    (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken) 
+            throws RepositoryManagerException {
+        Indy indy = init(accessToken);
 
         String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildExecution);
+            setupBuildRepos(buildExecution, indy);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
@@ -173,7 +188,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param execution The execution object, which contains the content id for creating the repo, and the build id.
      * @throws IndyClientException
      */
-    private void setupBuildRepos(BuildExecution execution)
+    private void setupBuildRepos(BuildExecution execution, Indy indy)
             throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
@@ -227,34 +242,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Lazily create the shared-releases and shared-imports global hosted repositories if they don't already exist.
-     *
-     * @throws IndyClientException
-     */
-    private void setupGlobalRepos() throws IndyClientException {
-        // if the global shared-releases repository doesn't exist, create it.
-        if (!indy.stores().exists(StoreType.group, UNTESTED_BUILDS_GROUP)) {
-            Group sharedArtifacts = new Group(UNTESTED_BUILDS_GROUP);
-
-            indy.stores().create(sharedArtifacts, "Creating global shared-builds repository group.", Group.class);
-        }
-
-        // if the global imports repo doesn't exist, create it.
-        if (!indy.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
-            HostedRepository sharedImports = new HostedRepository(SHARED_IMPORTS_ID);
-            sharedImports.setAllowSnapshots(false);
-            sharedImports.setAllowReleases(true);
-
-            indy.stores().create(sharedImports, "Creating global repository for hosting external imports used in builds.",
-                    HostedRepository.class);
-        }
-    }
-
-    /**
      * Convenience method for tests.
      */
-    protected Indy getIndy() {
-        return indy;
+    protected Indy getIndy(String accessToken) {
+        return init(accessToken);
     }
 
     /**
@@ -265,13 +256,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * called.
      */
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup) throws RepositoryManagerException {
-
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
+            throws RepositoryManagerException {
+        Indy indy = init(accessToken);
         return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(), toGroup, indy);
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken) 
+            throws RepositoryManagerException {
+        Indy indy = init(accessToken);
         return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), indy);
     }
 

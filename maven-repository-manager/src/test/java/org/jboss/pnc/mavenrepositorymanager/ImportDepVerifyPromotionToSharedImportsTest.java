@@ -47,7 +47,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession session = driver.createBuildRepository(execution);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build resolving an artifact via the AProx remote repository.
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));

@@ -49,10 +49,10 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractR
 
         // create a dummy build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build deploying a file.
-        driver.getIndy().module(IndyFoloContentClientModule.class)
+        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the untested-builds group.
@@ -66,7 +66,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractR
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the untested-builds group should contain the build hosted repo.
-        Group untestedBuildsGroup = driver.getIndy().stores().load(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, Group.class);
+        Group untestedBuildsGroup = driver.getIndy(accessToken).stores().load(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, Group.class);
         assertThat(untestedBuildsGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }
 

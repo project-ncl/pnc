@@ -53,7 +53,7 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
     @Before
     public void before() throws Exception
     {
-        indy = driver.getIndy();
+        indy = driver.getIndy(accessToken);
 
         // create a remote repo pointing at our server fixture's 'repo/test' directory.
         indy.stores().create(new RemoteRepository(STORE, server.formatUrl(STORE)), "Creating test remote repo",

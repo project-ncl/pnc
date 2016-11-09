@@ -51,7 +51,7 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
 
         assertThat(rc, notNullValue());
 

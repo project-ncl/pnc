@@ -87,7 +87,7 @@ public class ExcludeInternalRepoByNameTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();
@@ -107,7 +107,7 @@ public class ExcludeInternalRepoByNameTest
         assertThat(deps, notNullValue());
         assertThat(deps.size(), equalTo(2));
 
-        Indy indy = driver.getIndy();
+        Indy indy = driver.getIndy(accessToken);
 
         // check that the imports from external locations are available from shared-imports
         InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, externalPath);
