@@ -186,6 +186,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     .filter(buildTask -> buildTask.getId() == buildTaskId)
                     .findAny();
         if (taskOptional.isPresent()) {
+            log.debug("Cancelling task {}.", taskOptional.get());
             try {
                 boolean cancelSubmitted = buildScheduler.cancel(taskOptional.get());
                 if (cancelSubmitted) {
