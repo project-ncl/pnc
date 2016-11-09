@@ -274,13 +274,15 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     private boolean isExternalOrigin(StoreKey sk) {
-        String skStr = sk.toString();
+        String repoName = sk.getName();
         for (String pattern : internalRepoPatterns) {
-            if (pattern.equals(skStr)) {
+//            Logger logger = LoggerFactory.getLogger(getClass());
+//            logger.info( "Checking ")
+            if (pattern.equals(repoName)) {
                 return false;
             }
 
-            if (skStr.matches(pattern)) {
+            if (repoName.matches(pattern)) {
                 return false;
             }
         }

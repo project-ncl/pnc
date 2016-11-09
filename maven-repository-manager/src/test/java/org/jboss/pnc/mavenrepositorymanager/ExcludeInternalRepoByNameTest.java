@@ -54,7 +54,7 @@ public class ExcludeInternalRepoByNameTest
 
     @Override
     protected String getInternalRepoPatterns() {
-        return "internal";
+        return INTERNAL;
     }
 
     @Test
