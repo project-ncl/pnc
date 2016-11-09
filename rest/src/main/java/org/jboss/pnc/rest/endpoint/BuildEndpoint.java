@@ -189,6 +189,7 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     public Response cancel(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer buildTaskId) {
         boolean success = false;
         try {
+            logger.info("Received cancel request for buildTaskId: {}.", buildTaskId);
             success = buildTriggerer.cancelBuild(buildTaskId);
         } catch (BuildConflictException | CoreException e) {
             logger.error("Unable to cancel the build [" + buildTaskId + "].", e);

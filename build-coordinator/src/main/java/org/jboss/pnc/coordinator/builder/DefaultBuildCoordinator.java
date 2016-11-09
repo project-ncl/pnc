@@ -231,7 +231,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 Optional.empty());
         updateBuildStatus(buildTask, result);
 
-        log.info("Task {} canceled.", buildTask.getId());
+        log.info("Task {} canceled internally.", buildTask.getId());
     }
 
     private void checkForCyclicDependencies(BuildSetTask buildSetTask) {
