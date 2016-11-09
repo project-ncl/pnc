@@ -147,7 +147,7 @@ public class BpmManager {
             }
             task.setProcessInstanceId(processInstance.getId());
             task.setProcessName(processInstance.getProcessId());
-            log.debug("Created new process instance with id {}", task.getProcessInstanceId());
+            log.debug("Created new process linked to task: {}", task);
             return true;
 
         } catch (Exception e) {

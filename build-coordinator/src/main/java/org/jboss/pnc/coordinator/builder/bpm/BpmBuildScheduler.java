@@ -57,7 +57,6 @@ public class BpmBuildScheduler implements BuildScheduler {
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
-            //TODO add token to bpmProcess bpmTask.getUser().getLoginToken
             BpmBuildTask task = new BpmBuildTask(buildTask);
             task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(b.toBuildResult()));
             manager.startTask(task);
