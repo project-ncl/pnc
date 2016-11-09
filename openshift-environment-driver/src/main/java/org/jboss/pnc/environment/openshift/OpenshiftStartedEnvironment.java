@@ -41,7 +41,6 @@ import org.jboss.util.StringPropertyReplacer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -87,7 +86,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private Route route;
     private Service sshService;
 
-    @Inject
     private Configuration configuration;
 
     private final String buildAgentContextPath;
@@ -104,6 +102,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
+            Configuration configuration,
             PullingMonitor pullingMonitor,
             RepositorySession repositorySession,
             String systemImageId,
@@ -113,6 +112,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
 
         this.environmentConfiguration = environmentConfiguration;
+        this.configuration = configuration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
         this.imageId = systemImageId == null ? environmentConfiguration.getImageId() : systemImageId;
