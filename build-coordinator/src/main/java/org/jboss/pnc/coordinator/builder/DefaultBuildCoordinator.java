@@ -208,7 +208,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         PullingMonitor monitor = new PullingMonitor();
 
         Runnable invokeCancelInternal = () -> {
-            if (getSubmittedBuildTasks().contains(buildTask)) {
+            if (!getSubmittedBuildTasks().contains(buildTask)) {
                 log.debug("Task {} cancellation already completed.", buildTask.getId());
                 return;
             }
