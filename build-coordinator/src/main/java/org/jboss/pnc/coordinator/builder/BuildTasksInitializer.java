@@ -77,7 +77,7 @@ public class BuildTasksInitializer {
         }
         configs.add(configuration);
         if (scope.isRecursive()) {
-            createDependencyBuildTasks(configuration, configs);
+            configuration.getDependencies().forEach(c -> createDependencyBuildTasks(c, configs));
         }
     }
 

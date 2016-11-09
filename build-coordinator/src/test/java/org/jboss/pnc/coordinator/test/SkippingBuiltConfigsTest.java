@@ -94,7 +94,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         waitForEmptyBuildQueue();
 
         //then
-        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
     }
 
     @Test
