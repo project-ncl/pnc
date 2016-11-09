@@ -220,8 +220,10 @@ public class DefaultDatastore implements Datastore {
         BuildConfigurationAudited configurationAudited = record.getBuildConfigurationAudited();
         BuildConfigurationAudited latestConfigurationAudited = getLatestBuildConfigurationAudited(configuration.getId());
 
-        return !configurationAudited.equals(latestConfigurationAudited)
-                || hasARebuiltDependency(refreshedConfig) ;
+        boolean hasModifiedConfiguration = !configurationAudited.equals(latestConfigurationAudited);
+        boolean requiresRebuild = hasModifiedConfiguration || hasARebuiltDependency(refreshedConfig);
+        logger.debug("Checked {} hasModifiedConfiguration: {}, requiresRebuild: {}", refreshedConfig, hasModifiedConfiguration, requiresRebuild);
+        return requiresRebuild;
     }
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)

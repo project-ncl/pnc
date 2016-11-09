@@ -71,6 +71,7 @@ public class BuildTasksInitializer {
     }
 
     private void createBuildTasks(BuildConfiguration configuration, BuildScope scope, Set<BuildConfiguration> configs) {
+        log.debug("will create build tasks for scope: {} and configuration: {}", scope, configuration);
         if (configs.contains(configuration)) {
             return;
         }
@@ -83,9 +84,7 @@ public class BuildTasksInitializer {
     private void createDependencyBuildTasks(BuildConfiguration configuration, Set<BuildConfiguration> configs) {
         if (!configs.contains(configuration) && datastoreAdapter.requiresRebuild(configuration)) {
             configs.add(configuration);
-            configuration.getDependencies().stream()
-                    .filter(c -> !configs.contains(c))
-                    .forEach(c -> createDependencyBuildTasks(c, configs));
+            configuration.getDependencies().forEach(c -> createDependencyBuildTasks(c, configs));
         }
     }
 
