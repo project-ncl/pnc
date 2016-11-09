@@ -29,8 +29,7 @@
 
     <input ng-required="{{ selectRequired }}" id="{{ selectId }}" name="{{ selectName }}" 
         ng-model="searchText" placeholder="{{ placeholder }}" size="{{ text.length + 10 }}" 
-        ng-focus="viewDropdown(true)" ng-blur="viewDropdown(false)" class="input-text" autocomplete="off"
-        ng-keyup="$event.keyCode == 13 && customItem && saveCustomItem(searchText)">
+        ng-focus="viewDropdown(true)" ng-blur="viewDropdown(false)" class="input-text" autocomplete="off">
 
     <div class="dropdown-wrap" ng-show="isDropdown"> 
         <ul class="dropdown-list">
@@ -38,8 +37,8 @@
                 <span class="text-bold">{{ item.displayBoldText }}</span><span>{{ item.displayText }}</span>
             </li>
             <li class="dropdown-item-empty" ng-show="!items.data.length"><span class="fa fa-angle-double-left"></span> empty <span class="fa fa-angle-double-right"></span></li>
-            <li class="dropdown-item-empty" ng-show="!filteredItems.length && customItem">
-                <span class="fa fa-angle-double-left"></span> press enter to add custom value <span class="fa fa-angle-double-right"></span>
+            <li class="dropdown-item-empty cursor-pointer" ng-show="!filteredItems.length && customItem" ng-click="saveCustomItem(searchText)">
+                <span class="fa fa-angle-double-left"></span> click here to add custom value <span class="fa fa-angle-double-right"></span>
             </li>
         </ul>
     </div>
