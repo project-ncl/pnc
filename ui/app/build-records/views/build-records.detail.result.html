@@ -43,7 +43,7 @@
       type="button"
       class="btn btn-default btn-sm popover-no-max w-min-130"
       popover-placement="right"
-      ng-show="resultCtrl.sshCredentials"
+      ng-if="resultCtrl.sshCredentials.command"
       ng-click="resultCtrl.sshCredentialsBtn.clicked = !resultCtrl.sshCredentialsBtn.clicked"
       ng-class="{'active' : resultCtrl.sshCredentialsBtn.clicked }">
         <span class="hide-when-active">Show</span>
