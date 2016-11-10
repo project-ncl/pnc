@@ -202,7 +202,7 @@ public class BpmManager {
      * Regularly cleans finished BPM tasks asynchronously
      * Immediate cleanup is not usable because of NCL-2300
      */
-    public void cleanup() {
+    public void cleanup() { //TODO remove tasks immediately after the completion, see: BuildTaskEndpoint.buildTaskCompleted
         log.debug("Bpm manager tasks cleanup started");
         Map<Integer, BpmTask> clonedTasks = null;
         synchronized(this) {

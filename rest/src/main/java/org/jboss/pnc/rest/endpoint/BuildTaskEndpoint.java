@@ -27,11 +27,14 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
@@ -51,6 +54,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.Optional;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
@@ -98,6 +102,19 @@ public class BuildTaskEndpoint {
             logger.error("No task for id [{}].", buildId);
             throw new CoreException("Could not find BPM task for build with ID " + buildId);
         }
+
+        //check if task is already completed
+        //required workaround as we don't remove the BpmTasks immediately after the completion
+        Optional<BpmTask> taskOptional = bpmManager.getTaskById(taskId);
+        if (taskOptional.isPresent()) {
+            BpmBuildTask bpmBuildTask = (BpmBuildTask) taskOptional.get();
+            BuildTask buildTask = bpmBuildTask.getBuildTask();
+            if (buildTask.getStatus().isCompleted()) {
+                logger.warn("Task with id: {} is already completed with status: {}", buildTask.getId(), buildTask.getStatus());
+                return Response.status(Response.Status.GONE).entity("Task with id: " + buildTask.getId() + " is already completed with status: " + buildTask.getStatus() + ".").build();
+            }
+        }
+
         logger.debug("Will notify for taskId[{}].", taskId);
         bpmManager.notify(taskId, buildResult);
         logger.debug("Notified for buildId [{}].", buildId);
