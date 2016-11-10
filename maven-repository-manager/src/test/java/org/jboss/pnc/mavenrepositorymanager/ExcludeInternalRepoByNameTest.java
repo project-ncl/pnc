@@ -53,8 +53,8 @@ public class ExcludeInternalRepoByNameTest
     private static final String EXTERNAL = "external";
 
     @Override
-    protected String getInternalRepoPatterns() {
-        return INTERNAL;
+    protected List<String> getInternalRepoPatterns() {
+        return Collections.singletonList(INTERNAL);
     }
 
     @Test

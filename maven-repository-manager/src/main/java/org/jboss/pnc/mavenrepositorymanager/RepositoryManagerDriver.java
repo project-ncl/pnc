@@ -95,10 +95,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             internalRepoPatterns = new ArrayList<>();
             internalRepoPatterns.add(MavenRepositoryConstants.SHARED_IMPORTS_ID);
 
-            String repoPatterns = config.getInternalRepoPatterns();
-            if (StringUtils.isNotBlank(repoPatterns)) {
-                internalRepoPatterns.addAll(Arrays.asList(repoPatterns.split("\\s*,\\s*")));
-            }
+            internalRepoPatterns = config.getInternalRepoPatterns();
 
             indy = new Indy(baseUrl, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
                     new IndyPromoteClientModule()).connect();

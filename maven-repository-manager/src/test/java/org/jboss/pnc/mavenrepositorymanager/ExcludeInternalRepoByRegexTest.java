@@ -35,6 +35,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -49,8 +50,8 @@ public class ExcludeInternalRepoByRegexTest
     private static final String EXTERNAL = "external";
 
     @Override
-    protected String getInternalRepoPatterns() {
-        return "in.+";
+    protected List<String> getInternalRepoPatterns() {
+        return Collections.singletonList("in.+");
     }
 
     @Test
