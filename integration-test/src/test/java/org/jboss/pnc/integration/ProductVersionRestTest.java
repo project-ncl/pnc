@@ -25,6 +25,7 @@ import org.jboss.pnc.integration.client.ProductVersionRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
@@ -162,20 +163,19 @@ public class ProductVersionRestTest {
     public void shouldGenerateBrewTagWhenCreatingProductVersion() throws Exception {
         //given
         int productVersionId = productVersionRestClient.firstNotNull().getValue().getProductId();
-
         ProductRest product = productRestClient.get(productVersionId).getValue();
         
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productVersionId);
         productVersion.setVersion("98.0");
-        productVersion.setProduct(product);
 
         //when
         RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
 
         //then
         assertTrue(clientResponse.hasValue());
-        assertEquals("pnc-jb-" + product.getAbbreviation().toLowerCase() + "-98.0", clientResponse.getValue().getBrewTagPrefix());
+        assertEquals("pnc-jb-" + product.getAbbreviation().toLowerCase() + "-98.0", 
+                clientResponse.getValue().getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
     }
 
     @Test

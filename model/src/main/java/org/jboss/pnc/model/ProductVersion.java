@@ -25,10 +25,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class that contains all the versions for a Product
@@ -44,6 +47,8 @@ public class ProductVersion implements GenericEntity<Integer> {
     private static final long serialVersionUID = 6314079319551264379L;
 
     public static final String SEQUENCE_NAME = "product_version_id_seq";
+    
+    public static final String ATTRIBUTE_KEY_BREW_TAG_PREFIX = "BREW_TAG_PREFIX";
 
     @Id
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
@@ -78,11 +83,15 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfiguration> buildConfigurations;
-    
-    @Column(length = 50, nullable = false, updatable = false)
-    @Getter
-    private String brewTagPrefix;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id"))
+    @MapKeyColumn(name="key")
+    @Column(name="value")
+    @Getter
+    @Setter
+    private Map<String, String> attributes = new HashMap<>();
+    
     public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
         buildConfigurations = new HashSet<>();
@@ -204,8 +213,8 @@ public class ProductVersion implements GenericEntity<Integer> {
         private Set<BuildConfigurationSet> buildConfigurationSets = new HashSet<>();
 
         private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
-        
-        private String brewTagPrefix;
+
+        private Map<String, String> attributes = new HashMap<>();
         
         private Builder() {
         }
@@ -237,7 +246,7 @@ public class ProductVersion implements GenericEntity<Integer> {
             }
             productVersion.setProductMilestones(productMilestones);
 
-            productVersion.brewTagPrefix = this.brewTagPrefix;
+            productVersion.attributes = this.attributes;
             
             return productVersion;
         }
@@ -286,6 +295,11 @@ public class ProductVersion implements GenericEntity<Integer> {
             this.buildConfigurationSets.add(buildConfigurationSet);
             return this;
         }
+
+        public Builder attributes(Map<String, String> attributes) {
+            this.attributes = attributes;
+            return this;
+        }
         
         /**
          * Will generate read-only value for Brew tag prefix for import of binaries
@@ -295,7 +309,7 @@ public class ProductVersion implements GenericEntity<Integer> {
          * @return
          */
         public Builder generateBrewTagPrefix(String productAbbreviation, String version) {
-            this.brewTagPrefix = "pnc-jb-" + productAbbreviation.toLowerCase() + "-" + version;
+            this.attributes.put(ATTRIBUTE_KEY_BREW_TAG_PREFIX, "pnc-jb-" + productAbbreviation.toLowerCase() + "-" + version);
             return this;
         }
     }

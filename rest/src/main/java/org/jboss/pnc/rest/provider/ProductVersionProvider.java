@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.collect.Sets;
+import static java.lang.String.format;
+import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.*;
+
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -30,35 +32,40 @@ import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
-import javax.ejb.*;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.lang.String.format;
-import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
+import com.google.common.collect.Sets;
 
 
 @Stateless
 public class ProductVersionProvider extends AbstractProvider<ProductVersion, ProductVersionRest> {
 
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
+    
+    private ProductRepository productRepository;
 
     @Inject
     public ProductVersionProvider(ProductVersionRepository productVersionRepository, BuildConfigurationSetRepository buildConfigurationSetRepository,
-            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
+            ProductRepository productRepository) {
         super(productVersionRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
+        this.productRepository = productRepository;
     }
 
     // needed for EJB/CDI
+    @Deprecated
     public ProductVersionProvider() {
     }
 
@@ -120,6 +127,15 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     @Override
     protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModel() {
         return productVersionRest -> productVersionRest.toDBEntityBuilder().build();        
+    }
+    
+    @Override
+    public Integer store(ProductVersionRest restEntity) throws ValidationException {
+        validateBeforeSaving(restEntity);
+        ProductVersion.Builder productVersionBuilder = restEntity.toDBEntityBuilder();
+        productVersionBuilder.generateBrewTagPrefix(productRepository.queryById(restEntity.getProductId()).getAbbreviation(), restEntity.getVersion());
+        
+        return repository.save(productVersionBuilder.build()).getId();
     }
 
     private void validateBeforeUpdate(Integer productVersionId, Set<BuildConfigurationSet> sets) throws InvalidEntityException {
