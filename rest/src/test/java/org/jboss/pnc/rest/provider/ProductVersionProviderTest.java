@@ -63,7 +63,7 @@ public class ProductVersionProviderTest {
     public void setup() {
         mockProductVersionRepository = mock(ProductVersionRepository.class);
         mockBuildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
-        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null);
+        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null, null);
 
         product1 = Product.Builder.newBuilder().id(1).name("product-1").build();
 

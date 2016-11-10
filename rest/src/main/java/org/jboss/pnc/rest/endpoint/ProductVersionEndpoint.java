@@ -82,7 +82,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, ProductVersionRest> {
 
     private ProductVersionProvider productVersionProvider;
-    private ProductProvider productProvider;
     private BuildConfigurationSetProvider buildConfigurationSetProvider;
 
     public ProductVersionEndpoint() {
@@ -90,12 +89,10 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
 
     @Inject
     public ProductVersionEndpoint(ProductVersionProvider productVersionProvider,
-            BuildConfigurationSetProvider buildConfigurationSetProvider,
-            ProductProvider productProvider) {
+            BuildConfigurationSetProvider buildConfigurationSetProvider) {
         super(productVersionProvider);
         this.productVersionProvider = productVersionProvider;
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
-        this.productProvider = productProvider;
     }
 
     @ApiOperation(value = "Gets all Product Versions")
@@ -178,7 +175,6 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @POST
     public Response createNewProductVersion(ProductVersionRest productVersionRest, @Context UriInfo uriInfo)
             throws ValidationException {
-        productVersionRest.setProduct(productProvider.getSpecific(productVersionRest.getProductId()));
         return super.createNew(productVersionRest, uriInfo);
     }
 
