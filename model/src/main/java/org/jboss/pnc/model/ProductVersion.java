@@ -87,7 +87,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id"))
     @MapKeyColumn(name="key")
-    @Column(name="value", length = 50)
+    @Column(name="value")
     @Getter
     @Setter
     private Map<String, String> attributes = new HashMap<>();
