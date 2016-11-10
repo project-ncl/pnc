@@ -70,7 +70,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         Optional<BpmBuildTask> taskOptional = manager.getActiveTasks().stream()
                 .filter(bpmTask -> bpmTask instanceof BpmBuildTask)
                 .map(bpmTask -> (BpmBuildTask) bpmTask)
-                .filter(bpmTask -> bpmTask.getBuildTask().equals(buildTask))
+                .filter(bpmTask -> bpmTask.getBuildTask().getId() == buildTask.getId())
                 .findAny();
         if (taskOptional.isPresent()) {
             return manager.cancelTask(taskOptional.get());
