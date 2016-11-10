@@ -70,6 +70,7 @@ public class AbstractRepositoryManagerDriverTest {
         File configFile = temp.newFile("pnc-config.json");
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = new MavenRepoDriverModuleConfig(fixture.getUrl());
+        mavenRepoDriverModuleConfig.setInternalRepoPatterns(getInternalRepoPatterns());
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(mavenRepoDriverModuleConfig);
         moduleConfigJson.addConfig(pncGroup);
@@ -99,6 +100,10 @@ public class AbstractRepositoryManagerDriverTest {
 
         Configuration config = new Configuration();
         driver = new RepositoryManagerDriver(config);
+    }
+
+    protected String getInternalRepoPatterns() {
+        return null;
     }
 
     @After

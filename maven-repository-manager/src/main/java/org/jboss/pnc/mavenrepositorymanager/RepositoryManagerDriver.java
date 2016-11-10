@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
+import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
@@ -45,6 +46,10 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
@@ -65,6 +70,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private Indy indy;
 
+    private List<String> internalRepoPatterns;
+
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
     }
@@ -83,6 +90,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             if (!baseUrl.endsWith("/api")) {
                 baseUrl += "/api";
+            }
+
+            internalRepoPatterns = new ArrayList<>();
+            internalRepoPatterns.add(MavenRepositoryConstants.SHARED_IMPORTS_ID);
+
+            String repoPatterns = config.getInternalRepoPatterns();
+            if (StringUtils.isNotBlank(repoPatterns)) {
+                internalRepoPatterns.addAll(Arrays.asList(repoPatterns.split("\\s*,\\s*")));
             }
 
             indy = new Indy(baseUrl, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
@@ -146,7 +161,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl));
+        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl), internalRepoPatterns);
     }
 
     /**
