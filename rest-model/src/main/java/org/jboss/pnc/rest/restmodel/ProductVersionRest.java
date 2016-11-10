@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.restmodel;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-import static org.jboss.pnc.rest.utils.Utility.performIfNull;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -33,7 +32,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,14 +67,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     List<BuildConfigurationRest> buildConfigurations = new ArrayList<BuildConfigurationRest>();
     
-    @Setter
-    @XmlTransient
-    private ProductRest product;
-
     @Getter
     @Setter
-    @NotNull(groups = {WhenUpdating.class})
-    @Null(groups = WhenCreatingNew.class)
     private Map<String, String> attributes = new HashMap<>();
     
     public ProductVersionRest() {

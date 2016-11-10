@@ -163,13 +163,11 @@ public class ProductVersionRestTest {
     public void shouldGenerateBrewTagWhenCreatingProductVersion() throws Exception {
         //given
         int productVersionId = productVersionRestClient.firstNotNull().getValue().getProductId();
-
         ProductRest product = productRestClient.get(productVersionId).getValue();
         
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productVersionId);
         productVersion.setVersion("98.0");
-        productVersion.setProduct(product);
 
         //when
         RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
