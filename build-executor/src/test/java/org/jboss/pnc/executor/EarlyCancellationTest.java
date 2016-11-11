@@ -77,7 +77,7 @@ public class EarlyCancellationTest extends BuildExecutionBase {
         BuildExecutionStatus[] expectedStatuses = {
                 BuildExecutionStatus.NEW,
                 BuildExecutionStatus.FINALIZING_EXECUTION,
-                BuildExecutionStatus.CANCELED
+                BuildExecutionStatus.CANCELLED
         };
 
         BuildExecutionStatus[] unexpectedStatuses = {
@@ -111,7 +111,7 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 BuildExecutionStatus.BUILD_ENV_DESTROYING,
                 BuildExecutionStatus.BUILD_ENV_DESTROYED,
                 BuildExecutionStatus.FINALIZING_EXECUTION,
-                BuildExecutionStatus.CANCELED
+                BuildExecutionStatus.CANCELLED
         };
 
         BuildExecutionStatus[] unexpectedStatuses = {

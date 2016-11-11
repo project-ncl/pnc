@@ -147,7 +147,7 @@ public class DatastoreAdapter {
             }
 
             if (UNKNOWN.equals(buildRecordStatus) && buildResult.getFailedReasonStatus().isPresent()) {
-                if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELED)) {
+                if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELLED)) {
                     buildRecordStatus = CANCELLED;
                 }
             }

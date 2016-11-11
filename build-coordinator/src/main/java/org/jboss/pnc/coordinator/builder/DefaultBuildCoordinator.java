@@ -226,7 +226,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.of(BuildExecutionStatus.CANCELED),
+                Optional.of(BuildExecutionStatus.CANCELLED),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty());
@@ -389,7 +389,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 } else if (buildResult.getFailedReasonStatus().isPresent()) {
                     log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus().get());
                     datastoreAdapter.storeResult(buildTask, buildResult);
-                    if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELED)) {
+                    if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELLED)) {
                         coordinationStatus = BuildCoordinationStatus.CANCELED;
                     } else {
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;

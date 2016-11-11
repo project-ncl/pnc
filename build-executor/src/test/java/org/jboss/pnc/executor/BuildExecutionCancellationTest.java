@@ -109,7 +109,7 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
                 );
 
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
-        expectedStatuses.add(BuildExecutionStatus.CANCELED);
+        expectedStatuses.add(BuildExecutionStatus.CANCELLED);
 
         //check build statuses
         checkBuildStatuses(statusChangedEvents, expectedStatuses);

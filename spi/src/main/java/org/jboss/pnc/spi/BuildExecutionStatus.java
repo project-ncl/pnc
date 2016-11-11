@@ -68,7 +68,7 @@ public enum BuildExecutionStatus {
 
     DONE_WITH_ERRORS(true, true),
 
-    CANCELED(true, true);
+    CANCELLED(true, true);
 
     private boolean isFinal;
 

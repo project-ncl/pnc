@@ -284,7 +284,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             if (buildStatus.completedSuccessfully()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_SUCCESS);
             } else if (buildStatus.equals(BuildStatus.CANCELLED)) {
-                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELED);
+                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED);
             } else {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             }
@@ -367,7 +367,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         //check if any of previous statuses indicated "failed" state
         if (buildExecutionSession.isCanceled()) {
-            buildExecutionSession.setStatus(BuildExecutionStatus.CANCELED);
+            buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED);
         } else if (buildExecutionSession.hasFailed()) {
             buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS);
         } else {
