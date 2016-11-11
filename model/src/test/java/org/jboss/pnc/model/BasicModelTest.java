@@ -34,6 +34,8 @@ public class BasicModelTest extends AbstractModelTest {
 
     /** located in src/test/resources */
     private final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
+    
+    private User pncUser;
 
     /**
      * Initialize a basic data set before each test run
@@ -60,6 +62,8 @@ public class BasicModelTest extends AbstractModelTest {
         em.persist(buildConfig2);
         em.getTransaction().commit();
         em.close();
+        
+        this.pncUser = User.Builder.newBuilder().id(1).build();
     }
 
     @After
@@ -136,7 +140,8 @@ public class BasicModelTest extends AbstractModelTest {
         BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(1).buildConfigurationAudited(buildConfigAud)
                 .latestBuildConfiguration(buildConfig1).buildLog("Bulid Complete").buildContentId("foo")
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
-                .builtArtifact(artifact1).builtArtifact(artifact2).dependency(artifact3).build();
+                .builtArtifact(artifact1).builtArtifact(artifact2).dependency(artifact3)
+                .user(pncUser).build();
 
         em.getTransaction().begin();
         em.persist(artifact1);
@@ -173,6 +178,7 @@ public class BasicModelTest extends AbstractModelTest {
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
                 //Add the built artifact and dependency artifact twice
                 .builtArtifact(builtArtifact).builtArtifact(builtArtifact).dependency(importedArtifact).dependency(importedArtifact)
+                .user(pncUser)
                 .build();
 
         em.getTransaction().begin();

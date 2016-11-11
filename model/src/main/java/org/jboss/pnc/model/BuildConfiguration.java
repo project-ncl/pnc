@@ -188,12 +188,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotAudited
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildConfiguration> dependants;
-
-    // TODO: What data format does Aprox need?
-    // [jdcasey] I'm not sure what this is supposed to do in the repository
-    // manager...so hard to say what format is required.
-    // @Column(name = "repositories")
-    private String repositories;
     
     @Getter
     @Setter
@@ -528,20 +522,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.active = archived ? null : true;
     }
 
-    /**
-     * @return the repositories
-     */
-    public String getRepositories() {
-        return repositories;
-    }
-
-    /**
-     * @param repositories the repositories to set
-     */
-    public void setRepositories(String repositories) {
-        this.repositories = repositories;
-    }
-
     public Set<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
@@ -710,8 +690,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         private Date lastModificationTime;
 
         private boolean archived = false;
-
-        private String repositories;
         
         private Map<String, String> genericParameters = new HashMap<>();
 
@@ -746,7 +724,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
             buildConfiguration.setArchived(archived);
-            buildConfiguration.setRepositories(repositories);
             buildConfiguration.setGenericParameters(genericParameters);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
             buildConfiguration.setProductVersion(productVersion);
@@ -859,11 +836,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder archived(boolean archived) { 
             this.archived = archived;
-            return this;
-        }
-
-        public Builder repositories(String repositories) {
-            this.repositories = repositories;
             return this;
         }
         
