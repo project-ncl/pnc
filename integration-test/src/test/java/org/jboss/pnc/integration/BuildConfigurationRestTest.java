@@ -205,7 +205,6 @@ public class BuildConfigurationRestTest extends AbstractTest {
         configurationTemplate.addValue("_scmRepoURL", PNC_REPO);
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
-        configurationTemplate.addValue("_repositories", "");
         configurationTemplate.addValue("_projectId", updatedProjectId);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_genParamValue1", updatedGenParamValue);
@@ -284,8 +283,6 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.buildScript"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.scmRepoURL"))
                 .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.scmRepoURL"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.repositories"))
-                .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.repositories"));
         assertTrue(originalBuildConfiguration.body().jsonPath().getString("content.genericParameters.KEY1")
                 .equals(clonedBuildConfiguration.body().jsonPath().getString("content.genericParameters.KEY1")));
     }
@@ -300,7 +297,6 @@ public class BuildConfigurationRestTest extends AbstractTest {
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
-        configurationTemplate.addValue("_repositories", "");
 
         given().headers(testHeaders)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()

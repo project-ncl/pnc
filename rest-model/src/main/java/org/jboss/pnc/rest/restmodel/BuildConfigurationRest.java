@@ -75,8 +75,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private boolean archived;
 
-    private String repositories;
-
     @NotNull(groups = WhenCreatingNew.class)
     private ProjectRest project;
 
@@ -106,7 +104,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
-        this.repositories = buildConfiguration.getRepositories();
         this.genericParameters = buildConfiguration.getGenericParameters();
         performIfNotNull(buildConfiguration.getProject(),
                 () -> this.project = new ProjectRest(buildConfiguration.getProject()));
@@ -192,14 +189,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.archived = archived;
     }
 
-    public String getRepositories() {
-        return repositories;
-    }
-
-    public void setRepositories(String repositories) {
-        this.repositories = repositories;
-    }
-
     public ProjectRest getProject() {
         return project;
     }
@@ -251,7 +240,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .scmExternalRepoURL(this.getScmExternalRepoURL())
                 .scmExternalRevision(this.getScmExternalRevision())
                 .archived(this.isArchived())
-                .repositories(this.getRepositories())
                 .genericParameters(this.getGenericParameters());
 
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));

@@ -67,8 +67,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private Date lastModificationTime;
 
-    private String repositories;
-
     private Integer projectId;
 
     private Integer environmentId;
@@ -182,15 +180,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
-
-    public String getRepositories() {
-        return repositories;
-    }
-
-    public void setRepositories(String repositories) {
-        this.repositories = repositories;
-    }
-
+    
     public Integer getProjectId() {
         return projectId;
     }
@@ -236,8 +226,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
                 .scmExternalRepoURL(scmExternalRepoURL)
                 .scmExternalRevision(scmRevision)
                 .creationTime(creationTime)
-                .lastModificationTime(lastModificationTime)
-                .repositories(repositories);
+                .lastModificationTime(lastModificationTime);
 
         performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
         performIfNotNull(this.environment,

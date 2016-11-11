@@ -4,7 +4,6 @@
     "scmRepoURL":"https://github.com/project-ncl/pnc.git",
     "creationTime":1418382545021,
     "lastModificationTime":1418382545038,
-    "repositories":null,
     "project": {
       "id": ${_projectId}
     },

@@ -21,15 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.License;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -39,6 +31,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Assert;
@@ -47,6 +40,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -97,6 +91,9 @@ public class DatastoreTest {
 
     @Inject
     LicenseRepository licenseRepository;
+    
+    @Inject
+    UserRepository userRepository;
 
     @Inject
     Datastore datastore;
@@ -162,10 +159,16 @@ public class DatastoreTest {
                 .importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 
+        User user = User.Builder.newBuilder()
+                .username("pnc").email("pnc@redhat.com").build();
+        user = userRepository.save(user);
+        Assert.assertNotNull(user.getId());
+        
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
-                .builtArtifact(builtArtifact1).dependency(importedArtifact2).build();
+                .builtArtifact(builtArtifact1).dependency(importedArtifact2)
+                .user(user).build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
@@ -217,10 +220,17 @@ public class DatastoreTest {
                 .size(ARTIFACT_3_SIZE).originUrl("http://test/importArtifact2.jar")
                 .importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
 
+
+        User user = User.Builder.newBuilder()
+                .username("pnc2").email("pnc2@redhat.com").build();
+        user = userRepository.save(user);
+        Assert.assertNotNull(user.getId());
+        
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
-                .builtArtifact(builtArtifact1).dependency(importedArtifact2).builtArtifact(builtArtifact3);
+                .builtArtifact(builtArtifact1).dependency(importedArtifact2).builtArtifact(builtArtifact3)
+                .user(user);
 
         BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder);
 
