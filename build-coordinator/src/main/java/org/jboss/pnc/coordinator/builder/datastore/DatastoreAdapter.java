@@ -152,6 +152,7 @@ public class DatastoreAdapter {
                 }
             }
 
+            log.debug("Setting status " + buildRecordStatus.toString() + " to buildRecord.");
             buildRecordBuilder.status(buildRecordStatus);
 
             if (buildResult.getBuildExecutionConfiguration().isPresent()) {
