@@ -34,6 +34,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepositor
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -66,6 +67,9 @@ public class AbstractMilestoneReleaseTest {
     AuthenticationProviderFactory authenticationProviderFactory;
 
     @Mock
+    private Notifier notifier;
+
+    @Mock
     private BuildConfigurationSetProvider bcSetProvider;
 
     ProductMilestoneEndpoint milestoneEndpoint;
@@ -85,7 +89,7 @@ public class AbstractMilestoneReleaseTest {
                 pageInfoProducer);
         milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
                 authenticationProviderFactory);
-        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory);
+        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, notifier);
         bpmMock.setUp();
     }
 }

@@ -21,7 +21,9 @@
   var module = angular.module('pnc.build-configs');
 
   module.directive('pncConfigurationCreatePanel', [
-    function () {
+    'eventTypes',
+    'bccEventHandler',
+    function (eventTypes, bccEventHandler) {
 
       function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify,
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
@@ -87,24 +89,26 @@
           $scope.data.genericParameters = $scope.genericParameters;
 
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
-
-            // success
-            function() {
+            function(data) {
+              pncNotify.info('Build Configuration "' + $scope.data.name + '" is being created. ' +
+                'Please wait, this may take up to a few minutes. Notifications will inform you about the progress.');
+              return bccEventHandler.register(data.data, $scope.data.name);
+            }).then(function(bcId) {
               if (_.isUndefined($scope.fixedProject)) {
-                $state.go('build-configs.list');
-                pncNotify.success('Build configuration will be created in a few minutes.');
+                $state.go('build-configs.detail', {
+                  configurationId: bcId
+                });
               } else {
                 $state.go('projects.detail', {
                   projectId: $scope.data.project.id
                 });
               }
-            },
-
-            // error
-            function() {
-              $log.error('Start build configuration creation failed.');
-            }
-          );
+            }).catch(
+              function() {
+                $log.error('Start build configuration creation failed.');
+                $state.go('build-configs.list');
+              }
+            );
         };
 
         $scope.reset = function(form) {
