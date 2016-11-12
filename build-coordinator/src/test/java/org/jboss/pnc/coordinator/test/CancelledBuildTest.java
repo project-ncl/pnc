@@ -21,6 +21,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -41,9 +42,9 @@ import java.util.function.Consumer;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class CanceledBuildTest extends ProjectBuilder {
+public class CancelledBuildTest extends ProjectBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(CanceledBuildTest.class);
+    private static final Logger log = LoggerFactory.getLogger(CancelledBuildTest.class);
 
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;
@@ -83,10 +84,11 @@ public class CanceledBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildRecord.getSubmitTime());
         Assert.assertNotNull(buildRecord.getStartTime());
         Assert.assertNotNull(buildRecord.getEndTime());
+        Assert.assertEquals(BuildStatus.CANCELLED, buildRecord.getStatus());
 
         Integer buildTaskId = buildTask.getId();
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.CANCELED, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.CANCELLED, buildTaskId);
     }
 }

@@ -390,7 +390,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus().get());
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELLED)) {
-                        coordinationStatus = BuildCoordinationStatus.CANCELED;
+                        coordinationStatus = BuildCoordinationStatus.CANCELLED;
                     } else {
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                     }
@@ -424,7 +424,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             case REJECTED_FAILED_DEPENDENCIES:
             case SYSTEM_ERROR:
             case DONE_WITH_ERRORS:
-            case CANCELED:
+            case CANCELLED:
                 handleErroneousFinish(task);
                 break;
             default:
@@ -523,7 +523,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             try {
                 BuildTask task = buildQueue.take();
                 processBuildTask(task);
-                log.info("Build task: {}, will pick up next task");
+                log.info("Build task: " + task + ", will pick up next task");
             } catch (InterruptedException e) {
                 log.warn("BuildCoordinator thread interrupted. Possibly the system is being shut down", e);
                 break;
