@@ -253,7 +253,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .sha1(download.getSha1())
                         .sha256(download.getSha256())
                         .size(download.getSize())
-                        .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
+                        .deployPath(download.getPath())
                         .originUrl(originUrl)
                         .importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName())
@@ -327,7 +327,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .sha1(upload.getSha1())
                         .sha256(upload.getSha256())
                         .size(upload.getSize())
-                        .deployUrl(upload.getLocalUrl())
+                        .deployPath(upload.getPath())
                         .filename(new File(path).getName())
                         .identifier(aref.toString())
                         .repoType(ArtifactRepo.Type.MAVEN);

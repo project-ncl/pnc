@@ -78,4 +78,17 @@ public class StringUtils {
         }
         return string;
     }
+
+    /**
+     * Adds ending slash if it is not present.
+     *
+     * @param string
+     * @return
+     */
+    public static String addEndingSlash(String string) {
+        if (!string.endsWith("/")) {
+            string += "/";
+        }
+        return string;
+    }
 }

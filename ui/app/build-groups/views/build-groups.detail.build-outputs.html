@@ -38,7 +38,7 @@
           <td>{{ artifact.identifier }}</td>
           <td>{{ artifact.filename }}</td>
           <td>{{ artifact.status }}</td>
-          <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+          <td class="text-center"><a ng-href="{{ artifact.publicUrl }}" target="_self" class="btn btn-primary">Download</a></td>
           <td> {{ buildRecordArtifactWO.buildConfiguration.name }} </td>
           <td> {{ buildRecordArtifactWO.buildRecord.endTime | date:'medium'}} </td>
           <td>
@@ -46,7 +46,7 @@
               <a href ui-sref="build-records.detail.default({recordId: buildRecordArtifactWO.buildRecord.id})"> # {{ buildRecordArtifactWO.buildRecord.id }}  </a>
             </span>
           </td>
-        </tr> 
+        </tr>
       </tr>
       <tr ng-repeat-end></tr>
     </tbody>

@@ -17,17 +17,26 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -45,16 +54,26 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDepe
 @Stateless
 public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactProvider.class);
+
     private BuildRecordRepository buildRecordRepository;
+    private MavenRepoDriverModuleConfig moduleConfig;
 
     public ArtifactProvider() {
     }
 
     @Inject
     public ArtifactProvider(ArtifactRepository artifactRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, BuildRecordRepository buildRecordRepository) {
+            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, BuildRecordRepository buildRecordRepository,
+            Configuration configuration) {
         super(artifactRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildRecordRepository = buildRecordRepository;
+
+        try {
+            moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+        } catch (ConfigurationParseException e) {
+            logger.error("Cannot read configuration", e);
+        }
     }
 
     @Deprecated
@@ -67,8 +86,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         fullArtifactList.addAll(buildRecord.getDependencies());
 
         return filterAndSort(pageIndex, pageSize, sortingRsql, query,
-                ArtifactRest.class, fullArtifactList,
-                ArtifactRest::new);
+                ArtifactRest.class, fullArtifactList);
     }
 
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
@@ -76,24 +94,38 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
         return filterAndSort(pageIndex, pageSize, sortingRsql, query,
-                ArtifactRest.class, buildRecord.getBuiltArtifacts(),
-                ArtifactRest::new);
+                ArtifactRest.class, buildRecord.getBuiltArtifacts());
     }
 
-    private <DTO, Model> CollectionInfo<DTO> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
-                                                       Class<DTO> selectingClass, Set<Model> artifacts,
-                                                           DtoMapper<Model, DTO> dtoSupplier) {
-        Predicate<DTO> queryPredicate = rsqlPredicateProducer.getStreamPredicate(selectingClass, query);
+    private <DTO, Model> CollectionInfo<ArtifactRest> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
+                                                       Class<ArtifactRest> selectingClass, Set<Artifact> artifacts) {
+        Predicate<ArtifactRest> queryPredicate = rsqlPredicateProducer.getStreamPredicate(selectingClass, query);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        Stream<DTO> filteredStream = nullableStreamOf(artifacts)
-                .map(dtoSupplier::map)
+        Stream<ArtifactRest> filteredStream = nullableStreamOf(artifacts)
+                .map(artifact -> new ArtifactRest(artifact, getDeployUrl(artifact), getPublicUrl(artifact)))
                 .filter(queryPredicate).sorted(sortInfo.getComparator());
-        List<DTO> filteredList = filteredStream.collect(Collectors.toList());
+        List<ArtifactRest> filteredList = filteredStream.collect(Collectors.toList());
 
         return filteredList.stream()
                 .skip(pageIndex * pageSize)
                 .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, (filteredList.size() + pageSize -1)/pageSize));
+    }
+
+    private String getDeployUrl(Artifact artifact) {
+        if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
+            return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + artifact.getDeployPath();
+        } else {
+            return artifact.getOriginUrl();
+        }
+    }
+
+    private String getPublicUrl(Artifact artifact) {
+        if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
+            return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + artifact.getDeployPath();
+        } else {
+            return artifact.getOriginUrl();
+        }
     }
 
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
@@ -102,16 +134,33 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     @Override
+    public ArtifactRest getSpecific(Integer id) {
+        Artifact artifact = repository.queryById(id);
+        if (artifact != null) {
+            return new ArtifactRest(artifact, getDeployUrl(artifact), getPublicUrl(artifact));
+        }
+        return null;
+    }
+
+    public Integer store(ArtifactRest restEntity) throws ValidationException {
+        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+    }
+
+    public void update(Integer id, ArtifactRest restEntity) throws ValidationException {
+        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+    }
+
+    public void delete(Integer id) throws ValidationException {
+        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+    }
+
+    @Override
     protected Function<? super Artifact, ? extends ArtifactRest> toRESTModel() {
-        return ArtifactRest::new;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected Function<? super ArtifactRest, ? extends Artifact> toDBModel() {
         throw new UnsupportedOperationException();
-    }
-
-    public interface DtoMapper<Model, DTO> {
-        DTO map(Model m);
     }
 }

@@ -112,7 +112,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @Size(max=500)
     @Column(updatable=false, length=500)
-    private String deployUrl;
+    private String deployPath;
 
     /**
      * The record of the build which produced this artifact.
@@ -306,17 +306,17 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @return the deploy url
      */
-    public String getDeployUrl() {
-        return deployUrl;
+    public String getDeployPath() {
+        return deployPath;
     }
 
     /**
-     * Sets the deploy url.
+     * Sets the deploy path.
      *
-     * @param deployUrl the new deploy url
+     * @param deployPath the new deploy url
      */
-    public void setDeployUrl(String deployUrl) {
-        this.deployUrl = deployUrl;
+    public void setDeployPath(String deployPath) {
+        this.deployPath = deployPath;
     }
 
     /**
@@ -448,7 +448,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String filename;
 
-        private String deployUrl;
+        private String deployPath;
 
         private Set<BuildRecord> dependantBuildRecords;
 
@@ -481,7 +481,7 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setArtifactQuality(artifactQuality);
             artifact.setRepoType(repoType);
             artifact.setFilename(filename);
-            artifact.setDeployUrl(deployUrl);
+            artifact.setDeployPath(deployPath);
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
@@ -537,8 +537,8 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder deployUrl(String deployUrl) {
-            this.deployUrl = deployUrl;
+        public Builder deployPath(String deployPath) {
+            this.deployPath = deployPath;
             return this;
         }
 

@@ -66,7 +66,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private String filename;
 
-    private String deployUrl;
+    private String deployPath;
 
     private Set<Integer> buildRecordIds;
 
@@ -80,10 +80,25 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @Setter
     private Long size;
 
+    /**
+     * Internal url to the artifact using internal (cloud) network domain
+     */
+    @Getter
+    @Setter
+    private String deployUrl;
+
+
+    /**
+     * Public url to the artifact using public network domain
+     */
+    @Getter
+    @Setter
+    private String publicUrl;
+
     public ArtifactRest() {
     }
 
-    public ArtifactRest(Artifact artifact) {
+    public ArtifactRest(Artifact artifact, String deployUrl, String publicUrl) {
         this.id = artifact.getId();
         this.identifier = artifact.getIdentifier();
         this.repoType = artifact.getRepoType();
@@ -91,7 +106,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.sha1= artifact.getSha1();
         this.sha256= artifact.getSha256();
         this.filename = artifact.getFilename();
-        this.deployUrl = artifact.getDeployUrl();
+        this.deployPath = artifact.getDeployPath();
         this.artifactQuality = artifact.getArtifactQuality();
         this.importDate = artifact.getImportDate();
         this.originUrl = artifact.getOriginUrl();
@@ -100,6 +115,12 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
                 .map(BuildRecord::getId).collect(Collectors.toSet());
         this.size = artifact.getSize();
+        this.deployUrl = deployUrl;
+        this.publicUrl = publicUrl;
+    }
+
+    public ArtifactRest(Artifact artifact) {
+        this(artifact, "", "");
     }
 
     @Override
@@ -144,12 +165,12 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.filename = filename;
     }
 
-    public String getDeployUrl() {
-        return deployUrl;
+    public String getDeployPath() {
+        return deployPath;
     }
 
-    public void setDeployUrl(String deployUrl) {
-        this.deployUrl = deployUrl;
+    public void setDeployPath(String deployPath) {
+        this.deployPath = deployPath;
     }
 
     public Date getImportDate() {
@@ -213,7 +234,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
                 .size(this.getSize())
                 .repoType(this.getRepoType())
                 .artifactQuality(this.getArtifactQuality())
-                .deployUrl(this.getDeployUrl())
+                .deployPath(this.getDeployPath())
                 .importDate(this.getImportDate())
                 .originUrl(this.getOriginUrl())
                 .filename(this.getFilename());
@@ -239,11 +260,13 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
                 ", sha1='" + sha1 + '\'' +
                 ", sha256='" + sha256 + '\'' +
                 ", filename='" + filename + '\'' +
-                ", deployUrl='" + deployUrl + '\'' +
+                ", deployPath='" + deployPath + '\'' +
                 ", buildRecordIds=" + buildRecordIds +
                 ", dependantBuildRecordIds=" + dependantBuildRecordIds +
                 ", importDate=" + importDate +
                 ", originUrl='" + originUrl + '\'' +
+                ", deployUrl='" + deployUrl + '\'' +
+                ", publicUrl='" + publicUrl + '\'' +
                 '}';
     }
 }
