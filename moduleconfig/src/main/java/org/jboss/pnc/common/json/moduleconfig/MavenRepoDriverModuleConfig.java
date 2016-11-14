@@ -20,6 +20,7 @@ package org.jboss.pnc.common.json.moduleconfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+import java.util.List;
 
 @ToString
 public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
@@ -36,7 +37,7 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      * represents an internal build (from a trusted build system, for instance).
      */
     @JsonProperty("internal-repo-patterns")
-    private String internalRepoPatterns;
+    private List<String> internalRepoPatterns;
 
     /**
      * Internal network (cloud) maven repository path
@@ -62,11 +63,11 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
         this.baseUrl = baseUrl;
     }
 
-    public String getInternalRepoPatterns() {
+    public List<String> getInternalRepoPatterns() {
         return internalRepoPatterns;
     }
 
-    public void setInternalRepoPatterns(String internalRepoPatterns) {
+    public void setInternalRepoPatterns(List<String> internalRepoPatterns) {
         this.internalRepoPatterns = internalRepoPatterns;
     }
 

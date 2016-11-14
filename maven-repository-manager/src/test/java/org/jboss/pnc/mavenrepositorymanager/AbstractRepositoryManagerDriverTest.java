@@ -102,7 +102,7 @@ public class AbstractRepositoryManagerDriverTest {
         driver = new RepositoryManagerDriver(config);
     }
 
-    protected String getInternalRepoPatterns() {
+    protected List<String> getInternalRepoPatterns() {
         return null;
     }
 
