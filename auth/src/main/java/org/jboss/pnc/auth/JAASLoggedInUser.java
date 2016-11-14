@@ -39,7 +39,7 @@ public class JAASLoggedInUser implements LoggedInUser {
 
     @Override
     public String getEmail() {
-        return "example@example.com";
+        return "Email N/A (" + getUserName() + ")";
     }
 
     @Override

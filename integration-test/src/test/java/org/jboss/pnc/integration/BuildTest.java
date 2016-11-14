@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
@@ -45,9 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -93,6 +93,8 @@ public class BuildTest {
         }
         if(userRestClient == null) {
             userRestClient = new UserRestClient();
+            userRestClient.createUser("admin");
+            userRestClient.createUser("user");
         }
     }
 
