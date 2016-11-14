@@ -156,7 +156,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     @Override
     protected Function<? super Artifact, ? extends ArtifactRest> toRESTModel() {
-        throw new UnsupportedOperationException();
+        return (artifact) -> new ArtifactRest(artifact, getDeployUrl(artifact), getPublicUrl(artifact));
     }
 
     @Override
