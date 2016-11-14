@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -27,6 +24,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -37,13 +35,15 @@ import org.junit.Rule;
 import java.io.InputStream;
 import java.util.Collections;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
+import static org.junit.Assert.assertThat;
+
 public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
     
     protected static final String STORE = "test";
-
-    protected static final String PUBLIC = "public";
-
-    protected static final String SHARED_IMPORTS = "shared-imports";
 
     @Rule
     public TestHttpServer server = new TestHttpServer("repos");
@@ -59,13 +59,27 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
         indy.stores().create(new RemoteRepository(STORE, server.formatUrl(STORE)), "Creating test remote repo",
                 RemoteRepository.class);
         
-        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC, Group.class);
+        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC_GROUP_ID, Group.class);
         if (publicGroup == null) {
-            publicGroup = new Group(PUBLIC, new StoreKey(StoreType.remote, STORE));
+            publicGroup = new Group(PUBLIC_GROUP_ID, new StoreKey(StoreType.remote, STORE));
             indy.stores().create(publicGroup, "creating public group", Group.class);
         } else {
             publicGroup.setConstituents(Collections.singletonList(new StoreKey(StoreType.remote, STORE)));
             indy.stores().update(publicGroup, "adding test remote to public group");
+        }
+
+        if (!indy.stores().exists(StoreType.group, UNTESTED_BUILDS_GROUP)) {
+            Group buildsUntested = new Group(UNTESTED_BUILDS_GROUP);
+            indy.stores().create(buildsUntested, "Creating global shared-builds repository group.", Group.class);
+        }
+
+        if (!indy.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
+            HostedRepository sharedImports = new HostedRepository(SHARED_IMPORTS_ID);
+            sharedImports.setAllowSnapshots(false);
+            sharedImports.setAllowReleases(true);
+
+            indy.stores().create(sharedImports, "Creating global repository for hosting external imports used in builds.",
+                    HostedRepository.class);
         }
     }
 

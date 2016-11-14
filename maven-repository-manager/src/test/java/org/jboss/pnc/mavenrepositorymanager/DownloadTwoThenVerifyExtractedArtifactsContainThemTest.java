@@ -42,6 +42,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
@@ -102,7 +103,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
     }
 
     private void assertAvailableInSharedImports(Indy indy, String content, String path) throws IndyClientException, IOException {
-        InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, path);
+        InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS_ID, path);
         String downloaded = IOUtils.toString(stream);
         assertThat(downloaded, equalTo(content));
     }

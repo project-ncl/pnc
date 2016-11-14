@@ -34,11 +34,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractRepositoryManagerDriverTest {
+public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractImportTest {
 
     @Test
     public void extractBuildArtifactsTriggersBuildRepoPromotionToChainGroup() throws Exception {
@@ -66,7 +67,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractR
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the untested-builds group should contain the build hosted repo.
-        Group untestedBuildsGroup = driver.getIndy(accessToken).stores().load(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, Group.class);
+        Group untestedBuildsGroup = driver.getIndy(accessToken).stores().load(StoreType.group, UNTESTED_BUILDS_GROUP, Group.class);
         assertThat(untestedBuildsGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }
 

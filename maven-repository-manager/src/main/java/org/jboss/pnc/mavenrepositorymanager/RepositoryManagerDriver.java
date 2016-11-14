@@ -59,7 +59,7 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHAR
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
- * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">AProx</a> instance to
+ * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a> instance to
  * support repositories for Maven-ish builds.
  * <p>
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
