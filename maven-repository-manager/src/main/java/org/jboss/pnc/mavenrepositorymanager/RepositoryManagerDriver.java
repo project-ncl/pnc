@@ -78,7 +78,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     @SuppressWarnings("resource")
     @Inject
-    public RepositoryManagerDriver(Configuration configuration) {
+    public  RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration
@@ -95,7 +95,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
             internalRepoPatterns = new ArrayList<>();
             internalRepoPatterns.add(MavenRepositoryConstants.SHARED_IMPORTS_ID);
 
-            internalRepoPatterns = config.getInternalRepoPatterns();
+            List<String> extraInternalRepoPatterns = config.getInternalRepoPatterns();
+            if (extraInternalRepoPatterns != null) {
+                internalRepoPatterns.addAll(extraInternalRepoPatterns);
+            }
 
             indy = new Indy(baseUrl, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
                     new IndyPromoteClientModule()).connect();
