@@ -65,4 +65,12 @@ public class StringUtilsTest {
         Assert.assertEquals(string, StringUtils.stripEndingSlash(string + "/"));
         Assert.assertEquals(string, StringUtils.stripEndingSlash(string));
     }
+
+    @Test
+    public void addEndingSlash() {
+        String string = "http://host.com/path";
+        Assert.assertEquals(string + "/", StringUtils.addEndingSlash(string));
+        Assert.assertEquals(string + "/", StringUtils.addEndingSlash(string + "/"));
+        Assert.assertNotEquals(string + "//", StringUtils.addEndingSlash(string + "/"));
+    }
 }

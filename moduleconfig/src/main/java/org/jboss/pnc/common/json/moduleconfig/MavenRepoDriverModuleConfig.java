@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-
+@ToString
 public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     
     public static String MODULE_NAME = "maven-repo-driver";
@@ -37,6 +37,18 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      */
     @JsonProperty("internal-repo-patterns")
     private String internalRepoPatterns;
+
+    /**
+     * Internal network (cloud) maven repository path
+     */
+    @JsonProperty
+    private String internalRepositoryMvnPath;
+
+    /**
+     * External network maven repository path
+     */
+    @JsonProperty
+    private String externalRepositoryMvnPath;
 
     public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
@@ -58,8 +70,19 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
         this.internalRepoPatterns = internalRepoPatterns;
     }
 
-    @Override
-    public String toString() {
-        return "MavenRepoDriverModuleConfig [baseUrl=" + baseUrl + ", internalRepoPatterns=" + internalRepoPatterns +"]";
+    public String getInternalRepositoryMvnPath() {
+        return internalRepositoryMvnPath;
+    }
+
+    public void setInternalRepositoryMvnPath(String internalRepositoryMvnPath) {
+        this.internalRepositoryMvnPath = internalRepositoryMvnPath;
+    }
+
+    public String getExternalRepositoryMvnPath() {
+        return externalRepositoryMvnPath;
+    }
+
+    public void setExternalRepositoryMvnPath(String externalRepositoryMvnPath) {
+        this.externalRepositoryMvnPath = externalRepositoryMvnPath;
     }
 }

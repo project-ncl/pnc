@@ -18,14 +18,20 @@
 
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.datastore.limits.DefaultSortInfoProducer;
 import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -50,9 +56,12 @@ public class ArtifactProviderTest {
     private final Artifact a2 = createArtifact(1, "woohoo", "fdsa");
     private final Artifact a3 = createArtifact(2, "aaa", "gggg");
 
-    private final ArtifactRest a1Rest = new ArtifactRest(a1);
-    private final ArtifactRest a2Rest = new ArtifactRest(a2);
-    private final ArtifactRest a3Rest = new ArtifactRest(a3);
+    private String intrernalPath = "http://path.to/deploy/";
+    private String publicPath = "http://path.to/public/";
+
+    private final ArtifactRest a1Rest = new ArtifactRest(a1, intrernalPath + a1.getDeployPath(), publicPath + a1.getDeployPath());
+    private final ArtifactRest a2Rest = new ArtifactRest(a2, intrernalPath + a2.getDeployPath(), publicPath + a2.getDeployPath());
+    private final ArtifactRest a3Rest = new ArtifactRest(a3, intrernalPath + a3.getDeployPath(), publicPath + a3.getDeployPath());
 
     private Artifact createArtifact(int id, String filename, String checkSum) {
         return Artifact.Builder.newBuilder()
@@ -61,6 +70,8 @@ public class ArtifactProviderTest {
             .md5("md-fake-" + checkSum)
             .sha1("sha1-fake-" + checkSum)
             .sha256("sha256-fake-" + checkSum)
+            .repoType(ArtifactRepo.Type.MAVEN)
+            .deployPath("deployed/to/" + filename)
             .build();
     }
 
@@ -155,6 +166,24 @@ public class ArtifactProviderTest {
         BuildRecordRepository recordRepo = mock(BuildRecordRepository.class);
         when(recordRepo.queryById(any())).thenReturn(record);
 
-        return new ArtifactProvider(null, predicateProvider, sortInfoProducer, null, recordRepo);
+        return new ArtifactProvider(null, predicateProvider, sortInfoProducer, null, recordRepo, mockConfiguration());
+    }
+
+    private Configuration mockConfiguration() {
+
+        PncConfigProvider<MavenRepoDriverModuleConfig> configProvider = new PncConfigProvider<>(
+                MavenRepoDriverModuleConfig.class);
+
+        MavenRepoDriverModuleConfig moduleConfig = mock(MavenRepoDriverModuleConfig.class);
+        when(moduleConfig.getInternalRepositoryMvnPath()).thenReturn(intrernalPath);
+        when(moduleConfig.getExternalRepositoryMvnPath()).thenReturn(publicPath);
+
+        Configuration configuration = mock(Configuration.class);
+        try {
+            when(configuration.getModuleConfig(any())).thenReturn(moduleConfig);
+        } catch (ConfigurationParseException e) {
+            Assert.fail(e.getMessage());
+        }
+        return configuration;
     }
 }

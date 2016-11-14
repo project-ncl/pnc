@@ -31,7 +31,7 @@
   <tbody>
   <tr ng-repeat="artifact in distributedArtifacts.data">
     <td>{{ artifact.identifier }}</td>
-    <td><a href="{{ artifact.deployUrl }}" title="Deployed URL">link</a></td>
+    <td><a href="{{ artifact.publicUrl }}" title="Deployed URL">link</a></td>
     <td>{{ artifact.artifactQuality }}</td>
   </tr>
   </tbody>

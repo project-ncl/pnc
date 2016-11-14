@@ -405,7 +405,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
-                .deployUrl("http://google.pl/imported1").build();
+                .deployPath("http://google.pl/imported1").build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact2:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 2")
@@ -414,7 +414,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
-                .deployUrl("http://google.pl/imported2").build();
+                .deployPath("http://google.pl/imported2").build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
@@ -459,7 +459,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
-                .deployUrl("http://google.pl/built3")
+                .deployPath("http://google.pl/built3")
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact4:jar:1.0")
@@ -467,7 +467,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
-                .deployUrl("http://google.pl/built4")
+                .deployPath("http://google.pl/built4")
                 .build();
 
         builtArtifact3 = artifactRepository.save(builtArtifact3);

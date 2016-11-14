@@ -39,7 +39,7 @@ public class ArtifactBuilder {
                 .sha1("sha1-fake-ABCDABCD" + id)
                 .sha256("sha256-fake-ABCDABCD" + id)
                 .size(12342L)
-                .deployUrl("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
+                .deployPath("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
                 .repoType(ArtifactRepo.Type.MAVEN)
                 .filename("artifactFile" + id + ".jar");
     }
