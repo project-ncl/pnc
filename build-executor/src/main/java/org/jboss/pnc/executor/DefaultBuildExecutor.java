@@ -175,7 +175,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         try {
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(ArtifactRepo.Type.MAVEN);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
-            return repositoryManager.createBuildRepository(buildExecution);
+            return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken());
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
@@ -364,6 +364,14 @@ public class DefaultBuildExecutor implements BuildExecutor {
         } else {
             buildExecutionSession.setEndTime(new Date());
         }
+        
+        String accessToken = buildExecutionSession.getAccessToken();
+        log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
+        try {
+            repositoryManagerFactory.getRepositoryManager(ArtifactRepo.Type.MAVEN).close(accessToken);
+        } catch (ExecutorException executionException) {
+            buildExecutionSession.setException(executionException);
+        }
 
         //check if any of previous statuses indicated "failed" state
         if (buildExecutionSession.isCanceled()) {
@@ -374,7 +382,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             buildExecutionSession.setStatus(BuildExecutionStatus.DONE);
         }
 
-        log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] form list of running tasks.");
+        log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] from list of running tasks.");
         runningExecutions.remove(buildExecutionSession.getId());
 
         return null;

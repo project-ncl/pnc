@@ -47,10 +47,10 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
 
         // create a dummy composed (chained) build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build deploying a file.
-        driver.getIndy().module(IndyFoloContentClientModule.class)
+        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -64,7 +64,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the build aggregation group should have been garbage collected
-        boolean buildGroupExists = driver.getIndy().stores().exists(StoreType.group, buildId);
+        boolean buildGroupExists = driver.getIndy(accessToken).stores().exists(StoreType.group, buildId);
         assertThat(buildGroupExists, equalTo(false));
     }
 

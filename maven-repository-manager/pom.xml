@@ -145,6 +145,11 @@
       </exclusions>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
   <dependencyManagement>

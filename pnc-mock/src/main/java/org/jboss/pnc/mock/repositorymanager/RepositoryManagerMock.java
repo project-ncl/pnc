@@ -64,7 +64,8 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
+    		throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;
@@ -76,15 +77,21 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup)
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
             throws RepositoryManagerException {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken)
+    		throws RepositoryManagerException {
         return new RunningRepositoryDeletionMock(deletionSuccess, deletionError);
     }
+
+	@Override
+	public void close(String accessToken) {
+		// do nothing
+	}
 
     public static final class RunningRepositoryPromotionMock implements RunningRepositoryPromotion {
 

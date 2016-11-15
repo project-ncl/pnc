@@ -39,9 +39,9 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
     public void verifyGroupComposition_ProductVersion_NoConfSet() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution("build_myproject_12345");
-        Indy indy = driver.getIndy();
+        Indy indy = driver.getIndy(accessToken);
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken);
         String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));

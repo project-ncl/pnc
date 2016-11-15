@@ -52,6 +52,7 @@ public class AbstractRepositoryManagerDriverTest {
     public TemporaryFolder temp = new TemporaryFolder();
 
     protected RepositoryManagerDriver driver;
+    protected String accessToken;
     protected CoreServerFixture fixture;
     protected String url;
 

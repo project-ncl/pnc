@@ -54,7 +54,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
 
         assertThat(rc, notNullValue());
 
@@ -94,7 +94,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
                     equalTo(true));
         }
 
-        Indy indy = driver.getIndy();
+        Indy indy = driver.getIndy(accessToken);
 
         // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {

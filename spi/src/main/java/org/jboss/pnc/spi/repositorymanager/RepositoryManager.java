@@ -33,10 +33,11 @@ public interface RepositoryManager {
      * repository session.
      *
      * @param buildExecution The build execution currently running
+     * @param accessToken The access token to use
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    RepositorySession createBuildRepository(BuildExecution buildExecution)
+    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
             throws RepositoryManagerException;
 
     /**
@@ -46,12 +47,13 @@ public interface RepositoryManager {
      *
      * @param buildRecord The build output to promote
      * @param toGroup The ID of the repository group where the build output should be promoted
+     * @param accessToken The access token to use
      *
      * @return An object representing the running promotion process, with callbacks for result and error.
      *
      * @throws RepositoryManagerException If there is a problem promoting the build
      */
-    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup)
+    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
             throws RepositoryManagerException;
 
     /**
@@ -60,12 +62,19 @@ public interface RepositoryManager {
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryDeletion} instance.
      *
      * @param buildRecord The build whose artifacts/repositories should be removed
+     * @param accessToken The access token to use
      * @return An object representing the running deletion, with callbacks for result and error.
      *
      * @throws RepositoryManagerException If there is a problem deleting the build
      */
-    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException;
+    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken) throws RepositoryManagerException;
 
+    /**
+     * Closes connection to the repository driver for the given accessToken.
+     * @param accessToken The access token to use
+     */
+    void close(String accessToken);
+    
     boolean canManage(ArtifactRepo.Type managerType);
 
 }

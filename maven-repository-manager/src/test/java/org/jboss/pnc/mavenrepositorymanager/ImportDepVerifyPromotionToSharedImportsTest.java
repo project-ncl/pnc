@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
@@ -47,7 +48,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession session = driver.createBuildRepository(execution);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build resolving an artifact via the AProx remote repository.
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));
@@ -63,7 +64,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: you should be able to download this artifact from shared-imports now.
-        assertThat(download(indy.content().contentUrl(StoreType.hosted, SHARED_IMPORTS, path)), equalTo(content));
+        assertThat(download(indy.content().contentUrl(StoreType.hosted, SHARED_IMPORTS_ID, path)), equalTo(content));
     }
 
 }

@@ -55,10 +55,10 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
 
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build deploying a file.
-        driver.getIndy().module(IndyFoloContentClientModule.class)
+        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -76,7 +76,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         record.setBuildContentId(buildId);
 
         // manually promote the build to the public group (since it's convenient)
-        RunningRepositoryPromotion promotion = driver.promoteBuild(record, PUBLIC);
+        RunningRepositoryPromotion promotion = driver.promoteBuild(record, PUBLIC, accessToken);
         promotion.monitor(completed -> {
             assertThat("Manual promotion failed.", completed.isSuccessful(), equalTo(true));
         }, error -> {
@@ -85,7 +85,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         });
 
         // end result: the chain group should contain the build hosted repo.
-        Group publicGroup = driver.getIndy().stores().load(StoreType.group, PUBLIC, Group.class);
+        Group publicGroup = driver.getIndy(accessToken).stores().load(StoreType.group, PUBLIC, Group.class);
         System.out.println("public group constituents: " + publicGroup.getConstituents());
         assertThat(publicGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }

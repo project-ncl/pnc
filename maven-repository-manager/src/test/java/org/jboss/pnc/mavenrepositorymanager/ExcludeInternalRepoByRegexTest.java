@@ -38,7 +38,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
@@ -63,9 +67,9 @@ public class ExcludeInternalRepoByRegexTest
         indy.stores().create(new RemoteRepository(EXTERNAL, server.formatUrl(EXTERNAL)), "Creating external test remote repo",
                 RemoteRepository.class);
 
-        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC, Group.class);
+        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC_GROUP_ID, Group.class);
         if (publicGroup == null) {
-            publicGroup = new Group(PUBLIC, new StoreKey(StoreType.remote, INTERNAL), new StoreKey(StoreType.remote, EXTERNAL));
+            publicGroup = new Group(PUBLIC_GROUP_ID, new StoreKey(StoreType.remote, INTERNAL), new StoreKey(StoreType.remote, EXTERNAL));
             indy.stores().create(publicGroup, "creating public group", Group.class);
         } else {
             publicGroup.setConstituents(Arrays.asList(new StoreKey(StoreType.remote, INTERNAL), new StoreKey(StoreType.remote, EXTERNAL)));
@@ -84,7 +88,7 @@ public class ExcludeInternalRepoByRegexTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();
@@ -104,16 +108,16 @@ public class ExcludeInternalRepoByRegexTest
         assertThat(deps, notNullValue());
         assertThat(deps.size(), equalTo(2));
 
-        Indy indy = driver.getIndy();
+        Indy indy = driver.getIndy(accessToken);
 
         // check that the imports from external locations are available from shared-imports
-        InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, externalPath);
+        InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS_ID, externalPath);
         String downloaded = IOUtils.toString(stream);
         assertThat(downloaded, equalTo(content));
         stream.close();
 
         // check that the imports from internal/trusted locations are NOT available from shared-imports
-        stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, internalPath);
+        stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS_ID, internalPath);
         assertThat(stream, nullValue());
 
     }
