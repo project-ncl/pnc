@@ -98,7 +98,8 @@ public enum BuildCoordinationStatus {
     public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) {
 
         BuildStatus[] done = {BuildStatus.SUCCESS};
-        BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.REJECTED, BuildStatus.CANCELLED};
+        BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.REJECTED};
+        BuildStatus[] cancelled = {BuildStatus.CANCELLED};
         BuildStatus[] building = {BuildStatus.BUILDING};
 
         if (Arrays.asList(done).contains(buildStatus)) {
@@ -107,6 +108,8 @@ public enum BuildCoordinationStatus {
             return DONE_WITH_ERRORS;
         } else if (Arrays.asList(building).contains(buildStatus)) {
             return BUILDING;
+        } else if (Arrays.asList(cancelled).contains(buildStatus)) {
+            return CANCELLED;
         } else {
             return SYSTEM_ERROR;
         }
