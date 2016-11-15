@@ -27,7 +27,7 @@
     <jta-data-source>java:jboss/datasources/NewcastleTestDS</jta-data-source>
 
     <!-- Load the model entities -->
-    <jar-file>lib/model-1.0-SNAPSHOT.jar</jar-file>
+    <jar-file>lib/model-1.1-SNAPSHOT.jar</jar-file>
 
     <properties>
       <!-- Properties for Hibernate -->
