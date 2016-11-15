@@ -50,7 +50,7 @@ public class ProductRelease implements GenericEntity<Integer> {
      */
     @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w]+$")
     @NotNull
-    @Size(max=255)
+    @Size(max=50)
     private String version;
 
     @Enumerated(EnumType.STRING)

@@ -51,7 +51,7 @@ public class License implements GenericEntity<Integer> {
     @Size(max=255)
     private String refUrl;
 
-    @Size(max=255)
+    @Size(max=20)
     private String shortName;
 
     /**

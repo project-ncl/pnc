@@ -120,6 +120,8 @@ public class SystemErrorTest extends AbstractTest {
         }
         if(userRestClient == null) {
             userRestClient = new UserRestClient();
+            userRestClient.createUser("admin");
+            userRestClient.createUser("user");
         }
     }
 

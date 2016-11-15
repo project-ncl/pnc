@@ -19,9 +19,13 @@ package org.jboss.pnc.integration.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.Response;
+
 import org.jboss.pnc.integration.client.util.RestResponse;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +36,11 @@ public class UserRestClient extends AbstractRestClient<UserRest> {
     private static final String USER_REST_ENDPOINT = "/pnc-rest/rest/users";
 
     private static final String USER_BUILDS_ENDPOINT = "/%d/builds";
-
+    
     public UserRestClient() {
         super(USER_REST_ENDPOINT, UserRest.class);
     }
-
+    
     public RestResponse<List<BuildRecordRest>> allUserBuilds(int userId, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
         QueryParam rsqlQueryParam = null;
         QueryParam sortQueryParam = null;
@@ -90,6 +94,10 @@ public class UserRestClient extends AbstractRestClient<UserRest> {
         return allUserBuilds(userId, true, 0, 50, null, null);
     }
 
+    public RestResponse<UserRest> createUser(String username) {
+        return createNew(new UserRest(User.Builder.newBuilder().username(username).email(username + "@example.com").build()));
+    }
+    
     public RestResponse<UserRest> getLoggedUser() {
         String requestUrl = USER_REST_ENDPOINT + "/loggedUser";
         Response response = post(requestUrl);

@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.validator.constraints.Email;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +34,7 @@ import javax.validation.constraints.Size;
  * @author avibelli
  */
 @Entity
-@Table(name = "Users", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
+@Table(uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
         @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
 public class User implements GenericEntity<Integer> {
 
@@ -47,6 +50,7 @@ public class User implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
+    @Email
     @Size(max=255)
     private String email;
 

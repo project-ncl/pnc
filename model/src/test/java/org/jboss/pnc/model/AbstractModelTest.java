@@ -82,6 +82,7 @@ public abstract class AbstractModelTest {
             em.createNativeQuery("delete from ProductRelease").executeUpdate();
             em.createNativeQuery("delete from ProductVersion").executeUpdate();
             em.createNativeQuery("delete from Project").executeUpdate();
+            em.createNativeQuery("delete from User").executeUpdate();
             em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
             tx.commit();
 

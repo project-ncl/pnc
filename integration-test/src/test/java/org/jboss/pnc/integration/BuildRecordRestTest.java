@@ -105,6 +105,10 @@ public class BuildRecordRestTest extends AbstractTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
         buildConfigurationName = response.body().jsonPath().getString(CONTENT_NAME);
 
+        UserRestClient userRestClient = new UserRestClient();
+        userRestClient.createUser("admin");
+        userRestClient.createUser("user");
+
         logger.info("buildConfigurationName: {} ", buildConfigurationName);
     }
 

@@ -5,7 +5,6 @@
     "scmRepoURL": "${_scmRepoURL}",
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},
-    "repositories": "${_repositories}",
     "project": {
       "id": ${_projectId}
     },

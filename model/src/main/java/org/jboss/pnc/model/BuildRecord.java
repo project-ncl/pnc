@@ -123,7 +123,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(columnDefinition="timestamp with time zone")
     private Date endTime;
 
-    // @NotNull //TODO uncomment
+    @NotNull
     @ManyToOne
     @ForeignKey(name = "fk_buildrecord_user")
     @Index(name="idx_buildrecord_user")
@@ -158,10 +158,12 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Getter
     @Setter
+    @Size(max=150)
     private String sshCommand;
 
     @Getter
     @Setter
+    @Size(max=64)
     private String sshPassword;
 
     /**
@@ -172,6 +174,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @Getter
     @Setter
+    @Size(max=255)
     private String executionRootName;
 
     /**
@@ -180,11 +183,8 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @Getter
     @Setter
+    @Size(max=100)
     private String executionRootVersion;
-
-    private boolean tested;
-
-    private boolean deprecated;
 
     /**
      * Artifacts which were produced by this build

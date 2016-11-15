@@ -77,7 +77,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     /**
      * The user who executed the set.
      */
-    // @NotNull //TODO uncomment
+    @NotNull
     @ManyToOne
     @ForeignKey(name = "fk_buildconfigsetrecord_user")
     @Index(name="idx_buildconfigsetrecord_user")
