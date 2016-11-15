@@ -83,7 +83,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     @Inject
     public TermdBuildDriver(Configuration configuration) {
-        int threadPoolSize = 12; //TODO configurable
+        int threadPoolSize = 12;
         try {
             String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
                     .getBuilderThreadPoolSize();

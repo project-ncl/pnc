@@ -55,6 +55,8 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private int coordinatorMaxConcurrentBuilds;
 
+    private String monitorThreadPoolSize;
+
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
@@ -62,7 +64,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
             @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
-            @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds) {
+            @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
+            @JsonProperty("monitorThreadPoolSize") String monitorThreadPoolSize) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.authenticationProviderId = authenticationProviderId;
@@ -70,6 +73,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
+        this.monitorThreadPoolSize = monitorThreadPoolSize;
     }
 
     public String getBuildDriverId() {
@@ -98,6 +102,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getCoordinatorMaxConcurrentBuilds() {
         return coordinatorMaxConcurrentBuilds;
+    }
+
+    public String getMonitorThreadPoolSize() {
+        return monitorThreadPoolSize;
     }
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {

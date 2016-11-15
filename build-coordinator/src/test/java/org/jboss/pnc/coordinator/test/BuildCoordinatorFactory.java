@@ -26,6 +26,7 @@ import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
@@ -57,8 +58,9 @@ public class BuildCoordinatorFactory {
 
         Configuration configuration = createConfiguration();
         BuildQueue queue = new BuildQueue(configuration);
+        PullingMonitor monitor = new PullingMonitor();
         BuildCoordinator coordinator = new DefaultBuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
-                buildSchedulerFactory, queue, configuration);
+                buildSchedulerFactory, queue, configuration, monitor);
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);
@@ -67,7 +69,7 @@ public class BuildCoordinatorFactory {
     private Configuration createConfiguration() {
         try {
             Configuration configuration = mock(Configuration.class);
-            doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "NO_AUTH", "10", "10", "10", "10")).when(configuration)
+            doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "NO_AUTH", "10", "10", "10", "10", "10")).when(configuration)
                     .getModuleConfig(any(PncConfigProvider.class));
             return configuration;
         } catch (ConfigurationParseException e) {

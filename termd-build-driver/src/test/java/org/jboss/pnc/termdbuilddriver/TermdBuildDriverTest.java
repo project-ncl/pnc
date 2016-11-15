@@ -54,7 +54,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     @Before
     public void before() throws ConfigurationParseException {
-        doReturn(new SystemConfig(null, null, null, null, null, null, null)).when(configuration).getModuleConfig(any());
+        doReturn(new SystemConfig(null, null, null, null, null, null, null, null)).when(configuration).getModuleConfig(any());
     }
 
     @Test(timeout = 15_000)

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.common.test.monitor;
+package org.jboss.pnc.coordinator.test.monitor;
 
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.junit.AfterClass;
 import org.junit.Assert;

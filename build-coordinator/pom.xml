@@ -59,6 +59,16 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>bpm</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!-- Remote dependencies -->
     <dependency>
@@ -179,17 +189,6 @@
     <dependency>
       <groupId>org.jacoco</groupId>
       <artifactId>org.jacoco.core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-common-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging-spi</artifactId>
-        </exclusion>
-      </exclusions>
       <scope>test</scope>
     </dependency>
 

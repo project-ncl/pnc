@@ -22,8 +22,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.monitor.PullingMonitor;
-import org.jboss.pnc.common.util.NamedThreadFactory;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -48,11 +47,12 @@ import java.util.concurrent.Executors;
 public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenshiftEnvironmentDriver.class);
+    private static final int DEFAULT_EXECUTOR_THREAD_POOL_SIZE = 4;
 
     public static List<SystemImageType> compatibleImageTypes = Arrays.asList(SystemImageType.DOCKER_IMAGE);
 
     //TODO configurable:
-    private ExecutorService executor = Executors.newFixedThreadPool(4, new NamedThreadFactory("openshift-environment-driver"));
+    private ExecutorService executor;
 
     private OpenshiftEnvironmentDriverModuleConfig config;
     private PullingMonitor pullingMonitor;
@@ -63,8 +63,14 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     @Inject
     public OpenshiftEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor) throws ConfigurationParseException {
+        int executorThreadPoolSize = DEFAULT_EXECUTOR_THREAD_POOL_SIZE;
         this.pullingMonitor = pullingMonitor;
         config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+        String executorThreadPoolSizeStr = config.getExecutorThreadPoolSize();
+        if (executorThreadPoolSizeStr != null) {
+            executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
+        }
+        executor = Executors.newFixedThreadPool(executorThreadPoolSize);
 
         logger.info("Is OpenShift environment driver disabled: {}", config.isDisabled());
     }
