@@ -167,7 +167,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String sshPassword;
 
     /**
-     * This is and identifier of the built project sources.
+     * This is an identifier of the built project sources.
      * In case of Maven, it is GA of the POM being built.
      * This information comes from Repour/PME and has to be stored in the build record
      * to be used in the release process.
