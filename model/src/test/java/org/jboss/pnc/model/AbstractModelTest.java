@@ -17,14 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-
-import java.io.InputStream;
-
-import org.dbunit.DatabaseUnitException;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
@@ -32,10 +24,15 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
-import org.hibernate.HibernateException;
 import org.hibernate.internal.SessionImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
+import java.io.InputStream;
 
 public abstract class AbstractModelTest {
 
@@ -82,7 +79,7 @@ public abstract class AbstractModelTest {
             em.createNativeQuery("delete from ProductRelease").executeUpdate();
             em.createNativeQuery("delete from ProductVersion").executeUpdate();
             em.createNativeQuery("delete from Project").executeUpdate();
-            em.createNativeQuery("delete from User").executeUpdate();
+            em.createNativeQuery("delete from UserTable").executeUpdate();
             em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
             tx.commit();
 
