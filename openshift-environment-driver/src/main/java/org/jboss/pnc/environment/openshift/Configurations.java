@@ -45,16 +45,13 @@ public enum Configurations {
 
     private final String filePath;
 
-    private Configuration configuration;
-
     Configurations(String fileName) {
         this.filePath = CONFIGURATIONS_FOLDER + fileName;
-        this.configuration = new Configuration(); //TODO Inject managed instance
     }
 
-    public String getContentAsString() {
+    public String getContentAsString(Configuration configuration) {
 
-        String content = getContentFromConfigFile();
+        String content = getContentFromConfigFile(configuration);
 
         // if no configuration in pnc-config
         if (content == null) {
@@ -68,7 +65,7 @@ public enum Configurations {
         return content;
     }
 
-    private String getContentFromConfigFile() {
+    private String getContentFromConfigFile(Configuration configuration) {
 
         OpenshiftBuildAgentConfig config = null;
 

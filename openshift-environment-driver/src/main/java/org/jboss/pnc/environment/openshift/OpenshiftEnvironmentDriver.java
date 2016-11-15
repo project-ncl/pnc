@@ -55,6 +55,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     private ExecutorService executor = Executors.newFixedThreadPool(4, new NamedThreadFactory("openshift-environment-driver"));
 
     private OpenshiftEnvironmentDriverModuleConfig config;
+    private Configuration configuration;
     private PullingMonitor pullingMonitor;
 
     @Deprecated //CDI workaround
@@ -65,7 +66,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     public OpenshiftEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor) throws ConfigurationParseException {
         this.pullingMonitor = pullingMonitor;
         config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
-
+        this.configuration = configuration;
         logger.info("Is OpenShift environment driver disabled: {}", config.isDisabled());
     }
 
@@ -82,7 +83,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
 
         //TODO: Need to pass the systemImageId and repoUrl to the new environment instead of using system wide environment config
-        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, systemImageId, debugData, accessToken);
+        return new OpenshiftStartedEnvironment(executor, config, configuration, pullingMonitor, repositorySession, systemImageId, debugData, accessToken);
     }
 
     @Override
