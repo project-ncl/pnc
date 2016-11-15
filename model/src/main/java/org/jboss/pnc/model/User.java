@@ -34,7 +34,7 @@ import javax.validation.constraints.Size;
  * @author avibelli
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
+@Table(name = "UserTable", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
         @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
 public class User implements GenericEntity<Integer> {
 
