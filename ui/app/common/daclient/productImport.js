@@ -24,7 +24,8 @@
     '$log',
     'daConfig',
     'jsonrpc',
-    function ($log, daConfig, jsonrpc) {
+    'keycloak',
+    function ($log, daConfig, jsonrpc, keycloak) {
 
       var rpc = jsonrpc.wsClient(daConfig.getDaImportRpcUrl());
       var productImport = {};
@@ -50,6 +51,7 @@
        */
       productImport.finish = function (params) {
         $log.debug('productImport.finish() %O', params);
+        params.securityToken = keycloak.token;
         return rpc.invoke('buildConfiguration.product.finish', params);
       };
 
