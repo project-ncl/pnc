@@ -73,6 +73,10 @@
                     {
                         "name": "workerUserPassword",
                         "value": "${workerUserPassword}"
+                    },
+                    {
+                        "name": "accessToken",
+                        "value": "${accessToken}"
                     }
                 ],
                 "resources": {},
