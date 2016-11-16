@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.NamedThreadFactory;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -80,9 +81,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
-
-        //TODO: Need to pass the systemImageId and repoUrl to the new environment instead of using system wide environment config
-        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, systemImageId, debugData, accessToken);
+        String buildImageId = StringUtils.addEndingSlash(systemImageRepositoryUrl) + systemImageId;
+        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, buildImageId, debugData, accessToken);
     }
 
     @Override
