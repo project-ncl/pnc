@@ -59,6 +59,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -216,7 +217,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             log.warn("Cancellation did not complete in {} seconds.", cancellationTimeout);
             cancelInternal(buildTask);
         };
-        monitor.timer(invokeCancelInternal, cancellationTimeout, TimeUnit.SECONDS);
+        ScheduledFuture<?> timer = monitor.timer(invokeCancelInternal, cancellationTimeout, TimeUnit.SECONDS);
+        //TODO optimization: cancel the timer when the task is canceled
+        //timer.cancel(false);
     }
 
     private void cancelInternal(BuildTask buildTask) {
