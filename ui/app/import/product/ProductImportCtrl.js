@@ -31,7 +31,8 @@
     '$state',
     'ProductVersionDAO',
     'productDetail',
-    function ($log, productImport, TreeFactory, scope, $timeout, pncNotify, $state, ProductVersionDAO, productDetail) {
+    'authService',
+    function ($log, productImport, TreeFactory, scope, $timeout, pncNotify, $state, ProductVersionDAO, productDetail, authService) {
 
       scope.started = false;
       scope.display = 'start';
@@ -44,7 +45,7 @@
       scope.productName = productDetail.name;
       scope.startSubmitDisabled = false;
       scope.startTooltipIsOpen = false;
-      scope.finishSubmitDisabled = false;
+      scope.finishSubmitDisabled = !authService.isAuthenticated();
       scope.finishTooltipIsOpen = false;
       scope.bcData = {}; // data for the left-side form
       var tree = TreeFactory.build();
