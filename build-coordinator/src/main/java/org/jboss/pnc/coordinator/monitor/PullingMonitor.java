@@ -16,14 +16,21 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.common.monitor;
+package org.jboss.pnc.coordinator.monitor;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.util.collection.ConcurrentSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -39,6 +46,7 @@ import java.util.function.Supplier;
  */
 @ApplicationScoped
 public class PullingMonitor {
+    private final static Logger log = LoggerFactory.getLogger(SystemConfig.class);
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
     private static final int DEFAULT_TIMEOUT = 300;
@@ -46,18 +54,36 @@ public class PullingMonitor {
     /** Interval between two checks if the services are fully up and running (in second) */
     private static final int DEFAULT_CHECK_INTERVAL = 1;
 
+    private static final int DEFAULT_MONITOR_THREAD_POOL_SIZE = 4;
+
     /** */
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
+
 
     private ScheduledExecutorService executorService;
     private ScheduledExecutorService timeOutVerifierService;
 
     private ConcurrentSet<RunningTask> runningTasks;
 
+    @Inject
+    Configuration configuration;
+
     public PullingMonitor() {
+
+        int threadPoolSize = DEFAULT_MONITOR_THREAD_POOL_SIZE;
+
+        try {
+            SystemConfig config = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
+            threadPoolSize = Integer.parseInt(config.getMonitorThreadPoolSize());
+        } catch (ConfigurationParseException | NumberFormatException | NullPointerException e) {
+            // NPE because configuration object wasn't injected
+            log.warn("Couldn't read/parse Monitor Thread Pool Size from config, using default: " + threadPoolSize, e);
+        }
+
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
-        executorService = Executors.newScheduledThreadPool(4); //TODO configurable, keep global ScheduledThreadPool and inject it
+        executorService = Executors.newScheduledThreadPool(threadPoolSize);
+
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
@@ -99,7 +125,7 @@ public class PullingMonitor {
         ScheduledFuture<?> future = executorService.scheduleWithFixedDelay(monitor, 0L, checkInterval, timeUnit);
         Consumer<RunningTask> onTimeout = (runningTask) -> {
             runningTasks.remove(runningTask);
-            onMonitorError.accept(new MonitorException( "Service was not ready in: " + timeout + " " + timeUnit.toString()));
+            onMonitorError.accept(new MonitorException("Service was not ready in: " + timeout + " " + timeUnit.toString()));
         };
         RunningTask runningTask = new RunningTask(future, timeout, TimeUtils.chronoUnit(timeUnit), onTimeout);
         runningTasks.add(runningTask);

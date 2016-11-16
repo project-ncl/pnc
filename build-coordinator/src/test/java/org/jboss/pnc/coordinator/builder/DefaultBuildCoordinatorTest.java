@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -74,6 +75,9 @@ public class DefaultBuildCoordinatorTest {
     @Mock
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
+    @Mock
+    private PullingMonitor monitor;
+
     @InjectMocks
     private DatastoreAdapter datastoreAdapter = new DatastoreAdapter();
 
@@ -89,7 +93,8 @@ public class DefaultBuildCoordinatorTest {
                 buildSetStatusChangedEventNotifier,
                 buildSchedulerFactory,
                 buildQueue,
-                configuration);
+                configuration,
+                monitor);
     }
 
     @Test

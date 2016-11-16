@@ -27,6 +27,7 @@ import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
@@ -106,6 +107,7 @@ public abstract class AbstractDependentBuildTest {
         when(systemConfig.getCoordinatorThreadPoolSize()).thenReturn(1);
         when(systemConfig.getCoordinatorMaxConcurrentBuilds()).thenReturn(1);
         when(config.getModuleConfig(any())).thenReturn(systemConfig);
+        PullingMonitor monitor = new PullingMonitor();
 
         buildQueue = new BuildQueue(config);
 
@@ -126,7 +128,8 @@ public abstract class AbstractDependentBuildTest {
         coordinator = new DefaultBuildCoordinator(datastoreAdapter, mock(Event.class), mock(Event.class),
                 new MockBuildSchedulerFactory(),
                 buildQueue,
-                config);
+                config,
+                monitor);
         buildQueue.initSemaphore();
         coordinator.start();
     }

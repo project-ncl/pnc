@@ -29,7 +29,7 @@ import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.builddriver.DebugData;

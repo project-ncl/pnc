@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
@@ -93,7 +94,9 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
+                .addClass(PullingMonitor.class)
                 .addPackages(true,
+                        PullingMonitor.class.getPackage(),
                         BuildCoordinator.class.getPackage(),
                         DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.common.monitor;
+package org.jboss.pnc.coordinator.monitor;
 
 import java.time.Duration;
 import java.time.Instant;

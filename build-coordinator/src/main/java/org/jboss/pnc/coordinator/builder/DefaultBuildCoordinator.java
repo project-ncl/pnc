@@ -21,10 +21,10 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -84,6 +84,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private BuildTasksInitializer buildTasksInitializer;
 
+    private PullingMonitor monitor;
+
 
     @Deprecated
     public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -92,7 +94,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                                    Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
                                    BuildQueue buildQueue,
-                                   Configuration configuration) {
+                                   Configuration configuration,
+                                   PullingMonitor monitor) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -100,6 +103,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         this.configuration = configuration;
         this.buildQueue = buildQueue;
         this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
+        this.monitor = monitor;
     }
 
     /**
@@ -206,7 +210,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void monitorCancellation(BuildTask buildTask) {
         int cancellationTimeout = 30;
-        PullingMonitor monitor = new PullingMonitor();
 
         Runnable invokeCancelInternal = () -> {
             if (!getSubmittedBuildTasks().contains(buildTask)) {

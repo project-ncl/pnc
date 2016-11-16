@@ -19,7 +19,7 @@ package org.jboss.pnc.environment.openshift;
 
 import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.coordinator.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.SystemImageType;
