@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +67,13 @@ public class DatastoreMock implements Datastore {
         BuildRecord buildRecord = buildRecordBuilder.build();
         BuildConfiguration buildConfiguration = buildRecord.getLatestBuildConfiguration();
         log.info("Storing build " + buildConfiguration);
-        buildRecords.add(buildRecord);
+        synchronized (this) {
+            boolean exists = getBuildRecords().stream().anyMatch(br -> br.equals(buildRecord.getId()));
+            if (exists) {
+                throw new PersistenceException("Unique constraint violation, the record with id [" + buildRecord.getId()+ "] already exists.");
+            }
+            buildRecords.add(buildRecord);
+        }
         if (buildConfiguration != null) {
             buildConfiguration.addBuildRecord(buildRecord);
         }
