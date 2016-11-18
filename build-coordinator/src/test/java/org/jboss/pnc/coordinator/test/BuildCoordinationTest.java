@@ -147,8 +147,8 @@ public class BuildCoordinationTest {
 
         buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
 
-        Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, "Did not receive status update to NEW for task set.");
-        Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE), 2000, ChronoUnit.MILLIS, "Did not receive status update to DONE for task set.");
+        Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to NEW for task set. Received: " + buildSetStatusChangedEvents);
+        Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to DONE for task set. Received: " + buildSetStatusChangedEvents);
         assertEmptyQueue();
     }
 

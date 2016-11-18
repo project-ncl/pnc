@@ -33,11 +33,15 @@ public class Wait {
     }
 
     public static void forCondition(Supplier<Boolean> evaluationSupplier, long timeout, TemporalUnit timeUnit, String failedMessage) throws InterruptedException, TimeoutException {
+        forCondition(evaluationSupplier, timeout, timeUnit, () -> failedMessage);
+    }
+
+    public static void forCondition(Supplier<Boolean> evaluationSupplier, long timeout, TemporalUnit timeUnit, Supplier<String> failedMessageProvider) throws InterruptedException, TimeoutException {
         LocalDateTime started = LocalDateTime.now();
         do {
             Thread.sleep(100);
             if (started.plus(timeout, timeUnit).isBefore(LocalDateTime.now())) {
-                throw new TimeoutException(failedMessage + " Reached timeout " + timeout + " " + timeUnit);
+                throw new TimeoutException(failedMessageProvider.get() + " Reached timeout " + timeout + " " + timeUnit);
             }
         } while(!evaluationSupplier.get());
     }

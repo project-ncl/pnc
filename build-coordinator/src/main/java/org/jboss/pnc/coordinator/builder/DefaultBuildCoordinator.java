@@ -336,11 +336,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         try {
             //check if task is already been build or is currently building
-            //in case when task depends on two other tasks, both call this method
+            //in case when task depends on two or more other tasks, all dependents call this method
             //process only tasks with status NEW
             synchronized (task) {
                 if (!task.getStatus().equals(BuildCoordinationStatus.NEW)) {
-                    log.debug("Skipping the execution of build task {} as it has been processed already.", task.getId());
+                    log.debug("Skipping the execution of build task {} as it has been processed already. Status: {}.", task.getId(), task.getStatus());
                     return;
                 }
 
