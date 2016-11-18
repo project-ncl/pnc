@@ -63,8 +63,9 @@ public class CancelledBuildTest extends ProjectBuilder {
             receivedStatuses.add(event);
             if (event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 try {
+                    Thread.sleep(250); //wait a bit for build execution to start
                     coordinator.cancel(event.getBuildTaskId());
-                } catch (CoreException e) {
+                } catch (CoreException | InterruptedException e) {
                     log.error("Unable to cancel the build.", e);
                     Assert.fail("Unable to cancel the build.");
                 }
@@ -72,7 +73,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         };
 
         //when
-        BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, onStatusUpdate);
+        BuildTask buildTask = buildProject(configurationBuilder.buildConfigurationToCancel(1, "c1-java"), coordinator, onStatusUpdate);
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();

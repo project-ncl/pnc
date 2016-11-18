@@ -121,6 +121,12 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration;
     }
 
+    public BuildConfiguration buildConfigurationToCancel(int id, String name) {
+        BuildConfiguration buildConfiguration =  build(id, name);
+        buildConfiguration.setBuildScript(CANCEL);
+        return buildConfiguration;
+    }
+
     public BuildConfigurationSet buildConfigurationSet(Integer configurationSetId) {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName("test-build-configuration");
