@@ -111,6 +111,15 @@ public class BuildExecutorMock implements BuildExecutor {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
             buildPassed = false;
+        } else if (TestProjectConfigurationBuilder.CANCEL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
+            log.debug("Waiting for a while for a build {} to be canceled.", buildExecutionSession.getId());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.warn("Build mock has been interrupted.", e);
+            }
+            driverResult = BuildDriverResultMock.mockResult(BuildStatus.SUCCESS);
+            buildPassed = false;
         } else {
             log.debug("Marking build {} as Success.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.SUCCESS);
@@ -135,6 +144,14 @@ public class BuildExecutorMock implements BuildExecutor {
 
     @Override
     public void cancel(Integer executionConfigurationId) throws ExecutorException {
-
+        BuildExecutionSession buildExecutionSession = runningExecutions.get(executionConfigurationId);
+        if (buildExecutionSession == null) {
+            log.error("Unable to cancel build {}. The build is not running.", executionConfigurationId);
+            return;
+        } else {
+            log.info("Cancelling build {}.", executionConfigurationId);
+        }
+        BuildDriverResult driverResult = BuildDriverResultMock.mockResult(BuildStatus.CANCELLED);
+        buildExecutionSession.setBuildDriverResult(driverResult);
     }
 }
