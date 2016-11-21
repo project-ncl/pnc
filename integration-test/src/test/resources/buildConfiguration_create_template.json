@@ -11,6 +11,6 @@
       "id": ${_environmentId}
     },
     "genericParameters": {
-        "KEY1": "VALUE1"  
+        "KEY1": "${_genParamValue1}"  
     }
 }

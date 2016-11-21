@@ -22,14 +22,13 @@ import lombok.Setter;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.MapKeyType;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
-
 import javax.persistence.*;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -188,13 +187,13 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotAudited
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildConfiguration> dependants;
-    
+
     @Getter
     @Setter
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "build_configuration_parameters")
     @MapKeyColumn(length = 50, name = "key", nullable = false)
-    @Column(nullable = false)
+    @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();
 
     /**

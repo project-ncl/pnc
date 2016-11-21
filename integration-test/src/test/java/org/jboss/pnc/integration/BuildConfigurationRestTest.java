@@ -73,6 +73,25 @@ public class BuildConfigurationRestTest extends AbstractTest {
 
     private static final String CONFIGURATION_DEPENDENCIES_REST_ENDPOINT = CONFIGURATION_REST_ENDPOINT +"%d/dependencies";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = CONFIGURATION_REST_ENDPOINT +"%d/clone";
+    
+    private static final String PME_PARAMS_LONG = "dependencyManagement=org.jboss.eap:jboss-eap-parent:${EAPBOM:version},"
+            + "dependencyRelocations.org.wildfly:@org.jboss.eap:=${EAPBOM:version},"
+            + "dependencyExclusion.org.freemarker:freemarker@*=${freemarker-2.3.23:version},"
+            + "dependencyExclusion.org.liquibase:liquibase-core@*=${liquibase-3.4.1:version},"
+            + "dependencyExclusion.org.twitter4j:twitter4j-core@*=${twitter4j-4.0.4:version},"
+            + "dependencyExclusion.com.google.zxing:core@*=${zxing-3.2.1:version},"
+            + "dependencyExclusion.org.infinispan:infinispan-core@*=8.1.4.Final-redhat-1,"
+            + "dependencyExclusion.io.undertow:undertow-core@*=1.3.24.Final-redhat-1,"
+            + "dependencyExclusion.org.wildfly.core:wildfly-version@*=${WFCORE:version},"
+            + "dependencyExclusion.org.jboss.as:jboss-as-server@*=7.5.11.Final-redhat-1,"
+            + "dependencyExclusion.org.hibernate:hibernate-entitymanager@*=5.0.9.Final-redhat-1,"
+            + "dependencyExclusion.org.jboss.logging:jboss-logging-annotations@*=2.0.1.Final-redhat-1,"
+            + "dependencyExclusion.org.jboss.resteasy:resteasy-jaxrs@*=3.0.18.Final-redhat-1,"
+            + "dependencyExclusion.org.osgi:org.osgi.core@*=5.0.0,"
+            + "dependencyExclusion.org.jboss.spec.javax.servlet:jboss-servlet-api_3.0_spec@*=1.0.2.Final-redhat-2,"
+            + "dependencyExclusion.org.drools:drools-bom@*=6.4.0.Final-redhat-10,"
+            + "dependencyExclusion.org.jboss.integration-platform:jboss-integration-platform-bom@*=6.0.6.Final-redhat-3";
+    
     public static final String PNC_REPO = "https://github.com/project-ncl/pnc.git";
 
     private static int productId;
@@ -139,10 +158,21 @@ public class BuildConfigurationRestTest extends AbstractTest {
     @Test
     @InSequence(1)
     public void shouldCreateNewBuildConfiguration() throws IOException {
+        createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+    }
+
+    public void shouldCreateBuildConfigurationWithLongGenericParameter() throws Exception {
+        createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), UUID.randomUUID().toString(),
+                PME_PARAMS_LONG);
+    }
+
+    private void createBuildConfigurationAndValidateResults(String projectId, String environmentId, String name, String genericParameterValue1) throws IOException {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
-        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
-        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
-        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+        configurationTemplate.addValue("_projectId", projectId);
+        configurationTemplate.addValue("_environmentId", environmentId);
+        configurationTemplate.addValue("_name", name);
+        configurationTemplate.addValue("_genParamValue1", genericParameterValue1);
 
         Response response = given().headers(testHeaders)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -191,13 +221,18 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .hasJsonValueNotNullOrEmpty("content.lastModificationTime");
     }
 
+    /**
+     * Reproducer NCL-2615 - big generic parameters cannot be ubdated in the BuildConfiguration
+     * 
+     * @throws Exception
+     */
     @Test
     public void shouldUpdateBuildConfiguration() throws IOException {
         // given
         final String updatedBuildScript = "mvn clean deploy -Dmaven.test.skip=true";
         final String updatedName = UUID.randomUUID().toString();
         final String updatedProjectId = String.valueOf(projectId);
-        final String updatedGenParamValue = "VALUE_NEW_1";
+        final String updatedGenParamValue = PME_PARAMS_LONG;
 
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
         configurationTemplate.addValue("_name", updatedName);
@@ -373,6 +408,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         ResponseAssertion.assertThat(addDepResponse).hasStatus(200);
         assertThat(getUpdatedConfigResponse.getValue().getDependencyIds()).containsExactly(depConfigId);
     }
+    
 
     @Ignore("Deleting a build configuration is no longer allowed")
     @Test
