@@ -86,7 +86,7 @@
           </div>
 
           <!-- scm url -->
-          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched }">
+          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched, 'has-success': configurationForm.scmRepoURL.$valid && configurationForm.scmRepoURL.$touched }">
             <label for="input-scm-repo-url" class="col-sm-2 control-label">* Url</label>
             <div class="col-sm-10">
               <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="data.scmRepoURL" ng-required="!data.scmRepoURLExternal"
@@ -116,7 +116,7 @@
           </div>
 
           <!-- scm url -->
-          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURLExternal.$invalid && configurationForm.scmRepoURLExternal.$touched }">
+          <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURLExternal.$invalid && configurationForm.scmRepoURLExternal.$touched, 'has-success': configurationForm.scmRepoURLExternal.$valid && configurationForm.scmRepoURLExternal.$touched }">
             <label for="input-scm-repo-url-external" class="col-sm-2 control-label">* Url</label>
             <div class="col-sm-10">
               <input type="text" id="input-scm-repo-url-external" class="form-control" name="scmRepoURLExternal" maxlength="255" ng-model="data.scmRepoURLExternal" ng-required="!data.scmRepoURL" pnc-scm-validator="git|ssh|http|https|git+ssh|git@">
