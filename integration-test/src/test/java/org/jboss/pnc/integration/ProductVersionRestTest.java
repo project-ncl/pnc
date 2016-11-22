@@ -46,7 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -139,6 +140,19 @@ public class ProductVersionRestTest {
 
         //then
         assertThat(clientResponse.hasValue()).isEqualTo(true);
+    }
+
+    @Test
+    public void shouldFailGracefullyOnNonExistentProduct() throws Exception {
+        // given
+        int nonExistentProductId = 384583;
+        ProductVersionRest version = new ProductVersionRest();
+        version.setProductId(nonExistentProductId);
+        version.setVersion("1.2");
+        // when
+        RestResponse<ProductVersionRest> response = productVersionRestClient.createNew(version, false);
+        // then
+        response.getRestCallResponse().then().statusCode(400);
     }
 
     @Test
