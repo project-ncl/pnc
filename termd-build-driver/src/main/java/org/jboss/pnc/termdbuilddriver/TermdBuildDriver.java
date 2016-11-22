@@ -330,7 +330,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     private String prepareBuildScript(TermdRunningBuild termdRunningBuild) {
         StringBuilder buildScript = new StringBuilder();
-        buildScript.append("set -x" + "\n");
+        buildScript.append("set -xe" + "\n");
         buildScript.append("cd " + termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "\n");
 
         buildScript.append("git clone " + termdRunningBuild.getScmRepoURL() + " " + termdRunningBuild.getName() + "\n");
