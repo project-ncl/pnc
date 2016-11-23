@@ -78,11 +78,11 @@
           $scope.data.buildConfigurationSetIds = gatherIds($scope.buildgroupconfigs.selected);
 
           $scope.data.scmExternal = {
-            url:      $scope.data.scmRepoURLExternal,
-            revision: $scope.data.scmRevisionExternal
+            url:      $scope.data.externalScmUrl,
+            revision: $scope.data.externalScmRevision
           };
           $scope.data.scmInternal = {
-            url:      $scope.data.scmRepoURL,
+            url:      $scope.data.scmUrl,
             revision: $scope.data.scmRevision
           };
 
