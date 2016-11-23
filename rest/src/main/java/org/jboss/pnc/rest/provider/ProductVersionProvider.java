@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import static java.lang.String.format;
-import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.*;
-
+import com.google.common.collect.Sets;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -39,13 +38,14 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.google.common.collect.Sets;
+import static java.lang.String.format;
+import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
 
 @Stateless
@@ -133,9 +133,19 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     public Integer store(ProductVersionRest restEntity) throws ValidationException {
         validateBeforeSaving(restEntity);
         ProductVersion.Builder productVersionBuilder = restEntity.toDBEntityBuilder();
-        productVersionBuilder.generateBrewTagPrefix(productRepository.queryById(restEntity.getProductId()).getAbbreviation(), restEntity.getVersion());
+        Product product = productRepository.queryById(restEntity.getProductId());
+        productVersionBuilder.generateBrewTagPrefix(product.getAbbreviation(), restEntity.getVersion());
         
         return repository.save(productVersionBuilder.build()).getId();
+    }
+
+    @Override
+    protected void validateBeforeSaving(ProductVersionRest restEntity) throws ValidationException {
+        super.validateBeforeSaving(restEntity);
+        Product product = productRepository.queryById(restEntity.getProductId());
+        if (product == null) {
+            throw new InvalidEntityException("Product with id: " + restEntity.getProductId() + " does not exist.");
+        }
     }
 
     private void validateBeforeUpdate(Integer productVersionId, Set<BuildConfigurationSet> sets) throws InvalidEntityException {
