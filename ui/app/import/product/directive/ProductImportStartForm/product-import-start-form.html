@@ -50,53 +50,10 @@
     </div>
   </div>
 
+  <pnc-internal-external-url data="data" form="startForm" sidebar-cols="3"></pnc-internal-external-url>
 
   <div class="panel panel-default">
     <div class="panel-body">
-
-      <div class="form-group"
-           ng-class="{ 'has-error' : startForm.startFormInput3.$invalid && !startForm.startFormInput3.$pristine, 'has-success': startForm.startFormInput3.$valid && startForm.startFormInput3.$touched }">
-        <label for="startFormInput3" class="col-sm-3 control-label">
-          * SCM URL&nbsp;
-          <a popover="URL of the source code repository to import from. Only following protocols are allowed: git:// , http(s)://"
-             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-             href>
-            <span class="fa fa-info-circle"></span>
-          </a>
-        </label>
-
-        <div class="col-sm-9">
-          <!-- ** Input type changed from `url` to `text` to resolve: NCL-1657. We're not validating URLs as we don't
-               know which protocols need to be accepted now, or in the future.
-               i.e. http(s)://, git://, git+ssh://, svn://, next_awesome_scm:// etc -->
-          <input type="text" id="startFormInput3" name="startFormInput3" maxlength="255" class="form-control" ng-model="data.scmUrl"
-            pnc-scm-validator="git|http|https" required>
-          <span class="help-block" ng-show="startForm.startFormInput3.$error.required && !startForm.startFormInput3.$pristine">Required field.</span>
-          <span class="help-block" ng-show="startForm.startFormInput3.$error.url && !startForm.startFormInput3.$pristine">Invalid URL.</span>
-          <span class="help-block" ng-show="startForm.startFormInput3.$error.invalidScmUrl && startForm.startFormInput3.$touched">
-            Invalid format (see help for more details)
-          </span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="startFormInput4" class="col-sm-3 control-label">
-          Revision&nbsp;
-          <a popover="Revision of the source code repository to import from, this can be a branch or tag only, not a commit-sha."
-             popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-             
-             href>
-            <span class="fa fa-info-circle"></span>
-          </a>
-        </label>
-
-        <div class="col-sm-9">
-          <input placeholder="master" id="startFormInput4" name="startFormInput4" maxlength="255" class="form-control" ng-model="data.scmRevision">
-          <div class="help-block">
-            <p>Use branch or tag name only, not commit sha.</p>
-          </div>
-        </div>
-      </div>
 
       <div class="form-group">
         <label for="startFormInput5" class="col-sm-3 control-label">
