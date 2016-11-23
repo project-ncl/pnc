@@ -41,7 +41,6 @@
         link: function (scope) {
           scope.submit = function () {
             if (scope.startForm.$valid) {
-              if(!scope.data.scmRevision || scope.data.scmRevision.length === 0) { scope.data.scmRevision = 'master'; }
               if(!scope.data.pomPath || scope.data.pomPath.length === 0) { scope.data.pomPath = './pom.xml'; }
               scope.onSubmit();
             } else {
