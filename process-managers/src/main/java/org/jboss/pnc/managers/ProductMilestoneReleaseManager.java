@@ -170,6 +170,10 @@ public class ProductMilestoneReleaseManager {
         stringBuilder.append("Brew push ").append(success ? "SUCCEEDED" : "FAILED").append("\n");
         stringBuilder.append("Import details:\n");
 
+        String errorMessage = result.getErrorMessage();
+        if (errorMessage != null) {
+            stringBuilder.append(errorMessage).append("\n");
+        }
         for (BuildImportResultRest buildImport : result.getBuilds()) {
             describeBuildImport(stringBuilder, buildImport);
         }
