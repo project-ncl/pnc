@@ -1,0 +1,93 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="panel panel-default">
+  <div class="panel-heading text-center">
+    <strong>SCMs</strong>
+    <small><em>(at least of one of them must be specified)</em></small>
+  </div>
+  <div class="list-group">
+
+    <div class="list-group-item">
+      <div class="text-center">
+        When the internal SCM is not specified, it will be cloned from the external one.
+      </div>
+    </div>
+
+    <div class="list-group-item">
+
+      <div class="row">
+        <div class="text-right-sm p-b-10" ng-class="sidebarClass">
+          <strong class="text-uppercase">Internal</strong>
+        </div>
+      </div>
+
+      <!-- scm url -->
+      <div class="form-group" ng-class="{ 'has-error': form.scmUrl.$invalid && form.scmUrl.$touched, 'has-success': form.scmUrl.$valid && form.scmUrl.$touched }">
+        <label for="input-scm-repo-url" class="control-label" ng-class="sidebarClass">* Url</label>
+        <div ng-class="contentClass">
+          <input type="text" id="input-scm-repo-url" class="form-control" name="scmUrl" maxlength="255" ng-model="data.scmUrl" ng-required="!data.externalScmUrl"
+              pnc-scm-validator="git+ssh" pnc-exact-host="user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418">
+          <span class="help-block" ng-show="form.scmUrl.$error.required && form.scmUrl.$touched">At least one of the SCMs is required.</span>
+          <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">Only R/W SCM with the following format <code>git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418</code> is allowed.</span>
+        </div>
+      </div>
+
+      <!-- scm revision -->
+      <div class="form-group" ng-class="{ 'has-error': form.scmRevision.$invalid && form.scmRevision.$touched, 'has-success': form.scmRevision.$valid && form.scmRevision.$touched }">
+        <label for="input-scm-revision" class="control-label" ng-class="sidebarClass">* Revision</label>
+        <div ng-class="contentClass">
+          <input id="input-scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="data.scmRevision" ng-required="data.scmUrl">
+          <span class="help-block" ng-show="form.scmRevision.$error.required && form.scmRevision.$touched">Required field.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="list-group-item">
+
+      <div class="row">
+        <div class="text-right-sm p-b-10" ng-class="sidebarClass">
+          <strong class="text-uppercase">External</strong>
+        </div>
+      </div>
+
+      <!-- scm url -->
+      <div class="form-group" ng-class="{ 'has-error': form.externalScmUrl.$invalid && form.externalScmUrl.$touched, 'has-success': form.externalScmUrl.$valid && form.externalScmUrl.$touched }">
+        <label for="input-scm-repo-url-external" class="control-label" ng-class="sidebarClass">* Url</label>
+        <div ng-class="contentClass">
+          <input type="text" id="input-scm-repo-url-external" class="form-control" name="externalScmUrl" maxlength="255" ng-model="data.externalScmUrl" ng-required="!data.scmUrl" pnc-scm-validator="git|ssh|http|https|git+ssh|git@">
+          <span class="help-block" ng-show="form.externalScmUrl.$error.required && form.externalScmUrl.$touched">At least one of the SCMs is required.</span>
+          <span class="help-block" ng-show="form.externalScmUrl.$error.invalidScmUrl">Invalid or unsupported format.</span>
+        </div>
+      </div>
+
+      <!-- scm revision -->
+      <div class="form-group" ng-class="{ 'has-error': form.externalScmRevision.$invalid && form.externalScmRevision.$touched, 'has-success': form.externalScmRevision.$valid && form.externalScmRevision.$touched }">
+        <label for="input-scm-revision-external" class="control-label" ng-class="sidebarClass">* Revision</label>
+        <div ng-class="contentClass">
+          <input id="input-scm-revision-external" class="form-control" name="externalScmRevision" maxlength="255" ng-model="data.externalScmRevision" ng-required="data.externalScmUrl">
+          <span class="help-block" ng-show="form.externalScmRevision.$error.required && form.externalScmRevision.$touched">Required field.</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

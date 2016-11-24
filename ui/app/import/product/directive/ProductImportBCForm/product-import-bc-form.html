@@ -92,34 +92,7 @@
     </div>
   </div>
 
-
-  <div class="panel panel-default" ng-hide="data.useExistingBc">
-    <div class="panel-body">
-
-      <div class="form-group" ng-class="{ 'has-error' : bcForm.bcFormInput3.$invalid && !bcForm.bcFormInput3.$pristine, 'has-success': bcForm.bcFormInput3.$valid && bcForm.bcFormInput3.$touched }">
-        <label for="bcFormInput3" class="col-sm-3 control-label">* Git URL</label>
-        <div class="col-sm-9">
-          <!-- ** Input type changed from `url` to `text` to resolve: NCL-1657. We're not validating URLs as we don't
-               know which protocols need to be accepted now, or in the future.
-               i.e. http(s)://, git://, git+ssh://, svn://, next_awesome_scm:// etc -->
-          <input type="text" id="bcFormInput3" name="bcFormInput3" maxlength="255" class="form-control" ng-model="data.scmUrl" required>
-          <span class="help-block" ng-show="bcForm.bcFormInput3.$error.required && bcForm.bcFormInput3.$touched">Required field.</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="bcFormInput4" class="col-sm-3 control-label">Revision</label>
-        <div class="col-sm-9">
-          <input id="bcFormInput4" class="form-control" name="bcFormInput4" maxlength="255" ng-model="data.scmRevision">
-          <div class="help-block">
-            <p>Use branch or tag name only, not hash.</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
+  <pnc-internal-external-url data="data" form="bcForm" sidebar-cols="3" ng-hide="data.useExistingBc"></pnc-internal-external-url>
 
   <div class="panel panel-default" ng-hide="data.useExistingBc">
     <div class="panel-body">
