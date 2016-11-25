@@ -148,6 +148,15 @@ Or you can configure the app using the environment variables listred in the file
 
 For the configuration descriptions see api doc of classes in `moduleconfig/src/main/java/org/jboss/pnc/common/json/moduleconfig`
 
+### PullingMonitor ThreadPool size configuration
+
+If you want to specify the ThreadPool size for `PullingMonitor`, you can do so by using the system property `pulling_monitor_threadpool`.
+
+For example, you can specify via `-Dpulling-monitor-threadpool=10` parameter
+
+You can also specify the environment variable `pulling_monitor_threadpool`.
+Note that the system property has precedence over the environment variable if both are defined.
+
 
 ## Database set-up
 

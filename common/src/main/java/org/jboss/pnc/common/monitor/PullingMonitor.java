@@ -21,6 +21,8 @@ package org.jboss.pnc.common.monitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.util.collection.ConcurrentSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -39,6 +41,7 @@ import java.util.function.Supplier;
  */
 @ApplicationScoped
 public class PullingMonitor {
+    private static final Logger log = LoggerFactory.getLogger(PullingMonitor.class);
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
     private static final int DEFAULT_TIMEOUT = 300;
@@ -49,15 +52,35 @@ public class PullingMonitor {
     /** */
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
 
+    private static final String PULLING_MONITOR_THREADPOOL_KEY = "pulling_monitor_threadpool";
+    private static final int DEFAULT_EXECUTOR_THREADPOOL_SIZE = 4;
+
     private ScheduledExecutorService executorService;
     private ScheduledExecutorService timeOutVerifierService;
 
     private ConcurrentSet<RunningTask> runningTasks;
 
     public PullingMonitor() {
+
+        int threadSize = DEFAULT_EXECUTOR_THREADPOOL_SIZE;
+        String threadSizeEnv = System.getenv(PULLING_MONITOR_THREADPOOL_KEY);
+        String threadSizeSys = System.getProperty(PULLING_MONITOR_THREADPOOL_KEY);
+
+        try {
+            if (threadSizeSys != null) {
+                threadSize = Integer.parseInt(threadSizeSys);
+            } else if (threadSizeEnv != null) {
+                threadSize = Integer.parseInt(threadSizeEnv);
+            }
+            log.info("Updated executor ThreadPool size for PullingMonitor to: " + threadSize);
+        } catch (NumberFormatException e) {
+            log.warn("Could not parse the '" + PULLING_MONITOR_THREADPOOL_KEY +
+                     "' system property. Using default value: " + DEFAULT_EXECUTOR_THREADPOOL_SIZE);
+        }
+
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
-        executorService = Executors.newScheduledThreadPool(4); //TODO configurable, keep global ScheduledThreadPool and inject it
+        executorService = Executors.newScheduledThreadPool(threadSize);
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
@@ -67,7 +90,7 @@ public class PullingMonitor {
     /**
      * Periodically checks the condition and calls onMonitorComplete when it returns true.
      * If timeout is reached onMonitorError is called.
-
+     *
      * @param onMonitorComplete
      * @param onMonitorError
      * @param condition
@@ -99,7 +122,7 @@ public class PullingMonitor {
         ScheduledFuture<?> future = executorService.scheduleWithFixedDelay(monitor, 0L, checkInterval, timeUnit);
         Consumer<RunningTask> onTimeout = (runningTask) -> {
             runningTasks.remove(runningTask);
-            onMonitorError.accept(new MonitorException( "Service was not ready in: " + timeout + " " + timeUnit.toString()));
+            onMonitorError.accept(new MonitorException("Service was not ready in: " + timeout + " " + timeUnit.toString()));
         };
         RunningTask runningTask = new RunningTask(future, timeout, TimeUtils.chronoUnit(timeUnit), onTimeout);
         runningTasks.add(runningTask);
