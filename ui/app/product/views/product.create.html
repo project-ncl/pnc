@@ -53,7 +53,7 @@
                 <textarea id="input-description" class="form-control" name="description" ng-model="productCreateCtrl.data.description"></textarea>
               </div>
             </div>
-            
+
             <div class="form-group" ng-class="{ 'has-error' : productForm.abbreviation.$invalid && productForm.abbreviation.$touched, 'has-success': productForm.abbreviation.$valid && productForm.abbreviation.$touched }">
               <label for="input-abbreviation" class="col-sm-2 control-label required">Short Name&nbsp;
                 <a popover="The abbreviation of the Product, e.g. EAP"
@@ -64,8 +64,9 @@
                 </a>
               </label>
               <div class="col-sm-10">
-                <input id="input-abbreviation" class="form-control" name="abbreviation" maxlength="255" ng-model="productCreateCtrl.data.abbreviation" required>
+                <input id="input-abbreviation" class="form-control" name="abbreviation" maxlength="255" ng-model="productCreateCtrl.data.abbreviation" required pattern="[a-zA-Z0-9-]*">
                 <span class="help-block" ng-show="productForm.abbreviation.$error.required && productForm.abbreviation.$touched">Required field.</span>
+                <span class="help-block" ng-show="productForm.abbreviation.$error.pattern && productForm.abbreviation.$touched">The value should consist of alphanumeric characters and dashes ('-') only.</span>
               </div>
             </div>
 

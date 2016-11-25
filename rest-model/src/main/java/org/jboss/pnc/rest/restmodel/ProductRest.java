@@ -24,6 +24,7 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class ProductRest implements GenericRestEntity<Integer> {
     private String description;
 
     @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(regexp = "[a-zA-Z0-9-]+", groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String abbreviation;
 
     private String productCode;
@@ -63,9 +65,9 @@ public class ProductRest implements GenericRestEntity<Integer> {
         this.abbreviation = product.getAbbreviation();
         this.productCode = product.getProductCode();
         this.pgmSystemName = product.getPgmSystemName();
-        this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(productVersion -> productVersion.getId())
+        this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(ProductVersion::getId)
                 .collect(Collectors.toList());
-        this.productVersions = nullableStreamOf(product.getProductVersions()).map(productVersion -> new ProductVersionRest(productVersion))
+        this.productVersions = nullableStreamOf(product.getProductVersions()).map(ProductVersionRest::new)
                 .collect(Collectors.toSet());
     }
 
