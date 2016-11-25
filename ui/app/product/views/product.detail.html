@@ -50,7 +50,7 @@
     <div class="form-group">
       <label for="input-abbreviation" class="col-sm-1 control-label">Short Name</label>
       <div class="col-sm-11">
-        <p id="input-abbreviation" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.abbreviation" e-name="abbreviation" e-maxlength="255">{{ detailCtrl.product.abbreviation }}</p>
+        <p id="input-abbreviation" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.abbreviation" e-name="abbreviation" e-maxlength="255" e-pattern="[a-zA-Z0-9-]*">{{ detailCtrl.product.abbreviation }}</p>
       </div>
     </div>
 

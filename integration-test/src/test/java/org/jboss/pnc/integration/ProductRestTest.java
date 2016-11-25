@@ -73,6 +73,15 @@ public class ProductRestTest extends AbstractTest {
     }
 
     @Test
+    public void shouldFailToSaveProductWithSpaceInAbbreviation() {
+        ProductRest dto = new ProductRest();
+        dto.setName(randomAlphabetic(20));
+        dto.setAbbreviation("abb re viation");
+        Response response = productRestClient.createNew(dto, false).getRestCallResponse();
+        response.then().statusCode(400);
+    }
+
+    @Test
     public void shouldFailToAddConflictingProduct() throws ValidationException, URISyntaxException {
         ProductRest dto = new ProductRest();
         dto.setName(randomAlphabetic(20));
