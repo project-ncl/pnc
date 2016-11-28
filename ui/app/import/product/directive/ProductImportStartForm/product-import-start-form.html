@@ -29,7 +29,7 @@
           * Product Version&nbsp;
           <a popover="Enter the product version to import into using format major.minor, e.g. 7.0 -- If the version does not exist it will be created for you."
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-             
+
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -60,7 +60,7 @@
           Path to root POM&nbsp;
           <a popover="Location of the project's root pom.xml file within the scm repository."
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-             
+
              href>
             <span class="fa fa-info-circle"></span>
           </a>
@@ -80,9 +80,8 @@
            ng-class="{ 'has-error' : startForm.startFormInput6.$invalid && !startForm.startFormInput6.$pristine, 'has-success': startForm.startFormInput6.$valid  && startForm.startFormInput6.$touched }">
         <label for="startFormInput6" class="col-sm-3 control-label">
           Optional Repositories&nbsp;
-          <a popover="Add additional scm repository URLs used by the project."
+          <a popover="Add additional maven repository URLs used by the project. Use this if the product uses additional repositories that are not included in the POM file."
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-             
              href>
             <span class="fa fa-info-circle"></span>
           </a>
