@@ -116,7 +116,7 @@
           return ReportDAO.getWhitelistProducts().then(function(products) {
             return _(products).sortBy(function(p) {
               return p.name + p.version;
-            }).reverse();
+            }).value().reverse();
           });
         }
       }
