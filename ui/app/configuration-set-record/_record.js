@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.configuration-set-record', [
     'ui.router',
@@ -47,9 +46,9 @@
 
       $stateProvider.state('configuration-set-record.list', {
         url: '',
-        templateUrl: 'configuration-set-record/views/build-records.list.html',
+        templateUrl: 'configuration-set-record/views/record.list.html',
         data: {
-          displayName: 'Build Groups'
+          displayName: 'Group Builds'
         },
         controller: 'CsRecordListController',
         controllerAs: 'ctrl'
@@ -61,7 +60,7 @@
 
       $stateProvider.state('configuration-set-record.detail', {
         url: '/{recordId:int}',
-        templateUrl: 'configuration-set-record/views/build-records.detail.html',
+        templateUrl: 'configuration-set-record/views/record.detail.html',
         data: {
           displayName: '# {{ csRecordDetail.id }} \u2014 {{ csRecordDetail.configurationSet.name }} '
         },
@@ -105,7 +104,7 @@
         url: '/result',
         controller: 'CsRecordResultController',
         controllerAs: 'ctrl',
-        templateUrl: 'configuration-set-record/views/build-records.detail.result.html',
+        templateUrl: 'configuration-set-record/views/record.detail.result.html',
         data: {
           displayName: 'Build Group Result'
         },
