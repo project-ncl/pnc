@@ -17,24 +17,17 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import lombok.RequiredArgsConstructor;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -93,35 +86,5 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
 
     private void createNewVersion(BuildConfiguration config1) {
         config1.getBuildRecords().add(buildRecord(config1));
-    }
-
-
-    private DependencyHandler make(BuildConfiguration config) {
-        return new DependencyHandler(config);
-    }
-
-    @RequiredArgsConstructor
-    private static class DependencyHandler {
-        final BuildConfiguration config;
-        BuildRecord record;
-
-        public void dependOn(BuildConfiguration... dependencies) {
-            record = config.getLatestSuccesfulBuildRecord();
-            record.setLatestBuildConfiguration(config);
-
-            Set<Artifact> artifacts = Stream.of(dependencies)
-                    .map(this::mockArtifactBuiltWith)
-                    .collect(Collectors.toSet());
-            config.getLatestSuccesfulBuildRecord().setDependencies(artifacts);
-        }
-
-        private Artifact mockArtifactBuiltWith(BuildConfiguration config) {
-            BuildRecord record = config.getLatestSuccesfulBuildRecord();
-            Set<BuildRecord> records = new HashSet<>();
-            records.add(record);
-            return  Artifact.Builder.newBuilder()
-                    .buildRecords(records)
-                    .build();
-        }
     }
 }

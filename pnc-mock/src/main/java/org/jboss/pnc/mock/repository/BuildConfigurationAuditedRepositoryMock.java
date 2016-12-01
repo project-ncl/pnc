@@ -90,7 +90,7 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     public List<BuildConfigurationAudited> findAllByIdOrderByRevDesc(Integer id) {
         return data.stream()
                 .filter(c -> c.getId().getId().equals(id))
-                .sorted((c1, c2) -> c1.getId().getRev().compareTo(c2.getId().getRev()))
+                .sorted((c1, c2) -> c2.getId().getRev().compareTo(c1.getId().getRev()))
                 .collect(Collectors.toList());
     }
 
