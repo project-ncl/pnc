@@ -72,20 +72,32 @@ public class BuildTasksInitializer {
 
     private void createBuildTasks(BuildConfiguration configuration, BuildScope scope, Set<BuildConfiguration> configs) {
         log.debug("will create build tasks for scope: {} and configuration: {}", scope, configuration);
+        Set<BuildConfiguration> visited = new HashSet<>();
         if (configs.contains(configuration)) {
             return;
         }
         configs.add(configuration);
         if (scope.isRecursive()) {
-            configuration.getDependencies().forEach(c -> createDependencyBuildTasks(c, configs));
+            configuration.getDependencies().forEach(c -> createDependencyBuildTasks(c, configs, visited));
         }
     }
 
-    private void createDependencyBuildTasks(BuildConfiguration configuration, Set<BuildConfiguration> configs) {
-        if (!configs.contains(configuration) && datastoreAdapter.requiresRebuild(configuration)) {
-            configs.add(configuration);
-            configuration.getDependencies().forEach(c -> createDependencyBuildTasks(c, configs));
+    private boolean createDependencyBuildTasks(BuildConfiguration configuration, Set<BuildConfiguration> toBuild, Set<BuildConfiguration> visited) {
+        if (visited.contains(configuration)) {
+            return toBuild.contains(configuration);
         }
+
+        visited.add(configuration);
+
+        boolean requiresRebuild = datastoreAdapter.requiresRebuild(configuration);
+        for (BuildConfiguration dependency : configuration.getDependencies()) {
+            requiresRebuild |= createDependencyBuildTasks(dependency, toBuild, visited);
+        }
+        if (requiresRebuild) {
+            toBuild.add(configuration);
+        }
+
+        return requiresRebuild;
     }
 
 
