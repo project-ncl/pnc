@@ -144,7 +144,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     }
 
 
-    /* package */ <T extends BpmNotificationRest> void notify(BpmEventType eventType, T data) {
+    public <T extends BpmNotificationRest> void notify(BpmEventType eventType, T data) {
         List<Consumer<?>> listeners = this.listeners.get(eventType);
         if(listeners == null) {
             listeners = new ArrayList<>();
