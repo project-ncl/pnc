@@ -31,7 +31,9 @@ import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductMilestoneProvider;
 import org.jboss.pnc.rest.provider.ProductMilestoneReleaseProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.rest.restmodel.ProductMilestoneReleaseRest;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ArtifactPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
@@ -40,6 +42,7 @@ import org.jboss.pnc.rest.swagger.response.ProductMilestoneReleaseSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductMilestoneSingleton;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -95,6 +98,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     private ProductMilestoneReleaseProvider milestoneReleaseProvider;
     private AuthenticationProvider authenticationProvider;
 
+    private ProductMilestoneRepository milestoneRepository;
+
     public ProductMilestoneEndpoint() {
     }
 
@@ -104,7 +109,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             ArtifactProvider artifactProvider,
             BuildRecordProvider buildRecordProvider,
             ProductMilestoneReleaseProvider milestoneReleaseProvider,
-            AuthenticationProviderFactory authenticationProviderFactory) {
+            AuthenticationProviderFactory authenticationProviderFactory,
+            ProductMilestoneRepository milestoneRepository) {
 
         super(productMilestoneProvider);
         this.productMilestoneProvider = productMilestoneProvider;
@@ -112,6 +118,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
         this.buildRecordProvider = buildRecordProvider;
         this.milestoneReleaseProvider = milestoneReleaseProvider;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
+        this.milestoneRepository = milestoneRepository;
+
     }
 
     @ApiOperation(value = "Gets all Product Milestones")
@@ -291,6 +299,19 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     @GET
     @Path("/{id}/releases/latest")
     public Response getLatestRelease(@PathParam("id") Integer milestoneId) {
-        return fromSingleton(milestoneReleaseProvider.latestForMilestone(milestoneId));
+        //check if milestone exists
+        ProductMilestone productMilestone = milestoneRepository.queryById(milestoneId);
+        if (productMilestone == null) {
+            //respond with NOT_FOUND if there is no milestone with milestoneId
+            return Response.status(Response.Status.NOT_FOUND).entity(new Singleton(null)).build();
+        }
+
+        //respond with NO_CONTENT if there are no releases in this milestone
+        ProductMilestoneReleaseRest productMilestoneReleaseRest = milestoneReleaseProvider.latestForMilestone(productMilestone);
+        if (productMilestoneReleaseRest == null) {
+            return Response.status(Response.Status.NO_CONTENT).entity(new Singleton(null)).build();
+        }
+
+        return fromSingleton(productMilestoneReleaseRest);
     }
 }
