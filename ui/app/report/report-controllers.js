@@ -107,7 +107,7 @@
       that.isResultNotEmpty = function() {
         return !_.isEmpty(that.reportResults);
       };
-      
+
       that.reset = function(form) {
         if (form) {
           that.gav = {};
@@ -125,13 +125,13 @@
             that.reverse = that.defaultReverse;
             that.afterSearch = true;
 
-            // Default sorting 
+            // Default sorting
             that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
         });
       };
 
       that.sort = function(keyname){
-        that.sortKey = keyname;   
+        that.sortKey = keyname;
         that.reverse = !that.reverse;
       };
 
@@ -158,7 +158,7 @@
       that.isResultNotEmpty = function() {
         return !_.isEmpty(that.reportResults);
       };
-      
+
       that.reset = function() {
         that.reportResults = [];
         that.afterSearch = false;
@@ -179,14 +179,14 @@
           that.reportResults = _(that.reportResults).uniq(function(a){
             return JSON.stringify(_.pick(a, ['groupId', 'artifactId', 'version']));
           });
-   
+
           that.sortKey = that.defaultSortKey;
           that.reverse = that.defaultReverse;
           that.afterSearch = true;
 
-          // Default sorting 
+          // Default sorting
           that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
-          
+
         }, function() {
           // error
 
@@ -195,7 +195,7 @@
       };
 
       that.sort = function(keyname){
-        that.sortKey = keyname;   
+        that.sortKey = keyname;
         that.reverse = !that.reverse;
       };
 
@@ -266,8 +266,8 @@
       };
 
       that.isFormValid = function() {
-        return (!_.isUndefined(that.productLeftSelection) && that.productLeftSelection.selected.length > 0) && 
-          (!_.isUndefined(that.productRightSelection) && that.productRightSelection.selected.length > 0) && 
+        return (!_.isUndefined(that.productLeftSelection) && that.productLeftSelection.selected.length > 0) &&
+          (!_.isUndefined(that.productRightSelection) && that.productRightSelection.selected.length > 0) &&
           that.productLeftSelection.selected[0].id !== that.productRightSelection.selected[0].id;
       };
 
@@ -374,12 +374,12 @@
       that.isResultNotEmpty = function() {
         return !_.isEmpty(that.reportResults);
       };
-      
+
       that.reset = function() {
         that.reportResults = [];
         that.afterSearch = false;
-      }; 
- 
+      };
+
       that.search = function(scmUrl, revision, pomPath, additionalRepos) {
         ReportDAO.getBuiltArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
           that.reportResults = result;
@@ -387,18 +387,18 @@
           that.reverse = that.defaultReverse;
           that.afterSearch = true;
 
-          // Default sorting 
+          // Default sorting
           that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
-          
+
         }, function() {
-          // error 
+          // error
 
           that.reportResults = [];
         });
       };
 
       that.sort = function(keyname){
-        that.sortKey = keyname;   
+        that.sortKey = keyname;
         that.reverse = !that.reverse;
       };
 
@@ -447,7 +447,7 @@
         that.form.productId.products.data = _(productList).map(function(product) {
           product.fullDisplayText = product.displayText = getProductLabel(product);
           return product;
-        });
+        }).value();
       };
 
       initData();
@@ -474,7 +474,7 @@
       that.computeDifference = function() {
         $rootScope.showSpinner = true;
         that.submitDisabled = true;
-        that.form.data.products = _(that.form.productId.selectedProducts).map(function(product) { return product.id; });
+        that.form.data.products = _(that.form.productId.selectedProducts).map(function(product) { return product.id; }).value();
         if(!that.validate()) { return; } // halt when invalid
         // execute request
         ReportDAO.diffProjectProduct(that.form.data).then(function(res) {
@@ -560,7 +560,7 @@
 
         // sort dependencies inside modules alphabetically by artifactId
         _.forEach(res.data, function(dependencies, moduleName) {
-          res.data[moduleName] = _(dependencies).sortBy(function(dependency) { return dependency.artifactId; });
+          res.data[moduleName] = _(dependencies).sortBy(function(dependency) { return dependency.artifactId; }).value();
         });
         return res;
       };
