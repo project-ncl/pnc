@@ -90,7 +90,7 @@ public class AbstractMilestoneReleaseTest {
                 sortInfoProducer,
                 pageInfoProducer);
         milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
-                authenticationProviderFactory);
+                authenticationProviderFactory, productMilestoneRepository);
         bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, buildConfigurationProvider, notifier);
         bpmMock.setUp();
     }
