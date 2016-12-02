@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 8/31/16
@@ -56,6 +58,8 @@ import java.util.function.Function;
 public class ProductMilestoneReleaseManager {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneReleaseManager.class);
+    public static final String BREW_ID = "brewId";
+    public static final String BREW_LINK = "brewLink";
 
     private BpmManager bpmManager;
 
@@ -141,13 +145,36 @@ public class ProductMilestoneReleaseManager {
         consumer.accept(milestone, result);
     }
 
-    private <T> void storeSuccess(ProductMilestone milestone, MilestoneReleaseResultRest result) {
+    private void storeSuccess(ProductMilestone milestone, MilestoneReleaseResultRest result) {
         String message = describeCompletedPush(result);
         updateRelease(milestone, message, result.getReleaseStatus().getMilestoneReleaseStatus());
+
+        for (BuildImportResultRest buildRest : ofNullableCollection(result.getBuilds())) {
+            storeBrewBuildParameters(buildRest);
+        }
     }
 
     private <T> void storeFailure(ProductMilestone milestone, BpmStringMapNotificationRest result) {
         updateRelease(milestone, "BREW IMPORT FAILED\nResult: " + result, MilestoneReleaseStatus.SYSTEM_ERROR);
+    }
+
+    private void storeBrewBuildParameters(BuildImportResultRest buildRest) {
+        Integer recordId = buildRest.getBuildRecordId();
+        BuildRecord record = buildRecordRepository.queryById(recordId);
+        if (record == null) {
+            log.error("No record found for record id: {}, skipped saving info: {}", recordId, buildRest);
+            return;
+        }
+
+        Integer brewBuildId = buildRest.getBrewBuildId();
+        String brewBuildUrl = buildRest.getBrewBuildUrl();
+        if (brewBuildId != null) {
+            record.putAttribute(BREW_ID, String.valueOf(brewBuildId));
+        }
+        if (brewBuildUrl != null) {
+            record.putAttribute(BREW_LINK, brewBuildUrl);
+        }
+        buildRecordRepository.save(record);
     }
 
     private void updateRelease(ProductMilestone milestone, String message, MilestoneReleaseStatus status) {

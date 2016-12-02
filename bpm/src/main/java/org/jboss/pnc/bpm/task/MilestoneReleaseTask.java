@@ -23,8 +23,6 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.restmodel.bpm.MilestoneReleaseParameters;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -33,8 +31,6 @@ import java.io.Serializable;
  */
 @ToString(callSuper = true)
 public class MilestoneReleaseTask extends BpmTask {
-
-    private static final Logger log = LoggerFactory.getLogger(MilestoneReleaseTask.class);
 
     private final ProductMilestone milestone;
 
