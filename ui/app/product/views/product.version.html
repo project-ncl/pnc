@@ -57,6 +57,13 @@
       </div>
     </div>
 
+    <div class="form-group">
+      <label for="static-brew-tag" class="col-sm-1 control-label">Brew Tag Prefix</label>
+      <div class="col-sm-11">
+        <p id="static-brew-tag" class="form-control-static">{{ versionCtrl.version.attributes.BREW_TAG_PREFIX || 'Empty' }}</p>
+      </div>
+    </div>
+
     <div class="form-group" ng-show="productVersionForm.$visible">
       <div class="col-sm-offset-1 col-sm-11">
         <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting || productVersionForm.version.$invalid">
