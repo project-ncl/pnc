@@ -166,7 +166,9 @@
       '$rootScope',
       'eventTypes',
       'pncNotify',
-      function ($log, $q, $rootScope, eventTypes, pncNotify) {
+      '$state',
+      'BuildConfigurationDAO',
+      function ($log, $q, $rootScope, eventTypes, pncNotify, $state, BuildConfigurationDAO) {
 
         var res = {};
 
@@ -198,30 +200,40 @@
         // While issuing notifications in the process.
         // Also provide BC name for human readability.
         res.register = function(taskId, bcName) {
-          // TODO tidy up
+          // TODO tidy up; success = 1, error = -1, info = 0
           var deferred = $q.defer();
           _taskIdHandlers[taskId] = {
             handle: function(payload) {
-              if(_.isUndefined(_translate(payload.eventType, bcName))) {
+              meta = _translate(payload.eventType, bcName);
+              if(_.isUndefined(meta)) {
                 return;
               }
               var msg = '';
               if(_.has(payload, 'data.message')) {
                 var m = payload.data.message;
-                $log.warn('', _translate(payload.eventType, bcName)[1] + m);
+                $log.warn('', meta[1] + m);
                 msg = ' ' + m.substring(0, 125);
                 if(m.length > 125) {
                   msg = msg + '...';
                 }
               }
-              if(_translate(payload.eventType, bcName)[0] === 1) {
-                pncNotify.success(_translate(payload.eventType, bcName)[1] + msg);
-                deferred.resolve(parseInt(payload.data.buildConfigurationId));
-              } else if(_translate(payload.eventType, bcName)[0] === -1) {
-                pncNotify.error(_translate(payload.eventType, bcName)[1] + msg);
+              if(meta[0] === 1) {
+                id = parseInt(payload.data.buildConfigurationId)
+                pncNotify.success(meta[1] + msg, "Build Conf. #" + id, function() {
+                  // TODO this is silly
+                  BuildConfigurationDAO.get({ configurationId: id }).$promise.then(function(data) {
+                    $state.go('projects.detail.build-configs.detail', {
+                      projectId: data.content.project.id,
+                      configurationId: id
+                    });
+                  });
+                });
+                deferred.resolve(id);
+              } else if(meta[0] === -1) {
+                pncNotify.error(meta[1] + msg);
                 deferred.reject();
               } else {
-                pncNotify.info(_translate(payload.eventType, bcName)[1] + msg);
+                pncNotify.info(meta[1] + msg);
               }
             }
           };
