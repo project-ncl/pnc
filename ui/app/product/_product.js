@@ -85,7 +85,8 @@
         }
       },
       data: {
-        displayName: 'Import {{ productDetail.name }}'
+        displayName: 'Import {{ productDetail.name }}',
+        requireAuth: true
       },
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
