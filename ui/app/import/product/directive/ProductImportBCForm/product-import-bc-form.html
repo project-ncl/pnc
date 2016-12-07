@@ -71,12 +71,11 @@
         <label for="bcFormInput1" class="col-sm-3 control-label">
           * BC Name&nbsp;<a popover="Name for the build configuration."
                              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-                             
                              href><span class="fa fa-info-circle"></span></a>
         </label>
 
         <div class="col-sm-9">
-          <input id="bcFormInput1" name="bcFormInput1" maxlength="255" class="form-control" ng-model="data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$">
+          <input id="bcFormInput1" name="bcFormInput1" maxlength="255" class="form-control" ng-model="data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*$">
           <span class="help-block" ng-show="bcForm.bcFormInput1.$error.required">Required field.</span>
           <span class="help-block" ng-show="bcForm.bcFormInput1.$error.pattern">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
         </div>
@@ -98,12 +97,11 @@
     <div class="panel-body">
 
       <!-- build script -->
-      <div class="form-group" ng-class="{ 'has-error': (bcForm.bcFormInput5.$invalid || bcForm.bcFormInput5.$error.invalidBuildScript) 
-          && bcForm.bcFormInput5.$touched, 'has-success': bcForm.bcFormInput5.$valid && bcForm.bcFormInput5.$touched }">
+      <div class="form-group" ng-class="{ 'has-error': bcForm.bcFormInput5.$invalid, 'has-success': bcForm.bcFormInput5.$valid && bcForm.bcFormInput5.$touched }">
         <label for="bcFormInput5" class="col-sm-3 control-label">* Build Script</label>
         <div class="col-sm-9">
           <textarea id="bcFormInput5" name="bcFormInput5" rows="3" class="form-control" required ng-model="data.buildScript" pnc-build-script-validator></textarea>
-          <span class="help-block" ng-show="bcForm.bcFormInput5.$error.required && bcForm.bcFormInput5.$touched">Required field.</span>
+          <span class="help-block" ng-show="bcForm.bcFormInput5.$error.required">Required field.</span>
           <span class="help-block" ng-show="bcForm.bcFormInput5.$error.invalidBuildScript && bcForm.bcFormInput5.$touched">
             The use of 'deploy' is mandatory when using Maven.
           </span>
