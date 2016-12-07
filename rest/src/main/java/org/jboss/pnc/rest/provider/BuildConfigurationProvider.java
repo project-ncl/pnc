@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
@@ -41,16 +46,15 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
@@ -62,14 +66,18 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private ProductVersionRepository productVersionRepository;
 
+    private ScmModuleConfig moduleConfig;
+
     @Inject
     public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-            ProductVersionRepository productVersionRepository) {
+                                      BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                                      RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
+                                      ProductVersionRepository productVersionRepository,
+                                      Configuration configuration) throws ConfigurationParseException {
         super(buildConfigurationRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.productVersionRepository = productVersionRepository;
+        this.moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
     }
 
     // needed for EJB/CDI
@@ -106,6 +114,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ValidationException {
         super.validateBeforeSaving(buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
+        validateInternalRepository(buildConfigurationRest.getScmRepoURL());
     }
 
     @Override
@@ -114,6 +123,18 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
+        validateInternalRepository(buildConfigurationRest.getScmRepoURL());
+    }
+
+    public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
+        String internalScmAuthority = moduleConfig.getInternalScmAuthority();
+
+        if (StringUtils.isNotBlank(internalScmAuthority)) {
+            String expectedPrefix = "git+ssh://" + internalScmAuthority;
+            if (!internalRepoUrl.startsWith(expectedPrefix)) {
+                throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix);
+            }
+        }
     }
 
     private void validateDependencies(Integer buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
