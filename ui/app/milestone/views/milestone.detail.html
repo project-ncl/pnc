@@ -39,8 +39,8 @@
         <dt>End Date</dt>
         <dd>{{ milestoneDetailCtrl.milestone.endDate | date:'yyyy/MM/dd' }}</dd>
 
-        <dt>Release Status</dt>
-        <dd>{{ milestoneDetailCtrl.latestRelease.status }} [ <a ui-sref="product.detail.version.milestoneDetail.log({ milestoneId: milestoneDetailCtrl.milestone.id })" href>View Log</a> ]</dd>
+        <dt>Status</dt>
+        <dd>{{ milestoneDetailCtrl.latestRelease.status || 'Open' }} <span ng-if="milestoneDetailCtrl.latestRelease.status">[ <a ui-sref="product.detail.version.milestoneDetail.log({ milestoneId: milestoneDetailCtrl.milestone.id })" href>View Log</a> ]</span></dd>
 
       </dl>
     </div>
