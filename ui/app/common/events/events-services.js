@@ -204,7 +204,7 @@
           var deferred = $q.defer();
           _taskIdHandlers[taskId] = {
             handle: function(payload) {
-              meta = _translate(payload.eventType, bcName);
+              var meta = _translate(payload.eventType, bcName);
               if(_.isUndefined(meta)) {
                 return;
               }
@@ -218,8 +218,8 @@
                 }
               }
               if(meta[0] === 1) {
-                id = parseInt(payload.data.buildConfigurationId)
-                pncNotify.success(meta[1] + msg, "Build Conf. #" + id, function() {
+                var id = parseInt(payload.data.buildConfigurationId);
+                pncNotify.success(meta[1] + msg, 'Build Conf. #' + id, function() {
                   // TODO this is silly
                   BuildConfigurationDAO.get({ configurationId: id }).$promise.then(function(data) {
                     $state.go('projects.detail.build-configs.detail', {
