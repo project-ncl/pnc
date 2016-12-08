@@ -36,6 +36,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private String restEndpointUrl;
     private String buildAgentHost;
     private String buildAgentBindPath;
+    private String executorThreadPoolSize;
 
     private String podNamespace;
     private String restAuthToken;
@@ -52,6 +53,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("nonProxyHosts") String nonProxyHosts,
                                                   @JsonProperty("podNamespace") String podNamespace,
                                                   @JsonProperty("buildAgentBindPath") String buildAgentBindPath,
+                                                  @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
                                                   @JsonProperty("restAuthToken") String restAuthToken,
                                                   @JsonProperty("containerPort") String containerPort,
                                                   @JsonProperty("workingDirectory") String workingDirectory,
@@ -63,6 +65,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.restEndpointUrl = restEndpointUrl;
         this.buildAgentHost = buildAgentHost;
         this.buildAgentBindPath = buildAgentBindPath;
+        this.executorThreadPoolSize = executorThreadPoolSize;
         this.podNamespace = podNamespace;
         this.restAuthToken = restAuthToken;
         this.containerPort = containerPort;
@@ -96,6 +99,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         return buildAgentBindPath;
     }
 
+    public String getExecutorThreadPoolSize() {
+        return executorThreadPoolSize;
+    }
+
     public boolean getKeepBuildAgentInstance() {
         return keepBuildAgentInstance;
     }
@@ -116,6 +123,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 ", podNamespace='" + podNamespace + '\'' +
                 ", buildAgentHost='" + buildAgentHost + '\'' +
                 ", buildAgentBindPath='" + buildAgentBindPath + '\'' +
+                ", executorThreadPoolSize='" + executorThreadPoolSize + '\'' +
                 ", restAuthToken= HIDDEN " +
                 ", containerPort='" + containerPort + '\'' +
                 ", disabled='" + disabled + '\'' +
