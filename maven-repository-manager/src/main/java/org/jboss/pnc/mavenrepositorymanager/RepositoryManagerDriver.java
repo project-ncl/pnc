@@ -214,7 +214,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             if (!indy.stores().exists(StoreType.hosted, buildContentId)) {
                 HostedRepository buildArtifacts = new HostedRepository(buildContentId);
-                buildArtifacts.setAllowSnapshots(true);
+                buildArtifacts.setAllowSnapshots(false);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
