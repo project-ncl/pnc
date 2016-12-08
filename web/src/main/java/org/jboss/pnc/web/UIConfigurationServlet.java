@@ -19,6 +19,7 @@ package org.jboss.pnc.web;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
@@ -53,7 +54,9 @@ public class UIConfigurationServlet extends HttpServlet {
     private void lazyLoadUiConfig() throws ServletException {
         try {
             UIModuleConfig uiConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
-            String json = JsonOutputConverterMapper.apply(uiConfig);
+            ScmModuleConfig scmModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
+            UiConfigRest configRest = new UiConfigRest(uiConfig, scmModuleConfig.getInternalScmAuthority());
+            String json = JsonOutputConverterMapper.apply(configRest);
             this.uiConfig = generateJS(json);
         } catch (ConfigurationParseException e) {
             throw new ServletException("Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.", e);
