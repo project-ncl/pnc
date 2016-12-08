@@ -23,12 +23,14 @@
   module.directive('pncInternalExternalUrl', [
     function () {
 
-      function PncInternalExternalUrlController($scope) {
+      function PncInternalExternalUrlController($scope, pncProperties) {
         var COLUMS_CLASS = 'col-sm-'; // bootstrap prefix for column
         var COLUMS_MAX   = 12;        // bootstrap max columns
 
         $scope.sidebarClass = COLUMS_CLASS + $scope.sidebarCols;
         $scope.contentClass = COLUMS_CLASS + (COLUMS_MAX - $scope.sidebarCols);
+
+        $scope.exactHost = pncProperties.internalScmAuthority;
       }
 
       return {
