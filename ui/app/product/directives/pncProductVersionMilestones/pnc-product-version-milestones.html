@@ -61,12 +61,12 @@
          ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone"
          class="btn btn-default"><i class="pficon pficon-edit"></i></a>
       <a ng-show="productmilestone.releaseDate == undefined"
-         ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Release Milestone"
+         ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Close Milestone"
          class="btn btn-default"><i class="fa fa-lock"></i></a>
       <a ng-show="productmilestone.releaseDate != undefined"
          pnc-confirm-click="unreleaseMilestone(productmilestone)"
-         pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}"
-         title="Unrelease Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>
+         pnc-confirm-message="{{ 'Are you sure you want to re-open milestone: ' + productmilestone.version + ' ?'}}"
+         title="Re-open Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>
     </td>
   </tr>
   </tbody>
