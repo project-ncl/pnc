@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
@@ -28,8 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -39,19 +42,22 @@ import org.mockito.MockitoAnnotations;
 public class BuildConfigurationProviderTest {
 
     private static final int EXISTING_ID = 1243;
-    private static final String VALID_URL = "https://github.com/project-ncl/pnc";
+    private static final String VALID_URL = "git+ssh://git@github.com/project-ncl/pnc";
     private static final String INVALID_URL = "invalid url";
 
     @Mock
-    protected Repository<BuildConfiguration, Integer> repository;
+    private Repository<BuildConfiguration, Integer> repository;
+    @Mock
+    private ScmModuleConfig scmModuleConfig;
 
     @InjectMocks
     private BuildConfigurationProvider provider = new BuildConfigurationProvider();
 
     @Before
-    public void setUp() {
+    public void setUp() throws ConfigurationParseException {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(repository.queryById(EXISTING_ID)).thenReturn(BuildConfiguration.Builder.newBuilder().build());
+        when(repository.queryById(EXISTING_ID)).thenReturn(BuildConfiguration.Builder.newBuilder().build());
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git@github.com");
     }
 
     @Test(expected = InvalidEntityException.class)

@@ -17,11 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-import static org.junit.Assert.*;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -51,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response.Status;
-
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
@@ -60,8 +56,11 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -91,8 +90,10 @@ public class BuildConfigurationRestTest extends AbstractTest {
             + "dependencyExclusion.org.jboss.spec.javax.servlet:jboss-servlet-api_3.0_spec@*=1.0.2.Final-redhat-2,"
             + "dependencyExclusion.org.drools:drools-bom@*=6.4.0.Final-redhat-10,"
             + "dependencyExclusion.org.jboss.integration-platform:jboss-integration-platform-bom@*=6.0.6.Final-redhat-3";
-    
-    public static final String PNC_REPO = "https://github.com/project-ncl/pnc.git";
+
+
+    private static final String VALID_EXTERNAL_REPO = "https://github.com/project-ncl/pnc.git";
+    private static final String VALID_INTERNAL_REPO = "git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418/boo.git";
 
     private static int productId;
     private static int projectId;
@@ -177,8 +178,8 @@ public class BuildConfigurationRestTest extends AbstractTest {
         Response response = given().headers(testHeaders)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(CONFIGURATION_REST_ENDPOINT);
-        createdConfigurationId = response.jsonPath().<Integer>get(CONTENT_ID);
         assertEquals(201, response.getStatusCode());
+        createdConfigurationId = response.jsonPath().<Integer>get(CONTENT_ID);
     }
     
     @SuppressWarnings("unchecked")
@@ -204,13 +205,29 @@ public class BuildConfigurationRestTest extends AbstractTest {
     }
 
     @Test
+    public void shouldNotCreateWithInternalUrlNotMatchingPattern() throws IOException {
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder
+                .fromResource("buildConfiguration_WithEmptyCreateDate_template");
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+        configurationTemplate.addValue("_scmRepoUrl", VALID_EXTERNAL_REPO);
+
+        Response response = given().headers(testHeaders)
+                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(CONFIGURATION_REST_ENDPOINT);
+
+        ResponseAssertion.assertThat(response).hasStatus(400);
+    }
+
+    @Test
     public void shouldCreateNewBuildConfigurationWithCreateAndModifiedTime() throws IOException {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder
                 .fromResource("buildConfiguration_WithEmptyCreateDate_template");
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_name", UUID.randomUUID().toString());
-        configurationTemplate.addValue("_scmRepoUrl", PNC_REPO);
+        configurationTemplate.addValue("_scmRepoUrl", VALID_INTERNAL_REPO);
 
         Response response = given().headers(testHeaders)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -237,7 +254,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
         configurationTemplate.addValue("_name", updatedName);
         configurationTemplate.addValue("_buildScript", updatedBuildScript);
-        configurationTemplate.addValue("_scmRepoURL", PNC_REPO);
+        configurationTemplate.addValue("_scmRepoURL", VALID_INTERNAL_REPO);
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
         configurationTemplate.addValue("_projectId", updatedProjectId);
@@ -267,7 +284,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_ID, configurationId)
                 .hasJsonValueEqual(CONTENT_NAME, updatedName).hasJsonValueEqual("content.buildScript", updatedBuildScript)
-                .hasJsonValueEqual("content.scmRepoURL", PNC_REPO).hasJsonValueEqual("content.project.id", updatedProjectId)
+                .hasJsonValueEqual("content.scmRepoURL", VALID_INTERNAL_REPO).hasJsonValueEqual("content.project.id", updatedProjectId)
                 .hasJsonValueEqual("content.genericParameters.KEY1", updatedGenParamValue)
                 .hasJsonValueEqual("content.environment.id", environmentId);
         assertThat(projectResponseBeforeTheUpdate.getBody().print()).isEqualTo(projectResponseAfterTheUpdate.getBody().print());
@@ -345,7 +362,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_name", UUID.randomUUID().toString());
-        configurationTemplate.addValue("_scmRepoUrl", PNC_REPO);
+        configurationTemplate.addValue("_scmRepoUrl", VALID_INTERNAL_REPO);
 
         Response firstAttempt = given().headers(testHeaders)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -379,13 +396,13 @@ public class BuildConfigurationRestTest extends AbstractTest {
         buildConfiguration.setName(UUID.randomUUID().toString());
         buildConfiguration.setProject(projectRestClient.getValue());
         buildConfiguration.setEnvironment(environmentRestClient.getValue());
-        buildConfiguration.setScmRepoURL(PNC_REPO);
+        buildConfiguration.setScmRepoURL(VALID_INTERNAL_REPO);
 
         BuildConfigurationRest dependencyBuildConfiguration = new BuildConfigurationRest();
         dependencyBuildConfiguration.setName(UUID.randomUUID().toString());
         dependencyBuildConfiguration.setProject(projectRestClient.getValue());
         dependencyBuildConfiguration.setEnvironment(environmentRestClient.getValue());
-        dependencyBuildConfiguration.setScmRepoURL(PNC_REPO);
+        dependencyBuildConfiguration.setScmRepoURL(VALID_INTERNAL_REPO);
 
         // when
         RestResponse<BuildConfigurationRest> configurationResponse = buildConfigurationRestClient
