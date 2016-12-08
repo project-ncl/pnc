@@ -52,9 +52,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a> instance to
@@ -116,7 +123,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                         .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                         .build();
 
-                List<IndyClientModule> modules= Arrays.<IndyClientModule>asList(
+                List<IndyClientModule> modules = Arrays.<IndyClientModule>asList(
                         new IndyFoloAdminClientModule(),
                         new IndyFoloContentClientModule(),
                         new IndyPromoteClientModule());
