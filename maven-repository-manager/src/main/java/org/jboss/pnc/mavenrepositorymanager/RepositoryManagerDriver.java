@@ -2,13 +2,13 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.client.core.IndyClientHttp;
+import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
 import org.commonjava.indy.client.core.auth.OAuth20BearerTokenAuthenticator;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
@@ -29,7 +31,10 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
+import org.commonjava.util.jhttpc.model.SiteConfig;
+import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -47,16 +52,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a> instance to
@@ -81,7 +79,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Inject
-    public  RepositoryManagerDriver(Configuration configuration) {
+    public RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration
@@ -113,8 +111,18 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
             }
             try {
-                indy = new Indy(baseUrl, authenticator, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
-                        new IndyPromoteClientModule()).connect();
+                SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
+                        .withRequestTimeoutSeconds(120) // probably not good to go beyond this.
+                        .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
+                        .build();
+
+                List<IndyClientModule> modules= Arrays.<IndyClientModule>asList(
+                        new IndyFoloAdminClientModule(),
+                        new IndyFoloContentClientModule(),
+                        new IndyPromoteClientModule());
+
+                indy = new Indy(authenticator, new IndyObjectMapper(true), modules, siteConfig).connect();
+
                 indyMap.put(accessToken, indy);
             } catch (IndyClientException e) {
                 throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
@@ -148,7 +156,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *                                    (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken) 
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
             throws RepositoryManagerException {
         Indy indy = init(accessToken);
 
@@ -263,7 +271,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken) 
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken)
             throws RepositoryManagerException {
         Indy indy = init(accessToken);
         return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), indy);
