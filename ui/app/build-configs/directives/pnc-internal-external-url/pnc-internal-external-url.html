@@ -43,9 +43,12 @@
         <label for="input-scm-repo-url" class="control-label" ng-class="sidebarClass">* Url</label>
         <div ng-class="contentClass">
           <input type="text" id="input-scm-repo-url" class="form-control" name="scmUrl" maxlength="255" ng-model="data.scmUrl" ng-required="!data.externalScmUrl"
-              pnc-scm-validator="git+ssh" pnc-exact-host="user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418">
+              pnc-scm-validator="git+ssh" pnc-exact-host="exactHost">
           <span class="help-block" ng-show="form.scmUrl.$error.required && form.scmUrl.$touched">At least one of the SCMs is required.</span>
-          <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">Only R/W SCM with the following format <code>git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418</code> is allowed.</span>
+          <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">
+            <span ng-show="exactHost">Only R/W SCM with the following format <code>git+ssh://{{exactHost}}</code> is allowed.</span>
+            <span ng-hide="exactHost">Invalid or unsupported format (only git+ssh:// is supported).</span>
+          </span>
         </div>
       </div>
 
