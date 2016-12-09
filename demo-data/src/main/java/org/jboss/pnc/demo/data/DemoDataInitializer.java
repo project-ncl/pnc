@@ -18,6 +18,10 @@
 package org.jboss.pnc.demo.data;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 
 import javax.annotation.PostConstruct;
@@ -36,12 +40,27 @@ public class DemoDataInitializer {
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
     @Inject
+    private Configuration configuration;
+
+    @Inject
     DatabaseDataInitializer dbDataInitializer;
 
     @Inject ProjectRepository projectRepository;
 
     @PostConstruct
     public void initialize() {
+        DemoDataConfig demoDataConfig = null;
+        try {
+            demoDataConfig = configuration.getModuleConfig(new PncConfigProvider<>(DemoDataConfig.class));
+        } catch (ConfigurationParseException e) {
+            logger.warn("Cannot read demo data config.", e);
+        }
+
+        if (demoDataConfig == null || !demoDataConfig.getImportDemoData()) {
+            logger.info("Demo data import is not enabled.");
+            return;
+        }
+
         long numberOfProjectInDB = projectRepository.count();
         if (numberOfProjectInDB != 0) {
             logger.info("There are >0 ({}) projects in DB. Skipping initialization." + numberOfProjectInDB);
