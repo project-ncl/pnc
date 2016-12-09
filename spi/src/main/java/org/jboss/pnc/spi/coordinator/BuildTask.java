@@ -38,8 +38,8 @@ public class BuildTask {
     private static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
     private final Integer id;
-    private final BuildConfiguration buildConfiguration;
-    private final BuildConfigurationAudited buildConfigurationAudited;
+    private final BuildConfiguration buildConfiguration; //TODO decouple DB entity
+    private final BuildConfigurationAudited buildConfigurationAudited; //TODO decouple DB entity
 
     private final boolean podKeptAfterFailure;
 

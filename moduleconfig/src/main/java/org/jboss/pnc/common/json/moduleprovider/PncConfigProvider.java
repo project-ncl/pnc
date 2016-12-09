@@ -20,6 +20,7 @@ package org.jboss.pnc.common.json.moduleprovider;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
@@ -48,6 +49,7 @@ public class PncConfigProvider <T extends AbstractModuleConfig>
       addModuleConfig(new ProviderNameType(OpenshiftEnvironmentDriverModuleConfig.class, OpenshiftEnvironmentDriverModuleConfig.MODULE_NAME));
       addModuleConfig(new ProviderNameType(UIModuleConfig.class, UIModuleConfig.MODULE_NAME));
       addModuleConfig(new ProviderNameType(OpenshiftBuildAgentConfig.class, OpenshiftBuildAgentConfig.MODULE_NAME));
+      addModuleConfig(new ProviderNameType(DemoDataConfig.class, DemoDataConfig.MODULE_NAME));
       addModuleConfig(new ProviderNameType(ScmModuleConfig.class, ScmModuleConfig.MODULE_NAME));
     }
 }

@@ -26,6 +26,10 @@
                     "coordinatorMaxConcurrentBuilds": "10"
                 },
                 {
+                    "@module-config": "demo-data-config",
+                    "importDemoData": true
+                },
+                {
                     "@module-config": "termd-build-driver",
                     "username": "test",
                     "password": "test"
@@ -80,7 +84,8 @@
                         "realm": "${env.PNC_UI_KEYCLOAK_REALM}",
                         "clientId": "${env.PNC_UI_KEYCLOAK_CLIENT_ID}"
                     }
-                }, {
+                },
+                {
                     "@module-config": "scm-config",
                     "internalScmAuthority": "user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418"
                 }
