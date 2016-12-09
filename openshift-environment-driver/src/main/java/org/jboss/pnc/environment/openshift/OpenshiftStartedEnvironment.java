@@ -134,6 +134,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
         runtimeProperties.put("accessToken", accessToken);
+        runtimeProperties.put("buildContentId", repositorySession.getBuildRepositoryId());
 
         initDebug();
 
