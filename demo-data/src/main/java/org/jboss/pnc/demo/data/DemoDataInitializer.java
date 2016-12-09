@@ -40,7 +40,7 @@ public class DemoDataInitializer {
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
     @Inject
-    private Configuration configuration;
+    Configuration configuration;
 
     @Inject
     DatabaseDataInitializer dbDataInitializer;
