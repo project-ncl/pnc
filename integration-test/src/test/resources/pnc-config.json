@@ -13,6 +13,10 @@
           "builderThreadPoolSize": "1",
           "coordinatorThreadPoolSize": "1",
           "coordinatorMaxConcurrentBuilds": "10"
+        },
+        {
+          "@module-config": "demo-data-config",
+          "importDemoData": true
         }
       ]
     }
