@@ -77,6 +77,10 @@
                     {
                         "name": "accessToken",
                         "value": "${accessToken}"
+                    },
+                    {
+                        "name": "buildContentId",
+                        "value": "${buildContentId}"
                     }
                 ],
                 "resources": {},
