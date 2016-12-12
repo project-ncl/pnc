@@ -93,20 +93,9 @@
               pncNotify.info('Build Configuration "' + $scope.data.name + '" is being created. ' +
                 'Please wait, this may take up to a few minutes. Notifications will inform you about the progress.');
               return bccEventHandler.register(data.data, $scope.data.name);
-            }).then(function(bcId) {
-              if (_.isUndefined($scope.fixedProject)) {
-                $state.go('build-configs.detail', {
-                  configurationId: bcId
-                });
-              } else {
-                $state.go('projects.detail', {
-                  projectId: $scope.data.project.id
-                });
-              }
             }).catch(
               function() {
                 $log.error('Start build configuration creation failed.');
-                $state.go('build-configs.list');
               }
             );
         };
