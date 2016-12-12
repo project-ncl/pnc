@@ -113,7 +113,8 @@ module.exports = function (grunt) {
             'url': getOpt('keycloak-url', 'PNC_UI_KEYCLOAK_URL'),
             'realm': getOpt('keycloak-realm', 'PNC_UI_KEYCLOAK_REALM'),
             'clientId': getOpt('keycloak-client-id', 'PNC_UI_KEYCLOAK_CLIENT_ID')
-        }
+        },
+        'internalScmAuthority': getOpt('internal-scm-authority', 'PNC_UI_INTERNAL_SCM_AUTHORITY')
       };
     }
 
