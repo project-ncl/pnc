@@ -223,7 +223,7 @@
                   // TODO this is silly
                   BuildConfigurationDAO.get({ configurationId: id }).$promise.then(function(data) {
                     $state.go('projects.detail.build-configs.detail', {
-                      projectId: data.content.project.id,
+                      projectId: data.project.id,
                       configurationId: id
                     });
                   });
