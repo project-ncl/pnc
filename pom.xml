@@ -107,7 +107,7 @@
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
-    <version.buildagent>0.3-SNAPSHOT</version.buildagent>
+    <version.buildagent>0.3</version.buildagent>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
