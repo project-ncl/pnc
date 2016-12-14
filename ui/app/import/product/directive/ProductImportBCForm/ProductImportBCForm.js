@@ -39,7 +39,6 @@
 
           var setFormDirty = function() {
             angular.forEach(scope.bcForm.$error.required, function(field) {
-              field.$setTouched();
               field.$setDirty();
             });
           };
