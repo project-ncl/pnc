@@ -91,12 +91,11 @@
 
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
             function(data) {
+              $state.go('projects.detail', { projectId: $scope.data.project.id });
+
               pncNotify.info('Build Configuration "' + $scope.data.name + '" is being created. ' +
                 'Please wait, this may take up to a few minutes. Notifications will inform you about the progress.');
               var registered = bccEventHandler.register(data.data, $scope.data.name);
-
-              $state.go('projects.detail', { projectId: $scope.data.project.id });
-
               return registered;
             }).catch(
               function() {
