@@ -23,7 +23,8 @@
   module.directive('pncConfigurationCreatePanel', [
     'eventTypes',
     'bccEventHandler',
-    function (eventTypes, bccEventHandler) {
+    '$state',
+    function (eventTypes, bccEventHandler, $state) {
 
       function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify,
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
@@ -92,7 +93,11 @@
             function(data) {
               pncNotify.info('Build Configuration "' + $scope.data.name + '" is being created. ' +
                 'Please wait, this may take up to a few minutes. Notifications will inform you about the progress.');
-              return bccEventHandler.register(data.data, $scope.data.name);
+              var registered = bccEventHandler.register(data.data, $scope.data.name);
+
+              $state.go('projects.detail', { projectId: $scope.data.project.id });
+
+              return registered;
             }).catch(
               function() {
                 $log.error('Start build configuration creation failed.');
