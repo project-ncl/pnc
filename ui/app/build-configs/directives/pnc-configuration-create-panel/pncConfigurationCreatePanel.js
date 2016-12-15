@@ -23,8 +23,7 @@
   module.directive('pncConfigurationCreatePanel', [
     'eventTypes',
     'bccEventHandler',
-    '$state',
-    function (eventTypes, bccEventHandler, $state) {
+    function (eventTypes, bccEventHandler) {
 
       function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify,
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
