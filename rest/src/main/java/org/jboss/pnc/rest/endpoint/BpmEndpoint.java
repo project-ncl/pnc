@@ -77,6 +77,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -262,7 +263,7 @@ public class BpmEndpoint extends AbstractEndpoint {
                 .validateNotEmptyArgument()
                 .validateAnnotations();
 
-        if ((taskData.getScmExternalRepoURL() == null) == (taskData.getScmRepoURL() == null)) {
+        if ((isBlank(taskData.getScmExternalRepoURL())) == isBlank(taskData.getScmRepoURL())) {
             throw new InvalidEntityException("Exactly one of scmRepoURL, scmExternalRepoURL should be provided");
         }
 

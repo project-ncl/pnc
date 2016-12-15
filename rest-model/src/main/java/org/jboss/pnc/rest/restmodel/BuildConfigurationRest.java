@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -30,14 +30,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.Setter;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Configuration")
 public class BuildConfigurationRest implements GenericRestEntity<Integer> {
@@ -54,7 +53,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private String buildScript;
 
-    @NotNull(groups = WhenCreatingNew.class)
+    @NotBlank(groups = WhenCreatingNew.class)
     @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String scmRepoURL;
 
