@@ -48,7 +48,7 @@ public class ScmUrlValidator implements ConstraintValidator<ScmUrl, String>{
     private static final UrlValidator validator = new UrlValidator(new String[]{"http", "https", "git", "ssh", "git+ssh"});
 
     public static boolean isValid(String url) {
-        if (url == null) {
+        if (url == null || "".equals(url)) {
             return true;
         }
 
