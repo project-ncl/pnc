@@ -90,9 +90,12 @@
 
           BpmDAO.startBuildConfigurationCreation($scope.data).then(
             function(data) {
+              $state.go('projects.detail', { projectId: $scope.data.project.id });
+
               pncNotify.info('Build Configuration "' + $scope.data.name + '" is being created. ' +
                 'Please wait, this may take up to a few minutes. Notifications will inform you about the progress.');
-              return bccEventHandler.register(data.data, $scope.data.name);
+              var registered = bccEventHandler.register(data.data, $scope.data.name);
+              return registered;
             }).catch(
               function() {
                 $log.error('Start build configuration creation failed.');
