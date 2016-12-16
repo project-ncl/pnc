@@ -40,9 +40,9 @@
         scope: {
           pncProject: '='
         },
-        link: function (scope) {
-          scope.page = BuildConfigurationDAO.getPagedByProject({ projectId: scope.pncProject.id });
-        }
+        controller: ['$scope', function ($scope) {
+          $scope.page = BuildConfigurationDAO.getPagedByProject({ projectId: $scope.pncProject.id });
+        }]
       };
     }
   ]);
