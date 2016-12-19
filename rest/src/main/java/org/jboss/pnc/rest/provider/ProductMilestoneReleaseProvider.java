@@ -61,11 +61,8 @@ public class ProductMilestoneReleaseProvider extends AbstractProvider<ProductMil
         throw new IllegalStateException("ProductMilestoneRelease entity is not to be created via REST");
     }
 
-    public ProductMilestoneReleaseRest latestForMilestone(Integer milestoneId) {
-        ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
-
+    public ProductMilestoneReleaseRest latestForMilestone(ProductMilestone milestone) {
         ProductMilestoneRelease release = milestone == null ? null : releaseRepository.findLatestByMilestone(milestone);
-
         return release == null ? null : toRESTModel().apply(release);
     }
 }
