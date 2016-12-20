@@ -87,7 +87,7 @@
                 },
                 {
                     "@module-config": "scm-config",
-                    "internalScmAuthority": "user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418"
+                    "internalScmAuthority": "git-repo-user@git-repo.devvm.devcloud.example.com:12839"
                 }
             ]
         },
