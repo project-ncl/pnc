@@ -1,7 +1,7 @@
 {
     "name":"${_name}",
     "buildScript":"mvn clean deploy -Dmaven.test.skip",
-    "scmRepoURL":"git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418/boo.git",
+    "scmRepoURL":"git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/boo.git",
     "creationTime":1418382545021,
     "lastModificationTime":1418382545038,
     "project": {

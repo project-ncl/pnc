@@ -93,7 +93,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
 
 
     private static final String VALID_EXTERNAL_REPO = "https://github.com/project-ncl/pnc.git";
-    private static final String VALID_INTERNAL_REPO = "git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418/boo.git";
+    private static final String VALID_INTERNAL_REPO = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/boo.git";
 
     private static int productId;
     private static int projectId;
