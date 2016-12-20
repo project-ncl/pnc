@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
  */
 public class BpmEndpointTest {
 
-    private static final String VALID_INTERNAL_SCM_URL = "git+ssh://user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418/rock-a-teens/woo-hoo.git";
+    private static final String VALID_INTERNAL_SCM_URL = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/rock-a-teens/woo-hoo.git";
     private static final String VALID_EXTERNAL_SCM_URL = "git+ssh://github.com/project-ncl/pnc.git";
     @Mock
     private AuthenticationProviderFactory authProviderFactory;
@@ -83,7 +83,7 @@ public class BpmEndpointTest {
 
         bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, configurationProvider, null);
 
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("user-pnc-gerrit@pnc-gerrit.pnc.dev.eng.bos.redhat.com:29418");
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
     }
 
     @Test
