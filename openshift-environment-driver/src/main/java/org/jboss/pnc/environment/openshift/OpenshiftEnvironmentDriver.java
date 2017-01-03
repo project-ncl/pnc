@@ -57,6 +57,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     private ExecutorService executor;
 
     private OpenshiftEnvironmentDriverModuleConfig config;
+    private Configuration configuration;
     private PullingMonitor pullingMonitor;
 
     @Deprecated //CDI workaround
@@ -70,7 +71,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         this.pullingMonitor = pullingMonitor;
 
         config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
-
+        this.configuration = configuration;
         String executorThreadPoolSizeStr = config.getExecutorThreadPoolSize();
 
         if (executorThreadPoolSizeStr != null) {
@@ -94,7 +95,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
         String buildImageId = StringUtils.addEndingSlash(systemImageRepositoryUrl) + systemImageId;
-        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, buildImageId, debugData, accessToken);
+        return new OpenshiftStartedEnvironment(executor, configuration, config, pullingMonitor, repositorySession, buildImageId, debugData, accessToken);
     }
 
     @Override
