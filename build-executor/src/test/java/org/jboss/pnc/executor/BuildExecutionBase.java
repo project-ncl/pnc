@@ -65,6 +65,9 @@ class BuildExecutionBase {
     @Inject
     BuildDriverFactory buildDriverFactory;
 
+    @Inject
+    Configuration configuration;
+
     BuildExecutionStatus[] baseBuildStatuses = {
             BuildExecutionStatus.NEW,
             BuildExecutionStatus.BUILD_ENV_SETTING_UP,
@@ -114,7 +117,7 @@ class BuildExecutionBase {
                 repositoryManagerFactory,
                 buildDriverFactory,
                 environmentDriverFactory,
-                new Configuration() //TODO inject instance
+                configuration
         );
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, (e) -> {}, executor);
