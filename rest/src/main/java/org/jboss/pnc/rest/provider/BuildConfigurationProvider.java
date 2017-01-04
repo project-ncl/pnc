@@ -129,7 +129,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
 
-        if (StringUtils.isNotBlank(internalScmAuthority)) {
+        if (StringUtils.isNotBlank(internalRepoUrl) && internalScmAuthority != null) {
             String expectedPrefix = "git+ssh://" + internalScmAuthority;
             if (!internalRepoUrl.startsWith(expectedPrefix)) {
                 throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix);
