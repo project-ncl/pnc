@@ -17,16 +17,25 @@
  */
 package org.jboss.pnc.datastore;
 
-import java.io.File;
-
+import org.jboss.arquillian.container.spi.client.container.DeploymentException;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeploymentFactory {
+
+    private static Logger logger = LoggerFactory.getLogger(DeploymentFactory.class);
 
     public static Archive<?> createDatastoreDeployment() {
         JavaArchive datastoreJar = ShrinkWrap.create(JavaArchive.class, "datastore.jar")
@@ -36,7 +45,31 @@ public class DeploymentFactory {
         File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeAndTestDependencies().resolve()
                 .withTransitivity().asFile();
 
-        return ShrinkWrap.create(EnterpriseArchive.class, "datastore-test.ear").addAsModule(datastoreJar)
-                .addAsLibraries(dependencies);
+        //remove "model-<version>.jar" from the archive and add it as "model.jar" so we can reference it in the test-persistence.xml
+        ObjectWrapper<File> modelJarWrapper = new ObjectWrapper();
+        List<File> dependenciesNoModel = Arrays.stream(dependencies).filter(jar -> extractModelJar(jar, modelJarWrapper))
+                .collect(Collectors.toList());
+        File modelJar = modelJarWrapper.get();
+        if (modelJar == null) {
+            throw new RuntimeException(new DeploymentException("Cannot find model*.jar"));
+        }
+
+        EnterpriseArchive enterpriseArchive = ShrinkWrap.create(EnterpriseArchive.class, "datastore-test.ear")
+                .addAsModule(datastoreJar)
+                .addAsLibraries(dependenciesNoModel.toArray(new File[dependenciesNoModel.size()]))
+                .addAsLibrary(modelJar, "model.jar");
+
+        logger.debug("Deployment: {}", enterpriseArchive.toString(true));
+
+        return enterpriseArchive;
+    }
+
+    private static boolean extractModelJar(File jar, ObjectWrapper<File> modelJar) {
+        if (jar.getName().matches("model.*\\.jar")) {
+            modelJar.set(jar);
+            return false;
+        } else {
+            return true;
+        }
     }
 }
