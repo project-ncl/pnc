@@ -43,6 +43,9 @@ public class ModuleConfigJsonTest {
                 new JenkinsBuildDriverModuleConfig("user", "pass");
         MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig =
                 new MavenRepoDriverModuleConfig("http://something/base");
+        mavenRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
+        mavenRepoDriverModuleConfig.setDefaultRequestTimeout(100);
+        
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(jenkinsBuildDriverModuleConfig);
         pncGroup.addConfig(mavenRepoDriverModuleConfig);

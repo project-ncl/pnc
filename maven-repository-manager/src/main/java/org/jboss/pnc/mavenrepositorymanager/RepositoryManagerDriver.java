@@ -21,6 +21,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.client.core.IndyClientHttp;
+import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
 import org.commonjava.indy.client.core.auth.OAuth20BearerTokenAuthenticator;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
@@ -29,7 +31,10 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
+import org.commonjava.util.jhttpc.model.SiteConfig;
+import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -47,8 +52,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +75,10 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTE
 public class RepositoryManagerDriver implements RepositoryManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    
+    private final int DEFAULT_REQUEST_TIMEOUT;
+    
+    private final boolean BUILD_REPOSITORY_ALLOW_SNAPSHOTS;
 
     private String baseUrl;
     private Map<String, Indy> indyMap = new HashMap<>();
@@ -78,10 +87,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
+        this.DEFAULT_REQUEST_TIMEOUT = 0;
+        this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = false;
     }
 
     @Inject
-    public  RepositoryManagerDriver(Configuration configuration) {
+    public RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration
@@ -89,6 +100,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
+        this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
+        this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = config.getBuildRepositoryAllowSnapshots();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -113,8 +126,18 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
             }
             try {
-                indy = new Indy(baseUrl, authenticator, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
-                        new IndyPromoteClientModule()).connect();
+                SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
+                        .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT) 
+                        .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
+                        .build();
+
+                List<IndyClientModule> modules = Arrays.<IndyClientModule>asList(
+                        new IndyFoloAdminClientModule(),
+                        new IndyFoloContentClientModule(),
+                        new IndyPromoteClientModule());
+
+                indy = new Indy(authenticator, new IndyObjectMapper(true), modules, siteConfig).connect();
+
                 indyMap.put(accessToken, indy);
             } catch (IndyClientException e) {
                 throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
@@ -148,7 +171,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *                                    (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken) 
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
             throws RepositoryManagerException {
         Indy indy = init(accessToken);
 
@@ -199,7 +222,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             if (!indy.stores().exists(StoreType.hosted, buildContentId)) {
                 HostedRepository buildArtifacts = new HostedRepository(buildContentId);
-                buildArtifacts.setAllowSnapshots(true);
+                buildArtifacts.setAllowSnapshots(BUILD_REPOSITORY_ALLOW_SNAPSHOTS);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
@@ -263,7 +286,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken) 
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken)
             throws RepositoryManagerException {
         Indy indy = init(accessToken);
         return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), indy);

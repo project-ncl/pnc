@@ -18,8 +18,13 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+
 import java.util.List;
 
 @ToString
@@ -50,7 +55,23 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      */
     @JsonProperty
     private String externalRepositoryMvnPath;
+    
+    /**
+     * Request timeout for the whole client in seconds
+     */
+    @Getter
+    @Setter
+    @JsonProperty(required = false)
+    private Integer defaultRequestTimeout = 600;
 
+    /**
+     * Should be the build repositories configured to allow snapshots?
+     */
+    @Getter
+    @Setter
+    @JsonProperty(required = false)
+    private Boolean buildRepositoryAllowSnapshots = false;
+    
     public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
     }
