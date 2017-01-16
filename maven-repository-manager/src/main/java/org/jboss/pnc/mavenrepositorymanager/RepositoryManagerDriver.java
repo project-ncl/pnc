@@ -75,6 +75,10 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTE
 public class RepositoryManagerDriver implements RepositoryManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    
+    private final int DEFAULT_REQUEST_TIMEOUT;
+    
+    private final boolean BUILD_REPOSITORY_ALLOW_SNAPSHOTS;
 
     private String baseUrl;
     private Map<String, Indy> indyMap = new HashMap<>();
@@ -83,6 +87,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
+        this.DEFAULT_REQUEST_TIMEOUT = 0;
+        this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = false;
     }
 
     @Inject
@@ -94,6 +100,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
+        this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
+        this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = config.getBuildRepositoryAllowSnapshots();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -119,7 +127,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             }
             try {
                 SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
-                        .withRequestTimeoutSeconds(120) // probably not good to go beyond this.
+                        .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT) 
                         .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                         .build();
 
@@ -214,7 +222,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             if (!indy.stores().exists(StoreType.hosted, buildContentId)) {
                 HostedRepository buildArtifacts = new HostedRepository(buildContentId);
-                buildArtifacts.setAllowSnapshots(false);
+                buildArtifacts.setAllowSnapshots(BUILD_REPOSITORY_ALLOW_SNAPSHOTS);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
