@@ -29,7 +29,7 @@ import java.util.List;
 
 @ToString
 public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
-    
+
     public static String MODULE_NAME = "maven-repo-driver";
 
     /**
@@ -45,6 +45,13 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     private List<String> internalRepoPatterns;
 
     /**
+     * Comma-separated list of path suffixes to be ignored from showing in UI and to be part of a promotion. This
+     * applies for both downloads and uploads.
+     */
+    @JsonProperty("ignored-path-suffixes")
+    private List<String> ignoredPathSuffixes;
+
+    /**
      * Internal network (cloud) maven repository path
      */
     @JsonProperty
@@ -55,7 +62,7 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      */
     @JsonProperty
     private String externalRepositoryMvnPath;
-    
+
     /**
      * Request timeout for the whole client in seconds
      */
@@ -71,7 +78,7 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     @Setter
     @JsonProperty(required = false)
     private Boolean buildRepositoryAllowSnapshots = false;
-    
+
     public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
     }
@@ -90,6 +97,14 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
 
     public void setInternalRepoPatterns(List<String> internalRepoPatterns) {
         this.internalRepoPatterns = internalRepoPatterns;
+    }
+
+    public List<String> getIgnoredPathSuffixes() {
+        return ignoredPathSuffixes;
+    }
+
+    public void setIgnoredPathSuffixes(List<String> ignoredPathSuffixes) {
+        this.ignoredPathSuffixes = ignoredPathSuffixes;
     }
 
     public String getInternalRepositoryMvnPath() {

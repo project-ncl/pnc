@@ -28,6 +28,8 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -45,14 +47,18 @@ public class ModuleConfigJsonTest {
                 new MavenRepoDriverModuleConfig("http://something/base");
         mavenRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         mavenRepoDriverModuleConfig.setDefaultRequestTimeout(100);
-        
+        List<String> ignoredSuffixes = new ArrayList<>(2);
+        ignoredSuffixes.add("/maven-metadata.xml");
+        ignoredSuffixes.add(".sha1");
+        mavenRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);
+
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(jenkinsBuildDriverModuleConfig);
         pncGroup.addConfig(mavenRepoDriverModuleConfig);
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class);
+        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(AuthenticationModuleConfig.class);
         pncProvider.registerProvider(mapper);
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         mapper.writeValue(byteOutStream, moduleConfigJson);
@@ -63,7 +69,7 @@ public class ModuleConfigJsonTest {
     @Test
     public void deserializationTest() throws JsonParseException, JsonMappingException, IOException {
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class);
+        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(AuthenticationModuleConfig.class);
         pncProvider.registerProvider(mapper);
         mapper.registerSubtypes(PNCModuleGroup.class);
         ModuleConfigJson config = mapper.readValue(loadConfig("testConfigNoSpaces.json"), ModuleConfigJson.class);

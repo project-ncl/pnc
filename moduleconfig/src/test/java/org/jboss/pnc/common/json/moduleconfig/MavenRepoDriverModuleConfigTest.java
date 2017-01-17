@@ -25,44 +25,47 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.junit.Test;
 
 /**
- * 
+ *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
-    
+
     @Test
     public void loadMavenRepoDriverConfigTest() throws ConfigurationParseException {
             Configuration configuration = new Configuration();
-            
+
             MavenRepoDriverModuleConfig mavenConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class));
-            
+                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+
             assertNotNull(mavenConfig);
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
             assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
             assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
+            assertEquals(2, mavenConfig.getIgnoredPathSuffixes().size());
+            assertTrue(mavenConfig.getIgnoredPathSuffixes().contains("/maven-metadata.xml"));
+            assertTrue(mavenConfig.getIgnoredPathSuffixes().contains(".sha1"));
     }
-    
+
     @Test
     public void checkDefaultValuesLoadedProperly() throws ConfigurationParseException {
             String backupConfigPath = System.getProperty("pnc-config-file");
             System.setProperty("pnc-config-file", "testConfigWithoutDefaults.json");
-            
+
             Configuration configuration = new Configuration();
             MavenRepoDriverModuleConfig mavenConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class));
-            
+                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+
             if (backupConfigPath != null)
                 System.setProperty("pnc-config-file", backupConfigPath);
             else
                 System.getProperties().remove("pnc-config-file");
-            
+
             assertNotNull(mavenConfig);
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
             assertEquals(600, mavenConfig.getDefaultRequestTimeout().intValue());
             assertEquals(false, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
     }
-    
-    
+
+
 }
