@@ -74,8 +74,7 @@ import java.util.Set;
  */
 public class MavenRepositorySession implements RepositorySession {
 
-    private static Set<String> IGNORED_PATH_SUFFIXES =
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList("maven-metadata.xml", ".sha1", ".md5", ".asc")));
+    private Set<String> ignoredPathSuffixes;
 
     private Indy indy;
     private final String buildContentId;
@@ -97,10 +96,12 @@ public class MavenRepositorySession implements RepositorySession {
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns) {
+    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info,
+            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes) {
         this.indy = indy;
         this.buildContentId = buildContentId;
         this.internalRepoPatterns = internalRepoPatterns;
+        this.ignoredPathSuffixes = ignoredPathSuffixes;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
     }
@@ -209,7 +210,7 @@ public class MavenRepositorySession implements RepositorySession {
 //            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
-            	String path = download.getPath();
+                String path = download.getPath();
                 if (ignoreContent(path)) {
                     logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), download.getStoreKey());
                     continue;
@@ -452,7 +453,7 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     private boolean ignoreContent(String path) {
-        for (String suffix : IGNORED_PATH_SUFFIXES) {
+        for (String suffix : ignoredPathSuffixes) {
             if (path.endsWith(suffix))
                 return true;
         }
