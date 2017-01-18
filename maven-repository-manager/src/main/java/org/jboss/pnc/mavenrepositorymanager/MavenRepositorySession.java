@@ -74,8 +74,7 @@ import java.util.Set;
  */
 public class MavenRepositorySession implements RepositorySession {
 
-    private static Set<String> IGNORED_PATH_SUFFIXES =
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList("maven-metadata.xml", ".sha1", ".md5", ".asc")));
+    private Set<String> ignoredPathSuffixes;
 
     private Indy indy;
     private final String buildContentId;
@@ -97,10 +96,12 @@ public class MavenRepositorySession implements RepositorySession {
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns) {
+    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info,
+            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes) {
         this.indy = indy;
         this.buildContentId = buildContentId;
         this.internalRepoPatterns = internalRepoPatterns;
+        this.ignoredPathSuffixes = ignoredPathSuffixes;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
     }
@@ -209,7 +210,8 @@ public class MavenRepositorySession implements RepositorySession {
 //            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
-                if (ignoreContent(download.getPath())) {
+                String path = download.getPath();
+                if (ignoreContent(path)) {
                     logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), download.getStoreKey());
                     continue;
                 }
@@ -231,16 +233,22 @@ public class MavenRepositorySession implements RepositorySession {
                     paths.add(download.getPath());
                 }
 
-                String path = download.getPath();
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+
+                String identifier;
                 if (pathInfo == null) {
-                    // metadata file. Ignore.
-                    logger.info("NOT logging file download: {}. It does not appear to be an artifact. (From: {})", path, sk);
-                    continue;
+                    identifier = download.getOriginUrl();
+                    if (identifier == null) {
+                        // this is from a hosted repository, either shared-imports or a build, or something like that.
+                        identifier = download.getLocalUrl();
+                    }
+                    identifier += '|' + download.getSha256();
+                } else {
+                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+                    identifier = aref.toString();
                 }
 
-                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
-                logger.info("Recording download: {}", aref);
+                logger.info("Recording download: {}", identifier);
 
                 String originUrl = download.getOriginUrl();
                 if (originUrl == null) {
@@ -257,7 +265,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .originUrl(originUrl)
                         .importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName())
-                        .identifier(aref.toString())
+                        .identifier(identifier)
                         .repoType(toRepoType(download.getAccessChannel()));
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
@@ -313,14 +321,21 @@ public class MavenRepositorySession implements RepositorySession {
                 }
 
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+
+                String identifier;
                 if (pathInfo == null) {
-                    // metadata file. Ignore.
-                    logger.info("NOT logging file upload: {}. It does not appear to be an artifact. (From: {})", path, upload.getStoreKey());
-                    continue;
+                    identifier = upload.getOriginUrl();
+                    if (identifier == null) {
+                        // this is to a hosted repository, either the build repo or something like that.
+                        identifier = upload.getLocalUrl();
+                    }
+                    identifier += '|' + upload.getSha256();
+                } else {
+                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+                    identifier = aref.toString();
                 }
 
-                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
-                logger.info("Recording upload: {}", aref);
+                logger.info("Recording upload: {}", identifier);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(upload.getMd5())
@@ -329,7 +344,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .size(upload.getSize())
                         .deployPath(upload.getPath())
                         .filename(new File(path).getName())
-                        .identifier(aref.toString())
+                        .identifier(identifier)
                         .repoType(ArtifactRepo.Type.MAVEN);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
@@ -438,7 +453,7 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     private boolean ignoreContent(String path) {
-        for (String suffix : IGNORED_PATH_SUFFIXES) {
+        for (String suffix : ignoredPathSuffixes) {
             if (path.endsWith(suffix))
                 return true;
         }

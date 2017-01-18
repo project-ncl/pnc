@@ -54,9 +54,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
@@ -75,15 +78,17 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTE
 public class RepositoryManagerDriver implements RepositoryManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     private final int DEFAULT_REQUEST_TIMEOUT;
-    
+
     private final boolean BUILD_REPOSITORY_ALLOW_SNAPSHOTS;
 
     private String baseUrl;
     private Map<String, Indy> indyMap = new HashMap<>();
 
     private List<String> internalRepoPatterns;
+
+    private Set<String> ignoredPathSuffixes;
 
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
@@ -115,6 +120,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
         if (extraInternalRepoPatterns != null) {
             internalRepoPatterns.addAll(extraInternalRepoPatterns);
         }
+
+        List<String> ignoredPathSuffixes = config.getIgnoredPathSuffixes();
+        if (ignoredPathSuffixes == null) {
+            this.ignoredPathSuffixes = Collections.emptySet();
+        } else {
+            this.ignoredPathSuffixes = new HashSet<>(ignoredPathSuffixes);
+        }
     }
 
     @SuppressWarnings("resource")
@@ -127,7 +139,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             }
             try {
                 SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
-                        .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT) 
+                        .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT)
                         .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                         .build();
 
@@ -199,7 +211,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl), internalRepoPatterns);
+        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
+                internalRepoPatterns, ignoredPathSuffixes);
     }
 
     /**
