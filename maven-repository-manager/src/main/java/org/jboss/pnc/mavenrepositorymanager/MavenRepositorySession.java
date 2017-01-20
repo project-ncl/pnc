@@ -223,14 +223,22 @@ public class MavenRepositorySession implements RepositorySession {
                 // New binary imports will be coming from a remote repository...
                 // TODO: Enterprise maven repository (product repo) handling...
                 if (isExternalOrigin(sk) && StoreType.hosted != sk.getType()) {
-                    // this has not been captured, so promote it.
-                    Set<String> paths = toPromote.get(sk);
-                    if (paths == null) {
-                        paths = new HashSet<>();
-                        toPromote.put(sk, paths);
-                    }
+                    switch (download.getAccessChannel()) {
+                        case MAVEN_REPO:
+                            // this has not been captured, so promote it.
+                            Set<String> paths = toPromote.get(sk);
+                            if (paths == null) {
+                                paths = new HashSet<>();
+                                toPromote.put(sk, paths);
+                            }
 
-                    paths.add(download.getPath());
+                            paths.add(download.getPath());
+                            break;
+
+                        default:
+                            // do not promote anything else anywhere
+                            break;
+                    }
                 }
 
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
