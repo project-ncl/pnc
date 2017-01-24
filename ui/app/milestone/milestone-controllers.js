@@ -204,7 +204,13 @@
       that.data = milestoneDetail;
 
       // date component <- timestamp
-      that.endDate = new Date(that.data.endDate);
+
+      // if endDate is not set yet, use the plannedEndDate instead
+      if (that.data.endDate === null) {
+        that.endDate = new Date(that.data.plannedEndDate);
+      } else {
+        that.endDate = new Date(that.data.endDate);
+      }
 
       that.submit = function() {
 
