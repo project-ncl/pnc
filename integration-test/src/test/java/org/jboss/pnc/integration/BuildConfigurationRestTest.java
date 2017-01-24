@@ -159,16 +159,17 @@ public class BuildConfigurationRestTest extends AbstractTest {
     @Test
     @InSequence(1)
     public void shouldCreateNewBuildConfiguration() throws IOException {
-        createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), UUID.randomUUID().toString(),
+        createdConfigurationId = createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), UUID.randomUUID().toString(),
                 UUID.randomUUID().toString());
     }
 
+    @Test
     public void shouldCreateBuildConfigurationWithLongGenericParameter() throws Exception {
         createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), UUID.randomUUID().toString(),
                 PME_PARAMS_LONG);
     }
 
-    private void createBuildConfigurationAndValidateResults(String projectId, String environmentId, String name, String genericParameterValue1) throws IOException {
+    private int createBuildConfigurationAndValidateResults(String projectId, String environmentId, String name, String genericParameterValue1) throws IOException {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
         configurationTemplate.addValue("_projectId", projectId);
         configurationTemplate.addValue("_environmentId", environmentId);
@@ -179,7 +180,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(CONFIGURATION_REST_ENDPOINT);
         assertEquals(201, response.getStatusCode());
-        createdConfigurationId = response.jsonPath().<Integer>get(CONTENT_ID);
+        return response.jsonPath().<Integer>get(CONTENT_ID);
     }
     
     @SuppressWarnings("unchecked")
@@ -424,6 +425,24 @@ public class BuildConfigurationRestTest extends AbstractTest {
         // then
         ResponseAssertion.assertThat(addDepResponse).hasStatus(200);
         assertThat(getUpdatedConfigResponse.getValue().getDependencyIds()).containsExactly(depConfigId);
+    }
+
+    @Test
+    public void shouldCreateBuildConfigurationWithNameOfAnArchivedOne() throws IOException {
+        // having created
+        String configName = UUID.randomUUID().toString();
+        int configId = createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), configName,
+                UUID.randomUUID().toString());
+        
+        // and archived build configuration
+        buildConfigurationRestClient.delete(configId).getRestCallResponse().then().statusCode(200);
+        boolean isArchived = buildConfigurationRestClient
+                .get(configId, false).getRestCallResponse().jsonPath().getBoolean("content.archived");
+        assertThat(isArchived).isTrue();
+
+        // one can create another configuration with the same name
+        createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId), configName,
+                UUID.randomUUID().toString());
     }
     
 
