@@ -229,4 +229,22 @@ public class BuildQueue {
         return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty()
                 && unfinishedTasks.isEmpty() && taskSets.isEmpty();
     }
+
+    public synchronized String getDebugInfo() {
+        String info = "=====================\nQUEUE STATE:\n=====================\n" +
+                "Available build slots: " + availableBuildSlots.availablePermits() + "\n" +
+                "Queue length:" + availableBuildSlots.getQueueLength() + "\n" +
+                "\n=====================\nTASKS IN PROGRESS:\n=====================\n" +
+                tasksInProgress +
+                "\n=====================\nREADY TASKS:\n=====================\n" +
+                readyTasks +
+                "\n=====================\nWAITING TASKS:\n=====================\n" +
+                waitingTasks +
+                "\n=====================\nALL UNFINISHED TASKS:\n=====================\n" +
+                unfinishedTasks +
+                "\n=====================\nTASK SETS:\n=====================\n" +
+                taskSets;
+
+        return info;
+    }
 }
