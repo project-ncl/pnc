@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,11 @@ import java.util.logging.Logger;
  */
 @RunWith(Arquillian.class)
 public class MultipleProjectsBuildTest extends ProjectBuilder {
+
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+    }
 
     private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
 //    private final int N_PROJECTS = 2;

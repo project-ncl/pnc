@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +36,11 @@ import java.util.List;
  */
 @RunWith(Arquillian.class)
 public class SingleProjectBuildTest extends ProjectBuilder {
+
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+    }
 
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;

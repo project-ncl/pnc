@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -38,7 +37,6 @@ import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,17 +80,13 @@ public class ProjectBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
     public static final int N_STATUS_UPDATES_PER_TASK = 3;
-    public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 1;
+    public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 1; //only REJECTED_FAILED_DEPENDENCIES (WAITING_FOR_DEPENDENCIES is currently not notified)
 
     @Before
     public void setUp() {
         clearSemaphores();
     }
 
-    @Deployment
-    public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
-    }
     BuildTask buildProject(
             BuildConfiguration buildConfiguration,
             BuildCoordinator buildCoordinator,
@@ -140,7 +134,11 @@ public class ProjectBuilder {
     }
 
     void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds) throws InterruptedException, CoreException, DatastoreException {
-        int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS;
+        buildFailingProject(buildConfigurationSet, numCompletedBuilds, 1);
+    }
+
+    void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds, int numFailedBuilds) throws InterruptedException, CoreException, DatastoreException {
+        int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS * numFailedBuilds;
         buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifyFailingProject);
     }
 

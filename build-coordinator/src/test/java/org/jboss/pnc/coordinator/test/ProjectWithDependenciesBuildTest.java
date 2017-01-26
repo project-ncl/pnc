@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -26,6 +27,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.util.Wait;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +46,11 @@ import java.util.stream.Collectors;
  */
 @RunWith(Arquillian.class)
 public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
+
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+    }
 
     Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
 
