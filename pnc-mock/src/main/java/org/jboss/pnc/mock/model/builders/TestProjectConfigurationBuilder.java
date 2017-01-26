@@ -31,6 +31,7 @@ import javax.inject.Inject;
 public class TestProjectConfigurationBuilder {
 
     public static final String FAIL = "mvn clean install -Dmock.config=Fail";
+    public static final String FAIL_WITH_DELAY = "mvn clean install -Dmock.config=FailWithDelay";
     public static final String PASS = "mvn clean install -Dmock.config=Pass";
     public static final String CANCEL = "mvn clean install -Dmock.config=Cancel";
 
@@ -91,6 +92,16 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration1;
     }
 
+    public BuildConfiguration buildConfigurationWithTransitiveDependenciesThatFail(BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration1 = build(1, "with-dependencies-1", buildConfigurationSet);
+        BuildConfiguration buildConfiguration2 = build(2, "with-dependencies-2", buildConfigurationSet);
+        BuildConfiguration buildConfiguration3 = buildFailingConfiguration(3, "with-dependencies-3", buildConfigurationSet);
+
+        buildConfiguration1.addDependency(buildConfiguration2);
+        buildConfiguration2.addDependency(buildConfiguration3);
+        return buildConfiguration1;
+    }
+
     public BuildConfiguration build(int id, String name) {
         return build(id, name, null);
     }
@@ -121,6 +132,12 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration;
     }
 
+    public BuildConfiguration buildFailingWithDelayConfiguration(int id, String name, BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration =  build(id, name, buildConfigurationSet);
+        buildConfiguration.setBuildScript(FAIL_WITH_DELAY);
+        return buildConfiguration;
+    }
+
     public BuildConfiguration buildConfigurationToCancel(int id, String name) {
         BuildConfiguration buildConfiguration =  build(id, name);
         buildConfiguration.setBuildScript(CANCEL);
@@ -141,6 +158,15 @@ public class TestProjectConfigurationBuilder {
         buildConfigurationSet.setName("test-build-configuration-failed-deps");
         buildConfigurationSet.setId(configurationSetId);
         buildConfigurationWithDependenciesThatFail(buildConfigurationSet);
+
+        return buildConfigurationSet;
+    }
+
+    public BuildConfigurationSet buildConfigurationSetWithFailedDependenciesAndDelay(Integer configurationSetId){
+        BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.setName("test-build-configuration-failed-deps");
+        buildConfigurationSet.setId(configurationSetId);
+        buildConfigurationWithTransitiveDependenciesThatFail(buildConfigurationSet);
 
         return buildConfigurationSet;
     }
