@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -27,6 +28,7 @@ import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +42,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RunWith(Arquillian.class)
 public class ReadDependenciesTest extends ProjectBuilder {
+
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+    }
 
     @Inject
     private DatastoreAdapter datastoreAdapter;

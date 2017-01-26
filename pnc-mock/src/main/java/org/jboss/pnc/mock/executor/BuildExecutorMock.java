@@ -111,6 +111,16 @@ public class BuildExecutorMock implements BuildExecutor {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
             buildPassed = false;
+        } else if (TestProjectConfigurationBuilder.FAIL_WITH_DELAY.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
+            log.debug("Waiting for a while for a build {}.", buildExecutionSession.getId());
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                log.warn("Build mock has been interrupted.", e);
+            }
+            log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
+            driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
+            buildPassed = false;
         } else if (TestProjectConfigurationBuilder.CANCEL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Waiting for a while for a build {} to be canceled.", buildExecutionSession.getId());
             try {
