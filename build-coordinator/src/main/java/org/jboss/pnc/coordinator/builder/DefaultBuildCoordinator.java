@@ -447,8 +447,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void handleErroneousFinish(BuildTask failedTask) {
         BuildSetTask taskSet = failedTask.getBuildSetTask();
         if (taskSet != null) {
+            log.debug("Finishing tasks in set {}, after failedTask {}.", taskSet, failedTask);
             taskSet.getBuildTasks().stream()
                     .filter(t -> isDependentOn(failedTask, t))
+                    .filter(t -> !t.getStatus().isCompleted())
                     .forEach(t -> finishDueToFailedDependency(failedTask, t));
         }
     }
@@ -488,11 +490,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         );
     }
 
-    private void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {
-        updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
+    private void finishDueToFailedDependency(BuildTask failedTask, BuildTask dependentTask) {
+        log.debug("Finishing task {} due ta failed dependency.", dependentTask);
+        updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
                 "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
-        storeRejectedTask(task);
-        buildQueue.removeTask(task);
+        log.trace("Status of build task {} updated.", dependentTask);
+        storeRejectedTask(dependentTask);
+        buildQueue.removeTask(dependentTask);
     }
 
     public List<BuildTask> getSubmittedBuildTasks() {

@@ -108,7 +108,6 @@ public class BuildQueue {
      * @param task task to be enqueued
      */
     public synchronized void enqueueTask(BuildTask task) {
-        log.debug("adding task: {}", task);
         addTask(task);
     }
 
@@ -143,9 +142,17 @@ public class BuildQueue {
         if (tasksInProgress.remove(task)) {
             availableBuildSlots.release();
         }
-        readyTasks.remove(task);
-        waitingTasks.remove(task);
-        unfinishedTasks.remove(task);
+        if (readyTasks.remove(task)) {
+            log.debug("The task {} has been removed from readyTasks.", task);
+        }
+
+        if (waitingTasks.remove(task)) {
+            log.debug("The task {} has been removed from waitingTasks.", task);
+        }
+
+        if (unfinishedTasks.remove(task)) {
+            log.debug("The task {} has been removed from unfinishedTasks.", task);
+        }
     }
 
     /**
@@ -209,8 +216,10 @@ public class BuildQueue {
     private void addTask(BuildTask task) {
         unfinishedTasks.add(task);
         if (task.readyToBuild()) {
+            log.debug("adding task: {}", task);
             readyTasks.add(task);
         } else {
+            log.debug("adding waiting task: {}", task);
             waitingTasks.add(task);
         }
     }
