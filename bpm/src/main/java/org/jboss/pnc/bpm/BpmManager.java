@@ -183,17 +183,18 @@ public class BpmManager {
         }
     }
 
-    public synchronized void notify(int taskId, BpmNotificationRest notification) {
+    public void notify(int taskId, BpmNotificationRest notification) {
         log.debug("will process notification for taskId: {}", taskId);
-        BpmTask task = tasks.get(taskId);
-        if (task == null) {
+        Optional<BpmTask> maybeTask = getTaskById(taskId);
+        if (!maybeTask.isPresent()) {
             log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
-        } else {
+        }
+        maybeTask.ifPresent(task -> {
             BpmEventType bpmEventType = nullableValueOf(notification.getEventType());
             if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
                 task.notify(bpmEventType, notification);
             }
-        }
+        });
 
         log.info("finished notifying for taskId: {}", taskId);
     }
@@ -204,7 +205,7 @@ public class BpmManager {
      */
     public void cleanup() { //TODO remove tasks immediately after the completion, see: BuildTaskEndpoint.buildTaskCompleted
         log.debug("Bpm manager tasks cleanup started");
-        Map<Integer, BpmTask> clonedTasks = null;
+        Map<Integer, BpmTask> clonedTasks;
         synchronized(this) {
             clonedTasks = new HashMap<>(this.tasks);
         }
