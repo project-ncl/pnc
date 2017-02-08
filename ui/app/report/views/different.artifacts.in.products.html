@@ -240,6 +240,10 @@
               <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyChanged=='leftVersion'" 
                 ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseChanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseChanged}"></span>        
             </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortChanged('differenceType')">Difference Type
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyChanged=='differenceType'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseChanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseChanged}"></span>        
+            </th>
           </thead>
           <tbody>
           <tr pagination-id="changed" dir-paginate="result in diffGAVInProdReportCtrl.gavsChanged |orderBy:diffGAVInProdReportCtrl.sortKeyChanged:diffGAVInProdReportCtrl.reverseChanged | filter:searchChangedText | itemsPerPage:diffGAVInProdReportCtrl.defaultPageSize">
@@ -247,6 +251,7 @@
             <td>{{ result.artifactId }}</td>
             <td>{{ result.rightVersion }}</td>
             <td>{{ result.leftVersion }}</td>
+            <td>{{ result.differenceType }}</td>
           </tr>
           </tbody>
         </table>
