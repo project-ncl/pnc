@@ -49,7 +49,8 @@ import static org.mockito.Mockito.when;
  */
 public class BpmEndpointTest {
 
-    private static final String VALID_INTERNAL_SCM_URL = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/rock-a-teens/woo-hoo.git";
+    private static final String INTERNAL_SCM_URL_WO_NAME = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839";
+    private static final String VALID_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/rock-a-teens/woo-hoo.git";
     private static final String VALID_EXTERNAL_SCM_URL = "git+ssh://github.com/project-ncl/pnc.git";
     @Mock
     private AuthenticationProviderFactory authProviderFactory;
@@ -87,9 +88,15 @@ public class BpmEndpointTest {
     }
 
     @Test
+    public void shouldNotStartBCCreateTaskWithInternalURLWORepoName() throws Exception {
+        BpmBuildConfigurationCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName");
+        configuration.setScmRepoURL("git+ssh://github.com/project-ncl/pnc.git");
+        assertThrows(() -> bpmEndpoint.startBCCreationTask(configuration, null), InvalidEntityException.class);
+    }
+    @Test
     public void shouldNotStartBCCreateTaskWithInvalidInternalURL() throws Exception {
         BpmBuildConfigurationCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInvalidInternalURL");
-        configuration.setScmRepoURL("git+ssh://github.com/project-ncl/pnc.git");
+        configuration.setScmRepoURL(INTERNAL_SCM_URL_WO_NAME);
         assertThrows(() -> bpmEndpoint.startBCCreationTask(configuration, null), InvalidEntityException.class);
     }
 
