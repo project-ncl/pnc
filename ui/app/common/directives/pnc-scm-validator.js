@@ -31,7 +31,7 @@
    * Optional host restriction
    * @description
    * <protocol>(://)<host><path>.git<parameters>
-   * Check wheter SCM field is valid. 
+   * Check wheter SCM field is valid.
    * List of allowed protocols (separated by "|"):
    * - "git"   -> example git://github.com/user/project.git#v1.0
    * - "ssh"   -> example ssh://user@host.xz:port/path/to/repo.git/ or ssh://host.xz:port/path/to/repo.git/
@@ -52,7 +52,7 @@
         var pattern = new RegExp(
           '^(?:'+ allowedProtocols +')' +     // protocols
           ':(?:\\/\\/)?' +                    // protocol separator
-          (exactHost ? exactHost + '[\\w\\.:\\/~_-]+' : '[\\w\\.@:\\/~_-]+') + // repository
+          (exactHost ? exactHost + '(\\/[\\w\\.:~_-]+)+' : '[\\w\\.@:\\/~_-]+') + // repository
           //'\\.git' +                          // suffix
           '(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$');  // parameters
         return pattern.test(url);

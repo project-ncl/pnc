@@ -63,7 +63,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 @Stateless
 public class BuildConfigurationProvider extends AbstractProvider<BuildConfiguration, BuildConfigurationRest> {
 
-    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern.compile("[\\w\\.:\\/~_-]+(\\.git)?(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
+    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern.compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)?(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 

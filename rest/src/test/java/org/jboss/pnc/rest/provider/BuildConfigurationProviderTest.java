@@ -63,6 +63,13 @@ public class BuildConfigurationProviderTest {
     @Test(expected = InvalidEntityException.class)
     public void shouldFailOnInvalidGitUrl() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
+        configuration.setScmRepoURL("git+ssh://git@github.com/");
+        provider.validateBeforeSaving(configuration);
+    }
+
+    @Test(expected = InvalidEntityException.class)
+    public void shouldSucceedOnUpdateWithLackOfMirrorWithSlash() throws ValidationException {
+        BuildConfigurationRest configuration = createValidConfiguration();
         configuration.setScmRepoURL(INVALID_URL);
         provider.validateBeforeSaving(configuration);
     }
