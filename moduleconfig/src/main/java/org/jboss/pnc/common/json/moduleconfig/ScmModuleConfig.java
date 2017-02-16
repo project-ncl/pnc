@@ -18,8 +18,6 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 /**
@@ -31,13 +29,19 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "scm-config";
 
-    @Getter
-    @Setter
     private String internalScmAuthority;
 
     public ScmModuleConfig(@JsonProperty("internalScmAuthority") String internalScmAuthority) {
         super();
-        this.internalScmAuthority = internalScmAuthority;
+        setInternalScmAuthority(internalScmAuthority);
+    }
+
+    public void setInternalScmAuthority(String value) {
+        this.internalScmAuthority = value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
+    }
+
+    public String getInternalScmAuthority() {
+        return internalScmAuthority;
     }
 
     @Override

@@ -49,6 +49,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
@@ -61,6 +62,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 
 @Stateless
 public class BuildConfigurationProvider extends AbstractProvider<BuildConfiguration, BuildConfigurationRest> {
+
+    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern.compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)?(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
@@ -131,8 +134,9 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
         if (StringUtils.isNotBlank(internalRepoUrl) && internalScmAuthority != null) {
             String expectedPrefix = "git+ssh://" + internalScmAuthority;
-            if (!internalRepoUrl.startsWith(expectedPrefix)) {
-                throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix);
+            if (!internalRepoUrl.startsWith(expectedPrefix)
+                    || !REPOSITORY_NAME_PATTERN.matcher(internalRepoUrl.replace(expectedPrefix, "")).matches()){
+                throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix + " followed by a repository name.");
             }
         }
     }
