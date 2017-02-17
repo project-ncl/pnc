@@ -42,7 +42,8 @@ import static org.mockito.Mockito.when;
 public class BuildConfigurationProviderTest {
 
     private static final int EXISTING_ID = 1243;
-    private static final String VALID_URL = "git+ssh://git@github.com/project-ncl/pnc";
+    private static final String URL_WITHOUT_SUFFIX = "git+ssh://git@github.com/project-ncl/pnc";
+    private static final String VALID_URL = URL_WITHOUT_SUFFIX + ".git";
     private static final String INVALID_URL = "invalid url";
 
     @Mock
@@ -64,6 +65,13 @@ public class BuildConfigurationProviderTest {
     public void shouldFailOnInvalidGitUrl() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
         configuration.setScmRepoURL("git+ssh://git@github.com/");
+        provider.validateBeforeSaving(configuration);
+    }
+
+    @Test(expected = InvalidEntityException.class)
+    public void shouldFailOnValidGitUrlWithoutDotGit() throws ValidationException {
+        BuildConfigurationRest configuration = createValidConfiguration();
+        configuration.setScmRepoURL(URL_WITHOUT_SUFFIX);
         provider.validateBeforeSaving(configuration);
     }
 
