@@ -46,7 +46,7 @@
               pnc-scm-validator="git+ssh" pnc-exact-host="exactHost">
           <span class="help-block" ng-show="form.scmUrl.$error.required && form.scmUrl.$touched">At least one of the SCMs is required.</span>
           <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">
-            <span ng-show="exactHost">Only R/W SCM with the following format <code>git+ssh://{{exactHost}}</code> is allowed.</span>
+            <span ng-show="exactHost">Only R/W SCM with the following format <code>git+ssh://{{exactHost}}/&lt;repository-name&gt;.git</code> is allowed.</span>
             <span ng-hide="exactHost">Invalid or unsupported format (only git+ssh:// is supported).</span>
           </span>
         </div>
