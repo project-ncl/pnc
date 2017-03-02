@@ -85,7 +85,7 @@ public class MavenRepositorySession implements RepositorySession {
 
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     
-	private String promoteBuildToGroup;
+	private String buildPromotionGroup;
 
     // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
@@ -99,14 +99,14 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info,
-            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes, String promoteBuildToGroup) {
+            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes, String buildPromotionGroup) {
         this.indy = indy;
         this.buildContentId = buildContentId;
         this.internalRepoPatterns = internalRepoPatterns;
         this.ignoredPathSuffixes = ignoredPathSuffixes;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
-        this.promoteBuildToGroup = promoteBuildToGroup;
+        this.buildPromotionGroup = buildPromotionGroup;
     }
 
     @Override
@@ -437,7 +437,7 @@ public class MavenRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
-        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildContentId), promoteBuildToGroup);
+        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildContentId), buildPromotionGroup);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
             if (!result.succeeded()) {

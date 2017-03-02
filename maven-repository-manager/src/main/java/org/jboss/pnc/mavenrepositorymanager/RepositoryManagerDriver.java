@@ -83,7 +83,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final boolean BUILD_REPOSITORY_ALLOW_SNAPSHOTS;
     
-    private final String PROMOTE_BUILD_TO_GROUP;
+    private final String BUILD_PROMOTION_GROUP;
 
     private String baseUrl;
     private Map<String, Indy> indyMap = new HashMap<>();
@@ -96,7 +96,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
         this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = false;
-        this.PROMOTE_BUILD_TO_GROUP = "";
+        this.BUILD_PROMOTION_GROUP = "";
     }
 
     @Inject
@@ -110,7 +110,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
         this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = config.getBuildRepositoryAllowSnapshots();
-        this.PROMOTE_BUILD_TO_GROUP = config.getPromoteBuildToGroup();
+        this.BUILD_PROMOTION_GROUP = config.getBuildPromotionGroup();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -216,7 +216,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
 
         return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns, ignoredPathSuffixes, PROMOTE_BUILD_TO_GROUP);
+                internalRepoPatterns, ignoredPathSuffixes, BUILD_PROMOTION_GROUP);
     }
 
     /**
