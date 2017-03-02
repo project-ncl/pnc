@@ -85,7 +85,7 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     @Getter
     @Setter
     @JsonProperty(required = false)
-    private String promoteBuildToGroup = "builds-from-pnc";
+    private String promoteBuildToGroup = "pnc-builds";
 
     public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
