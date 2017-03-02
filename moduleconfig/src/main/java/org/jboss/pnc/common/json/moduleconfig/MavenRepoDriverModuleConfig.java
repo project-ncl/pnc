@@ -79,6 +79,14 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     @JsonProperty(required = false)
     private Boolean buildRepositoryAllowSnapshots = false;
 
+    /**
+     * Name of the group to which the build group of a successful build should be promoted
+     */
+    @Getter
+    @Setter
+    @JsonProperty(required = false)
+    private String promoteBuildToGroup = "builds-from-pnc";
+
     public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
     }
