@@ -28,7 +28,8 @@
   "appPath": "app",
   "resolutions": {
     "angular": "1.5.6",
-    "bootstrap-touchspin": "bb577b7"
+    "bootstrap-touchspin": "bb577b7",
+    "jquery": "~2.1.4"
   },
   "overrides": {
     "angular-websocket": {
