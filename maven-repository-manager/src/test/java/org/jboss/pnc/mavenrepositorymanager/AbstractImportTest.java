@@ -68,8 +68,8 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
             indy.stores().update(publicGroup, "adding test remote to public group");
         }
 
-        if (!indy.stores().exists(StoreType.group, UNTESTED_BUILDS_GROUP)) {
-            Group buildsUntested = new Group(UNTESTED_BUILDS_GROUP);
+        if (!indy.stores().exists(StoreType.group, PNC_BUILDS_GROUP)) {
+            Group buildsUntested = new Group(PNC_BUILDS_GROUP);
             indy.stores().create(buildsUntested, "Creating global shared-builds repository group.", Group.class);
         }
 

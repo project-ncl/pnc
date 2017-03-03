@@ -56,7 +56,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
-        // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the untested-builds group.
+        // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the pnc-builds group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
 
         // do some sanity checks while we're here
@@ -66,9 +66,9 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         Artifact a = deps.get(0);
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
-        // end result: the untested-builds group should contain the build hosted repo.
-        Group untestedBuildsGroup = driver.getIndy(accessToken).stores().load(StoreType.group, UNTESTED_BUILDS_GROUP, Group.class);
-        assertThat(untestedBuildsGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
+        // end result: the pnc-builds group should contain the build hosted repo.
+        Group pncBuildsGroup = driver.getIndy(accessToken).stores().load(StoreType.group, PNC_BUILDS_GROUP, Group.class);
+        assertThat(pncBuildsGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }
 
 }
