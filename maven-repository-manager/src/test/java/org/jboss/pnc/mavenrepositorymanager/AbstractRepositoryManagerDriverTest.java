@@ -47,6 +47,8 @@ import static org.junit.Assert.assertThat;
 public class AbstractRepositoryManagerDriverTest {
 
     protected static final String CONFIG_SYSPROP = "pnc-config-file";
+    
+    protected static final String PNC_BUILDS_GROUP = "pnc-builds";
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
