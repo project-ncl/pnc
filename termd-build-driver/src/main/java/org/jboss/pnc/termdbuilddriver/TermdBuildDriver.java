@@ -248,6 +248,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             BuildAgentClient client = maybeClient.get();
             try {
                 client.executeCommand("/usr/local/bin/startSshd.sh");
+
+                String projectDir = termd.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/" +termd.getName();
+                String enterProjectDirCommand = "echo 'cd " + projectDir + "' >> .bashrc";
+
+                client.executeCommand(enterProjectDirCommand);
             } catch (TimeoutException | BuildAgentClientException e) {
                 logger.error("Failed to enable ssh access", e);
             }
