@@ -205,6 +205,11 @@ public class BpmManager {
      */
     public void cleanup() { //TODO remove tasks immediately after the completion, see: BuildTaskEndpoint.buildTaskCompleted
         log.debug("Bpm manager tasks cleanup started");
+
+        if (session == null) {
+            log.error("Kie session not available.");
+        }
+
         Map<Integer, BpmTask> clonedTasks;
         synchronized(this) {
             clonedTasks = new HashMap<>(this.tasks);
@@ -212,6 +217,10 @@ public class BpmManager {
         
         Set<Integer> toBeRemoved = clonedTasks.values().stream()
                 .filter(t -> {
+                    if (t == null) {
+                        log.warn("Listing invalid entry for removal from the tasks list.");
+                        return true;
+                    }
                     log.debug("attempting to fetch process instance from bpm");
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
                     log.debug("fetched: {}", processInstance);
