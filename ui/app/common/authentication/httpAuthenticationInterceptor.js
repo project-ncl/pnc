@@ -35,7 +35,7 @@
 
           // Prevents screen flicker by directly returning the config
           // object if the keycloak token does not need to be refreshed.
-          if (!keycloak.isTokenExpired(5)) {
+          if (!keycloak.isTokenExpired(3600 * 23)) { //token should be valid at least 23h
 
             addAuthHeaders(config, keycloak.token);
             return config;
