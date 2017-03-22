@@ -94,8 +94,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
-        String buildImageId = StringUtils.addEndingSlash(systemImageRepositoryUrl) + systemImageId;
-        return new OpenshiftStartedEnvironment(executor, configuration, config, pullingMonitor, repositorySession, buildImageId, debugData, accessToken);
+        return new OpenshiftStartedEnvironment(executor, configuration, config, pullingMonitor, repositorySession, systemImageRepositoryUrl, systemImageId, debugData, accessToken);
     }
 
     @Override
