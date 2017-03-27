@@ -118,8 +118,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 onComplete,
                 onError);
 
-        String buildScript = prepareBuildScript(termdRunningBuild);
         DebugData debugData = runningEnvironment.getDebugData();
+        String buildScript = prepareBuildScript(termdRunningBuild, debugData);
 
         uploadScript(termdRunningBuild, buildScript)
                 .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, debugData), executor)
@@ -248,11 +248,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             BuildAgentClient client = maybeClient.get();
             try {
                 client.executeCommand("/usr/local/bin/startSshd.sh");
-
-                String projectDir = termd.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/" +termd.getName();
-                String enterProjectDirCommand = "echo 'cd " + projectDir + "' >> .bashrc";
-
-                client.executeCommand(enterProjectDirCommand);
             } catch (TimeoutException | BuildAgentClientException e) {
                 logger.error("Failed to enable ssh access", e);
             }
@@ -333,10 +328,17 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return null;
     }
 
-    private String prepareBuildScript(TermdRunningBuild termdRunningBuild) {
+    private String prepareBuildScript(TermdRunningBuild termdRunningBuild, DebugData debugData) {
         StringBuilder buildScript = new StringBuilder();
+
+        String projectDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString();
+        if (debugData.isEnableDebugOnFailure()) {
+            String enterProjectDirCommand = "echo 'cd " + projectDirectory + "' >> .bashrc";
+            buildScript.append(enterProjectDirCommand).append("\n");
+        }
+
         buildScript.append("set -xe" + "\n");
-        buildScript.append("cd " + termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "\n");
+        buildScript.append("cd " + projectDirectory + "\n");
 
         buildScript.append("git clone " + termdRunningBuild.getScmRepoURL() + " " + termdRunningBuild.getName() + "\n");
         buildScript.append("cd " + termdRunningBuild.getName() + "\n");
