@@ -21,11 +21,9 @@ import com.openshift.internal.restclient.model.Pod;
 import com.openshift.internal.restclient.model.Route;
 import com.openshift.internal.restclient.model.Service;
 import com.openshift.internal.restclient.model.properties.ResourcePropertiesRegistry;
-import com.openshift.restclient.ClientFactory;
+import com.openshift.restclient.ClientBuilder;
 import com.openshift.restclient.IClient;
-import com.openshift.restclient.NoopSSLCertificateCallback;
 import com.openshift.restclient.ResourceKind;
-import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
 import org.jboss.pnc.common.Configuration;
@@ -119,9 +117,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
 
-        client = new ClientFactory().create(environmentConfiguration.getRestEndpointUrl(), new NoopSSLCertificateCallback());
-        client.setAuthorizationStrategy(new TokenAuthorizationStrategy(environmentConfiguration.getRestAuthToken()));
-        client.getCurrentUser(); //make sure client is connected
+        client = new ClientBuilder(environmentConfiguration.getRestEndpointUrl())
+                .usingToken(environmentConfiguration.getRestAuthToken())
+                .build();
+        client.getServerReadyStatus(); // make sure client is connected
 
         runtimeProperties = new HashMap<>();
         String randString = RandomUtils.randString(6);//note the 24 char limit
@@ -287,7 +286,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getInternalEndpointUrl() {
-        return "http://" + service.getPortalIP() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
+        return "http://" + service.getClusterIP() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
     }
 
     private boolean isPodRunning() {
