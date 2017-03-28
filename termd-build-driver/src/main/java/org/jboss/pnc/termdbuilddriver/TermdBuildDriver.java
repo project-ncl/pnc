@@ -118,8 +118,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 onComplete,
                 onError);
 
-        String buildScript = prepareBuildScript(termdRunningBuild);
         DebugData debugData = runningEnvironment.getDebugData();
+        String buildScript = prepareBuildScript(termdRunningBuild, debugData);
 
         uploadScript(termdRunningBuild, buildScript)
                 .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, debugData), executor)
@@ -328,13 +328,22 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return null;
     }
 
-    private String prepareBuildScript(TermdRunningBuild termdRunningBuild) {
+    private String prepareBuildScript(TermdRunningBuild termdRunningBuild, DebugData debugData) {
         StringBuilder buildScript = new StringBuilder();
-        buildScript.append("set -xe" + "\n");
-        buildScript.append("cd " + termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "\n");
 
-        buildScript.append("git clone " + termdRunningBuild.getScmRepoURL() + " " + termdRunningBuild.getName() + "\n");
-        buildScript.append("cd " + termdRunningBuild.getName() + "\n");
+        String workingDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString();
+        String name = termdRunningBuild.getName();
+        if (debugData.isEnableDebugOnFailure()) {
+            String projectDirectory = (workingDirectory.endsWith("/") ? workingDirectory : workingDirectory + "/") + name;
+            String enterProjectDirCommand = "echo 'cd " + projectDirectory + "' >> /home/worker/.bashrc";
+            buildScript.append(enterProjectDirCommand).append("\n");
+        }
+
+        buildScript.append("set -xe" + "\n");
+        buildScript.append("cd " + workingDirectory + "\n");
+
+        buildScript.append("git clone " + termdRunningBuild.getScmRepoURL() + " " + name + "\n");
+        buildScript.append("cd " + name + "\n");
         buildScript.append("git reset --hard " + termdRunningBuild.getScmRevision() + "\n");
 
         buildScript.append(termdRunningBuild.getBuildScript() + "\n");
