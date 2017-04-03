@@ -50,12 +50,12 @@
     </td>
     <td class="table-data-5-column-even-width">
       <div class="btn-group">
-        <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="top" ng-click="buildConfig(configuration)">
+        <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="top" ng-click="buildConfig(configuration)" pnc-requires-auth>
           <i class="pficon pficon-build"></i>
           <span class="shrink">Build</span>
         </button>
         <span><!-- needs to be wrapped to correct behavior -->
-          <button class="btn btn-default dropdown-toggle ng-scope" data-toggle="dropdown">
+          <button class="btn btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">

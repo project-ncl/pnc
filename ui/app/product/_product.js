@@ -143,7 +143,8 @@
         }
       },
       data: {
-        displayName: 'Create Product Version'
+        displayName: 'Create Product Version',
+        requireAuth: true
       },
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {

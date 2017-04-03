@@ -56,7 +56,7 @@
       <a ng-show="productmilestone.releaseDate == undefined"
          pnc-confirm-click="markCurrentMilestone(productmilestone)"
          pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}"
-         title="Mark Milestone as current" class="btn btn-default"><i class="fa fa-clock-o"></i></a>
+         title="Mark Milestone as current" class="btn btn-default" pnc-requires-auth><i class="fa fa-clock-o"></i></a>
       <a ng-show="productmilestone.releaseDate == undefined"
          ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone"
          class="btn btn-default"><i class="pficon pficon-edit"></i></a>
