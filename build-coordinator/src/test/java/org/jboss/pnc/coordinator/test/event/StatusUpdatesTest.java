@@ -115,7 +115,7 @@ public class StatusUpdatesTest {
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
         buildTasks.forEach((bt) -> {
             buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE);
-            buildCoordinator.updateBuildStatus(bt, createBuildResult());
+            buildCoordinator.completeBuild(bt, createBuildResult());
         });
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
 

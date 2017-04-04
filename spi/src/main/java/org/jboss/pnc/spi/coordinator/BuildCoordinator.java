@@ -40,7 +40,7 @@ public interface BuildCoordinator {
 
     List<BuildTask> getSubmittedBuildTasks();
 
-    void updateBuildStatus(BuildTask buildTask, BuildResult buildResult);
+    void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
     boolean cancel(int buildTaskId) throws CoreException;
 

@@ -45,7 +45,6 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
     }
 
     private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
-//    private final int N_PROJECTS = 2;
     private final int N_PROJECTS = 100;
 
     @Inject
