@@ -170,7 +170,7 @@
               <tr ng-repeat="d in ctr.tableData.data[m] | filter: ctr.searchText">
                 <td>{{ d.groupId }}:<strong>{{ d.artifactId }}</strong></td>
                 <td style="{{ d.versions.__project === d._latestVersion ? 'font-weight: bold;' : '' }}">{{ d.versions.__project }}</td>
-                <td style="{{ d.versions[p] === d._latestVersion ? 'font-weight: bold;' : '' }}" ng-repeat="p in ctr.tableData.productNames">{{ d.versions[p] }}</td>
+                <td style="{{ d.versions[p] === d._latestVersion ? 'font-weight: bold;' : '' }}" ng-repeat="p in ctr.tableData.productNames">{{ d.versions[p] }} <small title="Difference Type" ng-show="d.differenceTypes[p]">({{ d.differenceTypes[p] }})</small></td>
               </tr>
               </tbody>
             </table>

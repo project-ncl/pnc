@@ -517,12 +517,14 @@
                 dependency.name = dependency.groupId + ':' + dependency.artifactId;
                 dependency._type = type;
                 dependency.versions = { '__project': dependency.version };
-                _.forEach(dependency.gavProducts, function(productAndVersion) {
-                  var productName = getProductLabel(productAndVersion.product);
+                dependency.differenceTypes = [];
+                _.forEach(dependency.gavProducts, function(productDetails) {
+                  var productName = getProductLabel(productDetails.product);
                   if(!_(res.productNames).contains(productName)) {
                     res.productNames.push(productName);
                   }
-                  dependency.versions[productName] = productAndVersion.version;
+                  dependency.versions[productName] = productDetails.version;
+                  dependency.differenceTypes[productName] = productDetails.differenceType;
                 });
                 res.data[moduleName].push(dependency);
               });
