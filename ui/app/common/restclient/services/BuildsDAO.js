@@ -50,6 +50,8 @@
         }
       });
 
+      PageFactory.decorateNonPaged(resource, '_getLastByConfiguration', 'getLastByConfigurationNonPaged');
+
       PageFactory.decorate(resource, '_getAll', 'getPaged');
       PageFactory.decorate(resource, '_getByConfiguration', 'getByConfiguration');
       PageFactory.decorate(resource, '_getLastByConfiguration', 'getLastByConfiguration');

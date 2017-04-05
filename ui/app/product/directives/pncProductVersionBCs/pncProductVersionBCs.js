@@ -29,8 +29,8 @@
     '$state',
     'eventTypes',
     'BuildConfigurationDAO',
-    'BuildRecordDAO',
-    function ($log, $state, eventTypes, BuildConfigurationDAO, BuildRecordDAO) {
+    'BuildsDAO',
+    function ($log, $state, eventTypes, BuildConfigurationDAO, BuildsDAO) {
 
       return {
         restrict: 'E',
@@ -48,7 +48,7 @@
           scope.page.onUpdate(function(page) {
             _.forEach(page.data, function(bc) {
               if(!_(scope.latestBuildRecords).has(bc.id)) { // avoid unnecessary requests
-                BuildRecordDAO.getLatestForConfiguration({ configurationId: bc.id }).then(function (data) {
+                BuildsDAO.getLastByConfigurationNonPaged({ id: bc.id }).then(function (data) {
                   scope.latestBuildRecords[bc.id] = data;
                 });
               }
