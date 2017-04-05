@@ -65,7 +65,7 @@
                 console.log('Updating BuildRecord #' + payload.id + ' with status ' + payload.buildCoordinationStatus + ' and ' + payload.buildEndTime);
 
                 scope.latestBuildRecords[payload.buildConfigurationId][0].status = payload.buildCoordinationStatus;
-                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].endTime = payload.buildEndTime;
+                scope.latestBuildRecords[payload.buildConfigurationId][0].endTime = payload.buildEndTime;
               }
               else {
                 console.log('Reloading page');
