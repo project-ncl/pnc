@@ -89,7 +89,8 @@
           }
         },
         data: {
-          displayName: 'Create Milestone'
+          displayName: 'Create Milestone',
+          requireAuth: true
         },
         resolve: {
           milestoneDetail: function() { return null; }
@@ -105,7 +106,8 @@
           }
         },
         data: {
-          displayName: 'Update Milestone'
+          displayName: 'Update Milestone',
+          requireAuth: true
         },
         resolve: {
           milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
@@ -124,7 +126,8 @@
           }
         },
         data: {
-          displayName: 'Close Milestone'
+          displayName: 'Close Milestone',
+          requireAuth: true
         },
         resolve: {
           milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
