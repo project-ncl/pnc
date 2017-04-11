@@ -47,12 +47,11 @@ import java.util.stream.Collectors;
 @RunWith(Arquillian.class)
 public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
-    @Deployment
-    public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
-    }
+    private static final Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
 
-    Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
+    private static final int BUILD_SET_ID = 14352;
+
+    Set<BuildSetStatusChangedEvent> eventsReceived = new HashSet<>();
 
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;
@@ -60,15 +59,9 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @Inject
     TestCDIBuildSetStatusChangedReceiver testCDIBuildSetStatusChangedReceiver;
 
-    private static final int BUILD_SET_ID = 14352;
-    Set<BuildSetStatusChangedEvent> eventsReceived = new HashSet<>();
-
-    private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        log.info("Got: build set status changed event for build id: " + BUILD_SET_ID);
-        if (buildSetStatusChangedEvent.getBuildSetConfigurationId() == BUILD_SET_ID) {
-            log.info("correct id, saving {}", buildSetStatusChangedEvent);
-            eventsReceived.add(buildSetStatusChangedEvent);
-        }
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
     @Test
@@ -105,6 +98,14 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         String events = eventsReceived.stream().map(Object::toString).collect(Collectors.joining("; "));
         Assert.assertEquals("Invalid number of received events. Received events: " + events, 2, eventsReceived.size());
         Wait.forCondition(coordinator.queue::isEmpty, 1, ChronoUnit.SECONDS, "Not empty build queue: " + coordinator.queue);
+    }
+
+    private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        log.info("Got: build set status changed event for build id: " + BUILD_SET_ID);
+        if (buildSetStatusChangedEvent.getBuildSetConfigurationId() == BUILD_SET_ID) {
+            log.info("correct id, saving {}", buildSetStatusChangedEvent);
+            eventsReceived.add(buildSetStatusChangedEvent);
+        }
     }
 
 }

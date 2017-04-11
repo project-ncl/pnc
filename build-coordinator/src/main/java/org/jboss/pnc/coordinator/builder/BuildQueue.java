@@ -31,8 +31,10 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -49,7 +51,9 @@ import java.util.stream.Collectors;
  * <li>taskSets - set of currently processed task sets</li>
  * <li>tasksInProgress - set of tasks that are being executed at the moment</li>
  * <li>readyTasks - queue of tasks that are ready to be executed but are waiting for a free executor (and throttling mechanism)</li>
- * <li>waitingTasks - tasks waiting for a dependency. As soon as the dependency is built, they are moved to readyTasks</li>
+ * <li>waitingTasksWithCallbacks - tasks waiting for a dependency. As soon as their dependencies are built, they are moved to readyTasks.
+ * The waiting tasks are mapped to callbacks that are executed upon the transfer
+ * </li>
  * <li>unfinishedTasks - tasks either waiting, ready or in progress.
  * This collection is introduced to fix the race condition in {@link #take()},
  * where a task is taken from readyTask, and later put into tasksInProgress and the method cannot be synchronized</li>
@@ -72,24 +76,12 @@ public class BuildQueue {
     private final Set<BuildTask> unfinishedTasks = new HashSet<>();
 
     private final BlockingQueue<BuildTask> readyTasks = new LinkedBlockingQueue<>();
-    private final List<BuildTask> waitingTasks = new ArrayList<>();
+    private final Map<BuildTask, Runnable> waitingTasksWithCallbacks = new HashMap<>();
     private final Set<BuildTask> tasksInProgress = ConcurrentHashMap.newKeySet();
     private final Set<BuildSetTask> taskSets = new HashSet<>();
 
     private final Semaphore availableBuildSlots = new Semaphore(0);
 
-    @PostConstruct
-    public void initSemaphore()  {
-        int maxConcurrentBuilds = 10;
-        try {
-            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-
-            maxConcurrentBuilds = systemConfig.getCoordinatorMaxConcurrentBuilds();
-        } catch (ConfigurationParseException e) {
-            log.error("Error parsing configuration, using 10 max concurrent builds in BuildQueue", e);
-        }
-        availableBuildSlots.release(maxConcurrentBuilds);
-    }
 
 
     @Inject
@@ -103,12 +95,29 @@ public class BuildQueue {
     }
 
     /**
-     * Add a new task to queue
+     * Add a new, ready to build task to queue
      *
      * @param task task to be enqueued
      */
-    public synchronized void enqueueTask(BuildTask task) {
-        addTask(task);
+    public synchronized boolean addReadyTask(BuildTask task) {
+        if (!task.readyToBuild()) {
+            throw new IllegalArgumentException("a not ready task added to the queue: " + task);
+        }
+        unfinishedTasks.add(task);
+        log.debug("adding task: {}", task);
+        readyTasks.add(task);
+        return true;
+    }
+
+    /**
+     * Add a task that is waiting for dependencies
+     * @param task task that is not ready to build
+     * @param taskReadyCallback a callback to be invoked when the task becomes ready
+     */
+    public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
+        unfinishedTasks.add(task);
+        log.debug("adding waiting task: {}", task);
+        waitingTasksWithCallbacks.put(task, taskReadyCallback);
     }
 
     /**
@@ -146,7 +155,7 @@ public class BuildQueue {
             log.debug("The task {} has been removed from readyTasks.", task);
         }
 
-        if (waitingTasks.remove(task)) {
+        if (waitingTasksWithCallbacks.remove(task) != null) {
             log.debug("The task {} has been removed from waitingTasks.", task);
         }
 
@@ -173,7 +182,7 @@ public class BuildQueue {
      */
     public synchronized Optional<BuildTask> getTask(BuildConfigurationAudited buildConfigAudited) {
         Optional<BuildTask> ready = readyTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
-        Optional<BuildTask> waiting = waitingTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
+        Optional<BuildTask> waiting = waitingTasksWithCallbacks.keySet().stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
         Optional<BuildTask> inProgress = tasksInProgress.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
         return ready.isPresent() ? ready : waiting.isPresent() ? waiting : inProgress;
     }
@@ -185,7 +194,7 @@ public class BuildQueue {
      */
     public synchronized List<BuildTask> getSubmittedBuildTasks() {
         ArrayList<BuildTask> result = new ArrayList<>();
-        result.addAll(waitingTasks);
+        result.addAll(waitingTasksWithCallbacks.keySet());
         result.addAll(readyTasks);
         result.addAll(tasksInProgress);
         return result;
@@ -206,36 +215,43 @@ public class BuildQueue {
     }
 
     private List<BuildTask> extractReadyTasks() {
-        List<BuildTask> newReadyTasks = waitingTasks.stream()
+        List<BuildTask> noLongerWaitingTasks = waitingTasksWithCallbacks.keySet().stream()
                 .filter(BuildTask::readyToBuild)
                 .collect(Collectors.toList());
-        waitingTasks.removeAll(newReadyTasks);
-        return newReadyTasks;
+
+        noLongerWaitingTasks.forEach(task -> {
+            waitingTasksWithCallbacks.get(task).run();
+            waitingTasksWithCallbacks.remove(task);
+        });
+
+        return noLongerWaitingTasks;
     }
 
-    private void addTask(BuildTask task) {
-        unfinishedTasks.add(task);
-        if (task.readyToBuild()) {
-            log.debug("adding task: {}", task);
-            readyTasks.add(task);
-        } else {
-            log.debug("adding waiting task: {}", task);
-            waitingTasks.add(task);
+    @PostConstruct
+    public void initSemaphore()  {
+        int maxConcurrentBuilds = 10;
+        try {
+            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
+
+            maxConcurrentBuilds = systemConfig.getCoordinatorMaxConcurrentBuilds();
+        } catch (ConfigurationParseException e) {
+            log.error("Error parsing configuration, using 10 max concurrent builds in BuildQueue", e);
         }
+        availableBuildSlots.release(maxConcurrentBuilds);
     }
 
     @Override
     public synchronized String toString() {
         return "BuildQueue{" +
                 "readyTasks=" + readyTasks +
-                ", waitingTasks=" + waitingTasks +
+                ", waitingTasks=" + waitingTasksWithCallbacks +
                 ", tasksInProgress=" + tasksInProgress +
                 ", taskSets=" + taskSets +
                 '}';
     }
 
     public synchronized boolean isEmpty() {
-        return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty()
+        return tasksInProgress.isEmpty() && waitingTasksWithCallbacks.isEmpty() && readyTasks.isEmpty()
                 && unfinishedTasks.isEmpty() && taskSets.isEmpty();
     }
 
@@ -248,7 +264,7 @@ public class BuildQueue {
                 "\n=====================\nREADY TASKS:\n=====================\n" +
                 readyTasks +
                 "\n=====================\nWAITING TASKS:\n=====================\n" +
-                waitingTasks +
+                waitingTasksWithCallbacks.keySet() +
                 "\n=====================\nALL UNFINISHED TASKS:\n=====================\n" +
                 unfinishedTasks +
                 "\n=====================\nTASK SETS:\n=====================\n" +

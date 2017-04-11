@@ -61,7 +61,12 @@ import static org.junit.Assert.fail;
  */
 public class ProjectBuilder {
 
-    public static final int BUILD_SET_STATUS_UPDATES = 2;
+    private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
+
+    private static final int BUILD_SET_STATUS_UPDATES = 2;
+    public static final int N_STATUS_UPDATES_PER_TASK = 4;
+    public static final int N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES = 5; // additional WAITING_FOR_DEPENDENCIES
+    public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 2; //only REJECTED_FAILED_DEPENDENCIES and WAITING_FOR_DEPENDENCIES
 
     @Inject
     BuildCoordinator buildCoordinator;
@@ -78,9 +83,6 @@ public class ProjectBuilder {
     @Inject
     TestCDIBuildSetStatusChangedReceiver setStatusChangedReceiver;
 
-    private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES_PER_TASK = 3;
-    public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 1; //only REJECTED_FAILED_DEPENDENCIES (WAITING_FOR_DEPENDENCIES is currently not notified)
 
     @Before
     public void setUp() {
@@ -124,8 +126,12 @@ public class ProjectBuilder {
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
-        int numCompletedBuilds = buildConfigurationSet.getBuildConfigurations().size();
-        int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds;
+        Set<BuildConfiguration> configs = buildConfigurationSet.getBuildConfigurations();
+        int numCompletedBuilds = configs.size();
+        int numBuildsWithDependencies = (int) configs.stream().filter(c -> c.dependsOnAny(configs)).count();
+        int nStatusUpdates =
+                N_STATUS_UPDATES_PER_TASK * (numCompletedBuilds - numBuildsWithDependencies)
+                        + numBuildsWithDependencies * N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES;
         buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifySuccessfulBuild);
     }
 
@@ -138,7 +144,8 @@ public class ProjectBuilder {
     }
 
     void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds, int numFailedBuilds) throws InterruptedException, CoreException, DatastoreException {
-        int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS * numFailedBuilds;
+        int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds +
+                N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS * numFailedBuilds;
         buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifyFailingProject);
     }
 
@@ -151,12 +158,14 @@ public class ProjectBuilder {
                 .forEach(bt -> ProjectBuilder.this.assertAllStatusUpdateReceivedForFailedWaitingForDeps(receivedStatuses, bt.getId()));
     }
 
+    int i=0;
     private void buildProjectsAndVerifyResult(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Verifier verifier) throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
         List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
 
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
+            System.out.println("\n\n\nreceived status change event [" + (i++) + "]: " + statusUpdate);
             receivedStatuses.add(statusUpdate);
         };
 
@@ -187,13 +196,9 @@ public class ProjectBuilder {
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
         statusChangedReceiver.addBuildStatusChangedEventListener(statusUpdate -> {
             log.debug("Received status update {}.", statusUpdate.toString());
-            if (!BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.equals(statusUpdate.getNewStatus())) {
-                onStatusUpdate.accept(statusUpdate);
-                semaphore.release(1);
-                log.debug("Semaphore released, there are {} free entries", semaphore.availablePermits());
-            } else {
-                log.debug("Skipping {} status update", statusUpdate);
-            }
+            onStatusUpdate.accept(statusUpdate);
+            semaphore.release(1);
+            log.debug("Semaphore released, there are {} free entries", semaphore.availablePermits());
         });
         semaphore.acquire(nStatusUpdates);
         return semaphore;
@@ -262,7 +267,7 @@ public class ProjectBuilder {
                 break;
             }
         }
-        assertTrue("Did not received update for status: " + status + " for BuildTaskId: " + buildTaskId, received);
+        assertTrue("Did not receive update for status: " + status + " for BuildTaskId: " + buildTaskId, received);
     }
 
     public void clearSemaphores() {

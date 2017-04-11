@@ -53,6 +53,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +63,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
@@ -132,7 +134,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 buildTasksInitializer.createBuildSetTask(buildConfiguration, user, scope, keepPodAliveAfterFailure, this::buildRecordIdSupplier);
 
         buildQueue.enqueueTaskSet(buildSetTask);
-        buildSetTask.getBuildTasks().forEach(buildQueue::enqueueTask);
+        List<BuildTask> readyTasks = buildSetTask.getBuildTasks().stream().filter(BuildTask::readyToBuild).collect(Collectors.toList());
+        List<BuildTask> waitingTasks = new ArrayList<>(buildSetTask.getBuildTasks());
+        waitingTasks.removeAll(readyTasks);
+
+        waitingTasks.forEach(this::addTaskToBuildQueue);
+        readyTasks.forEach(this::addTaskToBuildQueue);
+
         return buildSetTask;
     }
 
@@ -177,7 +185,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             buildQueue.enqueueTaskSet(buildSetTask);
             buildSetTask.getBuildTasks().stream()
                     .filter(this::rejectAlreadySubmitted)
-                    .forEach(buildQueue::enqueueTask);
+                    .forEach(this::addTaskToBuildQueue);
+        }
+    }
+
+    private void addTaskToBuildQueue(BuildTask task) {
+        if (task.readyToBuild()) {
+            updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED);
+            buildQueue.addReadyTask(task);
+        } else {
+            updateBuildTaskStatus(task, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
+            buildQueue.addWaitingTask(task, () -> updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED));
         }
     }
 
@@ -233,7 +251,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty());
-        updateBuildStatus(buildTask, result);
+        completeBuild(buildTask, result);
 
         log.info("Task {} canceled internally.", buildTask.getId());
     }
@@ -332,14 +350,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void processBuildTask(BuildTask task) {
-        Consumer<BuildResult> onComplete = (result) ->  updateBuildStatus(task, result);
+        Consumer<BuildResult> onComplete = (result) ->  completeBuild(task, result);
 
         try {
             //check if task is already been build or is currently building
             //in case when task depends on two or more other tasks, all dependents call this method
-            //process only tasks with status NEW
+            //process only tasks with status ENQUEUED
             synchronized (task) {
-                if (!task.getStatus().equals(BuildCoordinationStatus.NEW)) {
+                if (task.getStatus() != BuildCoordinationStatus.ENQUEUED) {
                     log.debug("Skipping the execution of build task {} as it has been processed already. Status: {}.", task.getId(), task.getStatus());
                     return;
                 }
@@ -376,7 +394,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
 
-    public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
+    public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
         int buildTaskId = buildTask.getId();
 
         updateBuildTaskStatus(buildTask, BuildCoordinationStatus.BUILD_COMPLETED);

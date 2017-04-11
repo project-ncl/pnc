@@ -31,6 +31,8 @@ import java.util.Arrays;
 public enum BuildCoordinationStatus {
     NEW,
 
+    ENQUEUED,
+
     WAITING_FOR_DEPENDENCIES,
 
     BUILDING,

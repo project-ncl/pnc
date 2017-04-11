@@ -107,7 +107,7 @@ public class DefaultBuildCoordinatorTest {
         ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
         when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class))).thenAnswer(answer);
 
-        coordinator.updateBuildStatus(buildTask, buildResult);
+        coordinator.completeBuild(buildTask, buildResult);
 
         assertThat(answer.arguments).hasSize(1);
         BuildRecord.Builder builder = answer.arguments.iterator().next();

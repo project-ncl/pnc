@@ -86,7 +86,7 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
+    public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
 
     }
 

@@ -75,7 +75,7 @@ public class PullingMonitorTest {
         pullingMonitor.monitor(onComplete, onError, condition, 100, 500, TimeUnit.MILLISECONDS);
 
         latch.await(1, TimeUnit.SECONDS);
-        Assert.assertTrue("Did not received complete notification.", notificationReceived.get());
+        Assert.assertTrue("Did not receive complete notification.", notificationReceived.get());
     }
 
     @Test
@@ -124,6 +124,6 @@ public class PullingMonitorTest {
         pullingMonitor.monitor(onComplete, onError, condition, 100, 500, TimeUnit.MILLISECONDS);
 
         latch.await(1, TimeUnit.SECONDS);
-        Assert.assertTrue("Did not received error notification.", notificationReceived.get());
+        Assert.assertTrue("Did not receive error notification.", notificationReceived.get());
     }
 }
