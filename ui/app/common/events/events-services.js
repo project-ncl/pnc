@@ -54,6 +54,7 @@
         onMessage: function (message) {
           $log.debug('Received on notification WebSocket: %O', message);
           var event = pncEventAdaptor.convert(message);
+          $log.debug('Following event is broadcasted: %O', event);
           $rootScope.$broadcast(event.eventType, event.payload);
         },
 
@@ -100,6 +101,7 @@
                 case 'REJECTED_ALREADY_BUILT':
                 case 'SYSTEM_ERROR':
                 case 'DONE_WITH_ERRORS':
+                case 'CANCELLED':
                   result.eventType = eventTypes.BUILD_FINISHED;
                   break;
               }

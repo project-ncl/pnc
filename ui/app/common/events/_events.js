@@ -92,6 +92,9 @@
                 if (result.status === 'BUILD_COMPLETED' || result.status === 'DONE' || result.status === 'SUCCESS') {
                   pncNotify.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed',
                                     'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                } else if (result.status === 'CANCELLED') {
+                  pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' cancelled',
+                                 'Build #' + payload.id, buildRecordLinkCallback(payload.id));
                 } else {
                   pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed',
                                  'Build #' + payload.id, buildRecordLinkCallback(payload.id));
