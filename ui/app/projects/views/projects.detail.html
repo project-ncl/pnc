@@ -40,9 +40,9 @@
       </div>
     </div>
     <div class="form-group">
-      <label for="static-description" class="col-sm-1 control-label">Description</label>
+      <label for="input-description" class="col-sm-1 control-label">Description</label>
       <div class="col-sm-11">
-        <p id="static-description" class="form-control-static">{{ detailCtrl.project.description || 'Empty' }}</p>
+        <p id="input-description" e-class="form-control" editable-text="detailCtrl.project.description" e-name="description">{{ detailCtrl.project.description || 'Empty' }}</p>
       </div>
     </div>
     <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine, 'has-success': projectForm.projectUrl.$valid && project.projectUrl }">
