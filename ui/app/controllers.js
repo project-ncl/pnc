@@ -31,4 +31,21 @@
       $scope.state = $state;
     }]);
 
+    app.controller('defaultConfigurationController', ['pncProperties', function(pncProperties) {
+
+        var SESSION_STORAGE_NAME = 'defaultConfigurationModal';
+        
+        this.isDefaultConfiguration = pncProperties.isDefaultConfiguration;
+        this.title = 'No UI configuration provided';
+
+        if (pncProperties.isDefaultConfiguration && sessionStorage.getItem(SESSION_STORAGE_NAME) === null) {
+            $('#defaultConfigurationModal').modal('show');
+        }
+
+        $('#defaultConfigurationModal').on('hidden.bs.modal', function() {
+          sessionStorage.setItem(SESSION_STORAGE_NAME, 'hidden');
+        });
+
+    }]);
+
 })();

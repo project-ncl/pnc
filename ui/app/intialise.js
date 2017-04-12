@@ -22,6 +22,7 @@
   'use strict';
 
   var DEFAULT_CONFIG = {
+    isDefaultConfiguration: true,
     pncUrl: '/pnc-rest/rest',
     pncNotificationsUrl: 'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications'
   };
