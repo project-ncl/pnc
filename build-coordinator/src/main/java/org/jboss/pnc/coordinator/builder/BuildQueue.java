@@ -21,6 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -185,6 +186,19 @@ public class BuildQueue {
         Optional<BuildTask> waiting = waitingTasksWithCallbacks.keySet().stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
         Optional<BuildTask> inProgress = tasksInProgress.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
         return ready.isPresent() ? ready : waiting.isPresent() ? waiting : inProgress;
+    }
+
+    public synchronized Optional<BuildTask> getTask(BuildConfiguration buildConfiguration) {
+        Optional<BuildTask> ready = readyTasks.stream().filter(bt -> bt.getBuildConfiguration().equals(buildConfiguration)).findAny();
+        if (ready.isPresent()) {
+            return ready;
+        }
+        Optional<BuildTask> waiting = waitingTasksWithCallbacks.keySet().stream().filter(bt -> bt.getBuildConfiguration().equals(buildConfiguration)).findAny();
+        if (waiting.isPresent()) {
+            return waiting;
+        }
+        Optional<BuildTask> inProgress = tasksInProgress.stream().filter(bt -> bt.getBuildConfiguration().equals(buildConfiguration)).findAny();
+        return inProgress;
     }
 
     /**

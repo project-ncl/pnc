@@ -23,7 +23,10 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildScope;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -74,6 +77,31 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         waitForEmptyBuildQueue();
 
         coordinator.build(testConfiguration, null, BuildScope.SINGLE, false);
+        waitForEmptyBuildQueue();
+
+        //then
+        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotTriggerTheSameBuildConfigurationWithNewRevision() throws Exception {
+        coordinator.start();
+        buildRecordRepository.clear();
+        //given
+        BuildConfiguration testConfiguration = config("shouldRejectBCWithNewRevision");
+
+        //when
+        coordinator.build(testConfiguration, null, BuildScope.SINGLE, false);
+        BuildConfiguration updatedConfiguration = updateConfiguration(testConfiguration);
+
+        BuildSetTask buildSetTask;
+        boolean rejected = false;
+        try {
+            buildSetTask = coordinator.build(updatedConfiguration, null, BuildScope.SINGLE, false);
+        } catch (BuildConflictException e) {
+            rejected = true;
+        }
+        Assert.assertTrue("The task was not rejected.", rejected);
         waitForEmptyBuildQueue();
 
         //then
