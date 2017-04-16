@@ -122,15 +122,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                            BuildScope scope,
                            boolean keepPodAliveAfterFailure) throws BuildConflictException, CoreException {
 
-        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(buildConfiguration);
-        if (alreadyActiveBuildTask.isPresent()) {
-            BuildTask activeBuildTask = alreadyActiveBuildTask.get();
-            throw new BuildConflictException("Active build task found using the same configuration",
-                    activeBuildTask.getId());
+        if (buildQueue.getUnfinishedTask(buildConfiguration).isPresent()) {
+            throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
         }
 
         BuildSetTask buildSetTask =
-                buildTasksInitializer.createBuildSetTask(buildConfiguration, user, scope, keepPodAliveAfterFailure, this::buildRecordIdSupplier);
+                buildTasksInitializer.createBuildSetTask(
+                        buildConfiguration,
+                        user,
+                        scope,
+                        keepPodAliveAfterFailure,
+                        this::buildRecordIdSupplier,
+                        buildQueue.getUnfinishedTasks());
 
         buildQueue.enqueueTaskSet(buildSetTask);
         List<BuildTask> readyTasks = buildSetTask.getBuildTasks().stream().filter(BuildTask::readyToBuild).collect(Collectors.toList());
@@ -189,6 +192,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void addTaskToBuildQueue(BuildTask task) {
+        log.debug("Adding task {} to buildQueue.", task);
         if (task.readyToBuild()) {
             updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED);
             buildQueue.addReadyTask(task);
@@ -277,7 +281,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private boolean rejectAlreadySubmitted(BuildTask buildTask) {
-        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(buildTask.getBuildConfiguration());
+        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getUnfinishedTask(buildTask.getBuildConfiguration());
         if (alreadyActiveBuildTask.isPresent()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED,
                     "The configuration is already in the build queue.");

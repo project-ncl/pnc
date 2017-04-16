@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,11 +103,34 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         } catch (BuildConflictException e) {
             rejected = true;
         }
-        Assert.assertTrue("The task was not rejected.", rejected);
-        waitForEmptyBuildQueue();
 
         //then
+        Assert.assertTrue("The task was not rejected.", rejected);
+        waitForEmptyBuildQueue();
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotTriggerTheSameBuildConfigurationViaDependency() throws Exception {
+        coordinator.start();
+        buildRecordRepository.clear();
+        //given
+        BuildConfiguration configurationA = config("configurationA");
+        BuildConfiguration configurationB = config("configurationB");
+        configurationA.addDependency(configurationB);
+
+        //when
+        coordinator.build(configurationB, null, BuildScope.WITH_DEPENDENCIES, false);
+        coordinator.build(configurationA, null, BuildScope.WITH_DEPENDENCIES, false);
+
+        //then
+        new PullingMonitor().monitor(() -> {},
+                e -> {Assert.fail("There should be 2 submitted tasks.");},
+                () -> coordinator.getSubmittedBuildTasks().size() == 2,
+                100, 500, TimeUnit.MILLISECONDS);
+//        Assert.assertEquals("There should be 2 submitted tasks.", 2, coordinator.getSubmittedBuildTasks().size());
+        waitForEmptyBuildQueue();
+        Assert.assertEquals("There should be 2 build records.", 2, buildRecordRepository.queryAll().size());
     }
 
     @Test

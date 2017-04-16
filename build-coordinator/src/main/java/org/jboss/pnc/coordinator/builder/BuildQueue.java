@@ -188,19 +188,6 @@ public class BuildQueue {
         return ready.isPresent() ? ready : waiting.isPresent() ? waiting : inProgress;
     }
 
-    public synchronized Optional<BuildTask> getTask(BuildConfiguration buildConfiguration) {
-        Optional<BuildTask> ready = readyTasks.stream().filter(bt -> bt.getBuildConfiguration().equals(buildConfiguration)).findAny();
-        if (ready.isPresent()) {
-            return ready;
-        }
-        Optional<BuildTask> waiting = waitingTasksWithCallbacks.keySet().stream().filter(bt -> bt.getBuildConfiguration().equals(buildConfiguration)).findAny();
-        if (waiting.isPresent()) {
-            return waiting;
-        }
-        Optional<BuildTask> inProgress = tasksInProgress.stream().filter(bt -> bt.getBuildConfiguration().equals(buildConfiguration)).findAny();
-        return inProgress;
-    }
-
     /**
      * List all waiting, ready and in progress tasks
      *
@@ -217,6 +204,9 @@ public class BuildQueue {
     public BuildTask take() throws InterruptedException {
         availableBuildSlots.acquire();
         log.info("Consumer is ready to go, waiting for task");
+        //FIXME not thread safe: when a task is taken from readyTasks it is not in the tasksInProgress for a short time
+        // race condition hit while working on SkippingBuiltConfigsTest.shouldNotTriggerTheSameBuildConfigurationViaDependency
+        // to avoid race condition getUnfinishedTask is used instead of getTask
         BuildTask task = readyTasks.take();
         log.info("Got task: {}, will start processing", task);
         tasksInProgress.add(task);
@@ -226,6 +216,14 @@ public class BuildQueue {
 
     public synchronized boolean isBuildAlreadySubmitted(BuildTask buildTask) {
         return unfinishedTasks.contains(buildTask);
+    }
+
+    public synchronized Optional<BuildTask> getUnfinishedTask(BuildConfiguration buildConfiguration) {
+        return unfinishedTasks.stream().filter(buildTask -> buildTask.getBuildConfiguration().equals(buildConfiguration)).findFirst();
+    }
+
+    public synchronized Set<BuildTask> getUnfinishedTasks() {
+        return new HashSet<>(unfinishedTasks);
     }
 
     private List<BuildTask> extractReadyTasks() {
