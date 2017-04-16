@@ -47,6 +47,8 @@ public class BuildTasksInitializer {
 
     private DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
 
+    private Set<BuildTask> submittedBuildTasks;
+
     public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
     }
@@ -56,7 +58,11 @@ public class BuildTasksInitializer {
             User user,
             BuildScope scope,
             boolean keepAfterFailure,
-            Supplier<Integer> buildTaskIdProvider) throws CoreException {
+            Supplier<Integer> buildTaskIdProvider,
+            Set<BuildTask> submittedBuildTasks) throws CoreException {
+
+        this.submittedBuildTasks = submittedBuildTasks;
+
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .forceRebuildAll(scope.isForceRebuild())
@@ -64,34 +70,40 @@ public class BuildTasksInitializer {
                         .keepAfterFailure(keepAfterFailure).build();
 
 
-        Set<BuildConfiguration> buildTasks = new HashSet<>();
-        createBuildTasks(configuration, scope, buildTasks);
-        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), buildTasks);
+        Set<BuildConfiguration> toBuild = new HashSet<>();
+        collectBuildTasks(configuration, scope, toBuild);
+        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), toBuild);
         return buildSetTask;
     }
 
-    private void createBuildTasks(BuildConfiguration configuration, BuildScope scope, Set<BuildConfiguration> configs) {
+    private void collectBuildTasks(BuildConfiguration configuration, BuildScope scope, Set<BuildConfiguration> toBuild) {
         log.debug("will create build tasks for scope: {} and configuration: {}", scope, configuration);
         Set<BuildConfiguration> visited = new HashSet<>();
-        if (configs.contains(configuration)) {
+        if (toBuild.contains(configuration)) {
             return;
         }
-        configs.add(configuration);
+        toBuild.add(configuration);
         if (scope.isRecursive()) {
-            configuration.getDependencies().forEach(c -> createDependencyBuildTasks(c, configs, visited));
+            configuration.getDependencies().forEach(c -> collectDependentConfigurations(c, toBuild, visited));
         }
     }
 
-    private boolean createDependencyBuildTasks(BuildConfiguration configuration, Set<BuildConfiguration> toBuild, Set<BuildConfiguration> visited) {
+    private boolean collectDependentConfigurations(BuildConfiguration configuration, Set<BuildConfiguration> toBuild, Set<BuildConfiguration> visited) {
         if (visited.contains(configuration)) {
             return toBuild.contains(configuration);
         }
 
         visited.add(configuration);
 
+        //do not add dependencies that are already in queue
+        if (submittedBuildTasks.stream().anyMatch(buildTask -> buildTask.getBuildConfiguration().equals(configuration))) {
+            log.debug("Configuration {} already in queue.", configuration);
+            return false;
+        }
+
         boolean requiresRebuild = datastoreAdapter.requiresRebuild(configuration);
         for (BuildConfiguration dependency : configuration.getDependencies()) {
-            requiresRebuild |= createDependencyBuildTasks(dependency, toBuild, visited);
+            requiresRebuild |= collectDependentConfigurations(dependency, toBuild, visited);
         }
         if (requiresRebuild) {
             toBuild.add(configuration);

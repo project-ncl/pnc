@@ -167,6 +167,20 @@ public abstract class AbstractDependentBuildTest {
         return config;
     }
 
+    /**
+     * Create a new revision
+     */
+    protected BuildConfiguration updateConfiguration(BuildConfiguration buildConfiguration) {
+        int id = configIdSequence.getAndIncrement();
+
+        buildConfiguration.setScmRepoURL("http://path.to/repo.git");
+
+        buildConfigurationRepository.save(buildConfiguration);
+        buildConfigurationAuditedRepository.save(auditedConfig(buildConfiguration));
+
+        return buildConfiguration;
+    }
+
     protected void modifyConfigurations(BuildConfiguration... configurations) {
         Stream.of(configurations).forEach(
                 c -> buildConfigurationAuditedRepository.save(auditedConfig(c))

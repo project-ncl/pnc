@@ -27,7 +27,6 @@ import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -123,15 +122,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                            BuildScope scope,
                            boolean keepPodAliveAfterFailure) throws BuildConflictException, CoreException {
 
-        BuildConfigurationAudited auditedBuildConfig = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
-        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(auditedBuildConfig);
-        if (alreadyActiveBuildTask.isPresent()) {
-            throw new BuildConflictException("Active build task found using the same configuration",
-                    alreadyActiveBuildTask.get().getId());
+        if (buildQueue.getUnfinishedTask(buildConfiguration).isPresent()) {
+            throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
         }
 
         BuildSetTask buildSetTask =
-                buildTasksInitializer.createBuildSetTask(buildConfiguration, user, scope, keepPodAliveAfterFailure, this::buildRecordIdSupplier);
+                buildTasksInitializer.createBuildSetTask(
+                        buildConfiguration,
+                        user,
+                        scope,
+                        keepPodAliveAfterFailure,
+                        this::buildRecordIdSupplier,
+                        buildQueue.getUnfinishedTasks());
 
         buildQueue.enqueueTaskSet(buildSetTask);
         List<BuildTask> readyTasks = buildSetTask.getBuildTasks().stream().filter(BuildTask::readyToBuild).collect(Collectors.toList());
@@ -190,6 +192,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void addTaskToBuildQueue(BuildTask task) {
+        log.debug("Adding task {} to buildQueue.", task);
         if (task.readyToBuild()) {
             updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED);
             buildQueue.addReadyTask(task);
@@ -278,7 +281,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private boolean rejectAlreadySubmitted(BuildTask buildTask) {
-        if (buildQueue.isBuildAlreadySubmitted(buildTask)) {
+        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getUnfinishedTask(buildTask.getBuildConfiguration());
+        if (alreadyActiveBuildTask.isPresent()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED,
                     "The configuration is already in the build queue.");
             return false;

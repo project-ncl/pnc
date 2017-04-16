@@ -21,6 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -203,6 +204,9 @@ public class BuildQueue {
     public BuildTask take() throws InterruptedException {
         availableBuildSlots.acquire();
         log.info("Consumer is ready to go, waiting for task");
+        //FIXME not thread safe: when a task is taken from readyTasks it is not in the tasksInProgress for a short time
+        // race condition hit while working on SkippingBuiltConfigsTest.shouldNotTriggerTheSameBuildConfigurationViaDependency
+        // to avoid race condition getUnfinishedTask is used instead of getTask
         BuildTask task = readyTasks.take();
         log.info("Got task: {}, will start processing", task);
         tasksInProgress.add(task);
@@ -212,6 +216,14 @@ public class BuildQueue {
 
     public synchronized boolean isBuildAlreadySubmitted(BuildTask buildTask) {
         return unfinishedTasks.contains(buildTask);
+    }
+
+    public synchronized Optional<BuildTask> getUnfinishedTask(BuildConfiguration buildConfiguration) {
+        return unfinishedTasks.stream().filter(buildTask -> buildTask.getBuildConfiguration().equals(buildConfiguration)).findFirst();
+    }
+
+    public synchronized Set<BuildTask> getUnfinishedTasks() {
+        return new HashSet<>(unfinishedTasks);
     }
 
     private List<BuildTask> extractReadyTasks() {
