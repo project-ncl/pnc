@@ -29,8 +29,8 @@
     '$state',
     'eventTypes',
     'BuildConfigurationDAO',
-    'BuildRecordDAO',
-    function ($log, $state, eventTypes, BuildConfigurationDAO, BuildRecordDAO) {
+    'BuildRecord',
+    function ($log, $state, eventTypes, BuildConfigurationDAO, BuildRecord) {
 
       return {
         restrict: 'E',
@@ -48,8 +48,8 @@
           scope.page.onUpdate(function(page) {
             _.forEach(page.data, function(bc) {
               if(!_(scope.latestBuildRecords).has(bc.id)) { // avoid unnecessary requests
-                BuildRecordDAO.getLatestForConfiguration({ configurationId: bc.id }).then(function (data) {
-                  scope.latestBuildRecords[bc.id] = data;
+                BuildRecord.getLastByConfiguration({ id: bc.id }).$promise.then(function (data) {
+                  scope.latestBuildRecords[bc.id] = data.content;
                 });
               }
             });
@@ -65,7 +65,7 @@
                 console.log('Updating BuildRecord #' + payload.id + ' with status ' + payload.buildCoordinationStatus + ' and ' + payload.buildEndTime);
 
                 scope.latestBuildRecords[payload.buildConfigurationId][0].status = payload.buildCoordinationStatus;
-                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].endTime = payload.buildEndTime;
+                scope.latestBuildRecords[payload.buildConfigurationId][0].endTime = payload.buildEndTime;
               }
               else {
                 console.log('Reloading page');
