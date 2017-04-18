@@ -21,7 +21,8 @@
   var module = angular.module('pnc.common.pnc-client.resources');
 
   module.value('BUILD_RECORD_PATH', '/build-records/:id');
-  module.value('BUILDS_PATH', '/builds/:id');
+  module.value('BUILDS_PATH', '/builds');
+  module.value('BUILD_PATH', '/builds/:id');
   module.value('SSH_CREDENTIALS_PATH', '/builds/ssh-credentials/:recordId');
 
   /**
@@ -33,13 +34,15 @@
     'restConfig',
     'BUILD_RECORD_PATH',
     'BUILDS_PATH',
+    'BUILD_PATH',
     'SSH_CREDENTIALS_PATH',
     'rsqlQuery',
     'authService',
-    function($resource, $q, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, SSH_CREDENTIALS_PATH,
+    function($resource, $q, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, BUILD_PATH, SSH_CREDENTIALS_PATH,
              rsqlQuery, authService) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PATH;
       var BUILDS_ENDPOINT = restConfig.getPncUrl() + BUILDS_PATH;
+      var BUILD_ENDPOINT = restConfig.getPncUrl() + BUILD_PATH;
       var SSH_CREDENTIALS_ENDPOINT = restConfig.getPncUrl() + SSH_CREDENTIALS_PATH;
 
 
@@ -52,14 +55,21 @@
         query: {
           method: 'GET',
           isPaged: true,
-          url: BUILDS_ENDPOINT
+          url: BUILD_ENDPOINT
         },
         /**
          * Gets running or completed BuildRecord by id.
          */
         get: {
           method: 'GET',
-          url: BUILDS_ENDPOINT
+          url: BUILD_ENDPOINT
+        },
+        /**
+         * Gets last BuildRecord by configuration.
+         */
+        getLastByConfiguration: {
+          method: 'GET',
+          url: BUILDS_ENDPOINT + '/?q=buildConfigurationAudited.idRev.id==:id&pageIndex=0&pageSize=1&sort==desc=id'
         },
         /**
          * Gets all completed BuildRecords
@@ -113,7 +123,7 @@
         },
         cancel: {
           method: 'POST',
-          url: BUILDS_ENDPOINT + '/cancel'
+          url: BUILD_ENDPOINT + '/cancel'
         }
       });
 
