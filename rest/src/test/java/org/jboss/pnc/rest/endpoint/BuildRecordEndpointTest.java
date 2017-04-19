@@ -22,7 +22,9 @@ import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -35,6 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +55,10 @@ public class BuildRecordEndpointTest {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
 
+    private final static int BUILD_RECORD_NOT_VALID_ID = 99999;
+    private final static int DEF_PAGE_SIZE = 100;
+    private final static int DEF_PAGE_INDEX = 0;
+
     @Mock
     private BuildExecutor buildExecutor;
     @Mock
@@ -60,14 +67,23 @@ public class BuildRecordEndpointTest {
     private Datastore datastore;
     @Mock
     private EndpointAuthenticationProvider authProvider;
+    
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
+    
     private BuildRecordEndpoint endpoint;
+    private ArtifactProvider artifactProvider;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        endpoint = new BuildRecordEndpoint(buildRecordProvider, null, authProvider);
+        
+        this.artifactProvider = mock(ArtifactProvider.class);
+        when(artifactProvider.getBuiltArtifactsForBuildRecord(DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null, 
+        		BUILD_RECORD_NOT_VALID_ID)).thenReturn(new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0, 
+        				Collections.emptyList()));
+        
+        endpoint = new BuildRecordEndpoint(buildRecordProvider, artifactProvider, authProvider);
 
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);
@@ -98,6 +114,13 @@ public class BuildRecordEndpointTest {
 
         // then
         assertThat(endpoint.getLogs(logId).getStatus()).isEqualTo(200);
+    }
+    
+    @Test
+    public void shouldReturnNoContentWhenBuildRecordDoesntExists() {
+    	assertThat(endpoint.getBuiltArtifacts(BUILD_RECORD_NOT_VALID_ID, 
+    			DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null).getStatus())
+    	.isEqualTo(204);
     }
 
     private void endpointReturnsLog(int logId, String logContent) {

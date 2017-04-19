@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -89,12 +91,20 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
                 ArtifactRest.class, fullArtifactList);
     }
 
+    /**
+     * Lookups built artifacts for the specified BuildRecord
+     * 
+     * @return Returns requested artifacts or empty collection if BuildRecord with the specified ID doesn't exists
+     */
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
-
-        return filterAndSort(pageIndex, pageSize, sortingRsql, query,
-                ArtifactRest.class, buildRecord.getBuiltArtifacts());
+        Set<Artifact> builtArtifacts = Collections.emptySet();
+        if (buildRecord != null)
+        	builtArtifacts = buildRecord.getBuiltArtifacts();
+        
+    	return filterAndSort(pageIndex, pageSize, sortingRsql, query,
+    			ArtifactRest.class, builtArtifacts);
     }
 
     private <DTO, Model> CollectionInfo<ArtifactRest> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
