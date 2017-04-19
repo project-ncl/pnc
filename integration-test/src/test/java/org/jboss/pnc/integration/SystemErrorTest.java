@@ -47,7 +47,6 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -182,7 +181,6 @@ public class SystemErrorTest extends AbstractTest {
         buildTaskId = (Integer) p.getContent().iterator().next().get("id");
     }
 
-    @Ignore //TODO enable me
     @Test
     @InSequence(3)
     public void shouldGetBuildData() throws Exception {
@@ -193,11 +191,20 @@ public class SystemErrorTest extends AbstractTest {
     }
 
     private boolean logHasCorrectFailedReason() {
-        Response response = given().header("Accept", "text/plain").contentType(ContentType.JSON).get(String.format(BUILD_RECORD_LOG, buildTaskId));
+        if (logger.isTraceEnabled()) {
+            Response response = authenticatedJsonCall().get("/pnc-rest/rest/build-records");
+            logger.trace("All build records: " + response.asString());
+        }
 
-        String expectedLastStatus = "Last build status: DONE_WITH_ERRORS";
+        if (logger.isTraceEnabled()) { //all build logs should be without errors
+            Response response = given().header("Accept", "text/plain").contentType(ContentType.JSON).get(String.format(BUILD_RECORD_LOG, buildTaskId));
+            logger.trace("Build record log: " + response.asString());
+        }
+
+        Response response = given().header("Accept", "application/json").contentType(ContentType.JSON).get("/pnc-rest/rest/build-records/" + buildTaskId);
+        logger.debug("Response string: " + response.asString());
         return response.getStatusCode() == 200
-                && response.getBody().prettyPrint().contains(expectedLastStatus);
+                && response.getBody().jsonPath().getString("content.status").equals("SYSTEM_ERROR");
     }
 
     private RequestSpecification authenticatedJsonCall() {
