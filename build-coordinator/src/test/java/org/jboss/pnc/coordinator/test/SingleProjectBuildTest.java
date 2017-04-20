@@ -23,6 +23,8 @@ import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,6 +32,7 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -50,9 +53,11 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         //given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //when
-        buildProject(configurationBuilder.build(1, "c1-java"), buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator);
+        BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
+        buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add);
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
@@ -68,5 +73,9 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildRecord.getSubmitTime());
         Assert.assertNotNull(buildRecord.getStartTime());
         Assert.assertNotNull(buildRecord.getEndTime());
+
+        receivedStatuses.stream().filter(e -> e.getNewStatus().isCompleted()).forEach(e -> {
+            Assert.assertNotNull("Final event " + e + " should have end build time.", e.getBuildEndTime());
+        });
     }
 }
