@@ -17,14 +17,12 @@
  */
 package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 import java.lang.invoke.MethodHandles;
 
 //TODO: This is temporarily disabled due to it being too general and catching all
@@ -39,6 +37,6 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception e) {
         logger.error("An exception occurred when processing REST response", e);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ErrorResponseRest(e)).type(MediaType.APPLICATION_JSON).build();
+        return ErrorResponse.toResponse(e);
     }
 }
