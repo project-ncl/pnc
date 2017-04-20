@@ -244,18 +244,12 @@ public class DatastoreAdapter {
                 .startTime(buildTask.getStartTime())
                 .productMilestone(buildTask.getProductMilestone());
 
-        if (buildTask.getEndTime() != null) {
-            builder.endTime(buildTask.getEndTime());
-        } else {
-            builder.endTime(Date.from(Instant.now()));
+        if (buildTask.getEndTime() == null) {
+            buildTask.setEndTime(Date.from(Instant.now()));
         }
 
-        if (buildTask.getEndTime() == null) {
-            builder.endTime(Date.from(Instant.now()));
-        } else {
-            builder.endTime(buildTask.getEndTime());
-        }
-        
+        builder.endTime(buildTask.getEndTime());
+
         builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
