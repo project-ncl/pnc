@@ -48,14 +48,16 @@ import static org.mockito.Mockito.when;
  * Time: 10:58 AM
  */
 public class ArtifactProviderTest {
+    private final static int BUILD_RECORD_NOT_VALID_ID = 99999;
+    private final static int BUILD_RECORD_VALID_ID = 12;
 
     private final SpringDataRSQLPredicateProducer predicateProvider = new SpringDataRSQLPredicateProducer();
     private final SortInfoProducer sortInfoProducer = new DefaultSortInfoProducer();
-
+    
     private final Artifact a1 = createArtifact(100, "booya", "asdf");
     private final Artifact a2 = createArtifact(1, "woohoo", "fdsa");
     private final Artifact a3 = createArtifact(2, "aaa", "gggg");
-
+    
     private String intrernalPath = "http://path.to/deploy/";
     private String publicPath = "http://path.to/public/";
 
@@ -80,7 +82,7 @@ public class ArtifactProviderTest {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a3Rest, a1Rest, a2Rest);
     }
@@ -90,7 +92,7 @@ public class ArtifactProviderTest {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a2Rest, a3Rest, a1Rest);
     }
@@ -100,7 +102,7 @@ public class ArtifactProviderTest {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==woohoo", 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==woohoo", BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a2Rest);
     }
@@ -110,7 +112,7 @@ public class ArtifactProviderTest {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==2 or sha256 == sha256-fake-asdf or filename==woohoo", 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==2 or sha256 == sha256-fake-asdf or filename==woohoo", BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(a1Rest, a2Rest, a3Rest);
     }
@@ -122,13 +124,25 @@ public class ArtifactProviderTest {
 
 
         String matchingFilter = "id==100 and sha256 == sha256-fake-asdf and filename==booya";
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, BUILD_RECORD_VALID_ID);
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest);
 
 
         String nonMatchingFilter = "id==100 and sha256 == sha256-fake-asdf and filename==woohoo";
-        artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, 12);
+        artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, BUILD_RECORD_VALID_ID);
         assertThat(artifacts.getContent()).isEmpty();
+    }
+    
+    @Test
+    public void shouldReturnNullForBuiltArtifactsWhenBuildRecordIsNotFound() {
+        // given
+        ArtifactProvider provider = artifactProviderWithBuiltResult();
+        
+        // when
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, null, BUILD_RECORD_NOT_VALID_ID);
+        
+        // then
+        assertThat(artifacts.getContent().isEmpty()).isTrue();
     }
 
     @Test
@@ -136,7 +150,7 @@ public class ArtifactProviderTest {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, null, 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, null, BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(a1Rest, a2Rest, a3Rest);
     }
@@ -147,13 +161,13 @@ public class ArtifactProviderTest {
         ArtifactProvider provider = artifactProviderWithBuiltResult();
 
         //when
-        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 1, null, "id == 2 or sha256 == sha256-fake-asdf", 12);
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 1, null, "id == 2 or sha256 == sha256-fake-asdf", BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest);
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
 
         //when
-        artifacts = provider.getBuiltArtifactsForBuildRecord(1, 1, null, "id == 2 or sha256 == sha256-fake-asdf", 12);
+        artifacts = provider.getBuiltArtifactsForBuildRecord(1, 1, null, "id == 2 or sha256 == sha256-fake-asdf", BUILD_RECORD_VALID_ID);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a3Rest);
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
@@ -164,7 +178,8 @@ public class ArtifactProviderTest {
         record.setBuiltArtifacts(new HashSet<>(Arrays.asList(a1, a2, a3)));
 
         BuildRecordRepository recordRepo = mock(BuildRecordRepository.class);
-        when(recordRepo.queryById(any())).thenReturn(record);
+        when(recordRepo.queryById(BUILD_RECORD_VALID_ID)).thenReturn(record);
+        when(recordRepo.queryById(BUILD_RECORD_NOT_VALID_ID)).thenReturn(null);
 
         return new ArtifactProvider(null, predicateProvider, sortInfoProducer, null, recordRepo, mockConfiguration());
     }
