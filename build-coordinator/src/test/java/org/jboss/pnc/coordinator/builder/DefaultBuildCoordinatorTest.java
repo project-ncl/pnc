@@ -20,20 +20,26 @@ package org.jboss.pnc.coordinator.builder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
@@ -47,6 +53,7 @@ import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +122,29 @@ public class DefaultBuildCoordinatorTest {
         assertThat(record.getSshCommand()).isEqualTo(sshCredentials.getCommand());
         assertThat(record.getSshPassword()).isEqualTo(sshCredentials.getPassword());
     }
+    
+    @Test
+    public void shouldUpdateBuildRecordSetIfBuildSetBuilIsRejected() throws DatastoreException, CoreException {
+    	BuildConfigurationSet bcSet = BuildConfigurationSet.Builder.newBuilder()
+    			.buildConfigurations(Collections.emptySet())
+    			.name("BCSet").id(1).build();
+    	User user = new User();
+    	when(datastore.saveBuildConfigSetRecord(any())).thenReturn(BuildConfigSetRecord.Builder.newBuilder()
+    			.id(1)
+    			.buildConfigurationSet(bcSet)
+    			.user(user)
+    			.productVersion(ProductVersion.Builder.newBuilder()
+    					.buildConfigurationSet(bcSet)
+    					.id(1)
+    					.version("7.1")
+    					.build())
+    			.build());
+    	
+    	BuildSetTask bsTask = coordinator.build(bcSet, user, false, false);
+    	assertThat(bsTask.getBuildConfigSetRecord().get().getStatus())
+    		.isEqualTo(BuildStatus.REJECTED);
+    }
+    
 
     private BuildResult mockBuildResult(boolean withSshCredentials) {
         BuildResult result = mock(BuildResult.class);
