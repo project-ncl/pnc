@@ -45,6 +45,7 @@
                     "proxyServer": "${env.PNC_DOCKER_PROXY_SERVER}",
                     "proxyPort": "${env.PNC_DOCKER_PROXY_PORT}",
                     "firewallAllowedDestinations": "${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
+                    "allowedHttpOutgoingDestinations": [],
                     "restEndpointUrl": "${env.PNC_REST_ENDPOINT_URL}",
                     "restAuthToken": "${env.PNC_REST_AUTH_TOKEN}",
                     "buildAgentHost": "${env.PNC_BUILD_AGENT_HOST}",
