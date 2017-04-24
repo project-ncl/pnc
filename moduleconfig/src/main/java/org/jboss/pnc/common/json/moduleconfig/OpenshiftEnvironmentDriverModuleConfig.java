@@ -18,8 +18,11 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jboss.pnc.common.json.moduleconfig.helper.HttpDestinationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Configuration for DockerEnvironmentDriver
@@ -48,6 +51,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("buildAgentHost") String buildAgentHost,
                                                   @JsonProperty("imageId") String imageId,
                                                   @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations,
+                                                  @JsonProperty("allowedHttpOutgoingDestinations") List<HttpDestinationConfig> allowedHttpOutgoingDestinations,
                                                   @JsonProperty("proxyServer") String proxyServer,
                                                   @JsonProperty("proxyPort") String proxyPort,
                                                   @JsonProperty("nonProxyHosts") String nonProxyHosts,
@@ -60,7 +64,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("disabled") Boolean disabled,
                                                   @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
                                                   @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl) {
-        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
+        super(imageId, firewallAllowedDestinations, allowedHttpOutgoingDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
         this.buildAgentHost = buildAgentHost;
@@ -117,6 +121,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 "restEndpointUrl='" + restEndpointUrl + '\'' +
                 ", imageId='" + imageId + '\'' +
                 ", firewallAllowedDestinations='" + firewallAllowedDestinations + '\'' +
+                ", allowedHttpOutgoingDestinations='" + allowedHttpOutgoingDestinations + '\'' +
                 ", proxyServer='" + proxyServer + '\'' +
                 ", proxyPort='" + proxyPort + '\'' +
                 ", nonProxyHosts='" + nonProxyHosts + '\'' +

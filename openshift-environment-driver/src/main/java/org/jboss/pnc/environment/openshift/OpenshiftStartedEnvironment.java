@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.environment.openshift;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openshift.internal.restclient.model.Pod;
 import com.openshift.internal.restclient.model.Route;
 import com.openshift.internal.restclient.model.Service;
@@ -378,6 +380,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         properties.put("image", imageId);
         properties.put("containerPort", environmentConfiguration.getContainerPort());
         properties.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
+        // This property sent as Json
+        properties.put("allowedHttpOutgoingDestinations", toJson(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
         properties.put("isHttpActive", proxyActive.toString().toLowerCase());
         properties.put("proxyServer", environmentConfiguration.getProxyServer());
         properties.put("proxyPort", environmentConfiguration.getProxyPort());
@@ -444,5 +448,16 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         logger.debug("Got {} from {}.", responseCode, url);
         return responseCode == 200;
+    }
+
+
+    private String toJson(Object object) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(object);
+        } catch(JsonProcessingException e) {
+            logger.error("Could not parse object: " + object, e);
+            throw new RuntimeException(e);
+        }
     }
 }

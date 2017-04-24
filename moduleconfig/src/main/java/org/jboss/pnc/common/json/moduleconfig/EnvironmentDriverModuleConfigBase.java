@@ -19,6 +19,9 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.helper.HttpDestinationConfig;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -37,6 +40,17 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
      * all network traffic will be dropped
      */
     protected String firewallAllowedDestinations;
+
+    /**
+     * List of Http destinations; The Http Destination needs to specify the url, port (optional), and the
+     * allowed Http method to allow.
+     *
+     * If you want to specify all the Http methods, specify the destination in the 'firewallAllowedDestinations'
+     * section instead.
+     *
+     * Format: [{"url": "\<url\>", "allowedMethods": "PUT,POST"}, ...]
+     */
+    protected List<HttpDestinationConfig> allowedHttpOutgoingDestinations;
 
     /**
      * Persistent http proxy hostname
@@ -62,6 +76,7 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     public EnvironmentDriverModuleConfigBase(
             String imageId,
             String firewallAllowedDestinations,
+            List<HttpDestinationConfig> allowedHttpOutgoingDestinations,
             String proxyServer,
             String proxyPort,
             String nonProxyHosts,
@@ -70,6 +85,7 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
 
         this.imageId = imageId;
         this.firewallAllowedDestinations = firewallAllowedDestinations;
+        this.allowedHttpOutgoingDestinations = allowedHttpOutgoingDestinations;
         this.proxyServer = proxyServer;
         this.proxyPort = proxyPort;
         this.nonProxyHosts = nonProxyHosts;
@@ -94,6 +110,10 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     }
     public String getFirewallAllowedDestinations() {
         return firewallAllowedDestinations;
+    }
+
+    public List<HttpDestinationConfig> getAllowedHttpOutgoingDestinations() {
+        return allowedHttpOutgoingDestinations;
     }
 
     public String getWorkingDirectory() {
