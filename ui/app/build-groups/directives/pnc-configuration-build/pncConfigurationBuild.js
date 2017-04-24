@@ -46,7 +46,7 @@
         });
 
         function update(event, payload) {
-          $log.debug('pncConfigurationBuild::update >> event = %O, payload = %O', event, payload);
+          $log.debug('pncConfigurationBuild::update >> event = %O, payload = %O, configurationId = %O', event, payload, $scope.pncConfigurationId);
           if (payload.buildConfigurationId === $scope.pncConfigurationId) {
             $scope.page.reload();
           }

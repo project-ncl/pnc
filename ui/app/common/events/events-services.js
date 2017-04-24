@@ -93,12 +93,14 @@
               switch (event.payload.buildCoordinationStatus) {
                 case 'NEW':
                 case 'WAITING_FOR_DEPENDENCIES':
+                case 'ENQUEUED':
                 case 'BUILDING':
                   result.eventType = eventTypes.BUILD_STARTED;
                   break;
                 case 'DONE':
                 case 'REJECTED':
                 case 'REJECTED_ALREADY_BUILT':
+                case 'REJECTED_FAILED_DEPENDENCIES':
                 case 'SYSTEM_ERROR':
                 case 'DONE_WITH_ERRORS':
                 case 'CANCELLED':
