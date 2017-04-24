@@ -34,6 +34,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
+import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
@@ -164,7 +165,7 @@ public class BuildTaskEndpoint {
             return response;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+            return ErrorResponse.toResponse(e);
         }
     }
 
@@ -195,7 +196,7 @@ public class BuildTaskEndpoint {
             return response;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+            return ErrorResponse.toResponse(e);
         }
     }
 

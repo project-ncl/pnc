@@ -27,10 +27,12 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Api(value = "/test", description = "This is special Endpoint for testing purpose. Use with caution.")
 @Path("/test")
@@ -57,5 +59,26 @@ public class TestEndpoint {
     @ApiOperation(value = "Sends BuildSetStatusChangedEvent just like it was from Core, useful for testing WebSockets")
     public void sendBuildSetStatusChangedEvent(@Valid BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         buildSetStatusChangedEventEvent.fire(buildSetStatusChangedEvent);
+    }
+
+    @GET
+    @Path("/throw")
+    public void throwEx() throws Exception {
+        RuntimeException nested = new RuntimeException("Root exception.");
+        throw new Exception("Test exception.", nested);
+    }
+
+    @GET
+    @Path("/unauthorized")
+    public void redirect() throws Exception {
+        Response.status(Response.Status.UNAUTHORIZED)
+                .header("WWW-Authenticate", "Bearer realm=\"test\"")
+                .build();
+    }
+
+    @GET
+    @Path("/nocontent")
+    public void nocontent() throws Exception {
+        Response.status(Response.Status.NO_CONTENT).build();
     }
 }

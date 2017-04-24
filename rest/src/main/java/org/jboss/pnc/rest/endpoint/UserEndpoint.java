@@ -33,6 +33,7 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.UserPage;
 import org.jboss.pnc.rest.swagger.response.UserSingleton;
+import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
@@ -181,7 +182,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+            return ErrorResponse.toResponse(e);
         }
         
     }
