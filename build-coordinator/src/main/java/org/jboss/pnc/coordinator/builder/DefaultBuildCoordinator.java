@@ -28,6 +28,7 @@ import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
@@ -328,6 +329,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
         sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord);
+        
+        // Rejected status needs to be propagated to the BuildConfigSetRecord in database. 
+        // Completed BuildSets are updated using BuildSetTask#taskStatusUpdatedToFinalState()
+        if( buildConfigSetRecord.isPresent() && BuildSetStatus.REJECTED.equals(status)) {
+        	buildConfigSetRecord.get().setStatus(BuildStatus.REJECTED);
+        	try {
+        		datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord.get());
+        	} catch (DatastoreException de) {
+                log.warn("Failed to update build config set record to REJECTED status: " + de);
+            }
+        }
+        
         buildSetTask.setStatus(status);
         buildSetTask.setStatusDescription(description);
     }
