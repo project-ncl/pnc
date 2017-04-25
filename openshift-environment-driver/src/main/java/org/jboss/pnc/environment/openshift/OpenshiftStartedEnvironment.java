@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.environment.openshift;
 
+import com.openshift.internal.restclient.model.ImageStream;
 import com.openshift.internal.restclient.model.Pod;
 import com.openshift.internal.restclient.model.Route;
 import com.openshift.internal.restclient.model.Service;
@@ -75,7 +76,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private final Configuration configuration;
     private final OpenshiftEnvironmentDriverModuleConfig environmentConfiguration;
     private final PullingMonitor pullingMonitor;
-    private final String imageId;
+    private final String systemImageRepositoryUrl;
+    private final String systemImageId;
     private final DebugData debugData;
     private final Set<Selector> initialized = new HashSet<>();
     private final Map<String, String> runtimeProperties;
@@ -102,18 +104,21 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
             PullingMonitor pullingMonitor,
             RepositorySession repositorySession,
+            String systemImageRepositoryUrl,
             String systemImageId,
             DebugData debugData,
             String accessToken) {
 
-        logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
 
         this.configuration = configuration;
         this.environmentConfiguration = environmentConfiguration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
-        this.imageId = systemImageId == null ? environmentConfiguration.getImageId() : systemImageId;
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
+        this.systemImageId = systemImageId;
         this.debugData = debugData;
+
+        logger.info("Creating new build environment using image id: " + getBuildImageId());
 
         createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
 
@@ -375,7 +380,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
 
         Properties properties = new Properties();
-        properties.put("image", imageId);
+        properties.put("image", getBuildImageWithSha());
         properties.put("containerPort", environmentConfiguration.getContainerPort());
         properties.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
         properties.put("isHttpActive", proxyActive.toString().toLowerCase());
@@ -444,5 +449,36 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         logger.debug("Got {} from {}.", responseCode, url);
         return responseCode == 200;
+    }
+
+    private String getBuildImageId() {
+        return StringUtils.addEndingSlash(systemImageRepositoryUrl) + systemImageId;
+    }
+
+    /**
+     * Generate build image link from systemImageId and systemImageRepositoryUrl and use the image sha instead
+     *
+     * Instead of using <url>/<image>:<tag>, it'll return <url>/<image>@<sha of image of latest tag>
+     *
+     * This will help Openshift slave nodes to always use the latest image for a particular tag
+     *
+     * See NCL-2909 for more information
+     *
+     * @return url link of build image
+     */
+    private String getBuildImageWithSha() {
+        // systemImageId is usually in the format '<image>:<tag>'
+        String[] imageNameAndTag = systemImageId.split(":");
+
+        String imageName = imageNameAndTag[0];
+        // if tag not specified, assume it is 'latest'
+        String imageTag = imageNameAndTag.length > 1 ? imageNameAndTag[1] : "latest";
+
+        ImageStream is = client.get(ResourceKind.IMAGE_STREAM, imageName, environmentConfiguration.getPncNamespace());
+        String shaOfLatestImageTag = is.getImageId(imageTag);
+
+        // new build image is now: '<image>@<sha>'
+        String reconstructedImageSha = imageName + "@" + shaOfLatestImageTag;
+        return StringUtils.addEndingSlash(systemImageRepositoryUrl) + reconstructedImageSha;
     }
 }
