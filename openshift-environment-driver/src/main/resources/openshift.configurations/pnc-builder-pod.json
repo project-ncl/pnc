@@ -35,6 +35,10 @@
                         "value": "${firewallAllowedDestinations}"
                     },
                     {
+                        "name": "allowedHttpOutgoingDestinations",
+                        "value": "${allowedHttpOutgoingDestinations}"
+                    },
+                    {
                         "name": "isHttpActive",
                         "value": "${isHttpActive}"
                     },
