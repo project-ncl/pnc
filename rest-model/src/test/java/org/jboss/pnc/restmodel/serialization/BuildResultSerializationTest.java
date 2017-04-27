@@ -21,6 +21,7 @@ package org.jboss.pnc.restmodel.serialization;
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.junit.Assert;
@@ -46,16 +47,28 @@ public class BuildResultSerializationTest {
         String buildResultJson = buildResultRest.toString();
         log.debug("BuildResultJson : {}", buildResultJson);
 
-        BuildResultRest buildResultRestFromJson = new BuildResultRest(buildResultJson);
+        BuildResultRest buildResultRestFromJson = JsonOutputConverterMapper.readValue(buildResultJson, BuildResultRest.class);
+
         BuildResult buildResultFromJson = buildResultRestFromJson.toBuildResult();
         String message = "Deserialized object does not match the original.";
 
         Assert.assertEquals(message, buildResult.hasFailed(), buildResultFromJson.hasFailed());
-        Assert.assertEquals(message, buildResult.getException().get().getMessage(), buildResultFromJson.getException().get().getMessage());
+        Assert.assertEquals(message, buildResult.getCompletionStatus(), buildResultFromJson.getCompletionStatus());
+        Assert.assertEquals(message, buildResult.getProcessException().get().getMessage(), buildResultFromJson.getProcessException().get().getMessage());
+
+        Assert.assertEquals(message, buildResult.getBuildExecutionConfiguration().get().getId(), buildResultFromJson.getBuildExecutionConfiguration().get().getId());
+
         Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuildContentId(), buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId());
         Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId(), buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId());
+
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildLog(), buildResultFromJson.getBuildDriverResult().get().getBuildLog());
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildStatus());
-        Assert.assertEquals(message, buildResult.getBuildExecutionConfiguration().get().getId(), buildResultFromJson.getBuildExecutionConfiguration().get().getId());
+
+        Assert.assertEquals(message, buildResult.getRepourResult().get().getCompletionStatus(), buildResultFromJson.getRepourResult().get().getCompletionStatus());
+        Assert.assertEquals(message, buildResult.getRepourResult().get().getExecutionRootName(), buildResultFromJson.getRepourResult().get().getExecutionRootName());
+
+        Assert.assertEquals(message, buildResult.getEnvironmentDriverResult().get().getCompletionStatus(), buildResultFromJson.getEnvironmentDriverResult().get().getCompletionStatus());
+        Assert.assertEquals(message, buildResult.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand(), buildResultFromJson.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand());
+
     }
 }

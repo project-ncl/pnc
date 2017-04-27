@@ -80,21 +80,4 @@ public class BuildResult {
     public boolean hasFailed() {
         return processException.isPresent() || completionStatus.isFailed();
     }
-
-    /*  //TODO re-implement getter and setters for backcompatibility
-    private final Optional<ExecutorException> executorException;
-
-    @Getter
-    private final Optional<BuildExecutionStatus> failedReasonStatus;
-
-    @Getter
-    private final Optional<SshCredentials> sshCredentials;
-
-    @Getter
-    private final Optional<String> executionRootName;
-
-    @Getter
-    private final Optional<String> executionRootVersion;
-
-     */
 }

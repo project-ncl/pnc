@@ -18,7 +18,9 @@
 
 package org.jboss.pnc.rest.restmodel.bpm;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
@@ -34,7 +36,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.IOException;
 import java.io.Serializable;
 
 import static java.util.Optional.ofNullable;
@@ -43,48 +44,36 @@ import static java.util.Optional.ofNullable;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildResult")
+@NoArgsConstructor(onConstructor = @__({@Deprecated}))
 public class BuildResultRest extends BpmNotificationRest implements Serializable {
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final CompletionStatus completionStatus;
+    private CompletionStatus completionStatus;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final ProcessException processException;
+    private ProcessException processException;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final BuildExecutionConfigurationRest buildExecutionConfiguration;
+    private BuildExecutionConfigurationRest buildExecutionConfiguration;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final BuildDriverResultRest buildDriverResult;
+    private BuildDriverResultRest buildDriverResult;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final RepositoryManagerResultRest repositoryManagerResult;
+    private RepositoryManagerResultRest repositoryManagerResult;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final EnvironmentDriverResult environmentDriverResult;
+    private EnvironmentDriverResult environmentDriverResult;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private final RepourResult repourResult;
-
-
-    public BuildResultRest(String serialized) throws IOException {
-        BuildResultRest buildResultRest = JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
-
-        this.completionStatus = buildResultRest.getCompletionStatus();
-        this.processException = buildResultRest.getProcessException();
-        this.buildExecutionConfiguration = buildResultRest.getBuildExecutionConfiguration();
-        this.buildDriverResult = buildResultRest.getBuildDriverResult();
-        this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
-        this.environmentDriverResult = buildResultRest.getEnvironmentDriverResult();
-        this.repourResult = buildResultRest.getRepourResult();
-    }
+    private RepourResult repourResult;
 
     public BuildResultRest(BuildResult buildResult) {
 
@@ -137,7 +126,7 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
                 ofNullable(repourResult));
     }
 
-
+    @JsonIgnore
     @Override
     public String getEventType() {
         return "BUILD_COMPLETE";
@@ -147,26 +136,4 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
     public String toString() {
         return JsonOutputConverterMapper.apply(this);
     }
-
-    /* //TODO re-implement getter and setters for backcompatibility
-    @Getter
-    @Setter
-    private ExecutorException exception;
-
-    @Getter
-    @Setter
-    private BuildExecutionStatus failedReasonStatus;
-
-    @Getter
-    @Setter
-    private SshCredentials sshCredentials;
-
-    @Getter
-    @Setter
-    private String executionRootName;
-
-    @Getter
-    @Setter
-    private String executionRootVersion;
-    */
 }

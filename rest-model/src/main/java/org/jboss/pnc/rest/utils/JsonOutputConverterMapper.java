@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
 import org.jboss.logging.Logger;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -43,6 +45,8 @@ public class JsonOutputConverterMapper {
 
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
+
+        mapper.addMixInAnnotations(Optional.class, OptionalMixin.class);
     }
 
     /**
@@ -63,6 +67,12 @@ public class JsonOutputConverterMapper {
 
     public static <T> T readValue(String serialized, Class<T> clazz) throws IOException {
         return mapper.readValue(serialized, clazz);
+    }
+
+    final class OptionalMixin {
+        private OptionalMixin(){}
+        @JsonProperty
+        private Object value;
     }
 
     public static ObjectMapper getMapper() {

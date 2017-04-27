@@ -15,39 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.environment;
+package org.jboss.pnc.mock.environmentdriver;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
 import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = EnvironmentDriverResult.EnvironmentDriverResultBuilder.class)
-@Builder
-@AllArgsConstructor
-@XmlRootElement
-public class EnvironmentDriverResult implements Serializable {
+public class EnvironmentDriverResultMock {
 
-    @Getter
-    private final CompletionStatus completionStatus;
-
-    @Getter
-    private final String log;
-
-    @Getter
-    private final Optional<SshCredentials> sshCredentials;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class EnvironmentDriverResultBuilder {
+    public static EnvironmentDriverResult mock() {
+        return new EnvironmentDriverResult(
+                CompletionStatus.SUCCESS,
+                "Environment driver log.",
+                Optional.of(
+                        new SshCredentials("command", "password")
+                )
+        );
     }
+
 }

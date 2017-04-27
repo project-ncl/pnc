@@ -15,40 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.repour;
+package org.jboss.pnc.mock.repour;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+import org.jboss.pnc.spi.repour.RepourResult;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = RepourResult.RepourResultBuilder.class)
-@Builder
-@AllArgsConstructor
-@XmlRootElement
-public class RepourResult implements Serializable {
+public class RepourResultMock {
 
-    @Getter
-    private final CompletionStatus completionStatus;
-
-    @Getter
-    private final String log;
-
-    @Getter
-    private final String executionRootName;
-
-    @Getter
-    private final String executionRootVersion;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class RepourResultBuilder {
+    public static RepourResult mock() {
+        return new RepourResult(
+                CompletionStatus.SUCCESS,
+                "Some log from Repour.",
+                "rootName",
+                "rootVersion"
+        );
     }
+
 }
