@@ -101,7 +101,7 @@
           // is still useful for executing asynchronous callbacks against the
           // paginator.
           return delegate.fetch(params).then(function(response) {
-            $rootScope.$apply(function () {
+            $rootScope.$applyAsync(function () {
               delegate = response;
               that.isLoaded = true;
               callbacks.forEach(function (fn) {
