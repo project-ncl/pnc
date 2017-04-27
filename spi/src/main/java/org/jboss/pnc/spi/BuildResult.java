@@ -19,9 +19,12 @@ package org.jboss.pnc.spi;
 
 import lombok.Getter;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repour.RepourResult;
 
 import java.util.Optional;
 
@@ -29,6 +32,15 @@ import java.util.Optional;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
 public class BuildResult {
+
+    @Getter
+    private final CompletionStatus completionStatus;
+
+    @Getter
+    private final Optional<ProcessException> processException;
+
+    @Getter
+    private final String processLog;
 
     @Getter
     private final Optional<BuildExecutionConfiguration> buildExecutionConfiguration;
@@ -42,6 +54,34 @@ public class BuildResult {
     @Getter
     private final Optional<RepositoryManagerResult> repositoryManagerResult;
 
+    @Getter
+    private final Optional<EnvironmentDriverResult> environmentDriverResult;
+
+    @Getter
+    private final Optional<RepourResult> repourResult;
+
+    public BuildResult(CompletionStatus completionStatus,
+            Optional<ProcessException> processException,
+            String processLog,
+            Optional<BuildExecutionConfiguration> buildExecutionConfiguration,
+            Optional<BuildDriverResult> buildDriverResult,
+            Optional<RepositoryManagerResult> repositoryManagerResult,
+            Optional<EnvironmentDriverResult> environmentDriverResult, Optional<RepourResult> repourResult) {
+        this.completionStatus = completionStatus;
+        this.processException = processException;
+        this.processLog = processLog;
+        this.buildExecutionConfiguration = buildExecutionConfiguration;
+        this.buildDriverResult = buildDriverResult;
+        this.repositoryManagerResult = repositoryManagerResult;
+        this.environmentDriverResult = environmentDriverResult;
+        this.repourResult = repourResult;
+    }
+
+    public boolean hasFailed() {
+        return processException.isPresent() || completionStatus.isFailed();
+    }
+
+    /*  //TODO re-implement getter and setters for backcompatibility
     private final Optional<ExecutorException> executorException;
 
     @Getter
@@ -56,30 +96,5 @@ public class BuildResult {
     @Getter
     private final Optional<String> executionRootVersion;
 
-    public BuildResult(Optional<BuildExecutionConfiguration> generatedBuildConfig,
-                       Optional<BuildDriverResult> buildDriverResult,
-                       Optional<RepositoryManagerResult> repositoryManagerResult,
-                       Optional<ExecutorException> executorException,
-                       Optional<BuildExecutionStatus> failedReasonStatus,
-                       Optional<SshCredentials> sshCredentials,
-                       Optional<String> executionRootName,
-                       Optional<String> executionRootVersion) {
-        this.buildExecutionConfiguration = generatedBuildConfig;
-        this.buildDriverResult = buildDriverResult;
-        this.repositoryManagerResult = repositoryManagerResult;
-        this.executorException = executorException;
-        this.failedReasonStatus = failedReasonStatus;
-        this.sshCredentials = sshCredentials;
-        this.executionRootName = executionRootName;
-        this.executionRootVersion = executionRootVersion;
-    }
-
-    public Optional<ExecutorException> getException() {
-        return executorException;
-    }
-
-    public boolean hasFailed() {
-        return executorException.isPresent() || failedReasonStatus.isPresent();
-    }
-
+     */
 }

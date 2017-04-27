@@ -24,19 +24,20 @@ import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repour.RepourResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Optional;
 
-import static java.util.Optional.*;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -45,17 +46,109 @@ import static java.util.Optional.*;
 public class BuildResultRest extends BpmNotificationRest implements Serializable {
 
     @Getter
-    @Setter
-    private BuildExecutionConfigurationRest buildExecutionConfiguration;
+    @Setter(onMethod=@__({@Deprecated}))
+    private final CompletionStatus completionStatus;
 
     @Getter
-    @Setter
-    private BuildDriverResultRest buildDriverResult;
+    @Setter(onMethod=@__({@Deprecated}))
+    private final ProcessException processException;
 
     @Getter
-    @Setter
-    private RepositoryManagerResultRest repositoryManagerResult;
+    @Setter(onMethod=@__({@Deprecated}))
+    private final BuildExecutionConfigurationRest buildExecutionConfiguration;
 
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private final BuildDriverResultRest buildDriverResult;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private final RepositoryManagerResultRest repositoryManagerResult;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private final EnvironmentDriverResult environmentDriverResult;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private final RepourResult repourResult;
+
+
+    public BuildResultRest(String serialized) throws IOException {
+        BuildResultRest buildResultRest = JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
+
+        this.completionStatus = buildResultRest.getCompletionStatus();
+        this.processException = buildResultRest.getProcessException();
+        this.buildExecutionConfiguration = buildResultRest.getBuildExecutionConfiguration();
+        this.buildDriverResult = buildResultRest.getBuildDriverResult();
+        this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
+        this.environmentDriverResult = buildResultRest.getEnvironmentDriverResult();
+        this.repourResult = buildResultRest.getRepourResult();
+    }
+
+    public BuildResultRest(BuildResult buildResult) {
+
+        completionStatus = buildResult.getCompletionStatus();
+        processException = buildResult.getProcessException().orElse(null);
+
+        if (buildResult.getBuildExecutionConfiguration().isPresent()) {
+            BuildExecutionConfiguration bec = buildResult.getBuildExecutionConfiguration().get();
+            this.buildExecutionConfiguration = new BuildExecutionConfigurationRest(bec);
+        } else {
+            this.buildExecutionConfiguration = null;
+        }
+
+        if (buildResult.getBuildDriverResult().isPresent()) {
+            BuildDriverResult result = buildResult.getBuildDriverResult().get();
+            buildDriverResult = new BuildDriverResultRest(result);
+        } else {
+            this.buildDriverResult = null;
+        }
+
+        if (buildResult.getRepositoryManagerResult().isPresent()) {
+            RepositoryManagerResult result = buildResult.getRepositoryManagerResult().get();
+            repositoryManagerResult = new RepositoryManagerResultRest(result);
+        } else {
+            this.repositoryManagerResult = null;
+        }
+
+        if (buildResult.getEnvironmentDriverResult().isPresent()) {
+            environmentDriverResult = buildResult.getEnvironmentDriverResult().get();
+        } else {
+            environmentDriverResult = null;
+        }
+
+        repourResult = buildResult.getRepourResult().orElse(null);
+    }
+
+    public BuildResult toBuildResult() {
+        RepositoryManagerResult repositoryManagerResult = null;
+        if (getRepositoryManagerResult() != null) {
+            repositoryManagerResult = getRepositoryManagerResult().toRepositoryManagerResult();
+        }
+
+        return new BuildResult(
+                completionStatus,
+                ofNullable(processException),
+                "", ofNullable(buildExecutionConfiguration),
+                ofNullable(buildDriverResult),
+                ofNullable(repositoryManagerResult),
+                ofNullable(environmentDriverResult),
+                ofNullable(repourResult));
+    }
+
+
+    @Override
+    public String getEventType() {
+        return "BUILD_COMPLETE";
+    }
+
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
+    }
+
+    /* //TODO re-implement getter and setters for backcompatibility
     @Getter
     @Setter
     private ExecutorException exception;
@@ -75,68 +168,5 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
     @Getter
     @Setter
     private String executionRootVersion;
-
-    public BuildResultRest() {
-    }
-
-    public BuildResultRest(String serialized) throws IOException {
-        BuildResultRest buildResultRest = JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
-        this.buildExecutionConfiguration = buildResultRest.getBuildExecutionConfiguration();
-        this.buildDriverResult = buildResultRest.getBuildDriverResult();
-        this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
-        this.exception = buildResultRest.getException();
-        this.failedReasonStatus = buildResultRest.getFailedReasonStatus();
-        this.sshCredentials = buildResultRest.getSshCredentials();
-        this.executionRootName = buildResultRest.getExecutionRootName();
-        this.executionRootVersion = buildResultRest.getExecutionRootVersion();
-    }
-
-    public BuildResultRest(BuildResult buildResult) {
-
-        buildResult.getBuildExecutionConfiguration().ifPresent((configuration) -> {
-            buildExecutionConfiguration = new BuildExecutionConfigurationRest(configuration);
-        });
-
-        if (buildResult.getBuildDriverResult().isPresent()) {
-            BuildDriverResult result = buildResult.getBuildDriverResult().get();
-            buildDriverResult = new BuildDriverResultRest(result);
-        }
-
-        buildResult.getRepositoryManagerResult().ifPresent((result) -> {
-            repositoryManagerResult = new RepositoryManagerResultRest(result);
-        });
-
-        failedReasonStatus = buildResult.getFailedReasonStatus().orElse(null);
-
-        exception = buildResult.getException().orElse(null);
-
-        sshCredentials = buildResult.getSshCredentials().orElse(null);
-    }
-
-    public BuildResult toBuildResult() {
-        RepositoryManagerResult repositoryManagerResult = null;
-        if (getRepositoryManagerResult() != null) {
-            repositoryManagerResult = getRepositoryManagerResult().toRepositoryManagerResult();
-        }
-        return new BuildResult(
-                ofNullable(buildExecutionConfiguration),
-                ofNullable(buildDriverResult),
-                ofNullable(repositoryManagerResult),
-                ofNullable(exception),
-                ofNullable(failedReasonStatus),
-                ofNullable(sshCredentials),
-                ofNullable(executionRootName),
-                ofNullable(executionRootVersion));
-    }
-
-
-    @Override
-    public String getEventType() {
-        return "BUILD_COMPLETE";
-    }
-
-    @Override
-    public String toString() {
-        return JsonOutputConverterMapper.apply(this);
-    }
+    */
 }

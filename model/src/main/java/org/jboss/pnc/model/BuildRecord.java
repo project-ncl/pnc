@@ -242,6 +242,8 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
 
+    private String repourLog;
+
     /**
      * Instantiates a new project build result.
      */
@@ -344,6 +346,14 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public String getRepourLog() {
+        return repourLog;
+    }
+
+    public void setRepourLog(String repourLog) {
+        this.repourLog = repourLog;
     }
 
     /**
@@ -523,7 +533,6 @@ public class BuildRecord implements GenericEntity<Integer> {
         attributes.remove(key);
     }
 
-
     public static class Builder {
 
         private Integer id;
@@ -545,6 +554,8 @@ public class BuildRecord implements GenericEntity<Integer> {
         private String scmRepoURL;
 
         private String scmRevision;
+
+        private String repourLog = "";
 
         private String buildLog = "";
 
@@ -591,6 +602,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setUser(user);
             buildRecord.setScmRepoURL(scmRepoURL);
             buildRecord.setScmRevision(scmRevision);
+            buildRecord.setRepourLog(repourLog);
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
@@ -760,6 +772,10 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
+        public BuildRecord.Builder repourLog(String log) {
+            this.repourLog = log;
+            return this;
+        }
     }
 
 }

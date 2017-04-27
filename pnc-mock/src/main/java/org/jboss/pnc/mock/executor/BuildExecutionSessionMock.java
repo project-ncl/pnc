@@ -21,6 +21,8 @@ package org.jboss.pnc.mock.executor;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -112,39 +114,42 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
         log.debug("Fired events after build execution task {} update.", getId());
     }
 
-    private BuildResult getBuildResult() {
+    private BuildResult getBuildResult() { //TODO use method from the non mocked session
         if (executorException == null) {
             if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration),
+
+                return new BuildResult(
+                        CompletionStatus.SUCCESS,
+                        Optional.empty(),
+                        "", Optional.ofNullable(buildExecutionConfiguration),
                         Optional.ofNullable(buildDriverResult),
                         Optional.ofNullable(repositoryManagerResult),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty());
+                        Optional.empty(), //TODO add result
+                        Optional.empty()); //TODO add repour result
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration),
+                return new BuildResult(
+                        CompletionStatus.FAILED,
+                        Optional.of(new ProcessException("Execution failed with: " + failedReasonStatus)), //TODO backcompatibility, pass executor faild status ?
+                        "",
+                        Optional.ofNullable(buildExecutionConfiguration),
                         Optional.ofNullable(buildDriverResult),
                         Optional.ofNullable(repositoryManagerResult),
-                        Optional.empty(),
-                        Optional.of(failedReasonStatus),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty());
+                        Optional.empty(), //TODO add result
+                        Optional.empty()); //TODO add repour result
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration),
+            return new BuildResult(
+                    CompletionStatus.FAILED,
+                    Optional.of(new ProcessException("Execution failed with: " + failedReasonStatus, executorException)), //TODO backcompatibility, pass executor faild status ?
+                    "",
+                    Optional.ofNullable(buildExecutionConfiguration),
                     Optional.ofNullable(buildDriverResult),
                     Optional.ofNullable(repositoryManagerResult),
-                    Optional.of(executorException),
-                    Optional.ofNullable(failedReasonStatus),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty());
+                    Optional.empty(), //TODO add result
+                    Optional.empty()); //TODO add repour result
         }
     }
 

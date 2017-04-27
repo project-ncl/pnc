@@ -85,6 +85,7 @@ public abstract class BuildDriverBase {
             public BuildStatus getBuildStatus() {
                 return buildStatus;
             }
+
         };
     }
 
