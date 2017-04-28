@@ -19,8 +19,10 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
+import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -33,6 +35,7 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
+import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -92,6 +95,47 @@ public class DatastoreAdapterTest {
         Assert.assertEquals(BuildStatus.FAILED, buildRecord.getStatus());
         Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
         Assert.assertTrue(buildRecord.getBuildLog().contains(REPOSITORY_MANAGER_LOG));
+    }
+
+    @Test
+    public void shouldStoreRepourResult() throws DatastoreException {
+        //given
+        DatastoreMock datastore = new DatastoreMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+
+        RepourResult repourResult = RepourResultMock.mock();
+
+        //when
+        BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited();
+        buildConfigurationAudited.setName("Audited configuration.");
+
+        BuildTask buildTask = mock(BuildTask.class);
+        when(buildTask.getId()).thenReturn(123);
+        when(buildTask.getBuildConfigurationAudited()).thenReturn(buildConfigurationAudited);
+
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+
+        BuildResult buildResult = new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                "",
+                Optional.of(buildExecutionConfiguration),
+                Optional.of(BuildDriverResultMock.mockResult(BuildStatus.SUCCESS)),
+                Optional.of(RepositoryManagerResultMock.mockResult()),
+                Optional.of(EnvironmentDriverResultMock.mock()),
+                Optional.of(repourResult));
+
+        datastoreAdapter.storeResult(buildTask, buildResult);
+
+        //then
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        Assert.assertEquals(1, buildRecords.size());
+        BuildRecord buildRecord = buildRecords.get(0);
+
+        Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
+        Assert.assertEquals(repourResult.getExecutionRootName(), buildRecord.getExecutionRootName());
+        Assert.assertEquals(repourResult.getExecutionRootVersion(), buildRecord.getExecutionRootVersion());
+        Assert.assertEquals(repourResult.getLog(), buildRecord.getRepourLog());
     }
 
     private void storeResult(DatastoreAdapter datastoreAdapter, BuildStatus buildStatus, RepositoryManagerStatus repositoryManagerStatus) throws DatastoreException {
