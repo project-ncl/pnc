@@ -149,6 +149,30 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
     }
 
+    @ApiOperation(value = "Gets repour logs for specific Build Record")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = String.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/repour-log")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getRepourLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        String log = buildRecordProvider.getBuildRecordRepourLog(id);
+        if (log == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        if (log.isEmpty()) {
+            return Response.noContent().build();
+        } else {
+            return Response.ok(buildRecordProvider.getRepourLogsForBuild(log)).build();
+        }
+    }
+
     /**
      * @deprecated
      * Use /build-records/{id}/built-artifacts/
