@@ -57,6 +57,10 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
+    private String processLog;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
     private BuildExecutionConfigurationRest buildExecutionConfiguration;
 
     @Getter
@@ -83,6 +87,7 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
 
         completionStatus = buildResult.getCompletionStatus();
         processException = buildResult.getProcessException().orElse(null);
+        processLog = buildResult.getProcessLog();
 
         if (buildResult.getBuildExecutionConfiguration().isPresent()) {
             BuildExecutionConfiguration bec = buildResult.getBuildExecutionConfiguration().get();
@@ -123,7 +128,8 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
         return new BuildResult(
                 completionStatus,
                 ofNullable(processException),
-                "", ofNullable(buildExecutionConfiguration),
+                processLog,
+                ofNullable(buildExecutionConfiguration),
                 ofNullable(buildDriverResult),
                 ofNullable(repositoryManagerResult),
                 ofNullable(environmentDriverResult),
