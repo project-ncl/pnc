@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.restmodel.bpm;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +35,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.IOException;
 import java.io.Serializable;
 
 import static java.util.Optional.ofNullable;
@@ -74,6 +74,10 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
     private RepourResult repourResult;
+
+    public static BuildResultRest valueOf(String serialized) throws IOException {
+        return JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
+    }
 
     public BuildResultRest(BuildResult buildResult) {
 
@@ -126,7 +130,6 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
                 ofNullable(repourResult));
     }
 
-    @JsonIgnore
     @Override
     public String getEventType() {
         return "BUILD_COMPLETE";
