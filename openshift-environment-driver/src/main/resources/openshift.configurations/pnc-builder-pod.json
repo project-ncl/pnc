@@ -95,7 +95,7 @@
                     }
                 ],
                 "terminationMessagePath": "/dev/termination-log",
-                "imagePullPolicy": "IfNotPresent",
+                "imagePullPolicy": "Always",
                 "securityContext": {
                     "capabilities": {
                         "add": ["NET_ADMIN"]
