@@ -106,8 +106,7 @@ public class DatastoreAdapter {
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
             } else {
-                storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepourResult."));
-                return;
+                log.warn("[BuildTask:" + buildTask.getId() + "] Missing RepourResult.");
             }
 
             if (buildResult.getBuildDriverResult().isPresent()) {

@@ -47,6 +47,7 @@ import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -258,15 +259,14 @@ public abstract class AbstractDependentBuildTest {
 
     private static BuildResult buildResult() {
         return new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                "",
                 Optional.of(mock(BuildExecutionConfiguration.class)),
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(randomAlphabetic(3)),
-                Optional.of(randomAlphabetic(3))
-        );
+                Optional.empty());
     }
 
     private static BuildDriverResult buildDriverResult() {

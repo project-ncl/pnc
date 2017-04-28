@@ -21,8 +21,10 @@ package org.jboss.pnc.mock.executor;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -37,11 +39,14 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
+
 /**
+ * This is a Copy of org.jboss.pnc.executor.DefaultBuildExecutionSession due to a module dependency issue.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class BuildExecutionSessionMock implements BuildExecutionSession {
-
     private static final Logger log = LoggerFactory.getLogger(BuildExecutionSessionMock.class);
 
     private final BuildExecutionConfiguration buildExecutionConfiguration;
@@ -57,7 +62,14 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     //keep record of first received failed status
     private BuildExecutionStatus failedReasonStatus;
 
-    public BuildExecutionSessionMock(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
+    private boolean cancelRequested = false;
+
+    private Runnable cancelHook;
+
+    private String accessToken;
+
+    public BuildExecutionSessionMock(BuildExecutionConfiguration buildExecutionConfiguration,
+            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         liveLogsUri = Optional.empty();
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
@@ -91,6 +103,9 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     @Override
     public void setStatus(BuildExecutionStatus status) {
         if (status.hasFailed() && failedReasonStatus == null) {
+            if (status.equals(DONE_WITH_ERRORS)) {
+                setException(new ExecutorException("Missing failedReasonStatus. Failed reason must be sat before final DONE_WITH_ERRORS."));
+            }
             log.debug("Setting status {} as failed reason for session {}.", status, getId());
             failedReasonStatus = status;
         }
@@ -114,43 +129,58 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
         log.debug("Fired events after build execution task {} update.", getId());
     }
 
-    private BuildResult getBuildResult() { //TODO use method from the non mocked session
-        if (executorException == null) {
-            if (failedReasonStatus == null) {
-                log.trace("Returning result of task {} with no exception.", getId());
-
-                return new BuildResult(
-                        CompletionStatus.SUCCESS,
-                        Optional.empty(),
-                        "", Optional.ofNullable(buildExecutionConfiguration),
-                        Optional.ofNullable(buildDriverResult),
-                        Optional.ofNullable(repositoryManagerResult),
-                        Optional.empty(), //TODO add result
-                        Optional.empty()); //TODO add repour result
-            } else {
-                log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(
-                        CompletionStatus.FAILED,
-                        Optional.of(new ProcessException("Execution failed with: " + failedReasonStatus)), //TODO backcompatibility, pass executor faild status ?
-                        "",
-                        Optional.ofNullable(buildExecutionConfiguration),
-                        Optional.ofNullable(buildDriverResult),
-                        Optional.ofNullable(repositoryManagerResult),
-                        Optional.empty(), //TODO add result
-                        Optional.empty()); //TODO add repour result
-            }
-        } else {
-            log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(
-                    CompletionStatus.FAILED,
-                    Optional.of(new ProcessException("Execution failed with: " + failedReasonStatus, executorException)), //TODO backcompatibility, pass executor faild status ?
+    private BuildResult getBuildResult() {
+        EnvironmentDriverResult environmentDriverResult = null;
+        DebugData debugData = getRunningEnvironment() != null ? getRunningEnvironment().getDebugData() : null;
+        if (debugData != null && debugData.isDebugEnabled()) {
+            environmentDriverResult = new EnvironmentDriverResult(
+                    CompletionStatus.SUCCESS,
                     "",
-                    Optional.ofNullable(buildExecutionConfiguration),
-                    Optional.ofNullable(buildDriverResult),
-                    Optional.ofNullable(repositoryManagerResult),
-                    Optional.empty(), //TODO add result
-                    Optional.empty()); //TODO add repour result
+                    Optional.of(debugData.getSshCredentials()));
         }
+
+        CompletionStatus completionStatus = CompletionStatus.SUCCESS;
+        if (executorException == null) {
+            if (failedReasonStatus != null) {
+                switch (failedReasonStatus) {
+                    case BUILD_ENV_SETUP_COMPLETE_WITH_ERROR:
+                    case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR:
+                    case SYSTEM_ERROR:
+                        completionStatus = CompletionStatus.SYSTEM_ERROR;
+                        break;
+
+                    case BUILD_COMPLETED_WITH_ERROR:
+                        completionStatus = CompletionStatus.FAILED;
+                        break;
+
+                    case CANCELLED:
+                        completionStatus = CompletionStatus.CANCELLED;
+                        break;
+
+                    case DONE_WITH_ERRORS:
+                        executorException = new ExecutorException("DONE_WITH_ERRORS cannot be set as failed reason.");
+                        break;
+                }
+            }
+        }
+
+        ProcessException processException = null;
+        if (executorException != null) {
+            processException = new ProcessException(executorException);
+            completionStatus = CompletionStatus.SYSTEM_ERROR;
+        }
+
+        log.debug("Returning result of task {}.", getId());
+
+        return new BuildResult(
+                completionStatus,
+                Optional.ofNullable(processException),
+                "",
+                Optional.ofNullable(buildExecutionConfiguration),
+                Optional.ofNullable(buildDriverResult),
+                Optional.ofNullable(repositoryManagerResult),
+                Optional.ofNullable(environmentDriverResult),
+                Optional.empty());
     }
 
     @Override
@@ -220,4 +250,28 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
         this.repositoryManagerResult = repositoryManagerResult;
     }
 
+    public synchronized void setCancelHook(Runnable cancelHook) {
+        this.cancelHook = cancelHook;
+    }
+
+    public synchronized void cancel() {
+        cancelRequested = true;
+        if (cancelHook != null) {
+            cancelHook.run();
+        } else {
+            log.warn("Trying to cancel operation while no cancel hook is defined.");
+        }
+    }
+
+    public boolean isCanceled() {
+        return cancelRequested;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
 }

@@ -138,10 +138,6 @@ class BuildExecutionBase {
 
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 BuildResult buildResult = statusChangedEvent.getBuildResult().get();
-                if (buildResult.hasFailed()) {
-                    log.error("Build execution failed.", buildResult.getException());
-                }
-
                 buildExecutionResultWrapper.set(buildResult);
             }
         };

@@ -20,11 +20,15 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
+import org.jboss.pnc.mock.repour.RepourResultMock;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -85,7 +89,7 @@ public class DatastoreAdapterTest {
         Assert.assertEquals(1, buildRecords.size());
         BuildRecord buildRecord = buildRecords.get(0);
 
-        Assert.assertEquals(buildRecord.getStatus(), BuildStatus.FAILED);
+        Assert.assertEquals(BuildStatus.FAILED, buildRecord.getStatus());
         Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
         Assert.assertTrue(buildRecord.getBuildLog().contains(REPOSITORY_MANAGER_LOG));
     }
@@ -100,20 +104,24 @@ public class DatastoreAdapterTest {
         when(repositoryManagerResult.getLog()).thenReturn(REPOSITORY_MANAGER_LOG);
 
 
+        BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited();
+        buildConfigurationAudited.setName("Audited configuration.");
+
         BuildTask buildTask = mock(BuildTask.class);
         when(buildTask.getId()).thenReturn(123);
+        when(buildTask.getBuildConfigurationAudited()).thenReturn(buildConfigurationAudited);
 
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
         BuildResult buildResult = new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                "",
                 Optional.of(buildExecutionConfiguration),
                 Optional.of(buildDriverResult),
                 Optional.of(repositoryManagerResult),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty());
+                Optional.of(EnvironmentDriverResultMock.mock()),
+                Optional.of(RepourResultMock.mock()));
 
         datastoreAdapter.storeResult(buildTask, buildResult);
     }

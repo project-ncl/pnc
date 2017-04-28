@@ -174,7 +174,8 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         return new BuildResult(
                     completionStatus,
                     Optional.ofNullable(processException),
-                "", Optional.ofNullable(buildExecutionConfiguration),
+                    "",
+                    Optional.ofNullable(buildExecutionConfiguration),
                     Optional.ofNullable(buildDriverResult),
                     Optional.ofNullable(repositoryManagerResult),
                     Optional.ofNullable(environmentDriverResult),
