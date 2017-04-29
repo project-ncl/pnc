@@ -45,7 +45,6 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -156,7 +155,7 @@ public class DefaultBuildCoordinatorTest {
         when(driverResult.getBuildStatus()).thenReturn(BuildStatus.FAILED);
         when(result.getBuildDriverResult()).thenReturn(Optional.of(driverResult));
         RepositoryManagerResult repoManagerResult = mock(RepositoryManagerResult.class);
-        when(repoManagerResult.getStatus()).thenReturn(RepositoryManagerStatus.SUCCESS);
+        when(repoManagerResult.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
         when(result.getRepositoryManagerResult()).thenReturn(Optional.of(repoManagerResult));
 
         when(result.getBuildExecutionConfiguration()).thenReturn(Optional.of(mock(BuildExecutionConfiguration.class)));

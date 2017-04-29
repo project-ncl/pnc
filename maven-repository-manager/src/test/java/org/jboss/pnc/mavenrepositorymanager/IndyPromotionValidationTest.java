@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import java.io.IOException;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -34,15 +32,18 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @Category({ DebugTest.class })
 public class IndyPromotionValidationTest {
@@ -100,7 +101,7 @@ public class IndyPromotionValidationTest {
 
             RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
             // Just a dummy check, the point is really to be able to debug this
-            assertTrue(RepositoryManagerStatus.VALIDATION_ERROR == repositoryManagerResult.getStatus());
+            assertTrue(CompletionStatus.FAILED == repositoryManagerResult.getCompletionStatus());
         } catch (Exception e) {
             e.printStackTrace();
         }

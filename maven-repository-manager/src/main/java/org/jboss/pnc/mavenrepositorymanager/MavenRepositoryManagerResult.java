@@ -18,8 +18,8 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 
 import java.util.List;
 
@@ -27,11 +27,13 @@ import java.util.List;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
 public class MavenRepositoryManagerResult implements RepositoryManagerResult {
+
+    private final CompletionStatus completionStatus;
+    private final String log;
+
     private final List<Artifact> builtArtifacts;
     private final List<Artifact> dependencies;
     private final String buildContentId;
-    private final String log;
-    private final RepositoryManagerStatus repositoryManagerStatus;
 
     /**
      *
@@ -42,7 +44,7 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
         this.buildContentId = buildContentId;
-        this.repositoryManagerStatus = RepositoryManagerStatus.SUCCESS;
+        this.completionStatus = CompletionStatus.SUCCESS;
         this.log = "";
     }
 
@@ -51,12 +53,12 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
             List<Artifact> dependencies,
             String buildContentId,
             String log,
-            RepositoryManagerStatus status) {
+            CompletionStatus completionStatus) {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
         this.buildContentId = buildContentId;
         this.log = log;
-        this.repositoryManagerStatus = status;
+        this.completionStatus = completionStatus;
     }
 
     @Override
@@ -80,7 +82,7 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
     }
 
     @Override
-    public RepositoryManagerStatus getStatus() {
-        return repositoryManagerStatus;
+    public CompletionStatus getCompletionStatus() {
+        return completionStatus;
     }
 }

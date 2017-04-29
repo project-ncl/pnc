@@ -132,7 +132,7 @@ public class DatastoreAdapter {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
                 buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
-                if (repositoryManagerResult.getStatus().hasFailed()) {
+                if (repositoryManagerResult.getCompletionStatus().isFailed()) {
                     buildRecordStatus = FAILED; //TODO, do not mix statuses
                 }
 

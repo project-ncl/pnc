@@ -308,8 +308,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 }
                 RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
                 buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
-                if (repositoryManagerResult.getStatus().hasFailed()) {
+                if (repositoryManagerResult.getCompletionStatus().isFailed()) {
                     buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR);
+                } else {
+                    buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_SUCCESS);
                 }
             }
         } catch (Throwable e) {

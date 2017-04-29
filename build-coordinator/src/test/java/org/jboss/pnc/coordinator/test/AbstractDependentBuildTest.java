@@ -55,7 +55,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
@@ -277,7 +276,7 @@ public abstract class AbstractDependentBuildTest {
 
     private static RepositoryManagerResult repoManagerResult() {
         RepositoryManagerResult mock = mock(RepositoryManagerResult.class);
-        when(mock.getStatus()).thenReturn(RepositoryManagerStatus.SUCCESS);
+        when(mock.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
         return mock;
     }
 

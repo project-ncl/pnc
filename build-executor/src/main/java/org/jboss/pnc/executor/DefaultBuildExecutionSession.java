@@ -143,11 +143,11 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
             if (failedReasonStatus != null) {
                 switch (failedReasonStatus) {
                     case BUILD_ENV_SETUP_COMPLETE_WITH_ERROR:
-                    case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR:
                     case SYSTEM_ERROR:
                         completionStatus = CompletionStatus.SYSTEM_ERROR;
                         break;
 
+                    case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR:
                     case BUILD_COMPLETED_WITH_ERROR:
                         completionStatus = CompletionStatus.FAILED;
                         break;

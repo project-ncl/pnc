@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,6 +35,6 @@ public interface RepositoryManagerResult extends Serializable {
 
     String getLog();
 
-    RepositoryManagerStatus getStatus();
+    CompletionStatus getCompletionStatus();
 
 }

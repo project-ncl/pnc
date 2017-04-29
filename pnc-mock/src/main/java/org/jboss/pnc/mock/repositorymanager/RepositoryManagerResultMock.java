@@ -20,8 +20,8 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,11 +65,11 @@ public class RepositoryManagerResultMock {
             }
 
             @Override
-            public RepositoryManagerStatus getStatus() {
+            public CompletionStatus getCompletionStatus() {
                 if (failed) {
-                    return RepositoryManagerStatus.VALIDATION_ERROR;
+                    return CompletionStatus.FAILED;
                 } else {
-                    return RepositoryManagerStatus.SUCCESS;
+                    return CompletionStatus.SUCCESS;
                 }
             }
         };
