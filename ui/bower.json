@@ -13,7 +13,7 @@
     "ui-router": "0.2.15",
     "angular-xeditable": "~0.1.8",
     "angular-utils-ui-breadcrumbs": "~0.2.1",
-    "angular-websocket": "1.0.9",
+    "angular-websocket": "2.0.0",
     "lodash": "3.x",
     "keycloak": "1.9.8",
     "bootstrap-treeview": "~1.2.0",
