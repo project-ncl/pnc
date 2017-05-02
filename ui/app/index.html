@@ -101,6 +101,12 @@
       <div class="collapse navbar-collapse navbar-collapse-1">
         <!-- user menu -->
           <ul class="nav navbar-nav navbar-utility">
+            <!-- default configuration warning icon -->
+            <li ng-controller="defaultConfigurationController as defaultConfigurationCtrl" ng-show="defaultConfigurationCtrl.isDefaultConfiguration" title="{{ defaultConfigurationCtrl.title }}">
+              <a href="#" data-toggle="modal" data-target="#defaultConfigurationModal">
+                <span class="pficon pficon-warning-triangle-o"></span>
+              </a>
+            </li>
             <!-- notification bell -->
             <li class="drawer-pf-trigger dropdown" ng-controller="pncDrawerNotificationController">
               <a class="nav-item-iconic drawer-pf-trigger-icon" ng-click="toggleShowDrawer()">
@@ -200,6 +206,24 @@
         <div ng-include="'common/templates/footer.tmpl.html'"></div>
       </div><!-- /.container -->
     </div><!-- /.footer -->
+
+    <!-- default configuration warning modal -->
+    <div ng-controller="defaultConfigurationController as defaultConfigurationCtrl" class="modal fade" id="defaultConfigurationModal" tabindex="-1" role="dialog" aria-labelledby="defaultConfigurationLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <span class="pficon pficon-close"></span>
+            </button>
+            <h4 class="modal-title" id="defaultConfigurationLabel">{{ defaultConfigurationCtrl.title }}</h4>
+          </div>
+          <div class="modal-body">
+            <p>Default configuration is used, it's <strong>not recommended</strong> to use this application as some features may not function as expected.</p>
+            <p>Contact administrator to solve this problem. You can also reload the window and check top-right icon to see if the problem is still present.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </body>
 </html>
