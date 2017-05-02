@@ -18,6 +18,8 @@
 (function () {
   'use strict';
 
+  var _page;
+
   var module = angular.module('pnc.common.pnc-client.pagination', [
     'ngResource'
   ]);
@@ -84,15 +86,13 @@
 
           // Decorate the paged action methods, so that any paged resources
           // are wrapped in a page object.
-          pagedActions.forEach(function(action) {
+          pagedActions.forEach(function (action) {
             var delegate = Resource[action];
 
             Resource[action] = function () {
               var response = delegate.apply(delegate, arguments);
 
-              var page = angular.injector(['pnc.common.pnc-client.pagination']).get('page');
-
-              var p = page({
+              var p = _page({
                 Resource: Resource
               });
 
@@ -103,7 +103,7 @@
               // When the request completes we fill the page object with the data,
               // again to match ng-resource's api so the user doesn't have
               // to unwrap the promise manually.
-              p.$promise = response.$promise.then(function(response) {
+              p.$promise = response.$promise.then(function (response) {
                 var content = response.data.content || [];
 
                 // As our interceptor has "stolen" the data from ng-resource we
@@ -135,6 +135,17 @@
           return Resource;
         };
       });
+    }
+  ]);
+
+  // ng-resource interceptors don't perform dependency injection for us, as such
+  // the page factory is not available at config time. As it will only be
+  // used at run time, we're just assigning the the page factory to a var
+  // in a closure that the config block has access to.
+  module.run([
+    'page',
+    function (page) {
+      _page = page;
     }
   ]);
 
