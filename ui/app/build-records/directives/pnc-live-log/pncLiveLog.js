@@ -50,7 +50,7 @@
 
           function connect(uri) {
             $log.debug('Attempting to connect to build agent at: ' + uri);
-            socket = $websocket(uri);
+            socket = $websocket(uri, null, { reconnectIfNotNormalClose: true });
 
             socket.onMessage(function(msg) {
               $log.debug('Received logline: `%s`', msg.data);

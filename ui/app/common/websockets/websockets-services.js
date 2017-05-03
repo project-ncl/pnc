@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.common.websockets');
 
@@ -130,7 +129,7 @@
             var listener, socket;
             try {
               listener = this.listener = $injector.get(this.listenerServiceName);
-              socket = this.socket = $websocket(this.url);
+              socket = this.socket = $websocket(this.url, null, { reconnectIfNotNormalClose: true });
             } catch (e) {
               throw e;
             }

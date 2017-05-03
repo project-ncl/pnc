@@ -29,7 +29,7 @@
   ]);
 
 
-  /** 
+  /**
    * This provider can be enhanced with interceptors:
    *
    * module.config([
@@ -139,7 +139,7 @@
             var deferred = $q.defer();
 
             $log.debug('Attempting to connect to WebSocket at: ' + url);
-            socket = $websocket(url);
+            socket = $websocket(url, null, { reconnectIfNotNormalClose: true });
 
             socket.onMessage(function(msg) {
               var data = JSON.parse(msg.data);
@@ -207,7 +207,7 @@
         };
 
     }];
-        
+
   });
 
 })();
