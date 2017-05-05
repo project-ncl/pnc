@@ -15,31 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.notifications;
+package org.jboss.pnc.rest.restmodel.bpm;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- * A generic WS client.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface AttachedClient {
+@AllArgsConstructor
+public class ProcessProgressUpdate extends BpmNotificationRest {
 
     /**
-     * @return Returns <code>true</code> if enabled.
+     * Name of the service managed by the BPM eg. Repour
      */
-    boolean isEnabled();
+    @Getter
+    private String taskName;
 
-    String getSessionId();
+    @Getter
+    private BpmTaskStatus bpmTaskStatus;
 
     /**
-     * Sends a message to the client
-     *
-     * @param messageBody Message body - depends on implementation how to deal with it.
-     * @param callback the callback from the asynch method
+     * Url to subscribe to detailed notification.
+     * Notifications can be a string stream of live log or an object with detailed statuses.
      */
-    void sendMessage(Object messageBody, MessageCallback callback);
+    @Getter
+    private String detailedNotificationsEndpointUrl;
 
-    void subscribe(String topic, String messagesId);
+    @Override
+    public String getEventType() {
+        return "PROCESS_PROGRESS_UPDATE";
+    }
 
-    void unsubscribe(String topic, String messagesId);
-
-    boolean isSubscribed(String topic, String messagesId);
 }

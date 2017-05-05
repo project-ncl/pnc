@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -86,6 +87,13 @@ public class DefaultNotifier implements Notifier {
     }
 
     @Override
+    public Optional<AttachedClient> getAttachedClient(String sessionId) {
+        return attachedClients.stream()
+                .filter(client -> client.getSessionId().equals(sessionId))
+                .findAny();
+    }
+
+    @Override
     public MessageCallback getCallback() {
         return messageCallback;
     }
@@ -103,6 +111,27 @@ public class DefaultNotifier implements Notifier {
                         logger.error("Unable to send message, detaching client.", e);
                         detachClient(client);
                     }
+                }
+            }
+        } catch (ConcurrentModificationException cme) {
+            logger.error("Error while removing attached client: ", cme);
+        }
+    }
+
+    @Override
+    public void sendToSubscribers(Object message, String topic, String qualifier) {
+        try {
+            for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
+                    .hasNext();) {
+                AttachedClient client = attachedClientIterator.next();
+                if (client.isEnabled()) {
+                    if (client.isSubscribed(topic, qualifier))
+                        try {
+                            client.sendMessage(message, messageCallback);
+                        } catch (Exception e) {
+                            logger.error("Unable to send message, detaching client.", e);
+                            detachClient(client);
+                        }
                 }
             }
         } catch (ConcurrentModificationException cme) {

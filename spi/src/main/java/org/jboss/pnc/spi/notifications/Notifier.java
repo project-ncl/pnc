@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.spi.notifications;
 
+import java.util.Optional;
+
 /**
  * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
  */
@@ -30,5 +32,17 @@ public interface Notifier {
 
     void sendMessage(Object message);
 
+    Optional<AttachedClient> getAttachedClient(String sessionId);
+
     MessageCallback getCallback();
+
+    /**
+     * Sends a mesage to clients that has subscribed to the topic.
+     * Messages from the topic can be optionally refined by qualifier which is topic specific
+     *
+     * @param message
+     * @param topic
+     * @param qualifier
+     */
+    void sendToSubscribers(Object message, String topic, String qualifier);
 }
