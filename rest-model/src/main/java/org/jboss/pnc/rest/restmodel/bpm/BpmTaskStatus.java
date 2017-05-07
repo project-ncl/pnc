@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel.bpm;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public enum BpmTaskStatus {
+public enum BpmTaskStatus { //TODO do we need it ?
     STARTING,
     STARTED,
     COMPLETED;
