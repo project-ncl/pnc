@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.notifications.websockets;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -82,7 +83,7 @@ public class NotificationsEndpoint {
     Instance<BpmManager> bpmManagerInstance;
 
     @Inject
-    private Configuration configuration;
+    Configuration configuration;
 
     @PostConstruct
     public void postConstruct() {
@@ -113,7 +114,7 @@ public class NotificationsEndpoint {
         @Override
         public void failed(AttachedClient attachedClient, Throwable throwable) {
             logger.error("Notification client threw an error, removing it. ", throwable);
-            //TODO detach(attachedClient);
+            notifier.detachClient(attachedClient);
         }
     };
 
@@ -157,40 +158,53 @@ public class NotificationsEndpoint {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
+        TypedMessage typedMessage;
         try {
-            TypedMessage typedMessage = JsonOutputConverterMapper.readValue(message, TypedMessage.class);
-            MessageType messageType = typedMessage.getMessageType();
-            if (messageType.equals(MessageType.PROCESS_UPDATES)) {
-                if (!bpmManager.isPresent()) {
-                    logger.warn("It looks like BPMManager is not enabled.");
-                    //TODO respond to caller
-                } else {
-                    ProgressUpdatesRequest progressUpdatesRequest = ((TypedMessage<ProgressUpdatesRequest>) typedMessage).get();
-                    onProgressUpdateRequest(progressUpdatesRequest, session, bpmManager.get());
-                }
-            } else {
-                String statusCode = Integer.toString(Response.Status.NOT_ACCEPTABLE.getStatusCode());
-                String errorMessage = "Invalid message-type: " + typedMessage.getMessageType() + ". Supported types are: " + MessageType.PROCESS_UPDATES;
-                String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-                logger.warn(errorMessage);
-                session.getAsyncRemote().sendText(error);
-            }
+            typedMessage = JsonOutputConverterMapper.readValue(message, TypedMessage.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            respondWithErrorMessage("Cannot parse request massage.", Response.Status.BAD_REQUEST, session);
+            return;
         }
+
+        MessageType messageType = typedMessage.getMessageType();
+        if (MessageType.PROCESS_UPDATES.equals(messageType)) {
+            if (!bpmManager.isPresent()) {
+                respondWithErrorMessage("It looks like BPMManager is not enabled.", Response.Status.PRECONDITION_FAILED, session);
+            } else {
+                ProgressUpdatesRequest progressUpdatesRequest = ((TypedMessage<ProgressUpdatesRequest>) typedMessage).get();
+                onProgressUpdateRequest(progressUpdatesRequest, session, bpmManager.get());
+            }
+        } else {
+            respondWithErrorMessage("Invalid message-type: " + typedMessage.getMessageType() + ". Supported types are: " + MessageType.PROCESS_UPDATES,
+                    Response.Status.NOT_ACCEPTABLE, session);
+        }
+    }
+
+    private void respondWithErrorMessage(String errorMessage, Response.Status status, Session session) {
+        String statusCode = Integer.toString(status.getStatusCode());
+        String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
+        logger.warn(errorMessage);
+        session.getAsyncRemote().sendText(error);
     }
 
     private void onProgressUpdateRequest(ProgressUpdatesRequest progressUpdatesRequest, Session session, BpmManager bpmManager) {
         Optional<AttachedClient> attachedClient = notifier.getAttachedClient(session.getId());
-        AttachedClient client = attachedClient.get(); //TODO check, should be attached with onOpen
+        AttachedClient client;
+        if (attachedClient.isPresent()) {
+            client = attachedClient.get();
+        } else {
+            logger.error("Something went wrong, the client should be attached.");
+            return;
+        }
 
         String topic = progressUpdatesRequest.getTopic();
         String messagesId = progressUpdatesRequest.getId();
 
-        if (progressUpdatesRequest.getAction().equals("subscribe")) {
+        if (progressUpdatesRequest.getAction().equals(Action.SUBSCRIBE)) {
             client.subscribe(topic, messagesId);
 
-            Optional<BpmTask> maybeTask = bpmManager.getTaskById(Integer.parseInt(messagesId));
+            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager, Integer.valueOf(messagesId));
+
             if (maybeTask.isPresent()) {
                 BpmTask bpmTask = maybeTask.get();
                 Optional<BpmNotificationRest> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
@@ -209,30 +223,36 @@ public class NotificationsEndpoint {
                 String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
                 client.sendMessage(JsonOutputConverterMapper.apply(error), messageCallback);
             }
-        } else if (progressUpdatesRequest.getAction().equals("unsubscribe")) {
+        } else if (progressUpdatesRequest.getAction().equals(Action.UNSUBSCRIBE)) {
             client.unsubscribe(topic, messagesId);
         } else {
             String statusCode = Integer.toString(Response.Status.NOT_ACCEPTABLE.getStatusCode());
-            String errorMessage = "Invalid action: " + progressUpdatesRequest.getAction() + ". Supported actions are: subscribe, unsubscribe.";
+            String errorMessage = "Invalid action: " + progressUpdatesRequest.getAction() + ". Supported actions are: {}." + Action.values();
             String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
             logger.warn(errorMessage);
             session.getAsyncRemote().sendText(error);
         }
     }
 
+
+
     public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         logger.debug("Observed new status changed event {}.", buildStatusChangedEvent);
 
-        if (bpmManager.isPresent() && //TODO log else
+        if (bpmManager.isPresent() &&
                 buildStatusChangedEvent.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
             Integer buildTaskId = buildStatusChangedEvent.getBuildTaskId();
             Optional<BpmTask> maybeTask = bpmManager.get().getTaskById(buildTaskId);
-            BpmTask bpmTask = maybeTask.get();//TODO check
+            if (!maybeTask.isPresent()) {
+                logger.warn("Cannot find BpmTask for buildTaskId {}.", buildTaskId);
+            } else {
+                BpmTask bpmTask = maybeTask.get();
 
-            bpmTask.addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
-                String messagesId = Integer.toString(buildTaskId);
-                notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
-            });
+                bpmTask.addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
+                    String messagesId = Integer.toString(buildTaskId);
+                    notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
+                });
+            }
         }
         notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
         logger.debug("Status changed event processed {}.", buildStatusChangedEvent);

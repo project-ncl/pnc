@@ -17,39 +17,9 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-
 /**
- * Message
- * {
- *   message-type: 'process-updates',
- *   message: {
- *     action: 'subscribe|unsubscribe',
- *     topic: 'component-build',
- *     id: 123
- *   }
- * }
- *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = ProgressUpdatesRequest.ProgressUpdatesRequestBuilder.class)
-@AllArgsConstructor
-@Builder
-@Getter
-public class ProgressUpdatesRequest {
-
-    private Action action;
-
-    private String topic;
-
-    private String id;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class ProgressUpdatesRequestBuilder {
-    }
-
+public enum Action {
+    SUBSCRIBE, UNSUBSCRIBE;
 }

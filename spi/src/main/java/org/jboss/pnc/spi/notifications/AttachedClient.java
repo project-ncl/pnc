@@ -42,4 +42,5 @@ public interface AttachedClient {
     void unsubscribe(String topic, String messagesId);
 
     boolean isSubscribed(String topic, String messagesId);
+
 }

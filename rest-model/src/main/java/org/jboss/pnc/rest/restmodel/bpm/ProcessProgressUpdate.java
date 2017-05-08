@@ -20,10 +20,13 @@ package org.jboss.pnc.rest.restmodel.bpm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @AllArgsConstructor
+@XmlRootElement
 public class ProcessProgressUpdate extends BpmNotificationRest {
 
     /**
