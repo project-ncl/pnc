@@ -17,18 +17,25 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
-import javax.websocket.Session;
-
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.OutputConverter;
+
+import javax.websocket.SendHandler;
+import javax.websocket.SendResult;
+import javax.websocket.Session;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SessionBasedAttachedClient implements AttachedClient {
 
     private final Session session;
     private final OutputConverter outputConverter;
+
+    private List<Subscription> subscriptions = new ArrayList();
 
     public SessionBasedAttachedClient(Session session, OutputConverter outputConverter) {
         this.session = session;
@@ -38,6 +45,11 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public boolean isEnabled() {
         return session.isOpen();
+    }
+
+    @Override
+    public String getSessionId() {
+        return session.getId();
     }
 
     @Override
@@ -53,6 +65,30 @@ public class SessionBasedAttachedClient implements AttachedClient {
                 }
             }
         });
+    }
+
+    @Override
+    public void subscribe(String topic, String messagesId) {
+        subscriptions.add(new Subscription(topic, messagesId));
+    }
+
+    @Override
+    public void unsubscribe(String topic, String messagesId) {
+        subscriptions.remove(new Subscription(topic, messagesId));
+    }
+
+    /**
+     * @return True if topic match and optional qualifier on subscription match or is empty
+     */
+    @Override
+    public boolean isSubscribed(String topic, String qualifier) {
+        for (Subscription subscription : subscriptions) {
+            if (topic.equals(subscription.getTopic()) &&
+                    (subscription.getQualifier() == "" || subscription.getQualifier().equals(qualifier))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -77,5 +113,13 @@ public class SessionBasedAttachedClient implements AttachedClient {
         int result = session != null ? session.hashCode() : 0;
         result = 31 * result + (outputConverter != null ? outputConverter.hashCode() : 0);
         return result;
+    }
+
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    @Getter
+    private class Subscription {
+        String topic;
+        String qualifier;
     }
 }

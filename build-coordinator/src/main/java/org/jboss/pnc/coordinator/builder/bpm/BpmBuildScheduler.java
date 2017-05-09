@@ -40,9 +40,11 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private BpmManager manager;
 
+    public static final String schedulerId = "bpm-build-scheduler";
+
     @Override
     public String getId() {
-        return "bpm-build-scheduler";
+        return schedulerId;
     }
 
     @Deprecated

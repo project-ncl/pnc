@@ -18,6 +18,7 @@
 package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
+import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -90,5 +91,17 @@ public class BpmBuildTask extends BpmTask {
     @Override
     protected String getProcessId() {
         return config.getComponentBuildProcessId();
+    }
+
+    public static Optional<BpmTask> getBpmTaskByBuildTaskId(BpmManager bpmManager, Integer buildTaskId) {
+        return bpmManager.getActiveTasks().stream().filter(bpmTask -> {
+            if (bpmTask instanceof BpmBuildTask) {
+                int buildId = ((BpmBuildTask) bpmTask).getBuildTask().getId();
+                return buildId == buildTaskId.intValue();
+            } else {
+                return false;
+            }
+        })
+        .findFirst();
     }
 }

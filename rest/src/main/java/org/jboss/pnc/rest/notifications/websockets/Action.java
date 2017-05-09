@@ -15,32 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.notifications;
+package org.jboss.pnc.rest.notifications.websockets;
 
 /**
- * A generic WS client.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface AttachedClient {
-
-    /**
-     * @return Returns <code>true</code> if enabled.
-     */
-    boolean isEnabled();
-
-    String getSessionId();
-
-    /**
-     * Sends a message to the client
-     *
-     * @param messageBody Message body - depends on implementation how to deal with it.
-     * @param callback the callback from the asynch method
-     */
-    void sendMessage(Object messageBody, MessageCallback callback);
-
-    void subscribe(String topic, String messagesId);
-
-    void unsubscribe(String topic, String messagesId);
-
-    boolean isSubscribed(String topic, String messagesId);
-
+public enum Action {
+    SUBSCRIBE, UNSUBSCRIBE;
 }
