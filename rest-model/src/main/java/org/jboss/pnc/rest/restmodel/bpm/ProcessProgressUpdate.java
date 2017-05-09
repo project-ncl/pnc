@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.rest.restmodel.bpm;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,7 +28,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@JsonDeserialize(builder = ProcessProgressUpdate.ProcessProgressUpdateBuilder.class)
 @AllArgsConstructor
+@Builder
 @XmlRootElement
 public class ProcessProgressUpdate extends BpmNotificationRest {
 
@@ -48,6 +53,10 @@ public class ProcessProgressUpdate extends BpmNotificationRest {
     @Override
     public String getEventType() {
         return "PROCESS_PROGRESS_UPDATE";
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class ProcessProgressUpdateBuilder {
     }
 
 }
