@@ -253,7 +253,7 @@ public class NotificationsEndpoint {
         if (bpmManager.isPresent() &&
                 buildStatusChangedEvent.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
             Integer buildTaskId = buildStatusChangedEvent.getBuildTaskId();
-            Optional<BpmTask> maybeTask = bpmManager.get().getTaskById(buildTaskId);
+            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), buildTaskId);
             if (!maybeTask.isPresent()) {
                 logger.warn("Cannot find BpmTask for buildTaskId {}.", buildTaskId);
             } else {
