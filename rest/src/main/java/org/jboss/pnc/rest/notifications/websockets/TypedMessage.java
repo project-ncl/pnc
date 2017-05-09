@@ -38,11 +38,8 @@ public class TypedMessage<T> implements Serializable {
     @Getter
     private final MessageType messageType;
 
+    @Getter
     private final T data;
-
-    public T get() {
-        return data;
-    }
 
     public static <T> TypedMessageBuilder<T> builder() {
         return new TypedMessageBuilder<T>();

@@ -158,32 +158,43 @@ public class NotificationsEndpoint {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        TypedMessage typedMessage;
+
+        RequestParser parser = new RequestParser();
         try {
-            typedMessage = JsonOutputConverterMapper.readValue(message, TypedMessage.class);
+            if (!parser.parseRequest(message)) {
+                respondWithErrorMessage(parser.getErrorMessage(), parser.getFailedStatus(), session);
+                return;
+            }
         } catch (IOException e) {
-            respondWithErrorMessage("Cannot parse request massage.", Response.Status.BAD_REQUEST, session);
+            respondWithErrorMessage(parser.getErrorMessage() + " " + e.getMessage(), parser.getFailedStatus(), session, e);
             return;
         }
 
-        MessageType messageType = typedMessage.getMessageType();
-        if (MessageType.PROCESS_UPDATES.equals(messageType)) {
-            if (!bpmManager.isPresent()) {
-                respondWithErrorMessage("It looks like BPMManager is not enabled.", Response.Status.PRECONDITION_FAILED, session);
-            } else {
-                ProgressUpdatesRequest progressUpdatesRequest = ((TypedMessage<ProgressUpdatesRequest>) typedMessage).get();
+
+        if (!bpmManager.isPresent()) {
+            respondWithErrorMessage("It looks like BPMManager is not enabled.", Response.Status.PRECONDITION_FAILED, session);
+            return;
+        } else {
+            MessageType messageType = parser.getMessageType();
+            if (MessageType.PROCESS_UPDATES.equals(messageType)) {
+                ProgressUpdatesRequest progressUpdatesRequest = parser.<ProgressUpdatesRequest>getData();
                 onProgressUpdateRequest(progressUpdatesRequest, session, bpmManager.get());
             }
-        } else {
-            respondWithErrorMessage("Invalid message-type: " + typedMessage.getMessageType() + ". Supported types are: " + MessageType.PROCESS_UPDATES,
-                    Response.Status.NOT_ACCEPTABLE, session);
         }
     }
 
     private void respondWithErrorMessage(String errorMessage, Response.Status status, Session session) {
+        respondWithErrorMessage(errorMessage, status, session, null);
+    }
+
+    private void respondWithErrorMessage(String errorMessage, Response.Status status, Session session, Exception e) {
         String statusCode = Integer.toString(status.getStatusCode());
         String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-        logger.warn(errorMessage);
+        if (e != null) {
+            logger.warn(errorMessage, e);
+        } else {
+            logger.warn(errorMessage);
+        }
         session.getAsyncRemote().sendText(error);
     }
 
@@ -200,7 +211,7 @@ public class NotificationsEndpoint {
         String topic = progressUpdatesRequest.getTopic();
         String messagesId = progressUpdatesRequest.getId();
 
-        if (progressUpdatesRequest.getAction().equals(Action.SUBSCRIBE)) {
+        if (Action.SUBSCRIBE.equals(progressUpdatesRequest.getAction())) {
             client.subscribe(topic, messagesId);
 
             Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager, Integer.valueOf(messagesId));
@@ -223,7 +234,7 @@ public class NotificationsEndpoint {
                 String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
                 client.sendMessage(JsonOutputConverterMapper.apply(error), messageCallback);
             }
-        } else if (progressUpdatesRequest.getAction().equals(Action.UNSUBSCRIBE)) {
+        } else if (Action.UNSUBSCRIBE.equals(progressUpdatesRequest.getAction())) {
             client.unsubscribe(topic, messagesId);
         } else {
             String statusCode = Integer.toString(Response.Status.NOT_ACCEPTABLE.getStatusCode());

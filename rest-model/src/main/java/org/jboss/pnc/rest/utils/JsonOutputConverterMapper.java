@@ -64,4 +64,8 @@ public class JsonOutputConverterMapper {
     public static <T> T readValue(String serialized, Class<T> clazz) throws IOException {
         return mapper.readValue(serialized, clazz);
     }
+
+    public static ObjectMapper getMapper() {
+        return mapper;
+    }
 }
