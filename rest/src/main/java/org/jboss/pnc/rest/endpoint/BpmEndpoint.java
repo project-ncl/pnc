@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -42,6 +41,7 @@ import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BpmTaskRestPage;
 import org.jboss.pnc.rest.swagger.response.BpmTaskRestSingleton;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
@@ -109,8 +109,6 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(BpmEndpoint.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private BpmManager bpmManager;
 
     private BuildConfigurationSetProvider bcSetProvider;
@@ -156,7 +154,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         JsonNode node;
         try {
             content = readContent(request.getInputStream());
-            node = MAPPER.readTree(content);
+            node = JsonOutputConverterMapper.getMapper().readTree(content);
         } catch (IOException e) {
             throw new CoreException("Could not get JSON from request data. " +
                     "Verify it is not empty and in the correct format.", e);
@@ -168,7 +166,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         BpmEventType eventType = BpmEventType.valueOf(eventTypeName);
         BpmNotificationRest notification;
         try {
-            notification = MAPPER.readValue(node.traverse(), eventType.getType());
+            notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
             throw new CoreException("Could not deserialize JSON request for event type '" + eventTypeName + "' " +
                     " into '" + eventType.getType() + "'. JSON value: " + content, e);
