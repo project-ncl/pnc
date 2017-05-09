@@ -162,7 +162,7 @@ public class NotificationsEndpoint {
         try {
             typedMessage = JsonOutputConverterMapper.readValue(message, TypedMessage.class);
         } catch (IOException e) {
-            respondWithErrorMessage("Cannot parse request massage.", Response.Status.BAD_REQUEST, session);
+            respondWithErrorMessage("Cannot parse request massage.", Response.Status.BAD_REQUEST, session, e);
             return;
         }
 
@@ -181,9 +181,17 @@ public class NotificationsEndpoint {
     }
 
     private void respondWithErrorMessage(String errorMessage, Response.Status status, Session session) {
+        respondWithErrorMessage(errorMessage, status, session, null);
+    }
+
+    private void respondWithErrorMessage(String errorMessage, Response.Status status, Session session, Exception e) {
         String statusCode = Integer.toString(status.getStatusCode());
         String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-        logger.warn(errorMessage);
+        if (e != null) {
+            logger.warn(errorMessage, e);
+        } else {
+            logger.warn(errorMessage);
+        }
         session.getAsyncRemote().sendText(error);
     }
 
