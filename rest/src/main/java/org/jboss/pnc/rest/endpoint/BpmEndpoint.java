@@ -171,7 +171,7 @@ public class BpmEndpoint extends AbstractEndpoint {
             notification = MAPPER.readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
             throw new CoreException("Could not deserialize JSON request for event type '" + eventTypeName + "' " +
-                    " into '" + eventType.getType() + "'. JSON value: " + content);
+                    " into '" + eventType.getType() + "'. JSON value: " + content, e);
         }
         LOG.debug("Received notification {} for BPM task with id {}.", notification, taskId);
         bpmManager.notify(taskId, notification);
