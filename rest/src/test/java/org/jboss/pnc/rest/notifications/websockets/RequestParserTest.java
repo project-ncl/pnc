@@ -17,19 +17,28 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public enum MessageType {
-    PROCESS_UPDATES(ProgressUpdatesRequest.class);
+public class RequestParserTest {
 
-    private Class type;
+    @Test
+    public void shouldParseRequest() throws IOException {
+        String message = "{ \"messageType\": \"PROCESS_UPDATES\", \"data\": { \"action\": \"SUBSCRIBE\", \"topic\": \"component-build\", \"id\":\"123\" } }";
+        RequestParser requestParser = new RequestParser();
+        boolean parsed = requestParser.parseRequest(message);
 
-    MessageType(Class type) {
-        this.type = type;
-    }
+        Assert.assertTrue("Parsing failed.", parsed);
 
-    public <T> Class<T> getType() {
-        return type;
+        MessageType messageType = requestParser.getMessageType();
+        if (MessageType.PROCESS_UPDATES.equals(messageType)) {
+            ProgressUpdatesRequest progressUpdatesRequest = requestParser.<ProgressUpdatesRequest>getData();
+            Assert.assertEquals("123", progressUpdatesRequest.getId());
+        }
     }
 }
