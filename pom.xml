@@ -1588,6 +1588,20 @@
       <properties>
         <persistence.jta-data-source>java:jboss/datasources/NewcastleDS</persistence.jta-data-source>
         <persistence.hibernate.dialect>org.hibernate.dialect.PostgreSQL82Dialect</persistence.hibernate.dialect>
+        <persistence.hibernate.hbm2ddl.auto>validate</persistence.hibernate.hbm2ddl.auto>
+      </properties>
+    </profile>
+    
+    <profile>
+      <id>devel</id>
+      <activation>
+        <property>
+          <name>devel</name>
+        </property>
+      </activation>
+      <properties>
+        <persistence.jta-data-source>java:jboss/datasources/NewcastleDS</persistence.jta-data-source>
+        <persistence.hibernate.dialect>org.hibernate.dialect.PostgreSQL82Dialect</persistence.hibernate.dialect>
         <persistence.hibernate.hbm2ddl.auto>update</persistence.hibernate.hbm2ddl.auto>
       </properties>
     </profile>
