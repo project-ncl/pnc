@@ -31,13 +31,14 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -247,11 +248,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void cancelInternal(BuildTask buildTask) {
 
         BuildResult result = new BuildResult(
+                CompletionStatus.CANCELLED,
                 Optional.empty(),
+                "", Optional.empty(),
                 Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(BuildExecutionStatus.CANCELLED),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty());
@@ -410,7 +410,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
         int buildTaskId = buildTask.getId();
 
@@ -419,22 +418,39 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
             if (buildResult.hasFailed()) {
-                if (buildResult.getException().isPresent()) {
-                    ExecutorException exception = buildResult.getException().get();
-                    log.debug("[buildTaskId: {}] Storing build result with exception {}.", buildTaskId, exception.getMessage());
-                    datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
-                    coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
-                } else if (buildResult.getFailedReasonStatus().isPresent()) {
-                    log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus().get());
-                    datastoreAdapter.storeResult(buildTask, buildResult);
-                    if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELLED)) {
+                CompletionStatus operationCompletionStatus = buildResult.getCompletionStatus();
+
+                switch (operationCompletionStatus) {
+                    case SYSTEM_ERROR:
+                        ProcessException exception;
+                        if (buildResult.getProcessException().isPresent()) {
+                            exception = buildResult.getProcessException().get();
+                            log.debug("[buildTaskId: {}] Storing build result with exception {}.", buildTaskId, exception.getMessage());
+                        } else {
+                            exception = new ProcessException("Build completed with system error but no exception.");
+                            log.error("[buildTaskId: {}] Storing build result with system_error and missing exception.", buildTaskId);
+                        }
+                        datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
+                        coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                        break;
+
+                    case CANCELLED:
+                    case TIMED_OUT:
+                        log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, operationCompletionStatus);
+                        datastoreAdapter.storeResult(buildTask, buildResult);
                         coordinationStatus = BuildCoordinationStatus.CANCELLED;
-                    } else {
+                        break;
+
+                    case FAILED:
+                        log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, operationCompletionStatus);
+                        datastoreAdapter.storeResult(buildTask, buildResult);
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
-                    }
-                } else {
-                    throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
+                        break;
+
+                    case SUCCESS:
+                        throw new BuildCoordinationException("Failed task with SUCCESS completion status ?!.");
                 }
+
             } else {
                 log.debug("[buildTaskId: {}] Storing success build result.", buildTaskId);
                 datastoreAdapter.storeResult(buildTask, buildResult);

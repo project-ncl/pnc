@@ -19,98 +19,104 @@
 package org.jboss.pnc.rest.restmodel.bpm;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repour.RepourResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Optional;
 
-import static java.util.Optional.*;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildResult")
+@NoArgsConstructor(onConstructor = @__({@Deprecated}))
 public class BuildResultRest extends BpmNotificationRest implements Serializable {
 
     @Getter
-    @Setter
+    @Setter(onMethod=@__({@Deprecated}))
+    private CompletionStatus completionStatus;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private ProcessException processException;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private String processLog;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
     private BuildExecutionConfigurationRest buildExecutionConfiguration;
 
     @Getter
-    @Setter
+    @Setter(onMethod=@__({@Deprecated}))
     private BuildDriverResultRest buildDriverResult;
 
     @Getter
-    @Setter
+    @Setter(onMethod=@__({@Deprecated}))
     private RepositoryManagerResultRest repositoryManagerResult;
 
     @Getter
-    @Setter
-    private ExecutorException exception;
+    @Setter(onMethod=@__({@Deprecated}))
+    private EnvironmentDriverResult environmentDriverResult;
 
     @Getter
-    @Setter
-    private BuildExecutionStatus failedReasonStatus;
+    @Setter(onMethod=@__({@Deprecated}))
+    private RepourResult repourResult;
 
-    @Getter
-    @Setter
-    private SshCredentials sshCredentials;
-
-    @Getter
-    @Setter
-    private String executionRootName;
-
-    @Getter
-    @Setter
-    private String executionRootVersion;
-
-    public BuildResultRest() {
-    }
-
-    public BuildResultRest(String serialized) throws IOException {
-        BuildResultRest buildResultRest = JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
-        this.buildExecutionConfiguration = buildResultRest.getBuildExecutionConfiguration();
-        this.buildDriverResult = buildResultRest.getBuildDriverResult();
-        this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
-        this.exception = buildResultRest.getException();
-        this.failedReasonStatus = buildResultRest.getFailedReasonStatus();
-        this.sshCredentials = buildResultRest.getSshCredentials();
-        this.executionRootName = buildResultRest.getExecutionRootName();
-        this.executionRootVersion = buildResultRest.getExecutionRootVersion();
+    public static BuildResultRest valueOf(String serialized) throws IOException {
+        return JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
     }
 
     public BuildResultRest(BuildResult buildResult) {
 
-        buildResult.getBuildExecutionConfiguration().ifPresent((configuration) -> {
-            buildExecutionConfiguration = new BuildExecutionConfigurationRest(configuration);
-        });
+        completionStatus = buildResult.getCompletionStatus();
+        processException = buildResult.getProcessException().orElse(null);
+        processLog = buildResult.getProcessLog();
+
+        if (buildResult.getBuildExecutionConfiguration().isPresent()) {
+            BuildExecutionConfiguration bec = buildResult.getBuildExecutionConfiguration().get();
+            this.buildExecutionConfiguration = new BuildExecutionConfigurationRest(bec);
+        } else {
+            this.buildExecutionConfiguration = null;
+        }
 
         if (buildResult.getBuildDriverResult().isPresent()) {
             BuildDriverResult result = buildResult.getBuildDriverResult().get();
             buildDriverResult = new BuildDriverResultRest(result);
+        } else {
+            this.buildDriverResult = null;
         }
 
-        buildResult.getRepositoryManagerResult().ifPresent((result) -> {
+        if (buildResult.getRepositoryManagerResult().isPresent()) {
+            RepositoryManagerResult result = buildResult.getRepositoryManagerResult().get();
             repositoryManagerResult = new RepositoryManagerResultRest(result);
-        });
+        } else {
+            this.repositoryManagerResult = null;
+        }
 
-        failedReasonStatus = buildResult.getFailedReasonStatus().orElse(null);
+        if (buildResult.getEnvironmentDriverResult().isPresent()) {
+            environmentDriverResult = buildResult.getEnvironmentDriverResult().get();
+        } else {
+            environmentDriverResult = null;
+        }
 
-        exception = buildResult.getException().orElse(null);
-
-        sshCredentials = buildResult.getSshCredentials().orElse(null);
+        repourResult = buildResult.getRepourResult().orElse(null);
     }
 
     public BuildResult toBuildResult() {
@@ -118,17 +124,17 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
         if (getRepositoryManagerResult() != null) {
             repositoryManagerResult = getRepositoryManagerResult().toRepositoryManagerResult();
         }
+
         return new BuildResult(
+                completionStatus,
+                ofNullable(processException),
+                processLog,
                 ofNullable(buildExecutionConfiguration),
                 ofNullable(buildDriverResult),
                 ofNullable(repositoryManagerResult),
-                ofNullable(exception),
-                ofNullable(failedReasonStatus),
-                ofNullable(sshCredentials),
-                ofNullable(executionRootName),
-                ofNullable(executionRootVersion));
+                ofNullable(environmentDriverResult),
+                ofNullable(repourResult));
     }
-
 
     @Override
     public String getEventType() {

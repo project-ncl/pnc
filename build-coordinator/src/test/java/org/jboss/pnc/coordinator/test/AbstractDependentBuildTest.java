@@ -47,6 +47,7 @@ import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -54,7 +55,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
@@ -258,15 +258,14 @@ public abstract class AbstractDependentBuildTest {
 
     private static BuildResult buildResult() {
         return new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                "",
                 Optional.of(mock(BuildExecutionConfiguration.class)),
                 Optional.of(buildDriverResult()),
                 Optional.of(repoManagerResult()),
                 Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(randomAlphabetic(3)),
-                Optional.of(randomAlphabetic(3))
-        );
+                Optional.empty());
     }
 
     private static BuildDriverResult buildDriverResult() {
@@ -277,7 +276,7 @@ public abstract class AbstractDependentBuildTest {
 
     private static RepositoryManagerResult repoManagerResult() {
         RepositoryManagerResult mock = mock(RepositoryManagerResult.class);
-        when(mock.getStatus()).thenReturn(RepositoryManagerStatus.SUCCESS);
+        when(mock.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
         return mock;
     }
 

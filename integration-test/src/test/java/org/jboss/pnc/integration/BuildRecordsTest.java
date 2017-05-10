@@ -178,6 +178,7 @@ public class BuildRecordsTest {
         BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildLog("test build complete")
+                .repourLog("alignment done")
                 .status(BuildStatus.SUCCESS)
                 .latestBuildConfiguration(buildConfiguration)
                 .buildConfigurationAudited(buildConfigurationAudited)
@@ -199,6 +200,7 @@ public class BuildRecordsTest {
         BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildLog("test build complete")
+                .repourLog("alignment done")
                 .status(BuildStatus.SUCCESS)
                 .latestBuildConfiguration(buildConfiguration)
                 .buildConfigurationAudited(buildConfigurationAudited)
@@ -243,6 +245,16 @@ public class BuildRecordsTest {
         // when
         String buildRecordLog = buildRecordProvider.getBuildRecordLog(buildRecord2Id);
         StreamingOutput logs = buildRecordProvider.getLogsForBuild(buildRecordLog);
+
+        // then
+        assertThat(logs).isNotNull();
+    }
+
+    @Test
+    public void shouldGetRepourLogsForSpecificBuildRecord() {
+        // when
+        String buildRecordLog = buildRecordProvider.getBuildRecordRepourLog(buildRecord2Id);
+        StreamingOutput logs = buildRecordProvider.getRepourLogsForBuild(buildRecordLog);
 
         // then
         assertThat(logs).isNotNull();

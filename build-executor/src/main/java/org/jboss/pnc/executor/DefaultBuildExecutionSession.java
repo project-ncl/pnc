@@ -20,9 +20,11 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.DebugData;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -36,6 +38,8 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -98,6 +102,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     @Override
     public void setStatus(BuildExecutionStatus status) {
         if (status.hasFailed() && failedReasonStatus == null) {
+            if (status.equals(DONE_WITH_ERRORS)) {
+                setException(new ExecutorException("Missing failedReasonStatus. Failed reason must be sat before final DONE_WITH_ERRORS."));
+            }
             log.debug("Setting status {} as failed reason for session {}.", status, getId());
             failedReasonStatus = status;
         }
@@ -122,48 +129,57 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     }
 
     private BuildResult getBuildResult() {
-        Optional<SshCredentials> sshCredentials = Optional.empty();
+        EnvironmentDriverResult environmentDriverResult = null;
         DebugData debugData = getRunningEnvironment() != null ? getRunningEnvironment().getDebugData() : null;
         if (debugData != null && debugData.isDebugEnabled()) {
-            sshCredentials = Optional.of(getRunningEnvironment().getDebugData().getSshCredentials());
+            environmentDriverResult = new EnvironmentDriverResult(
+                    CompletionStatus.SUCCESS,
+                    "",
+                    Optional.of(debugData.getSshCredentials()));
         }
 
+        CompletionStatus completionStatus = CompletionStatus.SUCCESS;
         if (executorException == null) {
-            if (failedReasonStatus == null) {
-                log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(
-                        Optional.ofNullable(buildExecutionConfiguration),
-                        Optional.ofNullable(buildDriverResult),
-                        Optional.ofNullable(repositoryManagerResult),
-                        Optional.empty(),
-                        Optional.empty(),
-                        sshCredentials,
-                        Optional.empty(),
-                        Optional.empty());
-            } else {
-                log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(
-                        Optional.ofNullable(buildExecutionConfiguration),
-                        Optional.ofNullable(buildDriverResult),
-                        Optional.ofNullable(repositoryManagerResult),
-                        Optional.empty(),
-                        Optional.of(failedReasonStatus),
-                        sshCredentials,
-                        Optional.empty(),
-                        Optional.empty());
+            if (failedReasonStatus != null) {
+                switch (failedReasonStatus) {
+                    case BUILD_ENV_SETUP_COMPLETE_WITH_ERROR:
+                    case SYSTEM_ERROR:
+                        completionStatus = CompletionStatus.SYSTEM_ERROR;
+                        break;
+
+                    case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR:
+                    case BUILD_COMPLETED_WITH_ERROR:
+                        completionStatus = CompletionStatus.FAILED;
+                        break;
+
+                    case CANCELLED:
+                        completionStatus = CompletionStatus.CANCELLED;
+                        break;
+
+                    case DONE_WITH_ERRORS:
+                        executorException = new ExecutorException("DONE_WITH_ERRORS cannot be set as failed reason.");
+                        break;
+                }
             }
-        } else {
-            log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(
+        }
+
+        ProcessException processException = null;
+        if (executorException != null) {
+            processException = new ProcessException(executorException);
+            completionStatus = CompletionStatus.SYSTEM_ERROR;
+        }
+
+        log.debug("Returning result of task {}.", getId());
+
+        return new BuildResult(
+                    completionStatus,
+                    Optional.ofNullable(processException),
+                    "",
                     Optional.ofNullable(buildExecutionConfiguration),
                     Optional.ofNullable(buildDriverResult),
                     Optional.ofNullable(repositoryManagerResult),
-                    Optional.of(executorException),
-                    Optional.ofNullable(failedReasonStatus),
-                    sshCredentials,
-                    Optional.empty(),
+                    Optional.ofNullable(environmentDriverResult),
                     Optional.empty());
-        }
     }
 
     @Override

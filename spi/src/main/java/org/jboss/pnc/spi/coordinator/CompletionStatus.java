@@ -15,26 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.repositorymanager;
-
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
-
-import java.io.Serializable;
-import java.util.List;
+package org.jboss.pnc.spi.coordinator;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface RepositoryManagerResult extends Serializable {
-    List<Artifact> getBuiltArtifacts();
+public enum CompletionStatus {
 
-    List<Artifact> getDependencies();
+    SUCCESS,
+    FAILED,
+    CANCELLED,
+    TIMED_OUT,
+    SYSTEM_ERROR;
 
-    String getBuildContentId();
-
-    String getLog();
-
-    CompletionStatus getCompletionStatus();
-
+    public boolean isFailed() {
+        return this != SUCCESS;
+    }
 }

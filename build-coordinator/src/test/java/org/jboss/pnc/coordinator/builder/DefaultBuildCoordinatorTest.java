@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -35,14 +36,15 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -107,9 +109,10 @@ public class DefaultBuildCoordinatorTest {
         SshCredentials sshCredentials = new SshCredentials();
         sshCredentials.setCommand(RandomStringUtils.randomAlphabetic(30));
         sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
-        when(buildResult.getSshCredentials()).thenReturn(Optional.of(sshCredentials));
-        when(buildResult.getExecutionRootName()).thenReturn(Optional.empty());
-        when(buildResult.getExecutionRootVersion()).thenReturn(Optional.empty());
+
+        when(buildResult.getEnvironmentDriverResult()).thenReturn(Optional.of(new EnvironmentDriverResult(CompletionStatus.FAILED, "", Optional.of(sshCredentials))));
+
+        when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
 
         ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
         when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class))).thenAnswer(answer);
@@ -152,7 +155,7 @@ public class DefaultBuildCoordinatorTest {
         when(driverResult.getBuildStatus()).thenReturn(BuildStatus.FAILED);
         when(result.getBuildDriverResult()).thenReturn(Optional.of(driverResult));
         RepositoryManagerResult repoManagerResult = mock(RepositoryManagerResult.class);
-        when(repoManagerResult.getStatus()).thenReturn(RepositoryManagerStatus.SUCCESS);
+        when(repoManagerResult.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
         when(result.getRepositoryManagerResult()).thenReturn(Optional.of(repoManagerResult));
 
         when(result.getBuildExecutionConfiguration()).thenReturn(Optional.of(mock(BuildExecutionConfiguration.class)));

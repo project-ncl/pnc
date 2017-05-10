@@ -229,6 +229,15 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             return null;
     }
 
+    public String getBuildRecordRepourLog(Integer id) {
+        BuildRecord buildRecord = ((BuildRecordRepository) repository).findByIdFetchAllProperties(id);
+        if (buildRecord != null) {
+            return buildRecord.getRepourLog();
+        } else {
+            return null;
+        }
+    }
+
     public StreamingOutput getLogsForBuild(String buildRecordLog) {
         if (buildRecordLog == null)
             return null;
@@ -236,6 +245,17 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return outputStream -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
             writer.write(buildRecordLog);
+            writer.flush();
+        };
+    }
+
+    public StreamingOutput getRepourLogsForBuild(String repourLog) {
+        if (repourLog == null)
+            return null;
+
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(repourLog);
             writer.flush();
         };
     }

@@ -19,13 +19,16 @@
 package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutionConfigurationMock;
 import org.jboss.pnc.mock.executor.BuildProcessExceptionMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
+import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -45,21 +48,22 @@ public class BuildResultMock {
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
         ExecutorException exception = buildException();
 
-        BuildExecutionStatus buildExecutionStatus;
+        CompletionStatus completionStatus;
         if (status.completedSuccessfully()) {
-            buildExecutionStatus = null;
+            completionStatus = CompletionStatus.SUCCESS;
         } else {
-            buildExecutionStatus = BuildExecutionStatus.DONE_WITH_ERRORS;
+            completionStatus = CompletionStatus.FAILED;
         }
 
         return new BuildResult(
+                completionStatus,
+                Optional.of(new ProcessException("Test Exception.")),
+                "",
                 Optional.ofNullable(buildExecutionConfig),
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),
-                Optional.ofNullable(exception),
-                Optional.ofNullable(buildExecutionStatus),
-                Optional.empty(), Optional.empty(), Optional.empty());
-
+                Optional.of(EnvironmentDriverResultMock.mock()),
+                Optional.of(RepourResultMock.mock()));
     }
 
     private static ExecutorException buildException() {

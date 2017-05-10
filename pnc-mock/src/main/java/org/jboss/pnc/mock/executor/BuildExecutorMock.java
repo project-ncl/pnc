@@ -110,6 +110,7 @@ public class BuildExecutorMock implements BuildExecutor {
         if (TestProjectConfigurationBuilder.FAIL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
+            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             buildPassed = false;
         } else if (TestProjectConfigurationBuilder.FAIL_WITH_DELAY.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Waiting for a while for a build {}.", buildExecutionSession.getId());

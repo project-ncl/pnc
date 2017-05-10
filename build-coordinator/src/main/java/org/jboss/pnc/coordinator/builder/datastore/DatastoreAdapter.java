@@ -25,14 +25,16 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repour.RepourResult;
 
 import javax.inject.Inject;
 import java.io.PrintWriter;
@@ -98,30 +100,39 @@ public class DatastoreAdapter {
 
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
 
-            buildResult.getExecutionRootName().ifPresent(buildRecordBuilder::executionRootName);
-            buildResult.getExecutionRootVersion().ifPresent(buildRecordBuilder::executionRootVersion);
-
-            buildResult.getSshCredentials().ifPresent(
-                    c -> {
-                        buildRecordBuilder.sshCommand(c.getCommand());
-                        buildRecordBuilder.sshPassword(c.getPassword());
-                    }
-            );
+            if (buildResult.getRepourResult().isPresent()) {
+                RepourResult repourResult = buildResult.getRepourResult().get();
+                buildRecordBuilder.repourLog(repourResult.getLog());
+                buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
+                buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
+            } else {
+                log.warn("[BuildTask:" + buildTask.getId() + "] Missing RepourResult.");
+            }
 
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
                 buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
-                buildRecordStatus = buildDriverResult.getBuildStatus();
+                buildRecordStatus = buildDriverResult.getBuildStatus(); //TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
                 storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
                 return;
+            }
+
+            if (buildResult.getEnvironmentDriverResult().isPresent()) {
+                EnvironmentDriverResult environmentDriverResult = buildResult.getEnvironmentDriverResult().get();
+                buildRecordBuilder.appendLog(environmentDriverResult.getLog());
+
+                environmentDriverResult.getSshCredentials().ifPresent(c -> {
+                    buildRecordBuilder.sshCommand(c.getCommand());
+                    buildRecordBuilder.sshPassword(c.getPassword());
+                });
             }
 
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
                 buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
-                if (repositoryManagerResult.getStatus().hasFailed()) {
+                if (repositoryManagerResult.getCompletionStatus().isFailed()) {
                     buildRecordStatus = FAILED; //TODO, do not mix statuses
                 }
 
@@ -146,9 +157,12 @@ public class DatastoreAdapter {
                 return;
             }
 
-            if (UNKNOWN.equals(buildRecordStatus) && buildResult.getFailedReasonStatus().isPresent()) {
-                if (buildResult.getFailedReasonStatus().get().equals(BuildExecutionStatus.CANCELLED)) {
+            if (UNKNOWN.equals(buildRecordStatus)) {
+                if (buildResult.getCompletionStatus().equals(CompletionStatus.CANCELLED)) {
                     buildRecordStatus = CANCELLED;
+                } else if (buildResult.getCompletionStatus().equals(CompletionStatus.TIMED_OUT)) {
+                    buildRecordStatus = SYSTEM_ERROR;
+                    buildRecordBuilder.appendLog("-- Operation TIMED-OUT --");
                 }
             }
 
@@ -185,24 +199,34 @@ public class DatastoreAdapter {
 
         StringBuilder errorLog = new StringBuilder();
 
-        buildResult.ifPresent(r -> {
+        buildResult.ifPresent(result -> {
 
-            r.getExecutionRootName().ifPresent(buildRecordBuilder::executionRootName);
-            r.getExecutionRootVersion().ifPresent(buildRecordBuilder::executionRootVersion);
+            result.getRepourResult().ifPresent(repourResult -> {
+                buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
+                buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
+            });
 
-            r.getBuildDriverResult().ifPresent(
+            result.getBuildDriverResult().ifPresent(
                 buildDriverResult -> {
                     errorLog.append(buildDriverResult.getBuildLog());
                     errorLog.append("\n---- End Build Log ----\n");
             });
-            r.getRepositoryManagerResult().ifPresent(
+
+            result.getRepositoryManagerResult().ifPresent(
                 rmr -> {
                     errorLog.append(rmr.getLog());
                     errorLog.append("\n---- End Repository Manager Log ----\n");
             });
+
+            result.getEnvironmentDriverResult().ifPresent(
+                r -> {
+                    if (r.getLog() != null && !r.getLog().equals(""))
+                    errorLog.append(r.getLog());
+                    errorLog.append("\n---- End Environment Driver Log ----\n");
+            });
         });
 
-        errorLog.append("Last build status: ").append(getLastBuildStatus(buildResult)).append("\n");
+        errorLog.append("Build status: ").append(getBuildStatus(buildResult)).append("\n");
         errorLog.append("Caught exception: ").append(e.toString()).append("\n");
         StringWriter stackTraceWriter = new StringWriter();
         e.printStackTrace(new PrintWriter(stackTraceWriter));
@@ -213,10 +237,12 @@ public class DatastoreAdapter {
         datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
-    private BuildExecutionStatus getLastBuildStatus(Optional<BuildResult> buildResult) {
-        Optional<BuildExecutionStatus> status = buildResult.flatMap(BuildResult::getFailedReasonStatus);
-
-        return status.orElse(null);
+    private CompletionStatus getBuildStatus(Optional<BuildResult> buildResult) {
+        if (buildResult.isPresent()) {
+            return buildResult.get().getCompletionStatus();
+        } else {
+            return null;
+        }
     }
 
     public void storeRejected(BuildTask buildTask) throws DatastoreException {

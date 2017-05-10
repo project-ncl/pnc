@@ -126,7 +126,7 @@ public class BuildCoordinationTest {
         assertThat(maybeSetRecord.isPresent()).isTrue();
         Assert.assertEquals(BuildStatus.FAILED, maybeSetRecord.get().getStatus());
         Collection<BuildStatus> statuses = getBuildStatuses();
-        Assert.assertTrue(statuses.contains(BuildStatus.FAILED));
+        Assert.assertTrue(statuses.contains(BuildStatus.REJECTED)); //dependent build failed with system error
         Assert.assertFalse(statuses.contains(BuildStatus.SYSTEM_ERROR));
         assertEmptyQueue();
     }

@@ -41,6 +41,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -199,7 +200,14 @@ public class StatusUpdatesTest {
                 return BuildStatus.SUCCESS;
             }
         };
-        return new BuildResult(Optional.empty(), Optional.of(driverResult), Optional.of(repoManagerResult),
-                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+        return new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                "",
+                Optional.empty(),
+                Optional.of(driverResult),
+                Optional.of(repoManagerResult),
+                Optional.empty(),
+                Optional.empty());
     }
 }

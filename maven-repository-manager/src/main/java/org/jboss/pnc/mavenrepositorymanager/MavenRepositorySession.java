@@ -38,9 +38,9 @@ import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
@@ -52,7 +52,6 @@ import javax.validation.Validator;
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -172,11 +171,11 @@ public class MavenRepositorySession implements RepositorySession {
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
         String log = "";
-        RepositoryManagerStatus status = RepositoryManagerStatus.SUCCESS;
+        CompletionStatus status = CompletionStatus.SUCCESS;
         try {
             promoteToBuildContentSet();
         } catch (RepositoryManagerException rme) {
-            status = RepositoryManagerStatus.VALIDATION_ERROR;
+            status = CompletionStatus.FAILED;
             log = rme.getMessage();
             logger.error("Promotion validation error(s): \n" + log);
         }

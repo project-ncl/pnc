@@ -20,9 +20,9 @@ package org.jboss.pnc.mock.repositorymanager;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
@@ -104,8 +104,8 @@ public class RepositorySessionMock implements RepositorySession {
             }
 
             @Override
-            public RepositoryManagerStatus getStatus() {
-                return RepositoryManagerStatus.SUCCESS;
+            public CompletionStatus getCompletionStatus() {
+                return CompletionStatus.SUCCESS;
             }
         };
     }
