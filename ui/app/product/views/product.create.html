@@ -27,9 +27,9 @@
 
         <div class="panel panel-default">
           <div class="panel-body">
+
             <div class="form-group" ng-class="{ 'has-error' : productForm.name.$invalid && productForm.name.$touched, 'has-success': productForm.name.$valid && productForm.name.$touched }">
-              <label for="input-name" class="col-sm-2 control-label required">
-                Name&nbsp;
+              <label for="input-name" class="col-sm-2 control-label required">Name&nbsp;
                 <a popover="The extended name of the Product, e.g. JBoss® Enterprise Application Platform" popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
                   <span class="fa fa-info-circle"></span>
                 </a>
@@ -40,12 +40,10 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : productForm.description.$invalid && productForm.description.$touched, 'has-success': productForm.description.$valid && productForm.description.$touched }">
               <label for="input-description" class="col-sm-2 control-label">Description&nbsp;
                 <a popover="Description of the Product, e.g. JBoss® Enterprise Application Platform 6 provides an innovative modular, cloud-ready architecture, powerful management and automation, and world class developer productivity..."
-                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
-                   href>
+                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
                   <span class="fa fa-info-circle"></span>
                 </a>
               </label>
@@ -57,25 +55,21 @@
             <div class="form-group" ng-class="{ 'has-error' : productForm.abbreviation.$invalid && productForm.abbreviation.$touched, 'has-success': productForm.abbreviation.$valid && productForm.abbreviation.$touched }">
               <label for="input-abbreviation" class="col-sm-2 control-label required">Short Name&nbsp;
                 <a popover="The abbreviation of the Product, e.g. EAP"
-                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
-                   href>
+                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
                   <span class="fa fa-info-circle"></span>
                 </a>
               </label>
               <div class="col-sm-10">
                 <input id="input-abbreviation" class="form-control" name="abbreviation" maxlength="255" ng-model="productCreateCtrl.data.abbreviation" required pattern="[a-zA-Z0-9-]*">
                 <span class="help-block" ng-show="productForm.abbreviation.$error.required && productForm.abbreviation.$touched">Required field.</span>
-                <span class="help-block" ng-show="productForm.abbreviation.$error.pattern && productForm.abbreviation.$touched">The value should consist of alphanumeric characters and dashes ('-') only.</span>
+                <span class="help-block" ng-show="productForm.abbreviation.$error.pattern && productForm.abbreviation.$touched">Only letters, numbers and dashes (-) are allowed.</span>
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : productForm.productCode.$invalid && productForm.productCode.$touched, 'has-success': productForm.productCode.$valid && productForm.productCode.$touched }">
               <label for="input-productCode" class="col-sm-2 control-label">Product Code&nbsp;
                 <a popover="The official Product code to be used in URLs and filenames etc e.g. eap"
-                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
-                   href>
+                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
                   <span class="fa fa-info-circle"></span>
                 </a>
               </label>
@@ -84,12 +78,10 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : productForm.pgmSystemName.$invalid && productForm.pgmSystemName.$touched, 'has-success': productForm.pgmSystemName.$valid && productForm.pgmSystemName.$touched }">
               <label for="input-pgmSystemName" class="col-sm-2 control-label">System Code&nbsp;
                 <a popover="The eventual code needed to integrate with external systems, portals, etc, i.e. jbosseap"
-                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
-                   href>
+                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
                   <span class="fa fa-info-circle"></span>
                 </a>
               </label>
@@ -97,6 +89,7 @@
                 <input id="input-pgmSystemName" class="form-control" name="pgmSystemName" maxlength="255" ng-model="productCreateCtrl.data.pgmSystemName">
               </div>
             </div>
+
           </div>
         </div>
 
