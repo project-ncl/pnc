@@ -19,30 +19,15 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -242,6 +227,9 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
 
+    @Version
+    private long optLockVersion;
+    
     /**
      * Instantiates a new project build result.
      */
