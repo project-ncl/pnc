@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -80,6 +81,8 @@ public class BpmManager {
     private KieSession session;
 
     private static final String SIGNAL_CANCEL = "CANCELLED";
+
+    private Set<Consumer<BpmTask>> newTaskAddedSubscribes = new HashSet<>();
 
     @Deprecated
     public BpmManager() { //CDI workaround
@@ -138,6 +141,7 @@ public class BpmManager {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
             tasks.put(task.getTaskId(), task);
+            notifyNewTaskAdded(task);
 
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
@@ -153,6 +157,18 @@ public class BpmManager {
         } catch (Exception e) {
             throw new CoreException("Could not start BPM task '" + task + "'.", e);
         }
+    }
+
+    private void notifyNewTaskAdded(BpmTask task) {
+        newTaskAddedSubscribes.forEach(subscriber -> subscriber.accept(task));
+    }
+
+    public boolean subscribeToNewTasks(Consumer<BpmTask> consumer) {
+        return newTaskAddedSubscribes.add(consumer);
+    }
+
+    public boolean unSubscribeFromNewTasks(Consumer<BpmTask> consumer) {
+        return newTaskAddedSubscribes.remove(consumer);
     }
 
     public boolean cancelTask(BpmTask bpmTask) {
@@ -183,7 +199,7 @@ public class BpmManager {
         }
     }
 
-    public void notify(int taskId, BpmNotificationRest notification) {
+    public void notify(int taskId, BpmNotificationRest notification) { //TODO do not use RestModel down here.
         log.debug("will process notification for taskId: {}", taskId);
         Optional<BpmTask> maybeTask = getTaskById(taskId);
         if (!maybeTask.isPresent()) {

@@ -29,7 +29,6 @@ import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -99,6 +98,7 @@ public class NotificationsEndpoint {
         if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) &&
                 !bpmManagerInstance.isUnsatisfied() && !bpmManagerInstance.isAmbiguous()) {
             bpmManager = Optional.of(bpmManagerInstance.get());
+            bpmManagerInstance.get().subscribeToNewTasks(task -> onNewTaskCreated(task));
         } else {
             bpmManager = Optional.empty();
         }
@@ -245,26 +245,19 @@ public class NotificationsEndpoint {
         }
     }
 
-
+    private void onNewTaskCreated(BpmTask bpmTask) {
+        // subscribe WS clients to BpmBuildTask notifications
+        if (bpmTask instanceof BpmBuildTask) {
+            BpmBuildTask bpmBuildTask = (BpmBuildTask)bpmTask;
+            bpmTask.addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
+                String messagesId = Integer.toString(bpmBuildTask.getBuildTask().getId());
+                notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
+            });
+        }
+    }
 
     public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         logger.debug("Observed new status changed event {}.", buildStatusChangedEvent);
-
-        if (bpmManager.isPresent() &&
-                buildStatusChangedEvent.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
-            Integer buildTaskId = buildStatusChangedEvent.getBuildTaskId();
-            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), buildTaskId);
-            if (!maybeTask.isPresent()) {
-                logger.warn("Cannot find BpmTask for buildTaskId {}.", buildTaskId);
-            } else {
-                BpmTask bpmTask = maybeTask.get();
-
-                bpmTask.addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
-                    String messagesId = Integer.toString(buildTaskId);
-                    notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
-                });
-            }
-        }
         notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
         logger.debug("Status changed event processed {}.", buildStatusChangedEvent);
     }
