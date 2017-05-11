@@ -223,6 +223,21 @@
           }
         });
 
+      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.repour-result', {
+        url: '/repour-result',
+        controller: 'RecordRepourResultController',
+        controllerAs: 'repourResultCtrl',
+        templateUrl: 'build-records/views/build-records.detail.repour-result.html',
+        data: {
+          displayName: 'Repour Result'
+        },
+        resolve: {
+          repourLog: function (BuildRecord, recordDetail) {
+            return BuildRecord.getRepourLog({ id: recordDetail.id }).$promise;
+          }
+        }
+      });
+
     }]);
 
 })();
