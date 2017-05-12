@@ -242,6 +242,9 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
 
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
+    @Basic(fetch = FetchType.LAZY)
     private String repourLog;
 
     /**
