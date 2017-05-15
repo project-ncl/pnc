@@ -53,7 +53,6 @@
             socket = $websocket(uri, null, { reconnectIfNotNormalClose: true });
 
             socket.onMessage(function(msg) {
-              $log.debug('Received logline: `%s`', msg.data);
               writelogln(msg.data);
             });
 

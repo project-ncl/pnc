@@ -18,30 +18,35 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').controller('RecordDetailController', [
-    '$scope',
-    '$state',
-    '$log',
-    'eventTypes',
-    'recordDetail',
-    'messageBus',
-    function($scope, $state, $log, eventTypes, recordDetail, messageBus) {
-      this.record = recordDetail;
+  angular.module('pnc.common.message-bus').provider('messageBusConfig', [
+    function () {
 
-      $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
-        if (recordDetail.id === payload.id) {
-          recordDetail.$get();
-        }
-      });
+      var messageBusUrl;
 
-      var unsubscribe = messageBus.subscribe({
-        topic: 'component-build',
-        id: recordDetail.id
-      });
+      function getMessageBusUrl() {
+        return messageBusUrl;
+      }
 
-      $scope.$on('$destroy', function () {
-        unsubscribe();
-      });
+      function setMessageBusUrl(url) {
+        messageBusUrl = url;
+      }
+
+      function createMessageBusConfig() {
+        /**
+         * Service methods
+         */
+        return {
+          getMessageBusUrl: getMessageBusUrl
+        };
+      }
+
+      /**
+       * Provider methods
+       */
+      return {
+        setMessageBusUrl: setMessageBusUrl,
+        $get: createMessageBusConfig
+      };
     }
   ]);
 
