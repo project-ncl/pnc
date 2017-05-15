@@ -69,13 +69,17 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void attachClient(AttachedClient attachedClient) {
-        attachedClients.add(attachedClient);
+        synchronized (attachedClients) {
+            attachedClients.add(attachedClient);
+        }
     }
 
     @Override
     public void detachClient(AttachedClient attachedClient) {
         try {
-            attachedClients.remove(attachedClient);
+            synchronized (attachedClients) {
+                attachedClients.remove(attachedClient);
+            }
         } catch (ConcurrentModificationException cme) {
             logger.error("Error while removing attached client: ", cme);
         }
@@ -114,7 +118,7 @@ public class DefaultNotifier implements Notifier {
                 }
             }
         } catch (ConcurrentModificationException cme) {
-            logger.error("Error while removing attached client: ", cme);
+            logger.warn("Error while removing attached client: ", cme);
         }
     }
 
@@ -135,7 +139,7 @@ public class DefaultNotifier implements Notifier {
                 }
             }
         } catch (ConcurrentModificationException cme) {
-            logger.error("Error while removing attached client: ", cme);
+            logger.warn("Error while removing attached client: ", cme);
         }
     }
 
