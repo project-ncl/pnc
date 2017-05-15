@@ -19,7 +19,7 @@
   'use strict';
 
   /**
-   * @ngdoc directive
+   * @ngdoc component
    * @name pnc.record:pncLiveLog
    * @restrict EA
    * @interface
@@ -27,94 +27,86 @@
    * @example
    * @author Alex Creasy
    */
-  angular.module('pnc.build-records')
-    .directive('pncLiveLog', function() {
-      return {
-        restrict: 'EA',
-        scope: {
-          pncBuildRecord: '='
-        },
-        controller: function($log, $scope, $websocket, $interval) {
-          var socket;
+  angular.module('pnc.build-records').component('pncLiveLog', {
+    bindings: {
+      buildRecord: '<'
+    },
+    controller: ['$log', '$scope', '$websocket', Controller]
+  });
 
-          // Pnc REST Api only gives us an http link to the
-          // builder's terminal, this function reformats the
-          // URI to connect to the WebSocket
-          function createWsUri(liveLogUri) {
-            return 'ws' + liveLogUri.substring(4) + 'socket/text/ro';
-          }
-
-          function writelogln(line) {
-            $scope.$emit('pnc-log-canvas::add_line', line);
-          }
-
-          function connect(uri) {
-            $log.debug('Attempting to connect to build agent at: ' + uri);
-            socket = $websocket(uri, null, { reconnectIfNotNormalClose: true });
-
-            socket.onMessage(function(msg) {
-              writelogln(msg.data);
-            });
-
-            socket.onOpen(function() {
-              $log.debug('Connected to build agent at: ' + socket.socket.url);
-              writelogln('*** Connected to build agent ***');
-            });
-
-            socket.onError(function() {
-              writelogln('*** Error connecting to build agent ***');
-            });
-
-            socket.onClose(function() {
-              $log.debug('Disconnected from build agent at: ' + socket.socket.url);
-              writelogln('*** Connection to build agent closed ***');
-            });
-          }
-
-          /*
-           * A build agent is not assigned until a number of setup tasks have
-           * been completed by the PNC backend. Because of this the liveLogsUri
-           * of the BuilRecord will be null for a window of time. The below code
-           * handles this by refreshing the BuildRecord every 10 seconds (for a
-           * maximum of 10 attempts) until the liveLogsUri contains the address
-           * of the build agent then attempts to connect on the WebSocket.
-           */
-           function notifyWaiting() {
-             $log.debug('BuildRecord property liveLogsUri is not present, retrying in 10 seconds');
-             writelogln('*** Waiting for build agent ***');
-           }
-          var interval;
-
-          if (!_.isEmpty($scope.pncBuildRecord.liveLogsUri)) {
-            connect(createWsUri($scope.pncBuildRecord.liveLogsUri));
-          } else {
-
-            notifyWaiting();
-
-            interval = $interval(function() {
-              $scope.pncBuildRecord.$get().then(function(buildRecord) {
-
-                if (!_.isEmpty(buildRecord.liveLogsUri)) {
-                  connect(createWsUri(buildRecord.liveLogsUri));
-                  $interval.cancel(interval);
-                } else {
-                  notifyWaiting();
-                }
-
-              });
-            }, 10000, 10, false);
-          }
+  function Controller($log, $scope, $websocket) {
+    var $ctrl = this,
+        socket,
+        HR = '------------------------------------------------------------------------------------------------------------------------',
+        EM = '***';
 
 
-          // Clean up the connection when user navigates away.
-          $scope.$on('$destroy', function() {
-            // Force close the websocket.
-            if (socket) {
-              socket.close(true);
-            }
-            $interval.cancel(interval);
-          });
-        }
-      };
+    // -- Controller API --
+
+    $ctrl.connect = connect;
+    $ctrl.disconnect = disconnect;
+
+    // --------------------
+
+    function writelogln(line) {
+      $scope.$emit('pnc-log-canvas::add_line', line);
+    }
+
+    function writelogHeading(line) {
+      writelogln(HR);
+      writelogln(line);
+      writelogln(HR + '\n\n');
+    }
+
+    function writeLogEm(line) {
+      writelogln(EM + ' ' + line + ' ' + EM);
+    }
+
+    function connect(url, serviceName) {
+      serviceName = serviceName || 'service';
+      $log.debug('Attempting to connect to %s at: %s for updates', serviceName, url);
+      socket = $websocket(url);
+
+      socket.onMessage(function (msg) {
+        writelogln(msg.data);
+      });
+
+      socket.onOpen(function () {
+        $log.info('Connected to %s at: %s', serviceName, socket.url);
+        writeLogEm('Connected to ' + serviceName);
+      });
+
+      socket.onError(function() {
+        $log.error('Connection error to %s at: %s', serviceName, socket.url);
+        writeLogEm('Error connecting to ' + serviceName);
+      });
+
+      socket.onClose(function() {
+        $log.info('Disconnected from %s at: %s', serviceName, socket.url);
+        writeLogEm('Connection to ' + serviceName + ' closed');
+      });
+    }
+
+    function disconnect(force) {
+      if (socket) {
+        socket.close(!!force);
+      }
+    }
+
+    function processUpdate(task, status, url) {
+      writelogHeading('PROCESS PROGRESS UPDATE: ' + status + ' ' + task);
+      if (url) {
+        disconnect(true);
+        connect(url, task);
+      }
+    }
+
+    $scope.$on('PROCESS_PROGRESS_UPDATE', function (event, payload) {
+      processUpdate(payload.taskName, payload.bpmTaskStatus, payload.detailedNotificationsEndpointUrl);
     });
+
+    $scope.$on('$destroy', function () {
+      disconnect(true);
+    });
+  }
 })();
