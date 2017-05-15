@@ -127,11 +127,20 @@
     'restConfig',
     function($rootScope, $log, $state, authService, messageBus, restConfig) {
 
-      messageBus.registerListener(function ($log) {
+      messageBus.registerListener(['$log', function ($log) {
         return function (message) {
           $log.debug('MessageBus received: %O', message);
         };
-      });
+      }]);
+
+      messageBus.registerListener(['$log', '$rootScope', function ($log, $rootScope) {
+        return function (message) {
+          if (message.eventType === 'PROCESS_PROGRESS_UPDATE') {
+            $rootScope.$broadcast('PROCESS_PROGRESS_UPDATE', message);
+          }
+        };
+      }]);
+
       messageBus.connect(restConfig.getPncNotificationsUrl());
 
 
