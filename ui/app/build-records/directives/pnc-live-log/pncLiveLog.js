@@ -18,44 +18,30 @@
 (function() {
   'use strict';
 
-  /**
-   * @ngdoc component
-   * @name pnc.record:pncLiveLog
-   * @restrict EA
-   * @interface
-   * @description
-   * @example
-   * @author Alex Creasy
-   */
   angular.module('pnc.build-records').component('pncLiveLog', {
     bindings: {
       buildRecord: '<'
     },
+    template: '<pnc-log-canvas get-log-writer-fn="$ctrl.getLogWriter(writer)"></pnc-log-canvas>',
     controller: ['$log', '$scope', '$websocket', Controller]
   });
 
   function Controller($log, $scope, $websocket) {
     var $ctrl = this,
         socket,
-        HR = '------------------------------------------------------------------------------------------------------------------------',
+        logWriter,
+        HR = '----------------------------------------------------------------------',
         EM = '***';
 
 
-    // -- Controller API --
-
-    $ctrl.connect = connect;
-    $ctrl.disconnect = disconnect;
-
-    // --------------------
-
     function writelogln(line) {
-      $scope.$emit('pnc-log-canvas::add_line', line);
+      logWriter.writeln(line);
     }
 
     function writelogHeading(line) {
       writelogln(HR);
       writelogln(line);
-      writelogln(HR + '\n\n');
+      writelogln(HR);
     }
 
     function writeLogEm(line) {
@@ -101,12 +87,18 @@
       }
     }
 
-    $scope.$on('PROCESS_PROGRESS_UPDATE', function (event, payload) {
-      processUpdate(payload.taskName, payload.bpmTaskStatus, payload.detailedNotificationsEndpointUrl);
-    });
+    $ctrl.getLogWriter = function (writer) {
+      logWriter = writer;
+    };
 
-    $scope.$on('$destroy', function () {
+    $ctrl.$onInit = function () {
+      $scope.$on('PROCESS_PROGRESS_UPDATE', function (event, payload) {
+        processUpdate(payload.taskName, payload.bpmTaskStatus, payload.detailedNotificationsEndpointUrl);
+      });
+    };
+
+    $ctrl.$onDestroy = function () {
       disconnect(true);
-    });
+    };
   }
 })();

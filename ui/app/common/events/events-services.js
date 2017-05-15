@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.common.events');
 
@@ -43,31 +42,6 @@
     BCC_BPM_NOTIFICATION: 'BCC_BPM_NOTIFICATION'
   }));
 
-  module.factory('eventBroadcastingWebSocketListener', [
-    '$log',
-    '$rootScope',
-    'pncEventAdaptor',
-    function ($log, $rootScope, pncEventAdaptor) {
-
-      return {
-
-        onMessage: function (message) {
-          $log.debug('Received on notification WebSocket: %O', message);
-          var event = pncEventAdaptor.convert(message);
-          $log.debug('Following event is broadcasted: %O', event);
-          $rootScope.$broadcast(event.eventType, event.payload);
-        },
-
-        onOpen: function () {
-          $log.info('Notification WebSocket opened successfully');
-        },
-
-        onClose: function () {
-          $log.info('Notification WebSocket closed');
-        },
-      };
-    }
-  ]);
 
   /**
    * Converts internal PNC generated events into a more useful set

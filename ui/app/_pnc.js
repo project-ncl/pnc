@@ -43,7 +43,6 @@
     'pnc.properties',
     'pnc.common.authentication',
     'pnc.common.pnc-client',
-    'pnc.common.message-bus'
   ]);
 
   app.config([
@@ -103,8 +102,7 @@
     'pncProperties',
     'restConfigProvider',
     'daConfigProvider',
-    'messageBusConfigProvider',
-    function (pncProperties, restConfigProvider, daConfigProvider, messageBusConfigProvider) {
+    function (pncProperties, restConfigProvider, daConfigProvider) {
       restConfigProvider.setPncUrl(pncProperties.pncUrl);
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
       restConfigProvider.setDaUrl(pncProperties.daUrl);
@@ -113,8 +111,6 @@
       daConfigProvider.setDaUrl(pncProperties.daUrl);
       daConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
       daConfigProvider.setDaImportRpcUrl(pncProperties.daImportRpcUrl);
-
-      messageBusConfigProvider.setMessageBusUrl(pncProperties.pncNotificationsUrl);
     }
   ]);
 
@@ -130,14 +126,6 @@
       messageBus.registerListener(['$log', function ($log) {
         return function (message) {
           $log.debug('MessageBus received: %O', message);
-        };
-      }]);
-
-      messageBus.registerListener(['$log', '$rootScope', function ($log, $rootScope) {
-        return function (message) {
-          if (message.eventType === 'PROCESS_PROGRESS_UPDATE') {
-            $rootScope.$broadcast('PROCESS_PROGRESS_UPDATE', message);
-          }
         };
       }]);
 

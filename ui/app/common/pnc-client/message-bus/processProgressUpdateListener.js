@@ -18,11 +18,15 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client', [
-    'pnc.common.pnc-client.pagination',
-    'pnc.common.pnc-client.resources',
-    'pnc.common.pnc-client.rsql',
-    'pnc.common.pnc-client.message-bus'
+  angular.module('pnc.common.pnc-client.message-bus').factory('processProgressUpdateListener', [
+    '$rootScope',
+    function ($rootScope) {
+      return function (message) {
+        if (message.eventType === 'PROCESS_PROGRESS_UPDATE') {
+          $rootScope.$broadcast('PROCESS_PROGRESS_UPDATE', message);
+        }
+      };
+    }
   ]);
 
 })();

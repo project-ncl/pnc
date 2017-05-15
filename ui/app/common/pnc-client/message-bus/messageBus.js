@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.message-bus').factory('messageBus', [
+  angular.module('pnc.common.pnc-client.message-bus').factory('messageBus', [
     '$websocket',
     '$injector',
     '$log',

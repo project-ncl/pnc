@@ -18,34 +18,16 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.message-bus').provider('messageBusConfig', [
-    function () {
-
-      var messageBusUrl;
-
-      function getMessageBusUrl() {
-        return messageBusUrl;
-      }
-
-      function setMessageBusUrl(url) {
-        messageBusUrl = url;
-      }
-
-      function createMessageBusConfig() {
-        /**
-         * Service methods
-         */
-        return {
-          getMessageBusUrl: getMessageBusUrl
-        };
-      }
-
-      /**
-       * Provider methods
-       */
-      return {
-        setMessageBusUrl: setMessageBusUrl,
-        $get: createMessageBusConfig
+  angular.module('pnc.common.pnc-client.message-bus').factory('bccListener', [
+    '$log',
+    '$rootScope',
+    'pncEventAdaptor',
+    function ($log, $rootScope, pncEventAdaptor) {
+      return function (message) {
+        if (message.eventType.startsWith('BCC_')) {
+          var event = pncEventAdaptor.convert(message);
+          $rootScope.$broadcast(event.eventType, event.payload);
+        }
       };
     }
   ]);
