@@ -226,19 +226,20 @@ public class BpmManager {
             log.error("Kie session not available.");
         }
 
-        Map<Integer, BpmTask> clonedTasks;
+        Map<Integer, BpmTask> clonedTaskMap;
         synchronized(this) {
-            clonedTasks = new HashMap<>(this.tasks);
+            clonedTaskMap = new HashMap<>(this.tasks);
         }
         
-        Set<Integer> toBeRemoved = clonedTasks.values().stream()
-                .filter(t -> {
-                    if (t == null) {
+        Set<Integer> toBeRemoved = clonedTaskMap.values().stream()
+                .filter(bpmTask -> {
+                    if (bpmTask == null) {
                         log.warn("Listing invalid entry for removal from the tasks list.");
                         return true;
                     }
                     log.debug("attempting to fetch process instance from bpm");
-                    ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
+                    Long processInstanceId = bpmTask.getProcessInstanceId();
+                    ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
                     log.debug("fetched: {}", processInstance);
                     if (processInstance == null) // instance has been terminated from outside
                         return true;
