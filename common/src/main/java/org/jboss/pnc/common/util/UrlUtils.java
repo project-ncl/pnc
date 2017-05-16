@@ -19,6 +19,7 @@ package org.jboss.pnc.common.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 public final class UrlUtils {
@@ -77,6 +78,18 @@ public final class UrlUtils {
         }
 
         return new URL(urlBuilder.toString()).toExternalForm();
+    }
+
+    public static Map<String, String> getQueryMap(String query) {
+        String[] params = query.split("&");
+        Map<String, String> map = new HashMap<>();
+        for (String param : params)
+        {
+            String name = param.split("=")[0];
+            String value = param.split("=")[1];
+            map.put(name, value);
+        }
+        return map;
     }
 
 }
