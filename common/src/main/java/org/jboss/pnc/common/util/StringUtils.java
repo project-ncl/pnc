@@ -43,7 +43,9 @@ public class StringUtils {
         for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
             properties.put("env." + entry.getKey(), entry.getValue());
         }
-        return StringPropertyReplacer.replaceProperties(configString, properties);
+        String replaced = StringPropertyReplacer.replaceProperties(configString, properties);
+        //remove env placeholders that were not replaced with values
+        return replaced.replaceAll("\\$\\{env\\..+\\}", "");
     }
 
     /**

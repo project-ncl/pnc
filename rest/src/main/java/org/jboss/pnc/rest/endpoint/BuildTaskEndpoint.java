@@ -29,9 +29,12 @@ import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
+import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.utils.ErrorResponse;
@@ -54,7 +57,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
 import java.util.Optional;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
@@ -80,6 +82,9 @@ public class BuildTaskEndpoint {
 
     @Inject
     private AuthenticationProviderFactory authenticationProviderFactory;
+
+    @Inject
+    Configuration configuration;
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
 
@@ -158,10 +163,13 @@ public class BuildTaskEndpoint {
                     callbackUrl,
                     loginInUser.getTokenString());
 
-            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
-            URI uri = uriBuilder.build(buildExecutionConfiguration.getId());
-            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, null, buildExecutionConfiguration.getUser(), buildExecutionConfiguration.createBuildConfigurationAuditedRest());
-            Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
+            UIModuleConfig uiModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
+            UriBuilder uriBuilder = UriBuilder.fromUri(uiModuleConfig.getPncUrl()).path("/ws/executor/notifications");
+
+            String id = Integer.toString(buildExecutionConfiguration.getId());
+            AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
+
+            Response response = Response.ok().entity(new Singleton(acceptedResponse)).build();
             return response;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
