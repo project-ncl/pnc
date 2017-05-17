@@ -150,7 +150,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
             listeners = new ArrayList<>();
             this.listeners.put(eventType, listeners);
         }
-        log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners);
+        log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners, this.listeners);
         listeners.forEach(listener -> {
             // Cast is OK because there is no unchecked method declaration to put wrong types
             ((Consumer<T>) listener).accept(data);
