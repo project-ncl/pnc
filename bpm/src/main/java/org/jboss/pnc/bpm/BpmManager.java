@@ -200,7 +200,7 @@ public class BpmManager {
     }
 
     public void notify(int taskId, BpmNotificationRest notification) { //TODO do not use RestModel down here.
-        log.debug("will process notification for taskId: {}", taskId);
+        log.debug("Will process notification for taskId: {}; BpmNotificationRest: {}.", taskId, notification.toString());
         Optional<BpmTask> maybeTask = getTaskById(taskId);
         if (!maybeTask.isPresent()) {
             log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
@@ -231,14 +231,14 @@ public class BpmManager {
         synchronized(this) {
             clonedTaskMap = new HashMap<>(this.tasks);
         }
-        
+
         Set<Integer> toBeRemoved = clonedTaskMap.values().stream()
                 .filter(bpmTask -> {
                     if (bpmTask == null) {
                         log.warn("Listing invalid entry for removal from the tasks list.");
                         return true;
                     }
-                    log.debug("attempting to fetch process instance from bpm");
+                    log.debug("Attempting to fetch process instance for bpmTask: {}.", bpmTask.getTaskId());
                     Long processInstanceId = bpmTask.getProcessInstanceId();
                     ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
                     log.debug("fetched: {}", processInstance);
@@ -251,10 +251,15 @@ public class BpmManager {
                 .collect(Collectors.toSet());
         toBeRemoved.forEach(id -> {
             synchronized (this) {
-                tasks.remove(id);
+                BpmTask removed = tasks.remove(id);
+                if (removed != null) {
+                    log.debug("Removed bpmTask.id: {}.", removed.getTaskId());
+                } else {
+                    log.warn("Unable to remove bpmTask.id: {}.", id);
+                }
             }
         });
-        
+
         log.debug("Bpm manager tasks cleanup finished");
     }
 
