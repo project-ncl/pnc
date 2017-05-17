@@ -57,10 +57,9 @@
 
           var processEvent = function (event, payload) {
             // If the BuildConfigurationdSet is shown in the page
-            var bcsetFiltered = _.filter(scope.page.data, function(buildConfSet){ return buildConfSet.id === payload.buildSetConfigurationId; });
-            if (_.isArray(bcsetFiltered) && !_.isEmpty(bcsetFiltered)) {
+            if (_.some(scope.page.data, 'id', payload.buildSetConfigurationId)) {
               // If the latestBuildConfigSetRecord is already shown
-              if (_.has(scope.latestBuildRecordSets, payload.buildSetConfigurationId) && scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].id === payload.id) {
+              if (!_.isEmpty(scope.latestBuildRecordSets[payload.buildSetConfigurationId]) && scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].id === payload.id) {
                 // I update the status with no reloads to optimize refresh
                 console.log('Updating BuildRecordSet #' + payload.id + ' with status ' + payload.buildStatus + ' and ' + payload.buildSetEndTime);
 

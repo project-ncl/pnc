@@ -57,10 +57,9 @@
 
           var processEvent = function (event, payload) {
             // If the BuildConfiguration is shown in the page
-            var bcFiltered = _.filter(scope.page.data, function(buildConf){ return buildConf.id === payload.buildConfigurationId; });
-            if (_.isArray(bcFiltered) && !_.isEmpty(bcFiltered)) {
+            if (_.some(scope.page.data, 'id', payload.buildConfigurationId)) {
               // If the latestBuildConfigRecord is already shown
-              if (_.has(scope.latestBuildRecords, payload.buildConfigurationId) && scope.latestBuildRecords[payload.buildConfigurationId][0].id === payload.id) {
+              if (!_.isEmpty(scope.latestBuildRecords[payload.buildConfigurationId]) && scope.latestBuildRecords[payload.buildConfigurationId][0].id === payload.id) {
                 // I update the status with no reloads to optimize refresh
                 console.log('Updating BuildRecord #' + payload.id + ' with status ' + payload.buildCoordinationStatus + ' and ' + payload.buildEndTime);
 
