@@ -72,7 +72,7 @@
 
     <div class="form-group" ng-show="productForm.$visible">
       <div class="col-sm-offset-1 col-sm-11">
-        <button type="submit" class="btn btn-primary" ng-disabled="productForm.$waiting || productForm.name.$invalid">
+        <button type="submit" class="btn btn-primary" ng-disabled="productForm.$waiting || productForm.$invalid">
           Save
         </button>
         <button type="button" class="btn btn-default" ng-disabled="productForm.$waiting" ng-click="productForm.$cancel(); productForm.$setPristine(); productForm.$setUntouched();">
