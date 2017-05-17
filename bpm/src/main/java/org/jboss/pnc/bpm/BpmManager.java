@@ -208,6 +208,7 @@ public class BpmManager {
         maybeTask.ifPresent(task -> {
             BpmEventType bpmEventType = nullableValueOf(notification.getEventType());
             if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
+                log.debug("Notifying task: {}, eventType: {}, notification: {}.", task.getTaskId(), bpmEventType, notification.toString());
                 task.notify(bpmEventType, notification);
             }
         });

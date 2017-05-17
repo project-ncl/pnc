@@ -106,6 +106,7 @@ public class BuildExecutorTriggerer {
         BuildExecutionStatus status = statusChangedEvent.getNewStatus();
 
         String taskName = null;
+        BpmTaskStatus bpmTaskStatus = BpmTaskStatus.STARTING;
         String wsDetails = "";
 
         switch (status) {
@@ -117,8 +118,9 @@ public class BuildExecutorTriggerer {
                 taskName = "Environment";
                 break;
 
-            case BUILD_SETTING_UP:
+            case BUILD_WAITING:
                 taskName = "Build";
+                bpmTaskStatus = BpmTaskStatus.STARTED;
                 BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(statusChangedEvent.getBuildTaskId());
                 Optional<URI> liveLogsUri = runningExecution.getLiveLogsUri();
                 if (liveLogsUri.isPresent()) {
@@ -146,7 +148,7 @@ public class BuildExecutorTriggerer {
         }
 
         if (taskName != null) {
-            return Optional.of(new ProcessProgressUpdate(taskName, BpmTaskStatus.STARTING, wsDetails));
+            return Optional.of(new ProcessProgressUpdate(taskName, bpmTaskStatus, wsDetails));
         } else {
             return Optional.empty();
         }
