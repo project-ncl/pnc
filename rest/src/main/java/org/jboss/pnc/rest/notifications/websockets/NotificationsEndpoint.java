@@ -251,6 +251,7 @@ public class NotificationsEndpoint {
             BpmBuildTask bpmBuildTask = (BpmBuildTask)bpmTask;
             bpmTask.addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
                 String messagesId = Integer.toString(bpmBuildTask.getBuildTask().getId());
+                logger.debug("Sending update to messagesId: {}. processProgressUpdate: {}.", messagesId, processProgressUpdate);
                 notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
             });
         }
