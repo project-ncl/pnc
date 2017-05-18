@@ -15,27 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.common.events', [
     'pnc.properties',
     'pnc.common.websockets'
   ]);
-
-  // TODO: Refactor to use restConfig service instead of accessing
-  // pncProperties directly (in order to decouple the module). At present
-  // this is not possible since a service cannot be injected into a config block
-  // the webSocketBus will need to be refactored.
-  // module.config([
-  //   'pncProperties',
-  //   'webSocketBusProvider',
-  //   function(pncProperties, webSocketBusProvider) {
-  //     webSocketBusProvider.newEndpoint(pncProperties.pncNotificationsUrl,
-  //       'eventBroadcastingWebSocketListener');
-  //   }
-  // ]);
 
   module.run([
     '$state',
