@@ -18,11 +18,19 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client', [
-    'pnc.common.pnc-client.pagination',
-    'pnc.common.pnc-client.resources',
-    'pnc.common.pnc-client.rsql',
-    'pnc.common.pnc-client.message-bus'
+  angular.module('pnc.common.pnc-client.message-bus').factory('buildStatusListener', [
+    '$log',
+    '$rootScope',
+    'pncEventAdaptor',
+    function ($log, $rootScope, pncEventAdaptor) {
+      return function (message) {
+        if (message.eventType === 'BUILD_STATUS_CHANGED') {
+          var event = pncEventAdaptor.convert(message);
+          $log.debug('Following event is broadcasted: %O', event);
+          $rootScope.$broadcast(event.eventType, event.payload);
+        }
+      };
+    }
   ]);
 
 })();
