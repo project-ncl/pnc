@@ -24,15 +24,23 @@
     '$log',
     'eventTypes',
     'recordDetail',
-    function($scope, $state, $log, eventTypes, recordDetail) {
+    'messageBus',
+    function($scope, $state, $log, eventTypes, recordDetail, messageBus) {
       this.record = recordDetail;
-
-      $log.debug('Fetched BuildRecord:\n' + JSON.stringify(recordDetail, null, 4));
 
       $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
         if (recordDetail.id === payload.id) {
           recordDetail.$get();
         }
+      });
+
+      var unsubscribe = messageBus.subscribe({
+        topic: 'component-build',
+        id: recordDetail.id
+      });
+
+      $scope.$on('$destroy', function () {
+        unsubscribe();
       });
     }
   ]);

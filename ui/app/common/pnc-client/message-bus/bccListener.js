@@ -18,11 +18,18 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client', [
-    'pnc.common.pnc-client.pagination',
-    'pnc.common.pnc-client.resources',
-    'pnc.common.pnc-client.rsql',
-    'pnc.common.pnc-client.message-bus'
+  angular.module('pnc.common.pnc-client.message-bus').factory('bccListener', [
+    '$log',
+    '$rootScope',
+    'pncEventAdaptor',
+    function ($log, $rootScope, pncEventAdaptor) {
+      return function (message) {
+        if (message.eventType.startsWith('BCC_')) {
+          var event = pncEventAdaptor.convert(message);
+          $rootScope.$broadcast(event.eventType, event.payload);
+        }
+      };
+    }
   ]);
 
 })();

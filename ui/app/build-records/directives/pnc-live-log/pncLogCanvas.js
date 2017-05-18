@@ -18,63 +18,85 @@
 (function () {
   'use strict';
 
-  /**
-   * @ngdoc directive
-   * @name pnc.record:pncLogCanvas
-   * @restrict EA
-   * @interface
-   * @description
-   * @example
-   * @author Alex Creasy
-   */
-  angular.module('pnc.build-records').directive('pncLogCanvas', function () {
-
-    return {
-      restrict: 'EA',
-      template: '<div></div>',
-      link: function(scope, element) {
-        // Find the child div specified in `template`
-        var div = element.find('div');
-        var parent = element[0];
-
-        var autoscroll = true;
-        var startPosition = parent.scrollTop;
-
-        // Catch scroll events so we can enable / disable scrolling based
-        // on whether the user is scrolled to the bottom.
-        parent.onscroll = function () {
-          var endPosition = parent.scrollTop;
-          var height = element.innerHeight();
-          var bottom = parent.scrollHeight;
-
-          if (endPosition >= startPosition) {
-            // User is scrolling downwards, if they scroll to the bottom
-            // enable autoscroll.
-            if (endPosition + height >= bottom) {
-              autoscroll = true;
-            }
-          } else {
-            // User is scrolling up so disable autoscroll
-            autoscroll = false;
-          }
-          // Reset the start position so we can detect which direction the user
-          // has scrolled in next time.
-          startPosition = parent.scrollTop;
-        };
-
-        function addToLog(event, payload) {
-          div.append(payload + '<br>');
-          if (autoscroll) {
-            parent.scrollTop = parent.scrollHeight;
-            // Reset the start position so we can detect which direction the user
-            // has scrolled in next time.
-            startPosition = parent.scrollTop;
-          }
-        }
-
-        scope.$on('pnc-log-canvas::add_line', addToLog);
-      }
-    };
+  angular.module('pnc.build-records').component('pncLogCanvas', {
+    bindings: {
+      /**
+       * Must provide a function that takes one paramater. This function will
+       * be invoked at component initialisation passing it a single logWriter
+       * object, allowing a parent component to write to the log canvas.
+       * The logWriter object has two
+       * methods: write and writeln. Both take a string and print this to the
+       * canvas. Writeln appends a <br> tag to the string before writing.
+       */
+      getLogWriterFn: '&'
+    },
+    template: '<div></div>',
+    controller: ['$element', Controller]
   });
+
+  function Controller($element) {
+    var $ctrl = this,
+        div,
+        parent,
+        autoscroll,
+        startPosition;
+
+    function write(text) {
+      div.append(text);
+      if (autoscroll) {
+        parent.scrollTop = parent.scrollHeight;
+        // Reset the start position so we can detect which direction the user
+        // has scrolled in next time.
+        startPosition = parent.scrollTop;
+      }
+    }
+
+    function writeln(text) {
+      write(text + '<br>');
+    }
+
+    $ctrl.$postLink = function () {
+      // Find the child div specified in `template`
+      div = $element.find('div');
+      parent = $element[0];
+
+      autoscroll = true;
+      startPosition = parent.scrollTop;
+
+      // Catch scroll events so we can enable / disable scrolling based
+      // on whether the user is scrolled to the bottom.
+      parent.onscroll = function () {
+        var endPosition = parent.scrollTop;
+        var height = $element.innerHeight();
+        var bottom = parent.scrollHeight;
+
+        if (endPosition >= startPosition) {
+          // User is scrolling downwards, if they scroll to the bottom
+          // enable autoscroll.
+          if (endPosition + height >= bottom) {
+            autoscroll = true;
+          }
+        } else {
+          // User is scrolling up so disable autoscroll
+          autoscroll = false;
+        }
+        // Reset the start position so we can detect which direction the user
+        // has scrolled in next time.
+        startPosition = parent.scrollTop;
+      };
+    };
+
+    $ctrl.$onInit = function () {
+
+      // Passes this component's API up to a component.
+      // This is a bit of an odd way of doing it, but
+      $ctrl.getLogWriterFn({
+        writer: {
+          write: write,
+          writeln: writeln
+        }
+      });
+    };
+  }
 
 })();
