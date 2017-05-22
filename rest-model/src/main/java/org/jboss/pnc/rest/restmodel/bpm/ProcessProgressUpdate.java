@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -32,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @AllArgsConstructor
 @Builder
 @XmlRootElement
+@ToString
 public class ProcessProgressUpdate extends BpmNotificationRest {
 
     /**
