@@ -121,6 +121,12 @@
           cache: true,
           transformResponse: function(data) { return { payload: data }; }
         },
+        getRepourLog: {
+          method: 'GET',
+          url: ENDPOINT + '/repour-log',
+          cache: true,
+          transformResponse: function(data) { return { payload: data }; }
+        },
         cancel: {
           method: 'POST',
           url: BUILD_ENDPOINT + '/cancel'
