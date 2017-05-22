@@ -15,32 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.common.directives');
 
   /**
-   * @author Jakub Senko
+   * @ngdoc directive
+   * @restrict A
+   * @example <tbody pnc-loading-placeholder columns="3" page="page"></tbody>
+   * @author Martin Kelnar
    */
-  module.directive('pncSearchField', function () {
+  module.directive('pncLoadingPlaceholder', function () {
     return {
-      restrict: 'E',
+      restrict: 'A',
       scope: {
-        page: '=',
-        text: '@'
+        columns: '@',
+        page: '='
       },
-      templateUrl: 'common/pagination/directives/search-field.html',
-      link: function (scope) {
-        scope.inputId = _.uniqueId('search_');
-
-        scope.search = _.throttle(function() {
-          scope.page.search(scope.searchText);
-        }, 1500, {
-          leading: false
-        });
-      }
+      templateUrl: 'common/directives/views/pnc-loading-placeholder.html',
+      controller: [
+        '$scope',
+        function($scope) {
+          $scope.columnsIterable = _.range($scope.columns);
+        }
+      ]
     };
   });
 

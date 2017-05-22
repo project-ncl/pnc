@@ -26,6 +26,9 @@
   white-space: nowrap;
 }
 
+.w-1-5 { width: 20%; }
+.w-2-5 { width: 40%; }
+
 .w-min-150 {
   min-width: 150px;
 }
@@ -78,3 +81,5 @@
 .p-r-10 { padding-right:     10px; }
 .p-b-10 { padding-bottom:    10px; }
 .p-l-10 { padding-left:      10px; }
+
+.bg-white { background: white; }

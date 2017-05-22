@@ -35,20 +35,19 @@
 
 <div class="row">
   <div class="col-md-12">
-    <div class="spinner spinner-sm" ng-hide="page.isLoaded"></div>
     <pnc-search-field class="search" page="page" text="product versions"></pnc-search-field>
   </div>
 </div>
 <div class="row">
   <div class="col-md-12">
 
-    <table class="table table-bordered table-striped" ng-show="page.isLoaded">
+    <table class="table table-bordered table-striped">
       <thead>
-      <th>Version</th>
-      <th>Milestones</th>
-      <th>Releases</th>
+      <th class="w-1-5">Version</th>
+      <th class="w-2-5">Milestones</th>
+      <th class="w-2-5">Releases</th>
       </thead>
-      <tbody>
+      <tbody ng-show="page.isLoaded">
       <tr ng-repeat="version in page.data">
         <td class="bigger-text">
           <a href ui-sref="product.detail.version({ productId: productId, versionId: version.id })">
@@ -77,6 +76,7 @@
         </td>
       </tr>
       </tbody>
+      <tbody pnc-loading-placeholder columns="3" page="page"></tbody>
     </table>
     <pnc-pager class="pull-right" page="page"></pnc-pager>
   </div>

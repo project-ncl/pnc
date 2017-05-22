@@ -188,3 +188,42 @@
 .pnc-page-controls > .pnc-page-controls-size .btn-group.bootstrap-select {
   width: 70px;
 }
+
+/**
+ * pnc-loading-placeholder
+ */
+.loading-placeholder {
+  display: inline-block;
+  background: #eee;
+  height: 10px;
+  width: 100%;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@keyframes loadingPlaceholder {
+  0% {
+    left: -200px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.loading-placeholder:before {
+  content: " ";
+  display: inline-block;
+  height: 10px;
+  width: 200px;
+  position: absolute;
+  top: 0;
+  left: -200px;
+  background: linear-gradient(to right, #eee 0%, #ddd 50%, #eee 100%);
+  
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: loadingPlaceholder;
+  animation-timing-function: linear;
+}
