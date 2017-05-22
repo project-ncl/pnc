@@ -148,6 +148,7 @@
               $scope.searchText = item[$scope.displayProperty];
         	}
 
+            $scope.items.search(undefined);
             if (findInArray(item, $scope.selectedItems) < 0) {
               // If single item, clear the $scope.selectedItems
               if ($scope.singleItem === 'true') {

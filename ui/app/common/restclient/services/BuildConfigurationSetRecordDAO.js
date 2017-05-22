@@ -44,7 +44,8 @@
         recordId: '@id'
       }, {
         _getAll: {
-          method: 'GET'
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['buildConfigurationSet.name'])
         },
         _getRunning: {
           method: 'GET',

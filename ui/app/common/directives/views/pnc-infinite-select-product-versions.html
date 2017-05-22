@@ -38,9 +38,11 @@
             infinite-scroll-parent='true'
             class="dropdown-list">
 			
-			<div class="dropdown-list" ng-repeat="product in items.data"><span class="text-bold">{{ product.name }}</span>
-              <div class="dropdown-item" ng-repeat="productVersion in product.productVersions" ng-mousedown="selectItem(productVersion); viewDropdown(false)">{{productVersion.version}}</div>
-            </div>
+            <li class="dropdown-list" ng-repeat="product in items.data">
+                <span class="text-bold">{{ product.name }}</span>
+                <div class="dropdown-item" ng-repeat="productVersion in product.productVersions" ng-mousedown="selectItem(productVersion); viewDropdown(false)">{{productVersion.version}}</div>
+                <div class="dropdown-item-empty" ng-hide="product.productVersions.length">└ no version available</div>
+            </li>
         </ul>
     </div>
 </div>
