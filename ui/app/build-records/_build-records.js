@@ -223,13 +223,16 @@
           }
         });
 
+      /**
+       * naming: alignment log (end user), repour result (internal)
+       */
       $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.repour-result', {
-        url: '/repour-result',
+        url: '/alignment-log',
         controller: 'RecordRepourResultController',
         controllerAs: 'repourResultCtrl',
         templateUrl: 'build-records/views/build-records.detail.repour-result.html',
         data: {
-          displayName: 'Repour Result'
+          displayName: 'Alignment Log'
         },
         resolve: {
           repourLog: function (BuildRecord, recordDetail) {
