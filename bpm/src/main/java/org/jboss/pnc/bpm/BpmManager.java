@@ -141,6 +141,7 @@ public class BpmManager {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
             tasks.put(task.getTaskId(), task);
+            log.debug("Notifying new task added {}.", task.getTaskId());
             notifyNewTaskAdded(task);
 
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
@@ -160,10 +161,15 @@ public class BpmManager {
     }
 
     private void notifyNewTaskAdded(BpmTask task) {
-        newTaskAddedSubscribes.forEach(subscriber -> subscriber.accept(task));
+        log.debug("Notifying {} subscribers for new task {}.", newTaskAddedSubscribes.size(), task.getTaskId());
+        newTaskAddedSubscribes.forEach(subscriber -> {
+            log.debug("Notifying subscriber {}.", subscriber.getClass());
+            subscriber.accept(task);
+        });
     }
 
     public boolean subscribeToNewTasks(Consumer<BpmTask> consumer) {
+        log.debug("Subscribing new tasks consumer {}.", consumer);
         return newTaskAddedSubscribes.add(consumer);
     }
 

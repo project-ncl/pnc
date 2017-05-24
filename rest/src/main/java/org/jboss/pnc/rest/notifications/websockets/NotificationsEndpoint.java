@@ -99,6 +99,7 @@ public class NotificationsEndpoint {
         if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) &&
                 !bpmManagerInstance.isUnsatisfied() && !bpmManagerInstance.isAmbiguous()) {
             bpmManager = Optional.of(bpmManagerInstance.get());
+            logger.debug("Subscribing listener for new tasks.");
             bpmManagerInstance.get().subscribeToNewTasks(task -> onNewTaskCreated(task));
         } else {
             bpmManager = Optional.empty();
@@ -121,6 +122,7 @@ public class NotificationsEndpoint {
 
     @OnOpen
     public void attach(Session attachedSession) {
+        logger.debug("Opened new session id: {}, uri: {}.", attachedSession.getId(), attachedSession.getRequestURI());
         notifier.attachClient(new SessionBasedAttachedClient(attachedSession, outputConverter));
     }
 
@@ -249,13 +251,19 @@ public class NotificationsEndpoint {
     private void onNewTaskCreated(BpmTask bpmTask) {
         // subscribe WS clients to BpmBuildTask notifications
         if (bpmTask instanceof BpmBuildTask) {
+            logger.debug("Adding listener for PROCESS_PROGRESS_UPDATEs to bpmTask {}.", bpmTask.getTaskId());
             BpmBuildTask bpmBuildTask = (BpmBuildTask)bpmTask;
-            bpmTask.<ProcessProgressUpdate>addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
-                String messagesId = Integer.toString(bpmBuildTask.getBuildTask().getId());
-                logger.debug("Sending update to messagesId: {}. processProgressUpdate: {}.", messagesId, processProgressUpdate.toString());
-                notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
-            });
+            bpmTask.<ProcessProgressUpdate>addListener(BpmEventType.PROCESS_PROGRESS_UPDATE,
+                    (processProgressUpdate) -> {
+                        String buildTaskId = Integer.toString(bpmBuildTask.getBuildTask().getId());
+                        notifySubscribers(buildTaskId, processProgressUpdate);
+                    });
         }
+    }
+
+    private void notifySubscribers(String buildTaskId, ProcessProgressUpdate processProgressUpdate) {
+        logger.debug("Sending update for buildTaskId: {}. processProgressUpdate: {}.", buildTaskId, processProgressUpdate.toString());
+        notifier.sendToSubscribers(processProgressUpdate, "component-build", buildTaskId);
     }
 
     public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
