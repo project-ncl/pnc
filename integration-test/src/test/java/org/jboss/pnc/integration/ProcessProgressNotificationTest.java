@@ -115,12 +115,11 @@ public class ProcessProgressNotificationTest {
                 progressUpdatesRequest));
         logger.info("Sending test message:" + text);
         asyncRemote.sendText(text);
-        waitForMessages(2);
+        waitForMessages(1);
 
         //then
-        logger.debug("Received: " + notificationCollector.getMessages().get(0)); //"eventType":"BUILD_STATUS_CHANGED","payload":{"id":1,"buildCoordinationStatus":"DONE
-        logger.debug("Received: " + notificationCollector.getMessages().get(1)); //{"errorType":"412","errorMessage":"It looks like BPMManager is not enabled."}
-        assertThat(notificationCollector.getMessages().get(1)).isEqualTo("{\"errorType\":\"412\",\"errorMessage\":\"It looks like BPMManager is not enabled.\"}");
+        logger.info("Received: " + notificationCollector.getMessages().get(0)); //"eventType":"BUILD_STATUS_CHANGED","payload":{"id":1,"buildCoordinationStatus":"DONE
+        assertThat(notificationCollector.getMessages().get(0)).startsWith("{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildCoordinationStatus\":\"DONE\"");
     }
 
     private void waitForMessages(int numberOfMessages) {
