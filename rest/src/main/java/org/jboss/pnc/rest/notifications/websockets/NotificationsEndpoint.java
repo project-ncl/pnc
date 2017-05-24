@@ -27,6 +27,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
+import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
@@ -249,9 +250,9 @@ public class NotificationsEndpoint {
         // subscribe WS clients to BpmBuildTask notifications
         if (bpmTask instanceof BpmBuildTask) {
             BpmBuildTask bpmBuildTask = (BpmBuildTask)bpmTask;
-            bpmTask.addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
+            bpmTask.<ProcessProgressUpdate>addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
                 String messagesId = Integer.toString(bpmBuildTask.getBuildTask().getId());
-                logger.debug("Sending update to messagesId: {}. processProgressUpdate: {}.", messagesId, processProgressUpdate);
+                logger.debug("Sending update to messagesId: {}. processProgressUpdate: {}.", messagesId, processProgressUpdate.toString());
                 notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
             });
         }
