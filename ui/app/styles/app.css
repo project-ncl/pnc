@@ -104,6 +104,10 @@ button.debutton {
   max-width: none;
 }
 
+#user-guide .popover {
+  width: 210px;
+}
+
 /* angular-patternfly override */
 .notification-area {
   word-break: break-all;

@@ -48,4 +48,21 @@
 
     }]);
 
+    app.controller('userGuideController', ['pncProperties', function(pncProperties) {
+      var LOCAL_STORAGE_NAME = 'userGuidePopover';
+      var $userGuideLink = $('#user-guide .user-guide-link');
+
+      this.url = pncProperties.userGuideUrl;
+
+      if (this.url && localStorage.getItem(LOCAL_STORAGE_NAME) === null) {
+        $userGuideLink.popover('show');
+
+        $userGuideLink.add('#user-guide .user-guide-close').click(function() {
+          localStorage.setItem(LOCAL_STORAGE_NAME, 'displayed');
+          $userGuideLink.popover('destroy');
+        });
+      }
+
+    }]);
+
 })();
