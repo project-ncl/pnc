@@ -101,6 +101,12 @@
       <div class="collapse navbar-collapse navbar-collapse-1">
         <!-- user menu -->
           <ul class="nav navbar-nav navbar-utility">
+            <!-- user's guide link -->
+            <li ng-controller="userGuideController as userGuideCtrl" id="user-guide" ng-show="userGuideCtrl.url">
+              <a href="{{ userGuideCtrl.url }}" target="_blank" class="user-guide-link" data-toggle="popover" data-placement="bottom" data-html="true" data-content="Please visit our User's guide for more information about using the Project Newcastle.<div class='m-t-5 text-center'><a href='#' class='user-guide-close'>Close</a></div>">
+                <span class="fa fa-question-circle-o"></span> User's guide
+              </a>
+            </li>
             <!-- default configuration warning icon -->
             <li ng-controller="defaultConfigurationController as defaultConfigurationCtrl" ng-show="defaultConfigurationCtrl.isDefaultConfiguration" title="{{ defaultConfigurationCtrl.title }}">
               <a href="#" data-toggle="modal" data-target="#defaultConfigurationModal">
