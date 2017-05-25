@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.junit.Test;
 
@@ -32,9 +33,10 @@ public class SessionBasedAttachedClientTest {
         //given
         Session session = mock(Session.class);
         OutputConverter converter = new JSonOutputConverter();
+        Notifier notifier = mock(Notifier.class);
 
-        SessionBasedAttachedClient client1 = new SessionBasedAttachedClient(session, converter);
-        SessionBasedAttachedClient client2 = new SessionBasedAttachedClient(session, converter);
+        SessionBasedAttachedClient client1 = new SessionBasedAttachedClient(session, converter, notifier);
+        SessionBasedAttachedClient client2 = new SessionBasedAttachedClient(session, converter, notifier);
 
         //when//then
         assertEquals(client1, client2);

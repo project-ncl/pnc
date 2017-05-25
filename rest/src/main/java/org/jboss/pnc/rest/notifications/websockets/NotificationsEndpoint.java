@@ -17,33 +17,15 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
-import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
-import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -59,7 +41,6 @@ import java.util.Optional;
 /**
  * Web Sockets notification implementation.
  */
-@ApplicationScoped
 @ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
 public class NotificationsEndpoint {
 
@@ -73,37 +54,6 @@ public class NotificationsEndpoint {
 
     @Inject
     private Notifier notifier;
-
-    @Inject
-    private NotificationFactory notificationFactory;
-
-    Optional<BpmManager> bpmManager;
-
-    @Inject
-    Instance<BpmManager> bpmManagerInstance;
-
-    @Inject
-    Configuration configuration;
-
-    @PostConstruct
-    public void postConstruct() {
-        String buildSchedulerId;
-        try {
-            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-            buildSchedulerId = systemConfig.getBuildSchedulerId();
-        } catch (ConfigurationParseException e) {
-            logger.warn("Cannot read system config buildSchedulerId");
-            buildSchedulerId = "does-not-match";
-        }
-
-        if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) &&
-                !bpmManagerInstance.isUnsatisfied() && !bpmManagerInstance.isAmbiguous()) {
-            bpmManager = Optional.of(bpmManagerInstance.get());
-            bpmManagerInstance.get().subscribeToNewTasks(task -> onNewTaskCreated(task));
-        } else {
-            bpmManager = Optional.empty();
-        }
-    }
 
     private final MessageCallback messageCallback = new MessageCallback() {
 
@@ -121,18 +71,19 @@ public class NotificationsEndpoint {
 
     @OnOpen
     public void attach(Session attachedSession) {
-        notifier.attachClient(new SessionBasedAttachedClient(attachedSession, outputConverter));
+        logger.debug("Opened new session id: {}, uri: {}.", attachedSession.getId(), attachedSession.getRequestURI());
+        notifier.attachClient(new SessionBasedAttachedClient(attachedSession, outputConverter, notifier));
     }
 
     @OnClose
     public void detach(Session detachedSession) {
-        notifier.detachClient(new SessionBasedAttachedClient(detachedSession, outputConverter));
+        notifier.detachClient(new SessionBasedAttachedClient(detachedSession, outputConverter, notifier));
     }
 
     @OnError
     public void onError(Session session, Throwable t) {
         logger.warn("An error occurred in client: " + session + ". Removing it", t);
-        notifier.detachClient(new SessionBasedAttachedClient(session, outputConverter));
+        notifier.detachClient(new SessionBasedAttachedClient(session, outputConverter, notifier));
     }
 
     /**
@@ -171,16 +122,10 @@ public class NotificationsEndpoint {
             return;
         }
 
-
-        if (!bpmManager.isPresent()) {
-            respondWithErrorMessage("It looks like BPMManager is not enabled.", Response.Status.PRECONDITION_FAILED, session);
-            return;
-        } else {
-            MessageType messageType = parser.getMessageType();
-            if (MessageType.PROCESS_UPDATES.equals(messageType)) {
-                ProgressUpdatesRequest progressUpdatesRequest = parser.<ProgressUpdatesRequest>getData();
-                onProgressUpdateRequest(progressUpdatesRequest, session, bpmManager.get());
-            }
+        MessageType messageType = parser.getMessageType();
+        if (MessageType.PROCESS_UPDATES.equals(messageType)) {
+            ProgressUpdatesRequest progressUpdatesRequest = parser.<ProgressUpdatesRequest>getData();
+            onProgressUpdateRequest(progressUpdatesRequest, session);
         }
     }
 
@@ -199,7 +144,7 @@ public class NotificationsEndpoint {
         session.getAsyncRemote().sendText(error);
     }
 
-    private void onProgressUpdateRequest(ProgressUpdatesRequest progressUpdatesRequest, Session session, BpmManager bpmManager) {
+    private void onProgressUpdateRequest(ProgressUpdatesRequest progressUpdatesRequest, Session session) {
         Optional<AttachedClient> attachedClient = notifier.getAttachedClient(session.getId());
         AttachedClient client;
         if (attachedClient.isPresent()) {
@@ -214,27 +159,6 @@ public class NotificationsEndpoint {
 
         if (Action.SUBSCRIBE.equals(progressUpdatesRequest.getAction())) {
             client.subscribe(topic, messagesId);
-
-            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager, Integer.valueOf(messagesId));
-
-            if (maybeTask.isPresent()) {
-                BpmTask bpmTask = maybeTask.get();
-                Optional<BpmNotificationRest> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
-                if (maybeLastEvent.isPresent()) {
-                    BpmNotificationRest lastBpmNotificationRest = maybeLastEvent.get();
-                    client.sendMessage(lastBpmNotificationRest, messageCallback);
-                } else {
-                    String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
-                    String errorMessage = "No events for id: " + messagesId;
-                    String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-                    client.sendMessage(JsonOutputConverterMapper.apply(error), messageCallback);
-                }
-            } else {
-                String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
-                String errorMessage = "No process for id: " + messagesId;
-                String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-                client.sendMessage(JsonOutputConverterMapper.apply(error), messageCallback);
-            }
         } else if (Action.UNSUBSCRIBE.equals(progressUpdatesRequest.getAction())) {
             client.unsubscribe(topic, messagesId);
         } else {
@@ -246,25 +170,4 @@ public class NotificationsEndpoint {
         }
     }
 
-    private void onNewTaskCreated(BpmTask bpmTask) {
-        // subscribe WS clients to BpmBuildTask notifications
-        if (bpmTask instanceof BpmBuildTask) {
-            BpmBuildTask bpmBuildTask = (BpmBuildTask)bpmTask;
-            bpmTask.<ProcessProgressUpdate>addListener(BpmEventType.PROCESS_PROGRESS_UPDATE, (processProgressUpdate) -> {
-                String messagesId = Integer.toString(bpmBuildTask.getBuildTask().getId());
-                logger.debug("Sending update to messagesId: {}. processProgressUpdate: {}.", messagesId, processProgressUpdate.toString());
-                notifier.sendToSubscribers(processProgressUpdate, "component-build", messagesId);
-            });
-        }
-    }
-
-    public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
-        logger.debug("Observed new status changed event {}.", buildStatusChangedEvent);
-        notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
-        logger.debug("Status changed event processed {}.", buildStatusChangedEvent);
-    }
-
-    public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        notifier.sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
-    }
 }
