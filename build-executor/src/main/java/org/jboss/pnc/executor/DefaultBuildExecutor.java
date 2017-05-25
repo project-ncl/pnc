@@ -23,6 +23,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.NamedThreadFactory;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -255,7 +256,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningEnvironment));
             };
 
-            String liveLogWebSocketUrl = runningEnvironment.getBuildAgentUrl();
+            String buildAgentUrl = runningEnvironment.getBuildAgentUrl();
+            String liveLogWebSocketUrl = "ws" + StringUtils.addEndingSlash(buildAgentUrl).replaceAll("http(s?):", ":") + "socket/text/ro";
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver();
