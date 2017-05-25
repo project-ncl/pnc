@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 
 import javax.websocket.SendHandler;
@@ -34,12 +35,14 @@ public class SessionBasedAttachedClient implements AttachedClient {
 
     private final Session session;
     private final OutputConverter outputConverter;
+    private Notifier notifier;
 
     private List<Subscription> subscriptions = new ArrayList();
 
-    public SessionBasedAttachedClient(Session session, OutputConverter outputConverter) {
+    public SessionBasedAttachedClient(Session session, OutputConverter outputConverter, Notifier notifier) {
         this.session = session;
         this.outputConverter = outputConverter;
+        this.notifier = notifier;
     }
 
     @Override
@@ -70,6 +73,7 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public void subscribe(String topic, String messagesId) {
         subscriptions.add(new Subscription(topic, messagesId));
+        notifier.onClientSubscribe(this, messagesId);
     }
 
     @Override

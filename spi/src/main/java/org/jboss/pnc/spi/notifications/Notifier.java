@@ -45,4 +45,6 @@ public interface Notifier {
      * @param qualifier
      */
     void sendToSubscribers(Object message, String topic, String qualifier);
+
+    void onClientSubscribe(AttachedClient client, String messagesId);
 }

@@ -22,8 +22,6 @@ import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnOpen;
@@ -38,7 +36,6 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Web Sockets notification implementation.
  */
-@ApplicationScoped
 @ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
 public class NotificationsEndpoint {
 
@@ -56,11 +53,6 @@ public class NotificationsEndpoint {
             }
         }
     };
-
-    @PostConstruct
-    public void postConstruct() {
-    }
-
 
     @OnOpen
     public void onOpen(Session session) {
