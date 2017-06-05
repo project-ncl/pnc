@@ -38,6 +38,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String daUrl;
     private final String daImportUrl;
     private final String daImportRpcUrl;
+    private final String userGuideUrl;
     private final Keycloak keycloak;
 
     public UIModuleConfig(
@@ -46,12 +47,14 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("daUrl") String daUrl,
             @JsonProperty("daImportUrl") String daImportUrl,
             @JsonProperty("daImportRpcUrl") String daImportRpcUrl,
+            @JsonProperty("userGuideUrl") String userGuideUrl,
             @JsonProperty("keycloak") Keycloak keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.daImportUrl = daImportUrl;
         this.daImportRpcUrl = daImportRpcUrl;
+        this.userGuideUrl = userGuideUrl;
         this.keycloak = keycloak;
     }
 
@@ -96,6 +99,13 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
+     * @return String representation of the PNC user guide URL
+     */
+    public String getUserGuideUrl() {
+        return userGuideUrl;
+    }
+
+    /**
      * @return Keycloak object of Web UI configuration parameters for the Keycloak JavaScript adapter.
      */
     @JsonProperty("keycloak")
@@ -111,6 +121,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 ", daUrl='" + daUrl + '\'' +
                 ", daImportUrl='" + daImportUrl + '\'' +
                 ", daImportRpcUrl='" + daImportRpcUrl + '\'' +
+                ", userGuideUrl='" + userGuideUrl + '\'' +
                 ", keycloak=" + keycloak +
                 '}';
     }
