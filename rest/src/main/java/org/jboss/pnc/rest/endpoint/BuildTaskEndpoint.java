@@ -187,7 +187,7 @@ public class BuildTaskEndpoint {
     @POST
     @Path("/cancel-build/{buildExecutionConfigurationId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response build(
+    public Response cancelBbuild(
             @ApiParam(value = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
             @PathParam("buildExecutionConfigurationId")
             Integer buildExecutionConfigurationId,
