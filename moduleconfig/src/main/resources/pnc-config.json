@@ -70,7 +70,8 @@
                     "bpmInstanceUrl": "${env.BPM_INSTANCE_URL}",
                     "deploymentId": "${env.BPM_DEPLOYMENT_ID}",
                     "bcCreationProcessId": "${env.BPM_BC_CREATION_PROCESS_ID}",
-                    "componentBuildProcessId": "${env.BPM_COMPONENT_BUILD_PROCESS_ID}"
+                    "componentBuildProcessId": "${env.BPM_COMPONENT_BUILD_PROCESS_ID}",
+                    "cancelConnectionRequestTimeout": "${env.CANCEL_CONNECTION_REQUEST_TIMEOUT}"
                 },
                 {
                     "@module-config": "ui",
