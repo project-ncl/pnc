@@ -48,6 +48,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private String communityBuild;
     private String versionAdjust;
     private int cancelConnectionRequestTimeout;
+    private int cancelConnectTimeout;
+    private int cancelSocketTimeout;
 
     public BpmModuleConfig(@JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -64,7 +66,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("daBaseUrl") String daBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust,
-            @JsonProperty("cancelConnectionRequestTimeout") Integer cancelConnectionRequestTimeout)
+            @JsonProperty("cancelConnectionRequestTimeout") Integer cancelConnectionRequestTimeout,
+            @JsonProperty("cancelConnectTimeout") Integer cancelConnectTimeout,
+            @JsonProperty("cancelSocketTimeout") Integer cancelSocketTimeout)
             throws MalformedURLException {
         this.username = username;
         this.password = password;
@@ -81,10 +85,20 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.causewayBaseUrl = causewayBaseUrl;
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
-        if (cancelConnectionRequestTimeout == null || cancelConnectionRequestTimeout == 0) {
+        if (cancelConnectionRequestTimeout == null) {
             this.cancelConnectionRequestTimeout = 5000; //default to 5 sec
         } else {
             this.cancelConnectionRequestTimeout = cancelConnectionRequestTimeout;
+        }
+        if (cancelConnectTimeout == null) {
+            this.cancelConnectTimeout = 5000; //default to 5 sec
+        } else {
+            this.cancelConnectTimeout = cancelConnectTimeout;
+        }
+        if (cancelSocketTimeout == null) {
+            this.cancelSocketTimeout = 5000; //default to 5 sec
+        } else {
+            this.cancelSocketTimeout = cancelSocketTimeout;
         }
     }
 
@@ -160,6 +174,14 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return cancelConnectionRequestTimeout;
     }
 
+    public int getCancelConnectTimeout() {
+        return cancelConnectTimeout;
+    }
+
+    public int getCancelSocketTimeout() {
+        return cancelSocketTimeout;
+    }
+
     @Override
     public String toString() {
         return "BpmModuleConfig{" +
@@ -178,6 +200,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", communityBuild='" + communityBuild + '\'' +
                 ", versionAdjust='" + versionAdjust + '\'' +
                 ", cancelConnectionRequestTimeout='" + cancelConnectionRequestTimeout + '\'' +
+                ", cancelConnectTimeout='" + cancelConnectTimeout + '\'' +
+                ", cancelSocketTimeout='" + cancelSocketTimeout + '\'' +
                 '}';
     }
+
 }
