@@ -47,6 +47,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private String bcCreationProcessId;
     private String communityBuild;
     private String versionAdjust;
+    private int cancelConnectionRequestTimeout;
 
     public BpmModuleConfig(@JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -62,7 +63,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("causewayBaseUrl") String causewayBaseUrl,
             @JsonProperty("daBaseUrl") String daBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
-            @JsonProperty("versionAdjust") String versionAdjust)
+            @JsonProperty("versionAdjust") String versionAdjust,
+            @JsonProperty("cancelConnectionRequestTimeout") Integer cancelConnectionRequestTimeout)
             throws MalformedURLException {
         this.username = username;
         this.password = password;
@@ -79,6 +81,11 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.causewayBaseUrl = causewayBaseUrl;
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
+        if (cancelConnectionRequestTimeout == null || cancelConnectionRequestTimeout == 0) {
+            this.cancelConnectionRequestTimeout = 5000; //default to 5 sec
+        } else {
+            this.cancelConnectionRequestTimeout = cancelConnectionRequestTimeout;
+        }
     }
 
     public String getUsername() {
@@ -149,6 +156,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return causewayBaseUrl;
     }
 
+    public int getCancelConnectionRequestTimeout() {
+        return cancelConnectionRequestTimeout;
+    }
+
     @Override
     public String toString() {
         return "BpmModuleConfig{" +
@@ -166,7 +177,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", causewayBaseUrl='" + causewayBaseUrl + '\'' +
                 ", communityBuild='" + communityBuild + '\'' +
                 ", versionAdjust='" + versionAdjust + '\'' +
+                ", cancelConnectionRequestTimeout='" + cancelConnectionRequestTimeout + '\'' +
                 '}';
     }
-
 }
