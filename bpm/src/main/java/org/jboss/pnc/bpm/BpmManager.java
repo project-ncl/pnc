@@ -180,7 +180,6 @@ public class BpmManager {
 
     public boolean cancelTask(BpmTask bpmTask) {
         String cancelEndpointUrl = StringUtils.stripEndingSlash(bpmConfig.getBpmInstanceUrl()) + "/nclcancelhandler";
-        int cancelConnectionRequestTimeout = bpmConfig.getCancelConnectionRequestTimeout();
 
         URI uri;
         try {
@@ -195,7 +194,11 @@ public class BpmManager {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             log.debug("Triggering the cancellation using url: {}", uri.toString());
             HttpGet httpget = new HttpGet(uri);
-            httpget.setConfig(RequestConfig.custom().setConnectionRequestTimeout(cancelConnectionRequestTimeout).build());
+            httpget.setConfig(RequestConfig.custom()
+                    .setConnectionRequestTimeout(bpmConfig.getCancelConnectionRequestTimeout())
+                    .setConnectTimeout(bpmConfig.getCancelConnectTimeout())
+                    .setSocketTimeout(bpmConfig.getCancelSocketTimeout())
+                    .build());
             CloseableHttpResponse httpResponse = httpClient.execute(httpget);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             httpResponse.close();
