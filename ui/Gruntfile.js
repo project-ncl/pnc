@@ -108,6 +108,7 @@ module.exports = function (grunt) {
         'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'daImportUrl': getOpt('da-import-url', 'PNC_UI_DA_IMPORT_URL'),
         'daImportRpcUrl': getOpt('da-import-rpc-url', 'PNC_UI_DA_IMPORT_RPC_URL'),
+        'userGuideUrl': getOpt('user-guide-url', 'PNC_UI_USER_GUIDE_URL'),
         'keycloak':
         {
             'url': getOpt('keycloak-url', 'PNC_UI_KEYCLOAK_URL'),
