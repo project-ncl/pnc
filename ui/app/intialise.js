@@ -28,10 +28,19 @@
   };
 
   /**
+   * Returns truthy value when Keycloak is enabled, otherwise falsy.
+   * 
+   * @param config - An object containing configuration parameters for the UI.
+   */
+  function isKeycloakEnabled(config) {
+    return config && config.keycloak && config.keycloak.url;
+  }
+
+  /**
    * Entrypoint to the application. Initializes the UI with the supplied
    * configuration.
    *
-   * @param config - An object containing configuration paramaters for the UI.
+   * @param config - An object containing configuration parameters for the UI.
    */
   function bootstrap(config) {
 
@@ -49,29 +58,17 @@
         responseMode: 'query'
       };
 
-      // In case PNC is running with authentication disabled we give the
-      // keycloak library just enough paramaters to function. That way the UI
-      // can run as normal without further modification.
-      if (!config.keycloak || !config.keycloak.url) {
-        config.keycloak = {
-          url: 'none',
-          clientId: 'none',
-          realm: 'none'
-        };
-        // Stops the keycloak library trying to "phone home" after loading,
-        // since there is no server to call.
-        kcInitParams = undefined;
-      }
-
-      keycloak = new Keycloak(config.keycloak);
-
-      // Prevents redirect to a 404 when attempting to login and
-      // authentication is disabled on the PNC backend.
-      if(config.keycloak.url === 'none') {
-        keycloak.login = function () {
-          console.warn('Authentication is disabled, keycloak.login ignored');
-        };
-      }
+      // Instantiate Keycloak when enabled, otherwise provide mock
+      keycloak = isKeycloakEnabled(config) ? new Keycloak(config.keycloak) : {
+        // Keycloak mock
+        authenticated: false,
+        login: function() { 
+          console.warn('Authentication is disabled, keycloak.login() ignored');
+        },
+        logout: function() { 
+          console.warn('Authentication is disabled, keycloak.logout() ignored');
+        }
+      };
 
       // Pass the keycloak object we just created to the keycloakProvider so
       // it can be injected into angular services.
@@ -85,12 +82,39 @@
       // Makes the configuration injectible in services.
       angular.module('pnc.properties', []).constant('pncProperties', config);
 
-      keycloak.init(kcInitParams).success(function () {
+      // Bootstrap application
+      if (isKeycloakEnabled(config)) {
+        keycloak.init(kcInitParams).success(function () {
+          angular.bootstrap(document, ['pnc']);
+        });
+
+      } else {
         angular.bootstrap(document, ['pnc']);
-      });
+      }
+
     });
   }
 
-  bootstrap(pnc.config);
+  /**
+   * A best practice is to load the JavaScript adapter directly from Keycloak Server 
+   * as it will automatically be updated when you upgrade the server. 
+   * 
+   * @param onload - Callback function being fired when keycloak is loaded or not available.
+   * @param config - An object containing configuration parameters for the UI.
+   */
+  function loadServerKeycloak(onload, config) {
+    if (isKeycloakEnabled(config)) {
+      var SERVER_KEYCLOAK_PATH = '/js/keycloak.js',
+          script = document.createElement('script');
+
+      script.onload = function() { onload(config); };
+      script.src = config.keycloak.url + SERVER_KEYCLOAK_PATH;
+      document.head.appendChild(script);
+    } else {
+      onload(config);
+    }
+  }
+
+  loadServerKeycloak(bootstrap, pnc.config);
 
 })(pnc);
