@@ -15,25 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.common.directives');
-
-  /**
-   * @ngdoc directive
-   * @restrict E
-   * @example <build-status-icon status="status"></build-status-icon>
-   * @author Jakub Senko
-   */
-  module.directive('buildStatusIcon', function () {
-    return {
-      scope: {
-        status: '='
-      },
-      templateUrl: 'common/directives/views/build-status-icon-d.html'
-    };
-  });
+  angular.module('pnc.common.components', []);
 
 })();

@@ -43,6 +43,7 @@
     'pnc.properties',
     'pnc.common.authentication',
     'pnc.common.pnc-client',
+    'pnc.common.components'
   ]);
 
   app.config([

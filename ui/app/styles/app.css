@@ -265,3 +265,12 @@ label.required::before {
 .dl-checksum dd {
   margin: 0;
 }
+
+.build-status-icon pficon {
+  vertical-align: middle;
+}
+
+.label-sm {
+  font-size: 0.6em;
+  vertical-align: middle;
+}
