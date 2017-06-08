@@ -63,7 +63,7 @@
     <script src="bower_components/matchHeight/dist/jquery.matchHeight.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="bower_components/patternfly-bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
+    <script src="bower_components/patternfly-bootstrap-treeview/dist/bootstrap-treeview.js"></script>
     <script src="bower_components/patternfly/dist/js/patternfly.js"></script>
     <script src="bower_components/angular-patternfly/dist/angular-patternfly.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
@@ -103,7 +103,7 @@
           <ul class="nav navbar-nav navbar-utility">
             <!-- user's guide link -->
             <li ng-controller="userGuideController as userGuideCtrl" id="user-guide" ng-show="userGuideCtrl.url">
-              <a href="{{ userGuideCtrl.url }}" target="_blank" class="user-guide-link" data-toggle="popover" data-placement="bottom" data-html="true" data-content="Please visit our User's guide for more information about using the Project Newcastle.<div class='m-t-5 text-center'><a href='#' class='user-guide-close'>Close</a></div>">
+              <a href="{{ userGuideCtrl.url }}" target="_blank" class="user-guide-link" data-toggle="popover" data-placement="bottom" data-html="true" data-content="Please visit our User's guide for more information about using the Project Newcastle.<div class='m-t-5 text-center'><span class='user-guide-close cursor-pointer c-blue'>Close</span></div>">
                 <span class="fa fa-question-circle-o"></span> User's guide
               </a>
             </li>
