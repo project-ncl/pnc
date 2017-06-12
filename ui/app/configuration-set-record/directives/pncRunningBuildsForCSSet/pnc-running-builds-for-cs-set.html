@@ -35,7 +35,7 @@
         record.buildConfigurationName }}</a></td>
       <td>{{ record.username }}</td>
       <td>
-        <build-status-icon status="record.status"></build-status-icon>
+        <pnc-build-status-icon build-record="record"></pnc-build-status-icon>
         <a href ui-sref="build-records.detail.default({recordId: record.id})"># {{ record.id }}</a>
       </td>
     </tr>

@@ -34,7 +34,7 @@
     <tbody>
       <tr ng-repeat="record in page.data">
         <td>
-          <build-status-icon status="record.status"></build-status-icon> {{ record.status }}
+          <pnc-build-status-icon build-record="record"></pnc-build-status-icon>
         </td>
         <td><a href ui-sref="configuration-set-record.detail.info({recordId: record.id})"># {{ record.id }} </a></td>
         <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: record.buildConfigurationSetId })">{{ record.buildConfigurationSetName }}</a></td>
