@@ -88,7 +88,12 @@ public class BuildExecutorTriggerer {
                 //bpmManager should be aupdated to accept notifications identified by buildTaskId
                 Optional<BpmTask> bpmTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager,
                         statusChangedEvent.getBuildTaskId());
-                bpmManager.notify(bpmTask.get().getTaskId(), processProgressUpdate.get());
+                if (bpmTask.isPresent()) {
+                    bpmManager.notify(bpmTask.get().getTaskId(), processProgressUpdate.get());
+                } else {
+                    log.warn("There is no bpmTask for buildTask.id: " + statusChangedEvent.getBuildTaskId() + ". Skipping notification.");
+                }
+
             }
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
