@@ -51,7 +51,7 @@
     function connect(url, serviceName) {
       serviceName = serviceName || 'service';
       $log.debug('Attempting to connect to %s at: %s for updates', serviceName, url);
-      socket = $websocket(url);
+      socket = $websocket(url, { autoApply: false });
 
       socket.onMessage(function (msg) {
         writelogln(msg.data);
