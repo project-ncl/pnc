@@ -33,7 +33,6 @@ import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
-import org.jboss.resteasy.annotations.GZIP;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -139,7 +138,6 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @GET
     @Path("/{id}/log")
     @Produces(MediaType.TEXT_PLAIN)
-    @GZIP
     public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         String buildRecordLog = buildRecordProvider.getBuildRecordLog(id);
         if (buildRecordLog == null)
@@ -162,7 +160,6 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @GET
     @Path("/{id}/repour-log")
     @Produces(MediaType.TEXT_PLAIN)
-    @GZIP
     public Response getRepourLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         String log = buildRecordProvider.getBuildRecordRepourLog(id);
         if (log == null) {
