@@ -42,7 +42,7 @@
     <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
     <td>
       <div ng-repeat="buildRecordSet in latestBuildRecordSets[buildconfigurationset.id]">
-        <build-status-icon status="buildRecordSet.status"></build-status-icon>
+        <pnc-build-status-icon build-record="buildRecordSet"></pnc-build-status-icon>
         <span><a href ui-sref="configuration-set-record.detail.info({recordId: buildRecordSet.id})"># {{ buildRecordSet.id }} </a></span>
         {{ buildRecordSet.endTime | date:'medium'}},
         <span class="text-bold">   {{ buildRecordSet.username }}</span>

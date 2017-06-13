@@ -17,10 +17,8 @@
     limitations under the License.
 
 -->
-<div ng-repeat="buildRecord in page.data" ng-show="page.data.length">
-  <pnc-build-status-icon build-record="buildRecord"></pnc-build-status-icon>
-  <span><a href ui-sref="build-records.detail.default({recordId: buildRecord.id})"># {{ buildRecord.id }}</a></span>
-  {{ buildRecord.endTime | date:'medium'}},
-  <span class="text-bold">{{ buildRecord.username }}</span>
-</div>
-<em ng-hide="page.data.length || !page.isLoaded">none</em>
+<span ng-if="$ctrl.isCorrupted()">
+  <span class="label label-warning" tooltip="The build may have completed successfully but has since been corrupted by a system error" tooltip-popup-delay="1000">
+    CORRUPTED
+  </span>
+</span>

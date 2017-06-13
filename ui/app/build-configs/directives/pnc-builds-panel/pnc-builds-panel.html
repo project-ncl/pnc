@@ -27,7 +27,7 @@
     <tbody>
       <tr ng-repeat="record in page.data">
         <td>
-          <build-status-icon status="record.status"></build-status-icon>
+          <pnc-build-status-icon build-record="record"></pnc-build-status-icon>
         </td>
         <td><a href ui-sref="build-records.detail.default({recordId: record.id})"># {{ record.id }}</a></td>
         <td ng-show="record.status==='BUILDING'">{{ record.startTime | date:'medium'}}</td>
