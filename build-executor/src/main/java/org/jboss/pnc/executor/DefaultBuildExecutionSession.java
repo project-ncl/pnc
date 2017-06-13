@@ -103,7 +103,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     public void setStatus(BuildExecutionStatus status) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS)) {
-                setException(new ExecutorException("Missing failedReasonStatus. Failed reason must be sat before final DONE_WITH_ERRORS."));
+                setException(new ExecutorException("Missing failedReasonStatus. Failed reason must be set before final DONE_WITH_ERRORS."));
             }
             log.debug("Setting status {} as failed reason for session {}.", status, getId());
             failedReasonStatus = status;
