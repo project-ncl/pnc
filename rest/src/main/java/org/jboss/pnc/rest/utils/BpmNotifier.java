@@ -69,7 +69,11 @@ public class BpmNotifier {
         String errMessage = "";
         try {
             buildResultRest = new BuildResultRest(buildResult);
-            log.debug("Sending build result to BPM " + buildResultRest.toString() + ".");
+            if (log.isTraceEnabled()) {
+                log.trace("Sending build result to BPM " + buildResultRest.toString() + ".");
+            } else {
+                log.debug("Sending build result to BPM " + buildResultRest.toLogString(100) + ".");
+            }
         } catch (Throwable e) {
             log.error("Cannot construct rest result.", e);
             errMessage = "Cannot construct rest result: " + e.getMessage();
@@ -80,10 +84,17 @@ public class BpmNotifier {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toString() : "{\"error\", \"" + errMessage + "\"}"));
 
+        UrlEncodedFormEntity entity = null;
         try {
-            request.setEntity(new UrlEncodedFormEntity(parameters));
+            entity = new UrlEncodedFormEntity(parameters);
         } catch (UnsupportedEncodingException e) {
             log.error("Error occurred preparing callback request.", e);
+        }
+        if (entity != null) {
+            request.setEntity(entity);
+            log.debug("Response entity set to the post request for uri: " + uri);
+        } else {
+            log.error("Missing response entity to post to: " + uri);
         }
 
         request.addHeader("Authorization", getAuthHeader());
