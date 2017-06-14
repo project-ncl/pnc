@@ -47,6 +47,7 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -425,10 +426,23 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                         ProcessException exception;
                         if (buildResult.getProcessException().isPresent()) {
                             exception = buildResult.getProcessException().get();
-                            log.debug("[buildTaskId: {}] Storing build result with exception {}.", buildTaskId, exception.getMessage());
+                            log.debug("[buildTaskId: {}] Storing build result with exception {}.",
+                                    buildTaskId,
+                                    exception.getMessage());
+                        } else if (buildResult.getRepourResult().isPresent()) {
+                            RepourResult repourResult = buildResult.getRepourResult().get();
+                            if (repourResult.getCompletionStatus().isFailed()) {
+                                exception = new ProcessException("Repour completed with system error.");
+                                log.debug("[buildTaskId: {}] Storing build result with system error from repour: {}.",
+                                        buildTaskId,
+                                        repourResult.getLog());
+                            } else {
+                                exception = new ProcessException("Build completed with system error but no exception.");
+                                log.error("[buildTaskId: {}] Storing build result with system_error and missing exception.", buildTaskId);
+                            }
                         } else {
-                            exception = new ProcessException("Build completed with system error but no exception.");
-                            log.error("[buildTaskId: {}] Storing build result with system_error and missing exception.", buildTaskId);
+                            exception = new ProcessException("Build completed with system error but no exception and no Repour result.");
+                            log.error("[buildTaskId: {}] Storing build result with system_error no exception and no Repour result.", buildTaskId);
                         }
                         datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
                         coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
