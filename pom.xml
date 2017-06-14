@@ -84,7 +84,7 @@
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
     <atlasVersion>0.16.0</atlasVersion>
-    <indyVersion>1.1.0</indyVersion>
+    <indyVersion>1.2.0-SNAPSHOT</indyVersion>
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.junit>4.11</version.junit>
@@ -198,7 +198,7 @@
         <artifactId>common</artifactId>
         <version>${project.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>moduleconfig</artifactId>
@@ -1591,7 +1591,7 @@
         <persistence.hibernate.hbm2ddl.auto>validate</persistence.hibernate.hbm2ddl.auto>
       </properties>
     </profile>
-    
+
     <profile>
       <id>devel</id>
       <activation>
