@@ -156,21 +156,27 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
      * @return serailized object with long strings trimmed to maxStringLength
      */
     public String toLogString(int maxStringLength) {
-        BuildDriverResult buildDriverResult = new BuildDriverResult() {
-            @Override
-            public String getBuildLog() {
-                return StringUtils.trim(BuildResultRest.this.buildDriverResult.getBuildLog(), maxStringLength);
-            }
+        BuildDriverResult buildDriverResult = null;
+        if (BuildResultRest.this.buildDriverResult != null) {
+            buildDriverResult = new BuildDriverResult() {
+                @Override
+                public String getBuildLog() {
+                    return StringUtils.trim(BuildResultRest.this.buildDriverResult.getBuildLog(), maxStringLength);
+                }
 
-            @Override
-            public BuildStatus getBuildStatus() {
-                return BuildResultRest.this.buildDriverResult.getBuildStatus();
-            }
-        };
+                @Override
+                public BuildStatus getBuildStatus() {
+                    return BuildResultRest.this.buildDriverResult.getBuildStatus();
+                }
+            };
+        }
 
-        RepositoryManagerResult repositoryManagerResult = new RepositoryManagerResultImpl(
-                BuildResultRest.this.repositoryManagerResult.toRepositoryManagerResult(),
-                maxStringLength);
+        RepositoryManagerResult repositoryManagerResult = null;
+        if (BuildResultRest.this.repositoryManagerResult != null) {
+            repositoryManagerResult = new RepositoryManagerResultImpl(
+                    BuildResultRest.this.repositoryManagerResult.toRepositoryManagerResult(),
+                    maxStringLength);
+        }
 
         BuildResult buildResult = new BuildResult(
                 this.completionStatus,

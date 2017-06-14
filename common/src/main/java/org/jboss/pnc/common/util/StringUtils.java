@@ -95,6 +95,10 @@ public class StringUtils {
     }
 
     public static String trim(String string, int maxLength) {
+        if (string == null) {
+            return null;
+        }
+
         if (string.length() > maxLength) {
             return string.substring(0, maxLength - 1) + "...";
         } else {
