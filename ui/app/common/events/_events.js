@@ -51,8 +51,19 @@
         $log.debug('BUILD_STARTED_EVENT: payload=%O', JSON.stringify(payload));
 
         authService.forUserId(payload.userId).then(function() {
-          pncNotify.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress',
+          if (payload.buildCoordinationStatus === 'NEW') {
+            pncNotify.info('Build ' + payload.buildConfigurationName + ' in new state',
                          'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+          } else if (payload.buildCoordinationStatus === 'WAITING_FOR_DEPENDENCIES') {
+            pncNotify.info('Build ' + payload.buildConfigurationName + ' waiting for dependencies',
+                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+          } else if (payload.buildCoordinationStatus === 'ENQUEUED') {
+            pncNotify.info('Build ' + payload.buildConfigurationName + ' was enqueued',
+                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+          } else if (payload.buildCoordinationStatus === 'BUILDING') {
+            pncNotify.info('Build ' + payload.buildConfigurationName + ' is being built',
+                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+          }
         });
       });
 
