@@ -15,11 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* jshint unused: false */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
-
-    angular.module('pnc.common.directives', ['ui.bootstrap']);
+  angular.module('pnc.common.directives', ['ui.bootstrap']);
 
 })();

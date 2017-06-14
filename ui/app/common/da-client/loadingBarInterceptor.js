@@ -15,20 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
+  var module = angular.module('pnc.common.da-client');
 
-  var module = angular.module('pnc.common.restclient', [
-    'ngResource',
-    'pnc.util',
-  ]);
+  module.factory('loadingBarInterceptor', [
+    'cfpLoadingBar',
+    function(cfpLoadingBar) {
 
-  // TODO: Remove this unnecessary layer of indirection.
-  module.factory('REST_BASE_URL', [
-    'restConfig',
-    function(restConfig) {
-      return restConfig.getPncUrl();
-    }
-  ]);
+      return {
+        requestStarted: function(requestFinishedPromise) {
+          cfpLoadingBar.start();
+
+          requestFinishedPromise.finally(function(){
+            cfpLoadingBar.complete(); 
+          });
+        }
+      };
+  }]);
+
 })();

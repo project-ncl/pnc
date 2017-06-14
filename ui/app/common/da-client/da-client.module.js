@@ -15,15 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* jshint unused: false */
-
-'use strict';
-
 (function() {
+  'use strict';
 
-  var module = angular.module('pnc.util', [
-  	'pnc.util.confirmClick',
-    'pnc.util.date_utils'
-  ]);
+  angular.module('pnc.common.da-client', []);
 
 })();

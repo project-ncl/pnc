@@ -18,21 +18,9 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.daclient');
-
-  module.factory('loadingBarInterceptor', [
-    'cfpLoadingBar',
-    function(cfpLoadingBar) {
-
-      return {
-        requestStarted: function(requestFinishedPromise) {
-          cfpLoadingBar.start();
-
-          requestFinishedPromise.finally(function(){
-            cfpLoadingBar.complete(); 
-          });
-        }
-      };
-  }]);
+  angular.module('pnc.util', [
+  	'pnc.util.confirmClick',
+    'pnc.util.date_utils'
+  ]);
 
 })();

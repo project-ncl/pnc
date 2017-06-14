@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
-(function() {
+(function () {
+  'use strict';
 
   var module = angular.module('pnc.report', [
     'ui.router',

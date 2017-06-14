@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
- angular.module('pnc.common.notifications', []);
+  angular.module('pnc.common.notifications', []);
+
 })();
