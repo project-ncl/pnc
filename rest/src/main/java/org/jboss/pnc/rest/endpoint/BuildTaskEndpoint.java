@@ -121,9 +121,9 @@ public class BuildTaskEndpoint {
             }
         }
 
-        logger.debug("Will notify for taskId[{}].", taskId);
+        logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
         bpmManager.notify(taskId, buildResult);
-        logger.debug("Notified for buildId [{}].", buildId);
+        logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
         return Response.ok().build();
     }
 
