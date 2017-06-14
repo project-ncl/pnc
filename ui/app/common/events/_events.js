@@ -19,20 +19,18 @@
   'use strict';
 
   var module = angular.module('pnc.common.events', [
-    'pnc.properties',
-    'pnc.common.websockets'
+    'pnc.properties'
   ]);
 
   module.run([
     '$state',
     '$log',
     '$rootScope',
-    'webSocketBus',
     'eventTypes',
     'BuildRecordDAO',
     'authService',
     'pncNotify',
-    function($state, $log, $rootScope, webSocketBus, eventTypes, BuildRecordDAO,
+    function($state, $log, $rootScope, eventTypes, BuildRecordDAO,
              authService, pncNotify) {
       var scope = $rootScope.$new();
 
