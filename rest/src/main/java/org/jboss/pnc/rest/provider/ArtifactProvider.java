@@ -124,7 +124,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
-            return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + artifact.getDeployPath();
+            return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
         } else {
             return artifact.getOriginUrl();
         }
@@ -132,7 +132,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
-            return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + artifact.getDeployPath();
+            return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
         } else {
             return artifact.getOriginUrl();
         }

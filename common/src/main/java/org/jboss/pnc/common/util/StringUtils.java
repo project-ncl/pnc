@@ -75,8 +75,27 @@ public class StringUtils {
      * @return
      */
     public static String stripEndingSlash(String string) {
+        if (string == null) {
+            return null;
+        }
         if (string.endsWith("/")) {
             string = string.substring(0, string.length() - 1);
+        }
+        return string;
+    }
+
+    /**
+     * Remove ending slash if present and return the string without ending slash
+     *
+     * @param string
+     * @return
+     */
+    public static String stripTrailingSlash(String string) {
+        if (string == null) {
+            return null;
+        }
+        if (string.startsWith("/")) {
+            string = string.substring(1, string.length());
         }
         return string;
     }
@@ -88,6 +107,9 @@ public class StringUtils {
      * @return
      */
     public static String addEndingSlash(String string) {
+        if (string == null) {
+            return null;
+        }
         if (!string.endsWith("/")) {
             string += "/";
         }
