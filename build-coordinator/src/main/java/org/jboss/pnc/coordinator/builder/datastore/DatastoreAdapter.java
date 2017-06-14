@@ -204,6 +204,7 @@ public class DatastoreAdapter {
             result.getRepourResult().ifPresent(repourResult -> {
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
+                buildRecordBuilder.repourLog(repourResult.getLog());
             });
 
             result.getBuildDriverResult().ifPresent(
