@@ -82,6 +82,19 @@ public class StringUtils {
     }
 
     /**
+     * Remove ending slash if present and return the string without ending slash
+     *
+     * @param string
+     * @return
+     */
+    public static String stripTrailingSlash(String string) {
+        if (string.startsWith("/")) {
+            string = string.substring(1, string.length());
+        }
+        return string;
+    }
+
+    /**
      * Adds ending slash if it is not present.
      *
      * @param string
