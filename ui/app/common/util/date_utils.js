@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
-
-  var module = angular.module('pnc.util.date_utils', []);
+  var module = angular.module('pnc.common.util');
+  
   var MINUTE = 60 * 1000;
   var HOUR = 60 * MINUTE;
 
   module.factory('dateUtilConverter', function() {
-    
+
     return {
       convertToTimestampNoonUTC: function(date) {
         //console.log('Converting date ' + date + ' to UTC noon timestamp');

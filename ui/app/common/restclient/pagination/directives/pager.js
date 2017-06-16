@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.common.directives');
+  var module = angular.module('pnc.common.restclient');
 
   /**
    * @author Jakub Senko
@@ -31,7 +30,7 @@
         page: '=',
         size: '='
       },
-      templateUrl: 'common/pagination/directives/pager.html',
+      templateUrl: 'common/restclient/pagination/directives/pager.html',
       link: function (scope) {
         var SIZE = 8;
         var size = _.isUndefined(scope.size) ? SIZE : scope.size;

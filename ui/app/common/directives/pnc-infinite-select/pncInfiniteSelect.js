@@ -15,17 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.common.directives');
 
   /**
-   * @param items    
+   * @param items
    * List of items which will be displayed
    *
-   * @param itemId   
+   * @param itemId
    * Place where selected item id will be stored
    *
    * @description
@@ -44,7 +43,7 @@
         infiniteSelectName: '@',
         infiniteSelectRequired: '@'
       },
-      templateUrl: 'common/directives/views/pnc-infinite-select.html',
+      templateUrl: 'common/directives/pnc-infinite-select/pnc-infinite-select.html',
       controller: [
         '$log',
         '$scope',
@@ -60,7 +59,7 @@
             }
           };
 
-          /* 
+          /*
            * Mousedown event handler
            */
           $scope.selectItem = function(item) {

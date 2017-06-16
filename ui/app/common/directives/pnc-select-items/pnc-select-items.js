@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
-(function() {
+(function () {
+  'use strict';
 
   var module = angular.module('pnc.common.directives');
 
@@ -53,7 +52,7 @@
    * Currently: reset() to clear the form & data.
    * @description
    * A directive that allows users to select multiple options from a list of
-   * possible types. The user finds possible items by typing into a input box. 
+   * possible types. The user finds possible items by typing into a input box.
    * The selected items are presented to the user in a list (one-item list if 'single-item' is true)
    * The user is given the option to remove items from the list by pressing a
    * cross button next to the selected item.
@@ -86,7 +85,7 @@
         selectRequired: '@',
         control: '=' // not required
       },
-      templateUrl: 'common/directives/views/pnc-select-items.html',
+      templateUrl: 'common/directives/pnc-select-items/pnc-select-items.html',
       link: function($scope, element, attrs) {
         var isAssignable = function(attrs, prop) {
           var fn = $parse(attrs[prop]);
@@ -144,7 +143,7 @@
             return !($scope.singleItem === 'true' && $scope.shouldShowList());
           };
 
-          /* 
+          /*
            * Mousedown event handler
            */
           $scope.selectItem = function(item) {

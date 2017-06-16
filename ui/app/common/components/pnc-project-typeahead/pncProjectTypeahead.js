@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.directives').component('pncProjectTypeahead', {
+  angular.module('pnc.common.components').component('pncProjectTypeahead', {
     bindings: {
       onSelect: '&',
       input: '=?ngModel'
@@ -27,7 +27,7 @@
     require: {
       ngModel: '?ngModel'
     },
-    templateUrl: 'common/directives/pnc-project-typeahead/pnc-project-typeahead.html',
+    templateUrl: 'common/components/pnc-project-typeahead/pnc-project-typeahead.html',
     controller: ['$scope', 'Project', 'rsqlQuery', Controller]
   });
 

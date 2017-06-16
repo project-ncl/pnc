@@ -22,9 +22,9 @@
     'ui.router',
     'ui.bootstrap',
     'pnc.common.restclient',
-    'pnc.util.date_utils',
+    'pnc.common.util',
     'angularUtils.directives.uiBreadcrumbs',
-    'pnc.util.confirmClick',
+    'pnc.common.directives',
     'angular-websocket',
     'pnc.common.da-client'
   ]);
@@ -39,7 +39,7 @@
         if(fromState.name === 'import.product' && $rootScope.importProductState === 'bc' && !$rootScope.productImportResetConfirmed) {
           event.preventDefault();
           $modal.open({
-            templateUrl: 'common/util/views/confirm-click.html',
+            templateUrl: 'common/directives/pnc-confirm-click/pnc-confirm-click.html',
             controller: [
               '$scope',
               function ($scope) {
