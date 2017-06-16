@@ -114,13 +114,11 @@
 
       $stateProvider.state('build-groups.detail.build-configs', {
         url: '',
-        template: '<pnc-build-group-build-configs build-group="$ctrl.buildGroup" page="$ctrl.page"></pnc-build-group-build-configs>',
-        controller: ['buildConfigsPage', 'configurationSetDetail', function (buildConfigsPage, configurationSetDetail) {
-          this.page = buildConfigsPage;
-          this.buildGroup = configurationSetDetail;
-        }],
-        controllerAs: '$ctrl',
-        bindToController: true
+        component: 'pncBuildGroupBuildConfigs',
+        bindings: {
+          buildGroup: 'configurationSetDetail',
+          page: 'buildConfigsPage'
+        }
       });
 
       $stateProvider.state('build-groups.create', {

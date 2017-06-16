@@ -65,9 +65,6 @@
         data: {
            displayName: '{{ configurationDetail.name }}',
         },
-        templateUrl: 'build-configs/views/build-configs.detail-main.html',
-        controller: 'ConfigurationDetailController',
-        controllerAs: 'detailCtrl',
         views: {
           '': {
             templateUrl: 'build-configs/views/build-configs.detail-main.html',

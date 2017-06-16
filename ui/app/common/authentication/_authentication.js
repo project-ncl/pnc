@@ -19,22 +19,21 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.authentication', []);
-
-  module.run([
+  angular.module('pnc.common.authentication', []).run([
     '$log',
-    '$rootScope',
     '$window',
-    '$state',
+    '$transitions',
     'authService',
-    function($log, $rootScope, $window, $state, authService) {
+    function($log, $window, $transitions, authService) {
 
-      $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, options) {
+      // Check if state require authentication and redirect to keycloak login
+      // if so.
+      $transitions.onStart({}, function (trans) {
+        var toState = trans.to(),
+            stateService = trans.router.stateService;
 
         if (toState.data.requireAuth && !authService.isAuthenticated()) {
-          event.preventDefault();
-          $log.info('Destination requires authentication, redirecting');
-          authService.login($window.location.origin + '/' + $state.href(toState, toParams, options));
+          authService.login($window.location.origin + '/' + stateService.href(toState));
         }
       });
 

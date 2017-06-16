@@ -115,13 +115,11 @@
   ]);
 
   app.run([
-    '$rootScope',
     '$log',
-    '$state',
     'authService',
     'messageBus',
     'restConfig',
-    function($rootScope, $log, $state, authService, messageBus, restConfig) {
+    function($log, authService, messageBus, restConfig) {
 
       messageBus.registerListener(['$log', function ($log) {
         return function (message) {
@@ -131,25 +129,11 @@
 
       messageBus.connect(restConfig.getPncNotificationsUrl());
 
-
       if (authService.isAuthenticated()) {
-        authService.getPncUser().then(function(result) {
+        authService.getPncUser().then(function (result) {
           $log.info('Authenticated with PNC as: %O', result);
         });
       }
-
-      // Handle errors with state changes.
-      $rootScope.$on('$stateChangeError',
-        function(event, toState, toParams, fromState, fromParams, error) {
-
-          $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
-                     'toParams=%O, fromState=%O, fromParams=%O, error=%O',
-                     event, toState, toParams, fromState, fromParams, error);
-          $log.error('Error navigating to "%s": %s %s', toState.url, error.status,
-                     error.statusText);
-        }
-      );
-
   }]);
 
 })();
