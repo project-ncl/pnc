@@ -15,9 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
-  angular.module('pnc.common.daclient', []);
+  var module = angular.module('pnc.common.restclient', [
+    'ngResource',
+    'pnc.util',
+  ]);
 
+  // TODO: Remove this unnecessary layer of indirection.
+  module.factory('REST_BASE_URL', [
+    'restConfig',
+    function(restConfig) {
+      return restConfig.getPncUrl();
+    }
+  ]);
 })();

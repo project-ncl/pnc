@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
   var module = angular.module('pnc.import', [
     'ui.router',
@@ -27,7 +26,7 @@
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.util.confirmClick',
     'angular-websocket',
-    'pnc.common.daclient'
+    'pnc.common.da-client'
   ]);
 
   module.run([

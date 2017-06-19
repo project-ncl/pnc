@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.daclient');
+  var module = angular.module('pnc.common.da-client');
 
   /**
    * Provider for configuration of the daclient services.
