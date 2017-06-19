@@ -18,9 +18,6 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.util', [
-  	'pnc.util.confirmClick',
-    'pnc.util.date_utils'
-  ]);
+  angular.module('pnc.common.util', []);
 
 })();

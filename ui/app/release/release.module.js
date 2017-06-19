@@ -24,7 +24,7 @@
     'patternfly',
     'pnc.product',
     'pnc.common.restclient',
-    'pnc.util.date_utils',
+    'pnc.common.util',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 

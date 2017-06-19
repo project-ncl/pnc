@@ -24,6 +24,7 @@
     'ui.router',
     'ui.bootstrap',
     'patternfly.notification',
+    'pnc.common',
     'pnc.dashboard',
     'pnc.product',
     'pnc.projects',
@@ -32,17 +33,10 @@
     'pnc.build-groups',
     'pnc.milestone',
     'pnc.release',
-    'pnc.common.directives',
-    'pnc.common.notifications',
-    'pnc.common.events',
     'pnc.configuration-set-record',
-    'pnc.common.restclient',
     'pnc.import',
     'pnc.report',
     'pnc.properties',
-    'pnc.common.authentication',
-    'pnc.common.pnc-client',
-    'pnc.common.components'
   ]);
 
   app.config([

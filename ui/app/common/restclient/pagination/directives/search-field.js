@@ -18,28 +18,28 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.directives');
+  var module = angular.module('pnc.common.restclient');
 
   /**
-   * @ngdoc directive
-   * @restrict A
-   * @example <tbody pnc-loading-placeholder columns="3" page="page"></tbody>
-   * @author Martin Kelnar
+   * @author Jakub Senko
    */
-  module.directive('pncLoadingPlaceholder', function () {
+  module.directive('pncSearchField', function () {
     return {
-      restrict: 'A',
+      restrict: 'E',
       scope: {
-        columns: '@',
-        page: '='
+        page: '=',
+        text: '@'
       },
-      templateUrl: 'common/directives/views/pnc-loading-placeholder.html',
-      controller: [
-        '$scope',
-        function($scope) {
-          $scope.columnsIterable = _.range($scope.columns);
-        }
-      ]
+      templateUrl: 'common/restclient/pagination/directives/search-field.html',
+      link: function (scope) {
+        scope.inputId = _.uniqueId('search_');
+
+        scope.search = _.throttle(function() {
+          scope.page.search(scope.searchText);
+        }, 1500, {
+          leading: false
+        });
+      }
     };
   });
 

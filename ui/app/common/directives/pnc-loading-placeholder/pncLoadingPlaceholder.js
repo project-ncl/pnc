@@ -18,16 +18,29 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.restclient', [
-    'ngResource',
-    'pnc.common.util',
-  ]);
+  var module = angular.module('pnc.common.directives');
 
-  // TODO: Remove this unnecessary layer of indirection.
-  module.factory('REST_BASE_URL', [
-    'restConfig',
-    function(restConfig) {
-      return restConfig.getPncUrl();
-    }
-  ]);
+  /**
+   * @ngdoc directive
+   * @restrict A
+   * @example <tbody pnc-loading-placeholder columns="3" page="page"></tbody>
+   * @author Martin Kelnar
+   */
+  module.directive('pncLoadingPlaceholder', function () {
+    return {
+      restrict: 'A',
+      scope: {
+        columns: '@',
+        page: '='
+      },
+      templateUrl: 'common/directives/pnc-loading-placeholder/pnc-loading-placeholder.html',
+      controller: [
+        '$scope',
+        function($scope) {
+          $scope.columnsIterable = _.range($scope.columns);
+        }
+      ]
+    };
+  });
+
 })();

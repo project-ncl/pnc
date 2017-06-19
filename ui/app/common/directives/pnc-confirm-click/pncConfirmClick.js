@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
-
-  var module = angular.module('pnc.util.confirmClick', ['ui.bootstrap']);
+  var module = angular.module('pnc.common.directives');
 
   /**
    * @ngdoc directive
@@ -53,7 +52,7 @@
             scopeAction.$evalAsync(attrs.pncConfirmClick);
           } else {
             $modal.open({
-              templateUrl: 'common/util/views/confirm-click.html',
+              templateUrl: 'common/directives/pnc-confirm-click/pnc-confirm-click.html',
               controller: ['$scope', 'message', function ($scope, message) {
                 $scope.message = message;
                 $scope.confirm = function () {

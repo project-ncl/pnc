@@ -23,9 +23,8 @@
     'ui.bootstrap',
     'xeditable',
     'pnc.common.restclient',
-    'pnc.util.confirmClick',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
+    'angularUtils.directives.uiBreadcrumbs',
     'pnc.build-records',
     'infinite-scroll',
     'pnc.common.authentication'
