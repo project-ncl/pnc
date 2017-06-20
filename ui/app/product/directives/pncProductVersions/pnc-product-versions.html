@@ -55,24 +55,14 @@
           </a>
         </td>
         <td>
-           <span
-             ng-repeat="milestone in version.productMilestones | orderBy: '-milestone.startingDate'">
-                 <span tooltip-template="'milestoneTooltipTemplate.html'"
-                       tooltip-placement="right"
-                       class="label label-default"
-                       ng-class="{ 'label label-primary' : milestone.id == version.currentProductMilestoneId }">
-                   {{ milestone.version }}
-                 </span>
-           </span>
+          <span ng-repeat="milestone in version.productMilestones | orderBy: '-milestone.startingDate'">
+            <pnc-label-link item="milestone" product-id="productId" current-id="version.currentProductMilestoneId"></pnc-label-link>
+          </span>
         </td>
         <td>
-             <span ng-repeat="release in version.productReleases | orderBy: '-release.releaseDate'">
-               <span tooltip-template="'releaseTooltipTemplate.html'"
-                     tooltip-placement="right"
-                     class="label label-success">
-                 {{ release.version }}
-               </span>
-             </span>
+          <span ng-repeat="release in version.productReleases | orderBy: '-release.releaseDate'">
+            <pnc-label-link item="release"></pnc-label-link>
+          </span>
         </td>
       </tr>
       </tbody>

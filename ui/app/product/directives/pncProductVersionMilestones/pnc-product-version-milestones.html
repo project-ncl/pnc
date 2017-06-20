@@ -38,10 +38,7 @@
   <tbody>
   <tr ng-repeat="productmilestone in version.productMilestones">
     <td>
-      <span class="label label-default"
-            ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">
-        <a href class="white_text" ui-sref="product.detail.version.milestoneDetail({ milestoneId: productmilestone.id })">{{ productmilestone.version }}</a>
-      </span>
+      <pnc-label-link item="productmilestone" product-id="product.id" current-id="version.currentProductMilestoneId"></pnc-label-link>
     </td>
     <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
     <td>{{ productmilestone.plannedEndDate | date:'yyyy/MM/dd'}}</td>

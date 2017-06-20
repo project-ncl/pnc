@@ -22,6 +22,10 @@
   margin: 0;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .nowrap {
   white-space: nowrap;
 }
