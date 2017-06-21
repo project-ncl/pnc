@@ -36,7 +36,9 @@
   </thead>
   <tbody>
   <tr ng-repeat="productrelease in version.productReleases">
-    <td><span class="label label-success">{{ productrelease.version }}</span></td>
+    <td>
+      <pnc-label-link item="productrelease"></pnc-label-link>
+    </td>
     <td>{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</td>
     <td class="text-center">
       <a ng-show="productrelease.downloadUrl != undefined" ng-href="{{ productrelease.downloadUrl }}" target="_self"
