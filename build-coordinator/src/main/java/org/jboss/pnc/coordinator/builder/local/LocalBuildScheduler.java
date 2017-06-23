@@ -81,7 +81,7 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.getUser().getId(),
                 configuration.getBuildScript(),
                 configuration.getName(),
-                configuration.getScmRepoURL(),
+                configuration.getRepositoryConfiguration().getInternalScmRepoUrl(),
                 configuration.getScmRevision(),
                 configuration.getBuildEnvironment().getSystemImageId(),
                 configuration.getBuildEnvironment().getSystemImageRepositoryUrl(),

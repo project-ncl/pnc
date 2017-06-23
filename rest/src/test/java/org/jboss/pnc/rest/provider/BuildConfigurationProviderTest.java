@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -64,21 +65,21 @@ public class BuildConfigurationProviderTest {
     @Test(expected = InvalidEntityException.class)
     public void shouldFailOnInvalidGitUrl() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.setScmRepoURL("git+ssh://git@github.com/");
+        configuration.getRepositoryConfiguration().setInternalScmRepoUrl("git+ssh://git@github.com/");
         provider.validateBeforeSaving(configuration);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void shouldFailOnValidGitUrlWithoutDotGit() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.setScmRepoURL(URL_WITHOUT_SUFFIX);
+        configuration.getRepositoryConfiguration().setInternalScmRepoUrl(URL_WITHOUT_SUFFIX);
         provider.validateBeforeSaving(configuration);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void shouldSucceedOnUpdateWithLackOfMirrorWithSlash() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.setScmRepoURL(INVALID_URL);
+        configuration.getRepositoryConfiguration().setInternalScmRepoUrl(INVALID_URL);
         provider.validateBeforeSaving(configuration);
     }
 
@@ -96,10 +97,13 @@ public class BuildConfigurationProviderTest {
     }
 
     private BuildConfigurationRest createValidConfiguration() {
+        RepositoryConfigurationRest repositoryConfigurationRest = new RepositoryConfigurationRest();
+        repositoryConfigurationRest.setInternalScmRepoUrl(VALID_URL);
+
         BuildConfigurationRest configuration = new BuildConfigurationRest();
         configuration.setProject(createProject());
         configuration.setName("config");
-        configuration.setScmRepoURL(VALID_URL);
+        configuration.setRepositoryConfiguration(repositoryConfigurationRest);
         configuration.setEnvironment(new BuildEnvironmentRest());
         return configuration;
     }

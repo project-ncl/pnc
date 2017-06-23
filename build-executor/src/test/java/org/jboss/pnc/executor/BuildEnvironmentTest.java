@@ -145,7 +145,7 @@ public class BuildEnvironmentTest {
                 1,
                 buildConfiguration.getBuildScript(),
                 buildConfiguration.getName(),
-                buildConfiguration.getScmRepoURL(),
+                buildConfiguration.getRepositoryConfiguration().getInternalScmRepoUrl(),
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),

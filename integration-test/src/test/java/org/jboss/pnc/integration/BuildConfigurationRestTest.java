@@ -36,6 +36,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -393,17 +394,20 @@ public class BuildConfigurationRestTest extends AbstractTest {
         RestResponse<ProjectRest> projectRestClient = BuildConfigurationRestTest.projectRestClient.firstNotNull();
         RestResponse<BuildEnvironmentRest> environmentRestClient = BuildConfigurationRestTest.environmentRestClient.firstNotNull();
 
+        RepositoryConfigurationRest repositoryConfigurationRest = new RepositoryConfigurationRest();
+        repositoryConfigurationRest.setInternalScmRepoUrl(VALID_INTERNAL_REPO);
+
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
         buildConfiguration.setName(UUID.randomUUID().toString());
         buildConfiguration.setProject(projectRestClient.getValue());
         buildConfiguration.setEnvironment(environmentRestClient.getValue());
-        buildConfiguration.setScmRepoURL(VALID_INTERNAL_REPO);
+        buildConfiguration.setRepositoryConfiguration(repositoryConfigurationRest);
 
         BuildConfigurationRest dependencyBuildConfiguration = new BuildConfigurationRest();
         dependencyBuildConfiguration.setName(UUID.randomUUID().toString());
         dependencyBuildConfiguration.setProject(projectRestClient.getValue());
         dependencyBuildConfiguration.setEnvironment(environmentRestClient.getValue());
-        dependencyBuildConfiguration.setScmRepoURL(VALID_INTERNAL_REPO);
+        buildConfiguration.setRepositoryConfiguration(repositoryConfigurationRest);
 
         // when
         RestResponse<BuildConfigurationRest> configurationResponse = buildConfigurationRestClient

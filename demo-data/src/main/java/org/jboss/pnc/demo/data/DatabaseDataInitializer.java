@@ -19,24 +19,8 @@ package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.SystemImageType;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -308,7 +292,9 @@ public class DatabaseDataInitializer {
                 .description("Test build config for project newcastle")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
-                .scmRepoURL("https://github.com/project-ncl/pnc.git")
+                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
+                    .internalScmRepoUrl("https://github.com/project-ncl/pnc.git")
+                    .build())
                 .productVersion(productVersion1).scmRevision("*/v0.2").build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
@@ -317,7 +303,9 @@ public class DatabaseDataInitializer {
                 .description("Test config for JBoss modules build master branch.")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion1)
-                .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
+                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
+                        .internalScmRepoUrl("https://github.com/jboss-modules/jboss-modules.git")
+                        .build())
                 .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
@@ -326,7 +314,9 @@ public class DatabaseDataInitializer {
                 .project(project3).description("Test build for jboss java servlet api")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion2)
-                .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git")
+                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
+                        .internalScmRepoUrl("https://github.com/jboss/jboss-servlet-api_spec.git")
+                        .build())
                 .dependency(buildConfiguration2).build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
@@ -335,7 +325,9 @@ public class DatabaseDataInitializer {
                 .project(project4).description("Test build for Fabric8")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
-                .scmRepoURL("https://github.com/fabric8io/fabric8.git")
+                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
+                        .internalScmRepoUrl("https://github.com/fabric8io/fabric8.git")
+                        .build())
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
@@ -344,7 +336,9 @@ public class DatabaseDataInitializer {
                 .project(project5).description("Test build for Plugins with external downloads")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy")
-                .scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
+                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
+                        .internalScmRepoUrl("https://github.com/rnc/mvn-plugin-test.git")
+                        .build())
                 .build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
 
