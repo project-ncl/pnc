@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.apache.maven.model.Repository;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,6 +38,9 @@ public class BasicModelTest extends AbstractModelTest {
     
     private User pncUser;
 
+    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
+            .newBuilder().id(1).build();
+
     /**
      * Initialize a basic data set before each test run
      */
@@ -49,12 +53,12 @@ public class BasicModelTest extends AbstractModelTest {
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
         BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")
                 .description("Test Build Configuration 1 Description").project(Project.Builder.newBuilder().id(1).build())
-                .scmRepoURL("http://www.github.com").buildScript("mvn install")
+                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn install")
                 .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
 
         BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 2")
                 .description("Test Build Configuration 2 Description").project(Project.Builder.newBuilder().id(1).build())
-                .scmRepoURL("http://www.github.com").buildScript("mvn install")
+                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn install")
                 .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
 
         em.getTransaction().begin();
@@ -79,6 +83,7 @@ public class BasicModelTest extends AbstractModelTest {
         Assert.assertEquals(2, em.createQuery("from ProductMilestone").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from License").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from BuildConfiguration").getResultList().size());
+        Assert.assertEquals(1, em.createQuery("from RepositoryConfiguration").getResultList().size());
     }
 
     @Test
@@ -134,8 +139,10 @@ public class BasicModelTest extends AbstractModelTest {
                 .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 
-        BuildConfigurationAudited buildConfigAud = (BuildConfigurationAudited) em.createQuery("from BuildConfigurationAudited")
+        BuildConfigurationAudited buildConfigAud = em.createQuery("SELECT bca FROM BuildConfigurationAudited bca",
+                BuildConfigurationAudited.class)
                 .getResultList().get(1);
+
         BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().id(buildConfigAud.getIdRev().getId()).build();
         BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(1).buildConfigurationAudited(buildConfigAud)
                 .latestBuildConfiguration(buildConfig1).buildLog("Bulid Complete").buildContentId("foo")
@@ -237,7 +244,7 @@ public class BasicModelTest extends AbstractModelTest {
                 .name("Build Configuration 1")
                 .description("Build Configuration 1 Description")
                 .project(Project.Builder.newBuilder().id(1).build())
-                .scmRepoURL("http://www.github.com")
+                .repositoryConfiguration(basicRepositoryConfiguration)
                 .buildScript("mvn install")
                 .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
                 .build();

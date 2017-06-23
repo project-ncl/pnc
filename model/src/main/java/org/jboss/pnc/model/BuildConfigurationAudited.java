@@ -60,17 +60,15 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     @Type(type = "org.hibernate.type.TextType")
     private String buildScript;
 
-    private String scmRepoURL;
+    @NotNull
+    @ManyToOne(optional = false)
+    @ForeignKey(name = "fk_buildconfiguration_aud_repositoryconfiguration")
+    @Index(name="idx_buildconfiguration_aud_repositoryconfiguration")
+    @Getter
+    @Setter
+    private RepositoryConfiguration repositoryConfiguration;
 
     private String scmRevision;
-
-    @Getter
-    @Setter
-    private String scmExternalRepoURL;
-
-    @Getter
-    @Setter
-    private String scmExternalRevision;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -168,20 +166,6 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     }
 
     /**
-     * @return the scmRepoURL
-     */
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    /**
-     * @param scmRepoURL the scmRepoURL to set
-     */
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
-    }
-
-    /**
      * @return the scmRevision
      */
     public String getScmRevision() {
@@ -259,6 +243,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
         private BuildConfiguration buildConfiguration;
         private Integer id;
         private Integer rev;
+        private RepositoryConfiguration repositoryConfiguration;
 
         public static Builder newBuilder() {
             return new Builder();
@@ -272,10 +257,8 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
             configurationAudited.setBuildEnvironment(buildConfiguration.getBuildEnvironment());
             configurationAudited.setName(buildConfiguration.getName());
             configurationAudited.setDescription(buildConfiguration.getDescription());
-            configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
             configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
-            configurationAudited.setScmExternalRepoURL(buildConfiguration.getScmExternalRepoURL());
-            configurationAudited.setScmExternalRevision(buildConfiguration.getScmExternalRevision());
+            configurationAudited.setRepositoryConfiguration(repositoryConfiguration);
             configurationAudited.setRev(rev);
             configurationAudited.setIdRev(new IdRev(id, rev));
             return configurationAudited;
@@ -293,6 +276,11 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
         public Builder buildRecord(Integer id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder repositoryConfiguration(RepositoryConfiguration repositoryConfiguration) {
+            this.repositoryConfiguration = repositoryConfiguration;
             return this;
         }
     }

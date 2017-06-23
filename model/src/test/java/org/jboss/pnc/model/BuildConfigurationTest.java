@@ -21,9 +21,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.EntityManager;
+import javax.persistence.RollbackException;
+import javax.validation.ConstraintViolationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +44,9 @@ public class BuildConfigurationTest extends AbstractModelTest {
     protected final BuildEnvironment BUILD_ENVIRONMENT_WITH_ID_1;
 
     protected final Project PROJECT_WITH_ID_1;
+
+    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
+            .newBuilder().id(1).build();
 
     private final String KEY1 = "key1";
 
@@ -72,7 +78,8 @@ public class BuildConfigurationTest extends AbstractModelTest {
         BuildConfiguration original = BuildConfiguration.Builder.newBuilder()
                 .name("Test Build Configuration 1")
                 .description("Test Build Configuration 1 Description").project(PROJECT_WITH_ID_1)
-                .scmRepoURL("http://www.github.com").buildScript("mvn install")
+                .repositoryConfiguration(basicRepositoryConfiguration)
+                .buildScript("mvn install")
                 .genericParameters(GENERIC_PARAMETERS_EMPTY)
                 .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
 
@@ -82,6 +89,40 @@ public class BuildConfigurationTest extends AbstractModelTest {
 
         BuildConfiguration obtained = em.find(BuildConfiguration.class, original.getId());
         assertEquals(0, obtained.getGenericParameters().size());
+    }
+
+    @Test(expected = RollbackException.class)
+    public void testFailToCreateBCWithoutRepoConfig() {
+        BuildConfiguration bc = BuildConfiguration.Builder.newBuilder()
+                .name("Test Build Configuration 1")
+                .project(PROJECT_WITH_ID_1)
+                .buildScript("mvn install")
+                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
+
+        em.getTransaction().begin();
+        em.persist(bc);
+        em.getTransaction().commit();
+    }
+
+    @Test(expected = RollbackException.class)
+    @Ignore // TODO Unignore, once the relationship constraint is added
+    public void testFailToChangeRepoConfigInBC() {
+        BuildConfiguration bc = BuildConfiguration.Builder.newBuilder()
+                .name("Test Build Configuration 1")
+                .project(PROJECT_WITH_ID_1)
+                .repositoryConfiguration(basicRepositoryConfiguration)
+                .buildScript("mvn install")
+                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
+
+        RepositoryConfiguration repoConfig = RepositoryConfiguration.Builder.newBuilder()
+                .internalScmRepoUrl("example.com")
+                .build();
+
+        em.getTransaction().begin();
+        em.persist(bc);
+        em.persist(repoConfig);
+        bc.setRepositoryConfiguration(repoConfig);
+        em.getTransaction().commit();
     }
 
     @Test
@@ -134,7 +175,8 @@ public class BuildConfigurationTest extends AbstractModelTest {
             Map<String, String> genericParameters) {
         return BuildConfiguration.Builder.newBuilder().name(name)
                 .description(description).project(PROJECT_WITH_ID_1)
-                .scmRepoURL("http://www.github.com").buildScript("mvn install")
+                .repositoryConfiguration(basicRepositoryConfiguration)
+                .buildScript("mvn install")
                 .genericParameters(genericParameters)
                 .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
 

@@ -22,7 +22,6 @@ import lombok.Setter;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import org.hibernate.annotations.MapKeyType;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -54,6 +53,7 @@ import java.util.stream.Collectors;
  * (project + name) should be unique
  *
  * @author avibelli
+ * @author Jakub Bartecek
  */
 @Entity
 @Audited
@@ -78,15 +78,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Type(type = "org.hibernate.type.TextType")
     private String buildScript;
 
-    /**
-     * Repository URL containing project to be build.
-     * This URL *MUST* be read/write.
-     * This SHOULD be internal URL, since build process
-     * may involve source code manipulation and
-     * pushing branches, tags, etc.
-     */
-    @Size(max=255)
-    private String scmRepoURL;
+    @Getter
+    @Setter
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @NotNull
+    @ForeignKey(name = "fk_buildconfiguration_repositoryconfiguration" )
+    @Index(name="idx_buildconfiguration_repositoryconfiguration")
+    @ManyToOne(optional = false)
+    //TODO should be not updatable and not nullable
+    //@JoinColumn(name = "fk_buildconfiguration_repositoryconfiguration", updatable = false, nullable = false)
+    private RepositoryConfiguration repositoryConfiguration;
 
     /**
      * Revision to build.
@@ -96,23 +97,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     @Size(max=255)
     private String scmRevision;
-
-    /**
-     * Repository URL of upstream of {@link BuildConfiguration#scmRepoURL}.
-     * This repo SHOULD NOT be used as the direct source for the actual build,
-     * rather, build process MAY clone the external repo and set
-     * {@link BuildConfiguration#scmRepoURL} accordingly.
-     * This URL SHOULD be read-only, since push access is not needed.
-     */
-    @Size(max=255)
-    @Getter
-    @Setter
-    private String scmExternalRepoURL;
-
-    @Size(max=255)
-    @Getter
-    @Setter
-    private String scmExternalRevision;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -251,14 +235,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
-    }
-
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
     }
 
     public String getScmRevision() {
@@ -662,13 +638,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String buildScript;
 
-        private String scmRepoURL;
+        private RepositoryConfiguration repositoryConfiguration;
 
         private String scmRevision;
-
-        private String scmExternalRepoURL;
-
-        private String scmExternalRevision;
 
         private String description;
 
@@ -707,10 +679,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setId(id);
             buildConfiguration.setName(name);
             buildConfiguration.setBuildScript(buildScript);
-            buildConfiguration.setScmRepoURL(scmRepoURL);
+            buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
             buildConfiguration.setScmRevision(scmRevision);
-            buildConfiguration.setScmExternalRepoURL(scmExternalRepoURL);
-            buildConfiguration.setScmExternalRevision(scmExternalRevision);
             buildConfiguration.setDescription(description);
 
             // Set the bi-directional mapping
@@ -763,23 +733,13 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        public Builder scmRepoURL(String scmRepoURL) {
-            this.scmRepoURL = scmRepoURL;
+        public Builder repositoryConfiguration(RepositoryConfiguration repositoryConfiguration) {
+            this.repositoryConfiguration = repositoryConfiguration;
             return this;
         }
 
         public Builder scmRevision(String scmRevision) {
             this.scmRevision = scmRevision;
-            return this;
-        }
-
-        public Builder scmExternalRepoURL(String scmExternalRepoURL) {
-            this.scmExternalRepoURL = scmExternalRepoURL;
-            return this;
-        }
-
-        public Builder scmExternalRevision(String scmExternalRevision) {
-            this.scmExternalRevision = scmExternalRevision;
             return this;
         }
 

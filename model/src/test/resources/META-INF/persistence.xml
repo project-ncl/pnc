@@ -31,6 +31,7 @@
     <class>org.jboss.pnc.model.Artifact</class>
     <class>org.jboss.pnc.model.BuildConfigSetRecord</class>
     <class>org.jboss.pnc.model.BuildConfiguration</class>
+    <class>org.jboss.pnc.model.RepositoryConfiguration</class>
     <class>org.jboss.pnc.model.BuildConfigurationAudited</class>
     <class>org.jboss.pnc.model.BuildConfigurationSet</class>
     <class>org.jboss.pnc.model.BuildEnvironment</class>

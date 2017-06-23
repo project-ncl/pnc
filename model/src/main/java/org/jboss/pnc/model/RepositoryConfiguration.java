@@ -1,11 +1,12 @@
-package org.jboss.pnc.model.utils;
+package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jboss.pnc.model.GenericEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The class that contains configuration of the SCM repositories.
@@ -24,12 +25,20 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)
     private Integer id;
 
+    /**
+     * Repository URL containing project to be build.
+     * This URL *MUST* be read/write.
+     */
     @Size(max = 255)
     @Column(unique = true, nullable = false, updatable = false)
     @Getter
     @Setter
     private String internalScmRepoUrl;
 
+    /**
+     * URL of an upstream SCM repository.
+     * This URL SHOULD be read-only, since push access is not needed
+     */
     @Size(max = 255)
     @Getter
     @Setter
@@ -41,6 +50,11 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Getter
     @Setter
     private Boolean preBuildSyncEnabled;
+
+    @OneToMany(mappedBy = "repositoryConfiguration")
+    @Getter
+    @Setter
+    private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
     @Override
     public Integer getId() {
@@ -76,7 +90,9 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
         private Boolean preBuildSyncEnabled;
 
-        private static Builder newBuilder() {
+        private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
+
+        public static Builder newBuilder() {
             return new Builder();
         }
 
@@ -91,6 +107,8 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
             repositoryConfiguration.setInternalScmRepoUrl(internalScmRepoUrl);
             repositoryConfiguration.setExternalScmRepoUrl(externalScmRepoUrl);
             repositoryConfiguration.setPreBuildSyncEnabled(preBuildSyncEnabled);
+            repositoryConfiguration.setBuildConfigurations(buildConfigurations);
+            return repositoryConfiguration;
         }
 
         public Builder internalScmRepoUrl(String internalScmRepoUrl) {
@@ -105,6 +123,11 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
         public Builder preBuildSyncEnabled(Boolean preBuildSyncEnabled) {
             this.preBuildSyncEnabled = preBuildSyncEnabled;
+            return this;
+        }
+
+        public Builder buildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+            this.buildConfigurations = buildConfigurations;
             return this;
         }
     }
