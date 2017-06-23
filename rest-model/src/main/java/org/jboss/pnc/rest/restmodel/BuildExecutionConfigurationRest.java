@@ -106,7 +106,11 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         buildConfigAuditedRest.setRev(null);
         buildConfigAuditedRest.setName(name);
         buildConfigAuditedRest.setBuildScript(buildScript);
-        buildConfigAuditedRest.setScmRepoURL(scmRepoURL);
+
+        //TODO update to use also other parts or Repository Configuration
+        RepositoryConfigurationRest repoConfigRest = new RepositoryConfigurationRest();
+        repoConfigRest.setInternalScmRepoUrl(scmRepoURL);
+        buildConfigAuditedRest.setRepositoryConfiguration(repoConfigRest);
         buildConfigAuditedRest.setScmRevision(scmRevision);
         return buildConfigAuditedRest;
     }
@@ -220,11 +224,11 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     public void setSystemImageType(SystemImageType systemImageType) {
         this.systemImageType = systemImageType;
     }
-    
+
     public void setGenericParameters(Map<String, String> genericParameters) {
         this.genericParameters = genericParameters;
     }
-    
+
     @Override
     public Map<String, String> getGenericParameters() {
         return genericParameters;

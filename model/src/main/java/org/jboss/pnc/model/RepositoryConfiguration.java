@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The class that contains configuration of the SCM repositories.
+ * The JPA entity class that contains configuration of the SCM repositories.
  *
  * @author Jakub Bartecek
  */

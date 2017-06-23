@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.rest.validation.validators.ScmUrl;
@@ -53,20 +54,12 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private String buildScript;
 
-    @NotBlank(groups = WhenCreatingNew.class)
-    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    private String scmRepoURL;
+    @Setter
+    @Getter
+    @NotNull
+    private RepositoryConfigurationRest repositoryConfiguration;
 
     private String scmRevision;
-
-    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @Getter
-    @Setter
-    private String scmExternalRepoURL;
-
-    @Getter
-    @Setter
-    private String scmExternalRevision;
 
     private Date creationTime;
 
@@ -96,10 +89,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.name = buildConfiguration.getName();
         this.description = buildConfiguration.getDescription();
         this.buildScript = buildConfiguration.getBuildScript();
-        this.scmRepoURL = buildConfiguration.getScmRepoURL();
+        this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfiguration.getRepositoryConfiguration());
         this.scmRevision = buildConfiguration.getScmRevision();
-        this.scmExternalRepoURL = buildConfiguration.getScmExternalRepoURL();
-        this.scmExternalRevision = buildConfiguration.getScmExternalRevision();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
@@ -146,14 +137,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
-    }
-
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
     }
 
     public String getScmRevision() {
@@ -234,13 +217,11 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .name(this.getName())
                 .description(this.getDescription())
                 .buildScript(this.getBuildScript())
-                .scmRepoURL(this.getScmRepoURL())
                 .scmRevision(this.getScmRevision())
-                .scmExternalRepoURL(this.getScmExternalRepoURL())
-                .scmExternalRevision(this.getScmExternalRevision())
                 .archived(this.isArchived())
                 .genericParameters(this.getGenericParameters());
 
+        performIfNotNull(this.getRepositoryConfiguration(), () -> this.getRepositoryConfiguration().toDBEntityBuilder().build());
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
         performIfNotNull(this.getEnvironment(), () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
         performIfNotNull(this.getProductVersionId(), () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
