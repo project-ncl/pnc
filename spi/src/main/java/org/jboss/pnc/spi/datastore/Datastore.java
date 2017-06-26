@@ -21,12 +21,14 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Topmost datastore interface.
@@ -106,4 +108,5 @@ public interface Datastore {
      */
     boolean requiresRebuild(BuildTask task);
 
+    Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet);
 }

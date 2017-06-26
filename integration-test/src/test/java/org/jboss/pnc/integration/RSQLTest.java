@@ -81,7 +81,7 @@ public class RSQLTest {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(RSQLTest.class);
-        logger.info(enterpriseArchive.toString(true));
+        logger.info("Deployment archive: " + enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

@@ -25,6 +25,9 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.datastore.limits.DefaultPageInfoProducer;
+import org.jboss.pnc.datastore.limits.DefaultSortInfoProducer;
+import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
@@ -40,7 +43,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import javax.ws.rs.core.Response;
 import java.util.Optional;
@@ -48,7 +50,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
 /**
@@ -73,8 +74,6 @@ public class BpmEndpointTest {
     private BuildConfigurationAuditedRepository configurationAuditedRepository;
     @Mock
     private ProductVersionRepository versionRepository;
-    @Mock
-    private RepositoryConfigurationProvider repositoryConfigurationProvider;
     @Mock
     private RepositoryConfigurationRepository repositoryConfigurationRepository;
     @Mock
@@ -109,9 +108,16 @@ public class BpmEndpointTest {
         when(authProviderFactory.getProvider()).thenReturn(authProvider);
         when(authProvider.getLoggedInUser(any())).thenReturn(new NoAuthLoggedInUser());
 
-        doCallRealMethod().when(repositoryConfigurationProvider).validateInternalRepository(Matchers.anyString());
+        when(pncConfiguration.getModuleConfig(any())).thenReturn(scmModuleConfig);
 
-        Whitebox.setInternalState(repositoryConfigurationProvider, "moduleConfig", scmModuleConfig);
+        RepositoryConfigurationProvider repositoryConfigurationProvider = new RepositoryConfigurationProvider(
+                repositoryConfigurationRepository,
+                new SpringDataRSQLPredicateProducer(),
+                new DefaultSortInfoProducer(),
+                new DefaultPageInfoProducer(),
+                pncConfiguration
+        );
+
 
         when(repositoryConfigurationRepository.queryByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
                 .thenReturn(existingInternalRepositoryConfiguration);
@@ -195,5 +201,4 @@ public class BpmEndpointTest {
     interface ThrowingRunnable {
         void run() throws Exception;
     }
-
 }

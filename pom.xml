@@ -22,6 +22,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <!--<parent>-->
+    <!--<groupId>org.jboss.bom</groupId>-->
+    <!--<artifactId>jboss-eap-javaee7-with-tools</artifactId>-->
+    <!--<version>7.0.0.GA</version>-->
+  <!--</parent>-->
+  <parent>
+    <groupId>org.jboss</groupId>
+    <artifactId>jboss-parent</artifactId>
+    <version>24</version>
+    <relativePath />
+  </parent>
+
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
   <version>1.3.0-SNAPSHOT</version>
@@ -85,44 +97,34 @@
     <maven.min.version>3.2</maven.min.version>
     <atlasVersion>0.16.0</atlasVersion>
     <indyVersion>1.2.0-SNAPSHOT</indyVersion>
-    <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
-    <version.junit>4.11</version.junit>
-    <version.assertj-core>1.7.0</version.assertj-core>
-    <version.mockito-all>1.10.8</version.mockito-all>
+    <version.assertj-core>3.8.0</version.assertj-core>
+    <version.mockito>2.8.47</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.guava>17.0</version.guava>
     <version.org.apache.httpcomponents.httpclient>4.4</version.org.apache.httpcomponents.httpclient>
     <version.org.apache.httpcomponents.httpcore>4.4</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
-    <version.org.jboss.logging>3.1.0.GA</version.org.jboss.logging>
     <version.org.json>20141113</version.org.json>
-    <version.jackson>2.4.4</version.jackson>
-    <version.jackson.annotations>2.4.1</version.jackson.annotations>
     <version.jclouds>1.8.1</version.jclouds>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
     <version.keycloak>1.9.8.Final</version.keycloak>
-    <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
     <version.buildagent>0.3</version.buildagent>
+    <version.jackson.core>2.5.4.redhat-1</version.jackson.core>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
 
-    <!-- maven-compiler-plugin -->
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <illegaltransitivereportonly>false</illegaltransitivereportonly>
 
     <!-- Default DB for NCL is HSQLDB -->
     <persistence.jta-data-source>java:jboss/datasources/NewcastleTestDS</persistence.jta-data-source>
-    <persistence.hibernate.dialect>org.hibernate.dialect.HSQLDialect</persistence.hibernate.dialect>
+    <!--<persistence.hibernate.dialect>org.hibernate.dialect.HSQLDialect</persistence.hibernate.dialect>-->
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
 
     <!-- Jacoco & Sonar -->
@@ -132,11 +134,9 @@
 
     <!-- Integration tests -->
     <app.server>jboss-eap</app.server>
-    <jboss.version>6.4</jboss.version>
-    <arquillian.container.groupId>org.jboss.as</arquillian.container.groupId>
-    <arquillian.container.artifactId>jboss-as-arquillian-container-managed</arquillian.container.artifactId>
+    <jboss.version>7.0</jboss.version>
     <default.management.port>9999</default.management.port>
-    <test.server.unpack.dir>${project.basedir}/../target</test.server.unpack.dir>
+    <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
     <arquillian.container.type>managed</arquillian.container.type>
     <jboss.port.offset>0</jboss.port.offset>
@@ -145,25 +145,52 @@
     <auth>false</auth>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+
   <dependencyManagement>
     <dependencies>
 
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlets</artifactId>
-        <version>9.3.4.v20151007</version>
+        <groupId>org.jboss.bom</groupId>
+        <artifactId>jboss-eap-javaee7-with-tools</artifactId>
+        <version>7.0.7.GA</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <dependency>
-          <groupId>org.codehaus.jackson</groupId>
-          <artifactId>jackson-mapper-asl</artifactId>
-          <version>1.9.13</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.codehaus.jackson</groupId>
-          <artifactId>jackson-core-asl</artifactId>
-          <version>1.9.13</version>
+        <groupId>org.jboss.arquillian.extension</groupId>
+        <artifactId>arquillian-transaction-bom</artifactId>
+        <version>1.0.5</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <dependency>
@@ -386,6 +413,7 @@
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
         <version>${version.shrinkwrap}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -398,20 +426,6 @@
         <groupId>org.jboss.shrinkwrap.descriptors</groupId>
         <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
         <version>${version.shrinkwrap.descriptors}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.wildfly</groupId>
-        <artifactId>wildfly-arquillian-container-embedded</artifactId>
-        <version>${jboss.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.wildfly</groupId>
-        <artifactId>wildfly-embedded</artifactId>
-        <version>${jboss.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -448,6 +462,14 @@
         <groupId>javax.el</groupId>
         <artifactId>el-api</artifactId>
         <version>2.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>javax.el-api</artifactId>
+        <version>2.2.4</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -477,33 +499,15 @@
       <dependency>
         <groupId>org.jboss.arquillian</groupId>
         <artifactId>arquillian-bom</artifactId>
-        <version>1.1.5.Final</version>
+        <version>1.1.13.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.as</groupId>
-        <artifactId>jboss-as-arquillian-container-managed</artifactId>
-        <version>7.2.0.Final</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.as</groupId>
-        <artifactId>jboss-as-arquillian-container-remote</artifactId>
-        <version>7.2.0.Final</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
-        <version>2.2.22.GA</version> <!-- TODO upgrade to 2.5-->
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.arquillian.extension</groupId>
-        <artifactId>arquillian-transaction-jta</artifactId>
-        <version>1.0.1.Final</version>
+        <version>2.5.0.Final</version>
       </dependency>
 
       <dependency>
@@ -519,48 +523,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.bom</groupId>
-        <artifactId>jboss-javaee-6.0-with-tools</artifactId>
-        <version>${version.jboss.bom}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.bom</groupId>
-        <artifactId>jboss-javaee-6.0-with-hibernate</artifactId>
-        <version>${version.jboss.bom}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-6.0</artifactId>
-        <version>3.0.3.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging</artifactId>
-        <version>${version.org.jboss.logging}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-jpamodelgen</artifactId>
-        <version>${version.hibernate-jpamodelgen}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-spi</artifactId>
-        <version>1.1.Final</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.weld</groupId>
         <artifactId>weld-core</artifactId>
         <version>1.1.32.Final</version>
@@ -570,23 +532,25 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
         <version>1.7.7</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>1.7.7</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-jpa</artifactId>
-        <version>1.8.0.RELEASE</version>
+        <version>1.11.6.RELEASE</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-commons</artifactId>
-        <version>1.10.0.RELEASE</version>
+        <version>1.13.6.RELEASE</version>
       </dependency>
 
       <dependency>
@@ -632,7 +596,8 @@
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
-        <version>2.3.10.Final</version>
+        <version>3.0.19.SP4-redhat-1</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>javax.annotation</groupId>
@@ -696,17 +661,11 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.16.10</version>
+        <version>1.16.18</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- Test dependencies -->
-      <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>${version.junit}</version>
-        <scope>test</scope>
-      </dependency>
-
       <dependency>
         <groupId>org.dbunit</groupId>
         <artifactId>dbunit</artifactId>
@@ -741,8 +700,9 @@
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>${version.mockito-all}</version>
+        <artifactId>mockito-core</artifactId>
+        <version>${version.mockito}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.googlecode.catch-exception</groupId>
@@ -789,7 +749,8 @@
       <dependency>
         <groupId>com.jayway.restassured</groupId>
         <artifactId>rest-assured</artifactId>
-        <version>2.4.0</version>
+        <version>2.9.0</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -807,25 +768,31 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>${version.jackson}</version>
+        <version>${version.jackson.core}</version>
+        <scope>provided</scope>
       </dependency>
-
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${version.jackson}</version>
+        <version>${version.jackson.core}</version>
+        <scope>provided</scope>
       </dependency>
-
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${version.jackson.annotations}</version>
+        <version>${version.jackson.core}</version>
+        <scope>provided</scope>
       </dependency>
-
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jdk7</artifactId>
-        <version>${version.jackson}</version>
+        <artifactId>jackson-datatype-joda</artifactId>
+        <version>2.5.4</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jdk8</artifactId>
+        <version>2.5.4</version>
       </dependency>
 
       <dependency>
@@ -855,9 +822,9 @@
       <dependency>
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
-        <version>2.3.4</version>
+        <version>2.4.0</version>
         <scope>test</scope>
-        <classifier>jdk6debug</classifier>
+        <classifier>jdk8debug</classifier>
       </dependency>
 
       <dependency>
@@ -865,7 +832,6 @@
         <artifactId>commons-validator</artifactId>
         <version>1.5.0</version>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 
@@ -882,52 +848,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
           <version>2.6</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>hibernate3-maven-plugin</artifactId>
-          <version>3.0</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.8</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.2</version>
-          <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>2.6.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.9</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-ejb-plugin</artifactId>
-          <version>2.5</version>
         </plugin>
 
         <plugin>
@@ -977,148 +897,19 @@
         </plugin>
 
         <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.1</version>
-        </plugin>
-
-        <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>2.5</version>
-            <configuration>
-                <archive>
-                    <index>true</index>
-                    <manifest>
-                        <addDefaultSpecificationEntries>
-                            true
-                        </addDefaultSpecificationEntries>
-                        <addDefaultImplementationEntries>
-                            true
-                        </addDefaultImplementationEntries>
-                    </manifest>
-                    <manifestEntries>
-                        <Implementation-URL>${project.url}</Implementation-URL>
-                        <Java-Version>${java.version}</Java-Version>
-                        <Java-Vendor>${java.vendor}</Java-Vendor>
-                        <Os-Name>${os.name}</Os-Name>
-                        <Os-Arch>${os.arch}</Os-Arch>
-                        <Os-Version>${os.version}</Os-Version>
-                        <Scm-Url>${project.scm.url}</Scm-Url>
-                        <Scm-Connection>${project.scm.connection}</Scm-Connection>
-                        <Scm-Revision>${buildNumber}</Scm-Revision>
-                        <Build-Timestamp>${datetime}</Build-Timestamp>
-                    </manifestEntries>
-                </archive>
-            </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.1</version>
-        </plugin>
-
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>2.7</version>
-        </plugin>
-
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.4</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.2.1</version>
-        </plugin>
-
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
-          <configuration>
-            <trimStackTrace>false</trimStackTrace>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.18.1</version>
-        </plugin>
-
-        <plugin>
           <artifactId>maven-ear-plugin</artifactId>
-          <version>2.9.1</version>
+          <version>${version.ear.plugin}</version>
           <configuration>
-            <archive>
-              <index>true</index>
-              <manifest>
-                <addDefaultSpecificationEntries>
-                  true
-                </addDefaultSpecificationEntries>
-                <addDefaultImplementationEntries>
-                  true
-                </addDefaultImplementationEntries>
-              </manifest>
-              <manifestEntries>
-                <Implementation-URL>${project.url}</Implementation-URL>
-                <Java-Version>${java.version}</Java-Version>
-                <Java-Vendor>${java.vendor}</Java-Vendor>
-                <Os-Name>${os.name}</Os-Name>
-                <Os-Arch>${os.arch}</Os-Arch>
-                <Os-Version>${os.version}</Os-Version>
-                <Scm-Url>${project.scm.url}</Scm-Url>
-                <Scm-Connection>${project.scm.connection}</Scm-Connection>
-                <Scm-Revision>${buildNumber}</Scm-Revision>
-                <Build-Timestamp>${datetime}</Build-Timestamp>
-              </manifestEntries>
-            </archive>
-            <version>6</version>
+            <version>7</version>
             <defaultLibBundleDir>lib</defaultLibBundleDir>
             <fileNameMapping>no-version</fileNameMapping>
           </configuration>
         </plugin>
 
         <plugin>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>2.5</version>
-          <configuration>
-            <archive>
-              <index>true</index>
-              <manifest>
-                <addDefaultSpecificationEntries>
-                  true
-                </addDefaultSpecificationEntries>
-                <addDefaultImplementationEntries>
-                  true
-                </addDefaultImplementationEntries>
-              </manifest>
-              <manifestEntries>
-                <Implementation-URL>${project.url}</Implementation-URL>
-                <Java-Version>${java.version}</Java-Version>
-                <Java-Vendor>${java.vendor}</Java-Vendor>
-                <Os-Name>${os.name}</Os-Name>
-                <Os-Arch>${os.arch}</Os-Arch>
-                <Os-Version>${os.version}</Os-Version>
-                <Scm-Url>${project.scm.url}</Scm-Url>
-                <Scm-Connection>${project.scm.connection}</Scm-Connection>
-                <Scm-Revision>${buildNumber}</Scm-Revision>
-                <Build-Timestamp>${datetime}</Build-Timestamp>
-              </manifestEntries>
-            </archive>
-          </configuration>
-        </plugin>
-
-        <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.3</version>
+          <version>${version.buildnumber.plugin}</version>
           <executions>
             <execution>
               <phase>validate</phase>
@@ -1137,7 +928,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.9.1</version>
+          <version>${version.buildhelper.plugin}</version>
           <executions>
             <execution>
               <id>parse-version</id>
@@ -1147,7 +938,7 @@
             </execution>
           </executions>
         </plugin>
-
+<!--todo look into using help plugin -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>properties-maven-plugin</artifactId>
@@ -1190,9 +981,9 @@
         </plugin>
 
         <plugin>
-          <groupId>org.jboss.as.plugins</groupId>
-          <artifactId>jboss-as-maven-plugin</artifactId>
-          <version>7.8.Final</version>
+          <groupId>org.wildfly.plugins</groupId>
+          <artifactId>wildfly-maven-plugin</artifactId>
+          <version>1.2.0.Final</version>
         </plugin>
 
         <plugin>
@@ -1266,20 +1057,6 @@
           </configuration>
         </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.6</version>
-          <executions>
-            <execution>
-              <id>sign-artifacts</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>sign</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
 
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
@@ -1508,8 +1285,8 @@
                 <configuration>
                   <rules>
                     <requireProperty>
-                      <property>eap6.zip.url</property>
-                      <message>You must set the location of the eap zip file "eap6.zip.url"</message>
+                      <property>eap.zip.url</property>
+                      <message>You must set the location of the eap zip file "eap.zip.url"</message>
                     </requireProperty>
                   </rules>
                   <fail>true</fail>

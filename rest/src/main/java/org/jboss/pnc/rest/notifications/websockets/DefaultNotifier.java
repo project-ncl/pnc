@@ -243,18 +243,20 @@ public class DefaultNotifier implements Notifier {
     }
 
     private void notifySubscribers(String buildTaskId, ProcessProgressUpdate processProgressUpdate) {
-        logger.debug("Sending update for buildTaskId: {}. processProgressUpdate: {}.", buildTaskId, processProgressUpdate.toString());
+        logger.trace("Sending update for buildTaskId: {}. processProgressUpdate: {}.", buildTaskId, processProgressUpdate.toString());
         sendToSubscribers(processProgressUpdate, "component-build", buildTaskId);
     }
 
 
     public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
-        logger.debug("Observed new status changed event {}.", buildStatusChangedEvent);
+        logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
         sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
-        logger.debug("Status changed event processed {}.", buildStatusChangedEvent);
+        logger.trace("Status changed event processed {}.", buildStatusChangedEvent);
     }
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        logger.trace("Observed new set status changed event {}.", buildSetStatusChangedEvent);
         sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
+        logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
     }
 }

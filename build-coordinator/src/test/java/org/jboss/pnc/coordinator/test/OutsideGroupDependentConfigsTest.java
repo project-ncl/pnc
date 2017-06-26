@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -25,11 +26,15 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Group consists of configA,config B and configC. <br/>
@@ -54,14 +59,21 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     private BuildConfigurationSet configSet;
 
     @Before
-    public void setUp() throws DatastoreException, ConfigurationParseException {
-        config1 = config("1");
-
-        configA = config("A", config1);
-        configB = config("B", configA);
-        BuildConfiguration configC = config("C");
+    public void initialize() throws DatastoreException, ConfigurationParseException {
+        config1 = buildConfig("1");
+        configA = buildConfig("A", config1);
+        configB = buildConfig("B", configA);
+        BuildConfiguration configC = buildConfig("C");
 
         configSet = configSet(configA, configB, configC);
+
+        buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
+        when(buildConfigurationRepository.queryWithPredicates(any())).thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
+
+        super.initialize();
+
+        saveConfig(config1);
+        configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
 
         markAsAlreadyBuilt(config1, configA, configB, configC);
         make(configA).dependOn(config1);

@@ -104,7 +104,6 @@
       <artifactId>web</artifactId>
       <type>war</type>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -113,8 +112,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-ear-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-io</artifactId>
+            <version>2.7.1</version>
+          </dependency>
+        </dependencies>
         <configuration>
-          <version>6</version>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <fileNameMapping>no-version</fileNameMapping>
           <modules>

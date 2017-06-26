@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.hibernate.mapping.Map;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.configuration.BuildConfigurationSupportedGenericParameters;
@@ -73,6 +72,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;

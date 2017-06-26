@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
@@ -32,16 +32,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.Setter;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductVersion")
+@ToString
 public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)

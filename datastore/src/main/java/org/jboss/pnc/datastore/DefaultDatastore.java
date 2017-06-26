@@ -22,12 +22,14 @@ import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -45,6 +47,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -124,7 +127,9 @@ public class DefaultDatastore implements Datastore {
         refreshBuildConfiguration(buildRecord);
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
+        logger.debug("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
+        logger.trace("Build record saved {}.", buildRecord);
 
         return buildRecord;
     }
@@ -137,6 +142,7 @@ public class DefaultDatastore implements Datastore {
      * @return Set of up to date JPA artifact entities
      */
     private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
+        logger.debug("Saving {} artifacts.", artifacts.size());
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
             Artifact artifactFromDb;
@@ -147,20 +153,28 @@ public class DefaultDatastore implements Datastore {
             }
             savedArtifacts.add(artifactFromDb);
         }
+        logger.debug("Artifacts saved: {}.", artifacts);
         return savedArtifacts;
     }
 
     private Artifact saveRepositoryArtifacts(Artifact artifact) {
+        logger.trace("Saving repository artifact {}.", artifact);
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()));
+        logger.trace("Found artifact {}.", artifactFromDb);
         if (artifactFromDb == null) {
+            //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
+            artifact.setBuildRecords(Collections.emptySet());
+            artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
+            logger.trace("Saved new artifact {}.", artifactFromDb);
         }
         return artifactFromDb;
     }
 
     private Artifact saveHttpArtifacts(Artifact artifact) {
+        logger.trace("Saving http artifact {}.", artifact);
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository
                 .queryByPredicates(withOriginUrl(artifact.getOriginUrl()));
@@ -170,6 +184,9 @@ public class DefaultDatastore implements Datastore {
             artifact.setSha1("");
             artifact.setMd5("");
             artifact.setSha256("");
+            //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
+            artifact.setBuildRecords(Collections.emptySet());
+            artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
         }
         return artifactFromDb;
@@ -240,6 +257,11 @@ public class DefaultDatastore implements Datastore {
      * @param configuration configuration to check
      * @return
      */
+    @Override
+    public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {
+        return new HashSet<>(buildConfigurationRepository.queryWithPredicates(BuildConfigurationPredicates.withBuildConfigurationSetId(buildConfigurationSet.getId())));
+    }
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildConfiguration configuration) {

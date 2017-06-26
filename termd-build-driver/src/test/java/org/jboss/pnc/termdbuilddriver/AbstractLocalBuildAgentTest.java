@@ -73,4 +73,7 @@ public class AbstractLocalBuildAgentTest {
         when(localEnvironmentPointer.getDebugData()).thenReturn(debugData);
     }
 
+    protected Path getWorkingDirectory() {
+        return workingDirectory;
+    }
 }

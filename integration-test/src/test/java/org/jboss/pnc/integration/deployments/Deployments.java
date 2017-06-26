@@ -115,10 +115,23 @@ public class Deployments {
 
         addTestPersistenceXml(ear);
 
+        addMockito(ear, mavenResolver);
+        addRestassured(ear, mavenResolver);
+
         if (arquillianDeploymentFactory.isCreateArchiveCopy()) {
             arquillianDeploymentFactory.writeArchiveToFile(ear, new File("target", ArquillianDeploymentFactory.INTEGRATION_TEST_MODULE_DIR + ".ear"));
         }
         return ear;
+    }
+
+    private static void addMockito(EnterpriseArchive archive, PomEquippedResolveStage mavenResolver) {
+        File[] libs = mavenResolver.resolve("org.mockito:mockito-core").withTransitivity().asFile();
+        archive.addAsLibraries(libs);
+    }
+
+    private static void addRestassured(EnterpriseArchive archive, PomEquippedResolveStage mavenResolver) {
+        File[] libs = mavenResolver.resolve("com.jayway.restassured:rest-assured").withTransitivity().asFile();
+        archive.addAsLibraries(libs);
     }
 
     private static boolean useTargetBuilds() {

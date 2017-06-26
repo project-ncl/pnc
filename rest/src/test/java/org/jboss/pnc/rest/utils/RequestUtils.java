@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.utils;
 
 import org.jboss.pnc.test.util.JsonUtils;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -38,7 +39,23 @@ public class RequestUtils {
         String entityAsJson = JsonUtils.toJson(entity);
 
         when(request.getInputStream()).thenReturn(new ServletInputStream() {
+
             private ByteArrayInputStream input = new ByteArrayInputStream(entityAsJson.getBytes("UTF-8"));
+
+            @Override
+            public boolean isFinished() {
+                return input.available() == 0;
+            }
+
+            @Override
+            public boolean isReady() {
+                return input.available() > 0;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+
+            }
 
             @Override
             public int read() throws IOException {

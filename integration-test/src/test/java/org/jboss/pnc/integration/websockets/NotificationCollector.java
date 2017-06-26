@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.integration.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.websocket.ClientEndpoint;
 import javax.websocket.OnMessage;
 import java.util.ArrayList;
@@ -26,10 +29,13 @@ import java.util.List;
 @ClientEndpoint
 public class NotificationCollector {
 
+    private Logger logger = LoggerFactory.getLogger(NotificationCollector.class);
+
     private List<String> messages = new ArrayList<>();
 
     @OnMessage
     public void onMessage(String message) {
+        logger.debug("Received notification {}.", message);
         messages.add(message);
     }
 

@@ -147,9 +147,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String scmRevision;
 
     @Lob
-    // org.hibernate.type.StringClobType works for all DBs
-    // Use "org.hibernate.type.MaterializedClobType" from Hibernate 4.2.x
-    @Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringType")
     @Basic(fetch = FetchType.LAZY)
     private String buildLog;
 
@@ -243,7 +241,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     private Map<String, String> attributes = new HashMap<>();
 
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringType")
     @Basic(fetch = FetchType.LAZY)
     private String repourLog;
 

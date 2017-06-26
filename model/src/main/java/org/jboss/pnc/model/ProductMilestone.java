@@ -130,14 +130,19 @@ public class ProductMilestone implements GenericEntity<Integer> {
      * The BuildRecordSets associated with a milestone should be created when the milestone
      * is first created, and never updated after that.
      */
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER) //TODO remove eager fetch
     @JoinTable(name = "product_milestone_distributed_artifacts_map", joinColumns = {
             @JoinColumn(name = "product_milestone_id", referencedColumnName = "id") }, inverseJoinColumns = {
                     @JoinColumn(name = "artifact_id", referencedColumnName = "id") })
-    @ForeignKey(name = "fk_product_milestone_distributed_artifacts_map", inverseName = "fk_distributed_artifacts_product_milestone_map")
+    @ForeignKey(name = "fk_product_milestone_distributed_artifacts_map")
     @Index(name = "idx_product_milestone_distributed_artifacts_map", columnNames = { "product_milestone_id",
             "artifact_id" })
     private Set<Artifact> distributedArtifacts;
+
+    public ProductMilestone() {
+        performedBuilds = new HashSet<>();
+        distributedArtifacts = new HashSet<>();
+    }
 
     @Override
     public Integer getId() {
@@ -242,7 +247,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     }
 
     public boolean addDistributedArtifact(Artifact distributedArtifact) {
-        return this.distributedArtifacts.add(distributedArtifact);
+        return distributedArtifacts.add(distributedArtifact);
     }
 
     public boolean removeDistributedArtifact(Artifact distributedArtifact) {
@@ -285,13 +290,15 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private String issueTrackerUrl;
 
-        private Set<BuildRecord> performedBuilds = new HashSet<>();
+        private Set<BuildRecord> performedBuilds;
 
-        private Set<Artifact> distributedArtifacts = new HashSet<>();
+        private Set<Artifact> distributedArtifacts;
 
         private ProductRelease productRelease;
 
         private Builder() {
+            performedBuilds = new HashSet<>();
+            distributedArtifacts = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -313,14 +320,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
                 productMilestone.setProductVersion(productVersion);
             }
 
-            if (performedBuilds == null) {
-                performedBuilds = new HashSet<>();
-            }
             productMilestone.setPerformedBuilds(performedBuilds);
-
-            if (distributedArtifacts == null) {
-                distributedArtifacts = new HashSet<>();
-            }
             productMilestone.setDistributedArtifacts(distributedArtifacts);
 
             if (productRelease != null) {

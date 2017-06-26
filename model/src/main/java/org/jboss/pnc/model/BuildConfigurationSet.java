@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.ToString;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@ToString
 public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 2596901834161647987L;
@@ -159,6 +161,24 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
             return null;
         }
         return getProductVersion().getCurrentProductMilestone();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        BuildConfigurationSet that = (BuildConfigurationSet) o;
+
+        return id != null ? id.equals(that.id) : that.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 
     public static class Builder {

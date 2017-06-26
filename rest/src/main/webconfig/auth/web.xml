@@ -88,7 +88,8 @@
         <role-name>user</role-name>
     </security-role>
 
-    <filter>
+  <!-- see noauth/web.xml for posisble replacement -->
+    <!--filter>
         <filter-name>cross-origin</filter-name>
         <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
         <init-param>
@@ -107,5 +108,5 @@
     <filter-mapping>
         <filter-name>cross-origin</filter-name>
         <url-pattern>/rest/*</url-pattern>
-    </filter-mapping>
+    </filter-mapping-->
 </web-app>

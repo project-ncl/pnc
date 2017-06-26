@@ -26,6 +26,7 @@ import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -51,7 +52,7 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
         return fromCollection(basicProvider.getAll(pageIndex, pageSize, sortingRsql, rsql));
     }
 
-    public Response getSpecific(Integer id) {
+    public Response getSpecific(@NotNull Integer id) {
         return fromSingleton(basicProvider.getSpecific(id));
     }
 

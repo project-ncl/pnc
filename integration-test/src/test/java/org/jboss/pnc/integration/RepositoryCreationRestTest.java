@@ -49,6 +49,7 @@ import java.util.Optional;
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
+@Ignore
 public class RepositoryCreationRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(RepositoryCreationRestTest.class);

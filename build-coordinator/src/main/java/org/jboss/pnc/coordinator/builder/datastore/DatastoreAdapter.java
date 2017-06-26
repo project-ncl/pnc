@@ -23,6 +23,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
@@ -44,6 +45,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.jboss.pnc.model.BuildStatus.CANCELLED;
 import static org.jboss.pnc.model.BuildStatus.FAILED;
@@ -296,5 +298,9 @@ public class DatastoreAdapter {
 
     public boolean requiresRebuild(BuildTask task) {
         return datastore.requiresRebuild(task);
+    }
+
+    public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {
+        return datastore.getBuildConfigurations(buildConfigurationSet);
     }
 }

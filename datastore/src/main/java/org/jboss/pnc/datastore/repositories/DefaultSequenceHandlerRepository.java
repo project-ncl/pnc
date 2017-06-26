@@ -20,10 +20,11 @@ package org.jboss.pnc.datastore.repositories;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
+import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
+import org.hibernate.engine.jdbc.dialect.spi.DialectResolver;
 import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
-import org.hibernate.service.jdbc.dialect.internal.StandardDialectResolver;
-import org.hibernate.service.jdbc.dialect.spi.DialectResolver;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 
 import javax.inject.Inject;
@@ -66,7 +67,7 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
             @Override
             public Long execute(Connection connection) throws SQLException {
                 DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
+                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
                 try {
@@ -105,7 +106,7 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
             @Override
             public void execute(Connection connection) throws SQLException {
                 DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
+                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
                 try {
@@ -130,13 +131,19 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
         sessionFactory.getCurrentSession().doWork(work);
     }
 
+    public DatabaseMetaDataDialectResolutionInfoAdapter getResolutionInfo(Connection connection)
+            throws SQLException {
+        return new DatabaseMetaDataDialectResolutionInfoAdapter(
+                            connection.getMetaData());
+    }
+
     @Override
     public boolean sequenceExists(final String sequenceName) {
         ReturningWork<Boolean> work = new ReturningWork<Boolean>() {
             @Override
             public Boolean execute(Connection connection) throws SQLException {
                 DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
+                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
                 try {
@@ -174,7 +181,7 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
             @Override
             public void execute(Connection connection) throws SQLException {
                 DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
+                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
                 try {

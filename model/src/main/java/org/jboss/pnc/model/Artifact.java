@@ -454,6 +454,8 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Set<BuildRecord> buildRecords;
 
+        private Set<ProductMilestone> distributedInProductMilestones;
+
         private String originUrl;
 
         private Date importDate;
@@ -461,6 +463,7 @@ public class Artifact implements GenericEntity<Integer> {
         private Builder() {
             buildRecords = new HashSet<>();
             dependantBuildRecords = new HashSet<>();
+            distributedInProductMilestones = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -486,6 +489,7 @@ public class Artifact implements GenericEntity<Integer> {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
             artifact.setBuildRecords(buildRecords);
+            artifact.setDistributedInProductMilestones(distributedInProductMilestones);
             artifact.setOriginUrl(originUrl);
             artifact.setImportDate(importDate);
 
@@ -559,6 +563,11 @@ public class Artifact implements GenericEntity<Integer> {
 
         public Builder dependantBuildRecords(Set<BuildRecord> dependantBuildRecords) {
             this.dependantBuildRecords = dependantBuildRecords;
+            return this;
+        }
+
+        public Builder distributedInProductMilestones(Set<ProductMilestone> distributedInProductMilestones) {
+            this.distributedInProductMilestones = distributedInProductMilestones;
             return this;
         }
 

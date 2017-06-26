@@ -85,15 +85,15 @@ import static org.mockito.Mockito.when;
  */
 @SuppressWarnings("deprecation")
 public abstract class AbstractDependentBuildTest {
-    private static final AtomicInteger configIdSequence = new AtomicInteger(0);
-    private static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
-    private static final AtomicInteger buildRecordIdSequence = new AtomicInteger(0);
+    protected static final AtomicInteger configIdSequence = new AtomicInteger(0);
+    protected static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
+    protected static final AtomicInteger buildRecordIdSequence = new AtomicInteger(0);
 
     private List<BuildTask> builtTasks;
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
-    private BuildConfigurationRepositoryMock buildConfigurationRepository;
+    protected BuildConfigurationRepositoryMock buildConfigurationRepository;
 
     private BuildQueue buildQueue;
 
@@ -115,7 +115,10 @@ public abstract class AbstractDependentBuildTest {
 
         buildQueue = new BuildQueue(config);
 
-        buildConfigurationRepository = new BuildConfigurationRepositoryMock();
+        if (buildConfigurationRepository == null) {
+            buildConfigurationRepository = new BuildConfigurationRepositoryMock();
+        }
+
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildConfigurationAuditedRepository = new BuildConfigurationAuditedRepositoryMock();
         DefaultDatastore datastore = new DefaultDatastore(
@@ -156,16 +159,22 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected BuildConfiguration config(String name, BuildConfiguration... dependencies) {
-        int id = configIdSequence.getAndIncrement();
+        BuildConfiguration config = buildConfig(name, dependencies);
+        saveConfig(config);
+        return config;
+    }
 
+    protected BuildConfiguration buildConfig(String name, BuildConfiguration... dependencies) {
+        int id = configIdSequence.getAndIncrement();
         BuildConfiguration config =
                 BuildConfiguration.Builder.newBuilder().name(name).id(id).build();
         Stream.of(dependencies).forEach(config::addDependency);
+        return config;
+    }
 
+    protected void saveConfig(BuildConfiguration config) {
         buildConfigurationRepository.save(config);
         buildConfigurationAuditedRepository.save(auditedConfig(config));
-
-        return config;
     }
 
     /**
@@ -179,8 +188,7 @@ public abstract class AbstractDependentBuildTest {
                 .build();
         buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
 
-        buildConfigurationRepository.save(buildConfiguration);
-        buildConfigurationAuditedRepository.save(auditedConfig(buildConfiguration));
+        saveConfig(buildConfiguration);
 
         return buildConfiguration;
     }

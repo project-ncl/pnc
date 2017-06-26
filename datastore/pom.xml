@@ -74,17 +74,12 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.0-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
+      <artifactId>hibernate-jpa-2.1-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -96,10 +91,6 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.data</groupId>
@@ -118,13 +109,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.as</groupId>
-      <artifactId>jboss-as-arquillian-container-managed</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.protocol</groupId>
-      <artifactId>arquillian-protocol-servlet</artifactId>
+      <groupId>org.wildfly.arquillian</groupId>
+      <artifactId>wildfly-arquillian-container-managed</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -133,14 +119,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
     </dependency>
   </dependencies>
 
@@ -181,7 +166,7 @@
       <id>download-server</id>
       <activation>
         <property>
-          <name>eap6.zip.url</name>
+          <name>eap.zip.url</name>
         </property>
       </activation>
       <build>
@@ -203,11 +188,11 @@
                     <property environment="env" />
                     <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME" />
 
-                    <echo>Preparing EAP 6.4 application server</echo>
-                    <echo>EAP URL ${eap6.zip.url}</echo>
-                    <fail message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url=" unless="eap6.zip.url" />
+                    <echo>Preparing EAP application server</echo>
+                    <echo>EAP URL ${eap.zip.url}</echo>
+                    <fail message="Please specify EAP zip file URL via: -Deap.zip.url=" unless="eap.zip.url" />
                     <mkdir dir="${test.server.unpack.dir}" />
-                    <get usetimestamp="true" src="${eap6.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
+                    <get usetimestamp="true" src="${eap.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
                     <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
 
                   </target>
@@ -223,7 +208,7 @@
       <id>configure-test-container</id>
       <activation>
         <property>
-          <name>eap6.zip.url</name>
+          <name>eap.zip.url</name>
         </property>
       </activation>
       <dependencies>
@@ -231,14 +216,14 @@
           <groupId>org.hsqldb</groupId>
           <artifactId>hsqldb</artifactId>
           <scope>test</scope>
-          <classifier>jdk6debug</classifier>
+          <classifier>jdk8debug</classifier>
         </dependency>
       </dependencies>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.jboss.as.plugins</groupId>
-            <artifactId>jboss-as-maven-plugin</artifactId>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
             <executions>
               <execution>
                 <id>start-server</id>
@@ -250,7 +235,6 @@
                   <jbossHome>${test.server.build.dir}</jbossHome>
                 </configuration>
               </execution>
-              <!-- HSQLDB JDBC driver installation and datasource configuration -->
               <execution>
                 <id>deploy-hsql-jdbc-driver</id>
                 <phase>test-compile</phase>
@@ -260,7 +244,8 @@
                 <configuration>
                   <groupId>org.hsqldb</groupId>
                   <artifactId>hsqldb</artifactId>
-                  <name>hsqldb-jdk6debug.jar</name>
+                  <classifier>jdk8debug</classifier>
+                  <!--<name>hsqldb-jdk8debug.jar</name>-->
                 </configuration>
               </execution>
               <execution>
@@ -271,19 +256,21 @@
                 </goals>
                 <configuration>
                   <address>subsystem=datasources,data-source=java:jboss/datasources/NewcastleTestDS</address>
-                  <resource>
-                    <enable-resource>true</enable-resource>
-                    <properties>
-                      <jndi-name>java:jboss/datasources/NewcastleTestDS</jndi-name>
-                      <enabled>true</enabled>
-                      <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
-                      <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
-                      <driver-name>hsqldb-jdk6debug.jar</driver-name>
-                    </properties>
-                  </resource>
+                  <resources>
+                    <resource>
+                      <properties>
+                        <jndi-name>java:jboss/datasources/NewcastleTestDS</jndi-name>
+                        <enabled>true</enabled>
+                        <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
+                        <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
+                        <driver-name>hsqldb-2.4.0-jdk8debug.jar</driver-name>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                      </properties>
+                    </resource>
+                  </resources>
                 </configuration>
               </execution>
-              <!-- End HSQLDB configuraiton -->
               <execution>
                 <id>change-logging-level</id>
                 <phase>test-compile</phase>
@@ -300,6 +287,21 @@
                       <command>
                         /subsystem=logging/logger=org.jboss.pnc:change-log-level(level=DEBUG)
                       </command>
+                      <command>
+                        /subsystem=logging/logger=org:add(level=INFO)
+                      </command>
+                      <command>
+                        /subsystem=logging/console-handler=CONSOLE:change-log-level(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
+                      </command>
+                      <!--command>
+                        /subsystem=logging/logger=org.hibernate:add(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.hibernate.type:add(level=TRACE)
+                      </command-->
                     </commands>
                   </execute-commands>
                 </configuration>

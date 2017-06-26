@@ -168,7 +168,8 @@ public class StatusUpdatesTest {
                 user,
                 true,
                 false,
-                () -> atomicInteger.getAndIncrement());
+                () -> atomicInteger.getAndIncrement(),
+                buildConfigurationSet.getBuildConfigurations());
     }
 
 

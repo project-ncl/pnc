@@ -42,7 +42,7 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         super(null, null);
     }
 
-    @PersistenceContext
+    @PersistenceContext //TODO use Inject (there is a Producer)
     EntityManager entityManager;
 
     @Inject

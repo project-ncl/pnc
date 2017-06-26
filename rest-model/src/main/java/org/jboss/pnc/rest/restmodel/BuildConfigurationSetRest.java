@@ -17,23 +17,26 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import lombok.ToString;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 @XmlRootElement(name = "BuildConfigurationSet")
+@ToString
 public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)

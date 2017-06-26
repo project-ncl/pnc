@@ -47,6 +47,7 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -67,6 +68,7 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
  * Date: 4/5/16
  * Time: 9:24 AM
  */
+@Ignore // Test needs to be rewritten. Now it relies on broken test set-up to end with system error.
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class SystemErrorTest extends AbstractTest {
@@ -171,13 +173,15 @@ public class SystemErrorTest extends AbstractTest {
     @Test
     @InSequence(2)
     public void testBuildNewConfSet() throws Exception {
-
         String url = String.format(BUILD_CONFIGURATION_SET_REST_BUILD_ENDPOINT, newBuildConfSetId) + "?rebuildAll=true";
         Response response = authenticatedJsonCall().post(url);
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         @SuppressWarnings("unchecked")
         Page<Map<String, Object>> p = response.getBody().as(Page.class);
+
+        logger.debug("Received: {}.", response.getBody().asString());
+
         buildTaskId = (Integer) p.getContent().iterator().next().get("id");
     }
 

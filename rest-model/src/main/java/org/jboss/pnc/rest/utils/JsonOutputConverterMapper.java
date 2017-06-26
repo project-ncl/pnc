@@ -24,7 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.jboss.logging.Logger;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class JsonOutputConverterMapper {
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.registerModule(new Jdk7Module());
+        mapper.registerModule(new Jdk8Module());
 
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);

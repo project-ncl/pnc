@@ -35,6 +35,8 @@ import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -42,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withBuildConfigurationId;
@@ -51,8 +54,10 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.wi
 @Stateless
 public class ProductVersionProvider extends AbstractProvider<ProductVersion, ProductVersionRest> {
 
+    private Logger logger = LoggerFactory.getLogger(ProductVersionProvider.class);
+
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
-    
+
     private ProductRepository productRepository;
 
     @Inject
@@ -79,44 +84,64 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
     }
 
-    public void updateBuildConfigurationSets(Integer id, List<BuildConfigurationSetRest> bcsRestModels) throws ValidationException {
-        if (bcsRestModels == null) {
+    public ProductVersion updateBuildConfigurationSets(Integer id, List<BuildConfigurationSetRest> buildConfigurationSetsToAdd) throws ValidationException {
+        if (buildConfigurationSetsToAdd == null) {
             throw new InvalidEntityException("No BuildConfigurationSets supplied");
         }
 
         ProductVersion productVersion = repository.queryById(id);
+        List<BuildConfigurationSet> buildConfigurationSets = buildConfigurationSetRepository.withProductVersionId(productVersion.getId());
 
-        Set<BuildConfigurationSet> addedDbModels = new HashSet<>();
+        if (logger.isTraceEnabled()) {
+            logger.trace("Retrieved ProductVersion: {}; Retrieved BuildConfigurationSets: {}",
+                    productVersion, buildConfigurationSets.stream().map(bcs -> bcs.getId().toString()).collect(Collectors.joining()));
+        }
 
-        for (BuildConfigurationSetRest restModel : bcsRestModels) {
-            BuildConfigurationSet dbModel = buildConfigurationSetRepository.queryById(restModel.getId());
+        Set<BuildConfigurationSet> addedBCSets = new HashSet<>();
 
-            if (dbModel == null) {
+        for (BuildConfigurationSetRest configurationSetToAdd : buildConfigurationSetsToAdd) {
+            BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(configurationSetToAdd.getId());
+            logger.trace("Validating buildConfigurationSet: {}", buildConfigurationSet);
+
+            if (buildConfigurationSet == null) {
                 throw new InvalidEntityException("Invalid BuildConfigurationSet");
             }
 
-            if (dbModel.getProductVersion() != null && !dbModel.getProductVersion().getId().equals(productVersion.getId())) {
+            if (buildConfigurationSet.getProductVersion() != null
+                    && !buildConfigurationSet.getProductVersion().getId().equals(productVersion.getId())) {
                 throw new ConflictedEntryException(format("BuildConfigurationSet: '%s' is already associated with a different Product Version",
-                        dbModel.getName()), BuildConfigurationSet.class, dbModel.getId());
+                        buildConfigurationSet.getName()), BuildConfigurationSet.class, buildConfigurationSet.getId());
             }
 
-            addedDbModels.add(dbModel);
+            addedBCSets.add(buildConfigurationSet);
         }
 
-        Set<BuildConfigurationSet> removedDbModels = Sets.difference(productVersion.getBuildConfigurationSets(), addedDbModels);
+        Set<BuildConfigurationSet> removedBCSets = Sets.difference(new HashSet<>(buildConfigurationSets), addedBCSets);
 
-        productVersion.setBuildConfigurationSets(addedDbModels);
+        productVersion.setBuildConfigurationSets(addedBCSets);
         validateBeforeUpdating(id, new ProductVersionRest(productVersion));
-
-        removedDbModels.forEach(x -> {
-            x.setProductVersion(null);
-            buildConfigurationSetRepository.save(x);
+        if (logger.isTraceEnabled()) {
+            logger.trace("About to remove BCSets from productVersion: {}",
+                    removedBCSets.stream().map(set -> set.getId().toString()).collect(Collectors.joining()));
+        }
+        removedBCSets.forEach(removed -> {
+            removed.setProductVersion(null);
+            buildConfigurationSetRepository.save(removed);
         });
-        addedDbModels.forEach(x -> {
-            x.setProductVersion(productVersion);
-            buildConfigurationSetRepository.save(x);
+        if (logger.isTraceEnabled()) {
+            logger.trace("About to add BCSets to productVersion: {}",
+                    addedBCSets.stream().map(set -> set.getId().toString()).collect(Collectors.joining()));
+        }
+        addedBCSets.forEach(added -> {
+            added.setProductVersion(productVersion);
+            productVersion.getBuildConfigurationSets().add(added);
+            buildConfigurationSetRepository.save(added);
         });
-        repository.save(productVersion);
+        if (logger.isTraceEnabled()) {
+            logger.trace("About to save ProductVersion: {}; Contains BuildConfigurationSets: {}",
+                    productVersion, productVersion.getBuildConfigurationSets().stream().map(bcs -> bcs.getId().toString()).collect(Collectors.joining()));
+        }
+        return repository.save(productVersion);
     }
 
     @Override
