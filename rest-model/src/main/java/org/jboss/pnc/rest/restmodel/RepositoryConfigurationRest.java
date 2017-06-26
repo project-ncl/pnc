@@ -17,8 +17,10 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -34,6 +36,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author Jakub Bartecek
  */
+@EqualsAndHashCode
+@ToString
 @XmlRootElement(name = "RepositoryConfiguration")
 public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
 
@@ -93,38 +97,5 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
                 .externalScmRepoUrl(externalScmRepoUrl)
                 .preBuildSyncEnabled(preBuildSyncEnabled);
         return builder;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RepositoryConfigurationRest that = (RepositoryConfigurationRest) o;
-
-        if (isPreBuildSyncEnabled() != that.isPreBuildSyncEnabled()) return false;
-        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
-        if (!getInternalScmRepoUrl().equals(that.getInternalScmRepoUrl())) return false;
-        return getExternalScmRepoUrl() != null ? getExternalScmRepoUrl().equals(that.getExternalScmRepoUrl()) : that.getExternalScmRepoUrl() == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + getInternalScmRepoUrl().hashCode();
-        result = 31 * result + (getExternalScmRepoUrl() != null ? getExternalScmRepoUrl().hashCode() : 0);
-        result = 31 * result + (isPreBuildSyncEnabled() ? 1 : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "RepositoryConfigurationRest{" +
-                "id=" + id +
-                ", internalScmRepoUrl='" + internalScmRepoUrl + '\'' +
-                ", externalScmRepoUrl='" + externalScmRepoUrl + '\'' +
-                ", preBuildSyncEnabled=" + preBuildSyncEnabled +
-                '}';
     }
 }

@@ -89,12 +89,14 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.name = buildConfiguration.getName();
         this.description = buildConfiguration.getDescription();
         this.buildScript = buildConfiguration.getBuildScript();
-        this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfiguration.getRepositoryConfiguration());
         this.scmRevision = buildConfiguration.getScmRevision();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
         this.genericParameters = buildConfiguration.getGenericParameters();
+
+        performIfNotNull(buildConfiguration.getRepositoryConfiguration(),
+                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfiguration.getRepositoryConfiguration()));
         performIfNotNull(buildConfiguration.getProject(),
                 () -> this.project = new ProjectRest(buildConfiguration.getProject()));
         performIfNotNull(buildConfiguration.getBuildEnvironment(),
