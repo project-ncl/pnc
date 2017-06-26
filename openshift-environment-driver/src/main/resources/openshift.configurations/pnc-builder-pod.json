@@ -10,14 +10,6 @@
         "nodeSelector": {
             "acceptpncbuildagent" : "true"
         },
-        "volumes": [
-            {
-                "name": "volume-tls-certs-pem",
-                "secret": {
-                    "secretName": "tls-certificates-pem"
-                }
-            }
-        ],
         "containers": [
             {
                 "name": "pnc-build-agent-container",
@@ -88,12 +80,6 @@
                     }
                 ],
                 "resources": {},
-                "volumeMounts": [
-                    {
-                        "name": "volume-tls-certs-pem",
-                        "mountPath": "/etc/pki/tls/certs"
-                    }
-                ],
                 "terminationMessagePath": "/dev/termination-log",
                 "imagePullPolicy": "Always",
                 "securityContext": {
