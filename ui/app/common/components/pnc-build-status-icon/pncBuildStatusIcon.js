@@ -50,7 +50,7 @@
     }
 
     $ctrl.$onChanges = function (changes) {
-      if (changes.buildRecord) {
+      if (changes.buildRecord && changes.buildRecord.currentValue) {
         $ctrl.isCorrupted = isCorrupted(changes.buildRecord.currentValue);
       }
     };

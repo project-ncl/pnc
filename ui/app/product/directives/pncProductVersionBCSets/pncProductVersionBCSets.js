@@ -43,41 +43,6 @@
 
           scope.page = ProductVersionDAO.getPagedBCSets({versionId: scope.version.id });
 
-          scope.latestBuildRecordSets = {};
-
-          scope.page.onUpdate(function(page) {
-            _.forEach(page.data, function(bcset) {
-              if(!_(scope.latestBuildRecordSets).has(bcset.id)) { // avoid unnecessary requests
-                BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: bcset.id }).then(function (data) {
-                  scope.latestBuildRecordSets[bcset.id] = data;
-                });
-              }
-            });
-          });
-
-          var processEvent = function (event, payload) {
-            // If the BuildConfigurationdSet is shown in the page
-            if (_.some(scope.page.data, 'id', payload.buildSetConfigurationId)) {
-              // If the latestBuildConfigSetRecord is already shown
-              if (!_.isEmpty(scope.latestBuildRecordSets[payload.buildSetConfigurationId]) && scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].id === payload.id) {
-                // I update the status with no reloads to optimize refresh
-                console.log('Updating BuildRecordSet #' + payload.id + ' with status ' + payload.buildStatus + ' and ' + payload.buildSetEndTime);
-
-                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].status = payload.buildStatus;
-                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].endTime = payload.buildSetEndTime;
-              }
-              else {
-                console.log('Reloading page');
-
-                delete scope.latestBuildRecordSets[payload.buildSetConfigurationId];
-                scope.page.reload();
-              }
-            }
-          };
-
-          scope.$on(eventTypes.BUILD_SET_STARTED, processEvent);
-          scope.$on(eventTypes.BUILD_SET_FINISHED, processEvent);
-
           // Executing a build of a configurationSet forcing all the rebuilds
           scope.forceBuildConfigSet = function(configSet) {
             $log.debug('**Initiating FORCED build of SET: %s**', configSet.name);

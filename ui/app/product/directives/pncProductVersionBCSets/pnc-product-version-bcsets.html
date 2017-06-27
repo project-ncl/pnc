@@ -41,13 +41,7 @@
   <tr ng-repeat="buildconfigurationset in page.data">
     <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
     <td>
-      <div ng-repeat="buildRecordSet in latestBuildRecordSets[buildconfigurationset.id]">
-        <pnc-build-status-icon build-record="buildRecordSet"></pnc-build-status-icon>
-        <span><a href ui-sref="configuration-set-record.detail.info({recordId: buildRecordSet.id})"># {{ buildRecordSet.id }} </a></span>
-        {{ buildRecordSet.endTime | date:'medium'}},
-        <span class="text-bold">   {{ buildRecordSet.username }}</span>
-      </div>
-      <em ng-hide="latestBuildRecordSets[buildconfigurationset.id].length">none</em>
+      <pnc-latest-build build-config="buildconfigurationset"></pnc-latest-build>
     </td>
     <td class="td-actions">
       <div class="btn-group">

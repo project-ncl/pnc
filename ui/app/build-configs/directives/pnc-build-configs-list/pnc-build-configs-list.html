@@ -41,7 +41,7 @@
       <td ng-if="::$ctrl.showColumn('creationTime')">{{ buildConfig.creationTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('lastModificationTime')">{{ buildConfig.lastModificationTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('buildStatus')">
-        <pnc-configuration-build pnc-configuration-id="buildConfig.id"></pnc-configuration-build>
+        <pnc-latest-build build-config="buildConfig"></pnc-latest-build>
       </td>
       <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
     </tr>

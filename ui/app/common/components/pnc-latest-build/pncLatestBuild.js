@@ -1,0 +1,102 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+(function () {
+  'use strict';
+
+  /**
+   * The component representing latest build for given Build Configuration or Build Set Configuration
+   */
+  angular.module('pnc.common.components').component('pncLatestBuild', {
+    bindings: {
+      /**
+       * Object: The configuration representing Build Configuration or Build Set Configuration
+       */
+      buildConfig: '<'
+    },
+    templateUrl: 'common/components/pnc-latest-build/pnc-latest-build.html',
+    controller: ['eventTypes', '$scope', 'BuildRecord', 'BuildConfigurationSetDAO', 'UserDAO', Controller]
+  });
+
+  function Controller(eventTypes, $scope, BuildRecord, BuildConfigurationSetDAO, UserDAO) {
+    var $ctrl = this;
+
+    var isBuildSet = false;
+    $ctrl.isLoaded = false;
+
+    function setLatestBuild(data) {
+      $ctrl.latestBuild = data;
+      $ctrl.isLoaded = true;
+    }
+
+    function loadLatestBuild() {
+      if (isBuildSet) {
+        BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: $ctrl.buildConfig.id }).then(function (data) {
+          setLatestBuild(_.isArray(data) ? data[0] : null);
+        });
+      } else {
+        BuildRecord.getLastByConfiguration({ id: $ctrl.buildConfig.id }).$promise.then(function (data) {
+          setLatestBuild(_.isArray(data.content) ? data.content[0] : null);
+        });
+      }
+    }
+
+    function updateLatestBuild(id, status, startTime, endTime, userId) {
+      if ($ctrl.latestBuild && id && status) {
+        $ctrl.latestBuild.id        = id;
+        $ctrl.latestBuild.status    = status;
+        $ctrl.latestBuild.startTime = startTime; // when building
+        $ctrl.latestBuild.endTime   = endTime;   // when finished
+
+        // todo NCL-3085
+        if ($ctrl.latestBuild.userId !== userId) {
+          $ctrl.latestBuild.userId = userId;
+
+          UserDAO.get({ userId: userId }).$promise.then(function(data) {
+            $ctrl.latestBuild.username = data.username;
+          });
+        }
+
+      } else {
+        loadLatestBuild();
+      }
+    }
+
+    function processLatestBuild(event, payload) {
+      if (payload.buildSetConfigurationId === $ctrl.buildConfig.id) {
+        updateLatestBuild(payload.id, payload.buildStatus, payload.buildSetStartTime, payload.buildSetEndTime, payload.userId);
+      } else if (payload.buildConfigurationId === $ctrl.buildConfig.id) {
+        updateLatestBuild(payload.id, payload.buildCoordinationStatus, payload.buildStartTime, payload.buildEndTime, payload.userId);
+      }
+    }
+
+    $ctrl.$onInit = function() {
+      isBuildSet = _.has($ctrl.buildConfig, 'buildConfigurationIds');
+
+      loadLatestBuild();
+
+      if (isBuildSet) {
+        $scope.$on(eventTypes.BUILD_SET_STARTED, processLatestBuild);
+        $scope.$on(eventTypes.BUILD_SET_FINISHED, processLatestBuild);
+      } else {
+        $scope.$on(eventTypes.BUILD_STARTED, processLatestBuild);
+        $scope.$on(eventTypes.BUILD_FINISHED, processLatestBuild);
+      }
+    };
+
+  }
+})();

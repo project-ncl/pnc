@@ -29,8 +29,7 @@
     '$state',
     'eventTypes',
     'BuildConfigurationDAO',
-    'BuildRecord',
-    function ($log, $state, eventTypes, BuildConfigurationDAO, BuildRecord) {
+    function ($log, $state, eventTypes, BuildConfigurationDAO) {
 
       return {
         restrict: 'E',
@@ -42,41 +41,6 @@
 
           scope.page = BuildConfigurationDAO.getPagedByProductVersion({
             productId: scope.version.productId, versionId: scope.version.id });
-
-          scope.latestBuildRecords = {};
-
-          scope.page.onUpdate(function(page) {
-            _.forEach(page.data, function(bc) {
-              if(!_(scope.latestBuildRecords).has(bc.id)) { // avoid unnecessary requests
-                BuildRecord.getLastByConfiguration({ id: bc.id }).$promise.then(function (data) {
-                  scope.latestBuildRecords[bc.id] = data.content;
-                });
-              }
-            });
-          });
-
-          var processEvent = function (event, payload) {
-            // If the BuildConfiguration is shown in the page
-            if (_.some(scope.page.data, 'id', payload.buildConfigurationId)) {
-              // If the latestBuildConfigRecord is already shown
-              if (!_.isEmpty(scope.latestBuildRecords[payload.buildConfigurationId]) && scope.latestBuildRecords[payload.buildConfigurationId][0].id === payload.id) {
-                // I update the status with no reloads to optimize refresh
-                console.log('Updating BuildRecord #' + payload.id + ' with status ' + payload.buildCoordinationStatus + ' and ' + payload.buildEndTime);
-
-                scope.latestBuildRecords[payload.buildConfigurationId][0].status = payload.buildCoordinationStatus;
-                scope.latestBuildRecords[payload.buildConfigurationId][0].endTime = payload.buildEndTime;
-              }
-              else {
-                console.log('Reloading page');
-
-                delete scope.latestBuildRecords[payload.buildConfigurationId];
-                scope.page.reload();
-              }
-            }
-          };
-
-          scope.$on(eventTypes.BUILD_STARTED, processEvent);
-          scope.$on(eventTypes.BUILD_FINISHED, processEvent);
 
           // Executing a build of a configuration forcing all the rebuilds
           scope.forceBuildConfig = function(config) {
