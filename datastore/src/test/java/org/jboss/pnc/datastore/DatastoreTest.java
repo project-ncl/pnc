@@ -31,6 +31,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -75,6 +76,9 @@ public class DatastoreTest {
     BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
+    RepositoryConfigurationRepository repositoryConfigurationRepository;
+
+    @Inject
     BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
@@ -114,12 +118,18 @@ public class DatastoreTest {
         License license = License.Builder.newBuilder().fullName("test license").fullContent("test license").build();
         Project project = Project.Builder.newBuilder().name("Test Project 1").description("Test").build();
         BuildEnvironment buildEnv = BuildEnvironment.Builder.newBuilder().name("test build env").systemImageId("12345").systemImageType(SystemImageType.DOCKER_IMAGE).build();
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                .internalScmRepoUrl("github.com/project-ncl/pnc")
+                .build();
         BuildConfiguration buildConfig = BuildConfiguration.Builder.newBuilder().name("test build config").buildScript("mvn deploy").build();
 
         license = licenseRepository.save(license);
         project.setLicense(license);
         project = projectRepository.save(project);
         buildEnv = buildEnvironmentRepository.save(buildEnv);
+        repositoryConfiguration = repositoryConfigurationRepository.save(repositoryConfiguration);
+
+        buildConfig.setRepositoryConfiguration(repositoryConfiguration);
         buildConfig.setProject(project);
         buildConfig.setBuildEnvironment(buildEnv);
         buildConfig = buildConfigurationRepository.save(buildConfig);

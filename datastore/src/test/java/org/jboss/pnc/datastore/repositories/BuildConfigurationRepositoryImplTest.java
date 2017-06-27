@@ -23,10 +23,12 @@ import org.jboss.pnc.datastore.DeploymentFactory;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
@@ -51,8 +53,13 @@ import static org.assertj.core.api.Assertions.fail;
 public class BuildConfigurationRepositoryImplTest {
     @Inject
     private BuildConfigurationRepository repository;
+
+    @Inject
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
+
     @Inject
     private BuildEnvironmentRepository environmentRepository;
+
     @Inject
     private ProjectRepository projectRepository;
 
@@ -127,7 +134,18 @@ public class BuildConfigurationRepositoryImplTest {
                 .buildEnvironment(buildEnv())
                 .project(project())
                 .name(name)
+                .repositoryConfiguration(repositoryConfiguration())
                 .build();
+    }
+
+    private RepositoryConfiguration repositoryConfiguration() {
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder
+                .newBuilder()
+                .internalScmRepoUrl(randomAlphabetic(20))
+                .build();
+        repositoryConfigurationRepository.save(repositoryConfiguration);
+
+        return  repositoryConfiguration;
     }
 
     private Project project() {
