@@ -50,6 +50,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
@@ -95,49 +96,52 @@ public class DatabaseDataInitializer {
     private static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
 
     @Inject
-    ArtifactRepository artifactRepository;
+    private ArtifactRepository artifactRepository;
 
     @Inject
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
 
     @Inject
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @Inject
-    BuildConfigurationRepository buildConfigurationRepository;
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
 
     @Inject
-    BuildConfigurationAuditedSpringRepository buildConfigurationAuditedRepository;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    ProductVersionRepository productVersionRepository;
+    private BuildConfigurationAuditedSpringRepository buildConfigurationAuditedRepository;
 
     @Inject
-    ProductMilestoneRepository productMilestoneRepository;
+    private ProductVersionRepository productVersionRepository;
 
     @Inject
-    ProductReleaseRepository productReleaseRepository;
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
-    BuildConfigurationSetRepository buildConfigurationSetRepository;
+    private ProductReleaseRepository productReleaseRepository;
 
     @Inject
-    UserRepository userRepository;
+    private BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     @Inject
-    BuildRecordRepository buildRecordRepository;
+    private UserRepository userRepository;
 
     @Inject
-    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+    private BuildRecordRepository buildRecordRepository;
 
     @Inject
-    BuildEnvironmentRepository environmentRepository;
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
-    SequenceHandlerRepository sequenceHandlerRepository;
+    private BuildEnvironmentRepository environmentRepository;
 
     @Inject
-    Datastore datastore;
+    private SequenceHandlerRepository sequenceHandlerRepository;
+
+    @Inject
+    private Datastore datastore;
 
     BuildConfiguration buildConfiguration1;
 
@@ -303,15 +307,25 @@ public class DatabaseDataInitializer {
         projectRepository.save(project4);
         projectRepository.save(project5);
 
+        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration("https://github.com/project-ncl/pnc.git");
+        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration("https://github.com/jboss-modules/jboss-modules.git");
+        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration("https://github.com/jboss/jboss-servlet-api_spec.git");
+        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration("https://github.com/fabric8io/fabric8.git");
+        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration("https://github.com/rnc/mvn-plugin-test.git");
+
+        repositoryConfigurationRepository.save(repositoryConfiguration1);
+        repositoryConfigurationRepository.save(repositoryConfiguration2);
+        repositoryConfigurationRepository.save(repositoryConfiguration3);
+        repositoryConfigurationRepository.save(repositoryConfiguration4);
+        repositoryConfigurationRepository.save(repositoryConfiguration5);
+
         // Example build configurations
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
                 .name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
                 .description("Test build config for project newcastle")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
-                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
-                    .internalScmRepoUrl("https://github.com/project-ncl/pnc.git")
-                    .build())
+                .repositoryConfiguration(repositoryConfiguration1)
                 .productVersion(productVersion1).scmRevision("*/v0.2").build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
@@ -320,9 +334,7 @@ public class DatabaseDataInitializer {
                 .description("Test config for JBoss modules build master branch.")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion1)
-                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
-                        .internalScmRepoUrl("https://github.com/jboss-modules/jboss-modules.git")
-                        .build())
+                .repositoryConfiguration(repositoryConfiguration2)
                 .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
@@ -331,9 +343,7 @@ public class DatabaseDataInitializer {
                 .project(project3).description("Test build for jboss java servlet api")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion2)
-                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
-                        .internalScmRepoUrl("https://github.com/jboss/jboss-servlet-api_spec.git")
-                        .build())
+                .repositoryConfiguration(repositoryConfiguration3)
                 .dependency(buildConfiguration2).build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
@@ -342,9 +352,7 @@ public class DatabaseDataInitializer {
                 .project(project4).description("Test build for Fabric8")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
-                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
-                        .internalScmRepoUrl("https://github.com/fabric8io/fabric8.git")
-                        .build())
+                .repositoryConfiguration(repositoryConfiguration4)
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
@@ -353,9 +361,7 @@ public class DatabaseDataInitializer {
                 .project(project5).description("Test build for Plugins with external downloads")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy")
-                .repositoryConfiguration(RepositoryConfiguration.Builder.newBuilder()
-                        .internalScmRepoUrl("https://github.com/rnc/mvn-plugin-test.git")
-                        .build())
+                .repositoryConfiguration(repositoryConfiguration5)
                 .build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
 
@@ -535,6 +541,12 @@ public class DatabaseDataInitializer {
         demoProductMilestone1.addDistributedArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
+    }
+
+    private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl) {
+        return  RepositoryConfiguration.Builder.newBuilder()
+                .internalScmRepoUrl(internalScmUrl)
+                .build();
     }
 
 }
