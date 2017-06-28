@@ -40,13 +40,7 @@
     <td>{{ configuration.description }}</td>
     <td>{{ configuration.project.name }}</td>
     <td>
-      <div ng-repeat="buildRecord in latestBuildRecords[configuration.id]">
-        <pnc-build-status-icon build-record="buildRecord"></pnc-build-status-icon>
-        <span><a href ui-sref="build-records.detail.default({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
-        {{ buildRecord.endTime | date:'medium'}},
-        <span class="text-bold">   {{ buildRecord.username }}</span>
-      </div>
-      <em ng-hide="latestBuildRecords[configuration.id].length">none</em>
+      <pnc-latest-build build-config="configuration"></pnc-latest-build>
     </td>
     <td class="table-data-5-column-even-width">
       <div class="btn-group">
