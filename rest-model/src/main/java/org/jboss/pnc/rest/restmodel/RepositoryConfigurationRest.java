@@ -67,7 +67,7 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
         this.id = repositoryConfiguration.getId();
         this.internalScmRepoUrl = repositoryConfiguration.getInternalScmRepoUrl();
         this.externalScmRepoUrl = repositoryConfiguration.getExternalScmRepoUrl();
-        this.preBuildSyncEnabled = repositoryConfiguration.getPreBuildSyncEnabled();
+        this.preBuildSyncEnabled = repositoryConfiguration.isPreBuildSyncEnabled();
     }
 
     /**

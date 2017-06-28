@@ -72,7 +72,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      */
     @Getter
     @Setter
-    private Boolean preBuildSyncEnabled;
+    private boolean preBuildSyncEnabled = false;
 
     @OneToMany(mappedBy = "repositoryConfiguration")
     @Getter
@@ -111,7 +111,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
         private String externalScmRepoUrl;
 
-        private Boolean preBuildSyncEnabled;
+        private boolean preBuildSyncEnabled = false;
 
         private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
@@ -144,7 +144,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder preBuildSyncEnabled(Boolean preBuildSyncEnabled) {
+        public Builder preBuildSyncEnabled(boolean preBuildSyncEnabled) {
             this.preBuildSyncEnabled = preBuildSyncEnabled;
             return this;
         }
