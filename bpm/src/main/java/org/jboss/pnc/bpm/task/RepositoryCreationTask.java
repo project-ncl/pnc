@@ -20,41 +20,39 @@ package org.jboss.pnc.bpm.task;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
- * @author Jakub Senko
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ToString(callSuper = true)
-public class BpmBuildConfigurationCreationTask extends BpmTask {
+public class RepositoryCreationTask extends BpmTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(BpmBuildConfigurationCreationTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryCreationTask.class);
 
-    private final BpmBuildConfigurationCreationRest taskData;
+    private final RepositoryCreationRest repositoryCreationRest;
 
-    public BpmBuildConfigurationCreationTask(BpmBuildConfigurationCreationRest taskData, String accessToken) {
-        this.taskData = taskData;
+    public RepositoryCreationTask(RepositoryCreationRest repositoryCreationRest, String accessToken) {
         setAccessToken(accessToken);
+        this.repositoryCreationRest = repositoryCreationRest;
     }
 
     @Override
     protected Serializable getProcessParameters() throws CoreException {
-
         try {
             HashMap<String, String> params = new HashMap<>();
             params.put("pncBaseUrl", config.getPncBaseUrl());
             params.put("repourBaseUrl", config.getRepourBaseUrl());
-            params.put("taskData", MAPPER.writeValueAsString(taskData));
+            params.put("taskData", MAPPER.writeValueAsString(repositoryCreationRest));
             return params;
         } catch (JsonProcessingException e) {
-            throw new CoreException("BC Creation task could not get its parameters.", e);
+            throw new CoreException("Could not get the parameters.", e);
         }
     }
 

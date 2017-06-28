@@ -24,15 +24,12 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
-import org.jboss.pnc.datastore.repositories.internal.RepositoryConfigurationSpringRepository;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
-import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
-import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -88,56 +85,40 @@ public class BpmEndpointTest {
 
     @Test
     public void shouldNotStartBCCreateTaskWithInternalURLWORepoName() throws Exception {
-        BpmBuildConfigurationCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName");
-        configuration.setScmRepoURL("git+ssh://github.com/project-ncl/pnc.git");
-        assertThrows(() -> bpmEndpoint.startBCCreationTask(configuration, null), InvalidEntityException.class);
+        RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName", "git+ssh://github.com/project-ncl/pnc.git");
+        assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
     @Test
     public void shouldNotStartBCCreateTaskWithInvalidInternalURL() throws Exception {
-        BpmBuildConfigurationCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInvalidInternalURL");
-        configuration.setScmRepoURL(INTERNAL_SCM_URL_WO_NAME);
-        assertThrows(() -> bpmEndpoint.startBCCreationTask(configuration, null), InvalidEntityException.class);
+        RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInvalidInternalURL", INTERNAL_SCM_URL_WO_NAME);
+        assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
 
     @Test
     public void shouldStartBCCreateTaskWithValidInternalURL() throws Exception {
-        BpmBuildConfigurationCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL");
-        configuration.setScmRepoURL(VALID_INTERNAL_SCM_URL);
-        Response response = bpmEndpoint.startBCCreationTask(configuration, null);
+        RepositoryCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL", VALID_INTERNAL_SCM_URL);
+        Response response = bpmEndpoint.startRCreationTask(configuration, null);
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
-    @Test
-    public void shouldStartBCCreateTaskWithValidExternalURL() throws Exception {
-        BpmBuildConfigurationCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidExternalURL");
-        configuration.setScmExternalRepoURL("git+ssh://github.com/project-ncl/pnc.git");
+    private RepositoryCreationRest configuration(String name, String scmRepoUrl) {
+        BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
+        buildConfiguration.setName(name);
 
-        Response response = bpmEndpoint.startBCCreationTask(configuration, null);
-        assertThat(response.getStatus()).isEqualTo(200);
-    }
+        BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder()
+                .id(1)
+                .build();
+        buildConfiguration.setEnvironment(new BuildEnvironmentRest(buildEnvironment));
 
-    @Test
-    public void shouldNotStartBCCreateTaskWithoutURL() throws Exception {
-        BpmBuildConfigurationCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithoutURL");
-        assertThrows(() -> bpmEndpoint.startBCCreationTask(configuration, null), InvalidEntityException.class);
-    }
+        ProjectRest projectRest = new ProjectRest();
+        projectRest.setId(1);
+        buildConfiguration.setProject(projectRest);
+        buildConfiguration.setBuildScript("mvn clean deploy");
 
-    @Test
-    public void shouldNotStartBCCreateTaskWithBothURLs() throws Exception {
-        BpmBuildConfigurationCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithBothURLs");
-        configuration.setScmExternalRepoURL(VALID_EXTERNAL_SCM_URL);
-        configuration.setScmRepoURL(VALID_INTERNAL_SCM_URL);
-        assertThrows(() -> bpmEndpoint.startBCCreationTask(configuration, null), InvalidEntityException.class);
-    }
+        RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
+        repositoryConfiguration.setInternalScmRepoUrl(scmRepoUrl);
 
-    private BpmBuildConfigurationCreationRest configuration(String name) {
-        BpmBuildConfigurationCreationRest configuration = new BpmBuildConfigurationCreationRest();
-        configuration.setName(name);
-
-        configuration.setBuildEnvironmentId(1);
-        configuration.setProjectId(1);
-        configuration.setBuildScript("mvn clean deploy");
-        return configuration;
+        return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
     }
 
     private <E extends Exception> void assertThrows(ThrowingRunnable runnable, Class<E> exceptionClass) {

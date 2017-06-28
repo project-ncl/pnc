@@ -29,16 +29,17 @@ import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.task.BpmBuildConfigurationCreationTask;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
-import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BpmTaskRestPage;
@@ -198,18 +199,18 @@ public class BpmEndpoint extends AbstractEndpoint {
             @ApiResponse(code = SUCCESS_CODE, message = "Success")
     })
     @POST
-    @Path("/tasks/start-build-configuration-creation")
+    @Path("/tasks/start-repository-configuration-creation")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response startBCCreationTask(
-            @ApiParam(value = "Task parameters.", required = true) BpmBuildConfigurationCreationRest taskData,
+    public Response startRCreationTask(
+            @ApiParam(value = "Task parameters.", required = true) RepositoryCreationRest repositoryCreationRest,
             @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
 
-        LOG.debug("Received request to start BC creation: " + taskData);
+        LOG.debug("Received request to start RC creation: " + repositoryCreationRest);
 
-        validateBuildConfigurationCreation(taskData);
+        validateBuildConfigurationCreation(repositoryCreationRest);
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData, loginInUser.getTokenString());
+        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryCreationRest, loginInUser.getTokenString());
 
         /**
          * Given the successful BC creation, add the BC into the BC sets.
@@ -218,76 +219,78 @@ public class BpmEndpoint extends AbstractEndpoint {
          * for each BC Set ID. The process would become too complicated.
          * Notification listeners are ideal for these kind of operations.
          */
-        task.addListener(BpmEventType.BCC_CREATION_SUCCESS, x -> {
+        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, x -> {
             LOG.debug("Received BPM event BCC_CREATION_SUCCESS: " + x);
-            BpmStringMapNotificationRest n = (BpmStringMapNotificationRest) x;
-            int bcId = -1;
-            try {
-                bcId = Integer.valueOf(n.getData().get("buildConfigurationId"));
-            } catch (NumberFormatException ex) {
-                throw new RuntimeException("Receive notification about successful BC creation '" + n +
-                        "' but the ID of the newly created BC '" + n.getData().get("buildConfigurationId") +
-                        "' is not a number. It should be present under 'buildConfigurationId' key.", ex);
-            }
-
-            Set<Integer> bcSetIds = taskData.getBuildConfigurationSetIds();
-            if (bcSetIds == null)
-                throw new RuntimeException("Set of Build Configuration Set IDs is null. Task data: " + taskData);
-            for (Integer setId : bcSetIds) {
-                try {
-                    bcSetProvider.addConfiguration(setId, bcId);
-                } catch (ValidationException e) {
-                    throw new RuntimeException("Could not add BC with ID '" + bcId +
-                            "' to a BC Set with id '" + setId + "'.", e);
-                }
-            }
+            addBuildConfigurationToSet(repositoryCreationRest, (BpmStringMapNotificationRest) x);
         });
 
-        task.addListener(BpmEventType.BCC_CREATION_ERROR, x -> {
+        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR, x -> {
             LOG.debug("Received BPM event BCC_CREATION_ERROR: " + x);
         });
 
-        addWebsocketForwardingListeners(task);
+        addWebsocketForwardingListeners(repositoryCreationTask);
 
         try {
-            bpmManager.startTask(task);
+            bpmManager.startTask(repositoryCreationTask);
         } catch (CoreException e) {
-            throw new CoreException("Could not start BPM task: " + task, e);
+            throw new CoreException("Could not start BPM task: " + repositoryCreationTask, e);
         }
-        return Response.ok(task.getTaskId()).build();
+        return Response.ok(repositoryCreationTask.getTaskId()).build();
     }
 
-    private void validateBuildConfigurationCreation(BpmBuildConfigurationCreationRest taskData)
+    private void addBuildConfigurationToSet(
+            RepositoryCreationRest repositoryCreationRest,
+            BpmStringMapNotificationRest repositoryCreationResult) {
+        int bcId = -1;
+        try {
+            bcId = Integer.valueOf(repositoryCreationResult.getData().get("buildConfigurationId"));
+        } catch (NumberFormatException ex) {
+            throw new RuntimeException("Receive notification about successful BC creation '" + repositoryCreationResult +
+                    "' but the ID of the newly created BC '" + repositoryCreationResult.getData().get("buildConfigurationId") +
+                    "' is not a number. It should be present under 'buildConfigurationId' key.", ex);
+        }
+
+        Set<Integer> bcSetIds = repositoryCreationRest.getBuildConfigurationRest().getBuildConfigurationSetIds();
+        if (bcSetIds == null)
+            throw new RuntimeException("Set of Build Configuration Set IDs is null. Task data: " + repositoryCreationRest);
+        for (Integer setId : bcSetIds) {
+            try {
+                bcSetProvider.addConfiguration(setId, bcId);
+            } catch (ValidationException e) {
+                throw new RuntimeException("Could not add BC with ID '" + bcId +
+                        "' to a BC Set with id '" + setId + "'.", e);
+            }
+        }
+    }
+
+    private void validateBuildConfigurationCreation(RepositoryCreationRest repositoryCreationRest)
             throws EmptyEntityException, InvalidEntityException {
 
-        ValidationBuilder.validateObject(taskData, WhenUpdating.class)
+        RepositoryConfigurationRest repositoryConfiguration = repositoryCreationRest.getRepositoryConfigurationRest();
+
+        ValidationBuilder.validateObject(repositoryConfiguration, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations();
 
-        if ((isBlank(taskData.getScmExternalRepoURL())) == isBlank(taskData.getScmRepoURL())) {
-            throw new InvalidEntityException("Exactly one of scmRepoURL, scmExternalRepoURL should be provided");
-        }
-
-        if (taskData.getScmRepoURL() != null) {
-            repositoryConfigurationProvider.validateInternalRepository(taskData.getScmRepoURL());
+        if (repositoryConfiguration.getInternalScmRepoUrl() != null) {
+            buildConfigurationProvider.validateInternalRepository(repositoryConfiguration.getInternalScmRepoUrl());
         }
     }
 
 
     /**
-     * This method will add listeners to all important BCC event types
+     * This method will add listeners to all important RCC event types
      * and forward the event to WS clients.
      */
-    private void addWebsocketForwardingListeners(BpmBuildConfigurationCreationTask task) {
+    private void addWebsocketForwardingListeners(RepositoryCreationTask task) {
         Consumer<? extends BpmNotificationRest> doNotify = (e) -> wsNotifier.sendMessage(e);
-        task.addListener(BpmEventType.BCC_REPO_CREATION_SUCCESS, doNotify);
-        task.addListener(BpmEventType.BCC_REPO_CREATION_ERROR, doNotify);
-        task.addListener(BpmEventType.BCC_REPO_CLONE_SUCCESS, doNotify);
-        task.addListener(BpmEventType.BCC_REPO_CLONE_ERROR, doNotify);
-        task.addListener(BpmEventType.BCC_CREATION_SUCCESS, doNotify);
-        task.addListener(BpmEventType.BCC_CREATION_ERROR, doNotify);
+        task.addListener(BpmEventType.RCC_REPO_CREATION_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RCC_REPO_CREATION_ERROR, doNotify);
+        task.addListener(BpmEventType.RCC_REPO_CLONE_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RCC_REPO_CLONE_ERROR, doNotify);
+        task.addListener(BpmEventType.RC_CREATION_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RC_CREATION_ERROR, doNotify);
     }
-
 
     @ApiOperation(value = "List of (recently) active BPM tasks.")
     @ApiResponses(value = {

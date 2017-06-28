@@ -38,6 +38,8 @@ import java.util.Set;
  */
 @XmlRootElement(name = "BpmBuildConfigurationCreation")
 @ToString
+//TODO DELETE ME
+@Deprecated
 public class BpmBuildConfigurationCreationRest implements Serializable {
 
     @NotNull
