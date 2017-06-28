@@ -175,7 +175,7 @@ public abstract class AbstractDependentBuildTest {
         int id = configIdSequence.getAndIncrement();
 
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
-                .internalScmRepoUrl("http://path.to/repo.git")
+                .internalUrl("http://path.to/repo.git")
                 .build();
         buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
 

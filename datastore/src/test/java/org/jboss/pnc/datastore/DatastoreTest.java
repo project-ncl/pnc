@@ -119,7 +119,7 @@ public class DatastoreTest {
         Project project = Project.Builder.newBuilder().name("Test Project 1").description("Test").build();
         BuildEnvironment buildEnv = BuildEnvironment.Builder.newBuilder().name("test build env").systemImageId("12345").systemImageType(SystemImageType.DOCKER_IMAGE).build();
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
-                .internalScmRepoUrl("github.com/project-ncl/pnc")
+                .internalUrl("github.com/project-ncl/pnc")
                 .build();
         BuildConfiguration buildConfig = BuildConfiguration.Builder.newBuilder().name("test build config").buildScript("mvn deploy").build();
 

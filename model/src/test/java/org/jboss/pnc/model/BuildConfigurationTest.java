@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.RollbackException;
-import javax.validation.ConstraintViolationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -115,7 +114,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
                 .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
 
         RepositoryConfiguration repoConfig = RepositoryConfiguration.Builder.newBuilder()
-                .internalScmRepoUrl("example.com")
+                .internalUrl("example.com")
                 .build();
 
         em.getTransaction().begin();

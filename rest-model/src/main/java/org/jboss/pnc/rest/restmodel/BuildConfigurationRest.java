@@ -223,7 +223,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .archived(this.isArchived())
                 .genericParameters(this.getGenericParameters());
 
-        performIfNotNull(this.getRepositoryConfiguration(), () -> this.getRepositoryConfiguration().toDBEntityBuilder().build());
+        performIfNotNull(this.getRepositoryConfiguration(), () -> builder.repositoryConfiguration(this.getRepositoryConfiguration().toDBEntityBuilder().build()));
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
         performIfNotNull(this.getEnvironment(), () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
         performIfNotNull(this.getProductVersionId(), () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));

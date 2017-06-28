@@ -141,7 +141,7 @@ public class BuildConfigurationRepositoryImplTest {
     private RepositoryConfiguration repositoryConfiguration() {
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder
                 .newBuilder()
-                .internalScmRepoUrl(randomAlphabetic(20))
+                .internalUrl(randomAlphabetic(20))
                 .build();
         repositoryConfigurationRepository.save(repositoryConfiguration);
 

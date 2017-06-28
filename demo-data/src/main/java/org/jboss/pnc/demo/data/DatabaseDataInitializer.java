@@ -545,7 +545,7 @@ public class DatabaseDataInitializer {
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl) {
         return  RepositoryConfiguration.Builder.newBuilder()
-                .internalScmRepoUrl(internalScmUrl)
+                .internalUrl(internalScmUrl)
                 .build();
     }
 

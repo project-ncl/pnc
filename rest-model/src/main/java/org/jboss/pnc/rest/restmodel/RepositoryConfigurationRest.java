@@ -49,12 +49,12 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
     @Setter
     @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
     @ScmUrl(groups = {WhenUpdating.class, WhenCreatingNew.class} )
-    private String internalScmRepoUrl;
+    private String internalUrl;
 
     @Getter
     @Setter
     @ScmUrl(groups = {WhenUpdating.class, WhenCreatingNew.class} )
-    private String externalScmRepoUrl;
+    private String externalUrl;
 
     @Getter
     @Setter
@@ -65,8 +65,8 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
 
     public RepositoryConfigurationRest(RepositoryConfiguration repositoryConfiguration) {
         this.id = repositoryConfiguration.getId();
-        this.internalScmRepoUrl = repositoryConfiguration.getInternalScmRepoUrl();
-        this.externalScmRepoUrl = repositoryConfiguration.getExternalScmRepoUrl();
+        this.internalUrl = repositoryConfiguration.getInternalUrl();
+        this.externalUrl = repositoryConfiguration.getExternalUrl();
         this.preBuildSyncEnabled = repositoryConfiguration.isPreBuildSyncEnabled();
     }
 
@@ -93,8 +93,8 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
     public RepositoryConfiguration.Builder toDBEntityBuilder() {
         RepositoryConfiguration.Builder builder = RepositoryConfiguration.Builder.newBuilder()
                 .id(id)
-                .internalScmRepoUrl(internalScmRepoUrl)
-                .externalScmRepoUrl(externalScmRepoUrl)
+                .internalUrl(internalUrl)
+                .externalUrl(externalUrl)
                 .preBuildSyncEnabled(preBuildSyncEnabled);
         return builder;
     }

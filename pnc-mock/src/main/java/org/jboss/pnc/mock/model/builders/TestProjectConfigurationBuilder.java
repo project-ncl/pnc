@@ -115,7 +115,7 @@ public class TestProjectConfigurationBuilder {
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder
                 .newBuilder()
                 .id(id)
-                .internalScmRepoUrl("github.com/"  + name)
+                .internalUrl("github.com/"  + name)
                 .build();
 
         BuildConfiguration buildConfiguration = new BuildConfiguration();

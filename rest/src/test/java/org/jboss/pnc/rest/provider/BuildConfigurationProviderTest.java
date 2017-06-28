@@ -65,21 +65,21 @@ public class BuildConfigurationProviderTest {
     @Test(expected = InvalidEntityException.class)
     public void shouldFailOnInvalidGitUrl() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.getRepositoryConfiguration().setInternalScmRepoUrl("git+ssh://git@github.com/");
+        configuration.getRepositoryConfiguration().setInternalUrl("git+ssh://git@github.com/");
         provider.validateBeforeSaving(configuration);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void shouldFailOnValidGitUrlWithoutDotGit() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.getRepositoryConfiguration().setInternalScmRepoUrl(URL_WITHOUT_SUFFIX);
+        configuration.getRepositoryConfiguration().setInternalUrl(URL_WITHOUT_SUFFIX);
         provider.validateBeforeSaving(configuration);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void shouldSucceedOnUpdateWithLackOfMirrorWithSlash() throws ValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.getRepositoryConfiguration().setInternalScmRepoUrl(INVALID_URL);
+        configuration.getRepositoryConfiguration().setInternalUrl(INVALID_URL);
         provider.validateBeforeSaving(configuration);
     }
 
@@ -98,7 +98,7 @@ public class BuildConfigurationProviderTest {
 
     private BuildConfigurationRest createValidConfiguration() {
         RepositoryConfigurationRest repositoryConfigurationRest = new RepositoryConfigurationRest();
-        repositoryConfigurationRest.setInternalScmRepoUrl(VALID_URL);
+        repositoryConfigurationRest.setInternalUrl(VALID_URL);
 
         BuildConfigurationRest configuration = new BuildConfigurationRest();
         configuration.setProject(createProject());

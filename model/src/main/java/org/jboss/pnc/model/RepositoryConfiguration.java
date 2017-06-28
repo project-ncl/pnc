@@ -56,7 +56,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Column(unique = true, nullable = false, updatable = false)
     @Getter
     @Setter
-    private String internalScmRepoUrl;
+    private String internalUrl;
 
     /**
      * URL of an upstream SCM repository.
@@ -65,7 +65,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Size(max = 255)
     @Getter
     @Setter
-    private String externalScmRepoUrl;
+    private String externalUrl;
 
     /**
      * Declares whether the pre-build repository synchronization should happen or not.
@@ -107,9 +107,9 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     public static class Builder {
         private Integer id;
 
-        private String internalScmRepoUrl;
+        private String internalUrl;
 
-        private String externalScmRepoUrl;
+        private String externalUrl;
 
         private boolean preBuildSyncEnabled = false;
 
@@ -127,20 +127,20 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
         public RepositoryConfiguration build() {
             RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
             repositoryConfiguration.setId(id);
-            repositoryConfiguration.setInternalScmRepoUrl(internalScmRepoUrl);
-            repositoryConfiguration.setExternalScmRepoUrl(externalScmRepoUrl);
+            repositoryConfiguration.setInternalUrl(internalUrl);
+            repositoryConfiguration.setExternalUrl(externalUrl);
             repositoryConfiguration.setPreBuildSyncEnabled(preBuildSyncEnabled);
             repositoryConfiguration.setBuildConfigurations(buildConfigurations);
             return repositoryConfiguration;
         }
 
-        public Builder internalScmRepoUrl(String internalScmRepoUrl) {
-            this.internalScmRepoUrl = internalScmRepoUrl;
+        public Builder internalUrl(String internalUrl) {
+            this.internalUrl = internalUrl;
             return this;
         }
 
-        public Builder externalScmRepoUrl(String externalScmRepoUrl) {
-            this.externalScmRepoUrl = externalScmRepoUrl;
+        public Builder externalUrl(String externalUrl) {
+            this.externalUrl = externalUrl;
             return this;
         }
 

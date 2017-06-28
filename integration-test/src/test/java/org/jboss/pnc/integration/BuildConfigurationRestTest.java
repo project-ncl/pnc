@@ -395,7 +395,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         RestResponse<BuildEnvironmentRest> environmentRestClient = BuildConfigurationRestTest.environmentRestClient.firstNotNull();
 
         RepositoryConfigurationRest repositoryConfigurationRest = new RepositoryConfigurationRest();
-        repositoryConfigurationRest.setInternalScmRepoUrl(VALID_INTERNAL_REPO);
+        repositoryConfigurationRest.setInternalUrl(VALID_INTERNAL_REPO);
 
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
         buildConfiguration.setName(UUID.randomUUID().toString());

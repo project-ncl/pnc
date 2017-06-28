@@ -117,7 +117,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ValidationException {
         super.validateBeforeSaving(buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
-        validateInternalRepository(buildConfigurationRest.getRepositoryConfiguration().getInternalScmRepoUrl());
+        validateInternalRepository(buildConfigurationRest.getRepositoryConfiguration().getInternalUrl());
     }
 
     @Override
@@ -126,7 +126,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
-        validateInternalRepository(buildConfigurationRest.getRepositoryConfiguration().getInternalScmRepoUrl());
+        validateInternalRepository(buildConfigurationRest.getRepositoryConfiguration().getInternalUrl());
     }
 
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
