@@ -207,6 +207,16 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         LOG.debug("Received request to start RC creation: " + repositoryCreationRest);
 
+        String internalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getInternalScmRepoUrl();
+        if (internalScmRepoUrl != null) {
+            //TODO check if it exists
+        }
+
+        String externalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalScmRepoUrl();
+        if (externalScmRepoUrl != null) {
+            //TODO check if it exists
+        }
+
         validateBuildConfigurationCreation(repositoryCreationRest);
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
