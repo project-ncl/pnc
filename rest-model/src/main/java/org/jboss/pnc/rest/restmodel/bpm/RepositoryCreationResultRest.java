@@ -23,30 +23,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
 
 /**
- * Repository creation configuration object.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = RepositoryCreationRest.RepositoryCreationRestBuilder.class)
+@JsonDeserialize(builder = RepositoryCreationResultRest.RepositoryCreationResultRestBuilder.class)
 @AllArgsConstructor
 @Builder
-@XmlRootElement(name = "RepositoryCreationRest")
+@XmlRootElement(name = "RepositoryCreationResultRest")
 @ToString
-public class RepositoryCreationRest implements Serializable {
+public class RepositoryCreationResultRest {
 
     @Getter
-    private final RepositoryConfigurationRest repositoryConfigurationRest;
+    private final Integer repositoryId;
 
     @Getter
-    private final BuildConfigurationRest buildConfigurationRest;
+    private final Integer buildConfigurationId;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static final class RepositoryCreationRestBuilder {
+    public static final class RepositoryCreationResultRestBuilder {
     }
 
 }

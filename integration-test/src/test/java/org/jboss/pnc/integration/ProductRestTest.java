@@ -62,7 +62,6 @@ public class ProductRestTest extends AbstractTest {
         }
     }
 
-
     @Test
     public void shouldAddProduct() throws ValidationException, URISyntaxException {
         ProductRest dto = new ProductRest();

@@ -22,8 +22,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ProjectSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -49,6 +52,10 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+/**
+ *
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
+ */
 @Api(value = "/repository-creation", description = "Endpoints to support repository creation process.")
 @Path("/repository-creation")
 @Produces(MediaType.APPLICATION_JSON)
@@ -59,14 +66,18 @@ public class RepositoryCreationEndpoint {
 
     private BuildConfigurationProvider buildConfigurationProvider;
 
+    private RepositoryConfigurationProvider repositoryConfigurationProvider;
+
     @Deprecated //CDI workaround
     public RepositoryCreationEndpoint() {
     }
 
     @Inject
     public RepositoryCreationEndpoint(
-            BuildConfigurationProvider buildConfigurationProvider) {
+            BuildConfigurationProvider buildConfigurationProvider,
+            RepositoryConfigurationProvider repositoryConfigurationProvider) {
         this.buildConfigurationProvider = buildConfigurationProvider;
+        this.repositoryConfigurationProvider = repositoryConfigurationProvider;
     }
 
     @ApiOperation(value = "Store Repository Configuration and Build Configuration.")
@@ -77,14 +88,17 @@ public class RepositoryCreationEndpoint {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(RepositoryCreationRest repositoryCreationRest, @Context UriInfo uriInfo)
+    public Response createNewRCAndBC(RepositoryCreationRest repositoryCreationRest, @Context UriInfo uriInfo)
             throws ValidationException {
 
         BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
+        RepositoryConfigurationRest repositoryConfigurationRest = repositoryCreationRest.getRepositoryConfigurationRest();
 
-        buildConfigurationProvider.store(buildConfigurationRest);
-        //TODO add repositoryConfigurationProvider
-        return Response.ok().build();
+        Integer repositoryId = repositoryConfigurationProvider.store(repositoryConfigurationRest);
+        Integer buildConfigurationId = buildConfigurationProvider.store(buildConfigurationRest);
+
+        RepositoryCreationResultRest result = new RepositoryCreationResultRest(repositoryId, buildConfigurationId);
+        return Response.ok().entity(result).build();
     }
 
 }

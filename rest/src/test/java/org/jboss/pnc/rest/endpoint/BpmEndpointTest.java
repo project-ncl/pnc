@@ -24,15 +24,12 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
+import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationRestMockBuilder;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -132,25 +129,7 @@ public class BpmEndpointTest {
     }
 
     private RepositoryCreationRest configuration(String name, String scmRepoUrl) {
-        BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
-        buildConfiguration.setId(1);
-        buildConfiguration.setName(name);
-
-        BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder()
-                .id(1)
-                .build();
-        buildConfiguration.setEnvironment(new BuildEnvironmentRest(buildEnvironment));
-
-        ProjectRest projectRest = new ProjectRest();
-        projectRest.setId(1);
-        buildConfiguration.setProject(projectRest);
-        buildConfiguration.setBuildScript("mvn clean deploy");
-
-        RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
-        repositoryConfiguration.setId(1);
-        repositoryConfiguration.setInternalScmRepoUrl(scmRepoUrl);
-
-        return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
+        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", scmRepoUrl);
     }
 
     private <E extends Exception> void assertThrows(ThrowingRunnable runnable, Class<E> exceptionClass) {
