@@ -24,14 +24,22 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
+import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -52,12 +60,19 @@ public class BpmEndpointTest {
     private static final String INTERNAL_SCM_URL_WO_NAME = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839";
     private static final String VALID_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/rock-a-teens/woo-hoo.git";
     private static final String VALID_EXTERNAL_SCM_URL = "git+ssh://github.com/project-ncl/pnc.git";
+    private static final String EXISTING_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/i-do/exist.git";
     @Mock
     private AuthenticationProviderFactory authProviderFactory;
     @Mock
     private AuthenticationProvider authProvider;
     @Mock
-    private RepositoryConfigurationRepository repositoryConfigurationRepository;
+    private BuildConfigurationRepository configurationRepository;
+    @Mock
+    private BuildConfigurationAuditedRepository configurationAuditedRepository;
+    @Mock
+    private ProductVersionRepository versionRepository;
+    @Mock
+    private RepositoryConfigurationProvider repositoryConfigurationProvider;
     @Mock
     private Configuration configuration;
     @Mock
@@ -71,38 +86,54 @@ public class BpmEndpointTest {
     public void setUp() throws ConfigurationParseException {
         MockitoAnnotations.initMocks(this);
 
+        RepositoryConfiguration existingRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                .internalScmRepoUrl(EXISTING_INTERNAL_SCM_URL)
+                .externalScmRepoUrl("")
+                .preBuildSyncEnabled(true)
+                .build();
+
         when(authProviderFactory.getProvider()).thenReturn(authProvider);
         when(authProvider.getLoggedInUser(any())).thenReturn(new NoAuthLoggedInUser());
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        when(repositoryConfigurationProvider.getSpecificByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
+                .thenReturn(new RepositoryConfigurationRest(existingRepositoryConfiguration));
 
-        RepositoryConfigurationProvider repositoryConfigurationProvider = new RepositoryConfigurationProvider(repositoryConfigurationRepository,
-                null, null, null, configuration);
+        BuildConfigurationProvider configurationProvider = new BuildConfigurationProvider(configurationRepository, configurationAuditedRepository,
+                null, null, null, versionRepository, configuration);
 
-        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, repositoryConfigurationProvider, null);
+        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, configurationProvider, null, repositoryConfigurationProvider);
 
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
     }
 
     @Test
-    public void shouldNotStartBCCreateTaskWithInternalURLWORepoName() throws Exception {
+    public void shouldNotStartRCCreateTaskWithInternalURLWORepoName() throws Exception {
         RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName", "git+ssh://github.com/project-ncl/pnc.git");
         assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
     @Test
-    public void shouldNotStartBCCreateTaskWithInvalidInternalURL() throws Exception {
+    public void shouldNotStartRCCreateTaskWithInvalidInternalURL() throws Exception {
         RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInvalidInternalURL", INTERNAL_SCM_URL_WO_NAME);
         assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
 
     @Test
-    public void shouldStartBCCreateTaskWithValidInternalURL() throws Exception {
+    public void shouldStartRCCreateTaskWithValidInternalURL() throws Exception {
         RepositoryCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL", VALID_INTERNAL_SCM_URL);
         Response response = bpmEndpoint.startRCreationTask(configuration, null);
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
+    @Test
+    public void shouldNotStartRCCreateTaskWithExistingInternalURL() throws Exception {
+        RepositoryCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL", EXISTING_INTERNAL_SCM_URL);
+        Response response = bpmEndpoint.startRCreationTask(configuration, null);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_MODIFIED.getStatusCode());
+    }
+
     private RepositoryCreationRest configuration(String name, String scmRepoUrl) {
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
+        buildConfiguration.setId(1);
         buildConfiguration.setName(name);
 
         BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder()
@@ -116,6 +147,7 @@ public class BpmEndpointTest {
         buildConfiguration.setBuildScript("mvn clean deploy");
 
         RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
+        repositoryConfiguration.setId(1);
         repositoryConfiguration.setInternalScmRepoUrl(scmRepoUrl);
 
         return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);

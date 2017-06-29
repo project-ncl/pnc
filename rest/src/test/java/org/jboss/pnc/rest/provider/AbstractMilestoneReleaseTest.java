@@ -66,7 +66,9 @@ public class AbstractMilestoneReleaseTest {
     @Mock
     AuthenticationProviderFactory authenticationProviderFactory;
     @Mock
-    RepositoryConfigurationProvider repositoryConfigurationProvider;
+    BuildConfigurationProvider buildConfigurationProvider;
+    @Mock
+    private RepositoryConfigurationProvider repositoryConfigurationProvider;
 
     @Mock
     private Notifier notifier;
@@ -91,7 +93,8 @@ public class AbstractMilestoneReleaseTest {
                 pageInfoProducer);
         milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
                 authenticationProviderFactory, productMilestoneRepository);
-        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, repositoryConfigurationProvider, notifier);
+        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, buildConfigurationProvider, notifier,
+                repositoryConfigurationProvider);
         bpmMock.setUp();
     }
 }

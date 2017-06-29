@@ -29,7 +29,6 @@ import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
@@ -50,7 +49,6 @@ import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
-import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
@@ -81,7 +79,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -121,6 +118,8 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private AuthenticationProvider authenticationProvider;
 
+    private BuildConfigurationProvider buildConfigurationProvider;
+
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
 
     @Deprecated
@@ -129,13 +128,14 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     @Inject
     public BpmEndpoint(BpmManager bpmManager,
-                       BuildConfigurationSetProvider bcSetProvider,
-                       AuthenticationProviderFactory authenticationProviderFactory,
-                       RepositoryConfigurationProvider repositoryConfigurationProvider,
-                       Notifier wsNotifier) {
+            BuildConfigurationSetProvider bcSetProvider,
+            AuthenticationProviderFactory authenticationProviderFactory,
+            BuildConfigurationProvider buildConfigurationProvider,
+            Notifier wsNotifier, RepositoryConfigurationProvider repositoryConfigurationProvider) {
         this.bpmManager = bpmManager;
         this.bcSetProvider = bcSetProvider;
         this.wsNotifier = wsNotifier;
+        this.buildConfigurationProvider = buildConfigurationProvider;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.repositoryConfigurationProvider = repositoryConfigurationProvider;
     }
@@ -209,7 +209,10 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         String internalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getInternalScmRepoUrl();
         if (internalScmRepoUrl != null) {
-            //TODO check if it exists
+            RepositoryConfigurationRest repositoryConfiguration = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmRepoUrl);
+            if (repositoryConfiguration != null) {
+                return Response.notModified().entity("Already exists.").build();
+            }
         }
 
         String externalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalScmRepoUrl();
