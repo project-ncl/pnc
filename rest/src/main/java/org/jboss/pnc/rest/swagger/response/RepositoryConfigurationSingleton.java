@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jboss.pnc.rest.swagger.response;
 
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 
-public class BuildConfigurationPage extends Page<BuildConfigurationRest> {
-
+/**
+ * @author Jakub Bartecek
+ */
+public class RepositoryConfigurationSingleton extends Singleton<RepositoryConfigurationRest> {
 }
