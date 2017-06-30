@@ -26,6 +26,7 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
 import org.jboss.pnc.rest.swagger.response.RepositoryConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.RepositoryConfigurationSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -69,6 +70,7 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
 
     @Inject
     public RepositoryConfigurationEndpoint(RepositoryConfigurationProvider repositoryConfigurationProvider) {
+        super(repositoryConfigurationProvider);
         this.repositoryConfigurationProvider = repositoryConfigurationProvider;
     }
 
@@ -101,6 +103,19 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
         return super.createNew(repositoryConfigurationRest, uriInfo);
     }
 
+    @ApiOperation(value = "Gets a specific Repository Configuration")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryConfigurationSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = RepositoryConfigurationSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}")
+    public Response getSpecific(
+            @ApiParam(value = "Repository Configuration id", required = true) @PathParam("id") Integer id) {
+        return super.getSpecific(id);
+    }
 
     @ApiOperation(value = "Updates an existing Repository Configuration")
     @ApiResponses(value = {

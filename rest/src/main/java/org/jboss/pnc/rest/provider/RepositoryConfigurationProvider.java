@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
@@ -83,6 +84,7 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     protected void validateBeforeSaving(RepositoryConfigurationRest repositoryConfigurationRest) throws ValidationException {
         super.validateBeforeSaving(repositoryConfigurationRest);
         validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
+        validateIfItsNotConflicting(repositoryConfigurationRest);
     }
 
     @Override
@@ -101,6 +103,15 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
                 throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix + " followed by a repository name.");
             }
         }
+    }
+
+    private void validateIfItsNotConflicting(RepositoryConfigurationRest repositoryConfigurationRest) throws ConflictedEntryException {
+        RepositoryConfiguration existingRepositoryConfiguration =
+                repository.queryByPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl(repositoryConfigurationRest.getInternalUrl()));
+        if(existingRepositoryConfiguration != null)
+            throw new ConflictedEntryException("RepositoryConfiguration with specified internalURL already exists",
+                    RepositoryConfiguration.class, existingRepositoryConfiguration.getId());
+
     }
 
     @Override

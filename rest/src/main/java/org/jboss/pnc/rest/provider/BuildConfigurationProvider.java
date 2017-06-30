@@ -131,7 +131,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration) throws InvalidEntityException {
-        if (repositoryConfiguration.getId() == null)
+        if (repositoryConfiguration == null || repositoryConfiguration.getId() == null)
             throw new InvalidEntityException("RepositoryConfiguration entity has to be created before creating a new BuildConfiguration.");
     }
 

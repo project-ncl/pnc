@@ -36,6 +36,8 @@ public class AbstractTest {
     protected static final String PRODUCT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/products/%d";
     protected static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
     protected static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d";
+    protected static final String REPOSITORY_CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/repository-configurations/";
+    protected static final String REPOSITORY_CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/repository-configurations/%d";
     protected static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/%d";
     protected static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
     protected static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/";
