@@ -23,8 +23,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 public class RepositoryConfigurationPredicates {
 
-    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalScmRepoUrl) {
-        return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalScmRepoUrl), internalScmRepoUrl);
+    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
+        return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrl), internalUrl);
     }
 
 }

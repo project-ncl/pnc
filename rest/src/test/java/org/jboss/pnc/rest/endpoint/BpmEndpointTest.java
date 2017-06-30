@@ -24,12 +24,15 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.datastore.repositories.internal.RepositoryConfigurationSpringRepository;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -57,11 +60,7 @@ public class BpmEndpointTest {
     @Mock
     private AuthenticationProvider authProvider;
     @Mock
-    private BuildConfigurationRepository configurationRepository;
-    @Mock
-    private BuildConfigurationAuditedRepository configurationAuditedRepository;
-    @Mock
-    private ProductVersionRepository versionRepository;
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
     @Mock
     private Configuration configuration;
     @Mock
@@ -79,10 +78,10 @@ public class BpmEndpointTest {
         when(authProvider.getLoggedInUser(any())).thenReturn(new NoAuthLoggedInUser());
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
 
-        BuildConfigurationProvider configurationProvider = new BuildConfigurationProvider(configurationRepository, configurationAuditedRepository,
-                null, null, null, versionRepository, configuration);
+        RepositoryConfigurationProvider repositoryConfigurationProvider = new RepositoryConfigurationProvider(repositoryConfigurationRepository,
+                null, null, null, configuration);
 
-        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, configurationProvider, null);
+        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, repositoryConfigurationProvider, null);
 
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
     }

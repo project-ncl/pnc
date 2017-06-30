@@ -17,12 +17,16 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -67,12 +71,36 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     public RepositoryConfigurationProvider() {
     }
 
-    public RepositoryConfigurationRest  getSpecificByInternalScm(String internalScmUrl) {
+    public RepositoryConfigurationRest getSpecificByInternalScm(String internalScmUrl) {
         RepositoryConfiguration repositoryConfiguration = repository.queryByPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl(internalScmUrl));
         if (repositoryConfiguration != null) {
             return toRESTModel().apply(repositoryConfiguration);
         }
         return null;
+    }
+
+    @Override
+    protected void validateBeforeSaving(RepositoryConfigurationRest repositoryConfigurationRest) throws ValidationException {
+        super.validateBeforeSaving(repositoryConfigurationRest);
+        validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
+    }
+
+    @Override
+    protected void validateBeforeUpdating(Integer id, RepositoryConfigurationRest repositoryConfigurationRest) throws ValidationException {
+        super.validateBeforeUpdating(id, repositoryConfigurationRest);
+        validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
+    }
+
+    public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
+        String internalScmAuthority = moduleConfig.getInternalScmAuthority();
+
+        if (StringUtils.isNotBlank(internalRepoUrl) && internalScmAuthority != null) {
+            String expectedPrefix = "git+ssh://" + internalScmAuthority;
+            if (!internalRepoUrl.startsWith(expectedPrefix)
+                    || !REPOSITORY_NAME_PATTERN.matcher(internalRepoUrl.replace(expectedPrefix, "")).matches()) {
+                throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix + " followed by a repository name.");
+            }
+        }
     }
 
     @Override
