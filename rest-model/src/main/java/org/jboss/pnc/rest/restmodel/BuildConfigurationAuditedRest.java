@@ -80,9 +80,10 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.name = buildConfigurationAudited.getName();
         this.description = buildConfigurationAudited.getDescription();
         this.buildScript = buildConfigurationAudited.getBuildScript();
-        this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfigurationAudited.getRepositoryConfiguration());
         this.scmRevision = buildConfigurationAudited.getScmRevision();
 
+        performIfNotNull(buildConfigurationAudited.getRepositoryConfiguration(),
+                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfigurationAudited.getRepositoryConfiguration()));
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.project = new ProjectRest(buildConfigurationAudited.getProject()));
         performIfNotNull(buildConfigurationAudited.getBuildEnvironment(),

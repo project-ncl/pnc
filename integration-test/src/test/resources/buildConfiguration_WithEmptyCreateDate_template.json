@@ -1,10 +1,12 @@
 {
     "name": "${_name}",
+    "repositoryConfiguration": {
+      "id": ${_repositoryConfigurationId}
+    },
     "project": {
       "id": ${_projectId}
     },
     "environment": {
       "id": ${_environmentId}
-    },
-    "scmRepoURL": "${_scmRepoUrl}"
+    }
 }

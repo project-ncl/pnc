@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -33,10 +26,11 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.datastore.audit.AuditRepository;
 import org.jboss.pnc.spi.datastore.audit.Revision;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -44,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -53,6 +48,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * End to end scenario test for auditing entities.
@@ -81,6 +82,9 @@ public class DatastoreTest {
 
     @Inject
     BuildEnvironmentRepository environmentRepository;
+
+    @Inject
+    RepositoryConfigurationRepository repositoryConfigurationRepository;
 
     @Inject
     BuildConfigurationRepository buildConfigurationRepository;
@@ -117,12 +121,18 @@ public class DatastoreTest {
         BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("DatastoreTest Test Environment")
                 .systemImageType(SystemImageType.DOCKER_IMAGE).systemImageId("92387492739").build();
         Project project = Project.Builder.newBuilder().name("test").build();
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                .internalUrl(BuildConfigurationRestTest.VALID_INTERNAL_REPO).build();
+
         environment = environmentRepository.save(environment);
         productVersion = productVersionRepository.save(productVersion);
         project = projectRepository.save(project);
+        repositoryConfigurationRepository.save(repositoryConfiguration);
 
         BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
-                .buildEnvironment(environment).name(ORIGINAL_NAME).project(project).build();
+                .buildEnvironment(environment).name(ORIGINAL_NAME).project(project)
+                .repositoryConfiguration(repositoryConfiguration)
+                .build();
 
         testedConfigurationId = buildConfigurationRepository.save(testedConfiguration).getId();
     }
