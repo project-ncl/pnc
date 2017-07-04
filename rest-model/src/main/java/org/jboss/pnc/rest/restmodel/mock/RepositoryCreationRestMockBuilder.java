@@ -46,7 +46,7 @@ public class RepositoryCreationRestMockBuilder {
 
         RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
         repositoryConfiguration.setId(1);
-        repositoryConfiguration.setInternalScmRepoUrl(scmRepoUrl);
+        repositoryConfiguration.setInternalUrl(scmRepoUrl);
 
         return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
 

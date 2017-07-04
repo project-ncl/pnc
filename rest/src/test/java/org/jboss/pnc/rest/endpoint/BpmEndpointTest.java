@@ -84,8 +84,8 @@ public class BpmEndpointTest {
         MockitoAnnotations.initMocks(this);
 
         RepositoryConfiguration existingRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
-                .internalScmRepoUrl(EXISTING_INTERNAL_SCM_URL)
-                .externalScmRepoUrl("")
+                .internalUrl(EXISTING_INTERNAL_SCM_URL)
+                .externalUrl("")
                 .preBuildSyncEnabled(true)
                 .build();
 

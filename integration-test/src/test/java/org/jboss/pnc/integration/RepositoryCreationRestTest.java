@@ -90,7 +90,7 @@ public class RepositoryCreationRestTest {
         Assert.assertEquals(200, response.statusCode());
 
         RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider.getSpecificByInternalScm(INTERNAL_SCM_URL);
-        Assert.assertEquals(INTERNAL_SCM_URL, retrievedRepositoryConfig.getInternalScmRepoUrl());
+        Assert.assertEquals(INTERNAL_SCM_URL, retrievedRepositoryConfig.getInternalUrl());
 
         RepositoryCreationResultRest result = response.jsonPath().getObject("", RepositoryCreationResultRest.class);
 

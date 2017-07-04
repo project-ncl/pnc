@@ -207,7 +207,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         LOG.debug("Received request to start RC creation: " + repositoryCreationRest);
 
-        String internalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getInternalScmRepoUrl();
+        String internalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getInternalUrl();
         if (internalScmRepoUrl != null) {
             RepositoryConfigurationRest repositoryConfiguration = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmRepoUrl);
             if (repositoryConfiguration != null) {
@@ -215,7 +215,7 @@ public class BpmEndpoint extends AbstractEndpoint {
             }
         }
 
-        String externalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalScmRepoUrl();
+        String externalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalUrl();
         if (externalScmRepoUrl != null) {
             //TODO check if it exists
         }
@@ -285,8 +285,8 @@ public class BpmEndpoint extends AbstractEndpoint {
                 .validateNotEmptyArgument()
                 .validateAnnotations();
 
-        if (repositoryConfiguration.getInternalScmRepoUrl() != null) {
-            buildConfigurationProvider.validateInternalRepository(repositoryConfiguration.getInternalScmRepoUrl());
+        if (repositoryConfiguration.getInternalUrl() != null) {
+            repositoryConfigurationProvider.validateInternalRepository(repositoryConfiguration.getInternalUrl());
         }
     }
 
