@@ -102,11 +102,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Setter
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
-    @ForeignKey(name = "fk_buildconfiguration_repositoryconfiguration" )
     @Index(name="idx_buildconfiguration_repositoryconfiguration")
     @ManyToOne(optional = false)
-    //TODO should be not updatable and not nullable
-    //@JoinColumn(name = "fk_buildconfiguration_repositoryconfiguration", updatable = false, nullable = false)
+    @JoinColumn(updatable = false, nullable = false)
     private RepositoryConfiguration repositoryConfiguration;
 
     /**

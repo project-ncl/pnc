@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.maven.model.Build;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -44,7 +45,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
 
     protected final Project PROJECT_WITH_ID_1;
 
-    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
+    protected final RepositoryConfiguration REPOSITORY_CONFIGURATION_ID_1 = RepositoryConfiguration.Builder
             .newBuilder().id(1).build();
 
     private final String KEY1 = "key1";
@@ -77,7 +78,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
         BuildConfiguration original = BuildConfiguration.Builder.newBuilder()
                 .name("Test Build Configuration 1")
                 .description("Test Build Configuration 1 Description").project(PROJECT_WITH_ID_1)
-                .repositoryConfiguration(basicRepositoryConfiguration)
+                .repositoryConfiguration(REPOSITORY_CONFIGURATION_ID_1)
                 .buildScript("mvn install")
                 .genericParameters(GENERIC_PARAMETERS_EMPTY)
                 .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
@@ -103,25 +104,31 @@ public class BuildConfigurationTest extends AbstractModelTest {
         em.getTransaction().commit();
     }
 
-    @Test(expected = RollbackException.class)
-    @Ignore // TODO Unignore, once the relationship constraint is added
+    @Test
     public void testFailToChangeRepoConfigInBC() {
+        RepositoryConfiguration defaultRepositoryConfiguration = em.find(RepositoryConfiguration.class, 1);
+        RepositoryConfiguration secondRepositoryConfiguration = em.find(RepositoryConfiguration.class, 2);
+
+
         BuildConfiguration bc = BuildConfiguration.Builder.newBuilder()
                 .name("Test Build Configuration 1")
                 .project(PROJECT_WITH_ID_1)
-                .repositoryConfiguration(basicRepositoryConfiguration)
+                .repositoryConfiguration(defaultRepositoryConfiguration)
                 .buildScript("mvn install")
                 .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
 
-        RepositoryConfiguration repoConfig = RepositoryConfiguration.Builder.newBuilder()
-                .internalUrl("example.com")
-                .build();
-
         em.getTransaction().begin();
         em.persist(bc);
-        em.persist(repoConfig);
-        bc.setRepositoryConfiguration(repoConfig);
         em.getTransaction().commit();
+
+
+        em.getTransaction().begin();
+        BuildConfiguration loadedBc = em.find(BuildConfiguration.class, bc.getId());
+        loadedBc.setRepositoryConfiguration(secondRepositoryConfiguration);
+        em.getTransaction().commit();
+        em.clear();
+
+        assertEquals(1, em.find(BuildConfiguration.class, loadedBc.getId()).getRepositoryConfiguration().getId().intValue());
     }
 
     @Test
@@ -174,7 +181,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
             Map<String, String> genericParameters) {
         return BuildConfiguration.Builder.newBuilder().name(name)
                 .description(description).project(PROJECT_WITH_ID_1)
-                .repositoryConfiguration(basicRepositoryConfiguration)
+                .repositoryConfiguration(REPOSITORY_CONFIGURATION_ID_1)
                 .buildScript("mvn install")
                 .genericParameters(genericParameters)
                 .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
