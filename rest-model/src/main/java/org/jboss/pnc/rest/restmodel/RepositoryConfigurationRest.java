@@ -58,7 +58,7 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
 
     @Getter
     @Setter
-    private boolean preBuildSyncEnabled;
+    private boolean preBuildSyncEnabled = true;
 
     public RepositoryConfigurationRest() {
     }

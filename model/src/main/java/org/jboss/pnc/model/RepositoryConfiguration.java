@@ -49,8 +49,8 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     private Integer id;
 
     /**
-     * Repository URL containing project to be build.
-     * This URL *MUST* be read/write.
+     * URL to the internal SCM repository, which is the main repository used for the builds.
+     * New commits can be added to this repository, during the pre-build steps of the build process.
      */
     @Size(max = 255)
     @Column(unique = true, nullable = false, updatable = false)
@@ -59,8 +59,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     private String internalUrl;
 
     /**
-     * URL of an upstream SCM repository.
-     * This URL SHOULD be read-only, since push access is not needed
+     * URL to the upstream SCM repository.
      */
     @Size(max = 255)
     @Getter
@@ -72,7 +71,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      */
     @Getter
     @Setter
-    private boolean preBuildSyncEnabled = false;
+    private boolean preBuildSyncEnabled = true;
 
     @OneToMany(mappedBy = "repositoryConfiguration")
     @Getter
@@ -111,7 +110,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
         private String externalUrl;
 
-        private boolean preBuildSyncEnabled = false;
+        private boolean preBuildSyncEnabled = true;
 
         private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
