@@ -30,7 +30,6 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
-import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -118,8 +117,6 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private AuthenticationProvider authenticationProvider;
 
-    private BuildConfigurationProvider buildConfigurationProvider;
-
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
 
     @Deprecated
@@ -130,12 +127,11 @@ public class BpmEndpoint extends AbstractEndpoint {
     public BpmEndpoint(BpmManager bpmManager,
             BuildConfigurationSetProvider bcSetProvider,
             AuthenticationProviderFactory authenticationProviderFactory,
-            BuildConfigurationProvider buildConfigurationProvider,
-            Notifier wsNotifier, RepositoryConfigurationProvider repositoryConfigurationProvider) {
+            Notifier wsNotifier,
+            RepositoryConfigurationProvider repositoryConfigurationProvider) {
         this.bpmManager = bpmManager;
         this.bcSetProvider = bcSetProvider;
         this.wsNotifier = wsNotifier;
-        this.buildConfigurationProvider = buildConfigurationProvider;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.repositoryConfigurationProvider = repositoryConfigurationProvider;
     }
@@ -215,8 +211,8 @@ public class BpmEndpoint extends AbstractEndpoint {
             }
         }
 
-        String externalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalUrl();
-        if (externalScmRepoUrl != null) {
+        String externalUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalUrl();
+        if (externalUrl != null) {
             //TODO check if it exists
         }
 

@@ -29,7 +29,7 @@ import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
  */
 public class RepositoryCreationRestMockBuilder {
 
-    public static RepositoryCreationRest mock(String buildConfigurationName, String script, String scmRepoUrl) {
+    public static RepositoryCreationRest mock(String buildConfigurationName, String script, String internalUrl) {
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
         buildConfiguration.setId(1);
         buildConfiguration.setName(buildConfigurationName);
@@ -46,7 +46,7 @@ public class RepositoryCreationRestMockBuilder {
 
         RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
         repositoryConfiguration.setId(1);
-        repositoryConfiguration.setInternalUrl(scmRepoUrl);
+        repositoryConfiguration.setInternalUrl(internalUrl);
 
         return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
 

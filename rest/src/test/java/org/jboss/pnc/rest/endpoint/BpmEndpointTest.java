@@ -21,11 +21,9 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.NoAuthLoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
@@ -39,12 +37,14 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
 /**
@@ -71,8 +71,6 @@ public class BpmEndpointTest {
     @Mock
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
     @Mock
-    private Configuration configuration;
-    @Mock
     private ScmModuleConfig scmModuleConfig;
     @Mock
     private BpmManager bpmManager;
@@ -80,8 +78,10 @@ public class BpmEndpointTest {
     private BpmEndpoint bpmEndpoint;
 
     @Before
-    public void setUp() throws ConfigurationParseException {
+    public void setUp() throws ConfigurationParseException, InvalidEntityException {
         MockitoAnnotations.initMocks(this);
+
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
 
         RepositoryConfiguration existingRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(EXISTING_INTERNAL_SCM_URL)
@@ -91,21 +91,21 @@ public class BpmEndpointTest {
 
         when(authProviderFactory.getProvider()).thenReturn(authProvider);
         when(authProvider.getLoggedInUser(any())).thenReturn(new NoAuthLoggedInUser());
-        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+
         when(repositoryConfigurationProvider.getSpecificByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
                 .thenReturn(new RepositoryConfigurationRest(existingRepositoryConfiguration));
+        doCallRealMethod().when(repositoryConfigurationProvider).validateInternalRepository(Matchers.anyString());
 
-        BuildConfigurationProvider configurationProvider = new BuildConfigurationProvider(configurationRepository, configurationAuditedRepository,
-                null, null, null, versionRepository, configuration);
+        Whitebox.setInternalState(repositoryConfigurationProvider, "moduleConfig", scmModuleConfig);
 
-        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, configurationProvider, null, repositoryConfigurationProvider);
+        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, null, repositoryConfigurationProvider);
 
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
     }
 
     @Test
     public void shouldNotStartRCCreateTaskWithInternalURLWORepoName() throws Exception {
-        RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName", "git+ssh://github.com/project-ncl/pnc.git");
+        RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName", INTERNAL_SCM_URL_WO_NAME);
         assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
     @Test
@@ -128,8 +128,8 @@ public class BpmEndpointTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_MODIFIED.getStatusCode());
     }
 
-    private RepositoryCreationRest configuration(String name, String scmRepoUrl) {
-        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", scmRepoUrl);
+    private RepositoryCreationRest configuration(String name, String internalUrl) {
+        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", internalUrl);
     }
 
     private <E extends Exception> void assertThrows(ThrowingRunnable runnable, Class<E> exceptionClass) {
