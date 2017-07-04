@@ -55,6 +55,8 @@
   <project id="2" name="Test Project 2" description="Test Project 2 Description"
     issueTrackerUrl="http://issues.jboss.org" license_id="2" />
 
+  <repositoryconfiguration id="1" internalUrl="ttp://www.github.com" preBuildSyncEnabled="false" />
+
   <usertable id="1" email="pnc@redhat.com" username="pnc" />
 
 </dataset>

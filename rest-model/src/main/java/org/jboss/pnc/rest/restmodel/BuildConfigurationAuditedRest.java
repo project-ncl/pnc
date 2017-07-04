@@ -51,17 +51,12 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private String buildScript;
 
-    private String scmRepoURL;
+    @Setter
+    @Getter
+    @NotNull
+    private RepositoryConfigurationRest repositoryConfiguration;
 
     private String scmRevision;
-
-    @Getter
-    @Setter
-    private String scmExternalRepoURL;
-
-    @Getter
-    @Setter
-    private String scmExternalRevision;
 
     private Date creationTime;
 
@@ -85,11 +80,10 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.name = buildConfigurationAudited.getName();
         this.description = buildConfigurationAudited.getDescription();
         this.buildScript = buildConfigurationAudited.getBuildScript();
-        this.scmRepoURL = buildConfigurationAudited.getScmRepoURL();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
-        this.scmExternalRepoURL = buildConfigurationAudited.getScmExternalRepoURL();
-        this.scmExternalRevision = buildConfigurationAudited.getScmExternalRevision();
 
+        performIfNotNull(buildConfigurationAudited.getRepositoryConfiguration(),
+                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfigurationAudited.getRepositoryConfiguration()));
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.project = new ProjectRest(buildConfigurationAudited.getProject()));
         performIfNotNull(buildConfigurationAudited.getBuildEnvironment(),
@@ -147,14 +141,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
-    }
-
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
     }
 
     public String getScmRevision() {
@@ -221,13 +207,11 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
                 .name(name)
                 .description(description)
                 .buildScript(buildScript)
-                .scmRepoURL(scmRepoURL)
                 .scmRevision(scmRevision)
-                .scmExternalRepoURL(scmExternalRepoURL)
-                .scmExternalRevision(scmRevision)
                 .creationTime(creationTime)
                 .lastModificationTime(lastModificationTime);
 
+        performIfNotNull(this.getRepositoryConfiguration(), () -> this.getRepositoryConfiguration().toDBEntityBuilder().build());
         performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
         performIfNotNull(this.environment,
                 () -> buildConfigBuilder.buildEnvironment(this.environment.toDBEntityBuilder().build()));

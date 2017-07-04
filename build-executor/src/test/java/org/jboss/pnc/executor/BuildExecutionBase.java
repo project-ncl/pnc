@@ -148,7 +148,7 @@ class BuildExecutionBase {
                 1,
                 buildConfiguration.getBuildScript(),
                 buildConfiguration.getName(),
-                buildConfiguration.getScmRepoURL(),
+                buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),

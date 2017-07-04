@@ -30,6 +30,9 @@ import org.junit.Test;
 
 public class BuildConfigurationDependencyTest extends AbstractModelTest {
 
+    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
+            .newBuilder().id(1).build();
+
     @After
     public void cleanup() {
         clearDatabaseTables();
@@ -66,7 +69,7 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
         return BuildConfiguration.Builder.newBuilder()
                 .name("Generic Build Configuration")
                 .description("Generic Build Configuration Description")
-                .scmRepoURL("http://www.github.com")
+                .repositoryConfiguration(basicRepositoryConfiguration)
                 .buildScript("mvn install");
     }
 

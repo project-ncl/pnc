@@ -15,12 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.spi.datastore.repositories;
 
-package org.jboss.pnc.rest.swagger.response;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
 
-public class BuildConfigurationPage extends Page<BuildConfigurationRest> {
-
+/**
+ * Interface for manipulating {@link org.jboss.pnc.model.RepositoryConfiguration} entity.
+ *
+ * @author Jakub Bartecek
+ */
+public interface RepositoryConfigurationRepository extends Repository<RepositoryConfiguration, Integer> {
 }

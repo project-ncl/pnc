@@ -30,8 +30,10 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildConfigurationCreationTask;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
@@ -47,6 +49,7 @@ import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
@@ -117,7 +120,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private AuthenticationProvider authenticationProvider;
 
-    private BuildConfigurationProvider buildConfigurationProvider;
+    private RepositoryConfigurationProvider repositoryConfigurationProvider;
 
     @Deprecated
     public BpmEndpoint() {
@@ -127,13 +130,13 @@ public class BpmEndpoint extends AbstractEndpoint {
     public BpmEndpoint(BpmManager bpmManager,
                        BuildConfigurationSetProvider bcSetProvider,
                        AuthenticationProviderFactory authenticationProviderFactory,
-                       BuildConfigurationProvider buildConfigurationProvider,
+                       RepositoryConfigurationProvider repositoryConfigurationProvider,
                        Notifier wsNotifier) {
         this.bpmManager = bpmManager;
         this.bcSetProvider = bcSetProvider;
         this.wsNotifier = wsNotifier;
-        this.buildConfigurationProvider = buildConfigurationProvider;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
+        this.repositoryConfigurationProvider = repositoryConfigurationProvider;
     }
 
 
@@ -266,7 +269,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
 
         if (taskData.getScmRepoURL() != null) {
-            buildConfigurationProvider.validateInternalRepository(taskData.getScmRepoURL());
+            repositoryConfigurationProvider.validateInternalRepository(taskData.getScmRepoURL());
         }
     }
 

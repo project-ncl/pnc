@@ -77,7 +77,8 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getUser().getId(),
                 buildConfiguration.getBuildScript(),
                 buildConfiguration.getName(),
-                buildConfiguration.getScmRepoURL(),
+                //TODO update to use also other parts or Repository Configuration
+                buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),

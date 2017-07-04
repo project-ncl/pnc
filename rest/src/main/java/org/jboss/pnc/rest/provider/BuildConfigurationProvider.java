@@ -26,10 +26,12 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
@@ -117,7 +119,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ValidationException {
         super.validateBeforeSaving(buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
-        validateInternalRepository(buildConfigurationRest.getScmRepoURL());
+        validateRepositoryConfigurationId(buildConfigurationRest.getRepositoryConfiguration());
     }
 
     @Override
@@ -126,23 +128,14 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
-        validateInternalRepository(buildConfigurationRest.getScmRepoURL());
     }
 
-    public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
-        String internalScmAuthority = moduleConfig.getInternalScmAuthority();
-
-        if (StringUtils.isNotBlank(internalRepoUrl) && internalScmAuthority != null) {
-            String expectedPrefix = "git+ssh://" + internalScmAuthority;
-            if (!internalRepoUrl.startsWith(expectedPrefix)
-                    || !REPOSITORY_NAME_PATTERN.matcher(internalRepoUrl.replace(expectedPrefix, "")).matches()){
-                throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix + " followed by a repository name.");
-            }
-        }
+    private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration) throws InvalidEntityException {
+        if (repositoryConfiguration == null || repositoryConfiguration.getId() == null)
+            throw new InvalidEntityException("RepositoryConfiguration entity has to be created before creating a new BuildConfiguration.");
     }
 
     private void validateDependencies(Integer buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
-
         if (dependenciesIds == null || dependenciesIds.isEmpty()) {
             return;
         }

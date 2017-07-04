@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
 
 import javax.inject.Inject;
 
@@ -110,14 +111,24 @@ public class TestProjectConfigurationBuilder {
         Project project = new Project();
         project.setId(id);
         project.setName(name);
+
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder
+                .newBuilder()
+                .id(id)
+                .internalUrl("github.com/"  + name)
+                .build();
+
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
         buildConfiguration.setBuildScript(PASS);
         buildConfiguration.setName(id + "");
+        buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
         buildConfiguration.setBuildEnvironment(javaBuildEnvironment);
+        buildConfiguration.setProject(project);
         buildConfiguration.setProject(project);
         buildConfiguration.setArchived(false);
         project.addBuildConfiguration(buildConfiguration);
+
         if (buildConfigurationSet != null) {
             buildConfigurationSet.addBuildConfiguration(buildConfiguration);
         }

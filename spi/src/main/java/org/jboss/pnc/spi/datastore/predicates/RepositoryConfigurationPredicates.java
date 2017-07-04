@@ -15,12 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.spi.datastore.predicates;
 
-package org.jboss.pnc.rest.swagger.response;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.RepositoryConfiguration_;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
+public class RepositoryConfigurationPredicates {
 
-public class BuildConfigurationPage extends Page<BuildConfigurationRest> {
+    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
+        return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrl), internalUrl);
+    }
 
 }

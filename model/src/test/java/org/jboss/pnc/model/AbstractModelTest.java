@@ -71,6 +71,7 @@ public abstract class AbstractModelTest {
             em.createNativeQuery("delete from Artifact").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration_aud").executeUpdate();
+            em.createNativeQuery("delete from RepositoryConfiguration").executeUpdate();
             em.createNativeQuery("delete from BuildEnvironment").executeUpdate();
             em.createNativeQuery("delete from BuildRecord").executeUpdate();
             em.createNativeQuery("delete from License").executeUpdate();

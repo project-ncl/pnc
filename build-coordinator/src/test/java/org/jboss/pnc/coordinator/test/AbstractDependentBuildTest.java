@@ -42,6 +42,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -173,7 +174,10 @@ public abstract class AbstractDependentBuildTest {
     protected BuildConfiguration updateConfiguration(BuildConfiguration buildConfiguration) {
         int id = configIdSequence.getAndIncrement();
 
-        buildConfiguration.setScmRepoURL("http://path.to/repo.git");
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                .internalUrl("http://path.to/repo.git")
+                .build();
+        buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
 
         buildConfigurationRepository.save(buildConfiguration);
         buildConfigurationAuditedRepository.save(auditedConfig(buildConfiguration));
