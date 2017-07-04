@@ -83,7 +83,7 @@ public class BasicModelTest extends AbstractModelTest {
         Assert.assertEquals(2, em.createQuery("from ProductMilestone").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from License").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from BuildConfiguration").getResultList().size());
-        Assert.assertEquals(1, em.createQuery("from RepositoryConfiguration").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("from RepositoryConfiguration").getResultList().size());
     }
 
     @Test

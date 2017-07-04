@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,6 +38,7 @@ import java.util.Set;
  * @author Jakub Bartecek
  */
 @Entity
+@ToString
 public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 4248038054068607536L;

@@ -44,9 +44,6 @@ import static org.mockito.Mockito.when;
 public class BuildConfigurationProviderTest {
 
     private static final int EXISTING_ID = 1243;
-    private static final String URL_WITHOUT_SUFFIX = "git+ssh://git@github.com/project-ncl/pnc";
-    private static final String VALID_URL = URL_WITHOUT_SUFFIX + ".git";
-    private static final String INVALID_URL = "invalid url";
 
     @Mock
     private Repository<BuildConfiguration, Integer> repository;
@@ -61,30 +58,6 @@ public class BuildConfigurationProviderTest {
         MockitoAnnotations.initMocks(this);
         when(repository.queryById(EXISTING_ID)).thenReturn(BuildConfiguration.Builder.newBuilder().build());
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git@github.com");
-    }
-
-    @Ignore //Needs to be moved to RepositoryConfigurationProviderTest
-    @Test(expected = InvalidEntityException.class)
-    public void shouldFailOnInvalidGitUrl() throws ValidationException {
-        BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.getRepositoryConfiguration().setInternalUrl("git+ssh://git@github.com/");
-        provider.validateBeforeSaving(configuration);
-    }
-
-    @Ignore //Needs to be moved to RepositoryConfigurationProviderTest
-    @Test(expected = InvalidEntityException.class)
-    public void shouldFailOnValidGitUrlWithoutDotGit() throws ValidationException {
-        BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.getRepositoryConfiguration().setInternalUrl(URL_WITHOUT_SUFFIX);
-        provider.validateBeforeSaving(configuration);
-    }
-
-    @Ignore //Needs to be moved to RepositoryConfigurationProviderTest
-    @Test(expected = InvalidEntityException.class)
-    public void shouldSucceedOnUpdateWithLackOfMirrorWithSlash() throws ValidationException {
-        BuildConfigurationRest configuration = createValidConfiguration();
-        configuration.getRepositoryConfiguration().setInternalUrl(INVALID_URL);
-        provider.validateBeforeSaving(configuration);
     }
 
     @Test
@@ -103,7 +76,6 @@ public class BuildConfigurationProviderTest {
     private BuildConfigurationRest createValidConfiguration() {
         RepositoryConfigurationRest repositoryConfigurationRest = new RepositoryConfigurationRest();
         repositoryConfigurationRest.setId(1);
-        repositoryConfigurationRest.setInternalUrl(VALID_URL);
 
         BuildConfigurationRest configuration = new BuildConfigurationRest();
         configuration.setProject(createProject());
