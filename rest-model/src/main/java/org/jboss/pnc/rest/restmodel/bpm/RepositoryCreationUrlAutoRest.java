@@ -24,38 +24,44 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import java.io.Serializable;
 
 /**
- * Repository creation configuration object.
+ * Repository creation configuration object used by endpoint that automatically detects internal vs external url.
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
  */
-@JsonDeserialize(builder = RepositoryCreationRest.RepositoryCreationRestBuilder.class)
+@JsonDeserialize(builder = RepositoryCreationUrlAutoRest.RepositoryCreationUrlAutoRestBuilder.class)
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(onConstructor=@__({@Deprecated}))
-public class RepositoryCreationRest implements Serializable {
+public class RepositoryCreationUrlAutoRest implements Serializable {
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
-    private RepositoryConfigurationRest repositoryConfigurationRest;
+    @Setter
+    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    private String scmUrl;
+
+    @Getter
+    @Setter
+    private boolean preBuildSyncEnabled;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
     private BuildConfigurationRest buildConfigurationRest;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static final class RepositoryCreationRestBuilder {
+    public static final class RepositoryCreationUrlAutoRestBuilder {
     }
 
     @Override
     public String toString() {
         return JsonOutputConverterMapper.apply(this);
     }
-
 }

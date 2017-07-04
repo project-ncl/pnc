@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.integration.deployments;
 
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
+import org.jboss.pnc.integration.client.RestClient;
+import org.jboss.pnc.integration.env.IntegrationTestEnv;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
@@ -149,6 +152,12 @@ public class Deployments {
     private static void addTestPersistenceXml(EnterpriseArchive enterpriseArchive) {
         JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
         datastoreJar.addAsManifestResource("test-ds.xml", "persistence.xml");
+    }
+
+    public static void addRestClients(EnterpriseArchive enterpriseArchive) {
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
+        war.addClass(IntegrationTestEnv.class);
+        war.addPackages(true, RestClient.class.getPackage());
     }
 
     static class ArquillianDeploymentFactory {

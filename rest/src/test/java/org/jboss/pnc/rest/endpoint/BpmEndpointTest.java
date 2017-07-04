@@ -21,8 +21,10 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.NoAuthLoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
@@ -40,6 +42,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import javax.ws.rs.core.Response;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -74,6 +78,8 @@ public class BpmEndpointTest {
     private ScmModuleConfig scmModuleConfig;
     @Mock
     private BpmManager bpmManager;
+    @Mock
+    Configuration pncConfiguration;
 
     private BpmEndpoint bpmEndpoint;
 
@@ -98,9 +104,10 @@ public class BpmEndpointTest {
 
         Whitebox.setInternalState(repositoryConfigurationProvider, "moduleConfig", scmModuleConfig);
 
-        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, null, repositoryConfigurationProvider);
+        when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class))).thenReturn(scmModuleConfig);
 
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
+        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, null, repositoryConfigurationProvider, pncConfiguration);
+
     }
 
     @Test
@@ -125,11 +132,11 @@ public class BpmEndpointTest {
     public void shouldNotStartRCCreateTaskWithExistingInternalURL() throws Exception {
         RepositoryCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL", EXISTING_INTERNAL_SCM_URL);
         Response response = bpmEndpoint.startRCreationTask(configuration, null);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_MODIFIED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     private RepositoryCreationRest configuration(String name, String internalUrl) {
-        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", internalUrl);
+        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", internalUrl, Optional.empty(), Optional.empty());
     }
 
     private <E extends Exception> void assertThrows(ThrowingRunnable runnable, Class<E> exceptionClass) {

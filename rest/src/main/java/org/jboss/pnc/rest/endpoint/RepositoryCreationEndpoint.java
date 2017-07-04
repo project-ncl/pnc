@@ -21,15 +21,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
-import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.ProjectSingleton;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +67,9 @@ public class RepositoryCreationEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryCreationEndpoint.class);
 
-    private BuildConfigurationProvider buildConfigurationProvider;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
-    private RepositoryConfigurationProvider repositoryConfigurationProvider;
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
 
     @Deprecated //CDI workaround
     public RepositoryCreationEndpoint() {
@@ -74,15 +77,15 @@ public class RepositoryCreationEndpoint {
 
     @Inject
     public RepositoryCreationEndpoint(
-            BuildConfigurationProvider buildConfigurationProvider,
-            RepositoryConfigurationProvider repositoryConfigurationProvider) {
-        this.buildConfigurationProvider = buildConfigurationProvider;
-        this.repositoryConfigurationProvider = repositoryConfigurationProvider;
+            BuildConfigurationRepository buildConfigurationRepository,
+            RepositoryConfigurationRepository repositoryConfigurationRepository) {
+        this.buildConfigurationRepository = buildConfigurationRepository;
+        this.repositoryConfigurationRepository = repositoryConfigurationRepository;
     }
 
-    @ApiOperation(value = "Store Repository Configuration and Build Configuration.")
+    @ApiOperation(value = "Store Repository Configuration and Build Configuration. Should be used from service (bpm) that created the internal repository.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProjectSingleton.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryCreationResultRest.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
@@ -91,13 +94,28 @@ public class RepositoryCreationEndpoint {
     public Response createNewRCAndBC(RepositoryCreationRest repositoryCreationRest, @Context UriInfo uriInfo)
             throws ValidationException {
 
-        BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
+        logger.debug("Creating new RC and BC from: {}", repositoryCreationRest.toString());
+
+
         RepositoryConfigurationRest repositoryConfigurationRest = repositoryCreationRest.getRepositoryConfigurationRest();
+        ValidationBuilder.validateObject(repositoryConfigurationRest, WhenCreatingNew.class)
+                .validateNotEmptyArgument()
+                .validateAnnotations();
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRest.toDBEntityBuilder().build();
+        repositoryConfigurationRepository.save(repositoryConfiguration);
 
-        Integer repositoryId = repositoryConfigurationProvider.store(repositoryConfigurationRest);
-        Integer buildConfigurationId = buildConfigurationProvider.store(buildConfigurationRest);
+        BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
+        ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
+                .validateNotEmptyArgument()
+                .validateAnnotations();
+        BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
+                .repositoryConfiguration(repositoryConfiguration)
+                .build();
+        BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
 
-        RepositoryCreationResultRest result = new RepositoryCreationResultRest(repositoryId, buildConfigurationId);
+        RepositoryCreationResultRest result = new RepositoryCreationResultRest(
+                repositoryConfiguration.getId(),
+                buildConfigurationSaved.getId());
         return Response.ok().entity(result).build();
     }
 

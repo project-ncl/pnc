@@ -55,11 +55,11 @@ public abstract class AbstractRestClient<T> {
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass) {
         this(collectionUrl, entityClass, true);
-        restClient = new RestClient();
     }
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
         this.entityClass = entityClass;
+        restClient = new RestClient();
 
         if(collectionUrl.endsWith("/")) {
             this.collectionUrl = collectionUrl;

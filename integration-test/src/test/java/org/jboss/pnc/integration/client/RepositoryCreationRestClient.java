@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration.client;
 
+import com.jayway.restassured.response.Response;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 
 /**
@@ -24,7 +25,7 @@ import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
  */
 public class RepositoryCreationRestClient {
 
-    private static final String REST_ENDPOINT = "/pnc-rest/rest/repository-creation";
+    private static final String REST_ENDPOINT = "/pnc-rest/rest/repository-creation/";
 
     RestClient restClient;
 
@@ -32,8 +33,8 @@ public class RepositoryCreationRestClient {
         restClient = new RestClient();
     }
 
-    public com.jayway.restassured.response.Response createNewRCAndBC(RepositoryCreationRest repositoryCreationRest) {
-        return restClient.post(REST_ENDPOINT, repositoryCreationRest);
+    public Response createNewRCAndBC(RepositoryCreationRest repositoryCreationRest) {
+        return restClient.post(REST_ENDPOINT, repositoryCreationRest.toString());
     }
 
 }

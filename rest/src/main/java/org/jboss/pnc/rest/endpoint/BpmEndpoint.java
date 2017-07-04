@@ -30,6 +30,10 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -38,6 +42,7 @@ import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BpmTaskRestPage;
@@ -47,7 +52,7 @@ import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
@@ -119,6 +124,8 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
 
+    private ScmModuleConfig moduleConfig;
+
     @Deprecated
     public BpmEndpoint() {
     } // CDI workaround
@@ -128,12 +135,15 @@ public class BpmEndpoint extends AbstractEndpoint {
             BuildConfigurationSetProvider bcSetProvider,
             AuthenticationProviderFactory authenticationProviderFactory,
             Notifier wsNotifier,
-            RepositoryConfigurationProvider repositoryConfigurationProvider) {
+            RepositoryConfigurationProvider repositoryConfigurationProvider,
+            Configuration configuration) throws ConfigurationParseException {
         this.bpmManager = bpmManager;
         this.bcSetProvider = bcSetProvider;
         this.wsNotifier = wsNotifier;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.repositoryConfigurationProvider = repositoryConfigurationProvider;
+
+        this.moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
     }
 
 
@@ -190,7 +200,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-    @ApiOperation(value = "Start BC creation task.", response = Singleton.class)
+    @ApiOperation(value = "Start Repository Creation task.", response = Singleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = "Success")
     })
@@ -207,16 +217,12 @@ public class BpmEndpoint extends AbstractEndpoint {
         if (internalScmRepoUrl != null) {
             RepositoryConfigurationRest repositoryConfiguration = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmRepoUrl);
             if (repositoryConfiguration != null) {
-                return Response.notModified().entity("Already exists.").build();
+                String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
+                return Response.status(Response.Status.CONFLICT).entity(message).build();
             }
         }
 
-        String externalUrl = repositoryCreationRest.getRepositoryConfigurationRest().getExternalUrl();
-        if (externalUrl != null) {
-            //TODO check if it exists
-        }
-
-        validateBuildConfigurationCreation(repositoryCreationRest);
+        validate(repositoryCreationRest);
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryCreationRest, loginInUser.getTokenString());
@@ -247,6 +253,44 @@ public class BpmEndpoint extends AbstractEndpoint {
         return Response.ok(repositoryCreationTask.getTaskId()).build();
     }
 
+    @ApiOperation(value = "Start Repository Creation task with url autodetect (internal vs. external).", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = "Success")
+    })
+    @POST
+    @Path("/tasks/start-repository-configuration-creation-url-auto")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response startRCreationTaskWithSingleUrl(
+            @ApiParam(value = "Task parameters.", required = true) RepositoryCreationUrlAutoRest repositoryCreationUrlAutoRest,
+            @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
+
+        LOG.debug("Received request to start RC creation with url autodetect: " + repositoryCreationUrlAutoRest);
+
+        ValidationBuilder.validateObject(repositoryCreationUrlAutoRest, WhenCreatingNew.class);
+
+        RepositoryConfigurationRest.RepositoryConfigurationRestBuilder repositoryConfigurationBuilder = RepositoryConfigurationRest.builder();
+        repositoryConfigurationBuilder.preBuildSyncEnabled(repositoryCreationUrlAutoRest.isPreBuildSyncEnabled());
+
+        String internalScmAuthority = moduleConfig.getInternalScmAuthority();
+        String scmUrl = repositoryCreationUrlAutoRest.getScmUrl();
+        Boolean isUrlInternal = RepositoryConfigurationProvider.isInternalRepository(
+                internalScmAuthority,
+                scmUrl);
+
+        if (isUrlInternal) {
+            repositoryConfigurationBuilder.internalUrl(scmUrl);
+        } else {
+            repositoryConfigurationBuilder.externalUrl(scmUrl);
+        }
+
+        RepositoryCreationRest repositoryCreationRest = RepositoryCreationRest.builder()
+                .buildConfigurationRest(repositoryCreationUrlAutoRest.getBuildConfigurationRest())
+                .repositoryConfigurationRest(repositoryConfigurationBuilder.build())
+                .build();
+
+        return startRCreationTask(repositoryCreationRest, httpServletRequest);
+    }
+
     private void addBuildConfigurationToSet(
             RepositoryCreationRest repositoryCreationRest,
             BpmStringMapNotificationRest repositoryCreationResult) {
@@ -272,12 +316,12 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-    private void validateBuildConfigurationCreation(RepositoryCreationRest repositoryCreationRest)
+    private void validate(RepositoryCreationRest repositoryCreationRest)
             throws EmptyEntityException, InvalidEntityException {
 
         RepositoryConfigurationRest repositoryConfiguration = repositoryCreationRest.getRepositoryConfigurationRest();
 
-        ValidationBuilder.validateObject(repositoryConfiguration, WhenUpdating.class)
+        ValidationBuilder.validateObject(repositoryConfiguration, WhenCreatingNew.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations();
 

@@ -24,14 +24,26 @@ import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 
+import java.util.Optional;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RepositoryCreationRestMockBuilder {
 
     public static RepositoryCreationRest mock(String buildConfigurationName, String script, String internalUrl) {
+        return mock(buildConfigurationName, script, internalUrl, Optional.of(1), Optional.of(1));
+    }
+
+    public static RepositoryCreationRest mock(
+            String buildConfigurationName,
+            String script,
+            String internalUrl,
+            Optional<Integer> buildConfigurationId,
+            Optional<Integer> repositoryConfigurationId) {
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
-        buildConfiguration.setId(1);
+        buildConfigurationId.ifPresent(id -> buildConfiguration.setId(id));
+
         buildConfiguration.setName(buildConfigurationName);
 
         BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder()
@@ -45,7 +57,7 @@ public class RepositoryCreationRestMockBuilder {
         buildConfiguration.setBuildScript(script);
 
         RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
-        repositoryConfiguration.setId(1);
+        buildConfigurationId.ifPresent(id -> repositoryConfiguration.setId(id));
         repositoryConfiguration.setInternalUrl(internalUrl);
 
         return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);

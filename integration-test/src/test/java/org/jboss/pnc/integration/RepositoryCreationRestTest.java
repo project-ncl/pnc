@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.client.RepositoryCreationRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -31,6 +32,7 @@ import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationRestMockBuilder;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -61,11 +64,13 @@ public class RepositoryCreationRestTest {
     @Inject
     BuildConfigurationProvider buildConfigurationProvider;
 
-    private String buildConfigurationName;
-
-    @Deployment(testable = false)
+    @Deployment
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive enterpriseArchive = Deployments.baseEar();
+        EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
+        Deployments.addRestClients(enterpriseArchive);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
+        restWar.addClass(RepositoryCreationRestTest.class);
+
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -81,7 +86,12 @@ public class RepositoryCreationRestTest {
     public void shouldCreateRCAndBC() {
         //given
         String buildConfigurationName = "pnc-1.1";
-        RepositoryCreationRest repositoryCreationRest = RepositoryCreationRestMockBuilder.mock(buildConfigurationName, "mvn clean deploy", INTERNAL_SCM_URL);
+        RepositoryCreationRest repositoryCreationRest = RepositoryCreationRestMockBuilder.mock(
+                buildConfigurationName,
+                "mvn clean deploy",
+                INTERNAL_SCM_URL,
+                Optional.empty(),
+                Optional.empty());
 
         //when
         Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);

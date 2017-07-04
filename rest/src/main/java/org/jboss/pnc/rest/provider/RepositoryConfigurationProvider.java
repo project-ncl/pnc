@@ -23,7 +23,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
@@ -95,13 +94,23 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
 
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
+        if (!isInternalRepository(internalScmAuthority, internalRepoUrl)) {
+            throw new InvalidEntityException("Internal repository url has to start with: git+ssh://" + internalScmAuthority + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
+        }
 
+    }
+
+    public static Boolean isInternalRepository(String internalScmAuthority, String internalRepoUrl) {
         if (StringUtils.isNotBlank(internalRepoUrl) && internalScmAuthority != null) {
             String expectedPrefix = "git+ssh://" + internalScmAuthority;
             if (!internalRepoUrl.startsWith(expectedPrefix)
                     || !REPOSITORY_NAME_PATTERN.matcher(internalRepoUrl.replace(expectedPrefix, "")).matches()) {
-                throw new InvalidEntityException("Internal repository url has to start with: " + expectedPrefix + " followed by a repository name.");
+                return false;
+            } else {
+                return true;
             }
+        } else {
+            throw new RuntimeException("InternalScmAuthority and internalRepoUrl parameters must be set.");
         }
     }
 
