@@ -19,13 +19,10 @@ package org.jboss.pnc.rest.restmodel;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
-import org.jboss.pnc.rest.validation.validators.ScmUrl;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -76,6 +73,10 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private Set<Integer> dependencyIds;
 
     private Integer productVersionId;
+
+    @Getter
+    @Setter
+    private Set<Integer> buildConfigurationSetIds;
 
     @Getter
     @Setter

@@ -18,7 +18,6 @@
 package org.jboss.pnc.integration.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -29,9 +28,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 public abstract class AbstractRestClient<T> {
 
@@ -51,6 +47,8 @@ public abstract class AbstractRestClient<T> {
     protected boolean authInitialized = false;
     public static final String CONTENT = "content";
 
+    RestClient restClient;
+
     protected String collectionUrl;
 
     protected Class<T> entityClass;
@@ -61,6 +59,7 @@ public abstract class AbstractRestClient<T> {
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
         this.entityClass = entityClass;
+        restClient = new RestClient();
 
         if(collectionUrl.endsWith("/")) {
             this.collectionUrl = collectionUrl;
@@ -69,48 +68,44 @@ public abstract class AbstractRestClient<T> {
         }
     }
 
-    protected Response post(String path) {
-        return request().when().post(path);
-    }
-
-    protected Response post(String path, Object body) {
-        return request().when().body(body).post(path);
-    }
-
-    protected Response put(String path, Object body) {
-        return request().when().body(body).put(path);
-    }
-
-    protected Response delete(String path) {
-        return request().when().delete(path);
-    }
-
-    protected Response get(String path, QueryParam... queryParams) {
-        RequestSpecification specification = request().when();
-        if(queryParams != null && queryParams.length > 0) {
-            for (QueryParam qp : queryParams) {
-                if(qp != null) {
-                    specification.queryParam(qp.paramName, qp.paramValue);
-                }
-            }
-        }
-
-        return specification.get(path);
-    }
-
+    /**
+     * @deprecated use getRestClient().request()
+     */
+    @Deprecated
     protected RequestSpecification request() {
-        return given()
-                .auth().basic("admin", "user.1234")
-                .log().all()
-                .header("Accept", "application/json")
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                    .expect().log().all()
-                .request();
+        return restClient.request();
+    }
+
+    /**
+     * @deprecated use getRestClient().get()
+     */
+    @Deprecated
+    protected Response get(String path, QueryParam... queryParam) {
+        return restClient.get(path, queryParam);
+    }
+
+    /**
+     * @deprecated use getRestClient().post()
+     */
+    @Deprecated
+    protected Response post(String path) {
+        return restClient.post(path);
+    }
+
+    /**
+     * @deprecated use getRestClient().put()
+     */
+    @Deprecated
+    protected Response put(String path, Object body) {
+        return restClient.put(path, body);
+    }
+
+    protected RestClient getRestClient() {
+        return restClient;
     }
 
     public RestResponse<T> firstNotNull(boolean withValidation) {
-        Response response = get(collectionUrl);
+        Response response = restClient.get(collectionUrl);
 
         if(withValidation) {
             response.then().statusCode(200);
@@ -133,7 +128,7 @@ public abstract class AbstractRestClient<T> {
     }
 
     public RestResponse<T> get(int id, boolean withValidation) {
-        Response response = get(collectionUrl + id);
+        Response response = restClient.get(collectionUrl + id);
 
         if(withValidation) {
             response.then().statusCode(200);
@@ -156,7 +151,7 @@ public abstract class AbstractRestClient<T> {
     }
 
     public RestResponse<T> createNew(T obj, boolean withValidation) {
-        Response response = post(collectionUrl, obj);
+        Response response = restClient.post(collectionUrl, obj);
 
         if(withValidation) {
             response.then().statusCode(201);
@@ -178,7 +173,7 @@ public abstract class AbstractRestClient<T> {
     }
 
     public RestResponse<T> update(int id, T obj, boolean withValidation) {
-        Response response = put(collectionUrl + id, obj);
+        Response response = restClient.put(collectionUrl + id, obj);
 
         if(withValidation) {
             response.then().statusCode(200);
@@ -192,7 +187,7 @@ public abstract class AbstractRestClient<T> {
     }
 
     public RestResponse<T> delete(int id, boolean withValidation) {
-        Response response = delete(collectionUrl + id);
+        Response response = restClient.delete(collectionUrl + id);
 
         if(withValidation) {
             response.then().statusCode(200);
@@ -224,7 +219,7 @@ public abstract class AbstractRestClient<T> {
         }
         QueryParam pageIndexQueryParam = new QueryParam("pageIndex", Integer.toString(pageIndex));
         QueryParam pageSizeQueryParam = new QueryParam("pageSize", "" + Integer.toString(pageSize));
-        Response response = get(url, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
+        Response response = restClient.get(url, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
 
         logger.info("response {} ", response.prettyPrint());
 

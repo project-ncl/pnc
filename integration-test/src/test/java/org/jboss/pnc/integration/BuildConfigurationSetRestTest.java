@@ -124,12 +124,12 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
 //            bcRest1 = new BuildConfigurationRest();
 //            bcRest1.setName("BuildConfigurationSetRestTest-bc-1");
 //            bcRest1.setProject(projectRest);
-//            bcRest1 = buildConfigurationRestClient.createNew(bcRest1).getValue();
+//            bcRest1 = buildConfigurationRestClient.createNewRCAndBC(bcRest1).getValue();
 //
 //            bcRest2 = new BuildConfigurationRest();
 //            bcRest2.setName("BuildConfigurationSetRestTest-bc-2");
 //            bcRest2.setProject(projectRest);
-//            bcRest2 = buildConfigurationRestClient.createNew(bcRest2).getValue();
+//            bcRest2 = buildConfigurationRestClient.createNewRCAndBC(bcRest2).getValue();
 
             List<BuildConfigurationRest> bcs = new BuildConfigurationRestClient().all(false, 0, 2, null, null).getValue();
             bcRest1 = bcs.get(0);

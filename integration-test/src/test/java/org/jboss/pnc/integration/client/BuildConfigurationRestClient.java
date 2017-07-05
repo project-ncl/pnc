@@ -41,4 +41,5 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
             throw new AssertionError("JSON unmarshalling error", e);
         }
     }
+
 }

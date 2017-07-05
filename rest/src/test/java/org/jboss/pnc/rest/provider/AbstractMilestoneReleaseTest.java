@@ -18,7 +18,10 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
@@ -38,6 +41,8 @@ import org.jboss.pnc.spi.notifications.Notifier;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -66,13 +71,15 @@ public class AbstractMilestoneReleaseTest {
     @Mock
     AuthenticationProviderFactory authenticationProviderFactory;
     @Mock
-    RepositoryConfigurationProvider repositoryConfigurationProvider;
-
+    private RepositoryConfigurationProvider repositoryConfigurationProvider;
     @Mock
     private Notifier notifier;
-
     @Mock
     private BuildConfigurationSetProvider bcSetProvider;
+    @Mock
+    private ScmModuleConfig scmModuleConfig;
+    @Mock
+    Configuration pncConfiguration;
 
     ProductMilestoneEndpoint milestoneEndpoint;
     ProductMilestoneReleaseManager releaseManager;
@@ -91,7 +98,12 @@ public class AbstractMilestoneReleaseTest {
                 pageInfoProducer);
         milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
                 authenticationProviderFactory, productMilestoneRepository);
-        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, repositoryConfigurationProvider, notifier);
+
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
+        when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class))).thenReturn(scmModuleConfig);
+
+
+        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, notifier, repositoryConfigurationProvider, pncConfiguration);
         bpmMock.setUp();
     }
 }

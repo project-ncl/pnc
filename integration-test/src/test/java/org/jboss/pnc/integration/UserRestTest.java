@@ -21,12 +21,10 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
-import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.env.IntegrationTestEnv;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -43,7 +41,6 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.beans10.BeansDescriptor;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -89,19 +86,11 @@ public class UserRestTest {
                                 getName()).up().exportAsString()), "beans.xml");
         war.addClass(BuildCoordinatorMock.class);
         war.addClass(UserRestTest.class);
-        addRestClientClasses(war);
+
+        war.addClass(AuthUtils.class);
+        Deployments.addRestClients(enterpriseArchive);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
-    }
-
-    protected static void addRestClientClasses(WebArchive war) {
-        war.addClass(BuildRestClient.class);
-        war.addClass(AbstractRestClient.class);
-        war.addClass(AuthUtils.class);
-        war.addClass(IntegrationTestEnv.class);
-        war.addClass(RestResponse.class);
-
-        war.addClass(UserRestClient.class);
     }
 
     @Before

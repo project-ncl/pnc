@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +40,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @EqualsAndHashCode
 @ToString
+@Builder
+@AllArgsConstructor
 @XmlRootElement(name = "RepositoryConfiguration")
 public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
 
