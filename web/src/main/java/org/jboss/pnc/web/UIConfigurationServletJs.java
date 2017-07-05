@@ -19,9 +19,6 @@ package org.jboss.pnc.web;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 
 import javax.inject.Inject;
@@ -40,7 +37,7 @@ import java.io.PrintWriter;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @WebServlet("/scripts/config.js")
-public class UIConfigurationServlet extends HttpServlet {
+public class UIConfigurationServletJs extends HttpServlet {
 
     public static final int CACHE_EXPIRES_IN = 0; // Cache time in seconds.
     public static final String PNC_GLOBAL_MODULE = "pnc";
@@ -51,11 +48,10 @@ public class UIConfigurationServlet extends HttpServlet {
     
     private String uiConfig;
 
-    private void lazyLoadUiConfig() throws ServletException {
+    @Override
+    public void init() throws ServletException {
         try {
-            UIModuleConfig uiConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
-            ScmModuleConfig scmModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
-            UiConfigRest configRest = new UiConfigRest(uiConfig, scmModuleConfig.getInternalScmAuthority());
+            UiConfigRest configRest = UiConfigRestBuilder.build(configuration);
             String json = JsonOutputConverterMapper.apply(configRest);
             this.uiConfig = generateJS(json);
         } catch (ConfigurationParseException e) {
@@ -69,13 +65,6 @@ public class UIConfigurationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (uiConfig == null) {
-            synchronized (this) {
-                if (uiConfig == null) {
-                    lazyLoadUiConfig();
-                }
-            }
-        }
 
         resp.setContentType("text/javascript");
 
