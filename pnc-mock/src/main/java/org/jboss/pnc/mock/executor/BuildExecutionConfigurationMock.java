@@ -36,6 +36,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String name;
     private String scmRepoURL;
     private String scmRevision;
+    private boolean preBuildSyncEnabled;
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
@@ -48,6 +49,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setBuildScript("mvn install");
         mock.setScmRepoURL("http://www.github.com");
         mock.setScmRevision("1234567890");
+        mock.setPreBuildSyncEnabled(false);
         mock.setSystemImageId("abcd1234");
         mock.setSystemImageRepositoryUrl("image.repo.url/repo");
         mock.setSystemImageType(SystemImageType.DOCKER_IMAGE);
@@ -109,6 +111,14 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public boolean isPreBuildSyncEnabled() {
+        return preBuildSyncEnabled;
+    }
+
+    public void setPreBuildSyncEnabled(boolean preBuildSyncEnabled) {
+        this.preBuildSyncEnabled = preBuildSyncEnabled;
     }
 
     public String getSystemImageId() {

@@ -47,6 +47,7 @@ public class BuildExecutionConfigurationTest {
                 "configuration name",
                 "https://pathToRepo.git",
                 "1111111",
+                false,
                 "abcd1234",
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,
@@ -67,6 +68,7 @@ public class BuildExecutionConfigurationTest {
         Assert.assertEquals(message, buildExecutionConfiguration.getName(), buildExecutionConfigurationFromJson.getName());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRepoURL(), buildExecutionConfigurationFromJson.getScmRepoURL());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRevision(), buildExecutionConfigurationFromJson.getScmRevision());
+        Assert.assertEquals(message, buildExecutionConfiguration.isPreBuildSyncEnabled(), buildExecutionConfigurationFromJson.isPreBuildSyncEnabled());
         Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
     }
 
