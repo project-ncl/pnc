@@ -141,6 +141,7 @@ public class BuildRecordEndpointTest {
                 "build-1",
                 "",
                 "",
+                false,
                 "",
                 "",
                 SystemImageType.DOCKER_IMAGE,
