@@ -235,12 +235,12 @@ public class BpmEndpoint extends AbstractEndpoint {
          * Notification listeners are ideal for these kind of operations.
          */
         repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, x -> {
-            LOG.debug("Received BPM event BCC_CREATION_SUCCESS: " + x);
+            LOG.debug("Received BPM event RC_CREATION_SUCCESS: " + x);
             addBuildConfigurationToSet(repositoryCreationRest, (BpmStringMapNotificationRest) x);
         });
 
         repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR, x -> {
-            LOG.debug("Received BPM event BCC_CREATION_ERROR: " + x);
+            LOG.debug("Received BPM event RC_CREATION_ERROR: " + x);
         });
 
         addWebsocketForwardingListeners(repositoryCreationTask);
