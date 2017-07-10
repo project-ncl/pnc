@@ -53,7 +53,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 /**
  *
@@ -85,7 +84,10 @@ public class RepositoryCreationEndpoint {
 
     @ApiOperation(value = "Store Repository Configuration and Build Configuration. Should be used from service (bpm) that created the internal repository.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryCreationResultRest.class),
+            @ApiResponse(
+                    code = SUCCESS_CODE,
+                    message = "Return RepositoryCreationResultRest with buildConfigurationId and repositoryConfigurationId, where buildConfigurationId is -1 if the BuildConfiguration has not been specified in input parameters.",
+                    response = RepositoryCreationResultRest.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
@@ -105,17 +107,23 @@ public class RepositoryCreationEndpoint {
         repositoryConfigurationRepository.save(repositoryConfiguration);
 
         BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
-        ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
-                .validateNotEmptyArgument()
-                .validateAnnotations();
-        BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
-                .repositoryConfiguration(repositoryConfiguration)
-                .build();
-        BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
+
+        int buildConfigurationSavedId = -1;
+
+        if (buildConfigurationRest != null) {
+            ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
+                    .validateNotEmptyArgument()
+                    .validateAnnotations();
+            BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
+                    .repositoryConfiguration(repositoryConfiguration)
+                    .build();
+            BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
+            buildConfigurationSavedId = buildConfigurationSaved.getId();
+        }
 
         RepositoryCreationResultRest result = new RepositoryCreationResultRest(
                 repositoryConfiguration.getId(),
-                buildConfigurationSaved.getId());
+                buildConfigurationSavedId);
         return Response.ok().entity(result).build();
     }
 

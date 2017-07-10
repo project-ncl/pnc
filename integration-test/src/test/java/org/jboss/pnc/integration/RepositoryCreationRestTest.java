@@ -54,7 +54,6 @@ public class RepositoryCreationRestTest {
     public static final Logger logger = LoggerFactory.getLogger(RepositoryCreationRestTest.class);
 
     private static final String INTERNAL_REPO = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839";
-    private static final String INTERNAL_SCM_URL = INTERNAL_REPO + "/my/repo.git";
 
     RepositoryCreationRestClient repositoryCreationRestClient;
 
@@ -85,11 +84,13 @@ public class RepositoryCreationRestTest {
     @Test
     public void shouldCreateRCAndBC() {
         //given
+        String internalScmUrl = INTERNAL_REPO + "/my/repo.git";
+
         String buildConfigurationName = "pnc-1.1";
         RepositoryCreationRest repositoryCreationRest = RepositoryCreationRestMockBuilder.mock(
                 buildConfigurationName,
                 "mvn clean deploy",
-                INTERNAL_SCM_URL,
+                internalScmUrl,
                 Optional.empty(),
                 Optional.empty());
 
@@ -99,13 +100,37 @@ public class RepositoryCreationRestTest {
         //expect
         Assert.assertEquals(200, response.statusCode());
 
-        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider.getSpecificByInternalScm(INTERNAL_SCM_URL);
-        Assert.assertEquals(INTERNAL_SCM_URL, retrievedRepositoryConfig.getInternalUrl());
+        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmUrl);
+        Assert.assertEquals(internalScmUrl, retrievedRepositoryConfig.getInternalUrl());
 
         RepositoryCreationResultRest result = response.jsonPath().getObject("", RepositoryCreationResultRest.class);
 
         BuildConfigurationRest retrievedBC = buildConfigurationProvider.getSpecific(result.getBuildConfigurationId());
         Assert.assertEquals(buildConfigurationName, retrievedBC.getName());
+    }
+
+    @Test
+    public void shouldCreateRCOnly() {
+        //given
+        String internalScmUrl = INTERNAL_REPO + "/my/repo2.git";
+        RepositoryConfigurationRest repositoryConfiguration = RepositoryConfigurationRest.builder()
+                .internalUrl(internalScmUrl)
+                .build();
+
+        RepositoryCreationRest repositoryCreationRest = new RepositoryCreationRest(repositoryConfiguration, null);
+
+        //when
+        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
+
+        //expect
+        Assert.assertEquals(200, response.statusCode());
+
+        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmUrl);
+        Assert.assertEquals(internalScmUrl, retrievedRepositoryConfig.getInternalUrl());
+
+        RepositoryCreationResultRest result = response.jsonPath().getObject("", RepositoryCreationResultRest.class);
+
+        Assert.assertEquals(new Integer(-1), result.getBuildConfigurationId());
     }
 
 
