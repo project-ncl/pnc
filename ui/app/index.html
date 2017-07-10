@@ -140,7 +140,7 @@
               <!-- show notification drawer -->
               <div class="layout-pf-fixed">
                 <div class="navbar-pf-vertical">
-                  <div pf-notification-drawer
+                  <pf-notification-drawer
                        drawer-hidden="hideDrawer"
                        drawer-title="Notifications Drawer"
                        allow-expand="true"
@@ -152,7 +152,7 @@
                        notification-body-include="common/notifications/views/notification-body.html"
                        notification-footer-include="common/notifications/views/notification-footer-include.html"
                        custom-scope="customScope">
-                  </div>
+                  </pf-notification-drawer>
                 </div>
               </div>
             </li>
@@ -215,7 +215,7 @@
     <div class="notification-area">
 
       <div ng-controller="pncToastNotificationController">
-        <div pf-toast-notification-list notifications="notifications" show-close="true" close-callback="handleClose"></div>
+        <pf-toast-notification-list notifications="notifications" show-close="true" close-callback="handleClose"></pf-toast-notification-list>
       </div>
     </div>
 

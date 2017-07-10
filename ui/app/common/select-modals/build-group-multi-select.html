@@ -38,7 +38,7 @@
                                   placeholder="Enter build group name to search..."
                                   autocomplete="off"
                                   ng-model="ctrl.input"
-                                  typeahead="group as group.name for group in ctrl.fetchGroups($viewValue)"
+                                  uib-typeahead="group as group.name for group in ctrl.fetchGroups($viewValue)"
                                   typeahead-on-select="ctrl.onSelect($item, $model, $label)"
                                   typeahead-wait-ms="300"
                                   typeahead-loading="ctrl.isLoading">
@@ -53,7 +53,7 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <div pf-list-view class="list-group list-view-pf list-view-pf-view"
+        <pf-list-view class="list-group list-view-pf list-view-pf-view"
                           id="build-group-list"
                           config="ctrl.config"
                           items="ctrl.selected"
@@ -64,7 +64,7 @@
                 {{item.name}}
             </div>
           </div>
-        </div>
+        </pf-list-view>
       </div>
     </div>
   </div>

@@ -20,7 +20,7 @@
 <div class="form-inline pnc-page-controls">
   <div class="form-group pnc-page-controls-size">
     <label for="page-size-{{::$id}}">Page Size:&nbsp;</label>
-    <select pf-select id="page-size-{{::$id}}" ng-model="ctrl.size" ng-change="ctrl.page.getWithNewSize(ctrl.size)" ng-options="i as i for i in ctrl.pageSizes">
+    <select id="page-size-{{::$id}}" ng-model="ctrl.size" ng-change="ctrl.page.getWithNewSize(ctrl.size)" ng-options="i as i for i in ctrl.pageSizes">
     </select>
   </div>
     <span class="pnc-page-controls-pager">

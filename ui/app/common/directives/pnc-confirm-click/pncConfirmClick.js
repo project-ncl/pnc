@@ -39,7 +39,7 @@
    * <button pnc-confirm-click="deleteAllTheThings()" pnc-confirm-message="Are
    * you sure you want to delete all the things?">Delete All The Things</button>
    */
-  module.directive('pncConfirmClick', function ($modal) {
+  module.directive('pncConfirmClick', function ($uibModal) {
     var DEFAULT_MESSAGE = 'Are you sure?';
 
     return {
@@ -51,7 +51,7 @@
           if(scopeAction.$eval(skip)) {
             scopeAction.$evalAsync(attrs.pncConfirmClick);
           } else {
-            $modal.open({
+            $uibModal.open({
               templateUrl: 'common/directives/pnc-confirm-click/pnc-confirm-click.html',
               controller: ['$scope', 'message', function ($scope, message) {
                 $scope.message = message;

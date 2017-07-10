@@ -19,19 +19,19 @@
   'use strict';
 
   angular.module('pnc.common.select-modals').service('modalSelectService', [
-    '$modal',
+    '$uibModal',
     '$q',
     '$rootScope',
-    function ($modal, $q, $rootScope) {
+    function ($uibModal, $q, $rootScope) {
 
      /*
       * Creates a modal that will start an async digest cycle
       * ensuring any chained promises are updated in the view.
-      * This function passes through all arguments given to the $modal.open
-      * method and returns the same $modal promise.
+      * This function passes through all arguments given to the $uibModal.open
+      * method and returns the same $uibModal promise.
       */
       function asyncModal () {
-        var modal = $modal.open.apply($modal, arguments);
+        var modal = $uibModal.open.apply($uibModal, arguments);
 
         modal.result.then(function () {
           $rootScope.$evalAsync();

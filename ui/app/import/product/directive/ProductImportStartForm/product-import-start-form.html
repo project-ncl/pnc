@@ -27,7 +27,7 @@
           ng-class="{ 'has-error' : startForm.startFormInput2.$invalid && !startForm.startFormInput2.$pristine, 'has-success': startForm.startFormInput2.$valid && startForm.startFormInput2.$touched }">
         <label for="startFormInput2" class="col-sm-3 control-label">
           * Product Version&nbsp;
-          <a popover="Enter the product version to import into using format major.minor, e.g. 7.0 -- If the version does not exist it will be created for you."
+          <a uib-popover="Enter the product version to import into using format major.minor, e.g. 7.0 -- If the version does not exist it will be created for you."
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
              href>
@@ -58,7 +58,7 @@
       <div class="form-group">
         <label for="startFormInput5" class="col-sm-3 control-label">
           Path to POM&nbsp;
-          <a popover="Location of the project's pom.xml file within the scm repository."
+          <a uib-popover="Location of the project's pom.xml file within the scm repository."
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
              href>
             <span class="fa fa-info-circle"></span>
@@ -79,7 +79,7 @@
            ng-class="{ 'has-error' : startForm.startFormInput6.$invalid && !startForm.startFormInput6.$pristine, 'has-success': startForm.startFormInput6.$valid  && startForm.startFormInput6.$touched }">
         <label for="startFormInput6" class="col-sm-3 control-label">
           Optional Repositories&nbsp;
-          <a popover="Add additional maven repository URLs used by the project. Use this if the product uses additional repositories that are not included in the POM file."
+          <a uib-popover="Add additional maven repository URLs used by the project. Use this if the product uses additional repositories that are not included in the POM file."
              popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
              href>
             <span class="fa fa-info-circle"></span>
@@ -119,7 +119,7 @@
   <div class="form-group text-right">
     <div class="col-sm-offset-2 col-sm-10">
       <input type="submit" class="btn btn-primary" value="Start process" tooltip-is-open="startTooltipIsOpen" tooltip-enable="startTooltipIsOpen" tooltip-trigger="none"
-       tooltip="You can try it again" ng-disabled="submitDisabled || startForm.$invalid">
+       uib-tooltip="You can try it again" ng-disabled="submitDisabled || startForm.$invalid">
       <button type="button" class="btn btn-default" ng-click="formReset()">Clear</button>
     </div>
   </div>

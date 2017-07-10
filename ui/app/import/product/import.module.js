@@ -31,14 +31,14 @@
 
   module.run([
     '$rootScope',
-    '$modal',
+    '$uibModal',
     '$state',
-    function ($rootScope, $modal, $state) {
+    function ($rootScope, $uibModal, $state) {
       /* jshint unused: false */
       $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
         if(fromState.name === 'import.product' && $rootScope.importProductState === 'bc' && !$rootScope.productImportResetConfirmed) {
           event.preventDefault();
-          $modal.open({
+          $uibModal.open({
             templateUrl: 'common/directives/pnc-confirm-click/pnc-confirm-click.html',
             controller: [
               '$scope',
