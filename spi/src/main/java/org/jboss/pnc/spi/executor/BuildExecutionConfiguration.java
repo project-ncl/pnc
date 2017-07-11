@@ -40,6 +40,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getScmRevision();
 
+    String getOriginRepoURL();
+
     boolean isPreBuildSyncEnabled();
 
     String getSystemImageId();
@@ -60,6 +62,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String name,
             String scmRepoURL,
             String scmRevision,
+            String originRepoURL,
             boolean preBuildSyncEnabled,
             String systemImageId,
             String systemImageRepositoryUrl,
@@ -102,6 +105,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getScmRevision() {
                 return scmRevision;
+            }
+
+            @Override
+            public String getOriginRepoURL() {
+                return originRepoURL;
             }
 
             @Override

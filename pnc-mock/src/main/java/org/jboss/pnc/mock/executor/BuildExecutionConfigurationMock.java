@@ -36,6 +36,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String name;
     private String scmRepoURL;
     private String scmRevision;
+    private String originRepoURL;
     private boolean preBuildSyncEnabled;
     private String systemImageId;
     private String systemImageRepositoryUrl;
@@ -107,6 +108,14 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public String getScmRevision() {
         return scmRevision;
+    }
+
+    public String getOriginRepoURL() {
+        return originRepoURL;
+    }
+
+    public void setOriginRepoURL(String originRepoURL) {
+        this.originRepoURL = originRepoURL;
     }
 
     public void setScmRevision(String scmRevision) {

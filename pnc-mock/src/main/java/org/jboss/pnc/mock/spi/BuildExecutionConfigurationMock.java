@@ -38,6 +38,7 @@ public class BuildExecutionConfigurationMock {
                 "configuration name",
                 "https://pathToRepo.git",
                 "1111111",
+                "https://pathToOriginRepo.git",
                 false,
                 DEFAULT_SYSTEM_IMAGE_ID,
                 "image.repo.url/repo",
