@@ -213,6 +213,8 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         LOG.debug("Received request to start RC creation: " + repositoryCreationRest);
 
+        validate(repositoryCreationRest);
+
         String internalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getInternalUrl();
         if (internalScmRepoUrl != null) {
             RepositoryConfigurationRest repositoryConfiguration = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmRepoUrl);
@@ -221,8 +223,6 @@ public class BpmEndpoint extends AbstractEndpoint {
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
             }
         }
-
-        validate(repositoryCreationRest);
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryCreationRest, loginInUser.getTokenString());
