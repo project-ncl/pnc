@@ -20,20 +20,20 @@
 
   var module = angular.module('pnc.common.util');
   
-  var MINUTE = 60 * 1000;
-  var HOUR = 60 * MINUTE;
-
   module.factory('dateUtilConverter', function() {
 
     return {
-      convertToTimestampNoonUTC: function(date) {
-        //console.log('Converting date ' + date + ' to UTC noon timestamp');
+      convertToTimestampNoon: function(date) {
         if (!date) {
           return null;
         }
 
-        return date.getTime() +
-          (12 * HOUR); // change from midnight to noon
+        // change from midnight to noon
+        date.setHours(12);
+        date.setMinutes(0);
+        date.setSeconds(0);
+
+        return date.getTime();
       },
 
       initDatePicker: function(scope) {

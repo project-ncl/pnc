@@ -61,7 +61,12 @@
                    href><span class="fa fa-info-circle"></span></a>
               </label>
             <div class="col-sm-10">
-              <div pf-datepicker options="milestoneCreateUpdateCtrl.dpOptions" date="milestoneCreateUpdateCtrl.startingDate"></div>
+              <div class="input-group">
+                <input type="text" class="form-control" uib-datepicker-popup="yyyy/MM/dd" ng-model="milestoneCreateUpdateCtrl.startingDate" is-open="milestoneCreateUpdateCtrl.startingDateOpen" ng-required="true">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="milestoneCreateUpdateCtrl.startingDateOpen = !milestoneCreateUpdateCtrl.startingDateOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </div>
               <span class="help-block" ng-show="milestoneForm.startingDate.$error.required && !milestoneForm.startingDate.$pristine">Required field.</span>
             </div>
           </div>
@@ -74,7 +79,12 @@
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
-                <div pf-datepicker options="milestoneCreateUpdateCtrl.dpOptions" date="milestoneCreateUpdateCtrl.plannedEndDate"></div>
+                <div class="input-group">
+                  <input type="text" class="form-control" uib-datepicker-popup="yyyy/MM/dd" ng-model="milestoneCreateUpdateCtrl.plannedEndDate" is-open="milestoneCreateUpdateCtrl.plannedEndDateOpen" ng-required="true">
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="milestoneCreateUpdateCtrl.plannedEndDateOpen = !milestoneCreateUpdateCtrl.plannedEndDateOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                  </span>
+                </div>
                 <span class="help-block" ng-show="milestoneForm.plannedEndDate.$error.required && !milestoneForm.plannedEndDate.$pristine">Required field.</span>
                 <span class="help-block" ng-show="milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.startingDate, milestoneCreateUpdateCtrl.plannedEndDate) && !milestoneForm.plannedEndDate.$pristine">Planned release date must be after start date.</span>
               </div>
