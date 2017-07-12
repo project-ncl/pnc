@@ -80,6 +80,7 @@ public class BpmBuildTask extends BpmTask {
                 //TODO update to use also other parts or Repository Configuration
                 buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
                 buildConfiguration.getScmRevision(),
+                buildConfiguration.getRepositoryConfiguration().getExternalUrl(),
                 buildConfiguration.getRepositoryConfiguration().isPreBuildSyncEnabled(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),

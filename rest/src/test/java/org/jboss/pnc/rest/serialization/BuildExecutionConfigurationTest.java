@@ -58,6 +58,7 @@ public class BuildExecutionConfigurationTest {
         Assert.assertEquals(message, buildExecutionConfiguration.getName(), buildExecutionConfigurationFromJson.getName());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRepoURL(), buildExecutionConfigurationFromJson.getScmRepoURL());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRevision(), buildExecutionConfigurationFromJson.getScmRevision());
+        Assert.assertEquals(message, buildExecutionConfiguration.getOriginRepoURL(), buildExecutionConfigurationFromJson.getOriginRepoURL());
         Assert.assertEquals(message, buildExecutionConfiguration.isPreBuildSyncEnabled(), buildExecutionConfigurationFromJson.isPreBuildSyncEnabled());
         Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageId(), buildExecutionConfigurationFromJson.getSystemImageId());
         Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageRepositoryUrl(), buildExecutionConfigurationFromJson.getSystemImageRepositoryUrl());
@@ -78,6 +79,7 @@ public class BuildExecutionConfigurationTest {
                     "configuration name",
                     "https://pathToRepo.git",
                     "1111111",
+                    "https://pathToOriginRepo.git",
                     false,
                     "abcd1234",
                     "image.repo.url/repo",

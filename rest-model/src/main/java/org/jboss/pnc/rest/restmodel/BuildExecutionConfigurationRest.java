@@ -44,6 +44,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     private String scmRepoURL;
     private String scmRevision;
+    private String originRepoURL;
     private boolean preBuildSyncEnabled;
 
     private String systemImageId;
@@ -73,6 +74,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         name = buildExecutionConfiguration.getName();
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
         scmRevision = buildExecutionConfiguration.getScmRevision();
+        originRepoURL = buildExecutionConfiguration.getOriginRepoURL();
         preBuildSyncEnabled = buildExecutionConfiguration.isPreBuildSyncEnabled();
         systemImageId = buildExecutionConfiguration.getSystemImageId();
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
@@ -91,6 +93,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 name,
                 scmRepoURL,
                 scmRevision,
+                originRepoURL,
                 preBuildSyncEnabled,
                 systemImageId,
                 systemImageRepositoryUrl,
@@ -139,6 +142,10 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.scmRevision = scmRevision;
     }
 
+    public void setOriginRepoURL(String originRepoURL) {
+        this.originRepoURL = originRepoURL;
+    }
+
     public void setPreBuildSyncEnabled(boolean preBuildSyncEnabled) {
         this.preBuildSyncEnabled = preBuildSyncEnabled;
     }
@@ -171,6 +178,10 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     public String getScmRevision() {
         return scmRevision;
+    }
+
+    public String getOriginRepoURL() {
+        return originRepoURL;
     }
 
     public boolean isPreBuildSyncEnabled() {

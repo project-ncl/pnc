@@ -150,6 +150,7 @@ class BuildExecutionBase {
                 buildConfiguration.getName(),
                 buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
                 buildConfiguration.getScmRevision(),
+                buildConfiguration.getRepositoryConfiguration().getExternalUrl(),
                 buildConfiguration.getRepositoryConfiguration().isPreBuildSyncEnabled(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
