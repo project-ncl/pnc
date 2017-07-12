@@ -38,22 +38,17 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.omg.CORBA.INTERNAL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_INTERNAL_REPO;
-import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_EXTERNAL_REPO;
-
-
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_EXTERNAL_REPO;
+import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_INTERNAL_REPO;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Jakub Bartecek
@@ -122,6 +117,8 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
     }
 
     @Test
+    @Ignore //internal scm is not mandatory on REST level as it can be calculated from external one,
+    // the validation has been removed from the REST Object to make the object reusable on BpmEndpoint.startRCreationTask
     public void shouldFailToCreateNewWithoutInternalUrl() throws IOException {
         processCreateRequest("repositoryConfiguration_create_template_external_url", 400, null, VALID_EXTERNAL_REPO);
     }

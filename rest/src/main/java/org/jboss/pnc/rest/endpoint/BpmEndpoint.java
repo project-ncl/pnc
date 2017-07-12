@@ -215,6 +215,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         validate(repositoryCreationRest);
 
+        //TODO search for both urls by ignoring protocol and .git
         String internalScmRepoUrl = repositoryCreationRest.getRepositoryConfigurationRest().getInternalUrl();
         if (internalScmRepoUrl != null) {
             RepositoryConfigurationRest repositoryConfiguration = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmRepoUrl);
@@ -329,7 +330,6 @@ public class BpmEndpoint extends AbstractEndpoint {
             repositoryConfigurationProvider.validateInternalRepository(repositoryConfiguration.getInternalUrl());
         }
     }
-
 
     /**
      * This method will add listeners to all important RCC event types
