@@ -47,13 +47,6 @@
       that.isUpdating = false;
       that.data = new ProductReleaseDAO();
 
-      that.dpOptions = {
-        autoclose: true,
-        todayBtn: 'linked',
-        todayHighlight: true,
-        format: 'yyyy/mm/dd'
-      };
-
       if (releaseDetail !== null) {
         that.isUpdating = true;
         that.data = releaseDetail;
@@ -105,7 +98,7 @@
 
         that.data.version = versionDetail.version + '.' + that.version; // add the prefix
         // timestamp <- date component
-        that.data.releaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.releaseDate);
+        that.data.releaseDate = dateUtilConverter.convertToTimestampNoon(that.releaseDate);
         that.data.productVersionId = versionDetail.id;
         that.data.productMilestoneId = parseInt(that.productMilestoneId);
 

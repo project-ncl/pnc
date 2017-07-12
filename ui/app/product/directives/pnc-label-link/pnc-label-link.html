@@ -35,14 +35,14 @@
       ng-class="{ 'label-primary' : $ctrl.isPrimary }"
       ui-sref="product.detail.version.milestoneDetail({milestoneId: $ctrl.item.id, productId: $ctrl.productId, versionId: $ctrl.item.productVersionId})"
       tooltip-placement="right"
-      tooltip-template="'tooltipTemplateMilestone.html'">
+      uib-tooltip-template="'tooltipTemplateMilestone.html'">
     {{ ::$ctrl.item.version }}
   </a>
 
   <span ng-if="::$ctrl.isRelease"
       class="label label-success" 
       tooltip-placement="right"
-      tooltip-template="'tooltipTemplateRelease.html'">
+      uib-tooltip-template="'tooltipTemplateRelease.html'">
     {{ ::$ctrl.item.version }}
   </span>
 </span>

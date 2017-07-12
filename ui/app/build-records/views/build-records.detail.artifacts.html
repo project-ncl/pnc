@@ -23,7 +23,7 @@
       <div class="pull-right">
         <span class="spinner spinner-sm spinner-inline" ng-hide="artifactsCtrl.artifacts.isLoaded"></span>
       </div>
-      <div pf-filter id="filter" config="artifactsCtrl.filterConfig"></div>
+      <pf-filter id="filter" config="artifactsCtrl.filterConfig"></pf-filter>
     </div>
 
     <div class="panel-body" ng-hide="artifactsCtrl.artifacts.data.length > 0">

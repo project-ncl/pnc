@@ -20,7 +20,7 @@
 <!-- Template used for action buttons in build configs table -->
 <script type="text/ng-template" id="pnc-build-group-build-config-actions-template">
   <div class="btn-group" role="group" aria-label="Item Actions">
-    <button class="btn btn-block btn-default" tooltip="Remove Build Configuration from Build Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' from this Build Group?'}}">Remove</button>
+    <button class="btn btn-block btn-default" uib-tooltip="Remove Build Configuration from Build Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' from this Build Group?'}}">Remove</button>
   </div>
 </script>
 
@@ -34,7 +34,7 @@
     <div class="btn-group pull-right">
       <button type="button"
               class="btn btn-default"
-              tooltip="Add an existing Build Config"
+              uib-tooltip="Add an existing Build Config"
               tooltip-popup-delay="2500"
               tooltip-placement="top"
               tooltip-append-to-body="true"

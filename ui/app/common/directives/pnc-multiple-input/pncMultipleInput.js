@@ -53,7 +53,7 @@
         selectId: '@',
         selectName: '@',
       },
-      templateUrl: 'common/directives/views/pnc-multiple-input.html',
+      templateUrl: 'common/directives/pnc-multiple-input/pnc-multiple-input.html',
       controller: [
         '$log',
         '$scope',
@@ -81,7 +81,7 @@
           };
 
           $scope.selectItem = function(item) {
-            if (item && !_.include($scope.selectedItems, item)) {
+            if (item && $scope.selectedItems.indexOf(item) === -1) {
               $scope.selectedItems.push(item);
               $scope.inputItem = '';
             }

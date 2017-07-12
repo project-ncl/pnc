@@ -26,7 +26,7 @@
                           placeholder="Enter project name to search..."
                           autocomplete="off"
                           ng-model="$ctrl.input"
-                          typeahead="project as project.name for project in $ctrl.search($viewValue)"
+                          uib-typeahead="project as project.name for project in $ctrl.search($viewValue)"
                           typeahead-on-select="$ctrl.select($item, $model, $label)"
                           typeahead-wait-ms="300"
                           typeahead-loading="$ctrl.isLoading"

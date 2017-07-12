@@ -18,7 +18,7 @@
 
 -->
 <div>
-  <div pf-list-view class="list-group list-view-pf list-view-pf-view"
+  <pf-list-view class="list-group list-view-pf list-view-pf-view"
                     id="remove-build-groups-{{::$id}}"
                     config="$ctrl.config"
                     items="$ctrl.buildConfigs"
@@ -30,6 +30,6 @@
           {{ item.name }}
       </div>
     </div>
-  </div>
+  </pf-list-view>
   <p ng-if="$ctrl.buildConfigs.length === 0"><em>No Build Configs selected</em></p>
 </div>

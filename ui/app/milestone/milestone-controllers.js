@@ -69,12 +69,6 @@
       that.product = productDetail;
       that.productVersion = versionDetail;
       that.isUpdating = false;
-      that.dpOptions = {
-        autoclose: true,
-        todayBtn: 'linked',
-        todayHighlight: true,
-        format: 'yyyy/mm/dd'
-      };
 
       that.data = new ProductMilestoneDAO();
 
@@ -110,8 +104,8 @@
         that.data.version = versionDetail.version + '.' + that.version; // add the prefix
 
         // timestamp <- date component
-        that.data.startingDate = dateUtilConverter.convertToTimestampNoonUTC(that.startingDate);
-        that.data.plannedEndDate = dateUtilConverter.convertToTimestampNoonUTC(that.plannedEndDate);
+        that.data.startingDate = dateUtilConverter.convertToTimestampNoon(that.startingDate);
+        that.data.plannedEndDate = dateUtilConverter.convertToTimestampNoon(that.plannedEndDate);
 
         that.data.productVersionId = versionDetail.id;
 
@@ -191,13 +185,6 @@
 
       var that = this;
 
-      that.dpOptions = {
-        autoclose: true,
-        todayBtn: 'linked',
-        todayHighlight: true,
-        format: 'yyyy/mm/dd'
-      };
-
       that.product = productDetail;
       that.productVersion = versionDetail;
 
@@ -215,7 +202,7 @@
       that.submit = function() {
 
         // timestamp <- date component
-        that.data.endDate = dateUtilConverter.convertToTimestampNoonUTC(that.endDate);
+        that.data.endDate = dateUtilConverter.convertToTimestampNoon(that.endDate);
 
         that.data.$update().then(
           function() {

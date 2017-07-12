@@ -34,7 +34,7 @@
                                   placeholder="Enter product name to start..."
                                   autocomplete="off"
                                   ng-model="ctrl.input"
-                                  typeahead="product as product.name for product in ctrl.fetchProducts($viewValue)"
+                                  uib-typeahead="product as product.name for product in ctrl.fetchProducts($viewValue)"
                                   typeahead-on-select="ctrl.onSelectProduct($item, $model, $label)"
                                   typeahead-wait-ms="300"
                                   typeahead-loading="ctrl.isLoading">
@@ -50,7 +50,7 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <div pf-list-view class="list-group list-view-pf list-view-pf-view cursor-pointer"
+        <pf-list-view class="list-group list-view-pf list-view-pf-view cursor-pointer"
                           id="build-group-list"
                           config="ctrl.config"
                           items="ctrl.selectedProduct.productVersions"
@@ -62,7 +62,7 @@
                 {{ item.productName }}: {{ item.version }}
             </div>
           </div>
-        </div>
+        </pf-list-view>
       </div>
     </div>
   </div>

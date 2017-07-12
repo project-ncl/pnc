@@ -33,7 +33,7 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : milestoneForm.version.$invalid && !milestoneForm.version.$pristine }">
               <label for="input-version" class="col-sm-2 control-label">
-                * Version&nbsp;<a popover="Release part of the product version, e.g. '0.ER1' for product version '1.0'."
+                * Version&nbsp;<a uib-popover="Release part of the product version, e.g. '0.ER1' for product version '1.0'."
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
@@ -55,26 +55,36 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : milestoneForm.startingDate.$invalid && !milestoneForm.startingDate.$pristine }">
               <label for="input-start-date" class="col-sm-2 control-label">
-                * Start Date&nbsp;<a popover="Start date, e.g. '2035/01/15', time is set to noon UTC."
+                * Start Date&nbsp;<a uib-popover="Start date, e.g. '2035/01/15', time is set to noon UTC."
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
               </label>
             <div class="col-sm-10">
-              <div pf-datepicker options="milestoneCreateUpdateCtrl.dpOptions" date="milestoneCreateUpdateCtrl.startingDate"></div>
+              <div class="input-group">
+                <input type="text" class="form-control" uib-datepicker-popup="yyyy/MM/dd" ng-model="milestoneCreateUpdateCtrl.startingDate" is-open="milestoneCreateUpdateCtrl.startingDateOpen" ng-required="true">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="milestoneCreateUpdateCtrl.startingDateOpen = !milestoneCreateUpdateCtrl.startingDateOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </div>
               <span class="help-block" ng-show="milestoneForm.startingDate.$error.required && !milestoneForm.startingDate.$pristine">Required field.</span>
             </div>
           </div>
 
             <div class="form-group" ng-class="{ 'has-error' : (milestoneForm.plannedEndDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.startingDate, milestoneCreateUpdateCtrl.plannedEndDate)) && !milestoneForm.plannedEndDate.$pristine }">
               <label for="input-end-date" class="col-sm-2 control-label">
-                * Planned End Date&nbsp;<a popover="Planned endDate date, e.g. '2035/01/15', time is set to noon UTC."
+                * Planned End Date&nbsp;<a uib-popover="Planned endDate date, e.g. '2035/01/15', time is set to noon UTC."
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
-                <div pf-datepicker options="milestoneCreateUpdateCtrl.dpOptions" date="milestoneCreateUpdateCtrl.plannedEndDate"></div>
+                <div class="input-group">
+                  <input type="text" class="form-control" uib-datepicker-popup="yyyy/MM/dd" ng-model="milestoneCreateUpdateCtrl.plannedEndDate" is-open="milestoneCreateUpdateCtrl.plannedEndDateOpen" ng-required="true">
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="milestoneCreateUpdateCtrl.plannedEndDateOpen = !milestoneCreateUpdateCtrl.plannedEndDateOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                  </span>
+                </div>
                 <span class="help-block" ng-show="milestoneForm.plannedEndDate.$error.required && !milestoneForm.plannedEndDate.$pristine">Required field.</span>
                 <span class="help-block" ng-show="milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.startingDate, milestoneCreateUpdateCtrl.plannedEndDate) && !milestoneForm.plannedEndDate.$pristine">Planned release date must be after start date.</span>
               </div>
@@ -82,7 +92,7 @@
 
             <div class="form-group" ng-class="{ 'has-error' : milestoneForm.issuetrackerurl.$invalid && !milestoneForm.issuetrackerurl.$pristine }">
               <label for="input-issuetrackerurl" class="col-sm-2 control-label">
-                * Issue Tracker URL&nbsp;<a popover="Issue tracker URL of the milestone release notes"
+                * Issue Tracker URL&nbsp;<a uib-popover="Issue tracker URL of the milestone release notes"
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
