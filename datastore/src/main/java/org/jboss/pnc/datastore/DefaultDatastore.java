@@ -18,6 +18,7 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -138,15 +139,40 @@ public class DefaultDatastore implements Datastore {
     private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
-
-            Artifact artifactFromDb = artifactRepository
-                    .queryByPredicates(withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()));
-            if (artifactFromDb == null) {
-                artifactFromDb = artifactRepository.save(artifact);
+            Artifact artifactFromDb;
+            if (ArtifactRepo.Type.GENERIC_PROXY.equals(artifact.getRepoType())) {
+                artifactFromDb = saveHttpArtifacts(artifact);
+            } else {
+                artifactFromDb = saveRepositoryArtifacts(artifact);
             }
             savedArtifacts.add(artifactFromDb);
         }
         return savedArtifacts;
+    }
+
+    private Artifact saveRepositoryArtifacts(Artifact artifact) {
+        Artifact artifactFromDb;
+        artifactFromDb = artifactRepository
+                .queryByPredicates(withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()));
+        if (artifactFromDb == null) {
+            artifactFromDb = artifactRepository.save(artifact);
+        }
+        return artifactFromDb;
+    }
+
+    private Artifact saveHttpArtifacts(Artifact artifact) {
+        Artifact artifactFromDb;
+        artifactFromDb = artifactRepository
+                .queryByPredicates(withOriginUrl(artifact.getOriginUrl()));
+        if (artifactFromDb == null) {
+            // remove checksum of http downloads because thay are mutable
+            // persistent http downloads should be stored per build and not shared
+            artifact.setSha1("");
+            artifact.setMd5("");
+            artifact.setSha256("");
+            artifactFromDb = artifactRepository.save(artifact);
+        }
+        return artifactFromDb;
     }
 
     @Override
