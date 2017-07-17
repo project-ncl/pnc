@@ -39,6 +39,7 @@ public class HibernateLazyInitializer {
         ProductVersion productVersion = bc.getProductVersion();
         if (productVersion != null) {
             productVersion.getProduct();
+            productVersion.getCurrentProductMilestone();
         }
         return bc;
     }
