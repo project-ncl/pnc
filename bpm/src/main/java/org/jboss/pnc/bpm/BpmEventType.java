@@ -46,6 +46,8 @@ public enum BpmEventType { //TODO merge with org.jboss.pnc.spi.notifications.mod
     RCC_REPO_CREATION_ERROR(BpmStringMapNotificationRest.class),
     RCC_REPO_CLONE_SUCCESS(BpmStringMapNotificationRest.class),
     RCC_REPO_CLONE_ERROR(BpmStringMapNotificationRest.class),
+
+    //notification for bpm task completion
     RC_CREATION_SUCCESS(BpmStringMapNotificationRest.class),
     RC_CREATION_ERROR(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_SUCCESS(BpmStringMapNotificationRest.class),

@@ -25,15 +25,16 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationRestMockBuilder;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -42,7 +43,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import javax.ws.rs.core.Response;
-
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +75,10 @@ public class BpmEndpointTest {
     @Mock
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
     @Mock
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
+    @Mock
+    private BuildConfigurationRepository buildConfigurationRepository;
+    @Mock
     private ScmModuleConfig scmModuleConfig;
     @Mock
     private BpmManager bpmManager;
@@ -98,15 +102,29 @@ public class BpmEndpointTest {
         when(authProviderFactory.getProvider()).thenReturn(authProvider);
         when(authProvider.getLoggedInUser(any())).thenReturn(new NoAuthLoggedInUser());
 
-        when(repositoryConfigurationProvider.getSpecificByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
-                .thenReturn(new RepositoryConfigurationRest(existingRepositoryConfiguration));
         doCallRealMethod().when(repositoryConfigurationProvider).validateInternalRepository(Matchers.anyString());
 
         Whitebox.setInternalState(repositoryConfigurationProvider, "moduleConfig", scmModuleConfig);
 
+        when(repositoryConfigurationRepository.queryByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
+                .thenReturn(existingRepositoryConfiguration);
+
+        BuildConfiguration buildConfiguartion = BuildConfiguration.Builder.newBuilder()
+                .id(10)
+                .build();
+        when(buildConfigurationRepository.save(any())).thenReturn(buildConfiguartion);
+
         when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class))).thenReturn(scmModuleConfig);
 
-        bpmEndpoint = new BpmEndpoint(bpmManager, null, authProviderFactory, null, repositoryConfigurationProvider, pncConfiguration);
+        bpmEndpoint = new BpmEndpoint(
+                bpmManager,
+                null,
+                authProviderFactory,
+                null,
+                repositoryConfigurationRepository,
+                repositoryConfigurationProvider,
+                buildConfigurationRepository,
+                pncConfiguration);
 
     }
 

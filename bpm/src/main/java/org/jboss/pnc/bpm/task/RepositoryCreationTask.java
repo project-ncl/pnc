@@ -20,7 +20,7 @@ package org.jboss.pnc.bpm.task;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
+import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +36,11 @@ public class RepositoryCreationTask extends BpmTask {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryCreationTask.class);
 
-    private final RepositoryCreationRest repositoryCreationRest;
+    private final RepositoryConfigurationRest repositoryConfigurationRest;
 
-    public RepositoryCreationTask(RepositoryCreationRest repositoryCreationRest, String accessToken) {
+    public RepositoryCreationTask(RepositoryConfigurationRest repositoryConfigurationRest, String accessToken) {
         setAccessToken(accessToken);
-        this.repositoryCreationRest = repositoryCreationRest;
+        this.repositoryConfigurationRest = repositoryConfigurationRest;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class RepositoryCreationTask extends BpmTask {
             HashMap<String, String> params = new HashMap<>();
             params.put("pncBaseUrl", config.getPncBaseUrl());
             params.put("repourBaseUrl", config.getRepourBaseUrl());
-            params.put("taskData", MAPPER.writeValueAsString(repositoryCreationRest));
+            params.put("taskData", MAPPER.writeValueAsString(repositoryConfigurationRest));
             return params;
         } catch (JsonProcessingException e) {
             throw new CoreException("Could not get the parameters.", e);

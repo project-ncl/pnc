@@ -34,7 +34,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Builder
 @XmlRootElement(name = "RepositoryCreationResultRest")
 @ToString
-public class RepositoryCreationResultRest {
+public class RepositoryCreationResultRest extends BpmNotificationRest {
+
+    @Override
+    public String getEventType() {
+        return "RC_CREATION_SUCCESS";
+    }
 
     @Getter
     private final Integer repositoryId;

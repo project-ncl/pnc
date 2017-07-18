@@ -31,9 +31,11 @@ import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneReleaseRep
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneRepositoryMock;
 import org.jboss.pnc.rest.utils.mock.BpmMock;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -73,6 +75,10 @@ public class AbstractMilestoneReleaseTest {
     @Mock
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
     @Mock
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
+    @Mock
+    private BuildConfigurationRepository buildConfigurationRepository;
+    @Mock
     private Notifier notifier;
     @Mock
     private BuildConfigurationSetProvider bcSetProvider;
@@ -103,7 +109,15 @@ public class AbstractMilestoneReleaseTest {
         when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class))).thenReturn(scmModuleConfig);
 
 
-        bpmEndpoint = new BpmEndpoint(bpmMock, bcSetProvider, authenticationProviderFactory, notifier, repositoryConfigurationProvider, pncConfiguration);
+        bpmEndpoint = new BpmEndpoint(
+                bpmMock,
+                bcSetProvider,
+                authenticationProviderFactory,
+                notifier,
+                repositoryConfigurationRepository,
+                repositoryConfigurationProvider,
+                buildConfigurationRepository,
+                pncConfiguration);
         bpmMock.setUp();
     }
 }

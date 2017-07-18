@@ -27,4 +27,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
  * @author Jakub Bartecek
  */
 public interface RepositoryConfigurationRepository extends Repository<RepositoryConfiguration, Integer> {
+
+    RepositoryConfiguration queryByInternalScm(String internalScmRepoUrl);
 }
