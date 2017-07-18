@@ -17,14 +17,35 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import java.net.URL;
+
 public class RepositoryConfigurationPredicates {
 
-    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
+    public static Predicate<RepositoryConfiguration> withExactInternalScmRepoUrl(String internalUrl) {
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrl), internalUrl);
     }
 
+    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(URL internalUrl) {
+        String internalUrlStripped = UrlUtils.stripProtocol(internalUrl);
+        internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
+
+        String pattern = "%" + internalUrlStripped + "%";
+
+        return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern);
+    }
+
+    public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(URL externalScmRepoUrl) {
+        String internalUrlStripped = UrlUtils.stripProtocol(externalScmRepoUrl);
+        internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
+
+        String pattern = "%" + internalUrlStripped + "%";
+
+        return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern);
+    }
 }

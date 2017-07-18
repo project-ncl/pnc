@@ -25,6 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepositor
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.net.URL;
 
 /**
  * @author Jakub Bartecek
@@ -46,7 +47,17 @@ public class RepositoryConfigurationRepositoryImpl extends AbstractRepository<Re
     }
 
     @Override
-    public RepositoryConfiguration queryByInternalScm(String internalScmRepoUrl) {
+    public RepositoryConfiguration queryByExactInternalScm(String internalScmRepoUrl) {
+        return queryByPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalScmRepoUrl));
+    }
+
+    @Override
+    public RepositoryConfiguration queryByInternalScm(URL internalScmRepoUrl) {
         return queryByPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl(internalScmRepoUrl));
+    }
+
+    @Override
+    public RepositoryConfiguration queryByExternalScm(URL externalScmRepoUrl) {
+        return queryByPredicates(RepositoryConfigurationPredicates.withExternalScmRepoUrl(externalScmRepoUrl));
     }
 }

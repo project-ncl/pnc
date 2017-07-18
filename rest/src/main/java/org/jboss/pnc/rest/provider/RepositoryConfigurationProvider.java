@@ -72,7 +72,7 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     }
 
     public RepositoryConfigurationRest getSpecificByInternalScm(String internalScmUrl) {
-        RepositoryConfiguration repositoryConfiguration = repository.queryByPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl(internalScmUrl));
+        RepositoryConfiguration repositoryConfiguration = repository.queryByPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalScmUrl));
         if (repositoryConfiguration != null) {
             return toRESTModel().apply(repositoryConfiguration);
         }
@@ -116,7 +116,7 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
 
     private void validateIfItsNotConflicting(RepositoryConfigurationRest repositoryConfigurationRest) throws ConflictedEntryException {
         RepositoryConfiguration existingRepositoryConfiguration =
-                repository.queryByPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl(repositoryConfigurationRest.getInternalUrl()));
+                repository.queryByPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(repositoryConfigurationRest.getInternalUrl()));
         if(existingRepositoryConfiguration != null)
             throw new ConflictedEntryException("RepositoryConfiguration with specified internalURL already exists",
                     RepositoryConfiguration.class, existingRepositoryConfiguration.getId());
