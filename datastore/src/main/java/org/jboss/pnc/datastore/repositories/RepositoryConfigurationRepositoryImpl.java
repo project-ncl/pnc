@@ -20,6 +20,7 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.RepositoryConfigurationSpringRepository;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 
 import javax.ejb.Stateless;
@@ -44,4 +45,8 @@ public class RepositoryConfigurationRepositoryImpl extends AbstractRepository<Re
         super(repositoryConfigurationSpringRepository, repositoryConfigurationSpringRepository);
     }
 
+    @Override
+    public RepositoryConfiguration queryByInternalScm(String internalScmRepoUrl) {
+        return queryByPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl(internalScmRepoUrl));
+    }
 }
