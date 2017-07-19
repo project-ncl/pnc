@@ -82,7 +82,7 @@
           // only records that belong to the current csRecord
           records: function ($q, csRecordDetail, BuildRecordDAO) {
             return BuildRecordDAO.query().then(function (r) {
-              return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
+              return _(r).filter({buildConfigSetRecordId: csRecordDetail.id});
             });
           }
         }
