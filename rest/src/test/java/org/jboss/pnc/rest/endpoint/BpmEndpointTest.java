@@ -106,7 +106,7 @@ public class BpmEndpointTest {
 
         Whitebox.setInternalState(repositoryConfigurationProvider, "moduleConfig", scmModuleConfig);
 
-        when(repositoryConfigurationRepository.queryByExactInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
+        when(repositoryConfigurationRepository.queryByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
                 .thenReturn(existingRepositoryConfiguration);
 
         BuildConfiguration buildConfiguartion = BuildConfiguration.Builder.newBuilder()
