@@ -43,7 +43,6 @@ import static org.junit.Assert.fail;
 public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
-    @Ignore //Enable in NCL-3104 once NOS-946 is resolved
     public void manuallyPromoteBuildRepoToChainGroup() throws Exception {
         String path = "/org/myproj/myproj/1.0/myproj-1.0.pom";
         String content = "This is a test " + System.currentTimeMillis();
