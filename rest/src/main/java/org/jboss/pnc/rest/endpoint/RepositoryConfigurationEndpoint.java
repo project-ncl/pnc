@@ -153,7 +153,6 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
         return super.update(id, repositoryConfigurationRest);
     }
 
-    //TODO test me
     @ApiOperation(value = "Search for Repository Configurations based on internal or external url")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryConfigurationPage.class),
