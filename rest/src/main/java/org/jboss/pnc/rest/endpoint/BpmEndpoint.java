@@ -81,8 +81,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -308,15 +306,8 @@ public class BpmEndpoint extends AbstractEndpoint {
     }
 
     public Response checkIfInternalUrlExits(RepositoryConfigurationRest repositoryConfigurationRest) throws InvalidEntityException {
-        URL internalScmRepoUrl;
-        try {
-            internalScmRepoUrl = new URL(repositoryConfigurationRest.getInternalUrl());
-        } catch (MalformedURLException e) {
-            throw new InvalidEntityException("Invalid value in repositoryCreation.repositoryConfiguration.internalUrl: " + e.getMessage());
-        }
-
-        if (internalScmRepoUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(internalScmRepoUrl);
+        if (repositoryConfigurationRest.getInternalUrl() != null) {
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(repositoryConfigurationRest.getInternalUrl());
             if (repositoryConfiguration != null) {
                 String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
@@ -326,15 +317,8 @@ public class BpmEndpoint extends AbstractEndpoint {
     }
 
     public Response checkIfExternalUrlExits(RepositoryConfigurationRest repositoryConfigurationRest) throws InvalidEntityException {
-        URL scmRepoUrl;
-        try {
-            scmRepoUrl = new URL(repositoryConfigurationRest.getExternalUrl());
-        } catch (MalformedURLException e) {
-            throw new InvalidEntityException("Invalid value in repositoryCreation.repositoryConfiguration.externalUrl: " + e.getMessage());
-        }
-
-        if (scmRepoUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(scmRepoUrl);
+        if (repositoryConfigurationRest.getExternalUrl() != null) {
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(repositoryConfigurationRest.getExternalUrl());
             if (repositoryConfiguration != null) {
                 String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
