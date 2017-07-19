@@ -135,4 +135,15 @@ public class StringUtils {
             return string;
         }
     }
+
+    public static String stripProtocol(String url) {
+        String protocolDivider = "://";
+        int protocolDividerIndex = url.indexOf("://");
+
+        if (protocolDividerIndex > -1) {
+            return url.substring(protocolDividerIndex + protocolDivider.length());
+        } else {
+            return url;
+        }
+    }
 }

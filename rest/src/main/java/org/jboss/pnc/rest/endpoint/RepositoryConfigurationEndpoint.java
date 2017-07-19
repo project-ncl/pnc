@@ -26,7 +26,6 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
 import org.jboss.pnc.rest.swagger.response.RepositoryConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.RepositoryConfigurationSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -49,7 +48,30 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.*;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 /**
  * @author Jakub Bartecek
@@ -131,5 +153,20 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
         return super.update(id, repositoryConfigurationRest);
     }
 
+    //TODO test me
+    @ApiOperation(value = "Search for Repository Configurations based on internal or external url")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryConfigurationPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = RepositoryConfigurationPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    public Response search(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+        return fromCollection(repositoryConfigurationProvider.searchByScmUrl(pageIndex, pageSize, sort, q));
+    }
 
 }

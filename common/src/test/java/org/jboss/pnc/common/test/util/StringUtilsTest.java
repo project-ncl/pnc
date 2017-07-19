@@ -80,4 +80,20 @@ public class StringUtilsTest {
         Assert.assertEquals(string + "/", StringUtils.addEndingSlash(string + "/"));
         Assert.assertNotEquals(string + "//", StringUtils.addEndingSlash(string + "/"));
     }
+
+    @Test
+    public void stripProtocol() {
+        String url = "http://host.com/path";
+        Assert.assertEquals("host.com/path", StringUtils.stripProtocol(url));
+
+        url = "https://host.com/path";
+        Assert.assertEquals("host.com/path", StringUtils.stripProtocol(url));
+
+        url = "ssh://host.com/path";
+        Assert.assertEquals("host.com/path", StringUtils.stripProtocol(url));
+
+        url = "git+ssh://host.com/path.git";
+        Assert.assertEquals("host.com/path.git", StringUtils.stripProtocol(url));
+
+    }
 }
