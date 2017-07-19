@@ -127,4 +127,12 @@ public class StringUtils {
             return string;
         }
     }
+
+    public static String stripSuffix(String string, String suffix) {
+        if (string.endsWith(suffix)) {
+            return string.substring(string.length() - suffix.length());
+        } else {
+            return string;
+        }
+    }
 }

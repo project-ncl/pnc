@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.datastore.repositories;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import java.net.URL;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.RepositoryConfiguration} entity.
@@ -28,5 +29,9 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
  */
 public interface RepositoryConfigurationRepository extends Repository<RepositoryConfiguration, Integer> {
 
-    RepositoryConfiguration queryByInternalScm(String internalScmRepoUrl);
+    RepositoryConfiguration queryByExactInternalScm(String internalScmRepoUrl);
+
+    RepositoryConfiguration queryByInternalScm(URL internalScmRepoUrl);
+
+    RepositoryConfiguration queryByExternalScm(URL externalScmRepoUrl);
 }

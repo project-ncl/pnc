@@ -81,6 +81,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -227,15 +229,18 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         validate(repositoryCreationRest);
 
-        //TODO search for both urls by ignoring protocol and .git
         RepositoryConfigurationRest repositoryConfigurationRest = repositoryCreationRest.getRepositoryConfigurationRest();
-        String internalScmRepoUrl = repositoryConfigurationRest.getInternalUrl();
-        if (internalScmRepoUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(internalScmRepoUrl);
-            if (repositoryConfiguration != null) {
-                String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
-                return Response.status(Response.Status.CONFLICT).entity(message).build();
-            }
+
+        //TODO test me
+        Response message = checkIfInternalUrlExits(repositoryConfigurationRest);
+        if (message != null) {
+            return message;
+        }
+
+        //TODO test me
+        message = checkIfExternalUrlExits(repositoryConfigurationRest);
+        if (message != null) {
+            return message;
         }
 
         BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
@@ -264,7 +269,7 @@ public class BpmEndpoint extends AbstractEndpoint {
                 repositoryConfigurationId = Integer.valueOf(repositoryCreationTaskResult.getData().get("repositoryConfigurationId"));
             } catch (NumberFormatException ex) {
                 throw new RuntimeException("Receive notification about successful BC creation '" + repositoryCreationTaskResult +
-                        "' but the ID of the newly created BC '" + repositoryCreationTaskResult.getData().get("repositoryConfigurationId") +
+                        "' but the ID of the newly created RC '" + repositoryCreationTaskResult.getData().get("repositoryConfigurationId") +
                         "' is not a number. It should be present under 'repositoryConfigurationId' key.", ex);
             }
             Set<Integer> bcSetIds = repositoryCreationRest.getBuildConfigurationRest().getBuildConfigurationSetIds();
@@ -274,14 +279,13 @@ public class BpmEndpoint extends AbstractEndpoint {
 
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
 
-
             BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
                     .repositoryConfiguration(repositoryConfiguration)
                     .build();
             BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
             Integer buildConfigurationSavedId = buildConfigurationSaved.getId();
 
-            addBuildConfigurationToSet(repositoryConfigurationId, bcSetIds);
+            addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
 
             RepositoryCreationResultRest repositoryCreationResultRest =
                     new RepositoryCreationResultRest(repositoryConfigurationId, buildConfigurationSavedId);
@@ -301,6 +305,42 @@ public class BpmEndpoint extends AbstractEndpoint {
             throw new CoreException("Could not start BPM task: " + repositoryCreationTask, e);
         }
         return Response.ok(repositoryCreationTask.getTaskId()).build();
+    }
+
+    public Response checkIfInternalUrlExits(RepositoryConfigurationRest repositoryConfigurationRest) throws InvalidEntityException {
+        URL internalScmRepoUrl;
+        try {
+            internalScmRepoUrl = new URL(repositoryConfigurationRest.getInternalUrl());
+        } catch (MalformedURLException e) {
+            throw new InvalidEntityException("Invalid value in repositoryCreation.repositoryConfiguration.internalUrl: " + e.getMessage());
+        }
+
+        if (internalScmRepoUrl != null) {
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(internalScmRepoUrl);
+            if (repositoryConfiguration != null) {
+                String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
+                return Response.status(Response.Status.CONFLICT).entity(message).build();
+            }
+        }
+        return null;
+    }
+
+    public Response checkIfExternalUrlExits(RepositoryConfigurationRest repositoryConfigurationRest) throws InvalidEntityException {
+        URL scmRepoUrl;
+        try {
+            scmRepoUrl = new URL(repositoryConfigurationRest.getExternalUrl());
+        } catch (MalformedURLException e) {
+            throw new InvalidEntityException("Invalid value in repositoryCreation.repositoryConfiguration.externalUrl: " + e.getMessage());
+        }
+
+        if (scmRepoUrl != null) {
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(scmRepoUrl);
+            if (repositoryConfiguration != null) {
+                String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
+                return Response.status(Response.Status.CONFLICT).entity(message).build();
+            }
+        }
+        return null;
     }
 
     @ApiOperation(value = "Start Repository Creation task with url autodetect (internal vs. external).", response = Singleton.class)
@@ -341,12 +381,12 @@ public class BpmEndpoint extends AbstractEndpoint {
         return startRCreationTask(repositoryCreationRest, httpServletRequest);
     }
 
-    private void addBuildConfigurationToSet(int bcId, Set<Integer> bcSetIds) {
+    private void addBuildConfigurationToSet(BuildConfiguration buildConfiguration, Set<Integer> bcSetIds) {
         for (Integer setId : bcSetIds) {
             try {
-                bcSetProvider.addConfiguration(setId, bcId);
+                bcSetProvider.addConfiguration(setId, buildConfiguration.getId());
             } catch (ValidationException e) {
-                throw new RuntimeException("Could not add BC with ID '" + bcId +
+                throw new RuntimeException("Could not add BC with ID '" + buildConfiguration.getId() +
                         "' to a BC Set with id '" + setId + "'.", e);
             }
         }

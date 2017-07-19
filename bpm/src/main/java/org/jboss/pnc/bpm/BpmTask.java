@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
@@ -69,7 +71,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
 
     protected BpmModuleConfig config;
 
-    private Map<BpmEventType, List<Consumer<?>>> listeners = new HashMap<>();
+    private ConcurrentMap<BpmEventType, List<Consumer<?>>> listeners = new ConcurrentHashMap<>();
 
     /**
      * Users OAuth token used to authenticate requests on remote services
@@ -135,21 +137,13 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      * @param eventType event to follow
      */
     public <T extends BpmNotificationRest> void addListener(BpmEventType eventType, Consumer<T> listener) {
-        List<Consumer<?>> consumers = listeners.get(eventType);
-        if (consumers == null) { //TODO synchronize
-            consumers = new ArrayList<>();
-        }
+        List<Consumer<?>> consumers = listeners.computeIfAbsent(eventType, (k) -> new ArrayList<>());
         consumers.add(listener);
-        listeners.put(eventType, consumers);
     }
 
 
     public <T extends BpmNotificationRest> void notify(BpmEventType eventType, T data) {
-        List<Consumer<?>> listeners = this.listeners.get(eventType);
-        if (listeners == null) { //TODO synchronize
-            listeners = new ArrayList<>();
-            this.listeners.put(eventType, listeners);
-        }
+        List<Consumer<?>> listeners = this.listeners.computeIfAbsent(eventType, (k) -> new ArrayList<>());
         log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners, this.listeners);
         listeners.forEach(listener -> {
             // Cast is OK because there is no unchecked method declaration to put wrong types

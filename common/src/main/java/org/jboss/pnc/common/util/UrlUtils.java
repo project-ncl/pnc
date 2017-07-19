@@ -92,4 +92,12 @@ public final class UrlUtils {
         return map;
     }
 
+    public static String stripProtocol(URL url) {
+        String protocol = url.getProtocol();
+        String stripped = url.toExternalForm().replaceFirst(protocol + ":", "");
+        if (stripped.startsWith("//")) {
+            stripped = stripped.substring(2);
+        }
+        return stripped;
+    }
 }
