@@ -395,10 +395,10 @@ public class BpmEndpoint extends AbstractEndpoint {
      */
     private void addWebsocketForwardingListeners(RepositoryCreationTask task) {
         Consumer<? extends BpmNotificationRest> doNotify = (e) -> wsNotifier.sendMessage(e);
-        task.addListener(BpmEventType.RCC_REPO_CREATION_SUCCESS, doNotify);
-        task.addListener(BpmEventType.RCC_REPO_CREATION_ERROR, doNotify);
-        task.addListener(BpmEventType.RCC_REPO_CLONE_SUCCESS, doNotify);
-        task.addListener(BpmEventType.RCC_REPO_CLONE_ERROR, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CREATION_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotify);
         //clients are notified from callback in startRCreationTask
         //task.addListener(BpmEventType.RC_CREATION_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotify);
