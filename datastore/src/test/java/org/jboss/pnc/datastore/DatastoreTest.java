@@ -254,7 +254,7 @@ public class DatastoreTest {
 
     @Test
     @InSequence(4)
-    public void testRepositoryCreationSearchPredicate() {
+    public void testRepositoryCreationSearchPredicates() {
         //given
         String externalUrl = "https://github.com/external/repo.git";
         String internalUrl = "git+ssh://internal.repo.com/repo.git";
@@ -266,9 +266,11 @@ public class DatastoreTest {
 
         RepositoryConfiguration saved = repositoryConfigurationRepository.save(repositoryConfiguration);
 
+        List<RepositoryConfiguration> repositoryConfigurations;
+
         //when
         String scmUrl = "repo";
-        List<RepositoryConfiguration> repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
+        repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
         //expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
@@ -276,7 +278,7 @@ public class DatastoreTest {
         scmUrl = "repoX";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
         //expect
-        Assert.assertTrue("Repository configuration was not found.", repositoryConfigurations.isEmpty());
+        Assert.assertTrue("Repository configuration should not be found.", repositoryConfigurations.isEmpty());
 
         //when
         scmUrl = "ssh://internal.repo.com/repo.git";
@@ -289,6 +291,36 @@ public class DatastoreTest {
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
         //expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+        //when
+        repositoryConfigurations = repositoryConfigurationRepository
+                .queryWithPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalUrl));
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+        //when
+        repositoryConfigurations = repositoryConfigurationRepository
+                .queryWithPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl("ssh://internal.repo.com/"));
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+        //when
+        repositoryConfigurations = repositoryConfigurationRepository
+                .queryWithPredicates(RepositoryConfigurationPredicates.withExternalScmRepoUrl("http://github.com/external/repo.git"));
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+        //when
+        repositoryConfigurations = repositoryConfigurationRepository
+                .queryWithPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl("http://github.com/external/repo.git"));
+        //expect
+        Assert.assertTrue("Repository configuration should not be found. Found " + repositoryConfigurations.size() + " repositoryConfigurations.", repositoryConfigurations.isEmpty());
+
+        //when
+        repositoryConfigurations = repositoryConfigurationRepository
+                .queryWithPredicates(RepositoryConfigurationPredicates.withExternalScmRepoUrl("ssh://internal.repo.com/"));
+        //expect
+        Assert.assertTrue("Repository configuration should not be found.", repositoryConfigurations.isEmpty());
 
 
     }

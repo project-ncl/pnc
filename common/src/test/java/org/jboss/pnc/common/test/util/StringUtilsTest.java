@@ -82,6 +82,13 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void stripSuffix() {
+        Assert.assertEquals("http://host.com/repo", StringUtils.stripSuffix("http://host.com/repo.git", ".git"));
+
+        Assert.assertEquals("http://host.com/repo", StringUtils.stripSuffix("http://host.com/repo", ".git"));
+    }
+
+    @Test
     public void stripProtocol() {
         String url = "http://host.com/path";
         Assert.assertEquals("host.com/path", StringUtils.stripProtocol(url));
@@ -94,6 +101,5 @@ public class StringUtilsTest {
 
         url = "git+ssh://host.com/path.git";
         Assert.assertEquals("host.com/path.git", StringUtils.stripProtocol(url));
-
     }
 }
