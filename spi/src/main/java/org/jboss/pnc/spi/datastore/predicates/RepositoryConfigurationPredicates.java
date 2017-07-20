@@ -18,12 +18,9 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import java.net.URL;
 
 public class RepositoryConfigurationPredicates {
 
@@ -31,8 +28,8 @@ public class RepositoryConfigurationPredicates {
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrl), internalUrl);
     }
 
-    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(URL internalUrl) {
-        String internalUrlStripped = UrlUtils.stripProtocol(internalUrl);
+    public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
+        String internalUrlStripped = StringUtils.stripProtocol(internalUrl);
         internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
 
         String pattern = "%" + internalUrlStripped + "%";
@@ -40,12 +37,23 @@ public class RepositoryConfigurationPredicates {
         return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern);
     }
 
-    public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(URL externalScmRepoUrl) {
-        String internalUrlStripped = UrlUtils.stripProtocol(externalScmRepoUrl);
+    public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(String externalScmRepoUrl) {
+        String internalUrlStripped = StringUtils.stripProtocol(externalScmRepoUrl);
         internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
 
         String pattern = "%" + internalUrlStripped + "%";
 
         return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern);
+    }
+
+    public static Predicate<RepositoryConfiguration> searchByScmUrl(String scmUrl) {
+        String urlStripped = StringUtils.stripProtocol(scmUrl);
+        urlStripped = StringUtils.stripSuffix(urlStripped, ".git");
+
+        String pattern = "%" + urlStripped + "%";
+
+        return (root, query, cb) -> cb.or(
+                cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern),
+                cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern));
     }
 }

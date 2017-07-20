@@ -23,6 +23,8 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
@@ -33,12 +35,16 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 /**
  *
@@ -121,6 +127,21 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
             throw new ConflictedEntryException("RepositoryConfiguration with specified internalURL already exists",
                     RepositoryConfiguration.class, existingRepositoryConfiguration.getId());
 
+    }
+
+    public CollectionInfo<RepositoryConfigurationRest> searchByScmUrl(int pageIndex, int pageSize, String sortingRsql, String scmUrl) {
+        Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.searchByScmUrl(scmUrl);
+
+        List<RepositoryConfiguration> collection = repository.queryWithPredicates(
+                pageInfoProducer.getPageInfo(pageIndex, pageSize),
+                sortInfoProducer.getSortInfo(sortingRsql),
+                predicate);
+
+        int totalPages = (repository.count(predicate) + pageSize - 1) / pageSize;
+
+        return nullableStreamOf(collection)
+                .map(toRESTModel())
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, totalPages));
     }
 
     @Override

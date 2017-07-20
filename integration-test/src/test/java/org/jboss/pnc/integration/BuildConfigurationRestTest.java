@@ -167,8 +167,12 @@ public class BuildConfigurationRestTest extends AbstractTest {
     @Test
     @InSequence(1)
     public void shouldCreateNewBuildConfiguration() throws IOException {
-        createdConfigurationId = createBuildConfigurationAndValidateResults(String.valueOf(projectId), String.valueOf(environmentId),
-                String.valueOf(repositoryConfigurationId), UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        createdConfigurationId = createBuildConfigurationAndValidateResults(
+                String.valueOf(projectId),
+                String.valueOf(environmentId),
+                String.valueOf(repositoryConfigurationId),
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
     }
 
     @Test

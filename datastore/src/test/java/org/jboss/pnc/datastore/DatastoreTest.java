@@ -23,6 +23,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -33,6 +34,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Assert;
@@ -250,4 +252,49 @@ public class DatastoreTest {
 
     }
 
+    @Test
+    @InSequence(4)
+    public void testRepositoryCreationSearchPredicate() {
+        //given
+        String externalUrl = "https://github.com/external/repo.git";
+        String internalUrl = "git+ssh://internal.repo.com/repo.git";
+
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                .externalUrl(externalUrl)
+                .internalUrl(internalUrl)
+                .build();
+
+        RepositoryConfiguration saved = repositoryConfigurationRepository.save(repositoryConfiguration);
+
+        //when
+        String scmUrl = "repo";
+        List<RepositoryConfiguration> repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+        //when
+        scmUrl = "repoX";
+        repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", repositoryConfigurations.isEmpty());
+
+        //when
+        scmUrl = "ssh://internal.repo.com/repo.git";
+        repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+        //when
+        scmUrl = "http://internal.repo.com/repo.git";
+        repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
+        //expect
+        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+
+
+    }
+
+    public List<RepositoryConfiguration> searchForRepositoryConfigurations(String scmUrl) {
+        Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.searchByScmUrl(scmUrl);
+        return repositoryConfigurationRepository.queryWithPredicates(predicate);
+    }
 }

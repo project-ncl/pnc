@@ -129,10 +129,32 @@ public class StringUtils {
     }
 
     public static String stripSuffix(String string, String suffix) {
+        if (string == null) {
+            return null;
+        }
+        if (string == null) {
+            return string;
+        }
+
         if (string.endsWith(suffix)) {
             return string.substring(string.length() - suffix.length());
         } else {
             return string;
+        }
+    }
+
+    public static String stripProtocol(String url) {
+        if (url == null) {
+            return null;
+        }
+
+        String protocolDivider = "://";
+        int protocolDividerIndex = url.indexOf("://");
+
+        if (protocolDividerIndex > -1) {
+            return url.substring(protocolDividerIndex + protocolDivider.length());
+        } else {
+            return url;
         }
     }
 }
