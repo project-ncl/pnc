@@ -32,13 +32,14 @@ import java.util.Optional;
 public class RepositoryCreationRestMockBuilder {
 
     public static RepositoryCreationRest mock(String buildConfigurationName, String script, String internalUrl) {
-        return mock(buildConfigurationName, script, internalUrl, Optional.of(1), Optional.of(1));
+        return mock(buildConfigurationName, script, internalUrl, Optional.empty(), Optional.of(1), Optional.of(1));
     }
 
     public static RepositoryCreationRest mock(
             String buildConfigurationName,
             String script,
             String internalUrl,
+            Optional<String> externalUrl,
             Optional<Integer> buildConfigurationId,
             Optional<Integer> repositoryConfigurationId) {
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
@@ -57,8 +58,10 @@ public class RepositoryCreationRestMockBuilder {
         buildConfiguration.setBuildScript(script);
 
         RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
-        buildConfigurationId.ifPresent(id -> repositoryConfiguration.setId(id));
+        repositoryConfigurationId.ifPresent(id -> repositoryConfiguration.setId(id));
         repositoryConfiguration.setInternalUrl(internalUrl);
+        externalUrl.ifPresent(url -> repositoryConfiguration.setExternalUrl(url));
+
 
         return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
 

@@ -211,7 +211,6 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-    //TODO add test using BpmMock
     @ApiOperation(value = "Start Repository Creation (RC) task (which stores the RC) and store the BC on success task completion.", response = Singleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = "Success")
@@ -229,13 +228,11 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         RepositoryConfigurationRest repositoryConfigurationRest = repositoryCreationRest.getRepositoryConfigurationRest();
 
-        //TODO test me
         Response message = checkIfInternalUrlExits(repositoryConfigurationRest);
         if (message != null) {
             return message;
         }
 
-        //TODO test me
         message = checkIfExternalUrlExits(repositoryConfigurationRest);
         if (message != null) {
             return message;
@@ -243,7 +240,6 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
         ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
-                .validateNotEmptyArgument()
                 .validateAnnotations();
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
@@ -277,13 +273,16 @@ public class BpmEndpoint extends AbstractEndpoint {
 
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
 
-            BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
-                    .repositoryConfiguration(repositoryConfiguration)
-                    .build();
-            BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
-            Integer buildConfigurationSavedId = buildConfigurationSaved.getId();
+            Integer buildConfigurationSavedId = -1;
+            if (buildConfigurationRest != null) { //TODO test me
+                BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
+                        .repositoryConfiguration(repositoryConfiguration)
+                        .build();
+                BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
+                buildConfigurationSavedId = buildConfigurationSaved.getId();
 
-            addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
+                addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
+            }
 
             RepositoryCreationResultRest repositoryCreationResultRest =
                     new RepositoryCreationResultRest(repositoryConfigurationId, buildConfigurationSavedId);

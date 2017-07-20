@@ -137,7 +137,7 @@ public class StringUtils {
         }
 
         if (string.endsWith(suffix)) {
-            return string.substring(string.length() - suffix.length());
+            return string.substring(0, string.length() - suffix.length());
         } else {
             return string;
         }

@@ -89,6 +89,7 @@ public class RepositoryCreationRestTest {
                 "mvn clean deploy",
                 internalScmUrl,
                 Optional.empty(),
+                Optional.empty(),
                 Optional.empty());
 
         //when invoking remote endpoint

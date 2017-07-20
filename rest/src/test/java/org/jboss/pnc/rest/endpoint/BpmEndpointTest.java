@@ -62,6 +62,7 @@ public class BpmEndpointTest {
     private static final String VALID_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/rock-a-teens/woo-hoo.git";
     private static final String VALID_EXTERNAL_SCM_URL = "git+ssh://github.com/project-ncl/pnc.git";
     private static final String EXISTING_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/i-do/exist.git";
+    private static final String EXISTING_EXTERNAL_SCM_URL = "https://github.com/i-do/exist.git";
     @Mock
     private AuthenticationProviderFactory authProviderFactory;
     @Mock
@@ -93,8 +94,14 @@ public class BpmEndpointTest {
 
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
 
-        RepositoryConfiguration existingRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+        RepositoryConfiguration existingInternalRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(EXISTING_INTERNAL_SCM_URL)
+                .externalUrl("")
+                .preBuildSyncEnabled(true)
+                .build();
+
+        RepositoryConfiguration existingExternalRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                .internalUrl(EXISTING_EXTERNAL_SCM_URL)
                 .externalUrl("")
                 .preBuildSyncEnabled(true)
                 .build();
@@ -107,7 +114,10 @@ public class BpmEndpointTest {
         Whitebox.setInternalState(repositoryConfigurationProvider, "moduleConfig", scmModuleConfig);
 
         when(repositoryConfigurationRepository.queryByInternalScm(Matchers.eq(EXISTING_INTERNAL_SCM_URL)))
-                .thenReturn(existingRepositoryConfiguration);
+                .thenReturn(existingInternalRepositoryConfiguration);
+
+        when(repositoryConfigurationRepository.queryByExternalScm(Matchers.eq(EXISTING_EXTERNAL_SCM_URL)))
+                .thenReturn(existingExternalRepositoryConfiguration);
 
         BuildConfiguration buildConfiguartion = BuildConfiguration.Builder.newBuilder()
                 .id(10)
@@ -130,31 +140,43 @@ public class BpmEndpointTest {
 
     @Test
     public void shouldNotStartRCCreateTaskWithInternalURLWORepoName() throws Exception {
-        RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInternalURLWORepoName", INTERNAL_SCM_URL_WO_NAME);
+        RepositoryCreationRest configuration = configuration("shouldNotStartRCCreateTaskWithInternalURLWORepoName", INTERNAL_SCM_URL_WO_NAME);
         assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
     @Test
     public void shouldNotStartRCCreateTaskWithInvalidInternalURL() throws Exception {
-        RepositoryCreationRest configuration = configuration("shouldNotStartBCCreateTaskWithInvalidInternalURL", INTERNAL_SCM_URL_WO_NAME);
+        RepositoryCreationRest configuration = configuration("shouldNotStartRCCreateTaskWithInvalidInternalURL", INTERNAL_SCM_URL_WO_NAME);
         assertThrows(() -> bpmEndpoint.startRCreationTask(configuration, null), InvalidEntityException.class);
     }
 
     @Test
     public void shouldStartRCCreateTaskWithValidInternalURL() throws Exception {
-        RepositoryCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL", VALID_INTERNAL_SCM_URL);
+        RepositoryCreationRest configuration = configuration("shouldStartRCCreateTaskWithValidInternalURL", VALID_INTERNAL_SCM_URL);
         Response response = bpmEndpoint.startRCreationTask(configuration, null);
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
     public void shouldNotStartRCCreateTaskWithExistingInternalURL() throws Exception {
-        RepositoryCreationRest configuration = configuration("shouldStartBCCreateTaskWithValidInternalURL", EXISTING_INTERNAL_SCM_URL);
+        RepositoryCreationRest configuration = configuration("shouldStartRCCreateTaskWithExistingInternalURL", EXISTING_INTERNAL_SCM_URL);
+        Response response = bpmEndpoint.startRCreationTask(configuration, null);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void shouldNotStartRCCreateTaskWithExistingExternalURL() throws Exception {
+        RepositoryCreationRest configuration = RepositoryCreationRestMockBuilder.mock(
+                "shouldStartRCCreateTaskWithExistingExternalURL",
+                "mvn clean deploy",
+                VALID_INTERNAL_SCM_URL,
+                Optional.of(EXISTING_EXTERNAL_SCM_URL),
+                Optional.of(1), Optional.empty());
         Response response = bpmEndpoint.startRCreationTask(configuration, null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     private RepositoryCreationRest configuration(String name, String internalUrl) {
-        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", internalUrl, Optional.empty(), Optional.empty());
+        return RepositoryCreationRestMockBuilder.mock(name, "mvn clean deploy", internalUrl, Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     private <E extends Exception> void assertThrows(ThrowingRunnable runnable, Class<E> exceptionClass) {

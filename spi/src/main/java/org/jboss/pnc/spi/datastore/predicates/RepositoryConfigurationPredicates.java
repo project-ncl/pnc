@@ -21,8 +21,12 @@ import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RepositoryConfigurationPredicates {
+
+    private static Logger logger = LoggerFactory.getLogger(RepositoryConfigurationPredicates.class);
 
     public static Predicate<RepositoryConfiguration> withExactInternalScmRepoUrl(String internalUrl) {
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrl), internalUrl);
@@ -33,6 +37,7 @@ public class RepositoryConfigurationPredicates {
         internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
 
         String pattern = "%" + internalUrlStripped + "%";
+        logger.trace("Searching for pattern: {}.", pattern);
 
         return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern);
     }
@@ -42,6 +47,7 @@ public class RepositoryConfigurationPredicates {
         internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
 
         String pattern = "%" + internalUrlStripped + "%";
+        logger.trace("Searching for pattern: {}.", pattern);
 
         return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern);
     }
@@ -51,6 +57,7 @@ public class RepositoryConfigurationPredicates {
         urlStripped = StringUtils.stripSuffix(urlStripped, ".git");
 
         String pattern = "%" + urlStripped + "%";
+        logger.trace("Searching for pattern: {}.", pattern);
 
         return (root, query, cb) -> cb.or(
                 cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern),
