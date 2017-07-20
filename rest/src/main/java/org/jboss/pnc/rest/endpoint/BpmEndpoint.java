@@ -211,7 +211,6 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-    //TODO add test using BpmMock
     @ApiOperation(value = "Start Repository Creation (RC) task (which stores the RC) and store the BC on success task completion.", response = Singleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = "Success")
@@ -229,7 +228,6 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         RepositoryConfigurationRest repositoryConfigurationRest = repositoryCreationRest.getRepositoryConfigurationRest();
 
-        //TODO test me
         Response message = checkIfInternalUrlExits(repositoryConfigurationRest);
         if (message != null) {
             return message;
