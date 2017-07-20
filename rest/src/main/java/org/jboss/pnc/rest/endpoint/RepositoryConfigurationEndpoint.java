@@ -66,6 +66,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRI
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SEARCH_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
@@ -161,11 +162,12 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
+    @Path("/search-by-scm-url")
     public Response search(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return fromCollection(repositoryConfigurationProvider.searchByScmUrl(pageIndex, pageSize, sort, q));
+            @ApiParam(value = "Url part to search for.", required = true) @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
+        return fromCollection(repositoryConfigurationProvider.searchByScmUrl(pageIndex, pageSize, sort, scmUrl));
     }
 
 }
