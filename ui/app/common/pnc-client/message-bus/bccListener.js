@@ -24,7 +24,7 @@
     'pncEventAdaptor',
     function ($log, $rootScope, pncEventAdaptor) {
       return function (message) {
-        if (message.eventType.startsWith('BCC_')) {
+        if (message.eventType && message.eventType.startsWith('BCC_')) {
           var event = pncEventAdaptor.convert(message);
           $rootScope.$broadcast(event.eventType, event.payload);
         }
