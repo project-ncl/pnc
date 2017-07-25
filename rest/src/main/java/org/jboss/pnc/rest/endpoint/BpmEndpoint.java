@@ -44,6 +44,7 @@ import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationProcessRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
@@ -244,7 +245,12 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
-        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationRest, loginInUser.getTokenString());
+        RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
+                repositoryCreationRest.getRepositoryConfigurationRest(),
+                repositoryCreationRest.isPeriodicalSyncEnabled()
+        );
+
+        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
 
         /**
          * Given the successful BC creation, add the BC into the BC sets.
@@ -359,6 +365,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         RepositoryCreationRest repositoryCreationRest = RepositoryCreationRest.builder()
                 .buildConfigurationRest(repositoryCreationUrlAutoRest.getBuildConfigurationRest())
                 .repositoryConfigurationRest(repositoryConfigurationBuilder.build())
+                .periodicalSyncEnabled(repositoryCreationUrlAutoRest.isPeriodicalSyncEnabled())
                 .build();
 
         return startRCreationTask(repositoryCreationRest, httpServletRequest);
@@ -395,10 +402,10 @@ public class BpmEndpoint extends AbstractEndpoint {
      */
     private void addWebsocketForwardingListeners(RepositoryCreationTask task) {
         Consumer<? extends BpmNotificationRest> doNotify = (e) -> wsNotifier.sendMessage(e);
-        task.addListener(BpmEventType.RCC_REPO_CREATION_SUCCESS, doNotify);
-        task.addListener(BpmEventType.RCC_REPO_CREATION_ERROR, doNotify);
-        task.addListener(BpmEventType.RCC_REPO_CLONE_SUCCESS, doNotify);
-        task.addListener(BpmEventType.RCC_REPO_CLONE_ERROR, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CREATION_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, doNotify);
+        task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotify);
         //clients are notified from callback in startRCreationTask
         //task.addListener(BpmEventType.RC_CREATION_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotify);

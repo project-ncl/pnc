@@ -63,7 +63,7 @@ public class RepositoryCreationRestMockBuilder {
         externalUrl.ifPresent(url -> repositoryConfiguration.setExternalUrl(url));
 
 
-        return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
+        return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration, false);
 
     }
 }
