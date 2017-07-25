@@ -66,6 +66,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Size(max = 255)
     @Getter
     @Setter
+    @Column(unique = true)
     private String externalUrl;
 
     /**
