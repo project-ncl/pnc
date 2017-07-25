@@ -2,10 +2,10 @@
   "name": "pnc-ui",
   "version": "0.5.0",
   "dependencies": {
+    "jquery": "2.1.4",
     "angular": "1.5.6",
     "angular-loading-bar": "0.8.0",
     "angular-patternfly": "4.1.1",
-    "jquery": "2.1.4",
     "angular-resource": "1.5.6",
     "angular-animate": "1.5.6",
     "angular-touch": "1.5.6",
