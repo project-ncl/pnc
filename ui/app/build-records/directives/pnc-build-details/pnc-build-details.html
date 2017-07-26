@@ -52,5 +52,17 @@
     <dd ng-repeat-end>{{value}}</dd>
     <!-- attributes -->
 
+    <!-- generic parameters -->
+    <dt>Generic Parameters</dt>
+    <dd>
+      <ul class="list-unstyled" ng-show="ctrl.record.genericParameters">
+        <li ng-repeat="(key, value) in ctrl.record.genericParameters">
+          <tt>{{key}}</tt> : <pre>{{value}}</pre>
+        </li>
+      </ul>
+      <span ng-hide="ctrl.record.genericParameters">&mdash;</span>
+    </dd>
+    <!-- generic parameters -->
+
   </dl>
 </div>
