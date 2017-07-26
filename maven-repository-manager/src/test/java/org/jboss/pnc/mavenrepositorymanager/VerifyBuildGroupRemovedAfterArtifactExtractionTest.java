@@ -18,6 +18,7 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
@@ -32,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -51,7 +53,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
 
         // simulate a build deploying a file.
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
-                .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
+                .store(buildId, new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId), path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
@@ -64,7 +66,8 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the build aggregation group should have been garbage collected
-        boolean buildGroupExists = driver.getIndy(accessToken).stores().exists(StoreType.group, buildId);
+        StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildId);
+        boolean buildGroupExists = driver.getIndy(accessToken).stores().exists(groupKey);
         assertThat(buildGroupExists, equalTo(false));
     }
 

@@ -18,6 +18,7 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.indy.client.core.util.UrlUtils;
+import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
@@ -31,6 +32,7 @@ import org.junit.experimental.categories.Category;
 import java.io.File;
 import java.util.List;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
@@ -64,7 +66,8 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: you should be able to download this artifact from shared-imports now.
-        assertThat(download(indy.content().contentUrl(StoreType.hosted, SHARED_IMPORTS_ID, path)), equalTo(content));
+        StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
+        assertThat(download(indy.content().contentUrl(sharedImportsKey, path)), equalTo(content));
     }
 
 }

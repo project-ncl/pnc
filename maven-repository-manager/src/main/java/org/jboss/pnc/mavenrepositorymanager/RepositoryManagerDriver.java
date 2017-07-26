@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
@@ -82,7 +82,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private final int DEFAULT_REQUEST_TIMEOUT;
 
     private final boolean BUILD_REPOSITORY_ALLOW_SNAPSHOTS;
-    
+
     private final String BUILD_PROMOTION_GROUP;
 
     private String baseUrl;
@@ -133,7 +133,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
-    @SuppressWarnings("resource")
     private Indy init(String accessToken) {
         Indy indy = indyMap.get(accessToken);
         if (indy == null) {
@@ -147,12 +146,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
                         .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                         .build();
 
-                List<IndyClientModule> modules = Arrays.<IndyClientModule>asList(
+                IndyClientModule[] modules = new IndyClientModule[] {
                         new IndyFoloAdminClientModule(),
                         new IndyFoloContentClientModule(),
-                        new IndyPromoteClientModule());
+                        new IndyPromoteClientModule() };
 
-                indy = new Indy(authenticator, new IndyObjectMapper(true), modules, siteConfig).connect();
+                indy = new Indy(siteConfig, authenticator, new IndyObjectMapper(true), modules);
 
                 indyMap.put(accessToken, indy);
             } catch (IndyClientException e) {
@@ -207,8 +206,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // manually initialize the tracking record, just in case (somehow) nothing gets downloaded/uploaded.
             indy.module(IndyFoloAdminClientModule.class).initReport(buildId);
 
-            url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
-            deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.hosted, buildId);
+            StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildId);
+            url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, groupKey);
+
+            StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
+            deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, hostedKey);
+
             logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
@@ -235,10 +238,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
         int id = execution.getId();
 
         // if the build-level group doesn't exist, create it.
-        if (!indy.stores().exists(StoreType.group, buildContentId)) {
+        StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
+        if (!indy.stores().exists(groupKey)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            if (!indy.stores().exists(StoreType.hosted, buildContentId)) {
-                HostedRepository buildArtifacts = new HostedRepository(buildContentId);
+            StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+            if (!indy.stores().exists(hostedKey)) {
+                HostedRepository buildArtifacts = new HostedRepository(MAVEN_PKG_KEY, buildContentId);
                 buildArtifacts.setAllowSnapshots(BUILD_REPOSITORY_ALLOW_SNAPSHOTS);
                 buildArtifacts.setAllowReleases(true);
 
@@ -248,11 +253,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
                         "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")", HostedRepository.class);
             }
 
-            Group buildGroup = new Group(buildContentId);
+            Group buildGroup = new Group(MAVEN_PKG_KEY, buildContentId);
             buildGroup.setDescription(String.format("Aggregation group for PNC build #%s", id));
 
             // build-local artifacts
-            buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildContentId));
+            buildGroup.addConstituent(hostedKey);
 
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup);
@@ -272,13 +277,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     private void addGlobalConstituents(Group group) {
         // 1. global shared-releases artifacts
-        group.addConstituent(new StoreKey(StoreType.group, UNTESTED_BUILDS_GROUP));
+        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, UNTESTED_BUILDS_GROUP));
 
         // 2. global shared-imports artifacts
-        group.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
+        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID));
 
         // 3. public group, containing remote proxies to the outside world
-        group.addConstituent(new StoreKey(StoreType.group, PUBLIC_GROUP_ID));
+        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID));
     }
 
     /**

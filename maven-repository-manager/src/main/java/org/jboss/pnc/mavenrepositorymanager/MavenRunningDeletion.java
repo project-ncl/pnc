@@ -19,11 +19,14 @@ package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 
 import java.util.function.Consumer;
+
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 public class MavenRunningDeletion implements RunningRepositoryDeletion {
 
@@ -39,15 +42,16 @@ public class MavenRunningDeletion implements RunningRepositoryDeletion {
 
     /**
      * Trigger the repository deletion configured for this instance, and send the result to the appropriate consumer.
-     * 
+     *
      * @param onComplete The consumer which will handle non-error results
      * @param onError Handles errors
      */
     @Override
     public void monitor(Consumer<CompletedRepositoryDeletion> onComplete, Consumer<Exception> onError) {
         try {
-            if (indy.stores().exists(fromType, fromId)) {
-                indy.stores().delete(fromType, fromId, "Deleting artifacts for PNC build");
+            StoreKey fromKey = new StoreKey(MAVEN_PKG_KEY, fromType, fromId);
+            if (indy.stores().exists(fromKey)) {
+                indy.stores().delete(fromKey, "Deleting artifacts for PNC build");
             }
 
             onComplete.accept(new MavenCompletedDeletion(true));

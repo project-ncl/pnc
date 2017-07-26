@@ -18,6 +18,7 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
@@ -27,7 +28,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -35,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -54,8 +55,9 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build deploying a file.
+        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
-                .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
+                .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
@@ -81,7 +83,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         });
 
         // end result: the build hosted repo should no longer exist.
-        assertThat(driver.getIndy(accessToken).stores().exists(StoreType.hosted, buildId), equalTo(false));
+        assertThat(driver.getIndy(accessToken).stores().exists(hostedKey), equalTo(false));
     }
 
 }
