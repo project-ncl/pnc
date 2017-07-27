@@ -18,19 +18,18 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.pnc-client.pagination');
-
   /**
    * @ngdoc service
    * @type Function
    * @name pnc.common.pnc-client.pagination:pfFilterAdaptor
    * @description
-   * Adaptor for connecting to a filteringPaginator to the PatternFly
+   * Adaptor for connecting a filteringPaginator to an angular-patternfly
    * pf-filter directive.
    * @author Alex Creasy
    */
-  module.factory('pfFilterAdaptor', [
-    function () {
+  angular.module('pnc.common.pnc-client.pagination').factory('pfFilterAdaptor', [
+    'PF_FILTER_TYPES',
+    function (PF_FILTER_TYPES) {
       return function pfFilterAdaptor(paginator) {
         var that = {};
 
@@ -39,7 +38,8 @@
           filters.forEach(function (filter) {
             paginator.addFilter({
               field: filter.id,
-              value: filter.value
+              value: filter.value,
+              comparator: PF_FILTER_TYPES[filter.type]
             });
           });
           paginator.apply();
