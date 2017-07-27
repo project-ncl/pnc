@@ -33,6 +33,7 @@
     <table class="table table-bordered table-striped table-hover table-responsive" ng-show="artifactsCtrl.artifacts.data.length > 0">
       <thead>
         <th>Identifier</th>
+        <th>Quality</th>
         <th>File Name</th>
         <th>Repository Type</th>
         <th>Checksums</th>
@@ -41,6 +42,7 @@
       <tbody>
         <tr ng-repeat="artifact in artifactsCtrl.artifacts.data">
           <td>{{ artifact.identifier }}</td>
+          <td>{{ artifact.artifactQuality }}</td>
           <td>{{ artifact.filename }}</td>
           <td>{{ artifact.repoType }}</td>
           <td>
