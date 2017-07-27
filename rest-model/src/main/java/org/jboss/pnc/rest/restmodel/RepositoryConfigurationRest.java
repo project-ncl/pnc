@@ -51,7 +51,7 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
 
     @Getter
     @Setter
-    @NotBlank(groups = {WhenUpdating.class})
+    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
     @ScmUrl(groups = {WhenUpdating.class, WhenCreatingNew.class} )
     private String internalUrl;
 
