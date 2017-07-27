@@ -34,7 +34,6 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -117,8 +116,6 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
     }
 
     @Test
-    @Ignore //internal scm is not mandatory on REST level as it can be calculated from external one,
-    // the validation has been removed from the REST Object to make the object reusable on BpmEndpoint.startRCreationTask
     public void shouldFailToCreateNewWithoutInternalUrl() throws IOException {
         processCreateRequest("repositoryConfiguration_create_template_external_url", 400, null, VALID_EXTERNAL_REPO);
     }
