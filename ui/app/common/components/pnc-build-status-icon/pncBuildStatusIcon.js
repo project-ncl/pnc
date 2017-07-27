@@ -44,9 +44,12 @@
     // --------------------
 
     function isCorrupted(buildRecord) {
-      return buildRecord.attributes &&
-             buildRecord.attributes.POST_BUILD_REPO_VALIDATION &&
-             buildRecord.attributes.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR';
+      var attrs = buildRecord.attributes;
+
+      return attrs && (
+        attrs.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR' ||
+        attrs.PNC_SYSTEM_ERROR           === 'DISABLED_FIREWALL'
+      );
     }
 
     $ctrl.$onChanges = function (changes) {
