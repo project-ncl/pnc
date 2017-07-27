@@ -54,6 +54,19 @@
             ]
           },
           {
+            id: 'artifactQuality',
+            title: 'Quality',
+            placeholder: ' Filter by artifact quality',
+            filterType: 'select',
+            filterValues: [
+              'NEW',
+              'VERIFIED',
+              'TESTED',
+              'DEPRECATED',
+              'BLACKLISTED'
+            ]
+          },
+          {
             id: 'md5',
             title:  'md5',
             placeholder: 'Filter by md5 checksum',
