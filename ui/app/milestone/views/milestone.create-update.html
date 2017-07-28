@@ -73,7 +73,7 @@
 
             <div class="form-group" ng-class="{ 'has-error' : (milestoneForm.plannedEndDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.startingDate, milestoneCreateUpdateCtrl.plannedEndDate)) && !milestoneForm.plannedEndDate.$pristine }">
               <label for="input-end-date" class="col-sm-2 control-label">
-                * Planned End Date&nbsp;<a uib-popover="Planned endDate date, e.g. '2035/01/15', time is set to noon UTC."
+                * Planned End Date&nbsp;<a uib-popover="Planned handoff date, e.g. '2035/01/15', time is set to noon UTC."
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
@@ -92,7 +92,7 @@
 
             <div class="form-group" ng-class="{ 'has-error' : milestoneForm.issuetrackerurl.$invalid && !milestoneForm.issuetrackerurl.$pristine }">
               <label for="input-issuetrackerurl" class="col-sm-2 control-label">
-                * Issue Tracker URL&nbsp;<a uib-popover="Issue tracker URL of the milestone release notes"
+                * Issue Tracker URL&nbsp;<a uib-popover="Link to issues fixed in this milestone release"
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
