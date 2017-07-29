@@ -29,7 +29,7 @@
 
   /**
    * Returns truthy value when Keycloak is enabled, otherwise falsy.
-   * 
+   *
    * @param config - An object containing configuration parameters for the UI.
    */
   function isKeycloakEnabled(config) {
@@ -62,10 +62,10 @@
       keycloak = isKeycloakEnabled(config) ? new Keycloak(config.keycloak) : {
         // Keycloak mock
         authenticated: false,
-        login: function() { 
+        login: function() {
           console.warn('Authentication is disabled, keycloak.login() ignored');
         },
-        logout: function() { 
+        logout: function() {
           console.warn('Authentication is disabled, keycloak.logout() ignored');
         }
       };
@@ -96,18 +96,24 @@
   }
 
   /**
-   * A best practice is to load the JavaScript adapter directly from Keycloak Server 
-   * as it will automatically be updated when you upgrade the server. 
-   * 
+   * A best practice is to load the JavaScript adapter directly from Keycloak Server
+   * as it will automatically be updated when you upgrade the server.
+   *
    * @param onload - Callback function being fired when keycloak is loaded or not available.
    * @param config - An object containing configuration parameters for the UI.
    */
   function loadServerKeycloak(onload, config) {
     if (isKeycloakEnabled(config)) {
+      var handleKeycloakLoadFailure = function() {
+        console.warn('Unable to load keycloak.js, authentication will be disabled');
+        config.keycloak = false
+        onload(config)
+      }
       var SERVER_KEYCLOAK_PATH = '/js/keycloak.js',
           script = document.createElement('script');
 
       script.onload = function() { onload(config); };
+      script.addEventListener('error', handleKeycloakLoadFailure)
       script.src = config.keycloak.url + SERVER_KEYCLOAK_PATH;
       document.head.appendChild(script);
     } else {
