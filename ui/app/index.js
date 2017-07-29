@@ -106,14 +106,14 @@
     if (isKeycloakEnabled(config)) {
       var handleKeycloakLoadFailure = function() {
         console.warn('Unable to load keycloak.js, authentication will be disabled');
-        config.keycloak = false
-        onload(config)
-      }
+        config.keycloak = false;
+        onload(config);
+      };
       var SERVER_KEYCLOAK_PATH = '/js/keycloak.js',
           script = document.createElement('script');
 
       script.onload = function() { onload(config); };
-      script.addEventListener('error', handleKeycloakLoadFailure)
+      script.addEventListener('error', handleKeycloakLoadFailure);
       script.src = config.keycloak.url + SERVER_KEYCLOAK_PATH;
       document.head.appendChild(script);
     } else {
