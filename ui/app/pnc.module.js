@@ -113,7 +113,19 @@
     'authService',
     'messageBus',
     'restConfig',
-    function($log, authService, messageBus, restConfig) {
+    'pncNotify',
+    'onBootNotifications',
+    function($log, authService, messageBus, restConfig, pncNotify, onBootNotifications) {
+
+      Object.keys(onBootNotifications).forEach(function (key) {
+        onBootNotifications[key].forEach(function (notification) {
+          if(angular.isString(notification)) {
+            pncNotify[key](notification);
+          } else if (angular.isObject(notification)) {
+            pncNotify[key](notification.message, notification.actionTitle, notification.actionCallback, notification.menuActions);
+          }
+        });
+      });
 
       messageBus.registerListener(['$log', function ($log) {
         return function (message) {
