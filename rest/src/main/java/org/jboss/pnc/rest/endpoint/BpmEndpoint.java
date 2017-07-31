@@ -58,6 +58,7 @@ import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.validators.ScmUrlValidator;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -246,9 +247,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
         RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
-                repositoryCreationRest.getRepositoryConfigurationRest(),
-                repositoryCreationRest.isPeriodicalSyncEnabled()
-        );
+                repositoryCreationRest.getRepositoryConfigurationRest());
 
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
 
@@ -365,7 +364,6 @@ public class BpmEndpoint extends AbstractEndpoint {
         RepositoryCreationRest repositoryCreationRest = RepositoryCreationRest.builder()
                 .buildConfigurationRest(repositoryCreationUrlAutoRest.getBuildConfigurationRest())
                 .repositoryConfigurationRest(repositoryConfigurationBuilder.build())
-                .periodicalSyncEnabled(repositoryCreationUrlAutoRest.isPeriodicalSyncEnabled())
                 .build();
 
         return startRCreationTask(repositoryCreationRest, httpServletRequest);
@@ -382,17 +380,33 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
+    /**
+     * Manually validate RepositoryConfiguration as annotations with more constraints are required for the direct usage (CRUD) of the RepositoryConfiguration
+     */
     private void validate(RepositoryCreationRest repositoryCreationRest)
             throws EmptyEntityException, InvalidEntityException {
 
+        if (repositoryCreationRest == null) {
+            throw new InvalidEntityException("Missing required entity.");
+        }
+
         RepositoryConfigurationRest repositoryConfiguration = repositoryCreationRest.getRepositoryConfigurationRest();
 
-        ValidationBuilder.validateObject(repositoryConfiguration, WhenCreatingNew.class)
-                .validateNotEmptyArgument()
-                .validateAnnotations();
+        if (repositoryConfiguration == null) {
+            throw new InvalidEntityException("Missing required field.");
+        }
 
-        if (repositoryConfiguration.getInternalUrl() != null) {
-            repositoryConfigurationProvider.validateInternalRepository(repositoryConfiguration.getInternalUrl());
+        String internalUrl = repositoryConfiguration.getInternalUrl();
+        if (!ScmUrlValidator.isValid(internalUrl)) {
+            throw new InvalidEntityException("Invalid internalURL.");
+        }
+
+        if (internalUrl != null) {
+            repositoryConfigurationProvider.validateInternalRepository(internalUrl);
+        }
+
+        if (!ScmUrlValidator.isValid(repositoryConfiguration.getExternalUrl())) {
+            throw new InvalidEntityException("Invalid externalURL.");
         }
     }
 

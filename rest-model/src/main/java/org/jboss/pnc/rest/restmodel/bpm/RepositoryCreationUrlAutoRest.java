@@ -54,10 +54,6 @@ public class RepositoryCreationUrlAutoRest implements Serializable {
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private boolean periodicalSyncEnabled;
-
-    @Getter
-    @Setter(onMethod=@__({@Deprecated}))
     private BuildConfigurationRest buildConfigurationRest;
 
     @JsonPOJOBuilder(withPrefix = "")
