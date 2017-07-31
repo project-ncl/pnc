@@ -42,9 +42,12 @@
     // --------------------
 
     function isCorrupted() {
-      return $ctrl.buildRecord.attributes &&
-             $ctrl.buildRecord.attributes.POST_BUILD_REPO_VALIDATION &&
-             $ctrl.buildRecord.attributes.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR';
+      var attrs = $ctrl.buildRecord.attributes;
+
+      return attrs && (
+        attrs.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR' ||
+        attrs.PNC_SYSTEM_ERROR           === 'DISABLED_FIREWALL'
+      );
     }
   }
 
