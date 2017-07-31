@@ -21,6 +21,25 @@
 (function(pnc) {
   'use strict';
 
+  // Toast notifications to be delivered to the user after UI bootstraps.
+  // Push either a string or an object with the following properties, to the desired array:
+  //
+  // message [String]:
+  //    The message to be displayed to the user
+  // actionTitle [String (optional)]:
+  //    The link text of the notification's action link if required.
+  // actionCallback [Func (Required if actionTitle is specified)]:
+  //    A callback function that will be executed when the action link is clicked
+  // menuActions [Array] (optional):
+  //    An array of objects with properties actionTitle and actionCallback as above
+  //    These will be displayed on a kebab menu if present.
+  var onBootNotifications = {
+    error: [],
+    warn: [],
+    info: [],
+    success: []
+  };
+
   var DEFAULT_CONFIG = {
     isDefaultConfiguration: true,
     pncUrl: '/pnc-rest/rest',
@@ -79,8 +98,11 @@
         }
       ]);
 
-      // Makes the configuration injectible in services.
-      angular.module('pnc.properties', []).constant('pncProperties', config);
+      // Makes the configuration injectible in services and allows UI to
+      //properly display notifications from bootstrap to the user.
+      angular.module('pnc.properties', [])
+             .constant('pncProperties', config)
+             .constant('onBootNotifications', onBootNotifications);
 
       // Bootstrap application
       if (isKeycloakEnabled(config)) {
@@ -106,14 +128,21 @@
     if (isKeycloakEnabled(config)) {
       var handleKeycloakLoadFailure = function() {
         console.warn('Unable to load keycloak.js, authentication will be disabled');
-        config.keycloak = false
-        onload(config)
-      }
+        onBootNotifications.warn.push({
+          message: 'Unable to load keycloak.js, authentication disabled. See the user guide for more information',
+          actionTitle: 'User Guide',
+          actionCallback: function () {
+            window.open(config.userGuideUrl, '_blank');
+          }
+        });
+        config.keycloak = false;
+        onload(config);
+      };
       var SERVER_KEYCLOAK_PATH = '/js/keycloak.js',
           script = document.createElement('script');
 
       script.onload = function() { onload(config); };
-      script.addEventListener('error', handleKeycloakLoadFailure)
+      script.addEventListener('error', handleKeycloakLoadFailure);
       script.src = config.keycloak.url + SERVER_KEYCLOAK_PATH;
       document.head.appendChild(script);
     } else {
