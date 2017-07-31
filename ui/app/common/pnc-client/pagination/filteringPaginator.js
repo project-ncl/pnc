@@ -67,7 +67,7 @@
               if (!q.where) {
                 q = q.and();
               }
-              q = q.where(filter.field).like(filter.value);
+              q = q.where(filter.field)[filter.comparator](filter.value);
             });
 
           }
@@ -115,12 +115,16 @@
          *
          * e.g.
          * fp.addFilter({ field: 'buildConfiguration.name', value: 'jboss*'}).apply();
+         * fp.addFilter({ field: 'buildConfiguration.status', value: 'DONE', comparator: 'eq' }).apply();
          *
          * @param {object|array} filter - One or more filter objects, or an array
          * of filter objects.
          * @param {string} filter.field - the field to filter
          * @param {string} filter.value - the value of the query to filter by, supports
          * wildcards using the '*' character.
+         * @param {string} filter.comparator - the RSQL comparator to use, should be
+         * string name of a method from common/pnc-client/rsql/comparator.js. Default value
+         * is 'like'.
          * @returns this - to support method chaining.
          */
         that.addFilter = function (filter) {
@@ -138,7 +142,9 @@
             if (!f.field || !f.value) {
               throw new Error('Invalid filter, must contain properties `field` and `value`: ' + JSON.stringify(f));
             }
-            f.value = f.value.replace(/\*/g, '%');
+            if (!f.comparator) {
+              f.comparator = 'like';
+            }
             activeFilters.push(f);
           });
           return this;
