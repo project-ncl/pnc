@@ -386,9 +386,13 @@ public class BpmEndpoint extends AbstractEndpoint {
     private void validate(RepositoryCreationRest repositoryCreationRest)
             throws EmptyEntityException, InvalidEntityException {
 
+        if (repositoryCreationRest == null) {
+            throw new InvalidEntityException("Missing required entity.");
+        }
+
         RepositoryConfigurationRest repositoryConfiguration = repositoryCreationRest.getRepositoryConfigurationRest();
 
-        if (repositoryCreationRest == null) {
+        if (repositoryConfiguration == null) {
             throw new InvalidEntityException("Missing required field.");
         }
 
