@@ -247,9 +247,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
         RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
-                repositoryCreationRest.getRepositoryConfigurationRest(),
-                repositoryCreationRest.isPeriodicalSyncEnabled()
-        );
+                repositoryCreationRest.getRepositoryConfigurationRest());
 
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
 
@@ -366,7 +364,6 @@ public class BpmEndpoint extends AbstractEndpoint {
         RepositoryCreationRest repositoryCreationRest = RepositoryCreationRest.builder()
                 .buildConfigurationRest(repositoryCreationUrlAutoRest.getBuildConfigurationRest())
                 .repositoryConfigurationRest(repositoryConfigurationBuilder.build())
-                .periodicalSyncEnabled(repositoryCreationUrlAutoRest.isPeriodicalSyncEnabled())
                 .build();
 
         return startRCreationTask(repositoryCreationRest, httpServletRequest);

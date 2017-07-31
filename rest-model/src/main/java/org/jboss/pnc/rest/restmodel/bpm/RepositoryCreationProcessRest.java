@@ -44,10 +44,6 @@ public class RepositoryCreationProcessRest implements Serializable {
     @Setter(onMethod=@__({@Deprecated}))
     private RepositoryConfigurationRest repositoryConfigurationRest;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated}))
-    private Boolean periodicalSyncEnabled;
-
     @JsonPOJOBuilder(withPrefix = "")
     public static final class RepositoryCreationProcessRestBuilder {
     }

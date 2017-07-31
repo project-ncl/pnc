@@ -117,7 +117,7 @@ public class RepositoryCreationRestTest {
                 .internalUrl(internalScmUrl)
                 .build();
 
-        RepositoryCreationRest repositoryCreationRest = new RepositoryCreationRest(repositoryConfiguration, null,false);
+        RepositoryCreationRest repositoryCreationRest = new RepositoryCreationRest(repositoryConfiguration, null);
 
         //when invoking remote endpoint
         //        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
