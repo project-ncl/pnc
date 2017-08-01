@@ -24,7 +24,7 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    <div class="log-console well well-sm" ng-if="::recordCtrl.record.status==='BUILDING'">
+    <div ng-if="::recordCtrl.record.status==='BUILDING'">
       <pnc-live-log build-record="recordCtrl.record"></pnc-live-log>
     </div>
   </div>
