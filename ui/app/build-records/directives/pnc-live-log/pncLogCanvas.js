@@ -30,24 +30,20 @@
        */
       getLogWriterFn: '&'
     },
-    template: '<div></div>',
+    template: '<div class="pnc-log-canvas-parent log-console well well-sm"><div class="pnc-log-canvas-content"></div></div>',
     controller: ['$element', Controller]
   });
 
   function Controller($element) {
     var $ctrl = this,
-        div,
+        content,
         parent,
-        autoscroll,
-        startPosition;
+        autoscroll;
 
     function write(text) {
-      div.append(text);
+      content.append(text);
       if (autoscroll) {
         parent.scrollTop = parent.scrollHeight;
-        // Reset the start position so we can detect which direction the user
-        // has scrolled in next time.
-        startPosition = parent.scrollTop;
       }
     }
 
@@ -57,32 +53,26 @@
 
     $ctrl.$postLink = function () {
       // Find the child div specified in `template`
-      div = $element.find('div');
-      parent = $element[0];
+      content = $element.find('.pnc-log-canvas-content');
+      parent = $element.find('.pnc-log-canvas-parent')[0];
 
       autoscroll = true;
-      startPosition = parent.scrollTop;
 
       // Catch scroll events so we can enable / disable scrolling based
       // on whether the user is scrolled to the bottom.
       parent.onscroll = function () {
-        var endPosition = parent.scrollTop;
-        var height = $element.innerHeight();
-        var bottom = parent.scrollHeight;
+        // user does not have to reach the bottom exactly, if he is close enough,
+        // autoscroll will be also activated
+        var PADDING = 10;
 
-        if (endPosition >= startPosition) {
+        if (parent.scrollTop + parent.offsetHeight + PADDING >= parent.scrollHeight) {
           // User is scrolling downwards, if they scroll to the bottom
           // enable autoscroll.
-          if (endPosition + height >= bottom) {
-            autoscroll = true;
-          }
+          autoscroll = true;
         } else {
           // User is scrolling up so disable autoscroll
           autoscroll = false;
         }
-        // Reset the start position so we can detect which direction the user
-        // has scrolled in next time.
-        startPosition = parent.scrollTop;
       };
     };
 
