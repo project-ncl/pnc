@@ -64,7 +64,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -320,13 +322,16 @@ public class DatabaseDataInitializer {
         repositoryConfigurationRepository.save(repositoryConfiguration5);
 
         // Example build configurations
+        Map<String, String> genericParameters = new HashMap<>();
+        genericParameters.put("KEY", "VALUE");
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
                 .name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
                 .description("Test build config for project newcastle")
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration1)
-                .productVersion(productVersion1).scmRevision("*/v0.2").build();
+                .productVersion(productVersion1).scmRevision("*/v0.2")
+                .genericParameters(genericParameters).build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
         buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0")

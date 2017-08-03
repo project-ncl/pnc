@@ -32,12 +32,14 @@ import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -130,6 +132,19 @@ public class BuildRecordRestTest extends AbstractTest {
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_ID, buildRecordId);
+    }
+
+    @Test
+    public void shouldGetAuditedConfigurationLinkedToBuildRecord() {
+
+        Response response = given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(BUILD_RECORD_SPECIFIC_REST_ENDPOINT, buildRecordId));
+
+        ResponseAssertion.assertThat(response).hasStatus(200);
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.buildConfigurationAudited.genericParameters");
+        BuildConfigurationAuditedRest bca = response.jsonPath().getObject("content.buildConfigurationAudited", BuildConfigurationAuditedRest.class);
+        Assert.assertEquals("VALUE", bca.getGenericParameters().get("KEY"));
     }
 
     @Test
