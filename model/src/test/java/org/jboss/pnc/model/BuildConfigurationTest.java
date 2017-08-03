@@ -17,19 +17,20 @@
  */
 package org.jboss.pnc.model;
 
-import static org.junit.Assert.assertEquals;
-
-import org.apache.maven.model.Build;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.RollbackException;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for BuildConfiguration entity
@@ -175,6 +176,54 @@ public class BuildConfigurationTest extends AbstractModelTest {
         assertEquals(2, obtained2.getGenericParameters().size());
         assertEquals(VALUE1, obtained2.getGenericParameters().get(KEY1));
         assertEquals(VALUE2, obtained2.getGenericParameters().get(KEY2));
+    }
+
+    @Test
+    public void testRetrieveAuditedGenericParameters() {
+        //given
+        String key = "key";
+        String initialValue = "initialValue";
+        String updatedValue = "updatedValue";
+        Map<String, String> initialParameters = new HashMap<>();
+        initialParameters.put(key, initialValue);
+
+        Map<String, String> updatedParameters = new HashMap<>();
+        updatedParameters.put(key, updatedValue);
+
+        //when
+        BuildConfiguration buildConfiguration = createBc("auditing test", "description", initialParameters);
+        em.getTransaction().begin();
+        em.persist(buildConfiguration);
+        em.getTransaction().commit();
+
+        buildConfiguration.setGenericParameters(updatedParameters);
+        buildConfiguration.setDescription("updated description");
+        em.getTransaction().begin();
+        em.persist(buildConfiguration);
+        em.getTransaction().commit();
+
+        //then
+        BuildConfiguration obtained = em.find(BuildConfiguration.class, buildConfiguration.getId());
+
+        AuditReader reader = AuditReaderFactory.get(em);
+        List<Number> revisions = reader.getRevisions(BuildConfiguration.class, obtained.getId());
+
+        assertEquals(2, revisions.size());
+
+        Number firstRevision = revisions.get(0);
+        BuildConfiguration oldBuildConfiguration = reader.find(BuildConfiguration.class, obtained.getId(), firstRevision);
+        Number secondRevision = revisions.get(1);
+        BuildConfiguration newBuildConfiguration = reader.find(BuildConfiguration.class, obtained.getId(), secondRevision);
+
+        Assert.assertEquals(oldBuildConfiguration.getGenericParameters().get(key), initialValue);
+        Assert.assertEquals(newBuildConfiguration.getGenericParameters().get(key), updatedValue);
+
+        BuildConfigurationAudited auditedOld = em.find(BuildConfigurationAudited.class, new IdRev(buildConfiguration.getId(), firstRevision.intValue()));
+        Assert.assertEquals(auditedOld.getGenericParameters().get(key), initialValue);
+
+        BuildConfigurationAudited auditedNew = em.find(BuildConfigurationAudited.class, new IdRev(buildConfiguration.getId(), secondRevision.intValue()));
+        Assert.assertEquals(auditedNew.getGenericParameters().get(key), updatedValue);
+
     }
 
     private BuildConfiguration createBc(String name, String description,
