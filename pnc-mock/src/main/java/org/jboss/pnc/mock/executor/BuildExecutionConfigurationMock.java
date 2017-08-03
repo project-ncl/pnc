@@ -20,8 +20,10 @@ package org.jboss.pnc.mock.executor;
 
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +43,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
-    
+    private List<ArtifactRepository> artifactRepositories;
     private Map<String, String> genericParameters;
 
     public static BuildExecutionConfiguration mockConfig() {
@@ -54,10 +56,12 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setSystemImageId("abcd1234");
         mock.setSystemImageRepositoryUrl("image.repo.url/repo");
         mock.setSystemImageType(SystemImageType.DOCKER_IMAGE);
+        mock.setArtifactRepositories(null);
         mock.setGenericParameters(new HashMap<>());
-        
+
         return mock;
     }
+    @Override
     public int getId() {
         return id;
     }
@@ -66,6 +70,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.id = id;
     }
 
+    @Override
     public String getBuildContentId() {
         return buildContentId;
     }
@@ -74,6 +79,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.buildContentId = buildContentId;
     }
 
+    @Override
     public Integer getUserId() {
         return userId;
     }
@@ -82,6 +88,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.userId = userId;
     }
 
+    @Override
     public String getBuildScript() {
         return buildScript;
     }
@@ -90,6 +97,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.buildScript = buildScript;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -98,6 +106,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.name = name;
     }
 
+    @Override
     public String getScmRepoURL() {
         return scmRepoURL;
     }
@@ -106,10 +115,12 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.scmRepoURL = scmRepoURL;
     }
 
+    @Override
     public String getScmRevision() {
         return scmRevision;
     }
 
+    @Override
     public String getOriginRepoURL() {
         return originRepoURL;
     }
@@ -122,6 +133,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.scmRevision = scmRevision;
     }
 
+    @Override
     public boolean isPreBuildSyncEnabled() {
         return preBuildSyncEnabled;
     }
@@ -130,18 +142,21 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.preBuildSyncEnabled = preBuildSyncEnabled;
     }
 
+    @Override
     public String getSystemImageId() {
         return systemImageId;
     }
     public void setSystemImageId(String systemImageId) {
         this.systemImageId = systemImageId;
     }
+    @Override
     public String getSystemImageRepositoryUrl() {
         return systemImageRepositoryUrl;
     }
     public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
+    @Override
     public SystemImageType getSystemImageType() {
         return systemImageType;
     }
@@ -156,10 +171,19 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     }
 
     @Override
+    public List<ArtifactRepository> getArtifactRepositories() {
+        return artifactRepositories;
+    }
+
+    public void setArtifactRepositories(List<ArtifactRepository> artifactRepositories) {
+        this.artifactRepositories = artifactRepositories;
+    }
+
+    @Override
     public Map<String, String> getGenericParameters() {
         return genericParameters;
     }
-    
+
     public void setGenericParameters(Map<String, String> genericParameters) {
         this.genericParameters = genericParameters;
     }

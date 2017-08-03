@@ -20,7 +20,9 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +43,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String systemImageRepositoryUrl;
     private final SystemImageType systemImageType;
     private final boolean podKeptAfterFailure;
+    private final List<ArtifactRepository> repositories;
     private final Map<String, String> genericParameters;
 
     public DefaultBuildExecutionConfiguration(
@@ -57,6 +60,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
             boolean podKeptAfterFailure,
+            List<ArtifactRepository> repositories,
             Map<String, String> genericParameters) {
 
         this.id = id;
@@ -72,6 +76,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
         this.systemImageType = systemImageType;
         this.podKeptAfterFailure = podKeptAfterFailure;
+        this.repositories = repositories;
         this.genericParameters = genericParameters;
     }
 
@@ -140,7 +145,12 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         return podKeptAfterFailure;
     }
 
-    
+    @Override
+    public List<ArtifactRepository> getArtifactRepositories() {
+        return repositories;
+    }
+
+    @Override
     public Map<String, String> getGenericParameters() {
         return genericParameters;
     }

@@ -17,13 +17,19 @@
  */
 package org.jboss.pnc.mavenrepositorymanager.fixture;
 
+import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
+
+import java.util.List;
 
 public class TestBuildExecution implements BuildExecution {
 
     private int id = 1;
 
     private String buildContentId;
+
+    private List<ArtifactRepository> artifactRepositories;
+
 
     public TestBuildExecution(String buildId) {
         this.buildContentId = buildId;
@@ -33,6 +39,8 @@ public class TestBuildExecution implements BuildExecution {
         this("build+myproject+12345");
     }
 
+
+    @Override
     public int getId() {
         return id;
     }
@@ -41,4 +49,14 @@ public class TestBuildExecution implements BuildExecution {
     public String getBuildContentId() {
         return buildContentId;
     }
+
+    @Override
+    public List<ArtifactRepository> getArtifactRepositories() {
+        return artifactRepositories;
+    }
+
+    public void setArtifactRepositories(List<ArtifactRepository> artifactRepositories) {
+        this.artifactRepositories = artifactRepositories;
+    }
+
 }

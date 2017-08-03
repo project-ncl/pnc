@@ -17,10 +17,14 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
+import java.util.List;
+
 public interface BuildExecution {
 
     int getId();
 
     String getBuildContentId();
+
+    List<ArtifactRepository> getArtifactRepositories();
 
 }

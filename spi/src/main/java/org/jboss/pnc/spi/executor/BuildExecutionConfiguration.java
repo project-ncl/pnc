@@ -19,8 +19,11 @@
 package org.jboss.pnc.spi.executor;
 
 import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +31,7 @@ import java.util.Map;
  */
 public interface BuildExecutionConfiguration extends BuildExecution {
 
+    @Override
     int getId();
 
     Integer getUserId();
@@ -51,7 +55,10 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     SystemImageType getSystemImageType();
 
     boolean isPodKeptOnFailure();
-    
+
+    @Override
+    List<ArtifactRepository> getArtifactRepositories();
+
     Map<String, String> getGenericParameters();
 
     static BuildExecutionConfiguration build(
@@ -69,6 +76,37 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             SystemImageType systemImageType,
             boolean podKeptAfterFailure,
             Map<String, String> genericParameters) {
+        return build(id, buildContentId, userId, buildScript, name, scmRepoURL, scmRevision, originRepoURL, preBuildSyncEnabled,
+                systemImageId, systemImageRepositoryUrl, systemImageType, podKeptAfterFailure, null, genericParameters);
+    }
+
+    static BuildExecutionConfiguration build(
+            int id,
+            String buildContentId,
+            Integer userId,
+            String buildScript,
+            String name,
+            String scmRepoURL,
+            String scmRevision,
+            String originRepoURL,
+            boolean preBuildSyncEnabled,
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType systemImageType,
+            boolean podKeptAfterFailure,
+            List<ArtifactRepository> artifactRepositories,
+            Map<String, String> genericParameters) {
+
+        List<ArtifactRepository> builtRepositories;
+        if (artifactRepositories == null) {
+            builtRepositories = null;
+        } else {
+            builtRepositories = new ArrayList<>(artifactRepositories.size());
+            for (ArtifactRepository artifactRepository : artifactRepositories) {
+                builtRepositories.add(ArtifactRepository.build(artifactRepository.getId(), artifactRepository.getName(),
+                        artifactRepository.getUrl(), artifactRepository.getReleases(), artifactRepository.getSnapshots()));
+            }
+        }
 
         return new BuildExecutionConfiguration() {
 
@@ -135,6 +173,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public boolean isPodKeptOnFailure() {
                 return podKeptAfterFailure;
+            }
+
+            @Override
+            public List<ArtifactRepository> getArtifactRepositories() {
+                return builtRepositories;
             }
 
             @Override

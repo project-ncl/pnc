@@ -24,10 +24,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +54,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
     private boolean podKeptOnFailure = false;
+    private List<ArtifactRepository> artifactRepositories;
     private Map<String, String> genericParameters;
 
     public BuildExecutionConfigurationRest() {}
@@ -82,6 +86,13 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         user = new UserRest(buildExecutionConfiguration.getUserId());
         podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
         genericParameters = buildExecutionConfiguration.getGenericParameters();
+
+        if (buildExecutionConfiguration.getArtifactRepositories() != null) {
+            artifactRepositories = new ArrayList<>(buildExecutionConfiguration.getArtifactRepositories().size());
+            for (ArtifactRepository artifactRepository : buildExecutionConfiguration.getArtifactRepositories()) {
+                artifactRepositories.add(new ArtifactRepositoryRest(artifactRepository));
+            }
+        }
     }
 
     public BuildExecutionConfiguration toBuildExecutionConfiguration() {
@@ -99,6 +110,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 systemImageRepositoryUrl,
                 systemImageType,
                 podKeptOnFailure,
+                artifactRepositories,
                 genericParameters
         );
     }
@@ -150,6 +162,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.preBuildSyncEnabled = preBuildSyncEnabled;
     }
 
+    @Override
     public int getId() {
         return id;
     }
@@ -160,30 +173,37 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return user.getId();
     }
 
+    @Override
     public String getBuildContentId() {
         return buildContentId;
     }
 
+    @Override
     public String getBuildScript() {
         return buildScript;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getScmRepoURL() {
         return scmRepoURL;
     }
 
+    @Override
     public String getScmRevision() {
         return scmRevision;
     }
 
+    @Override
     public String getOriginRepoURL() {
         return originRepoURL;
     }
 
+    @Override
     public boolean isPreBuildSyncEnabled() {
         return preBuildSyncEnabled;
     }
@@ -211,6 +231,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     public void setBuildType(String buildType) {
     }
 
+    @Override
     public String getSystemImageId() {
         return systemImageId;
     }
@@ -219,6 +240,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.systemImageId = systemImageId;
     }
 
+    @Override
     public String getSystemImageRepositoryUrl() {
         return systemImageRepositoryUrl;
     }
@@ -227,6 +249,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
 
+    @Override
     public SystemImageType getSystemImageType() {
         return systemImageType;
     }
@@ -242,6 +265,15 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     public void setSystemImageType(SystemImageType systemImageType) {
         this.systemImageType = systemImageType;
+    }
+
+    @Override
+    public List<ArtifactRepository> getArtifactRepositories() {
+        return artifactRepositories;
+    }
+
+    public void setArtifactRepositories(List<ArtifactRepository> artifactRepositories) {
+        this.artifactRepositories = artifactRepositories;
     }
 
     public void setGenericParameters(Map<String, String> genericParameters) {
