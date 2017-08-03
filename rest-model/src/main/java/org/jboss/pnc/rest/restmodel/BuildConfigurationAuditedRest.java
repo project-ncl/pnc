@@ -30,6 +30,7 @@ import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
+import java.util.Map;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
@@ -70,6 +71,10 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private BuildEnvironmentRest environment;
 
+    @Getter
+    @Setter
+    private Map<String, String> genericParameters ;
+
     public BuildConfigurationAuditedRest() {
     }
 
@@ -81,6 +86,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.description = buildConfigurationAudited.getDescription();
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
+        genericParameters = buildConfigurationAudited.getGenericParameters();
 
         performIfNotNull(buildConfigurationAudited.getRepositoryConfiguration(),
                 () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfigurationAudited.getRepositoryConfiguration()));
@@ -209,7 +215,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
                 .buildScript(buildScript)
                 .scmRevision(scmRevision)
                 .creationTime(creationTime)
-                .lastModificationTime(lastModificationTime);
+                .lastModificationTime(lastModificationTime)
+                .genericParameters(genericParameters);
 
         performIfNotNull(this.getRepositoryConfiguration(), () -> this.getRepositoryConfiguration().toDBEntityBuilder().build());
         performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
