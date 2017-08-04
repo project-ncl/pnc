@@ -28,6 +28,8 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import java.util.function.Consumer;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+
 public class MavenRunningPromotion implements RunningRepositoryPromotion {
 
     private StoreType fromType;
@@ -44,23 +46,25 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
 
     /**
      * Trigger the repository promotion configured for this instance, and send the result to the appropriate consumer.
-     * 
+     *
      * @param onComplete The consumer which will handle non-error results
      * @param onError Handles errors
      */
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {
-            if (!indy.stores().exists(fromType, fromId)) {
+            StoreKey fromKey = new StoreKey(MAVEN_PKG_KEY, fromType, fromId);
+            if (!indy.stores().exists(fromKey)) {
                 throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
             }
 
-            Group recordSetGroup = indy.stores().load(StoreType.group, toId, Group.class);
+            StoreKey toKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, toId);
+            Group recordSetGroup = indy.stores().load(toKey, Group.class);
             if (recordSetGroup == null) {
                 throw new RepositoryManagerException("No such group: %s", toId);
             }
 
-            recordSetGroup.addConstituent(new StoreKey(fromType, fromId));
+            recordSetGroup.addConstituent(fromKey);
 
             boolean result = indy.stores().update(recordSetGroup,
                     "Promoting " + fromType.singularEndpointName() + " repository : " + fromId + " to group: " + toId);

@@ -36,6 +36,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -58,8 +59,9 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
         // simulate a build deploying a file.
+        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
-                .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
+                .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
@@ -85,9 +87,10 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         });
 
         // end result: the chain group should contain the build hosted repo.
-        Group publicGroup = driver.getIndy(accessToken).stores().load(StoreType.group, PUBLIC, Group.class);
+        StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC);
+        Group publicGroup = driver.getIndy(accessToken).stores().load(publicKey, Group.class);
         System.out.println("public group constituents: " + publicGroup.getConstituents());
-        assertThat(publicGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
+        assertThat(publicGroup.getConstituents().contains(hostedKey), equalTo(true));
     }
 
 }

@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -60,6 +61,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
@@ -83,8 +86,8 @@ public class MavenRepositorySession implements RepositorySession {
     private boolean isSetBuild;
 
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-    
-	private String buildPromotionGroup;
+
+    private String buildPromotionGroup;
 
     // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
@@ -161,7 +164,8 @@ public class MavenRepositorySession implements RepositorySession {
         Collections.sort(downloads, comp);
 
         try {
-            indy.stores().delete(StoreType.group, buildContentId, "[Post-Build] Removing build aggregation group: " + buildContentId);
+            StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
+            indy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
         }
@@ -208,7 +212,7 @@ public class MavenRepositorySession implements RepositorySession {
 
             Map<StoreKey, Set<String>> toPromote = new HashMap<>();
 
-            StoreKey sharedImports = new StoreKey(StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID);
+            StoreKey sharedImports = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID);
 //            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
@@ -436,7 +440,8 @@ public class MavenRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
-        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildContentId), buildPromotionGroup);
+        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+        GroupPromoteRequest request = new GroupPromoteRequest(hostedKey, buildPromotionGroup);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
             if (!result.succeeded()) {

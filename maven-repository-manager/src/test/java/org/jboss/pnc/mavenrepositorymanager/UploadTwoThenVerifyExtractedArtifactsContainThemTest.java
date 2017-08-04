@@ -24,6 +24,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.util.UrlUtils;
+import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
@@ -41,12 +42,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class UploadTwoThenVerifyExtractedArtifactsContainThemTest 
+public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
     extends AbstractRepositoryManagerDriverTest
 {
 
@@ -98,7 +100,8 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
         // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {
-            final String url = indy.content().contentUrl(StoreType.hosted, rc.getBuildRepositoryId(), path);
+            StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, rc.getBuildRepositoryId());
+            final String url = indy.content().contentUrl(hostedKey, path);
             boolean downloaded = client.execute(new HttpGet(url), response -> {
                 try {
                     return response.getStatusLine().getStatusCode() == 200;
