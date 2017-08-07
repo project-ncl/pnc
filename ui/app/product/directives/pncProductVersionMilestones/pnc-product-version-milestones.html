@@ -36,7 +36,7 @@
   <th>Actions</th>
   </thead>
   <tbody>
-  <tr ng-repeat="productmilestone in version.productMilestones">
+  <tr ng-repeat="productmilestone in version.productMilestones | orderBy:'version'">
     <td>
       <pnc-label-link item="productmilestone" product-id="product.id" current-id="version.currentProductMilestoneId"></pnc-label-link>
     </td>

@@ -35,7 +35,7 @@
   <th>Actions</th>
   </thead>
   <tbody>
-  <tr ng-repeat="productrelease in version.productReleases">
+  <tr ng-repeat="productrelease in version.productReleases | orderBy:'version'">
     <td>
       <pnc-label-link item="productrelease"></pnc-label-link>
     </td>
