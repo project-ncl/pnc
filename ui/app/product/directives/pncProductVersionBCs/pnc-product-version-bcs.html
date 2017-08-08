@@ -33,7 +33,7 @@
   <th>Action</th>
   </thead>
   <tbody>
-  <tr ng-repeat="configuration in page.data">
+  <tr ng-repeat="configuration in page.data | orderBy:'project.name'">
     <td>{{ configuration.project.name }}</td>
     <td>
       <a ui-sref="build-configs.detail({configurationId: configuration.id})" href>{{ configuration.name }}</a>
