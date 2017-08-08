@@ -34,7 +34,6 @@ public class RepositoryConfigurationPredicates {
 
     public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
         String internalUrlStripped = StringUtils.stripProtocol(internalUrl);
-        internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
 
         String pattern = "%" + internalUrlStripped + "%";
         logger.trace("Searching for pattern: {}.", pattern);
@@ -43,10 +42,9 @@ public class RepositoryConfigurationPredicates {
     }
 
     public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(String externalScmRepoUrl) {
-        String internalUrlStripped = StringUtils.stripProtocol(externalScmRepoUrl);
-        internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
+        String urlStripped = StringUtils.stripProtocol(externalScmRepoUrl);
 
-        String pattern = "%" + internalUrlStripped + "%";
+        String pattern = "%" + urlStripped + "%";
         logger.trace("Searching for pattern: {}.", pattern);
 
         return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern);
@@ -54,7 +52,6 @@ public class RepositoryConfigurationPredicates {
 
     public static Predicate<RepositoryConfiguration> searchByScmUrl(String scmUrl) {
         String urlStripped = StringUtils.stripProtocol(scmUrl);
-        urlStripped = StringUtils.stripSuffix(urlStripped, ".git");
 
         String pattern = "%" + urlStripped + "%";
         logger.trace("Searching for pattern: {}.", pattern);
