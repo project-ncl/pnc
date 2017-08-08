@@ -132,7 +132,7 @@ public class StringUtils {
         if (string == null) {
             return null;
         }
-        if (string == null) {
+        if (suffix == null) {
             return string;
         }
 
@@ -149,7 +149,7 @@ public class StringUtils {
         }
 
         String protocolDivider = "://";
-        int protocolDividerIndex = url.indexOf("://");
+        int protocolDividerIndex = url.indexOf(protocolDivider);
 
         if (protocolDividerIndex > -1) {
             return url.substring(protocolDividerIndex + protocolDivider.length());
