@@ -300,7 +300,7 @@ public class DatastoreTest {
 
         //when
         repositoryConfigurations = repositoryConfigurationRepository
-                .queryWithPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl("ssh://internal.repo.com/"));
+                .queryWithPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl("ssh://internal.repo.com/repo"));
         //expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 

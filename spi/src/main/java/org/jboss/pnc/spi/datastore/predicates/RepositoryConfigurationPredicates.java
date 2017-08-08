@@ -32,24 +32,20 @@ public class RepositoryConfigurationPredicates {
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrl), internalUrl);
     }
 
+    /**
+     * Queries against normalized version with stripped protocol and .git extension
+     */
     public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
-        String internalUrlStripped = StringUtils.stripProtocol(internalUrl);
-        internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
-
-        String pattern = "%" + internalUrlStripped + "%";
-        logger.trace("Searching for pattern: {}.", pattern);
-
-        return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern);
+        String urlStripped = StringUtils.stripSuffix(StringUtils.stripProtocol(internalUrl), ".git");
+        return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrlNormalized), urlStripped);
     }
 
+    /**
+     * Queries against normalized version with stripped protocol and .git extension
+     */
     public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(String externalScmRepoUrl) {
-        String internalUrlStripped = StringUtils.stripProtocol(externalScmRepoUrl);
-        internalUrlStripped = StringUtils.stripSuffix(internalUrlStripped, ".git");
-
-        String pattern = "%" + internalUrlStripped + "%";
-        logger.trace("Searching for pattern: {}.", pattern);
-
-        return (root, query, cb) -> cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern);
+        String urlStripped = StringUtils.stripSuffix(StringUtils.stripProtocol(externalScmRepoUrl), ".git");
+        return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.externalUrlNormalized), urlStripped);
     }
 
     public static Predicate<RepositoryConfiguration> searchByScmUrl(String scmUrl) {
@@ -60,7 +56,7 @@ public class RepositoryConfigurationPredicates {
         logger.trace("Searching for pattern: {}.", pattern);
 
         return (root, query, cb) -> cb.or(
-                cb.like(root.get(RepositoryConfiguration_.internalUrl), pattern),
-                cb.like(root.get(RepositoryConfiguration_.externalUrl), pattern));
+                cb.like(root.get(RepositoryConfiguration_.internalUrlNormalized), pattern),
+                cb.like(root.get(RepositoryConfiguration_.externalUrlNormalized), pattern));
     }
 }
