@@ -20,6 +20,7 @@ package org.jboss.pnc.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jboss.pnc.common.util.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -45,6 +48,21 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     private static final String SEQ_NAME = "repository_configuration_id_seq";
 
+    @PrePersist
+    protected void onCreate() {
+        setNormalizedUrls();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        setNormalizedUrls();
+    }
+
+    private void setNormalizedUrls() {
+        internalUrlNormalized = StringUtils.stripSuffix(StringUtils.stripProtocol(internalUrl), ".git");
+        externalUrlNormalized = StringUtils.stripSuffix(StringUtils.stripProtocol(externalUrl), ".git");
+    }
+
     @Id
     @SequenceGenerator(name = SEQ_NAME, sequenceName = SEQ_NAME, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)
@@ -61,6 +79,15 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     private String internalUrl;
 
     /**
+     * Normalized version of scm url to query against. Normalized version is without the protocol and .git extension.
+     */
+    @Size(max = 255)
+    @Column(unique = true, updatable = false)
+    @Getter
+    @Setter
+    private String internalUrlNormalized;
+
+    /**
      * URL to the upstream SCM repository.
      */
     @Size(max = 255)
@@ -68,6 +95,15 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Setter
     @Column(unique = true)
     private String externalUrl;
+
+    /**
+     * Normalized version of scm url to query against. Normalized version is without the protocol and .git extension.
+     */
+    @Size(max = 255)
+    @Getter
+    @Setter
+    @Column(unique = true)
+    private String externalUrlNormalized;
 
     /**
      * Declares whether the pre-build repository synchronization should happen or not.
