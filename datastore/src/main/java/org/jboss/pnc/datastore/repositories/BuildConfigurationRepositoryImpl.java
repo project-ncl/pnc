@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Date;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer> implements
@@ -42,5 +43,36 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         super(buildConfigurationSpringRepository, buildConfigurationSpringRepository);
     }
 
+    @Override
+    public BuildConfiguration save(BuildConfiguration buildConfiguration) {
+        Integer id = buildConfiguration.getId();
+
+        if (id != null && id > 0) {
+            BuildConfiguration persisted = queryById(id);
+
+            if (!areParametersEqual(persisted, buildConfiguration)) {
+                //workaround to always increment the version of main entity when the child collection is updated
+                buildConfiguration.setLastModificationTime(new Date());
+            }
+        }
+
+        return springRepository.save(buildConfiguration);
+    }
+
+    private boolean areParametersEqual(BuildConfiguration persisted, BuildConfiguration newBC) {
+        if (persisted.getGenericParameters() == null && newBC.getGenericParameters() == null) {
+            return true;
+        }
+
+        if (persisted.getGenericParameters() == null && newBC.getGenericParameters() != null) {
+            return false;
+        }
+
+        if (persisted.getGenericParameters() != null && newBC.getGenericParameters() == null) {
+            return false;
+        }
+
+        return persisted.getGenericParameters().equals(newBC.getGenericParameters());
+    }
 
 }

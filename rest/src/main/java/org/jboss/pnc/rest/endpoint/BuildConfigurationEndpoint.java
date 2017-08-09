@@ -546,5 +546,4 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
         return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsByBuildConfigurationId(pageIndex, pageSize, sort, q, id));
     }
-
 }
