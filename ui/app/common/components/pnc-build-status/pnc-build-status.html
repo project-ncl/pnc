@@ -17,23 +17,13 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default build-panel">
-  <div class="panel-heading">
-    <div class="spinner spinner-sm pull-right" ng-hide="page.isLoaded"></div>
-    <h3 class="panel-title">Build History</h3>
-  </div>
-
-  <table class="table table-striped table-hover" ng-show="page.data.length">
-    <tbody>
-      <tr ng-repeat="record in page.data">
-        <td>
-          <pnc-build-status build-record="record" is-loaded="page.isLoaded"></pnc-build-status>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="panel-body" ng-hide="page.data.length || !page.isLoaded">
-    No builds
-  </div>
-  <pnc-pager class="pull-right" page="page"></pnc-pager>
+<div ng-show="$ctrl.buildRecord && $ctrl.isLoaded">
+  <pnc-build-status-icon build-record="$ctrl.buildRecord"></pnc-build-status-icon>
+  <a ui-sref="build-records.detail.default({ recordId: $ctrl.buildRecord.id })"># {{ $ctrl.buildRecord.id }}</a>
+  <span title="End Time">{{ $ctrl.buildRecord.endTime | date:'medium' }}</span>
+  <span title="Start Time" ng-hide="$ctrl.buildRecord.endTime">{{ $ctrl.buildRecord.startTime | date:'medium' }}</span>
+  <span ng-show="$ctrl.buildRecord.username">,</span>
+  <span class="text-bold">{{ $ctrl.buildRecord.username }}</span>
 </div>
+<em ng-show="!$ctrl.buildRecord && $ctrl.isLoaded">none</em>
+<div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>

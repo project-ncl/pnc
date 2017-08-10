@@ -17,13 +17,4 @@
     limitations under the License.
 
 -->
-<div ng-show="$ctrl.latestBuild && $ctrl.isLoaded">
-  <pnc-build-status-icon build-record="$ctrl.latestBuild"></pnc-build-status-icon>
-  <a ui-sref="build-records.detail.default({ recordId: $ctrl.latestBuild.id })"># {{ $ctrl.latestBuild.id }}</a>
-  <span title="End Time">{{ $ctrl.latestBuild.endTime | date:'medium' }}</span>
-  <span title="Start Time" ng-hide="$ctrl.latestBuild.endTime">{{ $ctrl.latestBuild.startTime | date:'medium' }}</span>
-  <span ng-show="$ctrl.latestBuild.username">,</span>
-  <span class="text-bold">{{ $ctrl.latestBuild.username }}</span>
-</div>
-<em ng-show="!$ctrl.latestBuild && $ctrl.isLoaded">none</em>
-<div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>
+<pnc-build-status build-record="$ctrl.latestBuild" is-loaded="$ctrl.isLoaded"></pnc-build-status>
