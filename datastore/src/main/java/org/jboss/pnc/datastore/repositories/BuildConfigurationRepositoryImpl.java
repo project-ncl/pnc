@@ -23,7 +23,12 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer> implements
@@ -37,10 +42,45 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         super(null, null);
     }
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     @Inject
     public BuildConfigurationRepositoryImpl(BuildConfigurationSpringRepository buildConfigurationSpringRepository) {
         super(buildConfigurationSpringRepository, buildConfigurationSpringRepository);
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public BuildConfiguration save(BuildConfiguration buildConfiguration) {
+        Integer id = buildConfiguration.getId();
+
+        if (id != null && id > 0) {
+            BuildConfiguration persisted = queryById(id);
+
+            if (!areParametersEqual(persisted, buildConfiguration)) {
+                //workaround to always increment the revision of main entity when the child collection is updated
+                entityManager.lock(persisted, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            }
+        }
+
+        return springRepository.save(buildConfiguration);
+    }
+
+    private boolean areParametersEqual(BuildConfiguration persisted, BuildConfiguration newBC) {
+        if (persisted.getGenericParameters() == null && newBC.getGenericParameters() == null) {
+            return true;
+        }
+
+        if (persisted.getGenericParameters() == null && newBC.getGenericParameters() != null) {
+            return false;
+        }
+
+        if (persisted.getGenericParameters() != null && newBC.getGenericParameters() == null) {
+            return false;
+        }
+
+        return persisted.getGenericParameters().equals(newBC.getGenericParameters());
+    }
 
 }
