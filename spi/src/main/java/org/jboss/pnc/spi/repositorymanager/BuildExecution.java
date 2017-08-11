@@ -25,6 +25,11 @@ public interface BuildExecution {
 
     String getBuildContentId();
 
+    /**
+     * Gets the list of repositories needed to run a succesful build.
+     *
+     * @return the list of artifact repositories
+     */
     List<ArtifactRepository> getArtifactRepositories();
 
 }

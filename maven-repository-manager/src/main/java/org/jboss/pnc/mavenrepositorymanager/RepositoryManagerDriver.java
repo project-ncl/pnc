@@ -266,47 +266,68 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup);
 
-            // add the repositories removed from poms by the adjust process
-            List<ArtifactRepository> repositories = execution.getArtifactRepositories();
-            if (repositories != null && !repositories.isEmpty()) {
-                StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(MAVEN_PKG_KEY);
-                for (ArtifactRepository repository : repositories) {
-                    StoreKey remoteKey = null;
-                    for (RemoteRepository existingRepo : existingRepos) {
-                        if (existingRepo.getUrl().equals(repository.getUrl())) {
-                            remoteKey = existingRepo.getKey();
-                            break;
-                        }
-                    }
-
-                    if (remoteKey == null) {
-                        // this is basically an implied repo, so using the same prefix "i-"
-                        String remoteName = "i-" + repository.getId();
-
-                        // find a free repository ID for the newly created repo
-                        remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName);
-                        int i = 2;
-                        while (indy.stores().exists(remoteKey)) {
-                            remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName + "-" + i++);
-                        }
-
-                        RemoteRepository remoteRepo = new RemoteRepository(MAVEN_PKG_KEY, remoteKey.getName(), repository.getUrl());
-                        remoteRepo.setAllowReleases(repository.getReleases());
-                        remoteRepo.setAllowSnapshots(repository.getSnapshots());
-                        remoteRepo.setDescription("Implicitly created repo for: " + repository.getName() + " ("
-                                + repository.getId() + ") from repository declaration removed by PME in build "
-                                + id + " (repo: " + buildContentId + ")");
-                        indy.stores().create(remoteRepo,
-                                "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")",
-                                RemoteRepository.class);
-                    }
-
-                    buildGroup.addConstituent(remoteKey);
-                }
-            }
+            // add extra repositories removed from poms by the adjust process
+            addExtraConstituents(execution.getArtifactRepositories(), id, buildContentId, indy, buildGroup);
 
             indy.stores().create(buildGroup, "Creating repository group for resolving artifacts in build: " + id
                     + " (repo: " + buildContentId + ")", Group.class);
+        }
+    }
+
+    /**
+     * Adds extra remote repositories to the build group that are requested for the particular build. For a Maven build
+     * these are repositories defined in the root pom removed by PME by the adjust process.
+     *
+     * @param repositories
+     *            the list of repositories to be added
+     * @param buildId
+     *            build ID
+     * @param buildContentId
+     *            build content ID
+     * @param indy
+     *            Indy client
+     * @param buildGroup
+     *            target build group in which the repositories are added
+     * @throws IndyClientException
+     *             in case of an issue when communicating with the repository manager
+     */
+    private void addExtraConstituents(List<ArtifactRepository> repositories, int buildId, String buildContentId, Indy indy,
+            Group buildGroup) throws IndyClientException {
+        if (repositories != null && !repositories.isEmpty()) {
+            StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(MAVEN_PKG_KEY);
+            for (ArtifactRepository repository : repositories) {
+                StoreKey remoteKey = null;
+                for (RemoteRepository existingRepo : existingRepos) {
+                    if (existingRepo.getUrl().equals(repository.getUrl())) {
+                        remoteKey = existingRepo.getKey();
+                        break;
+                    }
+                }
+
+                if (remoteKey == null) {
+                    // this is basically an implied repo, so using the same prefix "i-"
+                    String remoteName = "i-" + repository.getId();
+
+                    // find a free repository ID for the newly created repo
+                    remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName);
+                    int i = 2;
+                    while (indy.stores().exists(remoteKey)) {
+                        remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName + "-" + i++);
+                    }
+
+                    RemoteRepository remoteRepo = new RemoteRepository(MAVEN_PKG_KEY, remoteKey.getName(), repository.getUrl());
+                    remoteRepo.setAllowReleases(repository.getReleases());
+                    remoteRepo.setAllowSnapshots(repository.getSnapshots());
+                    remoteRepo.setDescription("Implicitly created repo for: " + repository.getName() + " ("
+                            + repository.getId() + ") from repository declaration removed by PME in build "
+                            + buildId + " (repo: " + buildContentId + ")");
+                    indy.stores().create(remoteRepo, "Creating extra remote repository " + repository.getName() + " ("
+                            + repository.getId() + ") for build: " + buildId + " (repo: " + buildContentId + ")",
+                            RemoteRepository.class);
+                }
+
+                buildGroup.addConstituent(remoteKey);
+            }
         }
     }
 

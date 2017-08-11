@@ -43,7 +43,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String systemImageRepositoryUrl;
     private final SystemImageType systemImageType;
     private final boolean podKeptAfterFailure;
-    private final List<ArtifactRepository> repositories;
+    private final List<ArtifactRepository> artifactRepositories;
     private final Map<String, String> genericParameters;
 
     public DefaultBuildExecutionConfiguration(
@@ -60,7 +60,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
             boolean podKeptAfterFailure,
-            List<ArtifactRepository> repositories,
+            List<ArtifactRepository> artifactRepositories,
             Map<String, String> genericParameters) {
 
         this.id = id;
@@ -76,7 +76,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
         this.systemImageType = systemImageType;
         this.podKeptAfterFailure = podKeptAfterFailure;
-        this.repositories = repositories;
+        this.artifactRepositories = artifactRepositories;
         this.genericParameters = genericParameters;
     }
 
@@ -147,7 +147,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
 
     @Override
     public List<ArtifactRepository> getArtifactRepositories() {
-        return repositories;
+        return artifactRepositories;
     }
 
     @Override

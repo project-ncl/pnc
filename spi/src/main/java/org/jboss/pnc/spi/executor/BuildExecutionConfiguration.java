@@ -56,9 +56,6 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     boolean isPodKeptOnFailure();
 
-    @Override
-    List<ArtifactRepository> getArtifactRepositories();
-
     Map<String, String> getGenericParameters();
 
     static BuildExecutionConfiguration build(
