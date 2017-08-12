@@ -15,31 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function () {
+  'use strict';
 
-(function() {
+  var module = angular.module('pnc.common.pnc-client.resources');
 
-  var module = angular.module('pnc.dashboard', [
-    'ui.router',
-    'pnc.common.components',
-    'patternfly.notification',
-    'angularUtils.directives.uiBreadcrumbs'
-  ]);
+  module.value('ENVIRONMENT_PATH', '/environments/:id');
 
-  module.config(['$stateProvider', function($stateProvider) {
-    $stateProvider.state('dashboard', {
-      url: '/',
-      views: {
-        'content@': {
-          templateUrl: 'dashboard/views/dashboard.html',
-          controller: 'DashboardController',
-          controllerAs: 'ctrl'
+  /**
+   *
+   * @author Alex Creasy
+   */
+  module.factory('Environment', [
+    '$resource',
+    'restConfig',
+    'ENVIRONMENT_PATH',
+    function($resource, restConfig, ENVIRONMENT_PATH) {
+      var ENDPOINT = restConfig.getPncUrl() + ENVIRONMENT_PATH;
+
+      var resource = $resource(ENDPOINT, {
+        id: '@id'
+      }, {
+        query: {
+          method: 'GET',
+          isPaged: true,
         }
-      },
-      data: {
-        displayName: 'Dashboard'
-      },
-    });
-  }]);
+      });
+
+      return resource;
+    }
+
+  ]);
 
 })();
