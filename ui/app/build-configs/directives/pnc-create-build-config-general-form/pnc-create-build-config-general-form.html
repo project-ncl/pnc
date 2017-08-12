@@ -1,0 +1,46 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ng-form name="form" novalidate>
+  <div class="form-group" ng-class="{ 'has-error' : form.name.$invalid && form.name.$touched, 'has-success': form.name.$valid && form.name.$touched }">
+    <label class="required control-label" for="build-config-name">Name</label>
+    <input id="build-config-name" name="name" class="form-control" ng-model="$ctrl.buildConfig.name" type="text" ng-maxlength="255" ng-pattern="/^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$/" required>
+    <p ng-show="form.name.$invalid && form.name.$touched" class="help-block">Name is a required field.</p>
+    <p ng-show="form.name.$error.pattern && form.name.$touched" class="help-block">Name can contain only alpha-numeric characters, hyphens, underscores and periods and cannot start with a hyphen.</p>
+    <p ng-show="form.name.$error.maxlength && form.name.$touched" class="help-block">The maximum lengh of a name is 255 characters.</p>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label" for="build-config-description">Description</label>
+    <textarea id="build-config-description" name="description" class="form-control" ng-model="$ctrl.buildConfig.description"></textarea>
+  </div>
+
+  <div class="form-group" ng-class="{ 'has-error' : form.environment.$invalid && form.environment.$touched, 'has-success': form.environment.$valid && form.environment.$touched }">
+    <label class="control-label required" for="build-config-environment">Environment</label>
+    <pnc-environment-combobox name="environment" ng-model="$ctrl.buildConfig.environment" model-value="id" required></pnc-environment-combobox>
+    <p ng-show="form.environment.$invalid && form.environment.$touched" class="help-block">Environment is a required field.</p>
+  </div>
+
+  <div class="form-group" ng-class="{ 'has-error' : form.buildScript.$invalid && form.buildScript.$touched, 'has-success': form.buildScript.$valid && form.buildScript.$touched }">
+    <label class="control-label required" for="build-config-build-script">Build Script</label>
+    <textarea id="build-config-build-script" name="buildScript" class="form-control" spellcheck=false ng-model="$ctrl.buildConfig.buildScript"  pnc-build-script-validator required></textarea>
+    <p ng-show="form.buildScript.$invalid && form.buildScript.$touched" class="help-block">Build Script is a required field.</p>
+    <p class="help-block" ng-show="form.buildScript.$error.invalidBuildScript && form.buildScript.$touched">The 'deploy' lifecycle is required for maven builds in order to prevent artifact promotion issues.</p>
+  </div>
+</ng-form>

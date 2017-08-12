@@ -1,0 +1,38 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<pf-wizard
+    title="Create Build Config"
+    on-cancel="$ctrl.onClose()"
+    content-height="500">
+
+    <!-- <pf-wizard-step step-title="Project" substeps="true" step-id="project" step-priority="0" ng-if="!$ctrl.project">
+
+    </pf-wizard-step> -->
+
+    <pf-wizard-step step-title="Build Config" substeps="true" step-id="build-config" step-priority="1">
+
+      <pf-wizard-substep step-title="General" step-id="config" step-priority="0" ok-to-nav-away="buildConfigForm.$valid" next-enabled="true">
+        <form name="buildConfigForm" novalidate>
+          <pnc-create-build-config-general-form build-config="$ctrl.buildConfig"></pnc-create-build-config-general-form>
+        </form>
+      </pf-wizard-substep>
+
+    </pf-wizard-step>
+</pf-wizard>

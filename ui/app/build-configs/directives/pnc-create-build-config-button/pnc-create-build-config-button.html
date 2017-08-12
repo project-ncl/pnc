@@ -17,5 +17,12 @@
     limitations under the License.
 
 -->
-<px-combobox px-expression="environment as environment.name for environment in $ctrl.search($viewValue)" ng-model="$ctrl.input" debounce-ms=500>
-</px-combobox>
+<button type="button"
+        class="btn btn-lg btn-default"
+        uib-tooltip="Create a new build configuration"
+        tooltip-popup-delay="3500"
+        tooltip-placement="top"
+        tooltip-append-to-body="true"
+        ng-click="$ctrl.openWizardModal()">
+  <i class="fa fa-file-text-o"></i> Create
+</button>
