@@ -28,9 +28,10 @@
    */
   module.factory('BuildConfiguration', [
     '$resource',
+    '$http',
     'restConfig',
     'BUILD_CONFIGURATION_PATH',
-    function($resource, restConfig, BUILD_CONFIGURATION_PATH) {
+    function($resource, $http, restConfig, BUILD_CONFIGURATION_PATH) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIGURATION_PATH;
 
       var resource = $resource(ENDPOINT, {
@@ -44,6 +45,13 @@
           method: 'PUT'
         }
       });
+
+      resource.getSupportedGenericParameters = function() {
+        return $http.get(restConfig.getPncUrl() + '/build-configurations/supported-generic-parameters').then(function (r) {
+          return r.data;
+        });
+      };
+
 
       return resource;
     }

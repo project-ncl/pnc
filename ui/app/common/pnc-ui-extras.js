@@ -1,4 +1,4 @@
-'use strict'; // jshint ignore: start
+'use strict';
 
 angular.module('pnc-ui-extras', ['pnc-ui-extras.templates', 'pnc-ui-extras.combobox']);
 
@@ -16,6 +16,8 @@ var ComboboxController = function () {
   function ComboboxController($log, $scope, $element, $timeout) {
     _classCallCheck(this, ComboboxController);
 
+    var DEFAULT_OPTION_TEMPLATE_URL = 'pnc-ui-extras/combobox/combobox-option.template.html';
+
     this.$log = $log;
     this.$scope = $scope;
     this.$element = $element;
@@ -24,6 +26,7 @@ var ComboboxController = function () {
     this.options = []; // List of options for the user to select from
     this.showDropDown = false;
     this.modelOptions = {}; // Values for ng-model-options directive
+    this.optionTemplateUrl = this.optionTemplateUrl || DEFAULT_OPTION_TEMPLATE_URL;
   }
 
   _createClass(ComboboxController, [{
@@ -231,6 +234,8 @@ var ComboboxController = function () {
   }, {
     key: 'onKey',
     value: function onKey($event) {
+      $event.stopPropagation();
+      $event.preventDefault();
       switch ($event.key) {
         case 'ArrowDown':
           if (!this.showDropDown) {
@@ -267,7 +272,8 @@ var pxCombobox = {
   bindings: {
     placeholder: '@',
     editable: '<',
-    debounceMs: '@'
+    debounceMs: '@',
+    optionTemplateUrl: '@'
   }
 };
 
@@ -382,6 +388,7 @@ angular.module('pnc-ui-extras.combobox').directive('pxExpression', pxExpression)
 'use strict';
 
 angular.module('pnc-ui-extras.templates').run(['$templateCache', function ($templateCache) {
-  $templateCache.put('pnc-ui-extras/combobox/combobox.template.html', '<style>\n.px-search-clear {\n  position: absolute;\n  z-index: 100;\n  right: 18px;\n  top: 2px;\n  height: 14px;\n  margin: auto;\n  color: inherit;\n  cursor:  pointer;\n}\n\n.px-search-clear > a:hover {\n  background-color: inherit;\n  color: inherit;\n  cursor:  pointer;\n}\n\n.px-combobox-dropdown {\n  display: block;\n}\n.px-combobox-active > a, a:hover {\n  background-color: #def3ff;\n}\n.px-combobox-dropdown > li > a,a:hover {\n  border-width: 0px;\n}\n</style>\n<div class="combobox-container" ng-keydown="$event.stopPropagation()">\n  <div class="input-group">\n    <input type="text" autocomplete="off" id="combobox-{{::$id}}" ng-keyup="$ctrl.onKey($event)" placeholder="{{ ::$ctrl.placeholder }}" class="combobox form-control" ng-focus="$ctrl.openDropDown()" ng-model="$ctrl.inputModel" ng-model-options="$ctrl.modelOptions" pf-focused="$ctrl.showDropDown">\n    <div class="px-search-clear"><a class="px-search-clear" ng-show="$ctrl.inputModel" ng-click="$ctrl.clear()"><span class="pficon pficon-close"></span></a></div>\n    <ul class="typeahead typeahead-long dropdown-menu px-combobox-dropdown" ng-if="$ctrl.options.length > 0 && $ctrl.showDropDown">\n      <li ng-repeat="option in $ctrl.options" ng-mouseover="$ctrl.setHighlighted($index)" ng-class="{ \'px-combobox-active\': $ctrl.isHighlighted($index) }">\n        <a ng-click="$ctrl.select(option)" href>{{ $ctrl.getViewValue(option) }}</a>\n      </li>\n      <li data-value="spinner" class="text-center" ng-show="$ctrl.isLoading()">\n        <span class="spinner spinner-xs spinner-inline"></span>\n      </li>\n    </ul>\n    <span class="input-group-addon dropdown-toggle" ng-class="{ \'dropup\': $ctrl.showDropDown }" data-dropdown="dropdown" role="button" ng-click="$ctrl.toggleDropDown()">\n      <span class="caret"></span>\n    </span>\n  </div>\n</div>\n');
+  $templateCache.put('pnc-ui-extras/combobox/combobox-option.template.html', '<a ng-click="$ctrl.select(option)" href>{{ $ctrl.getViewValue(option) }}</a>\n');
+  $templateCache.put('pnc-ui-extras/combobox/combobox.template.html', '<style>\n.px-search-clear {\n  position: absolute;\n  z-index: 100;\n  right: 18px;\n  top: 2px;\n  height: 14px;\n  margin: auto;\n  color: inherit;\n  cursor:  pointer;\n}\n\n.px-search-clear > a:hover {\n  background-color: inherit;\n  color: inherit;\n  cursor:  pointer;\n}\n\n.px-combobox-dropdown {\n  display: block;\n}\n.px-combobox-active a,a:hover {\n  background-color: #def3ff;\n}\n.px-combobox-dropdown > .px-combobox-option a,a:hover {\n  border-width: 0px;\n}\n\n.px-combobox-dropdown > .px-combobobox-option {\n  whitespace: normal !important;\n  overflow-wrap: break-word !important;\n}\n\n</style>\n<div class="combobox-container" ng-keydown="$event.stopPropagation()">\n  <div class="input-group">\n    <input type="text" autocomplete="off" id="combobox-{{::$id}}" ng-keyup="$ctrl.onKey($event)" placeholder="{{ ::$ctrl.placeholder }}" class="combobox form-control" ng-focus="$ctrl.openDropDown()" ng-model="$ctrl.inputModel" ng-model-options="$ctrl.modelOptions" pf-focused="$ctrl.showDropDown">\n    <div class="px-search-clear"><a class="px-search-clear" ng-show="$ctrl.inputModel" ng-click="$ctrl.clear()"><span class="pficon pficon-close"></span></a></div>\n    <ul class="typeahead typeahead-long dropdown-menu px-combobox-dropdown" ng-if="$ctrl.options.length > 0 && $ctrl.showDropDown">\n      <li ng-repeat="option in $ctrl.options" ng-include="$ctrl.optionTemplateUrl" class="px-combobox-option" ng-mouseover="$ctrl.setHighlighted($index)" ng-class="{ \'px-combobox-active\': $ctrl.isHighlighted($index) }">\n      </li>\n      <li data-value="spinner" class="text-center" ng-show="$ctrl.isLoading()">\n        <span class="spinner spinner-xs spinner-inline"></span>\n      </li>\n    </ul>\n    <span class="input-group-addon dropdown-toggle" ng-class="{ \'dropup\': $ctrl.showDropDown }" data-dropdown="dropdown" role="button" ng-click="$ctrl.toggleDropDown()">\n      <span class="caret"></span>\n    </span>\n  </div>\n</div>\n');
 }]);
 //# sourceMappingURL=pnc-ui-extras.js.map

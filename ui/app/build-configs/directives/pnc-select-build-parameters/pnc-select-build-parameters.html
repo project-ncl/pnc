@@ -1,0 +1,10 @@
+<form class="form-horizontal">
+  <div>
+    <pnc-enter-build-parameters class="clearfix" on-add="$ctrl.addParam(key, value)" known-keys="$ctrl.knownKeys"></pnc-enter-build-parameters>
+  </div>
+  <hr ng-if="$ctrl.hasParams()">
+  <div>
+    <pnc-display-build-parameters params="$ctrl.params" on-edit="$ctrl.addParam(key, value)" on-remove="$ctrl.removeParam(key)">
+    </pnc-display-build-parameters>
+  </div>
+</form>

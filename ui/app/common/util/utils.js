@@ -57,9 +57,34 @@
          throw new Error('Unable to parse as boolean: ' + value);
        }
 
+       /**
+        * Takes an object and forms a digest string by concatenating all string
+        * properties and their keys. This is useful when setting up watches on
+        * scopes so changes can be easily calculated.
+        *
+        * @param obj {object} the object to digest.
+        * @return {string} the digest string.
+        */
+       function digestStrings(obj) {
+         if (!angular.isObject(obj)) {
+           return;
+         }
+
+         var digest = '';
+
+         Object.keys(obj).forEach(function (key) {
+           if (angular.isString(obj)) {
+             digest = digest + key + obj[key];
+           }
+         });
+
+         return digest;
+       }
+
       return {
         isEmpty: isEmpty,
-        parseBoolean: parseBoolean
+        parseBoolean: parseBoolean,
+        digestStrings: digestStrings
       };
     }
   ]);

@@ -1,0 +1,31 @@
+<div>
+  <div ng-repeat="(key, value) in $ctrl.currentParams">
+    <div class="row">
+      <p>
+        <div class="btn-group pull-right" role="group" aria-label="...">
+          <button class="btn btn-sm btn-link" ng-click="$ctrl.toggleEdit(key)">Edit</button>
+          <button class="btn btn-sm btn-link" ng-click="$ctrl.remove(key)">Remove</button>
+        </div>
+        <span>{{ key }}</span>
+      </p>
+
+      <!-- Detail Mode -->
+      <div ng-hide="$ctrl.isEditOn(key)">
+        <pre>{{ value }}</pre>
+      </div>
+      <!-- /Detail Mode -->
+    </div>
+
+    <!-- Edit Mode -->
+    <div ng-show="$ctrl.isEditOn(key)" class="clearfix">
+      <pf-form-group>
+        <textarea ng-model="$ctrl.currentParams[key]" class="form-control" rows="3"></textarea>
+      </pf-form-group>
+      <div class="pull-right">
+        <button class="btn btn-primary" ng-click="$ctrl.update(key, $ctrl.currentParams[key])">Update</button>
+        <button class="btn btn-default" ng-click="$ctrl.cancel(key)">Cancel</button>
+      </div>
+    </div>
+    <!-- /Edit Mode -->
+  </div>
+</div>
