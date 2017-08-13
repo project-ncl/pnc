@@ -1,4 +1,4 @@
-'use strict';
+'use strict'; // jshint ignore: start
 
 angular.module('pnc-ui-extras', ['pnc-ui-extras.templates', 'pnc-ui-extras.combobox']);
 

@@ -22,17 +22,18 @@
     on-cancel="$ctrl.onClose()"
     content-height="500">
 
-    <!-- <pf-wizard-step step-title="Project" substeps="true" step-id="project" step-priority="0" ng-if="!$ctrl.project">
-
-    </pf-wizard-step> -->
-
     <pf-wizard-step step-title="Build Config" substeps="true" step-id="build-config" step-priority="1">
 
-      <pf-wizard-substep step-title="General" step-id="config" step-priority="0" ok-to-nav-away="buildConfigForm.$valid" next-enabled="true">
-        <form name="buildConfigForm" novalidate>
+      <pf-wizard-substep step-title="General" step-id="config" step-priority="0" ok-to-nav-away="generalForm.$valid" next-enabled="true">
+        <form name="generalForm" novalidate>
           <pnc-create-build-config-general-form build-config="$ctrl.buildConfig"></pnc-create-build-config-general-form>
         </form>
       </pf-wizard-substep>
 
+      <pf-wizard-substep step-title="Build Parameters" next-enabled="true" step-id="parameters" step-priority="1">
+          <pnc-select-build-parameters ng-model="$ctrl.buildConfig.genericParameters"></pnc-select-build-parameters>
+      </pf-wizard-substep>
+
     </pf-wizard-step>
+
 </pf-wizard>
