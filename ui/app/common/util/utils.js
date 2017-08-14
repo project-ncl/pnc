@@ -81,10 +81,38 @@
          return digest;
        }
 
+       /**
+        * Produces a hashcode for a given Array of items. The default behaviour
+        * if given only an Array is to use the 'id' property of the object. If
+        * no such property exists on any given object an error will be thrown.
+        *
+        * A function can be given as a second parameter which will be called for
+        * each object in the array. The function will be passed the object and
+        * is responsible for returning a representation of that object as a
+        * number.
+        *
+        * @param {Array} array - The array to produce a hashcode for.
+        * @param {Function} hashCodeFn - (Optional) function to produce a
+        * Number representation of each object.
+        * @return {Number} A hashcode of the array.  
+        */
+       function hashCode(array, hashCodeFn) {
+         var hash = angular.isFunction(hashCodeFn) ? hashCodeFn : defaultHashFunction;
+
+         return array.reduce(function (total, item) {
+           return 31 * total + hash(item);
+         }, 17);
+       }
+
+       function defaultHashFunction(obj) {
+         return obj.id;
+       }
+
       return {
         isEmpty: isEmpty,
         parseBoolean: parseBoolean,
-        digestStrings: digestStrings
+        digestStrings: digestStrings,
+        hashCode: hashCode
       };
     }
   ]);

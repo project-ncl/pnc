@@ -1,0 +1,29 @@
+<div>
+  <ng-form name="dependenciesForm">
+    <div class="clearfix">
+      <div class="form-group">
+        <label class="control-label">Select dependencies</label>
+        <pnc-build-config-combobox ng-model="$ctrl.buildConfig"></pnc-build-config-combobox>
+      </div>
+      <div class="btn-group pull-right" role="group" aria-label="...">
+        <button type="button" class="btn btn-primary" ng-click="$ctrl.add($ctrl.buildConfig)" ng-disabled="dependenciesForm.$invalid">Add</button>
+      </div>
+    </div>
+    <div>
+      <pf-list-view class="list-group list-view-pf list-view-pf-view"
+                        id="remove-build-groups-{{::$id}}"
+                        config="$ctrl.listConfig"
+                        items="$ctrl.buildConfigs"
+                        action-buttons="$ctrl.listActionButtons"
+                        ng-if="$ctrl.buildConfigs.length > 0">
+
+          <div class="list-view-pf-description">
+            <div class="list-group-item-heading">
+              {{ item.name }}
+          </div>
+        </div>
+      </pf-list-view>
+      <p ng-if="$ctrl.buildConfigs.length === 0"><em>No dependencies selected</em></p>
+    </div>
+  </ng-form>
+</div>
