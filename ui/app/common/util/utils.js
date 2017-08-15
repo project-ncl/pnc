@@ -94,7 +94,7 @@
         * @param {Array} array - The array to produce a hashcode for.
         * @param {Function} hashCodeFn - (Optional) function to produce a
         * Number representation of each object.
-        * @return {Number} A hashcode of the array.  
+        * @return {Number} A hashcode of the array.
         */
        function hashCode(array, hashCodeFn) {
          var hash = angular.isFunction(hashCodeFn) ? hashCodeFn : defaultHashFunction;
@@ -108,11 +108,25 @@
          return obj.id;
        }
 
+       /**
+        * Pretty prints an Object as a JSON string.
+        *
+        * @param {Object|Array} obj - The object to pretty prints
+        * @param {Number} indent - The number of spaces to indent by: default 2.
+        * @return {String} A pretty printed serialized form of the object.
+        */
+       function prettyPrint(obj, indent) {
+         var _indent = indent || 2;
+
+         JSON.stringify(obj, null, _indent);
+       }
+
       return {
         isEmpty: isEmpty,
         parseBoolean: parseBoolean,
         digestStrings: digestStrings,
-        hashCode: hashCode
+        hashCode: hashCode,
+        prettyPrint: prettyPrint
       };
     }
   ]);
