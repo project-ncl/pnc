@@ -22,7 +22,7 @@
 @media (min-width: 768px) {
   .sidebar {
     position: absolute;
-    top: 110px;
+    top: 72px;
     bottom: 60px;
     padding-top: 40px;
   }
