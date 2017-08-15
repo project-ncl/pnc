@@ -15,27 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.repour;
+package org.jboss.pnc.spi.repour;
 
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
-import org.jboss.pnc.spi.repour.RemovedRepository;
-import org.jboss.pnc.spi.repour.RepourResult;
 
-import java.util.LinkedList;
+import lombok.Getter;
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-public class RepourResultMock {
+public class RemovedRepository {
+    @Getter
+    private String id;
 
-    public static RepourResult mock() {
-        return new RepourResult(
-                CompletionStatus.SUCCESS,
-                "Some log from Repour.",
-                "rootName",
-                "rootVersion",
-                new LinkedList<RemovedRepository>()
-        );
-    }
+    @Getter
+    private String url;
 
+    @Getter
+    private String name;
+
+    @Getter
+    private boolean releases;
+
+    @Getter
+    private boolean snapshots;
 }

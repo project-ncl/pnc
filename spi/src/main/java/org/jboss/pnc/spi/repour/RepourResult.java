@@ -26,6 +26,7 @@ import org.jboss.pnc.spi.coordinator.CompletionStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -47,6 +48,9 @@ public class RepourResult implements Serializable {
 
     @Getter
     private final String executionRootVersion;
+
+    @Getter
+    private final List<RemovedRepository> removedRepositories;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class RepourResultBuilder {
