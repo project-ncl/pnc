@@ -22,16 +22,29 @@
     on-cancel="$ctrl.onClose()"
     content-height="500">
 
-    <pf-wizard-step step-title="Build Config" substeps="true" step-id="build-config" step-priority="1">
-
-      <pf-wizard-substep step-title="General" step-id="config" step-priority="0" ok-to-nav-away="generalForm.$valid" next-enabled="true">
-        <form name="generalForm" novalidate>
-          <pnc-create-build-config-general-form build-config="$ctrl.buildConfig"></pnc-create-build-config-general-form>
-        </form>
+    <pf-wizard-step step-title="Project" substeps="true" step-id="project" step-priority="0" substeps=true wz-disabled="true">
+      <pf-wizard-substep step-title="Select" step-id="select" step-priority="0">
+        <p>Select Project</p>
       </pf-wizard-substep>
+    </pf-wizard-step>
+
+
+    <pf-wizard-step step-title="Build Config" substeps="true" step-id="build-config" step-priority="1" substeps=true>
+
+        <pf-wizard-substep step-title="General" step-id="general" step-priority="0" ok-to-nav-away="generalForm.$valid" next-enabled="generalForm.$valid">
+          <form name="generalForm" novalidate>
+            <pnc-create-build-config-general-form build-config="$ctrl.buildConfig"></pnc-create-build-config-general-form>
+          </form>
+        </pf-wizard-substep>
+
 
       <pf-wizard-substep step-title="Build Parameters" next-enabled="true" step-id="parameters" step-priority="1">
           <pnc-select-build-parameters ng-model="$ctrl.buildConfig.genericParameters"></pnc-select-build-parameters>
+      </pf-wizard-substep>
+
+      <pf-wizard-substep step-title="Dependencies" next-enabled="true" step-id="parameters" step-priority="2">
+         <pnc-select-build-configs on-change="$ctrl.updateDependencies(buildConfigs)"></pnc-select-build-configs>
+         {{ $ctrl.buildConfig }}
       </pf-wizard-substep>
 
     </pf-wizard-step>

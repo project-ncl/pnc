@@ -33,11 +33,16 @@
     // -- Controller API --
 
     $ctrl.buildConfig = {};
+    $ctrl.updateDependencies = updateDependencies;
 
     // --------------------
 
     $ctrl.$onInit = function () {
       $log.debug('pnc-create-build-config-wizard::$onInit');
     };
+
+    function updateDependencies(buildConfigs) {
+      $ctrl.buildConfig.dependencies = buildConfigs.map(function (bc) { return bc.id; });
+    }
   }
 })();
