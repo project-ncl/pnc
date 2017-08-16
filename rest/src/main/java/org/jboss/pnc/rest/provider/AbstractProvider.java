@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.provider;
 
 import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.rest.endpoint.AbstractEndpoint;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
@@ -35,6 +36,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
@@ -48,6 +51,8 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
  * @author Sebastian Laskawiec
  */
 public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, RESTEntity extends GenericRestEntity<Integer>> {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractEndpoint.class);
 
     protected RSQLPredicateProducer rsqlPredicateProducer;
 
@@ -104,12 +109,14 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
 
     public Integer store(RESTEntity restEntity) throws ValidationException {
         validateBeforeSaving(restEntity);
+        log.debug("Storing entity: " + restEntity.toString());
         return repository.save(toDBModel().apply(restEntity)).getId();
     }
 
     public void update(Integer id, RESTEntity restEntity) throws ValidationException {
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
+        log.debug("Updating entity: " + restEntity.toString());
         repository.save(toDBModel().apply(restEntity));
     }
 
