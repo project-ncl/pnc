@@ -38,7 +38,7 @@ public class RepositoryCreationResultRest extends BpmNotificationRest {
 
     @Override
     public String getEventType() {
-        return "RC_CREATION_SUCCESS";
+        return eventType.name();
     }
 
     @Getter
@@ -47,8 +47,17 @@ public class RepositoryCreationResultRest extends BpmNotificationRest {
     @Getter
     private final Integer buildConfigurationId;
 
+    @Getter
+    private final EventType eventType;
+
+    @Getter
+    private final String errorMessage;
+
     @JsonPOJOBuilder(withPrefix = "")
     public static final class RepositoryCreationResultRestBuilder {
     }
 
+    public enum EventType {
+        RC_CREATION_SUCCESS, RC_CREATION_ERROR;
+    }
 }
