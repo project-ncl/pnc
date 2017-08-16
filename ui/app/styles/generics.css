@@ -63,7 +63,11 @@
   text-transform: uppercase;
 }
 
-@media (min-width: 768px) { 
+.text-monospace {
+  font-family: monospace !important;
+}
+
+@media (min-width: 768px) {
   .text-right-sm { text-align: right; }
 }
 

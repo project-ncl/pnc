@@ -20,20 +20,23 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigWizard', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-wizard/pnc-create-build-config-wizard.html',
-    controller: Controller,
+    controller: ['$log', '$timeout', Controller],
     bindings: {
       project: '<',
       onClose: '&close'
     }
   });
 
-  function Controller($log) {
+  function Controller($log, $timeout) {
     var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.buildConfig = {};
+    $ctrl.false = false;
+    $ctrl.wizardData = {};
+    $ctrl.reviewPageShown = false;
     $ctrl.updateDependencies = updateDependencies;
+    $ctrl.onShowReviewSummary = onShowReviewSummary;
 
     // --------------------
 
@@ -43,6 +46,13 @@
 
     function updateDependencies(buildConfigs) {
       $ctrl.buildConfig.dependencies = buildConfigs.map(function (bc) { return bc.id; });
+    }
+
+    function onShowReviewSummary() {
+      $ctrl.reviewPageShown = true;
+      $timeout(function () {
+        $ctrl.reviewPageShown = false;  // done so the next time the page is shown it updates
+      });
     }
   }
 })();

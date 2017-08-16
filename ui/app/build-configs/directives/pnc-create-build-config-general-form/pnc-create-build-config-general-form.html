@@ -33,7 +33,7 @@
 
   <div class="form-group" ng-class="{ 'has-error' : form.environment.$invalid && form.environment.$touched, 'has-success': form.environment.$valid && form.environment.$touched }">
     <label class="control-label required" for="build-config-environment">Environment</label>
-    <pnc-environment-combobox name="environment" ng-model="$ctrl.buildConfig.environment" model-value="id" required></pnc-environment-combobox>
+    <pnc-environment-combobox name="environment" ng-model="$ctrl.buildConfig.environment" required></pnc-environment-combobox>
     <p ng-show="form.environment.$invalid && form.environment.$touched" class="help-block">Environment is a required field.</p>
   </div>
 
