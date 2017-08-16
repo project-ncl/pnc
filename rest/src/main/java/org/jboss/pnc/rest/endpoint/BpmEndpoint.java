@@ -277,13 +277,6 @@ public class BpmEndpoint extends AbstractEndpoint {
                 sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
                 return;
             }
-            Set<Integer> bcSetIds = repositoryCreationRest.getBuildConfigurationRest().getBuildConfigurationSetIds();
-            if (bcSetIds == null) {
-                String errorMessage = "Set of Build Configuration Set IDs is null. Task data: " + repositoryCreationRest;
-                LOG.error(errorMessage);
-                sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
-                return;
-            }
 
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
             if (repositoryConfiguration == null) {
@@ -294,6 +287,14 @@ public class BpmEndpoint extends AbstractEndpoint {
             }
 
             if (buildConfigurationRest != null) { //TODO test me
+                Set<Integer> bcSetIds = buildConfigurationRest.getBuildConfigurationSetIds();
+                if (bcSetIds == null) {
+                    String errorMessage = "Set of Build Configuration Set IDs is null. Task data: " + repositoryCreationRest;
+                    LOG.error(errorMessage);
+                    sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
+                    return;
+                }
+
                 BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
                         .repositoryConfiguration(repositoryConfiguration)
                         .build();
