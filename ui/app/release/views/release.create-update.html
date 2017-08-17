@@ -105,14 +105,14 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine }">
               <label for="input-downloadurl" class="col-sm-2 control-label">
-                * Download URL&nbsp;<a uib-popover="Internal or public location to download the product distribution artifacts"
+                Download URL&nbsp;<a uib-popover="Internal or public location to download the product distribution artifacts"
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
 
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input type="url" required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
+                  <input type="url" name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
                 </div>
                 <span class="help-block" ng-show="releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine">Malformed URL.</span>
               </div>
