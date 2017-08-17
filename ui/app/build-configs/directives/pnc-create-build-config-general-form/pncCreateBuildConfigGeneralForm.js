@@ -20,8 +20,25 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigGeneralForm', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-general-form/pnc-create-build-config-general-form.html',
-    bindings: {
-      buildConfig: '='
-    }
+    require: {
+      ngModel: 'ngModel'
+    },
+    controller: [Controller]
   });
+
+  function Controller() {
+    var $ctrl = this;
+
+    $ctrl.$onInit = function () {
+      $ctrl.ngModel.$render = function () {
+        $ctrl.data = $ctrl.ngModel.$modelValue;
+      };
+    };
+
+    $ctrl.$doCheck = function () {
+      if ($ctrl.ngModel.$viewValue !== $ctrl.data) {
+        $ctrl.ngModel.$setViewValue($ctrl.data);
+      }
+    };
+  }
 })();

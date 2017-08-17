@@ -31,7 +31,7 @@
       });
 
       $scope.$watch(function () {
-        return utils.digestStrings($ctrl.params);
+        return utils.concatStrings($ctrl.params);
       }, function () {
         $ctrl.ngModel.$setViewValue($ctrl.params);
       });

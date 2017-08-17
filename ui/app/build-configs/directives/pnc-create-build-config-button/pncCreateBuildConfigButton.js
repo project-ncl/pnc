@@ -20,6 +20,9 @@
   'use strict';
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigButton', {
+    bindings: {
+      project: '<'
+    },
     templateUrl: 'build-configs/directives/pnc-create-build-config-button/pnc-create-build-config-button.html',
     controller: Controller
   });
@@ -39,7 +42,12 @@
             animation: true,
             backdrop: 'static',
             component: 'pncCreateBuildConfigWizard',
-            size: 'lg'
+            size: 'lg',
+            resolve: {
+              project: function () {
+                return $ctrl.project;
+              }
+            }
           });
 
       // var closeWizard = function (e, reason) {

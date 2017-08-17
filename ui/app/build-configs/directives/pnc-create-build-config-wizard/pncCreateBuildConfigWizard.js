@@ -20,33 +20,37 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigWizard', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-wizard/pnc-create-build-config-wizard.html',
-    controller: ['$log', '$timeout', Controller],
+    controller: ['$timeout', 'RepositoryConfiguration', 'BuildConfiguration', Controller],
     bindings: {
+      initialValues: '<',
       project: '<',
+      resolve: '<',
       onClose: '&close'
     }
   });
 
-  function Controller($log, $timeout) {
-    var $ctrl = this;
+  function Controller($timeout, RepositoryConfiguration, BuildConfiguration) {
+    var $ctrl = this,
+        emptyWizardData = {
+          general: {},
+          buildParameters: {},
+          dependencies: {},
+          repoConfig: {}
+        };
 
     // -- Controller API --
 
-    $ctrl.false = false;
-    $ctrl.wizardData = {};
+    $ctrl.createComplete = false;
     $ctrl.reviewPageShown = false;
-    $ctrl.updateDependencies = updateDependencies;
     $ctrl.onShowReviewSummary = onShowReviewSummary;
+    $ctrl.create = create;
 
     // --------------------
 
     $ctrl.$onInit = function () {
-      $log.debug('pnc-create-build-config-wizard::$onInit');
+      $ctrl.wizardData = angular.extend({}, emptyWizardData, $ctrl.initialValues);
+      $ctrl.wizardData.project = $ctrl.resolve.project;
     };
-
-    function updateDependencies(buildConfigs) {
-      $ctrl.buildConfig.dependencies = buildConfigs.map(function (bc) { return bc.id; });
-    }
 
     function onShowReviewSummary() {
       $ctrl.reviewPageShown = true;
@@ -54,5 +58,34 @@
         $ctrl.reviewPageShown = false;  // done so the next time the page is shown it updates
       });
     }
+
+    function parseBuildConfig(wizardData) {
+      var bc = angular.copy(wizardData.general);
+      bc.genericParameters = angular.copy(wizardData.buildParameters);
+      bc.dependencyIds = wizardData.dependencies.map(function (d) { return d.id; });
+      bc.scmRevision = wizardData.repoConfig.revision;
+      bc.project = $ctrl.wizardData.project;
+      return bc;
+    }
+
+    function create() {
+      var bc = new BuildConfiguration(parseBuildConfig($ctrl.wizardData));
+
+      if ($ctrl.wizardData.repoConfig.useExistingRepoConfig) {
+        bc.repositoryConfiguration = { id: $ctrl.wizardData.repoConfig.repoConfig.id };
+        bc.$save().finally(function () {
+          $ctrl.createComplete = true;
+        });
+      } else {
+        RepositoryConfiguration.autoCreateRepoConfig({
+          url: $ctrl.wizardData.repoConfig.scmUrl,
+          preBuildSyncEnabled: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
+          buildConfiguration: bc
+        }).then(function () {
+          $ctrl.createComplete = true;
+        });
+      }
+    }
+
   }
 })();

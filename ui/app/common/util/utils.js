@@ -65,20 +65,25 @@
         * @param obj {object} the object to digest.
         * @return {string} the digest string.
         */
-       function digestStrings(obj) {
+       function concatStrings(obj) {
          if (!angular.isObject(obj)) {
            return;
          }
 
-         var digest = '';
+        //  var digest = '';
+         //
+        //  Object.keys(obj).forEach(function (key) {
+        //    if (angular.isString(obj[key])) {
+        //      digest = digest + key + obj[key];
+        //    }
+        //  });
+         //
+        //  return digest;
 
-         Object.keys(obj).forEach(function (key) {
-           if (angular.isString(obj)) {
-             digest = digest + key + obj[key];
-           }
-         });
-
-         return digest;
+        return Object.keys(obj).reduce(function (digest, key) {
+          var item = obj[key];
+          return angular.isString(item) ? digest + item : digest;
+        }, '');
        }
 
        /**
@@ -97,15 +102,11 @@
         * @return {Number} A hashcode of the array.
         */
        function hashCode(array, hashCodeFn) {
-         var hash = angular.isFunction(hashCodeFn) ? hashCodeFn : defaultHashFunction;
+         var hash = angular.isFunction(hashCodeFn) ? hashCodeFn : function (obj) { return obj.id; };
 
          return array.reduce(function (total, item) {
            return 31 * total + hash(item);
          }, 17);
-       }
-
-       function defaultHashFunction(obj) {
-         return obj.id;
        }
 
        /**
@@ -124,7 +125,7 @@
       return {
         isEmpty: isEmpty,
         parseBoolean: parseBoolean,
-        digestStrings: digestStrings,
+        concatStrings: concatStrings,
         hashCode: hashCode,
         prettyPrint: prettyPrint
       };

@@ -33,7 +33,7 @@
 
       <pf-wizard-substep step-title="General" step-id="general" step-priority="10" ok-to-nav-away="generalForm.$valid" next-enabled="generalForm.$valid" show-review="true" show-review-details="true" review-template="build-configs/directives/pnc-create-build-config-wizard/review-build-config-general.html">
         <form name="generalForm" novalidate>
-          <pnc-create-build-config-general-form build-config="$ctrl.wizardData.general"></pnc-create-build-config-general-form>
+          <pnc-create-build-config-general-form ng-model="$ctrl.wizardData.general"></pnc-create-build-config-general-form>
         </form>
       </pf-wizard-substep>
 
@@ -48,9 +48,9 @@
 
     </pf-wizard-step>
 
-    <pf-wizard-step step-title="Repository" substeps="true" step-id="repository" step-priority="30" substeps=true show-review="false">
+    <pf-wizard-step step-title="Repository" substeps="true" step-id="repository" step-priority="30" substeps=true show-review="true" show-review-details="false" review-template="build-configs/directives/pnc-create-build-config-wizard/review-repo-config.html">
       <pf-wizard-substep step-title="Select" step-id="repositorySelect" step-priority="10">
-        <pnc-select-repository></pnc-select-repository>
+        <pnc-select-repository ng-model="$ctrl.wizardData.repoConfig"></pnc-select-repository>
       </pf-wizard-substep>
     </pf-wizard-step>
 
@@ -59,7 +59,22 @@
         <pf-wizard-review-page shown="$ctrl.reviewPageShown" wizard-data="$ctrl.wizardData"></pf-wizard-review-page>
       </pf-wizard-substep>
 
-    </pf-wizard-step>
+      <pf-wizard-substep step-title="Create" step-id="review-progress" step-priority="20" next-enabled="true" prev-enabled="false" ok-to-nav-away="true" wz-disabled="false" on-show="$ctrl.create">
+        <div class="wizard-pf-contents">
+          <div class="wizard-pf-process blank-slate-pf" ng-if="!$ctrl.createComplete">
+            <div class="spinner spinner-lg blank-slate-pf-icon"></div>
+            <h5 class="blank-slate-pf-main-action">Creating Build Config</h5>
+            <p class="blank-slate-pf-secondary-action">Please wait while the repository is cloned and your Build Config is created.</p>
+          </div>
+          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.createComplete">
+            <div class="wizard-pf-success-icon"><span class="glyphicon glyphicon-ok-circle"></span></div>
+            <h5 class="blank-slate-pf-main-action">Build Config Creation Successful</h5>
+            <p class="blank-slate-pf-secondary-action">Your Build Config was created successfully.</p>
+            <button type="button" class="btn btn-lg btn-primary">View Build Config</button>
+          </div>
+       </div>
+     </pf-wizard-substep>
 
+    </pf-wizard-step>
 
 </pf-wizard>

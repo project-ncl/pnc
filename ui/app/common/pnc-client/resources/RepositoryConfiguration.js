@@ -47,6 +47,11 @@
           method: 'GET',
           isPaged: true,
           url: restConfig.getPncUrl() + '/repository-configurations/search-by-scm-url'
+        },
+        match : {
+          method: 'GET',
+          isPaged: true,
+          url: restConfig.getPncUrl() + '/repository-configurations/match-by-scm-url'
         }
       });
 
