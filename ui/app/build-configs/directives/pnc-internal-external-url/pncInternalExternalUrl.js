@@ -39,7 +39,8 @@
         scope: {
           data: '=',
           form: '=',
-          sidebarCols: '@'
+          sidebarCols: '@',
+          singleScm: '@?'
         },
         controller: PncInternalExternalUrlController
       };

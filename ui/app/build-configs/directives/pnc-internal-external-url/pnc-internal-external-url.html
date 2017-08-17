@@ -19,12 +19,12 @@
 -->
 <div class="panel panel-default">
   <div class="panel-heading text-center">
-    <strong>SCMs</strong>
-    <small><em>(at least of one of them must be specified)</em></small>
+    <strong>SCM</strong><strong ng-hide="singleScm">s</strong>
+    <small ng-hide="singleScm"><em>(at least of one of them must be specified)</em></small>
   </div>
   <div class="list-group">
 
-    <div class="list-group-item">
+    <div class="list-group-item" ng-hide="singleScm">
       <div class="text-center">
         When the internal SCM is not specified, it will be cloned from the external one.
       </div>
@@ -32,7 +32,7 @@
 
     <div class="list-group-item">
 
-      <div class="row">
+      <div class="row" ng-hide="singleScm">
         <div class="text-right-sm p-b-10" ng-class="sidebarClass">
           <strong class="text-uppercase">Internal</strong>
         </div>
@@ -40,16 +40,30 @@
 
       <!-- scm url -->
       <div class="form-group" ng-class="{ 'has-error': form.scmUrl.$invalid && form.scmUrl.$touched, 'has-success': form.scmUrl.$valid && form.scmUrl.$touched }">
-        <label for="input-scm-repo-url" class="control-label" ng-class="sidebarClass">* Url</label>
-        <div ng-class="contentClass">
-          <input type="text" id="input-scm-repo-url" class="form-control" name="scmUrl" maxlength="255" ng-model="data.scmUrl" ng-required="!data.externalScmUrl"
+        
+        <div ng-if="!singleScm">
+          <label for="input-scm-repo-url" class="control-label" ng-class="sidebarClass">* Url</label>
+          <div ng-class="contentClass">
+            <input type="text" id="input-scm-repo-url" class="form-control" name="scmUrl" maxlength="255" ng-model="data.scmUrl" ng-required="!data.externalScmUrl"
               pnc-scm-validator="git+ssh" pnc-exact-host="exactHost">
-          <span class="help-block" ng-show="form.scmUrl.$error.required && form.scmUrl.$touched">At least one of the SCMs is required.</span>
-          <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">
-            <span ng-show="exactHost">Only R/W SCM with the following format <code>git+ssh://{{exactHost}}/&lt;repository-name&gt;.git</code> is allowed.</span>
-            <span ng-hide="exactHost">Invalid or unsupported format (only git+ssh:// is supported).</span>
-          </span>
+            <span class="help-block" ng-show="form.scmUrl.$error.required && form.scmUrl.$touched">At least one of the SCMs is required.</span>
+            <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">
+              <span ng-show="exactHost">Only R/W SCM with the following format <code>git+ssh://{{exactHost}}/&lt;repository-name&gt;.git</code> is allowed.</span>
+              <span ng-hide="exactHost">Invalid or unsupported format (only git+ssh:// is supported).</span>
+            </span>
+          </div>
         </div>
+          
+        <div ng-if="singleScm">
+          <label for="input-scm-repo-url-single-scm" class="control-label" ng-class="sidebarClass">* Url</label>
+          <div ng-class="contentClass">
+            <input type="text" id="input-scm-repo-url-single-scm" class="form-control" name="scmUrl" maxlength="255" ng-model="data.scmUrl" 
+              pnc-scm-validator="git|ssh|http|https|git+ssh|git@" required>
+            <span class="help-block" ng-show="form.scmUrl.$error.required && form.scmUrl.$touched">Required field.</span>
+            <span class="help-block" ng-show="form.scmUrl.$error.invalidScmUrl">Invalid or unsupported format.</span>
+          </div>
+        </div>
+
       </div>
 
       <!-- scm revision -->
@@ -63,7 +77,7 @@
 
     </div>
 
-    <div class="list-group-item">
+    <div class="list-group-item" ng-hide="singleScm">
 
       <div class="row">
         <div class="text-right-sm p-b-10" ng-class="sidebarClass">
