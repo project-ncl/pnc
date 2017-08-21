@@ -53,6 +53,7 @@ public class BuildExecutionConfigurationTest {
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,
                 false,
+                null,
                 new HashMap<>()
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);

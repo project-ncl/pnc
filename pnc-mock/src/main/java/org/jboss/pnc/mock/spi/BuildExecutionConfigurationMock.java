@@ -44,6 +44,7 @@ public class BuildExecutionConfigurationMock {
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,
                 false,
+                null,
                 new HashMap<>()
         );
     }

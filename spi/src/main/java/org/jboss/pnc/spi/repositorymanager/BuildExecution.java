@@ -17,10 +17,19 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
+import java.util.List;
+
 public interface BuildExecution {
 
     int getId();
 
     String getBuildContentId();
+
+    /**
+     * Gets the list of repositories needed to run a succesful build.
+     *
+     * @return the list of artifact repositories
+     */
+    List<ArtifactRepository> getArtifactRepositories();
 
 }

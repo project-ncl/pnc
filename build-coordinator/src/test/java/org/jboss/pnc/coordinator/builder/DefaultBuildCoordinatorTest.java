@@ -54,6 +54,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,29 +126,29 @@ public class DefaultBuildCoordinatorTest {
         assertThat(record.getSshCommand()).isEqualTo(sshCredentials.getCommand());
         assertThat(record.getSshPassword()).isEqualTo(sshCredentials.getPassword());
     }
-    
+
     @Test
     public void shouldUpdateBuildRecordSetIfBuildSetBuilIsRejected() throws DatastoreException, CoreException {
-    	BuildConfigurationSet bcSet = BuildConfigurationSet.Builder.newBuilder()
-    			.buildConfigurations(Collections.emptySet())
-    			.name("BCSet").id(1).build();
-    	User user = new User();
-    	when(datastore.saveBuildConfigSetRecord(any())).thenReturn(BuildConfigSetRecord.Builder.newBuilder()
-    			.id(1)
-    			.buildConfigurationSet(bcSet)
-    			.user(user)
-    			.productVersion(ProductVersion.Builder.newBuilder()
-    					.buildConfigurationSet(bcSet)
-    					.id(1)
-    					.version("7.1")
-    					.build())
-    			.build());
-    	
-    	BuildSetTask bsTask = coordinator.build(bcSet, user, false, false);
-    	assertThat(bsTask.getBuildConfigSetRecord().get().getStatus())
-    		.isEqualTo(BuildStatus.REJECTED);
+        BuildConfigurationSet bcSet = BuildConfigurationSet.Builder.newBuilder()
+                .buildConfigurations(Collections.emptySet())
+                .name("BCSet").id(1).build();
+        User user = new User();
+        when(datastore.saveBuildConfigSetRecord(any())).thenReturn(BuildConfigSetRecord.Builder.newBuilder()
+                .id(1)
+                .buildConfigurationSet(bcSet)
+                .user(user)
+                .productVersion(ProductVersion.Builder.newBuilder()
+                        .buildConfigurationSet(bcSet)
+                        .id(1)
+                        .version("7.1")
+                        .build())
+                .build());
+
+        BuildSetTask bsTask = coordinator.build(bcSet, user, false, false);
+        assertThat(bsTask.getBuildConfigSetRecord().get().getStatus())
+            .isEqualTo(BuildStatus.REJECTED);
     }
-    
+
 
     private BuildResult mockBuildResult(boolean withSshCredentials) {
         BuildResult result = mock(BuildResult.class);
@@ -173,7 +174,7 @@ public class DefaultBuildCoordinatorTest {
 
     private static class ArgumentGrabbingAnswer<T> implements Answer<T> {
         private final Class<T> argumentType;
-        private final List<T> arguments = new ArrayList<T>();
+        private final List<T> arguments = new ArrayList<>();
 
         private ArgumentGrabbingAnswer(Class<T> argumentType) {
             this.argumentType = argumentType;

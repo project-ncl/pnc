@@ -153,6 +153,7 @@ public class BuildEnvironmentTest {
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
                 keepAliveOnFailure,
+                null,
                 buildConfiguration.getGenericParameters());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");

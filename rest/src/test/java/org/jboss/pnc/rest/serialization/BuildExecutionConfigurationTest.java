@@ -70,7 +70,7 @@ public class BuildExecutionConfigurationTest {
     private BuildExecutionConfiguration getBuildExecutionConfigurationMock() {
         Map<String, String> genericParameters = new HashMap<>();
         genericParameters.put("KEY", "VALUE");
-       
+
         return new DefaultBuildExecutionConfiguration(
                     1,
                     "condent-id",
@@ -85,6 +85,7 @@ public class BuildExecutionConfigurationTest {
                     "image.repo.url/repo",
                     SystemImageType.DOCKER_IMAGE,
                     false,
+                    null,
                     genericParameters
             );
     }

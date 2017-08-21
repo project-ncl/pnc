@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 
+ *
  * @author Jakub Bartecek <jbartece@redhat.com>
  *
  */
@@ -67,22 +67,22 @@ public class BuildRecordEndpointTest {
     private Datastore datastore;
     @Mock
     private EndpointAuthenticationProvider authProvider;
-    
+
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
-    
+
     private BuildRecordEndpoint endpoint;
     private ArtifactProvider artifactProvider;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        
+
         this.artifactProvider = mock(ArtifactProvider.class);
-        when(artifactProvider.getBuiltArtifactsForBuildRecord(DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null, 
-        		BUILD_RECORD_NOT_VALID_ID)).thenReturn(new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0, 
-        				Collections.emptyList()));
-        
+        when(artifactProvider.getBuiltArtifactsForBuildRecord(DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null,
+                BUILD_RECORD_NOT_VALID_ID)).thenReturn(new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0,
+                        Collections.emptyList()));
+
         endpoint = new BuildRecordEndpoint(buildRecordProvider, artifactProvider, authProvider);
 
         User user = mock(User.class);
@@ -108,19 +108,19 @@ public class BuildRecordEndpointTest {
         // given
         int logId = 1;
         String logContent = "LOG CONTENT";
-        
+
         // when
         endpointReturnsLog(logId, logContent);
 
         // then
         assertThat(endpoint.getLogs(logId).getStatus()).isEqualTo(200);
     }
-    
+
     @Test
     public void shouldReturnNoContentWhenBuildRecordDoesntExists() {
-    	assertThat(endpoint.getBuiltArtifacts(BUILD_RECORD_NOT_VALID_ID, 
-    			DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null).getStatus())
-    	.isEqualTo(204);
+        assertThat(endpoint.getBuiltArtifacts(BUILD_RECORD_NOT_VALID_ID,
+                DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null).getStatus())
+        .isEqualTo(204);
     }
 
     private void endpointReturnsLog(int logId, String logContent) {
@@ -147,6 +147,7 @@ public class BuildRecordEndpointTest {
                 "",
                 SystemImageType.DOCKER_IMAGE,
                 false,
+                null,
                 new HashMap<>());
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
