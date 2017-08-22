@@ -72,6 +72,14 @@
           url: BUILDS_ENDPOINT + '/?q=buildConfigurationAudited.idRev.id==:id&pageIndex=0&pageSize=1&sort==desc=id'
         },
         /**
+         * Gets BuildRecords by configuration.
+         */
+        getByConfiguration: {
+          method: 'GET',
+          isPaged: true,
+          url: BUILDS_ENDPOINT + '/?q=buildConfigurationAudited.idRev.id==:id'
+        },
+        /**
          * Gets all completed BuildRecords
          */
         queryCompleted: {
