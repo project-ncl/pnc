@@ -192,7 +192,7 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
     public void shouldMatchFullExternalRepositoryUrl() throws IOException {
         // given record inserted in shouldCreateNewWithBothUrls VALID_INTERNAL_REPO_2, VALID_EXTERNAL_REPO_2
         final String requestUrl1 = "git+ssh://github.com/project-ncl/pnc-cli";
-        final String requestUrl2 = "git+ssh://github.com/project-ncl/pnc-cli";
+        final String requestUrl2 = "git+ssh://github.com/project-ncl/pnc-cli.git";
         final String requestUrl3 = "https://github.com/project-ncl/pnc-cli.git";
 
         matchFullExternalRepositoryUrl(requestUrl1, true);
