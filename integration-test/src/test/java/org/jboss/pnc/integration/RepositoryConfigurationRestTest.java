@@ -42,11 +42,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_EXTERNAL_REPO;
 import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_INTERNAL_REPO;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SEARCH_QUERY_PARAM;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -57,6 +61,10 @@ import static org.junit.Assert.assertEquals;
 public class RepositoryConfigurationRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    public static final String VALID_INTERNAL_REPO_2 = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/project-ncl/pnc-cli.git";
+
+    public static final String VALID_EXTERNAL_REPO_2 = "https://github.com/project-ncl/pnc-cli.git";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -171,5 +179,60 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
                 .put(String.format(REPOSITORY_CONFIGURATION_SPECIFIC_REST_ENDPOINT, repositoryConfigurationId))
                 .then()
                 .statusCode(400);
+    }
+
+    @Test
+    @InSequence(4)
+    public void shouldCreateNewWithBothUrls() throws IOException {
+        repositoryConfigurationId = processCreateRequest("repositoryConfiguration_create_template_both_urls", 201, VALID_INTERNAL_REPO_2, VALID_EXTERNAL_REPO_2);
+    }
+
+    @InSequence(5)
+    @Test
+    public void shouldMatchFullExternalRepositoryUrl() throws IOException {
+        // given record inserted in shouldCreateNewWithBothUrls VALID_INTERNAL_REPO_2, VALID_EXTERNAL_REPO_2
+        final String requestUrl1 = "git+ssh://github.com/project-ncl/pnc-cli";
+        final String requestUrl2 = "git+ssh://github.com/project-ncl/pnc-cli";
+        final String requestUrl3 = "https://github.com/project-ncl/pnc-cli.git";
+
+        matchFullExternalRepositoryUrl(requestUrl1, true);
+        matchFullExternalRepositoryUrl(requestUrl2, true);
+        matchFullExternalRepositoryUrl(requestUrl3, true);
+    }
+
+    @InSequence(6)
+    @Test
+    public void shouldNotMatchPartialExternalRepositoryUrl(){
+        // given record inserted in shouldUpdate VALID_INTERNAL_REPO, VALID_EXTERNAL_REPO
+        final String requestUrl1 = "https://github.com";
+        final String requestUrl2 = "ssh://github.com/project-ncl";
+
+        matchFullExternalRepositoryUrl(requestUrl1, false);
+        matchFullExternalRepositoryUrl(requestUrl2, false);
+    }
+
+    private void matchFullExternalRepositoryUrl(String requestUrl1, boolean shouldSucceed) {
+        Response responseAll = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(REPOSITORY_CONFIGURATION_REST_ENDPOINT);
+        System.out.println(responseAll.asString());
+
+        //when
+        Response responseMatch = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .queryParam(SEARCH_QUERY_PARAM, requestUrl1)
+                .get(REPOSITORY_CONFIGURATION_MATCH_REST_ENDPOINT);
+
+        // then
+        if(shouldSucceed) {
+            ResponseAssertion.assertThat(responseMatch).hasStatus(200);
+            List<RepositoryConfigurationRest> returnedObjects = responseMatch.path("content.externalUrl");
+            assertEquals(1, returnedObjects.size());
+            ResponseAssertion.assertThat(responseMatch)
+                    .hasJsonValueEqual("content[0].externalUrl", VALID_EXTERNAL_REPO_2);
+        }
+        else {
+            ResponseAssertion.assertThat(responseMatch).hasStatus(204);
+        }
     }
 }
