@@ -132,6 +132,16 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     public CollectionInfo<RepositoryConfigurationRest> searchByScmUrl(int pageIndex, int pageSize, String sortingRsql, String scmUrl) {
         Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.searchByScmUrl(scmUrl);
 
+        return getRepositoryConfigurationRestCollectionInfo(pageIndex, pageSize, sortingRsql, predicate);
+    }
+
+    public CollectionInfo<RepositoryConfigurationRest> matchByScmUrl(int pageIndex, int pageSize, String sortingRsql, String scmUrl) {
+        Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.matchByScmUrl(scmUrl);
+
+        return getRepositoryConfigurationRestCollectionInfo(pageIndex, pageSize, sortingRsql, predicate);
+    }
+
+    private CollectionInfo<RepositoryConfigurationRest> getRepositoryConfigurationRestCollectionInfo(int pageIndex, int pageSize, String sortingRsql, Predicate<RepositoryConfiguration> predicate) {
         List<RepositoryConfiguration> collection = repository.queryWithPredicates(
                 pageInfoProducer.getPageInfo(pageIndex, pageSize),
                 sortInfoProducer.getSortInfo(sortingRsql),
