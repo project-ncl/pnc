@@ -59,4 +59,14 @@ public class RepositoryConfigurationPredicates {
                 cb.like(root.get(RepositoryConfiguration_.internalUrlNormalized), pattern),
                 cb.like(root.get(RepositoryConfiguration_.externalUrlNormalized), pattern));
     }
+
+    public static Predicate<RepositoryConfiguration> matchByScmUrl(String scmUrl) {
+        final String urlStripped = StringUtils.stripSuffix(StringUtils.stripProtocol(scmUrl), ".git");
+
+        logger.trace("Searching for pattern: {}.", urlStripped);
+
+        return (root, query, cb) -> cb.or(
+                cb.equal(root.get(RepositoryConfiguration_.internalUrlNormalized), urlStripped),
+                cb.equal(root.get(RepositoryConfiguration_.externalUrlNormalized), urlStripped));
+    }
 }

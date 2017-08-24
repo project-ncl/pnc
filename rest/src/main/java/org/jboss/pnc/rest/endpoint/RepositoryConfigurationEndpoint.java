@@ -154,7 +154,8 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
         return super.update(id, repositoryConfigurationRest);
     }
 
-    @ApiOperation(value = "Search for Repository Configurations based on internal or external url")
+    @ApiOperation(value = "Search for Repository Configurations based on internal or external url, ignoring the protocol and \".git\" suffix. " +
+            "The matching is done using LIKE.")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryConfigurationPage.class),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = RepositoryConfigurationPage.class),
@@ -166,8 +167,26 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
     public Response search(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = "Url part to search for.", required = true) @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
+            @ApiParam(value = "Url part to search for", required = true) @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
         return fromCollection(repositoryConfigurationProvider.searchByScmUrl(pageIndex, pageSize, sort, scmUrl));
+    }
+
+
+    @ApiOperation(value = "Searches for Repository Configurations based on internal or external url, ignoring the protocol and \".git\" suffix. " +
+            "Only exact matches are returned.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryConfigurationPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = RepositoryConfigurationPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/match-by-scm-url")
+    public Response match(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+                           @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+                           @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+                           @ApiParam(value = "Url to search for", required = true) @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
+        return fromCollection(repositoryConfigurationProvider.matchByScmUrl(pageIndex, pageSize, sort, scmUrl));
     }
 
 }
