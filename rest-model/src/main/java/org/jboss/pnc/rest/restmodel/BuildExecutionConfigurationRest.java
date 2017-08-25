@@ -272,8 +272,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return artifactRepositories;
     }
 
-    public void setArtifactRepositories(List<ArtifactRepository> artifactRepositories) {
-        this.artifactRepositories = artifactRepositories;
+    public void setArtifactRepositories(List<ArtifactRepositoryRest> artifactRepositoriesRest) {
+        this.artifactRepositories = new ArrayList<>(artifactRepositoriesRest);
     }
 
     public void setGenericParameters(Map<String, String> genericParameters) {
