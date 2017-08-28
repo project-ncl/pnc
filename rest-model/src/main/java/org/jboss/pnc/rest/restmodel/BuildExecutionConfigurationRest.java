@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
@@ -37,6 +38,7 @@ import java.util.Map;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildExecutionConfiguration")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildExecutionConfigurationRest implements BuildExecutionConfiguration {
 
     private int id;
