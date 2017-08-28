@@ -21,24 +21,7 @@
   <div class="panel-heading">
     Finished Builds
   </div>
-  <table class="table table-bordered table-striped table-hover">
-    <thead>
-    <th>Project</th>
-    <th>Build Config</th>
-    <th>User</th>
-    <th>Status</th>
-    </thead>
-    <tbody>
-    <tr ng-repeat="record in page.data">
-      <td>{{ record.getBuildConfiguration().getProject().name }}</td>
-      <td><a href ui-sref="build-configs.detail({configurationId: record.buildConfigurationId})">{{
-        record.buildConfigurationName }}</a></td>
-      <td>{{ record.username }}</td>
-      <td>
-        <pnc-build-status-icon build-record="record"></pnc-build-status-icon>
-        <a href ui-sref="build-records.detail.default({recordId: record.id})"># {{ record.id }}</a>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+
+  <pnc-build-records-list build-records="page.data" class="inside-panel"></pnc-build-records-list>
+  <pnc-pager class="pull-right" page="page"></pnc-pager>
 </div>

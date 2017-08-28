@@ -22,6 +22,10 @@
   margin: 0;
 }
 
+.clear-both {
+  clear: both;
+}
+
 .inline-block {
   display: inline-block;
 }

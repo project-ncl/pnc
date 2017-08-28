@@ -31,7 +31,8 @@
           milestone: '=',
           performedBuilds: '='
         },
-        link: function () {
+        link: function (scope) {
+          scope.displayFields = ['status', 'id', 'configurationName', 'endTime'];
         }
       };
     }

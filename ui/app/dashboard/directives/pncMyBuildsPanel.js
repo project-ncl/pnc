@@ -67,6 +67,8 @@
               });
             });
 
+            scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
+
             scope.$on(eventTypes.BUILD_STARTED, scope.update);
             scope.$on(eventTypes.BUILD_FINISHED, scope.update);
           }

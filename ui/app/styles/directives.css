@@ -227,3 +227,10 @@
   animation-name: loadingPlaceholder;
   animation-timing-function: linear;
 }
+
+/**
+ * pnc-build-records-list
+ */
+.panel .pnc-build-records-list {
+  margin-bottom: 0;
+}

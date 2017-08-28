@@ -17,42 +17,8 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <pnc-search-field class="search" page="page" text="group builds"></pnc-search-field>
-    <h3 class="panel-title">Group Builds</h3>
-  </div>
-
-  <table class="table table-striped table-hover" ng-show="page.data.length">
-    <thead>
-      <th>Status</th>
-      <th>Build #</th>
-      <th>Name</th>
-      <th>Start Time</th>
-      <th>End Time</th>
-      <th>User</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="record in page.data">
-        <td>
-          <pnc-build-status-icon build-record="record"></pnc-build-status-icon> {{ record.status }}
-        </td>
-        <td>
-          <a href ui-sref="configuration-set-record.detail.info({ recordId: record.id })"># {{ record.id }}</a>
-        </td>
-        <td>
-          <a href ui-sref="build-groups.detail.build-configs({ configurationSetId: record.buildConfigurationSetId })">
-            {{ record.buildConfigurationSetName }}
-          </a>
-        </td>
-        <td>{{ record.startTime | date:'medium' }}</td>
-        <td>{{ record.endTime | date:'medium' }}</td>
-        <td>{{ record.username }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="panel-body" ng-hide="page.data.length || !page.isLoaded">
-    No builds
-  </div>
+<div>
+  <pnc-search-field class="search" page="page" text="group builds"></pnc-search-field>
+  <pnc-build-records-list build-group-records="page.data"></pnc-build-records-list>
   <pnc-pager class="pull-right" page="page"></pnc-pager>
 </div>
