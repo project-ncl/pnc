@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryConfiguration;
@@ -41,6 +42,7 @@ import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -69,6 +71,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
+    private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
     private ProductVersionRepository productVersionRepository;
 
     private ScmModuleConfig moduleConfig;
@@ -76,11 +80,13 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     @Inject
     public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
                                       BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                                      BuildConfigurationSetRepository buildConfigurationSetRepository,
                                       RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
                                       ProductVersionRepository productVersionRepository,
                                       Configuration configuration) throws ConfigurationParseException {
         super(buildConfigurationRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.productVersionRepository = productVersionRepository;
         this.moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
     }
@@ -203,6 +209,14 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
         buildConfiguration.setArchived(true);
+
+        // if a build configuration is archived, unlink the build configuration from the build configuration sets it
+        // is associated with
+        for (BuildConfigurationSet bcs: buildConfiguration.getBuildConfigurationSets()) {
+            bcs.removeBuildConfiguration(buildConfiguration);
+            buildConfigurationSetRepository.save(bcs);
+        }
+
         repository.save(buildConfiguration);
     }
 
