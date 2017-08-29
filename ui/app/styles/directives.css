@@ -220,7 +220,7 @@
   top: 0;
   left: -200px;
   background: linear-gradient(to right, #eee 0%, #ddd 50%, #eee 100%);
-  
+
   animation-duration: 2s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
@@ -233,4 +233,8 @@
  */
 .panel .pnc-build-records-list {
   margin-bottom: 0;
+}
+.combobox-container .dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
 }

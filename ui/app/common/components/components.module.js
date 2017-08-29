@@ -18,6 +18,8 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.components', []);
+  angular.module('pnc.common.components', [
+    'pnc-ui-extras.combobox'
+  ]);
 
 })();

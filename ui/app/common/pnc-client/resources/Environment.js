@@ -20,19 +20,18 @@
 
   var module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('BUILD_CONFIGURATION_PATH', '/build-configurations/:id');
+  module.value('ENVIRONMENT_PATH', '/environments/:id');
 
   /**
    *
    * @author Alex Creasy
    */
-  module.factory('BuildConfiguration', [
+  module.factory('Environment', [
     '$resource',
-    '$http',
     'restConfig',
-    'BUILD_CONFIGURATION_PATH',
-    function($resource, $http, restConfig, BUILD_CONFIGURATION_PATH) {
-      var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIGURATION_PATH;
+    'ENVIRONMENT_PATH',
+    function($resource, restConfig, ENVIRONMENT_PATH) {
+      var ENDPOINT = restConfig.getPncUrl() + ENVIRONMENT_PATH;
 
       var resource = $resource(ENDPOINT, {
         id: '@id'
@@ -40,18 +39,8 @@
         query: {
           method: 'GET',
           isPaged: true,
-        },
-        update: {
-          method: 'PUT'
         }
       });
-
-      resource.getSupportedGenericParameters = function() {
-        return $http.get(restConfig.getPncUrl() + '/build-configurations/supported-generic-parameters').then(function (r) {
-          return r.data;
-        });
-      };
-
 
       return resource;
     }
