@@ -189,8 +189,10 @@
   module.controller('ConfigurationSidebarController', [
     '$log',
     '$stateParams',
-    function($log, $stateParams) {
+    'configurationDetail',
+    function($log, $stateParams, configurationDetail) {
       this.buildConfigurationId = $stateParams.configurationId;
+      this.buildConfiguration = configurationDetail;
       this.filterBy = {
         buildConfigurationId: $stateParams.configurationId
       };

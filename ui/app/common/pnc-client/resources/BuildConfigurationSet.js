@@ -49,6 +49,11 @@
           method: 'GET',
           isPaged: true
         },
+        queryBuildConfigSetRecords: {
+          url: ENDPOINT + '/build-config-set-records',
+          method: 'GET',
+          isPaged: true
+        },
         updateBuildConfigurations: {
           url: ENDPOINT + '/build-configurations',
           method: 'PUT'

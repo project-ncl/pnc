@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<div class="form-inline pnc-page-controls">
+<div class="form-inline pnc-page-controls" ng-show="ctrl.page.data.length > ctrl.pageSizes[0] || ctrl.page.total > 1">
   <div class="form-group pnc-page-controls-size">
     <label for="page-size-{{::$id}}">Page Size:&nbsp;</label>
     <select id="page-size-{{::$id}}" ng-model="ctrl.size" ng-change="ctrl.page.getWithNewSize(ctrl.size)" ng-options="i as i for i in ctrl.pageSizes">

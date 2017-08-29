@@ -19,21 +19,21 @@
 -->
 <div class="panel panel-default build-panel">
   <div class="panel-heading">
-    <div class="spinner spinner-sm pull-right" ng-hide="page.isLoaded"></div>
+    <div class="spinner spinner-sm pull-right" ng-hide="$ctrl.page.isLoaded"></div>
     <h3 class="panel-title">Build History</h3>
   </div>
 
-  <table class="table table-striped table-hover" ng-show="page.data.length">
+  <table class="table table-striped table-hover" ng-show="$ctrl.page.data.length">
     <tbody>
-      <tr ng-repeat="record in page.data">
+      <tr ng-repeat="record in $ctrl.page.data">
         <td>
-          <pnc-build-status build-record="record" is-loaded="page.isLoaded"></pnc-build-status>
+          <pnc-build-status build-record="record" is-loaded="$ctrl.page.isLoaded"></pnc-build-status>
         </td>
       </tr>
     </tbody>
   </table>
-  <div class="panel-body" ng-hide="page.data.length || !page.isLoaded">
+  <div class="panel-body" ng-hide="$ctrl.page.data.length || !$ctrl.page.isLoaded">
     No builds
   </div>
-  <pnc-pager class="pull-right" page="page"></pnc-pager>
+  <pnc-page-controls class="pull-right" pnc-page="$ctrl.page" ng-if="$ctrl.page"></pnc-page-controls>
 </div>
