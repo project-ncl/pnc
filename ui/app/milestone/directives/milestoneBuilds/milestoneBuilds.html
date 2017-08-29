@@ -22,25 +22,7 @@
     <small>Builds Performed</small>
   </pnc-header-title>
 </pnc-header>
-<table class="table table-bordered table-striped" ng-show="performedBuilds.data.length">
-  <thead>
-    <th>Status</th>
-    <th>ID</th>
-    <th>Build Config</th>
-    <th>End Time</th>
-  </thead>
-  <tbody>
-  <tr ng-repeat="buildrecord in performedBuilds.data">
-    <td>{{ buildrecord.status}}</td>
-    <td><a href ui-sref="projects.detail.build-configs.detail.build-records.detail.default({ projectId: buildrecord.projectId, configurationId: buildrecord.buildConfigurationId, recordId: buildrecord.id })"># {{ buildrecord.id}}</a></td>
-    <td><a href ui-sref="projects.detail.build-configs.detail({ projectId: buildrecord.projectId, configurationId: buildrecord.buildConfigurationId })">{{ buildrecord.buildConfigurationName}}</a></td>
-    <td>{{ buildrecord.endTime | date:'mediumDate'}}</td>
-  </tr>
-  </tbody>
-</table>
-
-<pnc-pager class="pull-right" page="performedBuilds"></pnc-pager>
-
-<div ng-hide="performedBuilds.data.length" class="text-center">
-  There are no results to display.
+<div>
+  <pnc-build-records-list build-records="performedBuilds.data" display-fields="displayFields"></pnc-build-records-list>
+  <pnc-pager class="pull-right" page="performedBuilds"></pnc-pager>
 </div>
