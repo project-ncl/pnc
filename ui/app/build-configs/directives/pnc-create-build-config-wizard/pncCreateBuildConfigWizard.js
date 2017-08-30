@@ -65,6 +65,7 @@
       bc.dependencyIds = wizardData.dependencies.map(function (d) { return d.id; });
       bc.scmRevision = wizardData.repoConfig.revision;
       bc.project = $ctrl.wizardData.project;
+      bc.buildConfigurationSetIds = [];
       return bc;
     }
 
