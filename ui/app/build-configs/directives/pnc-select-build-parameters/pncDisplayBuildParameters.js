@@ -25,7 +25,7 @@
       onRemove: '&'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-display-build-parameters.html',
-    controller: Controller
+    controller: [Controller]
   });
 
   function Controller() {

@@ -24,7 +24,7 @@
       project: '<'
     },
     templateUrl: 'build-configs/directives/pnc-create-build-config-button/pnc-create-build-config-button.html',
-    controller: Controller
+    controller: ['$log', '$uibModal', Controller]
   });
 
   function Controller($log, $uibModal) {
