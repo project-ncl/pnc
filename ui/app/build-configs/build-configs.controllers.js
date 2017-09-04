@@ -120,6 +120,10 @@
 
         that.configuration.environment.id = that.environment.id;
 
+        that.configuration.repositoryConfiguration = {
+          id: that.repositoryConfigurationSelectedId
+        };
+
         var added = _.difference(that.buildgroupconfigs.selected, linkedConfigurationSetList);
         var removed = _.difference(linkedConfigurationSetList, that.buildgroupconfigs.selected);
 

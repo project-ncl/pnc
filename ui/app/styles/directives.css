@@ -238,3 +238,11 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+
+/**
+ * pnc-repository-configuration-combobox
+ */
+.pnc-repository-configuration-combobox .px-combobox-dropdown > .px-combobox-option a {
+  white-space: pre;
+}
