@@ -22,14 +22,18 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.datastore.limits.DefaultPageInfoProducer;
 import org.jboss.pnc.datastore.limits.DefaultSortInfoProducer;
 import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
+import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,7 +57,8 @@ public class ArtifactProviderTest {
 
     private final SpringDataRSQLPredicateProducer predicateProvider = new SpringDataRSQLPredicateProducer();
     private final SortInfoProducer sortInfoProducer = new DefaultSortInfoProducer();
-    
+    private final PageInfoProducer pageInfoProducer = new DefaultPageInfoProducer();
+
     private final Artifact a1 = createArtifact(100, "booya", "asdf");
     private final Artifact a2 = createArtifact(1, "woohoo", "fdsa");
     private final Artifact a3 = createArtifact(2, "aaa", "gggg");
@@ -134,7 +139,7 @@ public class ArtifactProviderTest {
     }
     
     @Test
-    public void shouldReturnNullForBuiltArtifactsWhenBuildRecordIsNotFound() {
+    public void shouldReturnEmptyCollectionForBuiltArtifactsWhenBuildRecordIsNotFound() {
         // given
         ArtifactProvider provider = artifactProviderWithBuiltResult();
         
@@ -181,7 +186,8 @@ public class ArtifactProviderTest {
         when(recordRepo.queryById(BUILD_RECORD_VALID_ID)).thenReturn(record);
         when(recordRepo.queryById(BUILD_RECORD_NOT_VALID_ID)).thenReturn(null);
 
-        return new ArtifactProvider(null, predicateProvider, sortInfoProducer, null, recordRepo, mockConfiguration());
+        ArtifactRepository artifactReposiory = new ArtifactRepositoryMock();
+        return new ArtifactProvider(artifactReposiory, predicateProvider, sortInfoProducer, pageInfoProducer, recordRepo, mockConfiguration());
     }
 
     private Configuration mockConfiguration() {
