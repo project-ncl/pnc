@@ -20,7 +20,7 @@
 
   /**
    * The dumb component representing Build Status displaying information like build status icon, 
-   * start / end time or started by user for given Build Record.
+   * start / end time or started by user for given Build Record or Build Group Record.
    * 
    * @example 
    * <pnc-build-status build-record="buildRecord" is-loaded="isLoaded"></pnc-build-status>
@@ -30,13 +30,35 @@
       /**
        * Object: The BuildRecord to display the status for.
        */
-      buildRecord: '<',
+      buildRecord: '<?',
+      /**
+       * Object: The BuildGroupRecord to display the status for.
+       */
+      buildGroupRecord: '<?',
       /**
        * Object: Truthy or falsy object indicating whether data request is finished or not.
        */
       isLoaded: '<'
     },
-    templateUrl: 'common/components/pnc-build-status/pnc-build-status.html'
+    templateUrl: 'common/components/pnc-build-status/pnc-build-status.html',
+    controller: [Controller]
   });
+
+  function Controller() {
+    var $ctrl = this;
+
+    $ctrl.$onInit = function() {
+      $ctrl.item = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+    };
+
+    $ctrl.$onChanges = function(changedBindings) {
+      if (changedBindings.buildRecord) {
+        $ctrl.item = $ctrl.buildRecord;
+      } else if (changedBindings.buildGroupRecord) {
+        $ctrl.item = $ctrl.buildGroupRecord;
+      }
+    };
+    
+  }
 
 })();
