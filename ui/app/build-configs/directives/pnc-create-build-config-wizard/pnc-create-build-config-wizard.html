@@ -64,13 +64,19 @@
           <div class="wizard-pf-process blank-slate-pf" ng-if="!$ctrl.createComplete">
             <div class="spinner spinner-lg blank-slate-pf-icon"></div>
             <h5 class="blank-slate-pf-main-action">Creating Build Config</h5>
-            <p class="blank-slate-pf-secondary-action">Please wait while the repository is cloned and your Build Config is created.</p>
+            <p class="blank-slate-pf-secondary-action" ng-repeat="message in $ctrl.createStatusMessages">{{ message }}</p>
           </div>
-          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.createComplete">
+          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.createComplete && !$ctrl.createError">
             <div class="wizard-pf-success-icon"><span class="glyphicon glyphicon-ok-circle"></span></div>
             <h5 class="blank-slate-pf-main-action">Build Config Creation Successful</h5>
             <p class="blank-slate-pf-secondary-action">Your Build Config was created successfully.</p>
-            <button type="button" class="btn btn-lg btn-primary">View Build Config</button>
+            <a role="button" class="btn btn-lg btn-primary" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.wizardData.project.id, configurationId: $ctrl.createdBuildConfigId })" href>View Build Config</a>
+          </div>
+
+          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.createComplete && $ctrl.createError">
+            <div class="wizard-pf-error-icon"><span class="glyphicon glyphicon-remove-circle"></span></div>
+            <h5 class="blank-slate-pf-main-action">Error Creating Build Config</h5>
+            <!-- <p class="blank-slate-pf-secondary-action">There was an error whilst creating the Build Config</p> -->
           </div>
        </div>
      </pf-wizard-substep>

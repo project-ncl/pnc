@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 (function () {
-  'use strict';
-
-  angular.module('pnc.common.pnc-client.message-bus', [
-    'angular-websocket'
-  ]).run([
-    'messageBus',
-    function (messageBus) {
-
-      messageBus.registerListener('processProgressUpdateListener');
-      messageBus.registerListener('buildStatusListener');
-      messageBus.registerListener('bccListener');
-      messageBus.registerListener('rcListener');
-
-    }
-  ]);
-
-})();
+    'use strict';
+  
+    angular.module('pnc.common.pnc-client.message-bus').factory('rcListener', [
+      '$log',
+      '$rootScope',
+      'eventTypes',
+      function ($log, $rootScope, eventTypes) {
+        return function (message) {
+          if (message.eventType && message.eventType.startsWith('RC_')) {
+            $rootScope.$broadcast(eventTypes.RC_BPM_NOTIFICATION, message);
+          }
+        };
+      }
+    ]);
+  
+  })();
+  
