@@ -34,14 +34,26 @@
     <dt ng-show="ctrl.record.endTime">Finished:</dt>
     <dd ng-show="ctrl.record.endTime">{{ (ctrl.record.endTime | date : 'medium') }}</dd>
 
-    <dt>Intenal SCM URL:</dt>
-    <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmRepoURL }}">{{ ctrl.record.buildConfigurationAudited.scmRepoURL || '&mdash;' }}</a></dd>
-    <dt>Internal SCM Revision:</dt>
-    <dd>{{ ctrl.record.buildConfigurationAudited.scmRevision || '&mdash;'}}</dd>
+    <!-- repository configuration -->
+    <dt>Internal SCM URL:</dt>
+    <dd>
+      <a ng-show="ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl" ng-href="{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}">{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}</a>
+      <span ng-hide="ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl">&mdash;</span>
+    </dd>
+    
     <dt>External SCM URL:</dt>
-    <dd><a ng-href="{{ ctrl.record.buildConfigurationAudited.scmExternalRepoURL }}">{{ ctrl.record.buildConfigurationAudited.scmExternalRepoURL || '&mdash;' }}</a></dd>
-    <dt title="The SCM revision after automated source updates">External SCM Revision:</dt>
-    <dd>{{ ctrl.record.buildConfigurationAudited.scmExternalRevision || '&mdash;'}}</dd>
+    <dd>
+      <a ng-show="ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl" ng-href="{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl }}">{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl }}</a>
+      <span ng-hide="ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl">&mdash;</span>
+    </dd>
+
+    <dt>Pre-build sync:</dt>
+    <dd>{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.preBuildSyncEnabled ? 'enabled' : 'disabled' }}</dd>
+    <!-- repository configuration -->
+
+    <dt>SCM Revision:</dt>
+    <dd>{{ ctrl.record.buildConfigurationAudited.scmRevision || '&mdash;'}}</dd>
+
     <dt>Environment:</dt>
     <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
     <dt>Script:</dt>
