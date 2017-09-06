@@ -48,6 +48,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -79,7 +80,17 @@ public class BuildRecordsTest {
 
     private static Integer buildRecord2Id;
 
+    private static Integer buildRecordWithArtifactsId;
+
     private static String buildConfigName;
+
+    private static Artifact builtArtifact1;
+
+    private static Artifact builtArtifact2;
+
+    private static Artifact builtArtifact3;
+
+    private static Artifact importedArtifact1;
 
     @Inject
     private ArtifactRepository artifactRepository;
@@ -119,7 +130,6 @@ public class BuildRecordsTest {
         return enterpriseArchive;
     }
 
-
     @Test
     @InSequence(-1)
     @Transactional
@@ -128,40 +138,40 @@ public class BuildRecordsTest {
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder()
+        builtArtifact1 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")
                 .identifier("integration-test:built-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .md5("md-fake-abcd1234")
-                .sha1("sha1-fake-abcd1234")
-                .sha256("sha256-fake-abcd1234")
+                .md5("md-fake-1")
+                .sha1("sha1-fake-1")
+                .sha256("sha256-fake-1")
                 .build();
 
-        Artifact builtArtifact2 = Artifact.Builder.newBuilder()
+        builtArtifact2 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact2.jar")
                 .identifier("integration-test:built-artifact2:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .md5("md-fake-abcd1234")
-                .sha1("sha1-fake-abcd1234")
-                .sha256("sha256-fake-abcd1234")
+                .md5("md-fake-2")
+                .sha1("sha1-fake-2")
+                .sha256("sha256-fake-2")
                 .build();
 
-        Artifact builtArtifact3 = Artifact.Builder.newBuilder()
+        builtArtifact3 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact3.jar")
                 .identifier("integration-test:built-artifact3:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .md5("md-fake-abcd1234")
-                .sha1("sha1-fake-abcd1234")
-                .sha256("sha256-fake-abcd1234")
+                .md5("md-fake-3")
+                .sha1("sha1-fake-3")
+                .sha256("sha256-fake-3")
                 .build();
 
-        Artifact importedArtifact1 = Artifact.Builder.newBuilder()
+        importedArtifact1 = Artifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
                 .identifier("integration-test:import-artifact1:jar:1.0")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .md5("md-fake-abcd1234")
-                .sha1("sha1-fake-abcd1234")
-                .sha256("sha256-fake-abcd1234")
+                .md5("md-fake-i1")
+                .sha1("sha1-fake-i1")
+                .sha256("sha256-fake-i1")
                 .importDate(Date.from(Instant.now()))
                 .originUrl("http://central/importedArtifact1.jar")
                 .build();
@@ -218,6 +228,29 @@ public class BuildRecordsTest {
         buildRecord2 = buildRecordRepository.save(buildRecord2);
 
         buildRecord2Id = buildRecord2.getId();
+
+        BuildRecord buildRecordWithArtifacts = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
+                .buildLog("test build completed and has some artifacts")
+                .repourLog("alignment done")
+                .status(BuildStatus.SUCCESS)
+                .latestBuildConfiguration(buildConfiguration)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .user(user)
+                .builtArtifact(builtArtifact1)
+                .builtArtifact(builtArtifact2)
+                .builtArtifact(builtArtifact3)
+                .dependency(builtArtifact1FromDb)
+                .dependency(importedArtifact1)
+                .attribute("attributeKey", "attributeValue2")
+                .build();
+
+        buildRecordWithArtifacts = buildRecordRepository.save(buildRecordWithArtifacts);
+
+        buildRecordWithArtifactsId = buildRecordWithArtifacts.getId();
 
     }
 
@@ -286,6 +319,114 @@ public class BuildRecordsTest {
         // then
         assertThat(artifacts).hasSize(2);
         assertThat(artifacts).are(new IsBuilt());
+    }
+
+    @Test
+    public void shouldGetBuiltArtifactsSortedByFilename() {
+        //when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(
+                toRestArtifact(builtArtifact1),
+                toRestArtifact(builtArtifact2),
+                toRestArtifact(builtArtifact3));
+    }
+
+    @Test
+    public void shouldSortBuiltArtifactsById() {
+        //when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(
+                toRestArtifact(builtArtifact1),
+                toRestArtifact(builtArtifact2),
+                toRestArtifact(builtArtifact3));
+    }
+
+    @Test
+    public void shouldFilterBuiltArtifactsByFilename() {
+        //when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==builtArtifact2.jar", buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(toRestArtifact(builtArtifact2));
+    }
+
+    /**
+     * TODO enable me
+     * the 3rd condition "or field=value" is ignored, probably an issue with rsql parser, try to update the rsql-parser to the latest version
+     */
+    @Ignore
+    @Test
+    public void shouldFilterBuiltArtifactsByFilenameIdOrChecksum() {
+
+        String builtArtifact1Sha256 = builtArtifact1.getSha256();
+        Integer builtArtifact2Id = builtArtifact2.getId();
+        String builtArtifact3Filename = builtArtifact3.getFilename();
+
+        //when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==" +  builtArtifact2Id + " or sha256==" +  builtArtifact1Sha256 + " or filename==" + builtArtifact3Filename, buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(
+                toRestArtifact(builtArtifact1),
+                toRestArtifact(builtArtifact2),
+                toRestArtifact(builtArtifact3));
+    }
+
+    @Test
+    public void shouldFilterBuiltArtifactsByFilenameIdAndChecksum() {
+        String builtArtifact1Sha256 = builtArtifact1.getSha256();
+        Integer builtArtifact1Id = builtArtifact1.getId();
+        String builtArtifact1Filename = builtArtifact1.getFilename();
+
+        String matchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact1Sha256 + " and filename==" + builtArtifact1Filename;
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, buildRecordWithArtifactsId);
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(toRestArtifact(builtArtifact1));
+
+        String builtArtifact2Sha256 = builtArtifact2.getSha256();
+        String builtArtifact3Filename = builtArtifact3.getFilename();
+
+        String nonMatchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact2Sha256 + " and filename==" + builtArtifact3Filename;
+        artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, buildRecordWithArtifactsId);
+        assertThat(artifacts.getContent()).isEmpty();
+    }
+
+    @Test
+    public void shouldReturnEmptyCollectionForBuiltArtifactsWhenBuildRecordIsNotFound() {
+        // when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, null, 123456789);
+
+        // then
+        assertThat(artifacts.getContent().isEmpty()).isTrue();
+    }
+
+    @Test
+    public void shouldReturnAllWithoutFilterAndSort() {
+        //when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, null, buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(
+                toRestArtifact(builtArtifact1),
+                toRestArtifact(builtArtifact2),
+                toRestArtifact(builtArtifact3));
+    }
+
+    @Test
+    public void shouldPaginateartifactsProperly() {
+        Integer builtArtifact1Id = builtArtifact1.getId();
+        String builtArtifact2Sha256 = builtArtifact2.getSha256();
+
+        //when
+        String query = "id==" + builtArtifact1Id + " or sha256==" + builtArtifact2Sha256;
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 1, null, query, buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(toRestArtifact(builtArtifact1));
+        assertThat(artifacts.getTotalPages()).isEqualTo(2);
+
+        //when
+        artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(1, 1, null, query, buildRecordWithArtifactsId);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(toRestArtifact(builtArtifact2));
+        assertThat(artifacts.getTotalPages()).isEqualTo(2);
     }
 
     @Test
@@ -390,6 +531,10 @@ public class BuildRecordsTest {
     private List<BuildRecord> selectBuildRecords(String rsqlQuery) {
         Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, rsqlQuery);
         return StreamHelper.nullableStreamOf(buildRecordRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
+    }
+
+    private ArtifactRest toRestArtifact(Artifact artifact) {
+        return new ArtifactRest(artifact);
     }
 
     class IsImported extends Condition<ArtifactRest> {
