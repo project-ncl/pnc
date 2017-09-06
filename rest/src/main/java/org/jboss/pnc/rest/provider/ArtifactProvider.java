@@ -57,6 +57,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactProvider.class);
 
+    @Deprecated
     private BuildRecordRepository buildRecordRepository;
     private MavenRepoDriverModuleConfig moduleConfig;
 
@@ -118,7 +119,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
-            return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
+                return "";
+            } else {
+                return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            }
         } else {
             return artifact.getOriginUrl();
         }
@@ -126,7 +131,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
-            return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
+                return "";
+            } else {
+                return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            }
         } else {
             return artifact.getOriginUrl();
         }
