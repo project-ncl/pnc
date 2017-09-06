@@ -274,3 +274,9 @@ label.required::before {
   font-size: 0.6em;
   vertical-align: middle;
 }
+
+.wizard-pf-error-icon {
+  color: #cc0000;
+  font-size: 67.2px;
+  line-height: 67.2px;
+}
