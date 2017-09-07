@@ -26,6 +26,7 @@ import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -132,6 +133,14 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     public void update(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
+        ProductMilestone milestoneInDb = repository.queryById(id);
+
+        // Check if milestone already released/closed by checking if end date specified
+        if (milestoneInDb.getEndDate() != null) {
+            log.error("Milestone is already closed: no more modifications allowed");
+            throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
+        }
+
         log.debug("Updating milestone for id: {}", id);
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
