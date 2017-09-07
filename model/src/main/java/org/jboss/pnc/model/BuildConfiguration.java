@@ -104,7 +104,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotNull
     @Index(name="idx_buildconfiguration_repositoryconfiguration")
     @ManyToOne(optional = false)
-    @JoinColumn(updatable = false, nullable = false)
+    @JoinColumn(updatable = true, nullable = false)
     private RepositoryConfiguration repositoryConfiguration;
 
     /**
