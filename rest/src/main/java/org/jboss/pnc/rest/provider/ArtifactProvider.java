@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +49,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 
 @Stateless
@@ -58,6 +57,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactProvider.class);
 
+    @Deprecated
     private BuildRecordRepository buildRecordRepository;
     private MavenRepoDriverModuleConfig moduleConfig;
 
@@ -98,15 +98,10 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
      */
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
-        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
-        Set<Artifact> builtArtifacts = Collections.emptySet();
-        if (buildRecord != null)
-        	builtArtifacts = buildRecord.getBuiltArtifacts();
-        
-    	return filterAndSort(pageIndex, pageSize, sortingRsql, query,
-    			ArtifactRest.class, builtArtifacts);
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
     }
 
+    @Deprecated
     private <DTO, Model> CollectionInfo<ArtifactRest> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
                                                        Class<ArtifactRest> selectingClass, Set<Artifact> artifacts) {
         Predicate<ArtifactRest> queryPredicate = rsqlPredicateProducer.getStreamPredicate(selectingClass, query);
@@ -124,7 +119,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
-            return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
+                return "";
+            } else {
+                return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            }
         } else {
             return artifact.getOriginUrl();
         }
@@ -132,7 +131,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
-            return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
+                return "";
+            } else {
+                return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+            }
         } else {
             return artifact.getOriginUrl();
         }
