@@ -112,6 +112,7 @@ public class ProductMilestoneReleaseManager {
             Integer id = milestone.getId();
             releaseTask.<MilestoneReleaseResultRest>addListener(BpmEventType.BREW_IMPORT_SUCCESS, r -> onSuccessfulPush(id, r));
             releaseTask.<BpmStringMapNotificationRest>addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));
+            release.setStatus(MilestoneReleaseStatus.IN_PROGRESS);
             bpmManager.startTask(releaseTask);
             release.setLog("Brew push task started\n");
 
