@@ -40,6 +40,7 @@ import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -101,7 +102,8 @@ public class BuildConfigurationRestTest extends AbstractTest {
     private static int configurationId;
     private static int environmentId;
     private static int repositoryConfigurationId;
-    
+    private static int repositoryConfiguration2Id;
+
     private static int createdConfigurationId;
 
     private static AtomicBoolean isInitialized = new AtomicBoolean();
@@ -151,6 +153,11 @@ public class BuildConfigurationRestTest extends AbstractTest {
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(REPOSITORY_CONFIGURATION_REST_ENDPOINT).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> repositoryConfigurationId = Integer.valueOf(value)));
+
+            given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(REPOSITORY_CONFIGURATION_REST_ENDPOINT).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("content[1].id", value -> repositoryConfiguration2Id = Integer.valueOf(value)));
         }
 
         if (projectRestClient == null) {
@@ -358,6 +365,24 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .isEqualTo(clonedBuildConfiguration.body().jsonPath().getString("content.scmRepoURL"));
         assertTrue(originalBuildConfiguration.body().jsonPath().getString("content.genericParameters.KEY1")
                 .equals(clonedBuildConfiguration.body().jsonPath().getString("content.genericParameters.KEY1")));
+    }
+
+    @Test
+    @InSequence(3)
+    public void shouldChangeRepositoryConfiguration() {
+        // given
+        BuildConfigurationRest buildConfigurationRest = buildConfigurationRestClient.get(configurationId).getValue();
+        //make sure this RC is not already set
+        Assert.assertNotEquals(buildConfigurationRest.getRepositoryConfiguration().getId().intValue(), repositoryConfiguration2Id);
+
+        // when
+        RepositoryConfigurationRest repositoryConfigurationRest = RepositoryConfigurationRest.builder().id(repositoryConfiguration2Id).build();
+        buildConfigurationRest.setRepositoryConfiguration(repositoryConfigurationRest);
+        buildConfigurationRestClient.update(configurationId, buildConfigurationRest);
+
+        // then
+        BuildConfigurationRest buildConfigurationRestUpdated = buildConfigurationRestClient.get(configurationId).getValue();
+        Assert.assertEquals(repositoryConfiguration2Id, buildConfigurationRestUpdated.getRepositoryConfiguration().getId().intValue());
     }
 
     @Test
