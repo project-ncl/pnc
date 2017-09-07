@@ -20,7 +20,7 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigWizard', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-wizard/pnc-create-build-config-wizard.html',
-    controller: ['$timeout', 'RepositoryConfiguration', 'BuildConfiguration', Controller],
+    controller: ['$log', '$scope', '$timeout', 'eventTypes', 'RepositoryConfiguration', 'BuildConfiguration', Controller],
     bindings: {
       initialValues: '<',
       project: '<',
@@ -29,7 +29,7 @@
     }
   });
 
-  function Controller($timeout, RepositoryConfiguration, BuildConfiguration) {
+  function Controller($log, $scope, $timeout, eventTypes, RepositoryConfiguration, BuildConfiguration) {
     var $ctrl = this,
         emptyWizardData = {
           general: {},
@@ -40,7 +40,9 @@
 
     // -- Controller API --
 
+    $ctrl.createStatusMessages = [];
     $ctrl.createComplete = false;
+    $ctrl.createError = false;
     $ctrl.reviewPageShown = false;
     $ctrl.onShowReviewSummary = onShowReviewSummary;
     $ctrl.create = create;
@@ -78,15 +80,37 @@
           $ctrl.createComplete = true;
         });
       } else {
+        $scope.$on(eventTypes.RC_BPM_NOTIFICATION, function (event, payload) {
+
+          switch (payload.eventType) {
+            case 'RC_REPO_CREATION_SUCCESS':
+              $ctrl.createStatusMessages.push(payload.data.message);
+              break;
+            case 'RC_REPO_CLONE_SUCCESS':
+              $ctrl.createStatusMessages.push('Repository successfully cloned.');
+              break;
+            case 'RC_CREATION_SUCCESS':
+              $ctrl.createStatusMessages.push('Build Config successfully created.');
+              $ctrl.createdBuildConfigId = payload.buildConfigurationId;
+              $ctrl.createdRepoConfigId = payload.repositoryId;              
+              $ctrl.createComplete = true;
+              break;
+            case 'RC_CREATION_ERROR':
+              $ctrl.createComplete = true;
+              $ctrl.createError = true;
+              break;
+          }
+          $log.debug('RC_BPM_NOTIFICATION EVENT arguments: %O', arguments);
+        });
         RepositoryConfiguration.autoCreateRepoConfig({
           url: $ctrl.wizardData.repoConfig.scmUrl,
           preBuildSyncEnabled: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
           buildConfiguration: bc
-        }).then(function () {
+        }).catch(function () {
           $ctrl.createComplete = true;
+          $ctrl.createError = true;
         });
       }
     }
-
   }
 })();
