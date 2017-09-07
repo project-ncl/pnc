@@ -77,6 +77,10 @@
                 }
                 return response;
               };
+
+              // apply desc sorting by default 
+              action.params = action.params || {};
+              action.params.sort = action.params.sort || 'sort=desc=id';
             }
           });
 
