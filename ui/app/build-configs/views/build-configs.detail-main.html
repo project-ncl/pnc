@@ -75,17 +75,24 @@
           </div>
         </div>
 
+        <!-- repository configuration -->
         <div class="form-group" ng-hide="configurationForm.$visible">
-          <label for="input-scm-repo-url" class="col-sm-2 control-label">Internal SCM Url</label>
+          <label for="input-scm-repo-url" class="col-sm-2 control-label">Internal SCM URL</label>
           <div class="col-sm-10">
-            <p id="input-scm-repo-url" class="form-control-static">{{ detailCtrl.configuration.repositoryConfiguration.internalUrl || 'Empty' }}</p>
+            <p id="input-scm-repo-url" class="form-control-static">
+              <a ng-show="detailCtrl.configuration.repositoryConfiguration.internalUrl" ng-href="detailCtrl.configuration.repositoryConfiguration.internalUrl">{{ detailCtrl.configuration.repositoryConfiguration.internalUrl }}</a>
+              <span ng-hide="detailCtrl.configuration.repositoryConfiguration.internalUrl">&mdash;</span>
+            </p>
           </div>
         </div>
 
         <div class="form-group" ng-hide="configurationForm.$visible">
-          <label for="input-external-scm-repo-url" class="col-sm-2 control-label">External SCM Url</label>
+          <label for="input-external-scm-repo-url" class="col-sm-2 control-label">External SCM URL</label>
           <div class="col-sm-10">
-            <p id="input-external-scm-repo-url" class="form-control-static">{{ detailCtrl.configuration.repositoryConfiguration.externalUrl || 'Empty' }}</p>
+            <p id="input-external-scm-repo-url" class="form-control-static">
+              <a ng-show="detailCtrl.configuration.repositoryConfiguration.externalUrl" ng-href="detailCtrl.configuration.repositoryConfiguration.externalUrl">{{ detailCtrl.configuration.repositoryConfiguration.externalUrl }}</a>
+              <span ng-hide="detailCtrl.configuration.repositoryConfiguration.externalUrl">&mdash;</span>
+            </p>
           </div>
         </div>
 
@@ -96,13 +103,14 @@
           </div>
         </div>
 
-        <div class="form-group" ng-show="configurationForm.$visible" ng-class="{ 'has-error' : configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched, 'has-success': configurationForm.repositoryConfiguration.$valid && configurationForm.repositoryConfiguration.$touched }">
+        <div class="form-group" ng-if="configurationForm.$visible" ng-class="{ 'has-error' : configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched, 'has-success': configurationForm.repositoryConfiguration.$valid && configurationForm.repositoryConfiguration.$touched }">
           <label for="input-repository-configuration-id" class="col-sm-2 control-label required">Repository Configuration</label>
           <div class="col-sm-10">
             <pnc-repository-configuration-combobox name="repositoryConfiguration" ng-model="detailCtrl.repositoryConfigurationSelectedId" required></pnc-repository-configuration-combobox>
             <span class="help-block" ng-show="configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched">Required field.</span>
           </div>
         </div>
+        <!-- repository configuration -->
 
         <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevision.$invalid && configurationForm.scmRevision.$touched, 'has-success': configurationForm.scmRevision.$valid && configurationForm.scmRevision.$touched }">
           <label for="input-scm-revision" class="col-sm-2 control-label" ng-class="{ 'required': configurationForm.$visible }">SCM Revision</label>
