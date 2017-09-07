@@ -106,7 +106,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
     }
 
     @Test
-    public void testFailToChangeRepoConfigInBC() {
+    public void testAllowToChangeRepoConfigInBC() {
         RepositoryConfiguration defaultRepositoryConfiguration = em.find(RepositoryConfiguration.class, 1);
         RepositoryConfiguration secondRepositoryConfiguration = em.find(RepositoryConfiguration.class, 2);
 
@@ -129,7 +129,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
         em.getTransaction().commit();
         em.clear();
 
-        assertEquals(1, em.find(BuildConfiguration.class, loadedBc.getId()).getRepositoryConfiguration().getId().intValue());
+        assertEquals(2, em.find(BuildConfiguration.class, loadedBc.getId()).getRepositoryConfiguration().getId().intValue());
     }
 
     @Test
