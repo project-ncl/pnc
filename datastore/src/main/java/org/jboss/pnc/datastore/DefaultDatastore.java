@@ -234,6 +234,12 @@ public class DefaultDatastore implements Datastore {
         return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
 
+    /**
+     * Rebuild is required if Build Configuration has been modified or a dependency has been rebuilt since last successful build.
+     *
+     * @param configuration configuration to check
+     * @return
+     */
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildConfiguration configuration) {
@@ -251,6 +257,16 @@ public class DefaultDatastore implements Datastore {
         logger.debug("Checked {} hasModifiedConfiguration: {}, requiresRebuild: {}", refreshedConfig, hasModifiedConfiguration, requiresRebuild);
         return requiresRebuild;
     }
+
+    /**
+     * A rebuild is required:
+     *  - when the {@link BuildConfiguration} has been updated
+     *  - when the dependencies captured in the {@link BuildRecord} were rebuilt
+     *  - when the {@link BuildConfiguration} depends on another that is scheduled for a rebuild in the submitted set
+     *
+     * @param task task to check
+     * @return
+     */
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
@@ -274,6 +290,13 @@ public class DefaultDatastore implements Datastore {
         return false;
     }
 
+    /**
+     * Check is some of the dependencies from the previous build were rebuild.
+     * Checking is done based on captured dependencies which are stored in the Build Record.
+     *
+     * @param config
+     * @return
+     */
     private boolean hasARebuiltDependency(BuildConfiguration config) {
         BuildRecord record = config.getLatestSuccesfulBuildRecord();
         if (record == null) {
