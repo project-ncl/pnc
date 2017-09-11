@@ -31,8 +31,8 @@
 
     <pf-wizard-step step-title="Build Config" substeps="true" step-id="build-config" step-priority="20" substeps=true show-review="true" show-review-details="true">
 
-      <pf-wizard-substep step-title="General" step-id="general" step-priority="10" ok-to-nav-away="generalForm.$valid" next-enabled="generalForm.$valid" show-review="true" show-review-details="true" review-template="build-configs/directives/pnc-create-build-config-wizard/review-build-config-general.html">
-        <form name="generalForm" novalidate>
+      <pf-wizard-substep step-title="General" step-id="general" step-priority="10" next-enabled="$ctrl.generalForm.$valid" show-review="true" show-review-details="true" review-template="build-configs/directives/pnc-create-build-config-wizard/review-build-config-general.html">
+        <form name="$ctrl.generalForm" novalidate>
           <pnc-create-build-config-general-form ng-model="$ctrl.wizardData.general"></pnc-create-build-config-general-form>
         </form>
       </pf-wizard-substep>
@@ -48,9 +48,11 @@
 
     </pf-wizard-step>
 
-    <pf-wizard-step step-title="Repository" substeps="true" step-id="repository" step-priority="30" substeps=true show-review="true" show-review-details="false" review-template="build-configs/directives/pnc-create-build-config-wizard/review-repo-config.html">
+    <pf-wizard-step step-title="Repository" substeps="true" step-id="repository" step-priority="30" next-enabled="$ctrl.repoForm.$valid" substeps=true show-review="true" show-review-details="false" review-template="build-configs/directives/pnc-create-build-config-wizard/review-repo-config.html">
       <pf-wizard-substep step-title="Select" step-id="repositorySelect" step-priority="10">
-        <pnc-select-repository ng-model="$ctrl.wizardData.repoConfig"></pnc-select-repository>
+        <form name="$ctrl.repoForm" novalidate>
+          <pnc-select-repository ng-model="$ctrl.wizardData.repoConfig"></pnc-select-repository>
+        </form>
       </pf-wizard-substep>
     </pf-wizard-step>
 
