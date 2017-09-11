@@ -39,11 +39,16 @@
         };
 
     // -- Controller API --
+    
+    // If we don't init these here the FormController isn't available in the template for "next-enabled" property.
+    $ctrl.generalForm = {};
+    $ctrl.repoForm = {};
 
     $ctrl.createStatusMessages = [];
     $ctrl.createComplete = false;
     $ctrl.createError = false;
     $ctrl.reviewPageShown = false;
+
     $ctrl.onShowReviewSummary = onShowReviewSummary;
     $ctrl.create = create;
 
@@ -100,7 +105,7 @@
               $ctrl.createError = true;
               break;
           }
-          $log.debug('RC_BPM_NOTIFICATION EVENT arguments: %O', arguments);
+
         });
         RepositoryConfiguration.autoCreateRepoConfig({
           url: $ctrl.wizardData.repoConfig.scmUrl,
