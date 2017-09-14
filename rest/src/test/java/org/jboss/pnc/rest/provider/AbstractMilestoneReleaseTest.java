@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
+import org.jboss.pnc.mock.repository.ProductVersionRepositoryMock;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneReleaseRepositoryMock;
@@ -35,6 +36,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
@@ -53,6 +55,7 @@ import static org.mockito.Mockito.when;
  */
 public class AbstractMilestoneReleaseTest {
     ArtifactRepository artifactRepository = new ArtifactRepositoryMock();
+    ProductVersionRepository productVersionRepository = new ProductVersionRepositoryMock();
     BuildRecordRepository buildRecordRepository = new BuildRecordRepositoryMock();
     ProductMilestoneRepositoryMock productMilestoneRepository = new ProductMilestoneRepositoryMock();
     ProductMilestoneReleaseRepository releaseRepository = new ProductMilestoneReleaseRepositoryMock();
@@ -98,6 +101,7 @@ public class AbstractMilestoneReleaseTest {
         releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmMock, artifactRepository, buildRecordRepository, productMilestoneRepository);
         ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(productMilestoneRepository,
                 artifactRepository,
+                productVersionRepository,
                 releaseManager,
                 rsqlPredicateProducer,
                 sortInfoProducer,

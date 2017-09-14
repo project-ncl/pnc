@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
@@ -31,6 +32,7 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
@@ -49,17 +51,20 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProvider.class);
 
     private ArtifactRepository artifactRepository;
+    private ProductVersionRepository productVersionRepository;
     private ProductMilestoneReleaseManager releaseManager;
 
     @Inject
     public ProductMilestoneProvider(
             ProductMilestoneRepository productMilestoneRepository,
             ArtifactRepository artifactRepository,
+            ProductVersionRepository productVersionRepository,
             ProductMilestoneReleaseManager releaseManager,
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.artifactRepository = artifactRepository;
+        this.productVersionRepository = productVersionRepository;
         this.releaseManager = releaseManager;
     }
 
@@ -132,6 +137,21 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     public void update(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
+        ProductMilestone milestoneInDb = repository.queryById(id);
+
+        // If we're about to close a milestone (by setting the end date), don't make the closed milestone current
+        if (milestoneInDb.getEndDate() == null && restEntity.getEndDate() != null) {
+
+            ProductVersion productVersion = milestoneInDb.getProductVersion();
+
+            if (productVersion.getCurrentProductMilestone() != null &&
+                    productVersion.getCurrentProductMilestone().getId().equals(milestoneInDb.getId())) {
+
+                productVersion.setCurrentProductMilestone(null);
+                productVersionRepository.save(productVersion);
+            }
+        }
+
         log.debug("Updating milestone for id: {}", id);
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
