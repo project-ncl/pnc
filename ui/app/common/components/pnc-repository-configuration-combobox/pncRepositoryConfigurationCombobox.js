@@ -75,6 +75,12 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
+      $ctrl.ngModel.$formatters.push(function (modelValue) {
+        if (angular.isObject(modelValue)) {
+          return modelValue;
+        } 
+      }); 
+
       // TODO: change pageSize to 20 once NCL-3307 is done
       initialValues = RepositoryConfiguration.query({ pageSize: 200 }).$promise.then(function (page) {
         return page.data;

@@ -167,6 +167,9 @@ var ComboboxController = function () {
       if (!angular.isArray(this.options)) {
         return;
       }
+      if (this.getViewValue(modelValue)) {
+        return modelValue;
+      }
       return this.options.find(function (option) {
         return _this5.getModelValue(option) === modelValue;
       });
