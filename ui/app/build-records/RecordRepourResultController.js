@@ -20,7 +20,12 @@
 
   angular.module('pnc.build-records').controller('RecordRepourResultController', [
     'repourLog',
-    function(repourLog) {
+    'REST_BASE_URL',
+    'BUILD_RECORD_ENDPOINT',
+    'recordDetail',
+    function(repourLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail) {
+      this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/repour-log';
+      this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '_repour-log.txt';
       this.log = repourLog.payload;
     }
   ]);
