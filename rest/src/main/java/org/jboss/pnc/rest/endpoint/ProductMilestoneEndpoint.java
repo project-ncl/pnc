@@ -203,6 +203,30 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
         return Response.ok().build();
     }
 
+    @ApiOperation(value = "Close/Release a Product Milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @PUT
+    @Path("/{id}/close-milestone")
+    public Response closeMilestone(
+            @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
+            ProductMilestoneRest productMilestoneRest,
+            @Context HttpServletRequest httpServletRequest) throws ValidationException {
+
+        if (httpServletRequest != null) {
+            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+            productMilestoneProvider.closeMilestone(id, productMilestoneRest, loginInUser.getTokenString());
+        } else {
+            productMilestoneProvider.closeMilestone(id, productMilestoneRest);
+        }
+
+        return Response.ok().build();
+    }
+
     @ApiOperation(value = "Get the artifacts distributed in this milestone")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),

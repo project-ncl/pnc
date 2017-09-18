@@ -61,6 +61,10 @@
         getLatestRelease: {
           method: 'GET',
           url: ENDPOINT + '/releases/latest'
+        },
+        closeMilestone: {
+          method: 'PUT',
+          url: REST_BASE_URL + '/product-milestones/:milestoneId/close-milestone'
         }
       });
 

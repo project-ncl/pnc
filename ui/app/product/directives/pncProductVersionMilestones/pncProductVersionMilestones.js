@@ -41,26 +41,6 @@
           var versionDetail = scope.version;
           var productDetail = scope.product;
 
-          scope.unreleaseMilestone = function (milestone) {
-            $log.debug('Unreleasing milestone: %O', milestone);
-
-            milestone.releaseDate = null;
-            milestone.downloadUrl = null;
-
-            milestone.$update({
-              versionId: versionDetail.id
-            }).then(
-              function () {
-                $state.go('product.detail.version', {
-                  productId: productDetail.id,
-                  versionId: versionDetail.id
-                }, {
-                  reload: true
-                });
-              }
-            );
-          };
-
           // Mark Milestone as current in Product Version
           scope.markCurrentMilestone = function (milestone) {
             $log.debug('Mark milestone as current: %O', milestone);

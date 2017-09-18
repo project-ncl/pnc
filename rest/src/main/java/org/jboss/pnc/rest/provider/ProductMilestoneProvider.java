@@ -27,6 +27,7 @@ import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -51,20 +52,17 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProvider.class);
 
     private ArtifactRepository artifactRepository;
-    private ProductVersionRepository productVersionRepository;
     private ProductMilestoneReleaseManager releaseManager;
 
     @Inject
     public ProductMilestoneProvider(
             ProductMilestoneRepository productMilestoneRepository,
             ArtifactRepository artifactRepository,
-            ProductVersionRepository productVersionRepository,
             ProductMilestoneReleaseManager releaseManager,
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.artifactRepository = artifactRepository;
-        this.productVersionRepository = productVersionRepository;
         this.releaseManager = releaseManager;
     }
 
@@ -137,30 +135,52 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     public void update(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
+
         ProductMilestone milestoneInDb = repository.queryById(id);
 
-        // If we're about to close a milestone (by setting the end date), don't make the closed milestone current
-        if (milestoneInDb.getEndDate() == null && restEntity.getEndDate() != null) {
-
-            ProductVersion productVersion = milestoneInDb.getProductVersion();
-
-            if (productVersion.getCurrentProductMilestone() != null &&
-                    productVersion.getCurrentProductMilestone().getId().equals(milestoneInDb.getId())) {
-
-                productVersion.setCurrentProductMilestone(null);
-                productVersionRepository.save(productVersion);
-            }
+        // we can't modify milestone if it's already released
+        if (milestoneInDb.getEndDate() != null) {
+            log.info("Milestone is already closed: no more modifications allowed");
+            throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
         }
 
         log.debug("Updating milestone for id: {}", id);
         restEntity.setId(id);
+
+        // make sure that user cannot set the 'endDate' via the REST API
+        // this should only be set after the release process is successful
+        restEntity.setEndDate(milestoneInDb.getEndDate());
+
         validateBeforeUpdating(id, restEntity);
         ProductMilestone milestone = toDBModel().apply(restEntity);
 
-        if (restEntity.getEndDate() != null && releaseManager.noReleaseInProgress(milestone)) {
-            log.debug("Milestone end date set and no release in progress, will start release");
-            releaseManager.startRelease(milestone, accessToken);
-        }
         repository.save(milestone);
+    }
+
+    public void closeMilestone(Integer id, ProductMilestoneRest restEntity) throws ValidationException {
+        closeMilestone(id, restEntity, "");
+    }
+
+    public void closeMilestone(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
+        ProductMilestone milestoneInDb = repository.queryById(id);
+
+        // If we want to close a milestone, make sure it's not already released (by checking end date)
+        // and there are no release in progress
+        if (milestoneInDb.getEndDate() != null) {
+
+            log.info("Milestone is already closed: no more modifications allowed");
+            throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
+        } else {
+            // save download url if specified
+            if (restEntity.getDownloadUrl() != null) {
+                milestoneInDb.setDownloadUrl(restEntity.getDownloadUrl());
+                repository.save(milestoneInDb);
+            }
+
+            if(releaseManager.noReleaseInProgress(milestoneInDb)) {
+                log.debug("Milestone end date set and no release in progress, will start release");
+                releaseManager.startRelease(milestoneInDb, accessToken);
+            }
+        }
     }
 }

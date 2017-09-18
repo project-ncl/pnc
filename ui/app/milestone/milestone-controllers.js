@@ -179,9 +179,8 @@
     'productDetail',
     'versionDetail',
     'milestoneDetail',
-    'dateUtilConverter',
     function($scope, $state, $stateParams, productDetail,
-      versionDetail, milestoneDetail, dateUtilConverter) {
+      versionDetail, milestoneDetail) {
 
       var that = this;
 
@@ -190,21 +189,8 @@
 
       that.data = milestoneDetail;
 
-      // date component <- timestamp
-
-      // if endDate is not set yet, use the plannedEndDate instead
-      if (that.data.endDate === null) {
-        that.endDate = new Date(that.data.plannedEndDate);
-      } else {
-        that.endDate = new Date(that.data.endDate);
-      }
-
       that.submit = function() {
-
-        // timestamp <- date component
-        that.data.endDate = dateUtilConverter.convertToTimestampNoon(that.endDate);
-
-        that.data.$update().then(
+        that.data.$closeMilestone().then(
           function() {
             $state.go('product.detail.version', {
               productId: productDetail.id,
@@ -215,8 +201,6 @@
           }
         );
       };
-
-      dateUtilConverter.initDatePicker($scope);
     }
   ]);
 
