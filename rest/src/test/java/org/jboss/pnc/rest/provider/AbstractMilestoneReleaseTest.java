@@ -98,10 +98,9 @@ public class AbstractMilestoneReleaseTest {
     public void setUp() throws CoreException, ConfigurationParseException {
         bpmMock = new BpmMock();
         MockitoAnnotations.initMocks(this);
-        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmMock, artifactRepository, buildRecordRepository, productMilestoneRepository);
+        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmMock, artifactRepository, productVersionRepository, buildRecordRepository, productMilestoneRepository);
         ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(productMilestoneRepository,
                 artifactRepository,
-                productVersionRepository,
                 releaseManager,
                 rsqlPredicateProducer,
                 sortInfoProducer,

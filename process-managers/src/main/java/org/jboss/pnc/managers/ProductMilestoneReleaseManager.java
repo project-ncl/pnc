@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.MilestoneReleaseStatus;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
@@ -36,6 +37,7 @@ import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +66,7 @@ public class ProductMilestoneReleaseManager {
     private BpmManager bpmManager;
 
     private ArtifactRepository artifactRepository;
+    private ProductVersionRepository productVersionRepository;
     private BuildRecordRepository buildRecordRepository;
     private ProductMilestoneReleaseRepository releaseRepository;
     private ProductMilestoneRepository milestoneRepository;
@@ -77,11 +80,13 @@ public class ProductMilestoneReleaseManager {
             ProductMilestoneReleaseRepository releaseRepository,
             BpmManager bpmManager,
             ArtifactRepository artifactRepository,
+            ProductVersionRepository productVersionRepository,
             BuildRecordRepository buildRecordRepository,
             ProductMilestoneRepository milestoneRepository) {
         this.releaseRepository = releaseRepository;
         this.bpmManager = bpmManager;
         this.artifactRepository = artifactRepository;
+        this.productVersionRepository = productVersionRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.milestoneRepository = milestoneRepository;
     }
@@ -153,6 +158,12 @@ public class ProductMilestoneReleaseManager {
         for (BuildImportResultRest buildRest : ofNullableCollection(result.getBuilds())) {
             storeBrewBuildParameters(buildRest);
         }
+
+        // set milestone end date to now when the release process is successful
+        milestone.setEndDate(new Date());
+        milestoneRepository.save(milestone);
+
+        removeCurrentFlagFromMilestone(milestone);
     }
 
     private <T> void storeFailure(ProductMilestone milestone, BpmStringMapNotificationRest result) {
@@ -244,6 +255,22 @@ public class ProductMilestoneReleaseManager {
                         artifactId,
                         e.getErrorMessage())
         );
+    }
+
+    /**
+     * [NCL-3112] Mark the milestone provided as not current
+     *
+     * @param milestone ProductMilestone to not be current anymore
+     */
+    private void removeCurrentFlagFromMilestone(ProductMilestone milestone) {
+        ProductVersion productVersion = milestone.getProductVersion();
+
+        if (productVersion.getCurrentProductMilestone() != null &&
+                productVersion.getCurrentProductMilestone().getId().equals(milestone.getId())) {
+
+            productVersion.setCurrentProductMilestone(null);
+            productVersionRepository.save(productVersion);
+        }
     }
 
     private static <T, R> R orNull(T value, Function<T, R> f) {

@@ -208,8 +208,7 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
     private void triggerMilestoneRelease(ProductMilestone milestone) throws ValidationException {
         ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
-        restEntity.setEndDate(new Date());
-        milestoneEndpoint.update(milestone.getId(), restEntity);
+        milestoneEndpoint.closeMilestone(milestone.getId(), restEntity, null);
     }
 
 }
