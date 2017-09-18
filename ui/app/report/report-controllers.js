@@ -505,7 +505,7 @@
         _.forEach(TYPE_NOTES, function(note, type) {
           _.forEach(data[type], function(module) {
             var moduleName = module.groupId + ':' + module.artifactId;
-            if(!_(res.moduleNames).contains(moduleName)) {
+            if(res.moduleNames.indexOf(moduleName) === -1) {
               res.moduleNames.push(moduleName);
             }
             if(!_(res.data).has(moduleName)) {
@@ -520,7 +520,7 @@
                 dependency.differenceTypes = [];
                 _.forEach(dependency.gavProducts, function(productDetails) {
                   var productName = getProductLabel(productDetails.product);
-                  if(!_(res.productNames).contains(productName)) {
+                  if(res.productNames.indexOf(productName) === -1) {
                     res.productNames.push(productName);
                   }
                   dependency.versions[productName] = productDetails.version;
