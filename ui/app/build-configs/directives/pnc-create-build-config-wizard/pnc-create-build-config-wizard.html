@@ -19,7 +19,11 @@
 -->
 <pf-wizard
     title="Create Build Config"
+    next-title="$ctrl.nextButtonTitle"
     on-cancel="$ctrl.onClose()"
+    on-step-changed="$ctrl.onStepChange(step, index)"
+    on-finish="$ctrl.onClose()"
+    wizard-done="$ctrl.wizardDone"
     content-height="500">
 
     <pf-wizard-step step-title="Project" substeps="true" step-id="project" step-priority="10" substeps=true wz-disabled="true">
@@ -61,21 +65,21 @@
         <pf-wizard-review-page shown="$ctrl.reviewPageShown" wizard-data="$ctrl.wizardData"></pf-wizard-review-page>
       </pf-wizard-substep>
 
-      <pf-wizard-substep step-title="Create" step-id="review-progress" step-priority="20" next-enabled="true" prev-enabled="false" ok-to-nav-away="true" wz-disabled="false" on-show="$ctrl.create">
+      <pf-wizard-substep step-title="Create" step-id="review-create" step-priority="20" next-enabled="true" prev-enabled="false" ok-to-nav-away="true" wz-disabled="false" on-show="$ctrl.create">
         <div class="wizard-pf-contents">
-          <div class="wizard-pf-process blank-slate-pf" ng-if="!$ctrl.createComplete">
+          <div class="wizard-pf-process blank-slate-pf" ng-if="!$ctrl.wizardDone">
             <div class="spinner spinner-lg blank-slate-pf-icon"></div>
             <h5 class="blank-slate-pf-main-action">Creating Build Config</h5>
             <p class="blank-slate-pf-secondary-action" ng-repeat="message in $ctrl.createStatusMessages">{{ message }}</p>
           </div>
-          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.createComplete && !$ctrl.createError">
+          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.wizardDone && !$ctrl.createError">
             <div class="wizard-pf-success-icon"><span class="glyphicon glyphicon-ok-circle"></span></div>
             <h5 class="blank-slate-pf-main-action">Build Config Creation Successful</h5>
             <p class="blank-slate-pf-secondary-action">Your Build Config was created successfully.</p>
             <a role="button" class="btn btn-lg btn-primary" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.wizardData.project.id, configurationId: $ctrl.createdBuildConfigId })" href>View Build Config</a>
           </div>
 
-          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.createComplete && $ctrl.createError">
+          <div class="wizard-pf-complete blank-slate-pf" ng-if="$ctrl.wizardDone && $ctrl.createError">
             <div class="wizard-pf-error-icon"><span class="glyphicon glyphicon-remove-circle"></span></div>
             <h5 class="blank-slate-pf-main-action">Error Creating Build Config</h5>
             <!-- <p class="blank-slate-pf-secondary-action">There was an error whilst creating the Build Config</p> -->
