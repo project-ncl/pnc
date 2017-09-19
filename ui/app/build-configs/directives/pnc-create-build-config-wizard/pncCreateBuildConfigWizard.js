@@ -40,15 +40,17 @@
 
     // -- Controller API --
     
-    // If we don't init these here the FormController isn't available in the template for "next-enabled" property.
     $ctrl.generalForm = {};
     $ctrl.repoForm = {};
 
-    $ctrl.createStatusMessages = [];
-    $ctrl.createComplete = false;
-    $ctrl.createError = false;
+    $ctrl.nextButtonTitle = 'Next >';
     $ctrl.reviewPageShown = false;
 
+    $ctrl.createStatusMessages = [];
+    $ctrl.wizardDone = false;
+    $ctrl.createError = false;
+
+    $ctrl.onStepChange = onStepChange;
     $ctrl.onShowReviewSummary = onShowReviewSummary;
     $ctrl.create = create;
 
@@ -58,6 +60,20 @@
       $ctrl.wizardData = angular.extend({}, emptyWizardData, $ctrl.initialValues);
       $ctrl.wizardData.project = $ctrl.resolve.project;
     };
+
+    function onStepChange(step) {
+      switch (step.stepId) {
+        case 'review-summary':
+          $ctrl.nextButtonTitle = 'Create';
+          break;
+        case 'review-create':
+          $ctrl.nextButtonTitle = 'Close';
+          break;
+        default:
+          $ctrl.nextButtonTitle = 'Next >';
+          break;
+      } 
+    }
 
     function onShowReviewSummary() {
       $ctrl.reviewPageShown = true;
@@ -82,7 +98,7 @@
       if ($ctrl.wizardData.repoConfig.useExistingRepoConfig) {
         bc.repositoryConfiguration = { id: $ctrl.wizardData.repoConfig.repoConfig.id };
         bc.$save().finally(function () {
-          $ctrl.createComplete = true;
+          $ctrl.wizardDone = true;
         });
       } else {
         $scope.$on(eventTypes.RC_BPM_NOTIFICATION, function (event, payload) {
@@ -98,10 +114,10 @@
               $ctrl.createStatusMessages.push('Build Config successfully created.');
               $ctrl.createdBuildConfigId = payload.buildConfigurationId;
               $ctrl.createdRepoConfigId = payload.repositoryId;              
-              $ctrl.createComplete = true;
+              $ctrl.wizardDone = true;
               break;
             case 'RC_CREATION_ERROR':
-              $ctrl.createComplete = true;
+              $ctrl.wizardDone = true;
               $ctrl.createError = true;
               break;
           }
@@ -112,7 +128,7 @@
           preBuildSyncEnabled: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
           buildConfiguration: bc
         }).catch(function () {
-          $ctrl.createComplete = true;
+          $ctrl.wizardDone = true;
           $ctrl.createError = true;
         });
       }
