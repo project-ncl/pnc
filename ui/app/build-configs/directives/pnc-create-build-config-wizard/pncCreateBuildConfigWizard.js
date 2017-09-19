@@ -109,8 +109,8 @@
               break;
             case 'RC_REPO_CREATION_ERROR':
               $ctrl.createStatusMessages.push('Error creating repository.');
-              $ctrl.createStatusMessages.push(payload.data.errorMessage);
-              $ctrl.createComplete = true;
+              $ctrl.createStatusMessages.push(payload.data.message);
+              $ctrl.wizardDone = true;
               $ctrl.createError = true;
               break;
             case 'RC_REPO_CLONE_SUCCESS':
@@ -118,8 +118,8 @@
               break;
             case 'RC_REPO_CLONE_ERROR':
               $ctrl.createStatusMessages.push('Error cloning repository.');
-              $ctrl.createStatusMessages.push(payload.data.errorMessage);
-              $ctrl.createComplete = true;
+              $ctrl.createStatusMessages.push(payload.data.message);
+              $ctrl.wizardDone = true;
               $ctrl.createError = true;
               break;
             case 'RC_CREATION_SUCCESS':
