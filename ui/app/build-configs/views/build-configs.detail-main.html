@@ -106,7 +106,7 @@
         <div class="form-group" ng-if="configurationForm.$visible" ng-class="{ 'has-error' : configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched, 'has-success': configurationForm.repositoryConfiguration.$valid && configurationForm.repositoryConfiguration.$touched }">
           <label for="input-repository-configuration-id" class="col-sm-2 control-label required">Repository Configuration</label>
           <div class="col-sm-10">
-            <pnc-repository-configuration-combobox name="repositoryConfiguration" ng-model="detailCtrl.repositoryConfigurationSelectedId" required></pnc-repository-configuration-combobox>
+            <pnc-repository-configuration-combobox name="repositoryConfiguration" ng-model="detailCtrl.configuration.repositoryConfiguration" required></pnc-repository-configuration-combobox>
             <span class="help-block" ng-show="configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched">Required field.</span>
           </div>
         </div>
