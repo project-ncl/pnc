@@ -97,9 +97,14 @@
 
       if ($ctrl.wizardData.repoConfig.useExistingRepoConfig) {
         bc.repositoryConfiguration = { id: $ctrl.wizardData.repoConfig.repoConfig.id };
-        bc.$save().finally(function () {
-          $ctrl.wizardDone = true;
-        });
+        bc.$save()
+          .catch(function (error) {
+            $ctrl.createStatusMessages.push(error.status + ': ' + error.statusText);
+            $ctrl.createError = true;
+          })
+          .finally(function () {
+            $ctrl.wizardDone = true;
+          });
       } else {
         $scope.$on(eventTypes.RC_BPM_NOTIFICATION, function (event, payload) {
 
