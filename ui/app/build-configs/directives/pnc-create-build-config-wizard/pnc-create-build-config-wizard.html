@@ -85,7 +85,7 @@
             <div class="wizard-pf-success-icon"><span class="glyphicon glyphicon-ok-circle"></span></div>
             <h5 class="blank-slate-pf-main-action">Build Config Creation Successful</h5>
             <p class="blank-slate-pf-secondary-action">Your Build Config was created successfully.</p>
-            <a role="button" class="btn btn-lg btn-primary" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.wizardData.project.id, configurationId: $ctrl.createdBuildConfigId })" href>View Build Config</a>
+            <a role="button" class="btn btn-lg btn-primary" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.wizardData.project.id, configurationId: $ctrl.createdBuildConfigId })" ng-click="$ctrl.onClose()" href>View Build Config</a>
           </div>
         </div>
 
