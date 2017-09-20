@@ -80,9 +80,9 @@
     }
 
     function processLatestBuild(event, payload) {
-      if (payload.buildSetConfigurationId === $ctrl.buildGroup.id) {
+      if ($ctrl.buildGroup && payload.buildSetConfigurationId === $ctrl.buildGroup.id) {
         updateLatestBuild(payload.id, payload.buildStatus, payload.buildSetStartTime, payload.buildSetEndTime, payload.userId);
-      } else if (payload.buildConfigurationId === $ctrl.buildConfig.id) {
+      } else if ($ctrl.buildConfig && payload.buildConfigurationId === $ctrl.buildConfig.id) {
         updateLatestBuild(payload.id, payload.buildCoordinationStatus, payload.buildStartTime, payload.buildEndTime, payload.userId);
       }
     }
