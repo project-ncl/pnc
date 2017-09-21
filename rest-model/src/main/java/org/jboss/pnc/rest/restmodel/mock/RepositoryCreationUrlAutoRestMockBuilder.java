@@ -21,25 +21,24 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 
 import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class RepositoryCreationRestMockBuilder {
+public class RepositoryCreationUrlAutoRestMockBuilder {
 
-    public static RepositoryCreationRest mock(String buildConfigurationName, String script, String internalUrl) {
-        return mock(buildConfigurationName, script, internalUrl, Optional.empty(), Optional.of(1), Optional.of(1));
+    public static RepositoryCreationUrlAutoRest mock(String buildConfigurationName, String script, String scmUrl) {
+        return mock(buildConfigurationName, script, scmUrl, true, Optional.empty(), Optional.empty());
     }
 
-    public static RepositoryCreationRest mock(
+    public static RepositoryCreationUrlAutoRest mock(
             String buildConfigurationName,
             String script,
-            String internalUrl,
-            Optional<String> externalUrl,
+            String scmUrl,
+            boolean preBuildSyncEnabled,
             Optional<Integer> buildConfigurationId,
             Optional<Integer> repositoryConfigurationId) {
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
@@ -57,13 +56,8 @@ public class RepositoryCreationRestMockBuilder {
         buildConfiguration.setProject(projectRest);
         buildConfiguration.setBuildScript(script);
 
-        RepositoryConfigurationRest repositoryConfiguration = new RepositoryConfigurationRest();
-        repositoryConfigurationId.ifPresent(id -> repositoryConfiguration.setId(id));
-        repositoryConfiguration.setInternalUrl(internalUrl);
-        externalUrl.ifPresent(url -> repositoryConfiguration.setExternalUrl(url));
 
-
-        return new RepositoryCreationRest(repositoryConfiguration, buildConfiguration);
+        return new RepositoryCreationUrlAutoRest(scmUrl, preBuildSyncEnabled, buildConfiguration);
 
     }
 }
