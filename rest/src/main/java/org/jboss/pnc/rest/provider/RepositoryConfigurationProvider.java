@@ -107,17 +107,12 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     }
 
     public static Boolean isInternalRepository(String internalScmAuthority, String internalRepoUrl) {
-        if (StringUtils.isNotBlank(internalRepoUrl) && internalScmAuthority != null) {
-            String expectedPrefix = "git+ssh://" + internalScmAuthority;
-            if (!internalRepoUrl.startsWith(expectedPrefix)
-                    || !REPOSITORY_NAME_PATTERN.matcher(internalRepoUrl.replace(expectedPrefix, "")).matches()) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
+        if (StringUtils.isBlank(internalRepoUrl) || internalScmAuthority == null) {
             throw new RuntimeException("InternalScmAuthority and internalRepoUrl parameters must be set.");
         }
+        String expectedPrefix = "git+ssh://" + internalScmAuthority;
+        return internalRepoUrl.startsWith(expectedPrefix)
+                && REPOSITORY_NAME_PATTERN.matcher(internalRepoUrl.replace(expectedPrefix, "")).matches();
     }
 
     private void validateIfItsNotConflicting(RepositoryConfigurationRest repositoryConfigurationRest) throws ConflictedEntryException {

@@ -24,14 +24,12 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.datastore.limits.DefaultPageInfoProducer;
 import org.jboss.pnc.datastore.limits.DefaultSortInfoProducer;
 import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -45,8 +43,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.Response;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.restmodel.serialization;
 
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;

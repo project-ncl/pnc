@@ -27,7 +27,6 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;
@@ -114,14 +113,12 @@ public class RepositoryCreationRestTest {
     public void shouldCreateRCOnly() {
         //given
         String internalScmUrl = INTERNAL_REPO + "/my/repo2.git";
-        RepositoryConfigurationRest repositoryConfiguration = RepositoryConfigurationRest.builder()
-                .internalUrl(internalScmUrl)
+        RepositoryCreationUrlAutoRest repositoryConfiguration = RepositoryCreationUrlAutoRest.builder()
+                .scmUrl(internalScmUrl)
                 .build();
 
-        RepositoryCreationRest repositoryCreationRest = new RepositoryCreationRest(repositoryConfiguration, null);
-
         //when invoking remote endpoint
-        //        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
+        //        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryConfiguration);
         Response response = null;
 
         //expect
