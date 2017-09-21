@@ -50,7 +50,7 @@ public class RepositoryCreationUrlAutoRest implements Serializable {
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
-    private boolean preBuildSyncEnabled;
+    private boolean preBuildSyncEnabled = true;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
