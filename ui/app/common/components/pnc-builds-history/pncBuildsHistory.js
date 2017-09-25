@@ -38,11 +38,9 @@
   
     function Controller(eventTypes, $scope, BuildRecord, BuildConfigurationSet, paginator) {
       var $ctrl = this;
-  
-      var isBuildGroup = false;
 
       function loadBuildsHistory() {
-        (isBuildGroup ? BuildConfigurationSet.queryBuildConfigSetRecords({ 
+        ($ctrl.buildGroup ? BuildConfigurationSet.queryBuildConfigSetRecords({ 
           id: $ctrl.buildGroup.id 
         }) : BuildRecord.getByConfiguration({ 
           id: $ctrl.buildConfig.id 
@@ -52,18 +50,16 @@
       }
 
       function processEvent(event, payload) {
-        if (payload.buildSetConfigurationId === $ctrl.buildGroup.id || 
-            payload.buildConfigurationId    === $ctrl.buildConfig.id) {
+        if (($ctrl.buildGroup  && payload.buildSetConfigurationId === $ctrl.buildGroup.id ) || 
+            ($ctrl.buildConfig && payload.buildConfigurationId    === $ctrl.buildConfig.id)) {
           $ctrl.page.refresh();
         }
       }
 
       $ctrl.$onInit = function() {
-        isBuildGroup = !!$ctrl.buildGroup;
-  
         loadBuildsHistory();
   
-        if (isBuildGroup) {
+        if ($ctrl.buildGroup) {
           $scope.$on(eventTypes.BUILD_SET_STARTED, processEvent);
           $scope.$on(eventTypes.BUILD_SET_FINISHED, processEvent);
         } else {
