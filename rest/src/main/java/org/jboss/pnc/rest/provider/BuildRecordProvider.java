@@ -18,7 +18,9 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
@@ -30,6 +32,7 @@ import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -81,17 +84,24 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     private BuildExecutor buildExecutor;
     private BuildCoordinator buildCoordinator;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     public BuildRecordProvider() {
     }
 
     @Inject
-    public BuildRecordProvider(BuildRecordRepository buildRecordRepository, BuildCoordinator buildCoordinator,
-            PageInfoProducer pageInfoProducer, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
-            BuildExecutor buildExecutor) {
+    public BuildRecordProvider(
+            BuildRecordRepository buildRecordRepository,
+            BuildCoordinator buildCoordinator,
+            PageInfoProducer pageInfoProducer,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            BuildExecutor buildExecutor,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
         super(buildRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildCoordinator = buildCoordinator;
         this.buildExecutor = buildExecutor;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
     }
 
     public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search, String sort) {
@@ -137,9 +147,14 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask buildTask) {
+        //TODO do not mix executor and coordinator data in the same endpoint
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildTask.getId());
         UserRest user = new UserRest(buildTask.getUser());
-        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(buildTask.getBuildConfigurationAudited());
+        //refresh entity
+        IdRev idRev = buildTask.getBuildConfigurationAudited().getIdRev();
+        logger.debug("Loading entity by idRev: {}.", idRev);
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
+        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(buildConfigurationAudited);
 
         BuildRecordRest buildRecRest;
         if (runningExecution != null) {

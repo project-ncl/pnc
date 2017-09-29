@@ -29,10 +29,10 @@ import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -67,9 +67,13 @@ public class UserRestTest {
 
     private static BuildRestClient buildRestClient;
     private static UserRestClient userRestClient;
+    private static BuildConfigurationAudited buildConfigurationAudited;
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     private BuildCoordinatorMock buildCoordinatorMock;
@@ -115,6 +119,8 @@ public class UserRestTest {
                 .overridingErrorMessage("2 BuildRecords in DB expected with user.id == 1 and user.username == \"demo-user\"");
 
         assertThat(buildCoordinatorMock).isNotNull();
+        //load BCA with id=2 ... test back-compatibility
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().get(1);
     }
 
 
@@ -249,9 +255,7 @@ public class UserRestTest {
         doReturn(id).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
         doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
-        doReturn(mock(BuildConfigurationAudited.class)).when(mockedTask).getBuildConfigurationAudited();
-        when(mockedTask.getBuildConfigurationAudited().getIdRev()).thenReturn(mock(IdRev.class));
-        when(mockedTask.getBuildConfigurationAudited().getIdRev().getId()).thenReturn(99);
+        doReturn(buildConfigurationAudited).when(mockedTask).getBuildConfigurationAudited();
         when(mockedTask.getUser().getId()).thenReturn(userId);
         when(mockedTask.getUser().getUsername()).thenReturn(username);
         return mockedTask;

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration;
 
+import org.assertj.core.data.MapEntry;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -28,11 +29,11 @@ import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -65,9 +66,13 @@ public class BuildsRestTest  {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static BuildRestClient buildRestClient;
+    private static BuildConfigurationAudited buildConfigurationAudited;
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     private BuildRecordProvider buildRecordProvider;
@@ -108,6 +113,8 @@ public class BuildsRestTest  {
                 .overridingErrorMessage("2 BuildRecords are expected in DB before running this test");
 
         assertThat(buildCoordinatorMock).isNotNull();
+
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().get(0);
     }
 
     @Test
@@ -256,7 +263,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(1);
+        assertThat(sorted).containsExactly(1, 99); //1=completed(from demo data); 99=running mock
     }
 
     @Test
@@ -278,7 +285,7 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
         // given
-        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.1";
+        String rsql = "buildConfigurationAudited.name==does-not-exists-1.5.1";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
@@ -291,14 +298,32 @@ public class BuildsRestTest  {
         assertThat(sorted).isEmpty();
     }
 
+    @Test
+    public void runningBuildShouldHaveGenericParameters() throws Exception {
+        // given
+        String rsql = "id==99";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<BuildRecordRest> buildRecords = buildRestClient.all(true, 0, 50, rsql, null).getValue();
+        List<Integer> sorted = buildRecords.stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(99); //99=running mock
+        BuildRecordRest buildRecordRest = buildRecords.get(0);
+        assertThat(buildRecordRest.getBuildConfigurationAudited().getGenericParameters())
+                .contains(MapEntry.entry("KEY", "VALUE"));
+    }
+
     protected BuildTask mockBuildTask() {
         BuildTask mockedTask = mock(BuildTask.class);
         doReturn(99).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
         doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
-        doReturn(mock(BuildConfigurationAudited.class)).when(mockedTask).getBuildConfigurationAudited();
-        when(mockedTask.getBuildConfigurationAudited().getIdRev()).thenReturn(mock(IdRev.class));
-        when(mockedTask.getBuildConfigurationAudited().getIdRev().getId()).thenReturn(99);
+        doReturn(buildConfigurationAudited).when(mockedTask).getBuildConfigurationAudited();
         when(mockedTask.getUser().getId()).thenReturn(99);
         when(mockedTask.getUser().getUsername()).thenReturn("test-username");
         return mockedTask;
