@@ -27,7 +27,7 @@ import org.jboss.pnc.rest.notifications.websockets.MessageType;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.rest.notifications.websockets.ProgressUpdatesRequest;
 import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;

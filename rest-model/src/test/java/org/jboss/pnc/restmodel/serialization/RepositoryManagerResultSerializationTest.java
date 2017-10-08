@@ -21,7 +21,7 @@ package org.jboss.pnc.restmodel.serialization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.junit.Assert;

@@ -72,6 +72,7 @@
     <module>moduleconfig</module>
     <module>auth</module>
     <module>datastore</module>
+    <module>messaging-spi</module>
     <module>messaging</module>
     <module>ear-package</module>
     <module>termd-build-driver</module>
@@ -248,6 +249,18 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>datastore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>messaging-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>messaging</artifactId>
         <version>${project.version}</version>
       </dependency>
 

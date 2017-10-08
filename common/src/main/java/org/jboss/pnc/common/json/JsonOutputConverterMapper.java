@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.utils;
+package org.jboss.pnc.common.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +25,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import java.util.Optional;
  */
 public class JsonOutputConverterMapper {
 
-    public final static Logger log = Logger.getLogger(JsonOutputConverterMapper.class);
+    public final static Logger log = LoggerFactory.getLogger(JsonOutputConverterMapper.class);
 
     private static final ObjectMapper mapper = new ObjectMapper();
 

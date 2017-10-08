@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import javax.xml.bind.annotation.XmlRootElement;

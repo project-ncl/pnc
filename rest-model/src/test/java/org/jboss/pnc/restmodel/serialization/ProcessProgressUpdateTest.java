@@ -19,7 +19,7 @@ package org.jboss.pnc.restmodel.serialization;
 
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

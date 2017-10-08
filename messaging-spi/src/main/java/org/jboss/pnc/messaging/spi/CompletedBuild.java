@@ -15,42 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.bpm;
+package org.jboss.pnc.messaging.spi;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
-import java.io.Serializable;
-
 /**
- * Repository creation configuration object.
- *
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = RepositoryCreationProcessRest.RepositoryCreationProcessRestBuilder.class)
 @AllArgsConstructor
 @Builder
-@NoArgsConstructor(onConstructor=@__({@Deprecated}))
-public class RepositoryCreationProcessRest implements Serializable {
+@Getter
+@JsonDeserialize(builder = CompletedBuild.CompletedBuildBuilder.class)
+public class CompletedBuild implements Message {
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated}))
-    private RepositoryConfigurationRest repositoryConfigurationRest;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class RepositoryCreationProcessRestBuilder {
-    }
+    private String pncBuildId;
+    private String buildConfigurationName;
 
     @Override
-    public String toString() {
+    public String toJson() {
         return JsonOutputConverterMapper.apply(this);
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class CompletedBuildBuilder {
+    }
 }

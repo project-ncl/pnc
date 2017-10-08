@@ -20,6 +20,7 @@ package org.jboss.pnc.messaging;
 import lombok.Getter;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,9 +31,9 @@ import java.util.Set;
 public class MessageCollector {
 
     @Getter
-    private Set<String> receivedMessages = new HashSet<>();
+    private Set<TextMessage> receivedMessages = new HashSet<>();
 
-    public void add(String message) {
+    public void add(TextMessage message) {
         receivedMessages.add(message);
     }
 }

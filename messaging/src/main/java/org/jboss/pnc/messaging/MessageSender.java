@@ -17,10 +17,18 @@
  */
 package org.jboss.pnc.messaging;
 
+import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
+import org.jboss.pnc.messaging.spi.Message;
+
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import javax.jms.JMSRuntimeException;
 import javax.jms.Queue;
+import javax.jms.TextMessage;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -33,8 +41,38 @@ public class MessageSender {
     @Resource(mappedName = "/jms/queue/pncQueue")
     private Queue queue;
 
+    /**
+     * @throws MessagingRuntimeException
+     */
+    public void sendToQueue(Message message) {
+        sendToQueue(message.toJson());
+    }
+
+    /**
+     * @throws MessagingRuntimeException
+     */
     public void sendToQueue(String message) {
-        context.createProducer().send(queue, message);
+        sendToQueue(message, Collections.EMPTY_MAP);
+    }
+
+    /**
+     * @throws MessagingRuntimeException
+     */
+    public void sendToQueue(String message, Map<String, String> headers) {
+        TextMessage textMessage = context.createTextMessage(message);
+
+        headers.forEach((k, v) -> {
+            try {
+                textMessage.setStringProperty(k, v);
+            } catch (JMSException e) {
+                throw new MessagingRuntimeException(e);
+            }
+        });
+        try {
+            context.createProducer().send(queue, textMessage);
+        } catch (JMSRuntimeException e) {
+            throw new MessagingRuntimeException(e);
+        }
     }
 
 }

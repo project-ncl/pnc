@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.restmodel.causeway;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com

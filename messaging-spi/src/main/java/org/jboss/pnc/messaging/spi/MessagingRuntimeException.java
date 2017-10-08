@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.messaging.spi;
 
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.notifications.OutputConverter;
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class MessagingRuntimeException extends RuntimeException {
 
-public class JSonOutputConverter implements OutputConverter {
-
-    @Override
-    public String apply(Object objectToBeConverted) {
-        return JsonOutputConverterMapper.apply(objectToBeConverted);
+    public MessagingRuntimeException(Exception e) {
+        super(e);
     }
 }

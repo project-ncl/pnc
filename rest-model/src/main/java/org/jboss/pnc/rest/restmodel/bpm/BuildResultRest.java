@@ -27,7 +27,7 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
