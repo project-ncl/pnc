@@ -24,15 +24,18 @@ import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductMilestoneReleaseRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductMilestoneRepositoryMock;
+import org.jboss.pnc.mock.repository.ProductVersionRepositoryMock;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +64,7 @@ public class ProductMilestoneReleaseManagerTest {
 
     private ProductMilestoneRepository milestoneRepository;
     private ProductMilestoneReleaseRepository releaseRepository;
+    private ProductVersionRepository productVersionRepository;
     private BuildRecordRepositoryMock buildRecordRepository;
 
     private ProductMilestoneReleaseManager releaseManager;
@@ -73,11 +77,12 @@ public class ProductMilestoneReleaseManagerTest {
     public void setUp() throws CoreException {
         milestoneRepository = new ProductMilestoneRepositoryMock();
         releaseRepository = new ProductMilestoneReleaseRepositoryMock();
+        productVersionRepository = new ProductVersionRepositoryMock();
         buildRecordRepository = new BuildRecordRepositoryMock();
 
         MockitoAnnotations.initMocks(this);
         when(bpmManager.startTask(any())).then(answer);
-        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmManager, new ArtifactRepositoryMock(), buildRecordRepository, milestoneRepository);
+        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmManager, new ArtifactRepositoryMock(), productVersionRepository, buildRecordRepository, milestoneRepository);
     }
 
     @Test
@@ -146,6 +151,7 @@ public class ProductMilestoneReleaseManagerTest {
     private ProductMilestone createMilestone() {
         ProductMilestone milestone = new ProductMilestone();
         milestone.setId(milestoneIdSequence++);
+        milestone.setProductVersion(new ProductVersion());
         milestoneRepository.save(milestone);
 
         return milestone;
