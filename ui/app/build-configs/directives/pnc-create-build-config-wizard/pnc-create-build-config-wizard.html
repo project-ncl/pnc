@@ -41,7 +41,7 @@
         </form>
       </pf-wizard-substep>
 
-      <pf-wizard-substep step-title="Product Version" step-id="productVersion" step-priority="15">
+      <pf-wizard-substep step-title="Product Version" step-id="productVersion" step-priority="15" show-review="true" show-review-details="true" review-template="build-configs/directives/pnc-create-build-config-wizard/review-product-version.html">
         <div class="form-group">
           <label class="control-label">Product Version</label>
           <pnc-product-version-combobox ng-model="$ctrl.wizardData.productVersion"></pnc-product-version-combobox>              
