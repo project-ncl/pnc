@@ -80,7 +80,7 @@
           <label for="input-scm-repo-url" class="col-sm-2 control-label">Internal SCM URL</label>
           <div class="col-sm-10">
             <p id="input-scm-repo-url" class="form-control-static">
-              <a ng-show="detailCtrl.configuration.repositoryConfiguration.internalUrl" ng-href="detailCtrl.configuration.repositoryConfiguration.internalUrl">{{ detailCtrl.configuration.repositoryConfiguration.internalUrl }}</a>
+              <span ng-show="detailCtrl.configuration.repositoryConfiguration.internalUrl">{{ detailCtrl.configuration.repositoryConfiguration.internalUrl }}</span>
               <span ng-hide="detailCtrl.configuration.repositoryConfiguration.internalUrl">&mdash;</span>
             </p>
           </div>
@@ -90,7 +90,7 @@
           <label for="input-external-scm-repo-url" class="col-sm-2 control-label">External SCM URL</label>
           <div class="col-sm-10">
             <p id="input-external-scm-repo-url" class="form-control-static">
-              <a ng-show="detailCtrl.configuration.repositoryConfiguration.externalUrl" ng-href="detailCtrl.configuration.repositoryConfiguration.externalUrl">{{ detailCtrl.configuration.repositoryConfiguration.externalUrl }}</a>
+              <span ng-show="detailCtrl.configuration.repositoryConfiguration.externalUrl">{{ detailCtrl.configuration.repositoryConfiguration.externalUrl }}</span>
               <span ng-hide="detailCtrl.configuration.repositoryConfiguration.externalUrl">&mdash;</span>
             </p>
           </div>
