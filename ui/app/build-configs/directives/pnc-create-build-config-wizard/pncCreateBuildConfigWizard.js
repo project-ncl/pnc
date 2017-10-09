@@ -143,7 +143,7 @@
         });
         RepositoryConfiguration.autoCreateRepoConfig({
           url: $ctrl.wizardData.repoConfig.scmUrl,
-          preBuildSyncEnabled: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
+          preBuildSync: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
           buildConfiguration: bc
         }).catch(function () {
           $ctrl.wizardDone = true;
