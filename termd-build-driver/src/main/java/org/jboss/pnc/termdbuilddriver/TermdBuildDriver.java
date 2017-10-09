@@ -274,7 +274,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
             if (termdRunningBuild.getBuildAgentClient().isPresent()) {
                 BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
-                try {
+                try { //TODO move to #complete to make sure it's closed every-time
                     buildAgentClient.close();
                 } catch (IOException e) {
                     future.completeExceptionally(new BuildDriverException("Cannot close build agent connections.", e));
