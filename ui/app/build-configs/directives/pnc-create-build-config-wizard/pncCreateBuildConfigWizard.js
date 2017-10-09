@@ -89,6 +89,7 @@
       bc.scmRevision = wizardData.repoConfig.revision;
       bc.project = $ctrl.wizardData.project;
       bc.buildConfigurationSetIds = [];
+      bc.productVersionId = $ctrl.wizardData.productVersion.id;
       return bc;
     }
 
