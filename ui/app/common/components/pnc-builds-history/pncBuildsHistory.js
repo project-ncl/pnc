@@ -41,9 +41,11 @@
 
       function loadBuildsHistory() {
         ($ctrl.buildGroup ? BuildConfigurationSet.queryBuildConfigSetRecords({ 
-          id: $ctrl.buildGroup.id 
+          id: $ctrl.buildGroup.id,
+          pageSize: 10
         }) : BuildRecord.getByConfiguration({ 
-          id: $ctrl.buildConfig.id 
+          id: $ctrl.buildConfig.id,
+          pageSize: 10
         })).$promise.then(function (page) {
           $ctrl.page = paginator(page);
         });
