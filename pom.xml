@@ -1259,6 +1259,17 @@
         <enabled>false</enabled>
       </releases>
     </repository>
+
+    <repository>
+      <id>mrrc-ga</id>
+      <name>Redhat GA</name>
+      <layout>default</layout>
+      <url>https://maven.repository.redhat.com/ga/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
   </repositories>
 
   <profiles>
