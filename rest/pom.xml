@@ -83,6 +83,10 @@
       <artifactId>process-managers</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>messaging</artifactId>
+    </dependency>
 
     <!-- Remote dependencies -->
     <dependency>

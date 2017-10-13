@@ -98,7 +98,8 @@
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
     <version.javax.enterprise>1.2.0.redhat-2</version.javax.enterprise>
-    <version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.0.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>
+    <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.0.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
+    <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final-redhat-3</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>0.16.0</atlasVersion>
     <indyVersion>1.2.0-SNAPSHOT</indyVersion>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
@@ -432,10 +433,22 @@
         <version>${version.javax.enterprise}</version>
         <scope>provided</scope>
       </dependency>
+      <!--<dependency>-->
+        <!--<groupId>org.jboss.spec.javax.jms</groupId>-->
+        <!--<artifactId>jboss-jms-api_2.0_spec</artifactId>-->
+        <!--<version>${version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec}</version>-->
+        <!--<scope>provided</scope>-->
+      <!--</dependency>-->
       <dependency>
         <groupId>org.jboss.spec.javax.jms</groupId>
-        <artifactId>jboss-jms-api_2.0_spec</artifactId>
-        <version>${version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec}</version>
+        <artifactId>jboss-jms-api_1.1_spec</artifactId>
+        <version>${version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.spec.javax.ejb</groupId>
+        <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+        <version>1.0.0.Final-redhat-1</version>
         <scope>provided</scope>
       </dependency>
 

@@ -29,7 +29,7 @@ import javax.jms.TextMessage;
  */
 @MessageDriven(name = "QueueMDB", activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "jms/queue/pncQueue"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/pncQueue"),
         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge") })
 public class PncQueueListener implements MessageListener {
 

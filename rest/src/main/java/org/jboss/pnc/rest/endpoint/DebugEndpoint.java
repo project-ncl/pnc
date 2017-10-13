@@ -18,10 +18,12 @@
 package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.messaging.MessageSender;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -40,10 +42,20 @@ public class DebugEndpoint {
     @Inject
     private BuildQueue buildQueue;
 
+    @Inject
+    private MessageSender messageSender;
+
     @GET
     @Path("/build-queue")
     public Response getBuildQueueInfo() {
         String info = buildQueue.getDebugInfo();
         return Response.ok(info).build();
+    }
+
+    @POST
+    @Path("/mq-send-dummy-message")
+    public Response sendDummyMessageToQueue() {
+        messageSender.sendToQueue("Test Message.");
+        return Response.ok().build();
     }
 }

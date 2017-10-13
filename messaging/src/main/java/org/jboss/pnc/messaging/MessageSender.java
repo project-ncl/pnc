@@ -17,15 +17,21 @@
  */
 package org.jboss.pnc.messaging;
 
-import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
 import org.jboss.pnc.messaging.spi.Message;
+import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
+import javax.ejb.Stateless;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Queue;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Collections;
 import java.util.Map;
@@ -33,13 +39,53 @@ import java.util.Map;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Stateless
 public class MessageSender {
 
-    @Inject
-    private JMSContext context;
+    private Logger logger = LoggerFactory.getLogger(MessageSender.class);
 
-    @Resource(mappedName = "/jms/queue/pncQueue")
-    private Queue queue;
+//    @Inject
+//    private JMSContext context;
+
+//    @Resource
+//    private SessionContext context;
+
+//    @Resource(mappedName = "/jms/ConnectionFactory")
+//    private ConnectionFactory connectionFactory;
+
+    @Resource(mappedName = "java:/ConnectionFactory")
+    private ConnectionFactory connectionFactory;
+
+    @Resource(lookup = "java:/jms/queue/pncQueue")
+    private Destination destination;
+
+    private Connection connection;
+    private Session session;
+    private MessageProducer messageProducer;
+
+    @PostConstruct
+    public void init() {
+        try {
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            messageProducer = session.createProducer(destination);
+            logger.info("JMS initialized.");
+        } catch (JMSException e) {
+            logger.error("Failed to init JMS.");
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (JMSException e) {
+                logger.error("Failed to close JMS connection.");
+            }
+        }
+    }
 
     /**
      * @throws MessagingRuntimeException
@@ -59,7 +105,16 @@ public class MessageSender {
      * @throws MessagingRuntimeException
      */
     public void sendToQueue(String message, Map<String, String> headers) {
-        TextMessage textMessage = context.createTextMessage(message);
+        TextMessage textMessage;
+        try {
+            textMessage = session.createTextMessage(message);
+        } catch (JMSException e) {
+           throw new MessagingRuntimeException(e);
+        }
+        if (textMessage == null) {
+            logger.error("Unable to create textMessage.");
+            throw new MessagingRuntimeException("Unable to create textMessage.");
+        }
 
         headers.forEach((k, v) -> {
             try {
@@ -69,8 +124,8 @@ public class MessageSender {
             }
         });
         try {
-            context.createProducer().send(queue, textMessage);
-        } catch (JMSRuntimeException e) {
+            messageProducer.send(textMessage);
+        } catch (JMSException e) {
             throw new MessagingRuntimeException(e);
         }
     }

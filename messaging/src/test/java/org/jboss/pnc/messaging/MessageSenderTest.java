@@ -86,7 +86,7 @@ public class MessageSenderTest {
 
     @Test
     public void shouldSendMessageWithHeaders() throws InterruptedException {
-        String message = "TEST-MESSAGE";
+        String message = "TEST MESSAGE WITH HEADERS.";
 
         Map<String, String> headers = new HashMap<>();
         headers.put("key", "value");
@@ -118,6 +118,11 @@ public class MessageSenderTest {
 
         if(collected.isPresent()) {
             TextMessage textMessage = collected.get();
+            try {
+                logger.info("Found message {}.", textMessage.getText());
+            } catch (JMSException e) {
+                logger.error("Cannot read textMessage.", e);
+            }
             return containsExpectedHeaders(headers, textMessage);
         }
         return false;
