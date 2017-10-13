@@ -159,11 +159,13 @@ public class ProductMilestoneReleaseManager {
             storeBrewBuildParameters(buildRest);
         }
 
-        // set milestone end date to now when the release process is successful
-        milestone.setEndDate(new Date());
-        milestoneRepository.save(milestone);
+        if (result.getReleaseStatus().getMilestoneReleaseStatus() == MilestoneReleaseStatus.SUCCEEDED) {
+            // set milestone end date to now when the release process is successful
+            milestone.setEndDate(new Date());
+            milestoneRepository.save(milestone);
 
-        removeCurrentFlagFromMilestone(milestone);
+            removeCurrentFlagFromMilestone(milestone);
+        }
     }
 
     private <T> void storeFailure(ProductMilestone milestone, BpmStringMapNotificationRest result) {
