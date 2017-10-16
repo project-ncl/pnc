@@ -55,15 +55,6 @@
         }
       });
 
-      resource.createRepoConfigAndBuildConfig = function (repoConfig, buildConfig) {
-        var dto = {
-          repositoryConfigurationRest: repoConfig,
-          buildConfigurationRest: buildConfig
-        };
-
-        return $http.post(restConfig.getPncUrl() + '/bpm/tasks/start-repository-configuration-creation', dto);
-      };
-
       resource.autoCreateRepoConfig = function (options) {
         var dto = {
           scmUrl: options.url,

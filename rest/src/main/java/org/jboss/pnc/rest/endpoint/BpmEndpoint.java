@@ -213,16 +213,8 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-    @ApiOperation(value = "Start Repository Creation (RC) task (which stores the RC) and store the BC on success task completion.", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Success")
-    })
-    @POST
-    @Path("/tasks/start-repository-configuration-creation")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response startRCreationTask(
-            @ApiParam(value = "Task parameters.", required = true) RepositoryCreationRest repositoryCreationRest,
-            @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
+    private Response startRCreationTask(RepositoryCreationRest repositoryCreationRest,
+            HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
 
         LOG.debug("Received request to start RC creation: " + repositoryCreationRest);
 
@@ -381,9 +373,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         String scmUrl = repositoryCreationUrlAutoRest.getScmUrl();
-        Boolean isUrlInternal = RepositoryConfigurationProvider.isInternalRepository(
-                internalScmAuthority,
-                scmUrl);
+        Boolean isUrlInternal = scmUrl.contains(internalScmAuthority);
 
         if (isUrlInternal) {
             repositoryConfigurationBuilder.internalUrl(scmUrl);
