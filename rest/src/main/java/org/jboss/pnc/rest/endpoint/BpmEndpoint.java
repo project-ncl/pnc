@@ -363,7 +363,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     @ApiOperation(value = "Start Repository Creation task with url autodetect (internal vs. external).", response = Singleton.class)
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Success")
+            @ApiResponse(code = SUCCESS_CODE, message = "Success", response = Integer.class)
     })
     @POST
     @Path("/tasks/start-repository-configuration-creation-url-auto")

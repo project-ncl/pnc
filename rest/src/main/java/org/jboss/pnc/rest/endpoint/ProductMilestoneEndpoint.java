@@ -279,8 +279,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
 
     @ApiOperation(value = "Gets the set of builds performed during in a Product Milestone cycle")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductMilestoneSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = ProductMilestoneSingleton.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordPage.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
