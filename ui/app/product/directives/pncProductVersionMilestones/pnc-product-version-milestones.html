@@ -49,17 +49,17 @@
         <i class="glyphicon glyphicon-download-alt"></i>
       </a>
     </td>
-    <td class="text-center">
-      <a ng-disabled="productmilestone.endDate != undefined"
-         pnc-confirm-click="markCurrentMilestone(productmilestone)"
+    <td ng-if="productmilestone.endDate == undefined" class="text-center">
+      <a pnc-confirm-click="markCurrentMilestone(productmilestone)"
          pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}"
          title="Mark Milestone as current" class="btn btn-default" pnc-requires-auth><i class="fa fa-clock-o"></i></a>
-      <a ng-disabled="productmilestone.endDate != undefined"
-         ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone"
+      <a ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone"
          class="btn btn-default"><i class="pficon pficon-edit"></i></a>
-      <a ng-disabled="productmilestone.endDate != undefined"
-         ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Close Milestone"
+      <a ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Close Milestone"
          class="btn btn-default"><i class="fa fa-lock"></i></a>
+    </td>
+    <td ng-if="productmilestone.endDate != undefined" class="text-center" title="Milestone is already closed. No more modifications allowed.">
+      Milestone is closed <span class="fa fa-info-circle"></span>
     </td>
   </tr>
   </tbody>
