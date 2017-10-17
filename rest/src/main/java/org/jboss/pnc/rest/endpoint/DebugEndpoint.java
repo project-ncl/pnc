@@ -55,7 +55,7 @@ public class DebugEndpoint {
     @POST
     @Path("/mq-send-dummy-message")
     public Response sendDummyMessageToQueue() {
-        messageSender.sendToQueue("Test Message.");
+        messageSender.sendToTopic("Test Message.");
         return Response.ok().build();
     }
 }

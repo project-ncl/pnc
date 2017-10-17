@@ -58,7 +58,7 @@ public class MessageSenderTest {
     public static Archive<?> deployment() {
         return ShrinkWrap.create(JavaArchive.class)
                 .addClass(MessageSender.class)
-                .addClass(PncQueueListener.class)
+                .addClass(PncTopicListener.class)
                 .addClass(MessageCollector.class)
                 .addClass(ContainerTest.class)
                 .addClass(Wait.class)
@@ -76,7 +76,7 @@ public class MessageSenderTest {
     public void shouldSendMessage() throws InterruptedException {
         String message = "TEST-MESSAGE";
 
-        messageSender.sendToQueue(message);
+        messageSender.sendToTopic(message);
         try {
             Wait.forCondition(() -> receivedMessageContains(message), 10, ChronoUnit.SECONDS);
         } catch (TimeoutException e) {
@@ -92,7 +92,7 @@ public class MessageSenderTest {
         headers.put("key", "value");
         headers.put("id", "12345");
 
-        messageSender.sendToQueue(message, headers);
+        messageSender.sendToTopic(message, headers);
         try {
             Wait.forCondition(() -> receivedMessageContains(message, headers), 10, ChronoUnit.SECONDS);
         } catch (TimeoutException e) {

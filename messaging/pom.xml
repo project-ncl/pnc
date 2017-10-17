@@ -273,6 +273,24 @@
                 </configuration>
               </execution>
               <execution>
+                <id>add-jms-topic</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <address>subsystem=messaging-activemq,server=default,jms-topic=pncTopic</address>
+                      <properties>
+                        <durable>true</durable>
+                        <entries>!!["java:/jms/queue/pncTopic"]</entries>
+                      </properties>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+              <execution>
                 <id>shutdown-server</id>
                 <phase>test-compile</phase>
                 <goals>

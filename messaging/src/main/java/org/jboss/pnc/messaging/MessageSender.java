@@ -56,7 +56,7 @@ public class MessageSender {
     @Resource(mappedName = "java:/ConnectionFactory")
     private ConnectionFactory connectionFactory;
 
-    @Resource(lookup = "java:/jms/queue/pncQueue")
+    @Resource(lookup = "java:/jms/queue/pncTopic")
     private Destination destination;
 
     private Connection connection;
@@ -68,10 +68,12 @@ public class MessageSender {
         try {
             connection = connectionFactory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
             messageProducer = session.createProducer(destination);
-            logger.info("JMS initialized.");
+            logger.info("JMS client ID {}.", connection.getClientID());
+            logger.info("JMSXPropertyNames {}.", connection.getMetaData().getJMSXPropertyNames());
         } catch (JMSException e) {
-            logger.error("Failed to init JMS.");
+            logger.error("Failed to initialize JMS.");
             throw new RuntimeException(e);
         }
     }
@@ -90,24 +92,25 @@ public class MessageSender {
     /**
      * @throws MessagingRuntimeException
      */
-    public void sendToQueue(Message message) {
-        sendToQueue(message.toJson());
+    public void sendToTopic(Message message) {
+        sendToTopic(message.toJson());
     }
 
     /**
      * @throws MessagingRuntimeException
      */
-    public void sendToQueue(String message) {
-        sendToQueue(message, Collections.EMPTY_MAP);
+    public void sendToTopic(String message) {
+        sendToTopic(message, Collections.EMPTY_MAP);
     }
 
     /**
      * @throws MessagingRuntimeException
      */
-    public void sendToQueue(String message, Map<String, String> headers) {
+    public void sendToTopic(String message, Map<String, String> headers) {
         TextMessage textMessage;
         try {
             textMessage = session.createTextMessage(message);
+            textMessage.setStringProperty("producer", "PNC");
         } catch (JMSException e) {
            throw new MessagingRuntimeException(e);
         }

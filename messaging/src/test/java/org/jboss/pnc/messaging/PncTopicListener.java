@@ -27,11 +27,11 @@ import javax.jms.TextMessage;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@MessageDriven(name = "QueueMDB", activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/pncQueue"),
+@MessageDriven(name = "TopicMDB", activationConfig = {
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/pncTopic"),
         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge") })
-public class PncQueueListener implements MessageListener {
+public class PncTopicListener implements MessageListener {
 
     @Inject
     MessageCollector messageCollector;
