@@ -37,22 +37,13 @@
     <!-- repository configuration -->
     <dt>Internal SCM URL:</dt>
     <dd>
-      <span ng-show="ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl">{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}</span>
-      <span ng-hide="ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl">&mdash;</span>
+      <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.scmRepoURL }}</span>
+      <span ng-hide="ctrl.record.scmRepoURL">&mdash;</span>
     </dd>
-    
-    <dt>External SCM URL:</dt>
-    <dd>
-      <span ng-show="ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl">{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl }}</span>
-      <span ng-hide="ctrl.record.buildConfigurationAudited.repositoryConfiguration.externalUrl">&mdash;</span>
-    </dd>
-
-    <dt>Pre-build sync:</dt>
-    <dd>{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.preBuildSyncEnabled ? 'enabled' : 'disabled' }}</dd>
     <!-- repository configuration -->
 
     <dt>SCM Revision:</dt>
-    <dd>{{ ctrl.record.buildConfigurationAudited.scmRevision || '&mdash;'}}</dd>
+    <dd>{{ ctrl.record.scmRevision || '&mdash;'}}</dd>
 
     <dt>Environment:</dt>
     <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
