@@ -4,5 +4,6 @@
     "packages": ".build-tmp/bower-cache",
     "registry": ".build-tmp/bower-registry"
   },
-  "tmp": ".build-tmp/bower-tmp"
+  "tmp": ".build-tmp/bower-tmp",
+  "registry": "https://registry.bower.io"
 }
