@@ -19,7 +19,6 @@ package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.slf4j.Logger;
@@ -66,10 +65,6 @@ public class BuildSetTask {
         this.buildConfigSetRecord = Optional.ofNullable(buildConfigSetRecord);
         this.forceRebuildAll = forceRebuildAll;
         this.keepAfterFailure = keepAfterFailure;
-    }
-
-    public BuildConfigurationSet getBuildConfigurationSet() {
-        return buildConfigSetRecord.map(BuildConfigSetRecord::getBuildConfigurationSet).orElse(null);
     }
 
     public void setStatus(BuildSetStatus status) {

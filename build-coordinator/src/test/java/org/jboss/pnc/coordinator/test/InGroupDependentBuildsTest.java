@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -25,10 +26,14 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * configC depends on configB, which in turn depends on configA.
@@ -51,15 +56,22 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     private BuildConfigurationSet configSet;
 
     @Before
-    public void setUp() throws DatastoreException, ConfigurationParseException {
-        configA = config("A");
+    public void initialize() throws DatastoreException, ConfigurationParseException {
+        configA = buildConfig("A");
 
-        configB = config("B", configA);
-        configC = config("C", configB);
-        configD = config("D", configA, configB);
-        configE = config("E");
+        configB = buildConfig("B", configA);
+        configC = buildConfig("C", configB);
+        configD = buildConfig("D", configA, configB);
+        configE = buildConfig("E");
 
         configSet = configSet(configA, configB, configC, configD, configE);
+
+        buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
+        when(buildConfigurationRepository.queryWithPredicates(any())).thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
+
+        super.initialize();
+
+        configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
     }
 
     @Test

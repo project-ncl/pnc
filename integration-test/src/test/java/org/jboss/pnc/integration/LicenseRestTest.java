@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 import static org.jboss.pnc.test.util.JsonUtils.toJson;
 

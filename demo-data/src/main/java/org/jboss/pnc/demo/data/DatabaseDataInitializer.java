@@ -173,8 +173,9 @@ public class DatabaseDataInitializer {
         BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll().get(0);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
+        BuildConfigurationSet buildConfigurationSet = buildConfigurationDB.getBuildConfigurationSets().iterator().next();
         Preconditions.checkState(
-                buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+                buildConfigurationSet
                         .getProductVersion() != null,
                 "Product version of buildConfiguration must be not null");
 
@@ -194,12 +195,12 @@ public class DatabaseDataInitializer {
                 "Product version mapped to Project must be " + PNC_PRODUCT_VERSION_1);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
-        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+        Preconditions.checkState(buildConfigurationSet
                 .getProductVersion()
                 .getVersion().equals(PNC_PRODUCT_VERSION_1),
                 "Product version mapped to BuildConfiguration must be "
                         + PNC_PRODUCT_VERSION_1);
-        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+        Preconditions.checkState(buildConfigurationSet
                 .getProductVersion()
                 .getProduct().getName().equals(PNC_PRODUCT_NAME),
                 "Product mapped to BuildConfiguration must be "

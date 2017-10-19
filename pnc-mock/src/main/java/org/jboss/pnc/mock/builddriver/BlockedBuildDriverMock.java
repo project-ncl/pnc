@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mock.builddriver;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -26,6 +25,8 @@ import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
@@ -37,7 +38,7 @@ import java.util.function.Consumer;
  */
 public class BlockedBuildDriverMock extends BuildDriverBase implements BuildDriver {
 
-    public static final Logger log = Logger.getLogger(BlockedBuildDriverMock.class);
+    public static final Logger log = LoggerFactory.getLogger(BlockedBuildDriverMock.class);
 
     Semaphore semaphore = new Semaphore(0);
 

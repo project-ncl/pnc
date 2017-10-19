@@ -20,10 +20,12 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSetSpringRepository;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 
 @Stateless
 public class BuildConfigurationSetRepositoryImpl extends AbstractRepository<BuildConfigurationSet, Integer> implements
@@ -40,5 +42,10 @@ public class BuildConfigurationSetRepositoryImpl extends AbstractRepository<Buil
     @Inject
     public BuildConfigurationSetRepositoryImpl(BuildConfigurationSetSpringRepository buildConfigurationSetSpringRepository) {
         super(buildConfigurationSetSpringRepository, buildConfigurationSetSpringRepository);
+    }
+
+    @Override
+    public List<BuildConfigurationSet> withProductVersionId(Integer id) {
+        return queryWithPredicates(BuildConfigurationSetPredicates.withProductVersionId(id));
     }
 }

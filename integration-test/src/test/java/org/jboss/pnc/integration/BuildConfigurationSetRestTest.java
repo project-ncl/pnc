@@ -27,21 +27,16 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
-import org.jboss.pnc.integration.client.ProjectRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -107,7 +102,6 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
-
 
     @Before
     public void before() {
@@ -272,7 +266,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     public void testGetBuildConfigurationsForBuildConfigurationSet() {
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);

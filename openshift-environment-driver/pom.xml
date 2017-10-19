@@ -76,15 +76,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>
@@ -101,6 +92,16 @@
     <dependency>
       <groupId>com.openshift</groupId>
       <artifactId>openshift-restclient-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <!-- TODO only here as lombok is too eager to do everything-->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

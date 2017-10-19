@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.datastore.DeploymentFactory;

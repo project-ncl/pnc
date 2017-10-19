@@ -170,7 +170,7 @@ public class ProductMilestoneReleaseManagerTest {
 
         @Override
         public Boolean answer(InvocationOnMock invocation) throws Throwable {
-            MilestoneReleaseTask task = invocation.getArgumentAt(0, MilestoneReleaseTask.class);
+            MilestoneReleaseTask task = invocation.getArgument(0);
             callback.accept(task);
             return true;
         }

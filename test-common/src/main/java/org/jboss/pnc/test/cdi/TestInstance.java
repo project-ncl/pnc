@@ -73,6 +73,10 @@ public class TestInstance<T> implements Instance<T> {
     }
 
     @Override
+    public void destroy(T instance) {
+    }
+
+    @Override
     public Iterator<T> iterator() {
         return objects.iterator();
     }

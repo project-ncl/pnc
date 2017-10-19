@@ -59,12 +59,11 @@ Tests annotated with @DebugTest are also skipped by default as they are usually 
 
 To run container tests use profile `-Pcontainer-tests`.
 Extra parameter `-Deap6.zip.url` is required to provide the location of server distribution archive.
-Tests requiring JEE application server (Wildfly 9 or EAP 6.4)
+Tests requiring JEE application server (tested with JBoss EAP 7.0)
 
 Example:
 
-	mvn clean install -Pcontainer-tests -Deap6.zip.url=file:///home/development/JBEAP-6.4.5.GA/jboss-eap-6.4.5.GA.zip
-	mvn clean install -Pcontainer-tests -Deap6.zip.url=https://developers.redhat.com/download-manager/file/jboss-eap-6.4.0.GA.zip
+	mvn clean install -Pcontainer-tests -Deap.zip.url=file:///home/development/jboss-eap.zip
 
 To run debug tests use `-Pdebug-tests`.
 
@@ -88,15 +87,15 @@ Example to install server to /tmp folder:
 1. Install application server (see Installing application server for integration tests manually)
 2. start the server
 
-	sh /tmp/jboss-eap-6.4/bin/standalone.sh
+	sh /tmp/jboss-eap/bin/standalone.sh
 
 3. run integration tests with additional system properties and excluded module test-arquillian-container
 
-	-Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4
+	-Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap
 	-Darq.container.wf.configuration.allowConnectingToRunningServer=true
 	-pl \!:test-arquillian-container
 
-	mvn clean verify -Pcontainer-tests -pl \!:test-arquillian-container -Deap6.zip.url= -DuseTargetBuilds -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4 -Darq.container.wf.configuration.allowConnectingToRunningServer=true
+	mvn clean verify -Pcontainer-tests -pl \!:test-arquillian-container -Deap6.zip.url= -DuseTargetBuilds -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap -Darq.container.wf.configuration.allowConnectingToRunningServer=true
 
 
 ### Running integration tests in Intellij IDEA
@@ -104,7 +103,7 @@ Example to install server to /tmp folder:
 1. Install application server (see Installing application server for integration tests manually)
 2. start the server
 
-	sh /tmp/jboss-eap-6.4/bin/standalone.sh
+	sh /tmp/jboss-eap/bin/standalone.sh
 
 3. Create new Run/Debug configuration of type Arquillian JUnit
 
@@ -112,7 +111,7 @@ Example to install server to /tmp folder:
  - select test class or package or module in Configuration tab
  - specify path to application server and allow to connect to running server in VM options:
 
-    -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4
+    -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap
     -Darq.container.wf.configuration.allowConnectingToRunningServer=true
 
   - optionally append following properties (no value required) to VM options:

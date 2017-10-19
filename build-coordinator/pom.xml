@@ -60,11 +60,6 @@
       <artifactId>bpm</artifactId>
     </dependency>
 
-    <!-- Remote dependencies -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -87,6 +82,17 @@
       <groupId>org.kie.remote</groupId>
       <artifactId>kie-remote-client</artifactId>
     </dependency>
+    <!-- TODO only here as lombok is too eager to do everything-->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+
 
     <!-- Test dependencies -->
     <dependency>
@@ -132,22 +138,12 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.weld</groupId>
-      <artifactId>weld-spi</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.el</groupId>
       <artifactId>el-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -170,6 +166,7 @@
       <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
       <scope>test</scope>
     </dependency>
+
     <!-- Test coverage -->
     <dependency>
       <groupId>org.jboss.arquillian.extension</groupId>
@@ -190,6 +187,11 @@
           <artifactId>jboss-logging-spi</artifactId>
         </exclusion>
       </exclusions>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
       <scope>test</scope>
     </dependency>
 

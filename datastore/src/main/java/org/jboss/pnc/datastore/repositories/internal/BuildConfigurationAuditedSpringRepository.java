@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public interface BuildConfigurationAuditedSpringRepository extends JpaRepository
      * @param id of the build configuration
      * @return The list of revisions of this build config in order of newest to oldest.
      */
+    @Query("select bca from BuildConfigurationAudited bca where bca.id = ? order by bca.rev desc")
     List<BuildConfigurationAudited> findAllByIdOrderByRevDesc(Integer id);
 
 }

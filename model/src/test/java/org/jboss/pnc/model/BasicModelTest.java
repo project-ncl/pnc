@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.apache.maven.model.Repository;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +26,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
-
 import java.time.Instant;
 import java.util.Date;
 

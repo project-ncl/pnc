@@ -27,17 +27,21 @@ import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -45,6 +49,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 
 @Stateless
 public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigurationSet, BuildConfigurationSetRest> {
+
+    Logger logger = LoggerFactory.getLogger(BuildConfigurationSetProvider.class);
 
     private BuildConfigurationRepository buildConfigurationRepository;
 
@@ -59,6 +65,17 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
+    @Override //better error logging
+    public BuildConfigurationSetRest getSpecific(Integer id) {
+        BuildConfigurationSet dbEntity = repository.queryById(id);
+        try {
+            return new BuildConfigurationSetRest(dbEntity);
+        } catch (Exception e) {
+            logger.error("Cannot create rest entity.", e);
+            return null;
+        }
+    }
+
     @Override
     protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws ValidationException {
         BuildConfigurationSet buildConfigurationSetFromDB = repository
@@ -71,12 +88,26 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
 
     @Override
     protected Function<? super BuildConfigurationSet, ? extends BuildConfigurationSetRest> toRESTModel() {
-        return buildConfigurationSet -> new BuildConfigurationSetRest(buildConfigurationSet);
+        return buildConfigurationSet -> {
+            try {
+                return new BuildConfigurationSetRest(buildConfigurationSet);
+            } catch (Exception e) {
+                logger.error("Cannot create rset entity.", e);
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     @Override
     protected Function<? super BuildConfigurationSetRest, ? extends BuildConfigurationSet> toDBModel() {
-        return buildConfigSetRest -> buildConfigSetRest.toDBEntityBuilder().build();
+        return buildConfigSetRest -> {
+            try {
+                return buildConfigSetRest.toDBEntityBuilder().build();
+            } catch (Exception e) {
+                logger.error("Cannot create rset entity.", e);
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     public void addConfiguration(Integer configSetId, Integer configId) throws ValidationException {
@@ -138,6 +169,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId));
     }
 
+    private List<BuildConfiguration> getBuildConfigurations(Integer id) {
+        return buildConfigurationRepository.queryWithPredicates(
+                BuildConfigurationPredicates.withBuildConfigurationSetId(id));
+    }
 
 
 }

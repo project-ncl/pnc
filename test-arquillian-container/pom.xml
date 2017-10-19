@@ -90,14 +90,14 @@
   <profiles>
     <!--
          This needs a valid EAP 6.4.0 zip location that can be downloaded.
-         Use URL schema for the location. mvn -Pcontainer-tests -Deap6.zip.url=[file://|http:// .....jboss-eap-6.4.0.zip]
+         Use URL schema for the location. mvn -Pcontainer-tests -Deap.zip.url=[file://|http:// .....jboss-eap.zip]
          Alternatively define it in pnc.cfg and place that in the top level execution root directory.
     -->
     <profile>
       <id>download-server</id>
       <activation>
         <property>
-          <name>eap6.zip.url</name>
+          <name>eap.zip.url</name>
         </property>
       </activation>
       <build>
@@ -119,11 +119,11 @@
                     <property environment="env" />
                     <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME" />
 
-                    <echo>Preparing EAP 6.4 application server</echo>
-                    <echo>EAP URL ${eap6.zip.url}</echo>
-                    <fail message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url=" unless="eap6.zip.url" />
+                    <echo>Preparing EAP application server</echo>
+                    <echo>EAP URL ${eap.zip.url}</echo>
+                    <fail message="Please specify EAP 6.4 zip file URL via: -Deap.zip.url=" unless="eap.zip.url" />
                     <mkdir dir="${test.server.unpack.dir}" />
-                    <get usetimestamp="true" src="${eap6.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
+                    <get usetimestamp="true" src="${eap.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
                     <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
 
                   </target>
@@ -139,7 +139,7 @@
       <id>configure-test-container</id>
       <activation>
         <property>
-          <name>eap6.zip.url</name>
+          <name>eap.zip.url</name>
         </property>
       </activation>
       <properties>
@@ -176,7 +176,7 @@
                   <artifactItems>
                     <artifactItem>
                       <groupId>org.keycloak</groupId>
-                      <artifactId>keycloak-eap6-adapter-dist</artifactId>
+                      <artifactId>keycloak-eap7-adapter-dist</artifactId>
                       <version>${version.keycloak}</version>
                       <type>zip</type>
                       <overWrite>true</overWrite>

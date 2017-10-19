@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
@@ -31,9 +32,9 @@ import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -46,10 +47,11 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.stream.Collectors;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -57,7 +59,7 @@ public class WebSocketsNotificationTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    NotificationCollector notificationCollector;
+    private static NotificationCollector notificationCollector;
 
     @Inject
     Event<BuildCoordinationStatusChangedEvent> buildStatusNotificationEvent;
@@ -80,19 +82,21 @@ public class WebSocketsNotificationTest {
         return enterpriseArchive;
     }
 
-    @Before
-    public void before() throws Exception {
+    @Test
+    @InSequence(1)
+    public void setUp() throws Exception {
         notificationCollector = new NotificationCollector();
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         String uri = "ws://localhost:8080/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
         container.connectToServer(notificationCollector, URI.create(uri));
         waitForWSClientConnection();
+        logger.info("Connected to notification client.");
         notificationCollector.clear();
     }
 
     @Test
+    @InSequence(2)
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
-
         // given
         BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
                 BuildCoordinationStatus.DONE, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
@@ -100,15 +104,14 @@ public class WebSocketsNotificationTest {
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
-        waitForMessages();
 
         //then
-        assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
+        Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
     }
 
     @Test
+    @InSequence(3)
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
-
         // given
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW,
                 BuildSetStatus.DONE, 1, 1, "BuildSet1", new Date(1453118400000L), new Date(1453122000000L), 1);
@@ -116,14 +119,16 @@ public class WebSocketsNotificationTest {
 
         //when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
-        waitForMessages();
 
         //then
-        assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
+        Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
     }
 
-    private void waitForMessages() {
-        awaitFor(() -> notificationCollector.getMessages().size() > 0, 60_000);
+    private boolean isReceived(String expectedJsonResponse) {
+        logger.debug("notificationCollector: {}.", notificationCollector);
+        List<String> messages = notificationCollector.getMessages();
+        logger.debug("Current messages: {}.", messages.stream().collect(Collectors.joining()));
+        return messages.contains(expectedJsonResponse);
     }
 
     private void waitForWSClientConnection() {

@@ -72,6 +72,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -163,6 +164,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
             throws ValidationException {
+        logger.debug("Creating new BuildConfigurationSet: {}", buildConfigurationSetRest.toString());
         return super.createNew(buildConfigurationSetRest, uriInfo);
     }
 
@@ -221,8 +223,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationProvider.getAllForBuildConfigurationSet(pageIndex, pageSize, sort, q,
-                id));
+        return fromCollection(
+                buildConfigurationProvider.getAllForBuildConfigurationSet(pageIndex, pageSize, sort, q, id));
     }
 
     @PUT
@@ -315,7 +317,10 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         } else {
             result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll, new URL(callbackUrl));
         }
-
+        logger.info("Started build configuration set id: {}. Build Tasks: {}",
+                id,
+                result.getBuildTasks().stream().map(bt -> Integer.toString(bt.getId())).collect(
+                Collectors.joining()));
         return buildRecordProvider.createResultSet(result, uriInfo);
     }
 

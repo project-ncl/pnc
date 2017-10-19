@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
@@ -33,11 +34,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -57,15 +62,24 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     private BuildConfigurationSet configSet;
 
     @Before
-    public void setUp() throws DatastoreException, ConfigurationParseException {
-        configA = config("A");
-        configB = config("B");
-        configC = config("C");
-        configD = config("D");
-        configE = config("E");
+    public void initialize() throws DatastoreException, ConfigurationParseException {
+        configA = buildConfig("A");
+        configB = buildConfig("B");
+        configC = buildConfig("C");
+        configD = buildConfig("D");
+        configE = buildConfig("E");
 
         configSet = configSet(configA, configB, configC, configD, configE);
+
+        buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
+        when(buildConfigurationRepository.queryWithPredicates(any())).thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
+
+        super.initialize();
+
+        configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
     }
+
+
 
     @Test
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {

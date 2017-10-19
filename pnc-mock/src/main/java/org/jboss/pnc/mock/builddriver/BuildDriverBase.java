@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mock.builddriver;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -26,6 +25,8 @@ import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
@@ -34,7 +35,7 @@ import java.util.function.Consumer;
  */
 public abstract class BuildDriverBase {
 
-    public static final Logger log = Logger.getLogger(BuildDriverBase.class);
+    public static final Logger log = LoggerFactory.getLogger(BuildDriverBase.class);
 
     private BuildStatus buildStatus;
 
@@ -51,7 +52,7 @@ public abstract class BuildDriverBase {
             try {
                 complete(buildExecutionSession, runningEnvironment, onComplete);
             } catch (InterruptedException e) {
-                log.error(e);
+                log.error("Interrupted", e);
             }
         });
         thread.start();

@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -118,7 +119,8 @@ public class BuildTasksInitializer {
             User user,
             boolean rebuildAll,
             boolean keepAfterFailure,
-            Supplier<Integer> buildTaskIdProvider) throws CoreException {
+            Supplier<Integer> buildTaskIdProvider,
+            Set<BuildConfiguration> buildConfigurations) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -140,12 +142,14 @@ public class BuildTasksInitializer {
                         .forceRebuildAll(rebuildAll)
                         .keepAfterFailure(keepAfterFailure).build();
 
-        initializeBuildTasksInSet(
+        // initializeBuildTasksInSet
+        log.debug("Initializing BuildTasks In Set for BCs: {}.", buildConfigurations.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
+        fillBuildTaskSet(
                 buildSetTask,
                 user,
                 buildTaskIdProvider,
-                buildConfigurationSet.getCurrentProductMilestone());
-
+                buildConfigurationSet.getCurrentProductMilestone(),
+                buildConfigurations);
         return buildSetTask;
     }
 
@@ -155,18 +159,6 @@ public class BuildTasksInitializer {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      *                     initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    private void initializeBuildTasksInSet(
-            BuildSetTask buildSetTask,
-            User user,
-            Supplier<Integer> buildTaskIdProvider,
-            ProductMilestone productMilestone) {
-        // Loop to create the build tasks
-        Set<BuildConfiguration> toBuild =
-                buildSetTask.getBuildConfigurationSet().getBuildConfigurations();
-
-        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, productMilestone, toBuild);
-    }
-
     private void fillBuildTaskSet(BuildSetTask buildSetTask,
                                   User user,
                                   Supplier<Integer> buildTaskIdProvider,

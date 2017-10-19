@@ -19,15 +19,16 @@ package org.jboss.pnc.integration.client;
 
 import com.jayway.restassured.response.Response;
 import org.jboss.pnc.integration.client.util.RestResponse;
-import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class ProductVersionRestClient extends AbstractRestClient<ProductVersionRest> {
+
+    Logger logger = LoggerFactory.getLogger(ProductVersionRestClient.class);
 
     public static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
 
@@ -48,6 +49,14 @@ public class ProductVersionRestClient extends AbstractRestClient<ProductVersionR
             response.then().statusCode(200);
         }
 
-        return new RestResponse<>(response, get(id).getValue().getBuildConfigurationSets());
+        List<BuildConfigurationSetRest> buildConfSets = all(BuildConfigurationSetRest.class,
+                PRODUCT_VERSION_REST_ENDPOINT + id + BUILD_CONFIGURATION_SETS_SUB_ENDPOINT,
+                true,
+                0,
+                Integer.MAX_VALUE,
+                null,
+                null).getValue();
+
+        return new RestResponse<>(response, buildConfSets);
     }
 }

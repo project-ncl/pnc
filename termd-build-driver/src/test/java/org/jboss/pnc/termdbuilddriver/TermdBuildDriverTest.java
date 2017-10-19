@@ -181,7 +181,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
         //then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
-        assertThat(buildResult.get().getBuildResult().getBuildLog()).contains("sh /tmp/termd-build-agent");
+        assertThat(buildResult.get().getBuildResult().getBuildLog()).contains("sh " + getWorkingDirectory());
         assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
         assertThat(buildResult.get().getBuildResult().getBuildStatus()).isEqualTo(CANCELLED);
     }

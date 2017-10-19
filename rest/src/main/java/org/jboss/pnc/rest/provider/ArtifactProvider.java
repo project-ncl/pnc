@@ -57,6 +57,9 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactProvider.class);
 
+    /**
+     * Used only in a deprecated method
+     */
     @Deprecated
     private BuildRecordRepository buildRecordRepository;
     private MavenRepoDriverModuleConfig moduleConfig;
@@ -78,6 +81,9 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         }
     }
 
+    /**
+     * @deprecated is uses in-memory sort and order
+     */
     @Deprecated
     public CollectionInfo<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {

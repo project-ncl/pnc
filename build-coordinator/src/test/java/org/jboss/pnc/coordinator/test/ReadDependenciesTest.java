@@ -79,6 +79,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
                 user,
                 true,
                 false,
-                atomicInteger::getAndIncrement);
+                atomicInteger::getAndIncrement,
+                buildConfigurationSet.getBuildConfigurations());
     }
 }

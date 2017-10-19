@@ -25,7 +25,7 @@
 
   <persistence-unit name="newcastle-test" transaction-type="RESOURCE_LOCAL">
 
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
     <!-- Load the model entities -->
     <class>org.jboss.pnc.model.Artifact</class>
@@ -51,7 +51,7 @@
       <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testdb" />
       <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.show_sql" value="false"/>
       <property name="hibernate.format_sql" value="true"/>
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
     </properties>
