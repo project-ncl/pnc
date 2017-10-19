@@ -18,6 +18,7 @@
 package org.jboss.pnc.messaging;
 
 import org.jboss.pnc.messaging.spi.Message;
+import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +41,9 @@ import java.util.Map;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Stateless
-public class MessageSender {
+public class DefaultMessageSender implements MessageSender {
 
     private Logger logger = LoggerFactory.getLogger(MessageSender.class);
-
-//    @Inject
-//    private JMSContext context;
-
-//    @Resource
-//    private SessionContext context;
-
-//    @Resource(mappedName = "/jms/ConnectionFactory")
-//    private ConnectionFactory connectionFactory;
 
     @Resource(mappedName = "java:/ConnectionFactory")
     private ConnectionFactory connectionFactory;
@@ -92,21 +84,27 @@ public class MessageSender {
     /**
      * @throws MessagingRuntimeException
      */
+    @Override
     public void sendToTopic(Message message) {
         sendToTopic(message.toJson());
+    }
+
+    @Override
+    public void sendToTopic(Message message, Map<String, String> headers) {
+        sendToTopic(message.toJson(), headers);
     }
 
     /**
      * @throws MessagingRuntimeException
      */
-    public void sendToTopic(String message) {
+    @Override public void sendToTopic(String message) {
         sendToTopic(message, Collections.EMPTY_MAP);
     }
 
     /**
      * @throws MessagingRuntimeException
      */
-    public void sendToTopic(String message, Map<String, String> headers) {
+    @Override public void sendToTopic(String message, Map<String, String> headers) {
         TextMessage textMessage;
         try {
             textMessage = session.createTextMessage(message);

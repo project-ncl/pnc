@@ -104,7 +104,7 @@ public class ProcessProgressNotificationTest {
         // given
         Integer taskId = 1;
         BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, taskId, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+                BuildCoordinationStatus.DONE, taskId, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);

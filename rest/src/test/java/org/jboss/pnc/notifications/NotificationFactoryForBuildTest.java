@@ -38,7 +38,7 @@ public class NotificationFactoryForBuildTest {
 
         // given
         BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+                BuildCoordinationStatus.DONE, 1, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
 
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 

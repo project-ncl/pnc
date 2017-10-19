@@ -17,31 +17,13 @@
  */
 package org.jboss.pnc.messaging.spi;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@AllArgsConstructor
-@Builder
-@Getter
-@JsonDeserialize(builder = CompletedBuild.CompletedBuildBuilder.class)
-public class CompletedBuild implements Message {
+public enum Status {
+    ACCEPTED, BUILDING, SUCCESS, FAILED, CANCELED, REJECTED;
 
-    private String pncBuildId;
-    private String buildConfigurationName;
-
-    @Override
-    public String toJson() {
-        return JsonOutputConverterMapper.apply(this);
-    }
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class CompletedBuildBuilder {
+    public String lowercase() {
+        return this.toString().toLowerCase();
     }
 }

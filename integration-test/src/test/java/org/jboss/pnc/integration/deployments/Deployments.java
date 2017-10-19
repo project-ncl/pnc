@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Stream;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
@@ -75,6 +75,9 @@ public class Deployments {
         setTestableWar(ear);
 
         addTestPersistenceXml(ear);
+        addTestApplicaitonXml(ear);
+
+        logger.info("Ear archive listing: {}", ear.toString(true));
 
         return ear;
     }
@@ -118,10 +121,23 @@ public class Deployments {
         addMockito(ear, mavenResolver);
         addRestassured(ear, mavenResolver);
 
+        addTestApplicaitonXml(ear);
+
         if (arquillianDeploymentFactory.isCreateArchiveCopy()) {
             arquillianDeploymentFactory.writeArchiveToFile(ear, new File("target", ArquillianDeploymentFactory.INTEGRATION_TEST_MODULE_DIR + ".ear"));
         }
+
+        logger.info("Ear archive listing: {}", ear.toString(true));
+
         return ear;
+    }
+
+    /**
+     * Use application.xml without messaging module.
+     * @param ear
+     */
+    private static void addTestApplicaitonXml(EnterpriseArchive ear) {
+        ear.setApplicationXML("application.xml");
     }
 
     private static void addMockito(EnterpriseArchive archive, PomEquippedResolveStage mavenResolver) {
@@ -148,8 +164,29 @@ public class Deployments {
 
     private static void addEar(Archive<?> webArchive, PomEquippedResolveStage mavenResolver) {
         File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?").withoutTransitivity().asFile();
-        Stream.of(manuallyAddedLibs).forEach(lib -> webArchive.merge(ShrinkWrap.create(ZipImporter.class).
-                importFrom(lib).as(GenericArchive.class)));
+
+        Arrays.stream(manuallyAddedLibs).forEach(
+            lib ->
+            {
+                webArchive.merge(
+                        ShrinkWrap.create(ZipImporter.class)
+                                .importFrom(lib, (path) -> include(path))
+                                .as(GenericArchive.class)
+                );
+            }
+        );
+    }
+
+    private static boolean include(ArchivePath archivePath) {
+        String path = archivePath.get();
+        //do not include messaging, at least until it is updated to the same version as provided by EAP (JMS 2)
+        boolean matches = path.matches(".*messaging\\.jar");
+        if (!matches) {
+            matches = path.matches(".*application\\.xml");
+        }
+
+        logger.trace("ArchivePath {} matches filter: {}", path, matches);
+        return !matches;
     }
 
     private static void addTestCommonWithTransitives(EnterpriseArchive webArchive, PomEquippedResolveStage mavenResolver) {

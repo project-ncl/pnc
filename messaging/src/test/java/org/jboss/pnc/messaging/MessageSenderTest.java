@@ -19,6 +19,7 @@ package org.jboss.pnc.messaging;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
@@ -58,6 +59,7 @@ public class MessageSenderTest {
     public static Archive<?> deployment() {
         return ShrinkWrap.create(JavaArchive.class)
                 .addClass(MessageSender.class)
+                .addClass(DefaultMessageSender.class)
                 .addClass(PncTopicListener.class)
                 .addClass(MessageCollector.class)
                 .addClass(ContainerTest.class)

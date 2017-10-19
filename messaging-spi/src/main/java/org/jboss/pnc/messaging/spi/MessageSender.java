@@ -15,21 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.messaging.spi;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
-import java.util.Date;
+import java.util.Map;
 
-public interface BuildCoordinationStatusChangedEvent {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public interface MessageSender {
 
-    BuildCoordinationStatus getOldStatus();
-    BuildCoordinationStatus getNewStatus();
-    Integer getBuildTaskId();
-    Integer getUserId();
-    Integer getBuildConfigurationId();
-    Integer getBuildConfigurationRevision();
-    String getBuildConfigurationName();
-    Date getBuildStartTime();
-    Date getBuildEndTime();
+    void sendToTopic(Message message);
 
+    void sendToTopic(Message message, Map<String, String> headers);
+
+    void sendToTopic(String message);
+
+    void sendToTopic(String message, Map<String, String> headers);
 }

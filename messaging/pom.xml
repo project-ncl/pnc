@@ -255,24 +255,6 @@
                 </configuration>
               </execution>
               <execution>
-                <id>add-jms-queue</id>
-                <phase>test-compile</phase>
-                <goals>
-                  <goal>add-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <address>subsystem=messaging-activemq,server=default,jms-queue=pncQueue</address>
-                      <properties>
-                        <durable>true</durable>
-                        <entries>!!["java:/jms/queue/pncQueue"]</entries>
-                      </properties>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-              <execution>
                 <id>add-jms-topic</id>
                 <phase>test-compile</phase>
                 <goals>

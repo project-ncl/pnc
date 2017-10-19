@@ -28,25 +28,26 @@ import java.io.IOException;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class CompletedBuildTest {
+public class BuildStatusChangedTest {
 
-    Logger logger = LoggerFactory.getLogger(CompletedBuildTest.class);
+    Logger logger = LoggerFactory.getLogger(BuildStatusChangedTest.class);
 
     @Test
     public void shouldSerializeObject() throws IOException {
         //given
         String pncBuildId = "123";
-        String buildConfigurationName = "project-1.2.3";
-        CompletedBuild completedBuild = new CompletedBuild(pncBuildId, buildConfigurationName);
+        Status oldStatus = Status.ACCEPTED;
+        Status newStatus = Status.BUILDING;
+        BuildStatusChanged buildStatusChanged = new BuildStatusChanged(oldStatus.lowercase(), newStatus.lowercase(), pncBuildId);
 
         //when
-        String serialized = completedBuild.toJson();
+        String serialized = buildStatusChanged.toJson();
         logger.info("Serialized: {}", serialized);
 
-        CompletedBuild deserialized = JsonOutputConverterMapper.readValue(serialized, CompletedBuild.class);
+        BuildStatusChanged deserialized = JsonOutputConverterMapper.readValue(serialized, BuildStatusChanged.class);
 
         //then
-        Assertions.assertThat(deserialized).isEqualToComparingFieldByField(completedBuild);
+        Assertions.assertThat(deserialized).isEqualToComparingFieldByField(buildStatusChanged);
 
     }
 }

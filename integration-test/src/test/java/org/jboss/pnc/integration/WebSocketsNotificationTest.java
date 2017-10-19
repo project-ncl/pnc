@@ -99,7 +99,7 @@ public class WebSocketsNotificationTest {
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         // given
         BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+                BuildCoordinationStatus.DONE, 1, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
         String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildCoordinationStatus\":\"DONE\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\",\"buildStartTime\":1453118400000,\"buildEndTime\":1453122000000}}";
 
         //when

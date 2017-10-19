@@ -104,6 +104,14 @@
       <artifactId>web</artifactId>
       <type>war</type>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>messaging-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>messaging</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -198,6 +206,18 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>demo-data</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>messaging</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>messaging-spi</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
