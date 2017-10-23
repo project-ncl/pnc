@@ -22,6 +22,7 @@ import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
 import org.jboss.pnc.datastore.repositories.internal.SpecificationsMapper;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -61,6 +62,16 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         return repository.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo)).getContent();
     }
 
+    @Override
+    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
+        List<BuildRecord> buildRecords = queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
 
+        return getLatestSuccessfulBuildRecord(buildRecords);
+    }
+
+    @Override
+    public List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId) {
+        return queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
+    }
 
 }

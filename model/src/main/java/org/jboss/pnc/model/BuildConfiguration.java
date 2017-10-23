@@ -41,7 +41,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
@@ -140,10 +139,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Index(name="idx_buildconfiguration_buildenvironment")
     private BuildEnvironment buildEnvironment;
 
-    @NotAudited
-    @OneToMany(cascade = CascadeType.REFRESH, mappedBy = "latestBuildConfiguration")
-    private Set<BuildRecord> buildRecords;
-
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToMany(mappedBy = "buildConfigurations")
     private Set<BuildConfigurationSet> buildConfigurationSets;
@@ -204,7 +199,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     public BuildConfiguration() {
         dependencies = new HashSet<>();
         dependants = new HashSet<>();
-        buildRecords = new HashSet<>();
         buildConfigurationSets = new HashSet<>();
 
         // The lastModificationTime needs to be non-null for certain use cases even though the
@@ -515,15 +509,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.active = archived ? null : true;
     }
 
-    public Set<BuildRecord> getBuildRecords() {
-        return buildRecords;
-    }
-
-    public BuildConfiguration addBuildRecord(BuildRecord buildRecord) {
-        this.buildRecords.add(buildRecord);
-        return this;
-    }
-
     /**
      * Get the current product milestone (if any) associated with this build config.
      *
@@ -639,13 +624,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     public boolean dependsOnAny(Collection<BuildConfiguration> otherList) {
         return otherList.stream().anyMatch(this::dependsOn);
-    }
-
-    public BuildRecord getLatestSuccesfulBuildRecord() {
-        return buildRecords.stream()
-                .filter(b -> b.getStatus() == BuildStatus.SUCCESS)
-                .sorted((o1, o2) -> -o1.getId().compareTo(o2.getId()))
-                .findFirst().orElse(null);
     }
 
     public static class Builder {

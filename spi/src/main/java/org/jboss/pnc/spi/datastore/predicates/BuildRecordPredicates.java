@@ -20,35 +20,49 @@ package org.jboss.pnc.spi.datastore.predicates;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.SetJoin;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildRecord} entity.
  */
 public class BuildRecordPredicates {
 
+    private static Logger logger = LoggerFactory.getLogger(BuildRecordPredicates.class);
+
     public static Predicate<BuildRecord> withBuildRecordId(Integer buildRecordId) {
         return (root, query, cb) -> cb.equal(root.get(org.jboss.pnc.model.BuildRecord_.id), buildRecordId);
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationId(Integer configurationId) {
-        return (root, query, cb) -> {
-            Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root.join(BuildRecord_.buildConfigurationAudited);
-            return cb.equal(buildConfigurationAudited.get(org.jboss.pnc.model.BuildConfigurationAudited_.id), configurationId);
-        };
+        return (root, query, cb) -> cb.equal(root.get(BuildRecord_.buildConfigurationId), configurationId);
+    }
+
+    public static Predicate<BuildRecord> withBuildConfigurationIds(Set<Integer> configurationIds) {
+        return (root, query, cb) -> root.get(BuildRecord_.buildConfigurationId).in(configurationIds);
+    }
+
+    public static Predicate<BuildRecord> withBuildConfigurationIdRev(IdRev idRev) {
+        return (root, query, cb) ->
+                cb.and(cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                       cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev()));
     }
 
     public static Predicate<BuildRecord> withSuccess() {
@@ -67,23 +81,27 @@ public class BuildRecordPredicates {
             // return an always false predicate if there are no build config ids
             return (root, query, cb) -> cb.disjunction();
         } else {
-            return (root, query, cb) -> {
-                Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root
-                        .join(BuildRecord_.buildConfigurationAudited);
-                return buildConfigurationAudited.get(org.jboss.pnc.model.BuildConfigurationAudited_.id)
-                        .in(buildConfigurationIds);
-            };
+            return (root, query, cb) -> root.get(BuildRecord_.buildConfigurationId).in(buildConfigurationIds);
         }
     }
 
-    public static Predicate<BuildRecord> withProjectId(Integer projectId) {
+    public static Predicate<BuildRecord> withBuildConfigurationIdRev(List<IdRev> buildConfigurationsWithIdRevs) {
+        if (buildConfigurationsWithIdRevs.isEmpty()) {
+            return Predicate.nonMatching();
+        }
+
+        List<String> idRevs = buildConfigurationsWithIdRevs.stream()
+                .map(idRev -> idRev.getId() + "-" + idRev.getRev()).collect(Collectors.toList());
+
         return (root, query, cb) -> {
-            Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root.join(BuildRecord_.buildConfigurationAudited);
-            Join<BuildConfigurationAudited, Project> project = buildConfigurationAudited.join(
-                    org.jboss.pnc.model.BuildConfigurationAudited_.project);
-            return cb.equal(project.get(org.jboss.pnc.model.Project_.id), projectId);
+            Expression<String> concat = cb.concat(root.get(BuildRecord_.buildConfigurationId).as(String.class), "-");
+            Expression<String> buildRecordIdRev = cb.concat(concat, root.get(BuildRecord_.buildConfigurationRev).as(String.class));
+            logger.debug("Searching for BuildRecords with {}", idRevs);
+            return buildRecordIdRev.in(idRevs);
         };
     }
+
+
 
     public static Predicate<BuildRecord> withArtifactDistributedInMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {

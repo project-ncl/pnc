@@ -29,6 +29,7 @@ import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -120,7 +121,7 @@ public class UserRestTest {
 
         assertThat(buildCoordinatorMock).isNotNull();
         //load BCA with id=2 ... test back-compatibility
-        buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().get(1);
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(2, 1));
     }
 
 
@@ -220,7 +221,7 @@ public class UserRestTest {
     @Test
     public void shouldSupportFilteringByBcIdWhenGettingUserBuilds() throws Exception {
         // given
-        String rsql = "buildConfigurationAudited.idRev.id==1";
+        String rsql = "buildConfigurationId==1";
 
         buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
 
@@ -237,7 +238,7 @@ public class UserRestTest {
     @Test
     public void shouldFilterByNonExistantBuildConfigurationIdWhenGettingUserBuilds() throws Exception {
         // given
-        String rsql = "buildConfigurationAudited.idRev.id==9000";
+        String rsql = "buildConfigurationId==9000";
 
         // when
         List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, rsql, null).getValue()

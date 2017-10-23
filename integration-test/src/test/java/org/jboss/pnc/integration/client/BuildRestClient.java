@@ -53,14 +53,23 @@
  */
 package org.jboss.pnc.integration.client;
 
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+
+import java.util.List;
 
 public class BuildRestClient extends AbstractRestClient<BuildRecordRest> {
 
     private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/builds/";
+    private static final String BY_BUILD_CONFIGURATION_NAME = "build-configuration-name/";
 
     public BuildRestClient() {
         super(BUILD_RECORD_REST_ENDPOINT, BuildRecordRest.class, false);
+    }
+
+    public RestResponse<List<BuildRecordRest>> findByBuildConfigurationName(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort, String buildConfigurationName) {
+        String url = BUILD_RECORD_REST_ENDPOINT + BY_BUILD_CONFIGURATION_NAME + buildConfigurationName;
+        return all(BuildRecordRest.class, url, withValidation, pageIndex, pageSize, rsql, sort);
     }
 
 }

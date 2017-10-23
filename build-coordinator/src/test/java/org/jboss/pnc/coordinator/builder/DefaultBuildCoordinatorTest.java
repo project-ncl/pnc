@@ -166,7 +166,7 @@ public class DefaultBuildCoordinatorTest {
     private BuildTask mockBuildTask() {
         BuildTask task = mock(BuildTask.class);
         BuildConfigurationAudited config = mock(BuildConfigurationAudited.class);
-        when(config.getId()).thenReturn(new IdRev(12, 13));
+        when(config.getIdRev()).thenReturn(new IdRev(12, 13));
         when(task.getBuildConfigurationAudited()).thenReturn(config);
         when(task.getStatus()).thenReturn(BuildCoordinationStatus.DONE);
         return task;

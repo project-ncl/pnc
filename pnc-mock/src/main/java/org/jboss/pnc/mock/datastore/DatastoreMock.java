@@ -22,7 +22,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -65,7 +64,7 @@ public class DatastoreMock implements Datastore {
     @Override
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build();
-        BuildConfiguration buildConfiguration = buildRecord.getLatestBuildConfiguration();
+        BuildConfiguration buildConfiguration = buildRecord.getBuildConfigurationAudited().getBuildConfiguration();
         log.info("Storing build " + buildConfiguration);
         synchronized (this) {
             boolean exists = getBuildRecords().stream().anyMatch(br -> br.equals(buildRecord.getId()));
@@ -73,9 +72,6 @@ public class DatastoreMock implements Datastore {
                 throw new PersistenceException("Unique constraint violation, the record with id [" + buildRecord.getId()+ "] already exists.");
             }
             buildRecords.add(buildRecord);
-        }
-        if (buildConfiguration != null) {
-            buildConfiguration.addBuildRecord(buildRecord);
         }
         return buildRecord;
     }
@@ -116,21 +112,15 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId) {
-        IdRev idRev = new IdRev();
-        idRev.setId(buildConfigId);
-        idRev.setRev(buildConfigAuditedRevSequence.incrementAndGet());
-        BuildConfigurationAudited buildConfigAudited = new BuildConfigurationAudited();
-        buildConfigAudited.setName("Audited config id: " + buildConfigId + " rev: " + idRev.getId());
-        buildConfigAudited.setIdRev(idRev);
-        buildConfigAudited.setBuildRecordId(idRev.getId());
-        buildConfigAudited.setRev(idRev.getRev());
-        
         BuildConfiguration buildConfig = buildConfigurations.get(buildConfigId);
-        buildConfigAudited.setProject(buildConfig.getProject());
-        buildConfigAudited.setBuildEnvironment(buildConfig.getBuildEnvironment());
-        buildConfigAudited.setDescription(buildConfig.getDescription());
 
-        return buildConfigAudited;
+        int rev = buildConfigAuditedRevSequence.incrementAndGet();
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfig)
+                .rev(rev)
+                .build();
+
+        return buildConfigurationAudited;
     }
 
     @Override
