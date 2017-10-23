@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.query.AuditEntity;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -218,12 +219,25 @@ public class BuildConfigurationTest extends AbstractModelTest {
         Assert.assertEquals(oldBuildConfiguration.getGenericParameters().get(key), initialValue);
         Assert.assertEquals(newBuildConfiguration.getGenericParameters().get(key), updatedValue);
 
-        BuildConfigurationAudited auditedOld = em.find(BuildConfigurationAudited.class, new IdRev(buildConfiguration.getId(), firstRevision.intValue()));
+        BuildConfiguration buildConfigurationOld = getByIdRev(buildConfiguration.getId(), firstRevision.intValue());
+        BuildConfigurationAudited auditedOld = BuildConfigurationAudited.fromBuildConfiguration(buildConfigurationOld, firstRevision.intValue());
+
         Assert.assertEquals(auditedOld.getGenericParameters().get(key), initialValue);
 
-        BuildConfigurationAudited auditedNew = em.find(BuildConfigurationAudited.class, new IdRev(buildConfiguration.getId(), secondRevision.intValue()));
+        BuildConfiguration buildConfigurationNew = getByIdRev(buildConfiguration.getId(), secondRevision.intValue());
+        BuildConfigurationAudited auditedNew = BuildConfigurationAudited.fromBuildConfiguration(buildConfigurationNew, secondRevision.intValue());
+
         Assert.assertEquals(auditedNew.getGenericParameters().get(key), updatedValue);
 
+    }
+
+    private BuildConfiguration getByIdRev(Integer buildConfigurationId, Integer revision) {
+        return (BuildConfiguration) AuditReaderFactory.get(em)
+                    .createQuery()
+                    .forEntitiesAtRevision(BuildConfiguration.class, revision)
+                    .add(AuditEntity.id().eq(buildConfigurationId))
+                    .addOrder(AuditEntity.revisionNumber().desc())
+                    .getSingleResult();
     }
 
     private BuildConfiguration createBc(String name, String description,

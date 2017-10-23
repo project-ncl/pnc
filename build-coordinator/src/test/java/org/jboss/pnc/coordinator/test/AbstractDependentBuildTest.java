@@ -40,7 +40,6 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.BuildResult;
@@ -50,7 +49,6 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -73,7 +71,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -91,7 +88,7 @@ public abstract class AbstractDependentBuildTest {
 
     private List<BuildTask> builtTasks;
 
-    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    private BuildConfigurationAuditedRepositoryMock buildConfigurationAuditedRepository;
 
     protected BuildConfigurationRepositoryMock buildConfigurationRepository;
 
@@ -143,7 +140,7 @@ public abstract class AbstractDependentBuildTest {
 
     protected void markAsAlreadyBuilt(BuildConfiguration... configs) {
         Stream.of(configs).forEach(
-                c -> c.addBuildRecord(buildRecord(c))
+                c -> buildRecordRepository.save(buildRecord(c))
         );
     }
 
@@ -153,7 +150,6 @@ public abstract class AbstractDependentBuildTest {
         return BuildRecord.Builder.newBuilder()
                 .id(buildRecordIdSequence.getAndIncrement())
                 .status(BuildStatus.SUCCESS)
-                .latestBuildConfiguration(config)
                 .buildConfigurationAudited(configurationAudited)
                 .build();
     }
@@ -166,8 +162,16 @@ public abstract class AbstractDependentBuildTest {
 
     protected BuildConfiguration buildConfig(String name, BuildConfiguration... dependencies) {
         int id = configIdSequence.getAndIncrement();
-        BuildConfiguration config =
-                BuildConfiguration.Builder.newBuilder().name(name).id(id).build();
+        Project project = Project.Builder.newBuilder()
+                .id(1)
+                .name("Mock project.")
+                .build();
+
+        BuildConfiguration config = BuildConfiguration.Builder.newBuilder()
+                        .id(id)
+                        .name(name)
+                        .project(project)
+                        .build();
         Stream.of(dependencies).forEach(config::addDependency);
         return config;
     }
@@ -200,13 +204,10 @@ public abstract class AbstractDependentBuildTest {
     }
 
     private BuildConfigurationAudited auditedConfig(BuildConfiguration config) {
-        BuildConfigurationAudited auditedConfig = new BuildConfigurationAudited();
-        auditedConfig.setIdRev(new IdRev(config.getId(), configAuditedIdSequence.incrementAndGet()));
-        Project project = new Project();
-        auditedConfig.setProject(project);
-        auditedConfig.setBuildScript(randomAlphabetic(20));
-        return auditedConfig;
+        int rev = configAuditedIdSequence.incrementAndGet();
+        return BuildConfigurationAudited.fromBuildConfiguration(config, rev);
     }
+
     protected void build(BuildConfigurationSet configSet, boolean rebuildAll) throws CoreException {
         coordinator.build(configSet, null, false, rebuildAll);
         coordinator.start();
@@ -292,27 +293,27 @@ public abstract class AbstractDependentBuildTest {
         return mock;
     }
 
-    protected DependencyHandler make(BuildConfiguration config) {
+    protected DependencyHandler makeResult(BuildConfiguration config) {
         return new DependencyHandler(config);
     }
 
     @RequiredArgsConstructor
-    protected static class DependencyHandler {
+    protected class DependencyHandler {
         final BuildConfiguration config;
         BuildRecord record;
 
         public void dependOn(BuildConfiguration... dependencies) {
-            record = config.getLatestSuccesfulBuildRecord();
-            record.setLatestBuildConfiguration(config);
+            record = buildRecordRepository.getLatestSuccessfulBuildRecord(config.getId());
 
             Set<Artifact> artifacts = Stream.of(dependencies)
                     .map(this::mockArtifactBuiltWith)
                     .collect(Collectors.toSet());
-            config.getLatestSuccesfulBuildRecord().setDependencies(artifacts);
+            record.setDependencies(artifacts);
         }
 
         private Artifact mockArtifactBuiltWith(BuildConfiguration config) {
-            BuildRecord record = config.getLatestSuccesfulBuildRecord();
+            BuildRecord record = buildRecordRepository.getLatestSuccessfulBuildRecord(config.getId());
+
             Set<BuildRecord> records = new HashSet<>();
             records.add(record);
             return  Artifact.Builder.newBuilder()

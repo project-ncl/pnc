@@ -63,10 +63,10 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         all = new BuildConfiguration[]{a, b, c, d, e, f, g, h};
         markAsAlreadyBuilt(all);
 
-        make(g).dependOn(h);
-        make(c).dependOn(d, g);
-        make(b).dependOn(d, d, e, f);
-        make(a).dependOn(b, c);
+        makeResult(g).dependOn(h);
+        makeResult(c).dependOn(d, g);
+        makeResult(b).dependOn(d, d, e, f);
+        makeResult(a).dependOn(b, c);
     }
 
     @Test

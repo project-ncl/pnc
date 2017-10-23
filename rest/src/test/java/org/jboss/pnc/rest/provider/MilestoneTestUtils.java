@@ -26,6 +26,7 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,9 +48,11 @@ public class MilestoneTestUtils {
         record.setId(randInt(100000, 2000000));
         record.setScmRepoURL(randomAlphabetic(20));
         record.setScmRevision(randomAlphabetic(5));
-        BuildConfigurationAudited config = new BuildConfigurationAudited();
-        config.setName(randomAlphabetic(20));
-        record.setBuildConfigurationAudited(config);
+
+        BuildConfigurationAudited buildConfigurationAudited = Mockito.mock(BuildConfigurationAudited.class);
+        Mockito.when(buildConfigurationAudited.getName()).thenReturn(randomAlphabetic(20));
+
+        record.setBuildConfigurationAudited(buildConfigurationAudited);
         repositoryMock.save(record);
 
         return record;

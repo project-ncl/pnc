@@ -37,16 +37,16 @@
 
       var resource = $resource(ENDPOINT, {}, {
         _getAll: {
-          method: 'GET',
+          method: 'GET', //TODO use /builds/build-configuration-name/{buildConfigurationName} endpoint
           url: ENDPOINT + qh.searchOnly(['buildConfigurationAudited.name', 'user.username'])
         },
         _getByConfiguration: {
           method: 'GET',
-          url: REST_BASE_URL + '/builds?q=buildConfigurationAudited.idRev.id==:id'
+          url: REST_BASE_URL + '/builds?q=buildConfigurationId==:id'
         },
         _getLastByConfiguration: {
           method: 'GET',
-          url: REST_BASE_URL + '/builds?q=buildConfigurationAudited.idRev.id==:id&pageIndex=0&pageSize=1&sort==desc=id'
+          url: REST_BASE_URL + '/builds?q=buildConfigurationId==:id&pageIndex=0&pageSize=1&sort==desc=id'
         }
       });
 

@@ -18,7 +18,6 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -41,6 +40,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
@@ -113,7 +113,7 @@ public class DatabaseDataInitializer {
     private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    private BuildConfigurationAuditedSpringRepository buildConfigurationAuditedRepository;
+    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     private ProductVersionRepository productVersionRepository;
@@ -447,14 +447,13 @@ public class DatabaseDataInitializer {
         final int INITIAL_REVISION = 1;
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository
-                .findOne(buildConfig1AuditIdRev);
+                .queryById(buildConfig1AuditIdRev);
         if (buildConfigAudited1 != null) {
 
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
-                    .latestBuildConfiguration(buildConfiguration1)
                     .buildConfigurationAudited(buildConfigAudited1)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
@@ -502,14 +501,13 @@ public class DatabaseDataInitializer {
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository
-                .findOne(buildConfig2AuditIdRev);
+                .queryById(buildConfig2AuditIdRev);
         if (buildConfigAudited2 != null) {
 
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().id(nextId)
-                    .latestBuildConfiguration(buildConfiguration2)
                     .buildConfigurationAudited(buildConfigAudited2)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))

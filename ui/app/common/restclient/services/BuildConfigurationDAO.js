@@ -89,7 +89,7 @@
         },
         _getBuildRecords: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-records?q=latestBuildConfiguration.id==:configurationId'
+          url: REST_BASE_URL + '/build-records?q=buildConfigurationId==:configurationId'
         },
         _getProductVersions: {
           method: 'GET',

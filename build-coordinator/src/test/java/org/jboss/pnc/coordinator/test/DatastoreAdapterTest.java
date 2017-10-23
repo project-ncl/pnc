@@ -24,6 +24,7 @@ import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.mock.repour.RepourResultMock;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -105,8 +106,13 @@ public class DatastoreAdapterTest {
         RepourResult repourResult = RepourResultMock.mock();
 
         //when
-        BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited();
-        buildConfigurationAudited.setName("Audited configuration.");
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+                .name("Configuration.")
+                .build();
+
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfiguration)
+                .build();
 
         BuildTask buildTask = mock(BuildTask.class);
         when(buildTask.getId()).thenReturn(123);
@@ -147,8 +153,13 @@ public class DatastoreAdapterTest {
         when(repositoryManagerResult.getLog()).thenReturn(REPOSITORY_MANAGER_LOG);
 
 
-        BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited();
-        buildConfigurationAudited.setName("Audited configuration.");
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+                .name("Configuration.")
+                .build();
+
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfiguration)
+                .build();
 
         BuildTask buildTask = mock(BuildTask.class);
         when(buildTask.getId()).thenReturn(123);

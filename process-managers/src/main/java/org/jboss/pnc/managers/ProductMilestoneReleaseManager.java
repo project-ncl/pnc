@@ -225,7 +225,7 @@ public class ProductMilestoneReleaseManager {
     private void describeBuildImport(StringBuilder stringBuilder, BuildImportResultRest buildImport) {
         Integer buildRecordId = buildImport.getBuildRecordId();
         BuildRecord record = orNull(buildRecordId, buildRecordRepository::queryById);
-        BuildConfigurationAudited buildConfiguration = orNull(record, BuildRecord::getBuildConfigurationAudited);
+        BuildConfigurationAudited buildConfiguration = orNull(record, BuildRecord::getBuildConfigurationAudited); //TODO fix audited entity usage
         stringBuilder.append("\n-------------------------------------------------------------------------\n");
         String buildMessage =
                 String.format("%s [buildRecordId: %d, built from %s rev %s] import %s. Brew build id: %d, Brew build url: %s\n",
