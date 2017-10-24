@@ -63,6 +63,10 @@ public class DebugEndpoint {
         return Response.ok(info).build();
     }
 
+    /**
+     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message
+     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
+     */
     @POST
     @Path("/mq-send-dummy-message")
     public Response sendDummyMessageToQueue(@QueryParam("type") String type) {

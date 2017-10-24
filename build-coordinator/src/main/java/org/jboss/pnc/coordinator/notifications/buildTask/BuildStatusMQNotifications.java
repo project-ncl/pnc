@@ -105,9 +105,9 @@ public class BuildStatusMQNotifications {
             case BUILDING:
                 return Status.BUILDING;
             case BUILD_COMPLETED:
-                return Status.SUCCESS;
-            case DONE:
                 return null;
+            case DONE:
+                return Status.SUCCESS;
             case REJECTED:
                 return Status.REJECTED;
             case REJECTED_FAILED_DEPENDENCIES:

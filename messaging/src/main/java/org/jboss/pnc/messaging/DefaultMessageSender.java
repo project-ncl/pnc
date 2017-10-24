@@ -97,14 +97,16 @@ public class DefaultMessageSender implements MessageSender {
     /**
      * @throws MessagingRuntimeException
      */
-    @Override public void sendToTopic(String message) {
+    @Override
+    public void sendToTopic(String message) {
         sendToTopic(message, Collections.EMPTY_MAP);
     }
 
     /**
      * @throws MessagingRuntimeException
      */
-    @Override public void sendToTopic(String message, Map<String, String> headers) {
+    @Override
+    public void sendToTopic(String message, Map<String, String> headers) {
         TextMessage textMessage;
         try {
             textMessage = session.createTextMessage(message);
@@ -117,14 +119,17 @@ public class DefaultMessageSender implements MessageSender {
             throw new MessagingRuntimeException("Unable to create textMessage.");
         }
 
+        StringBuilder headerBuilder = new StringBuilder();
         headers.forEach((k, v) -> {
             try {
                 textMessage.setStringProperty(k, v);
+                headerBuilder.append(k + ":" + v + "; ");
             } catch (JMSException e) {
                 throw new MessagingRuntimeException(e);
             }
         });
         try {
+            logger.info("Sending message with headers: {}.", headerBuilder.toString());
             messageProducer.send(textMessage);
         } catch (JMSException e) {
             throw new MessagingRuntimeException(e);
