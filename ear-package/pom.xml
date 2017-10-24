@@ -31,6 +31,20 @@
   <artifactId>ear-package</artifactId>
   <packaging>ear</packaging>
 
+  <properties>
+    <includeMessagingInAppXml>true</includeMessagingInAppXml>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>without-messaging</id>
+      <properties>
+        <excludeMessaging>messaging.jar</excludeMessaging>
+        <includeMessagingInAppXml>false</includeMessagingInAppXml>
+      </properties>
+    </profile>
+  </profiles>
+
   <dependencies>
     <!-- Depend on the modules so that we can package them -->
     <dependency>
@@ -130,6 +144,7 @@
         <configuration>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <fileNameMapping>no-version</fileNameMapping>
+          <packagingExcludes>${excludeMessaging}</packagingExcludes>
           <modules>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
@@ -212,7 +227,7 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>messaging</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
+              <includeInApplicationXml>${includeMessagingInAppXml}</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
             <jarModule>
