@@ -22,7 +22,6 @@
     'ui.router',
     'ui.bootstrap',
     'pnc.common.restclient',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
     'infinite-scroll',
     'angularUtils.directives.dirPagination'
