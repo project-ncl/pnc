@@ -79,7 +79,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     }
 
     public BuildConfigurationAuditedRest(BuildConfigurationAudited buildConfigurationAudited) {
-        this.idRev = buildConfigurationAudited.getId();
+        this.idRev = buildConfigurationAudited.getIdRev();
         this.id = buildConfigurationAudited.getIdRev().getId();
         this.rev = buildConfigurationAudited.getRev();
         this.name = buildConfigurationAudited.getName();
@@ -224,7 +224,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
                 () -> buildConfigBuilder.buildEnvironment(this.environment.toDBEntityBuilder().build()));
 
         BuildConfigurationAudited.Builder builder = BuildConfigurationAudited.Builder.newBuilder()
-                .buildConfiguration(buildConfigBuilder.build()).buildRecord(id);
+                .buildConfiguration(buildConfigBuilder.build())
+                .rev(rev);
         return builder;
     }
 

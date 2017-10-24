@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -93,7 +94,8 @@ public class DatastoreAdapter {
      * @param buildConfigAudited build config for which the build configurations are to be fetched
      */
     private void loadBuildConfigurations(BuildConfigurationAudited buildConfigAudited) {
-        buildConfigAudited.getProject().getBuildConfigurations().forEach(BuildConfiguration::getId);
+        Project project = buildConfigAudited.getProject();
+        project.getBuildConfigurations().forEach(BuildConfiguration::getId);
     }
 
     public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
@@ -279,7 +281,6 @@ public class DatastoreAdapter {
 
         builder.endTime(buildTask.getEndTime());
 
-        builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
             builder.buildConfigSetRecord(buildConfigSetRecord);

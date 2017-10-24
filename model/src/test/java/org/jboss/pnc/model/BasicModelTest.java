@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.query.AuditEntity;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,10 +27,10 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
 import javax.persistence.RollbackException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 public class BasicModelTest extends AbstractModelTest {
 
@@ -137,13 +140,13 @@ public class BasicModelTest extends AbstractModelTest {
                 .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 
-        BuildConfigurationAudited buildConfigAud = em.createQuery("SELECT bca FROM BuildConfigurationAudited bca",
-                BuildConfigurationAudited.class)
-                .getResultList().get(1);
+        BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
-        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().id(buildConfigAud.getIdRev().getId()).build();
-        BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(1).buildConfigurationAudited(buildConfigAud)
-                .latestBuildConfiguration(buildConfig1).buildLog("Bulid Complete").buildContentId("foo")
+        BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
+                .id(1)
+                .buildConfigurationAudited(buildConfigAud)
+                .buildLog("Build Completed.")
+                .buildContentId("foo")
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
                 .builtArtifact(artifact1).builtArtifact(artifact2).dependency(artifact3)
                 .user(pncUser).build();
@@ -154,6 +157,18 @@ public class BasicModelTest extends AbstractModelTest {
         em.persist(artifact3);
         em.persist(buildRecord1);
         em.getTransaction().commit();
+    }
+
+    private BuildConfigurationAudited findBuildConfigurationAudited(EntityManager em) {
+        List<Object[]> result = AuditReaderFactory.get(em)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        Object[] second = result.get(1);
+        BuildConfiguration buildConfiguration = (BuildConfiguration) second[0];
+        return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, ((DefaultRevisionEntity)second[1]).getId());
     }
 
     @Test
@@ -175,11 +190,10 @@ public class BasicModelTest extends AbstractModelTest {
                 .filename("importedArtifact.jar").originUrl("http://central/importedArtifact.jar").importDate(Date.from(Instant.now()))
                 .repoType(ArtifactRepo.Type.MAVEN).build();
 
-        BuildConfigurationAudited buildConfigAud = (BuildConfigurationAudited) em.createQuery("from BuildConfigurationAudited")
-                .getResultList().get(1);
-        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().id(buildConfigAud.getIdRev().getId()).build();
+        BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
+
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(2).buildConfigurationAudited(buildConfigAud)
-                .latestBuildConfiguration(buildConfig1).buildLog("Bulid Complete").buildContentId("foo")
+                .buildLog("Bulid Complete").buildContentId("foo")
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
                 //Add the built artifact and dependency artifact twice
                 .builtArtifact(builtArtifact).builtArtifact(builtArtifact).dependency(importedArtifact).dependency(importedArtifact)
@@ -235,52 +249,6 @@ public class BasicModelTest extends AbstractModelTest {
         }
     }
 
-    @Test
-    public void testBuildConfigurationAudit() throws Exception {
-
-        BuildConfiguration buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
-                .name("Build Configuration 1")
-                .description("Build Configuration 1 Description")
-                .project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(basicRepositoryConfiguration)
-                .buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
-                .build();
-
-        buildConfiguration1.setProject(Project.Builder.newBuilder().id(1).build());
-        buildConfiguration1.setBuildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build());
-
-        EntityManager em = getEmFactory().createEntityManager();
-        EntityTransaction tx1 = em.getTransaction();
-        EntityTransaction tx2 = em.getTransaction();
-
-        try {
-            tx1.begin();
-            em.persist(buildConfiguration1);
-            tx1.commit();
-
-            tx2.begin();
-            buildConfiguration1 = em.find(BuildConfiguration.class, buildConfiguration1.getId());
-            buildConfiguration1.setDescription("Updated build config description");
-            em.merge(buildConfiguration1);
-            tx2.commit();
-
-            Query rowCountQuery = em
-                    .createQuery("select count(*) from BuildConfigurationAudited bca where id=" + buildConfiguration1.getId());
-            Long count = (Long) rowCountQuery.getSingleResult();
-            // Should have 2 audit records, 1 for insert, and 1 for update
-            Assert.assertEquals(2, count.longValue());
-
-        } catch (RuntimeException e) {
-            if (tx1 != null && tx1.isActive()) {
-                tx1.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-    
     @Test(expected = RollbackException.class)
     public void testProjectInsertConstraintFailure() throws Exception {
 

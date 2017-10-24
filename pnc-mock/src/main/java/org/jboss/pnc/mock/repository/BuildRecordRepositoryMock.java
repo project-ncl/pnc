@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -44,11 +45,22 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
+    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
+        return queryAll().stream()
+                .filter(br -> br.getBuildConfigurationId().equals(configurationId))
+                .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
+                .findFirst().orElse(null);
+    }
+
+    @Override
+    public List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId) {
+        return data.stream()
+                .filter(buildRecord -> buildRecord.getBuildConfigurationId().equals(configurationId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public BuildRecord save(BuildRecord entity) {
-        BuildConfiguration buildConfig = entity.getLatestBuildConfiguration();
-        if (buildConfig != null) {
-            buildConfig.addBuildRecord(entity);
-        }
         return super.save(entity);
     }
 }

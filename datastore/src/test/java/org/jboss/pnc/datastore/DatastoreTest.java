@@ -177,7 +177,7 @@ public class DatastoreTest {
         Assert.assertNotNull(user.getId());
         
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
-                .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
+                .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
                 .builtArtifact(builtArtifact1).dependency(importedArtifact2)
                 .user(user).build();
@@ -239,7 +239,7 @@ public class DatastoreTest {
         Assert.assertNotNull(user.getId());
         
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
-                .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
+                .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
                 .builtArtifact(builtArtifact1).dependency(importedArtifact2).builtArtifact(builtArtifact3)
                 .user(user);

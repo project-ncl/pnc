@@ -17,10 +17,16 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.criteria.AuditDisjunction;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
@@ -32,9 +38,12 @@ import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
+import org.jboss.pnc.spi.datastore.predicates.ProjectPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -48,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
@@ -57,8 +67,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,7 +83,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withA
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
 @Stateless
@@ -80,12 +92,16 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String QUERY_BY_USER = "user.id==%d";
-    private static final String QUERY_BY_BUILD_CONFIGURATION_ID = "buildConfigurationAudited.idRev.id==%d";
+    private static final String QUERY_BY_BUILD_CONFIGURATION_ID = "buildConfigurationId==%d";
 
     private BuildExecutor buildExecutor;
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    ProjectRepository projectRepository;
 
+    EntityManager entityManager;
+
+    @Deprecated
     public BuildRecordProvider() {
     }
 
@@ -97,11 +113,15 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer,
             BuildExecutor buildExecutor,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            ProjectRepository projectRepository,
+            EntityManager entityManager) {
         super(buildRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildCoordinator = buildCoordinator;
         this.buildExecutor = buildExecutor;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.projectRepository = projectRepository;
+        this.entityManager = entityManager;
     }
 
     public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search, String sort) {
@@ -121,7 +141,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return nullableStreamOf(x)
                 .filter(t -> t != null)
                 .filter(t -> t.getBuildConfigurationAudited() != null
-                        && bcId.equals(t.getBuildConfigurationAudited().getId().getId()))
+                        && bcId.equals(t.getBuildConfigurationAudited().getId()))
                 .filter(rsqlPredicateProducer.getStreamPredicate(BuildTask.class, search))
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .skip(pageIndex * pageSize)
@@ -168,8 +188,6 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     buildTask.getEndTime(),
                     user, buildConfigAuditedRest);
         }
-
-        buildRecRest.setBuildConfigurationId(buildTask.getBuildConfiguration().getId());
         return buildRecRest;
     }
 
@@ -203,9 +221,62 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withUserId(userId));
     }
 
-    public CollectionInfo<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer projectId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
+    public CollectionInfo<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query, Integer projectId) {
+        List<Object[]> buildConfigurationRevisions = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.relatedId("project").eq(projectId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return queryForBuildRecords(pageIndex, pageSize, sortingRsql, query, buildConfigurationRevisions);
+    }
+
+    public CollectionInfo<BuildRecordRest> getAllForConfigurationOrProjectName(int pageIndex, int pageSize, String sortingRsql, String query, String name) {
+
+        List<Project> projectsMatchingName = projectRepository.queryWithPredicates(ProjectPredicates.searchByProjectName(name));
+
+        AuditDisjunction disjunction = AuditEntity.disjunction();
+        projectsMatchingName.forEach(project -> {
+                disjunction.add(AuditEntity.relatedId("project").eq(project.getId()));
+        });
+        disjunction.add(AuditEntity.property("name").like(name));
+
+        List<Object[]> buildConfigurationRevisions = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(disjunction)
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return queryForBuildRecords(pageIndex, pageSize, sortingRsql, query, buildConfigurationRevisions);
+    }
+
+    private CollectionInfo<BuildRecordRest> queryForBuildRecords(int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            List<Object[]> buildConfigurationRevisions) {
+        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationRevisions.stream()
+                .map(o -> toIdRev(o[0], o[1]))
+                .collect(Collectors.toList());
+
+        if (buildConfigurationsWithProjectIdRevs.isEmpty()) {
+            return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
+        } else {
+            return queryForCollection(
+                    pageIndex,
+                    pageSize,
+                    sortingRsql,
+                    query,
+                    withBuildConfigurationIdRev(buildConfigurationsWithProjectIdRevs));
+        }
+    }
+
+    private IdRev toIdRev(Object entity, Object revision) {
+        BuildConfiguration buildConfiguration = (BuildConfiguration) entity;
+        DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) revision;
+        return new IdRev(buildConfiguration.getId(), revisionEntity.getId());
     }
 
     public CollectionInfo<BuildRecordRest> getAllBuildRecordsWithArtifactsDistributedInProductMilestone(int pageIndex, int pageSize, String sortingRsql, String query, Integer milestoneId) {
@@ -228,7 +299,19 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     @Override
     protected Function<? super BuildRecord, ? extends BuildRecordRest> toRESTModel() {
-        return BuildRecordRest::new;
+        return (buildRecord) -> {
+            Integer revision = buildRecord.getBuildConfigurationRev();
+
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
+
+            buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
+            return new BuildRecordRest(buildRecord);
+        };
+    }
+
+    private void preloadBuildConfigurationRelations(BuildConfiguration buildConfiguration) {
+        buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
     }
 
     @Override
@@ -298,10 +381,13 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         if (buildRecord == null) {
             return null;
         }
-        if (buildRecord.getBuildConfigurationAudited() == null) {
-            return null;
+        if (buildRecord.getBuildConfigurationAudited() != null) {
+            return new BuildConfigurationAuditedRest(buildRecord.getBuildConfigurationAudited());
+        } else {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .queryById(new IdRev(buildRecord.getBuildConfigurationId(), buildRecord.getBuildConfigurationRev()));
+            return new BuildConfigurationAuditedRest(buildConfigurationAudited);
         }
-        return new BuildConfigurationAuditedRest(buildRecord.getBuildConfigurationAudited());
     }
 
     public BuildRecordRest getLatestBuildRecord(Integer configId) {
@@ -325,6 +411,55 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsByBuildConfigurationId(Integer pageIndex, Integer pageSize, String sort, String search, Integer buildConfigurationId) {
         return getBuilds(pageIndex, pageSize, sort, search, String.format(QUERY_BY_BUILD_CONFIGURATION_ID, buildConfigurationId));
+    }
+
+    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsWithMatchingBuildConfigurationName(Integer pageIndex, Integer pageSize, String sort, String search, String buildConfigurationName) {
+
+        String searchPattern = buildConfigurationName.replaceAll("_", ".").replaceAll("%", ".*");
+        Set<BuildRecordRest> running = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .map(this::createNewBuildRecordRest)
+                .filter(buildRecordRest -> buildRecordRest.getBuildConfigurationName().matches(searchPattern))
+                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, combineRsqlQueriesMatchAll(search)))
+                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
+                .collect(Collectors.toSet());
+
+        final int totalRunning = running.size();
+
+        CollectionInfo<BuildRecordRest> page = null;
+
+        List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
+                .searchForBuildConfigurationName(buildConfigurationName);
+
+        List<Predicate<BuildRecord>> dbPredicates = new ArrayList<>();
+        dbPredicates.add(rsqlPredicateProducer.getPredicate(BuildRecord.class, search));
+
+        if (running.size() == 0 && buildConfigurationAuditeds.isEmpty()) {
+            return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
+        }
+
+        if (buildConfigurationAuditeds.isEmpty()) {
+            dbPredicates.add(Predicate.nonMatching());
+        } else {
+            dbPredicates.add(
+                    BuildRecordPredicates.withBuildConfigurationIdRev(
+                            buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
+                    )
+            );
+        }
+
+        for (int i = 0; i <= pageIndex; i++) {
+            final int offset = totalRunning - running.size();
+
+            if (offset == totalRunning) {
+                page = createInterleavedPage(pageIndex, pageSize, offset, totalRunning, sort, running, dbPredicates.toArray(new Predicate[dbPredicates.size()]));
+                break;
+            }
+
+            page = createInterleavedPage(i, pageSize, offset, totalRunning, sort, running, dbPredicates.toArray(new Predicate[dbPredicates.size()]));
+            running.removeAll(page.getContent());
+        }
+        return page;
+
     }
 
     /*

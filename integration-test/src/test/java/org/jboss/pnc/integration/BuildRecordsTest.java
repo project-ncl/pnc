@@ -30,20 +30,19 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.utils.StreamHelper;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -134,9 +133,9 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().iterator().next();
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
         buildConfigName = buildConfigurationAudited.getName();
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
 
         builtArtifact1 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")
@@ -190,7 +189,6 @@ public class BuildRecordsTest {
                 .buildLog("test build complete")
                 .repourLog("alignment done")
                 .status(BuildStatus.SUCCESS)
-                .latestBuildConfiguration(buildConfiguration)
                 .buildConfigurationAudited(buildConfigurationAudited)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -212,7 +210,6 @@ public class BuildRecordsTest {
                 .buildLog("test build complete")
                 .repourLog("alignment done")
                 .status(BuildStatus.SUCCESS)
-                .latestBuildConfiguration(buildConfiguration)
                 .buildConfigurationAudited(buildConfigurationAudited)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -234,7 +231,6 @@ public class BuildRecordsTest {
                 .buildLog("test build completed and has some artifacts")
                 .repourLog("alignment done")
                 .status(BuildStatus.SUCCESS)
-                .latestBuildConfiguration(buildConfiguration)
                 .buildConfigurationAudited(buildConfigurationAudited)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -327,8 +323,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, buildRecordWithArtifactsId);
         // then
-        //dependents doesn't match as they are set after the build
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("dependantBuildRecordIds").containsExactly(
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds").containsExactly(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
                 toRestArtifact(builtArtifact3));
@@ -339,7 +334,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("dependantBuildRecordIds").containsExactly(
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds").containsExactly(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
                 toRestArtifact(builtArtifact3));
@@ -350,7 +345,8 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==builtArtifact2.jar", buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(toRestArtifact(builtArtifact2));
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+                .containsExactly(toRestArtifact(builtArtifact2));
     }
 
     /**
@@ -382,7 +378,8 @@ public class BuildRecordsTest {
 
         String matchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact1Sha256 + " and filename==" + builtArtifact1Filename;
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, buildRecordWithArtifactsId);
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("dependantBuildRecordIds").containsExactly(toRestArtifact(builtArtifact1));
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+                .containsExactly(toRestArtifact(builtArtifact1));
 
         String builtArtifact2Sha256 = builtArtifact2.getSha256();
         String builtArtifact3Filename = builtArtifact3.getFilename();
@@ -406,7 +403,8 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("dependantBuildRecordIds").contains(
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+        .contains(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
                 toRestArtifact(builtArtifact3));
@@ -421,35 +419,31 @@ public class BuildRecordsTest {
         String query = "id==" + builtArtifact1Id + " or sha256==" + builtArtifact2Sha256;
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 1, null, query, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("dependantBuildRecordIds").containsExactly(toRestArtifact(builtArtifact1));
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+                .containsExactly(toRestArtifact(builtArtifact1));
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
 
         //when
         artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(1, 1, null, query, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("dependantBuildRecordIds").containsExactly(toRestArtifact(builtArtifact2));
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+                .containsExactly(toRestArtifact(builtArtifact2));
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
     }
 
     @Test
     public void shouldGetBuildRecordByName() {
-        // given
-        String rsqlQuery = "buildConfigurationAudited.name==" + buildConfigName;
-
         // when
-        List<BuildRecord> buildRecords = selectBuildRecords(rsqlQuery);
+        List<BuildRecordRest> buildRecords = selectBuildRecords(buildConfigName);
 
         // then
-        assertThat(buildRecords).hasAtLeastOneElementOfType(BuildRecord.class);
+        assertThat(buildRecords).hasAtLeastOneElementOfType(BuildRecordRest.class);
     }
 
     @Test
     public void shouldNotGetBuildRecordByWrongName() {
-        // given
-        String rsqlQuery = "buildConfigurationAudited.name==not-existing-br-name";
-
         // when
-        List<BuildRecord> buildRecords = selectBuildRecords(rsqlQuery);
+        List<BuildRecordRest> buildRecords = selectBuildRecords("not-existing-br-name");
 
         // then
         assertThat(buildRecords).isEmpty();
@@ -530,9 +524,9 @@ public class BuildRecordsTest {
         assertThat(buildRecords).hasSize(0);
     }
 
-    private List<BuildRecord> selectBuildRecords(String rsqlQuery) {
-        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, rsqlQuery);
-        return StreamHelper.nullableStreamOf(buildRecordRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
+    private List<BuildRecordRest> selectBuildRecords(String buildConfigName) {
+        return buildRecordProvider.getAllForConfigurationOrProjectName(0, 999, null, null, buildConfigName)
+                .getContent().stream().collect(Collectors.toList());
     }
 
     private ArtifactRest toRestArtifact(Artifact artifact) {

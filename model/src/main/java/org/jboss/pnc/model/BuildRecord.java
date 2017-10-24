@@ -22,9 +22,10 @@ import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -34,12 +35,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -66,24 +67,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public static final String SEQUENCE_NAME = "build_record_id_seq";
 
+    private static Logger logger = LoggerFactory.getLogger(BuildRecord.class);
+
     @Id
     private Integer id;
-
-    /**
-     * Link to the latest version of the configuration settings for building this project.
-     * These settings may have been updated since this record was created, so this
-     * can not be used to run an exact rebuild, but it is convenient for reference
-     * if a new build of the same project needs to be executed.
-     * The join column "buildconfiguration_id" is the same db field used by
-     * buildConfigurationAudited, thus this is a read-only field which automatically
-     * changes when the buildConfigurationAudited is changed.
-     */
-    @NotNull
-    @ManyToOne(cascade = { CascadeType.REFRESH })
-    @JoinColumn(name = "buildconfiguration_id", insertable = false, updatable = false)
-    @ForeignKey(name = "fk_buildrecord_buildconfiguration")
-    @Index(name="idx_buildrecord_buildconfiguration")
-    private BuildConfiguration latestBuildConfiguration;
 
     /**
      * Contains the settings that were used at the time the build was executed.
@@ -91,13 +78,18 @@ public class BuildRecord implements GenericEntity<Integer> {
      * original db record along with a revision number.  This can be used to
      * re-run the build with the exact same settings used previously.
      */
-    @NotNull
-    @ManyToOne(cascade = { CascadeType.REFRESH })
-    @JoinColumns({ @JoinColumn(name = "buildconfiguration_id", referencedColumnName = "id"),
-            @JoinColumn(name = "buildconfiguration_rev", referencedColumnName = "rev") })
-    @ForeignKey(name = "fk_buildrecord_buildconfiguration_aud")
-    @Index(name="idx_buildrecord_buildconfiguration_aud")
+    @Transient
     private BuildConfigurationAudited buildConfigurationAudited;
+
+    @Getter
+    @NotNull
+    @Column(name = "buildconfiguration_id")
+    private Integer buildConfigurationId;
+
+    @Getter
+    @NotNull
+    @Column(name = "buildconfiguration_rev")
+    private Integer buildConfigurationRev;
 
     @Size(max=100)
     private String buildContentId;
@@ -456,17 +448,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * @return The latest version of the build configuration used to create this build record
-     */
-    public BuildConfiguration getLatestBuildConfiguration() {
-        return latestBuildConfiguration;
-    }
-
-    public void setLatestBuildConfiguration(BuildConfiguration latestBuildConfiguration) {
-        this.latestBuildConfiguration = latestBuildConfiguration;
-    }
-
-    /**
      * @return The audited version of the build configuration used to create this build record
      */
     public BuildConfigurationAudited getBuildConfigurationAudited() {
@@ -474,7 +455,33 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     public void setBuildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
-        this.buildConfigurationAudited = buildConfigurationAudited;
+        setBuildConfigurationAuditedIfValid(
+                this,
+                buildConfigurationId,
+                buildConfigurationRev,
+                buildConfigurationAudited);
+    }
+
+    public void setBuildConfigurationId(Integer buildConfigurationId) {
+        this.buildConfigurationId = buildConfigurationId;
+        if (buildConfigurationAudited != null
+                && !buildConfigurationId.equals(buildConfigurationAudited.getId())) {
+            buildConfigurationAudited = null;
+            logger.warn("Removing transient BuildConfigurationAudited as its id does not match.");
+        }
+    }
+
+    public void setBuildConfigurationRev(Integer buildConfigurationRev) {
+        this.buildConfigurationRev = buildConfigurationRev;
+        if (buildConfigurationAudited != null
+                && !buildConfigurationRev.equals(buildConfigurationAudited.getRev())) {
+            buildConfigurationAudited = null;
+            logger.warn("Removing transient BuildConfigurationAudited as its revision does not match.");
+        }
+    }
+
+    public IdRev getBuildConfigurationAuditedIdRev() {
+        return new IdRev(buildConfigurationId, buildConfigurationRev);
     }
 
     /**
@@ -534,6 +541,27 @@ public class BuildRecord implements GenericEntity<Integer> {
         attributes.remove(key);
     }
 
+    private static void setBuildConfigurationAuditedIfValid(
+            BuildRecord buildRecord,
+            Integer buildConfigurationAuditedId,
+            Integer buildConfigurationAuditedRev,
+            BuildConfigurationAudited buildConfigurationAudited) {
+        if (buildConfigurationAuditedId == null && buildConfigurationAuditedRev == null) {
+            buildRecord.buildConfigurationId = buildConfigurationAudited.getId();
+            buildRecord.buildConfigurationRev = buildConfigurationAudited.getRev();
+            buildRecord.buildConfigurationAudited = buildConfigurationAudited;
+        } else if (buildConfigurationAuditedId != null || buildConfigurationAuditedRev != null) {
+            // if audited has same idRev as manually set, then set the audited object
+            if (buildConfigurationAuditedId.equals(buildConfigurationAudited.getId())
+                    && buildConfigurationAuditedRev.equals(buildConfigurationAudited.getRev()))
+            {
+                buildRecord.buildConfigurationAudited = buildConfigurationAudited;
+            } else {
+                logger.warn("Trying to set BuildConfigurationAudited with invalid idRev.");
+            }
+        }
+    }
+
     public static class Builder {
 
         private Integer id;
@@ -546,9 +574,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private Date endTime;
 
-        private BuildConfiguration latestBuildConfiguration;
-
         private BuildConfigurationAudited buildConfigurationAudited;
+
+        private Integer buildConfigurationAuditedId;
+
+        private Integer buildConfigurationAuditedRev;
 
         private User user;
 
@@ -598,8 +628,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setSubmitTime(submitTime);
             buildRecord.setStartTime(startTime);
             buildRecord.setEndTime(endTime);
-            buildRecord.setLatestBuildConfiguration(latestBuildConfiguration);
-            buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
             buildRecord.setUser(user);
             buildRecord.setScmRepoURL(scmRepoURL);
             buildRecord.setScmRevision(scmRevision);
@@ -613,21 +641,21 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setSshPassword(sshPassword);
             buildRecord.setExecutionRootName(executionRootName);
             buildRecord.setExecutionRootVersion(executionRootVersion);
+            buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
+            buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
+
+            if (buildConfigurationAudited != null) {
+                setBuildConfigurationAuditedIfValid(buildRecord,
+                        buildConfigurationAuditedId,
+                        buildConfigurationAuditedRev,
+                        buildConfigurationAudited);
+            }
 
             if (buildConfigSetRecord != null) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
             }
 
-            // Set the bi-directional mapping
-            for (Artifact artifact : builtArtifacts) {
-                artifact.addBuildRecord(buildRecord);
-            }
             buildRecord.setBuiltArtifacts(builtArtifacts);
-
-            // Set the bi-directional mapping
-            for (Artifact artifact : dependencies) {
-                artifact.addDependantBuildRecord(buildRecord);
-            }
             buildRecord.setDependencies(dependencies);
 
             return buildRecord;
@@ -658,13 +686,18 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder latestBuildConfiguration(BuildConfiguration latestBuildConfiguration) {
-            this.latestBuildConfiguration = latestBuildConfiguration;
+        public Builder buildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
+            this.buildConfigurationAudited = buildConfigurationAudited;
             return this;
         }
 
-        public Builder buildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
-            this.buildConfigurationAudited = buildConfigurationAudited;
+        public Builder buildConfigurationAuditedId(Integer buildConfigurationAuditedId) {
+            this.buildConfigurationAuditedId = buildConfigurationAuditedId;
+            return this;
+        }
+
+        public Builder buildConfigurationAuditedRev(Integer buildConfigurationAuditedRev) {
+            this.buildConfigurationAuditedRev = buildConfigurationAuditedRev;
             return this;
         }
 

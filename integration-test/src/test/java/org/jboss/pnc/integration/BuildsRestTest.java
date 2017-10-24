@@ -29,6 +29,7 @@ import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -114,7 +115,7 @@ public class BuildsRestTest  {
 
         assertThat(buildCoordinatorMock).isNotNull();
 
-        buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().get(0);
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
     }
 
     @Test
@@ -253,7 +254,7 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByBuildConfigurationId() throws Exception {
         // given
-        String rsql = "buildConfigurationAudited.idRev.id==1";
+        String rsql = "buildConfigurationId==1";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
@@ -269,13 +270,12 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByBuildConfigurationName() throws Exception {
         // given
-        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.0";
-
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, null, null, "jboss-modules-1.5.0")
+                .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -285,13 +285,12 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
         // given
-        String rsql = "buildConfigurationAudited.name==does-not-exists-1.5.1";
-
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, null, null, "does-not-exists-1.5.1")
+                .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
