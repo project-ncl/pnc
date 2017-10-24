@@ -12,7 +12,6 @@
     "angular-touch": "1.5.8",
     "angular-bootstrap": "2.2.x",
     "angular-xeditable": "~0.1.8",
-    "angular-utils-ui-breadcrumbs": "~0.2.1",
     "angular-websocket": "2.0.0",
     "lodash": "4.x",
     "bootstrap-treeview": "~1.2.0",

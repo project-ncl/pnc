@@ -23,7 +23,6 @@
     'ui.bootstrap',
     'pnc.common.restclient',
     'pnc.common.util',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
     'angular-websocket',
     'pnc.common.da-client'

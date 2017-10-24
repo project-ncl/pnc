@@ -89,7 +89,6 @@
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
     <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
-    <script src="bower_components/angular-utils-ui-breadcrumbs/uiBreadcrumbs.js"></script>
     <script src="bower_components/angular-websocket/dist/angular-websocket.js"></script>
     <script src="bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
     <script src="bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js"></script>
@@ -221,7 +220,7 @@
 
     <div class="container-fluid" ng-cloak>
       <div class="row"> <!-- breadcrumbs -->
-        <ui-breadcrumbs displayname-property="data.displayName" abstract-proxy-property="data.proxy" template-url="common/templates/uiBreadcrumbs.tpl.html" ng-if="false"></ui-breadcrumbs>
+        <ui-breadcrumbs displayname-property="data.displayName" abstract-proxy-property="data.proxy" template-url="common/templates/uiBreadcrumbs.tpl.html"></ui-breadcrumbs>
       </div> <!-- /breadcrumbs -->
       <div ui-view="content"></div>
     </div>
