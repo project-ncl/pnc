@@ -64,7 +64,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         configSet = configSet(configA, configB, configC);
 
         markAsAlreadyBuilt(config1, configA, configB, configC);
-        make(configA).dependOn(config1);
+        makeResult(configA).dependOn(config1);
     }
 
     @Test
@@ -78,6 +78,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     @Test
     public void shouldRebuildOnlyDependent() throws CoreException, TimeoutException, InterruptedException {
         createNewVersion(config1);
+
         build(configSet, false);
         waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
@@ -85,6 +86,6 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     }
 
     private void createNewVersion(BuildConfiguration config1) {
-        config1.getBuildRecords().add(buildRecord(config1));
+        buildRecordRepository.save(buildRecord(config1));
     }
 }

@@ -384,11 +384,31 @@
                     <batch>true</batch>
                     <commands>
                       <command>
-                        /subsystem=logging/logger=org.jboss.pnc:add
+                        /subsystem=logging/logger=org:add(level=INFO)
                       </command>
                       <command>
-                        /subsystem=logging/logger=org.jboss.pnc:change-log-level(level=DEBUG)
+                        /subsystem=logging/logger=io:add(level=INFO)
                       </command>
+                      <command>
+                        /subsystem=logging/logger=javax:add(level=INFO)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.pnc:add(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/console-handler=CONSOLE:change-log-level(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
+                      </command>
+
+                      <!--log sql queries and parameter bindings-->
+                      <!--<command>-->
+                        <!--/subsystem=logging/logger=org.hibernate.SQL:add(level=DEBUG)-->
+                      <!--</command>-->
+                      <!--<command>-->
+                        <!--/subsystem=logging/logger=org.hibernate.type:add(level=TRACE)-->
+                      <!--</command>-->
                     </commands>
                   </execute-commands>
                 </configuration>

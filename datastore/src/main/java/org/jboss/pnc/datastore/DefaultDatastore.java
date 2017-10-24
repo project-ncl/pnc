@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -121,7 +122,6 @@ public class DefaultDatastore implements Datastore {
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build();
-        refreshBuildConfiguration(buildRecord);
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
         buildRecord = buildRecordRepository.save(buildRecord);
@@ -180,14 +180,6 @@ public class DefaultDatastore implements Datastore {
         return userRepository.queryByPredicates(UserPredicates.withUserName(username));
     }
 
-    private void refreshBuildConfiguration(BuildRecord buildRecord) {
-        if (buildRecord.getLatestBuildConfiguration() != null) {
-            BuildConfiguration configurationFromDB = buildConfigurationRepository.queryById(buildRecord
-                    .getLatestBuildConfiguration().getId());
-            buildRecord.setLatestBuildConfiguration(configurationFromDB);
-        }
-    }
-
     @Override
     public void createNewUser(User user) {
         userRepository.save(user);
@@ -223,7 +215,7 @@ public class DefaultDatastore implements Datastore {
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
         List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationId);
         if (buildConfigRevs.isEmpty()) {
-            // TODO should we throw an exception?  In theory, this should never happen.
+            logger.error("Did not find any BuildConfiguration revisions.");
             return null;
         }
         return buildConfigRevs.get(0);
@@ -237,20 +229,26 @@ public class DefaultDatastore implements Datastore {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildConfiguration configuration) {
-        BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(configuration.getId());
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithBuildConfigurationId(configuration.getId());
 
-        BuildRecord record = refreshedConfig.getLatestSuccesfulBuildRecord();
-        if (record == null) {
+        if (buildRecords.isEmpty()) {
             return true;
         }
-        BuildConfigurationAudited configurationAudited = record.getBuildConfigurationAudited();
+
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecords);
+        if (latestSuccessfulBuildRecord == null) {
+            return true; //there is no successful BuildRecord
+        }
+
+        IdRev configurationIdRevOfLastSuccessfulBR = latestSuccessfulBuildRecord.getBuildConfigurationAuditedIdRev();
         BuildConfigurationAudited latestConfigurationAudited = getLatestBuildConfigurationAudited(configuration.getId());
 
-        boolean hasModifiedConfiguration = !configurationAudited.equals(latestConfigurationAudited);
-        boolean requiresRebuild = hasModifiedConfiguration || hasARebuiltDependency(refreshedConfig);
-        logger.debug("Checked {} hasModifiedConfiguration: {}, requiresRebuild: {}", refreshedConfig, hasModifiedConfiguration, requiresRebuild);
+        boolean hasModifiedConfiguration = !configurationIdRevOfLastSuccessfulBR.equals(latestConfigurationAudited.getIdRev());
+        boolean requiresRebuild = hasModifiedConfiguration || hasARebuiltDependency(configuration, latestSuccessfulBuildRecord);
+        logger.debug("Checked {} hasModifiedConfiguration: {}, requiresRebuild: {}", configuration, hasModifiedConfiguration, requiresRebuild);
         return requiresRebuild;
     }
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
@@ -274,22 +272,27 @@ public class DefaultDatastore implements Datastore {
         return false;
     }
 
-    private boolean hasARebuiltDependency(BuildConfiguration config) {
-        BuildRecord record = config.getLatestSuccesfulBuildRecord();
-        if (record == null) {
-            return false;
-        }
+    private boolean hasARebuiltDependency(BuildConfiguration configuration, BuildRecord latestSuccessfulBuildRecord) {
 
-        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(record);
+        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(latestSuccessfulBuildRecord);
 
         return lastBuiltFrom.stream()
-                .anyMatch(this::hasNewerVersion);
+                .anyMatch(br -> hasNewerVersion(br));
     }
 
-    private boolean hasNewerVersion(BuildRecord record) {
-        BuildConfiguration buildConfig = record.getLatestBuildConfiguration();
-        BuildRecord newestRecord = buildConfig.getLatestSuccesfulBuildRecord();
-        return !record.getId().equals(newestRecord.getId());
+    private boolean hasNewerVersion(BuildRecord buildRecord) {
+        Integer buildConfigurationId = buildRecord.getBuildConfigurationId();
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithBuildConfigurationId(buildConfigurationId);
+
+        if (buildRecords.isEmpty()) {
+            logger.error("Something went wrong, there should be at least the buildRecord.");
+        }
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecords);
+        if (latestSuccessfulBuildRecord == null) {
+            logger.error("Something went wrong, at least the buildRecord should be successful.");
+        }
+
+        return !buildRecord.getId().equals(latestSuccessfulBuildRecord.getId());
     }
 
     private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record) {

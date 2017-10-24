@@ -34,4 +34,8 @@ public class ProjectPredicates {
         return (root, query, cb) -> cb.equal(root.get(Project_.name), name);
     }
 
+    public static Predicate<Project> searchByProjectName(String name) {
+        return (root, query, cb) -> cb.like(root.get(Project_.name), name);
+    }
+
 }

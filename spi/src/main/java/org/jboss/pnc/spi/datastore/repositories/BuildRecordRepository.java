@@ -18,12 +18,12 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,4 +34,15 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     BuildRecord findByIdFetchAllProperties(Integer id);
 
     List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates);
+
+    BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId);
+
+    default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords) {
+        return buildRecords.stream()
+                .filter(b -> b.getStatus() == BuildStatus.SUCCESS)
+                .sorted((o1, o2) -> -o1.getId().compareTo(o2.getId()))
+                .findFirst().orElse(null);
+    }
+
+    List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
 }

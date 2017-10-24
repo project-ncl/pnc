@@ -17,12 +17,10 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,48 +38,27 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     private final AtomicInteger idSequence = new AtomicInteger(0);
     protected final List<BuildConfigurationAudited> data = new ArrayList<>();
     
-    @Override
     public BuildConfigurationAudited save(BuildConfigurationAudited entity) {
-        IdRev id = entity.getId();
-        if (id == null) {
+        IdRev idRev = entity.getIdRev();
+
+        if (idRev == null) {
             throw new IllegalStateException("auto-setting " + this.getClass().getSimpleName() + " entity id is not supported");
         }
-        getOptionalById(id).ifPresent(data::remove);
+
+        BuildConfiguration buildConfiguration = entity.getBuildConfiguration();
+
+        Integer newRev = idSequence.getAndIncrement();
+        BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, newRev);
+
+        getOptionalById(idRev).ifPresent(data::remove);
         data.add(entity);
         return entity;
     }
 
-    @Override
     public List<BuildConfigurationAudited> queryAll() {
         return data;
     }
 
-    @Override
-    public List<BuildConfigurationAudited> queryAll(PageInfo pageInfo, SortInfo sortInfo) {
-        return null;  
-    }
-
-    @Override
-    public List<BuildConfigurationAudited> queryWithPredicates(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildConfigurationAudited>... predicates) {
-        return null;  
-    }
-
-    @Override
-    public List<BuildConfigurationAudited> queryWithPredicates(Predicate<BuildConfigurationAudited>... predicates) {
-        return null;
-    }
-
-    @Override
-    public int count(Predicate<BuildConfigurationAudited>... predicates) {
-        return 0;
-    }
-
-    @Override
-    public BuildConfigurationAudited queryByPredicates(Predicate<BuildConfigurationAudited>... predicates) {
-        return null;
-    }
-
-    @Override
     public void delete(IdRev id) {
         data.removeIf(c -> c.getId().equals(id));
     }
@@ -89,8 +66,8 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     @Override
     public List<BuildConfigurationAudited> findAllByIdOrderByRevDesc(Integer id) {
         return data.stream()
-                .filter(c -> c.getId().getId().equals(id))
-                .sorted((c1, c2) -> c2.getId().getRev().compareTo(c1.getId().getRev()))
+                .filter(c -> c.getId().equals(id))
+                .sorted((c1, c2) -> c2.getRev().compareTo(c1.getRev()))
                 .collect(Collectors.toList());
     }
 
@@ -100,8 +77,12 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
                 .findAny();
     }
 
-    @Override
     public BuildConfigurationAudited queryById(IdRev id) {
         return getOptionalById(id).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + id));
+    }
+
+    @Override
+    public List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName) {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 }

@@ -273,6 +273,23 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromCollection(buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId));
     }
 
+    @ApiOperation(value = "Gets the Build Records produced from the BuildConfiguration by name.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/build-configuration-or-project-name/{name}")
+    public Response getAllForProject(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "BuildConfiguration name", required = true) @PathParam("name") String name,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+        return fromCollection(buildRecordProvider.getAllForConfigurationOrProjectName(pageIndex, pageSize, sortingRsql, rsql, name));
+    }
+
     @ApiOperation(value = "Gets the audited build configuration for specific build record")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),

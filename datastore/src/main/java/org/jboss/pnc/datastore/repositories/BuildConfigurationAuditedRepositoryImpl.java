@@ -17,38 +17,100 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.query.AuditEntity;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
-public class BuildConfigurationAuditedRepositoryImpl extends AbstractRepository<BuildConfigurationAudited, IdRev> implements
-        BuildConfigurationAuditedRepository {
+public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurationAuditedRepository {
 
-    private BuildConfigurationAuditedSpringRepository repository;
+    Logger logger = LoggerFactory.getLogger(BuildConfigurationAuditedRepositoryImpl.class);
 
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
+    EntityManager entityManager;
+
+    BuildRecordRepository buildRecordRepository;
+
+    @Deprecated //CDI workaround
     public BuildConfigurationAuditedRepositoryImpl() {
-        super(null, null);
     }
 
     @Inject
-    public BuildConfigurationAuditedRepositoryImpl(BuildConfigurationAuditedSpringRepository buildConfigurationAuditedSpringRepository) {
-        super(buildConfigurationAuditedSpringRepository, buildConfigurationAuditedSpringRepository);
-        repository = buildConfigurationAuditedSpringRepository;
+    public BuildConfigurationAuditedRepositoryImpl(
+            EntityManager entityManager,
+            BuildRecordRepository buildRecordRepository) {
+        this.entityManager = entityManager;
+        this.buildRecordRepository = buildRecordRepository;
     }
 
     @Override
-    public List<BuildConfigurationAudited> findAllByIdOrderByRevDesc(Integer id) {
-        return repository.findAllByIdOrderByRevDesc(id);
+    public List<BuildConfigurationAudited> findAllByIdOrderByRevDesc(Integer buildConfigurationId) {
+
+        List<Object[]> result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.id().eq(buildConfigurationId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
+                BuildRecordPredicates.withBuildConfigurationId(buildConfigurationId));
+
+        return result.stream().map(o -> createAudited(o[0], o[1], buildRecords)).collect(Collectors.toList());
+    }
+
+    private BuildConfigurationAudited createAudited(Object entity, Object revision, List<BuildRecord> buildRecords) {
+        BuildConfiguration buildConfiguration = (BuildConfiguration) entity;
+        DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) revision;
+
+        //preload generic parameters
+        buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
+
+        return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, revisionEntity.getId(), buildRecords);
+    }
+
+    @Override
+    public BuildConfigurationAudited queryById(IdRev idRev) {
+        BuildConfiguration buildConfiguration = AuditReaderFactory.get(entityManager)
+                .find(BuildConfiguration.class, idRev.getId(), idRev.getRev());
+
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
+                BuildRecordPredicates.withBuildConfigurationIdRev(idRev));
+
+        //preload generic parameters
+        buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
+
+        return BuildConfigurationAudited.fromBuildConfiguration(
+                buildConfiguration,
+                idRev.getRev(),
+                buildRecords
+        );
+    }
+
+    @Override
+    public List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName) {
+        List<Object[]> result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.property("name").like(buildConfigurationName))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+        List<BuildRecord> emptyList = Collections.EMPTY_LIST;
+        return result.stream().map(o -> createAudited(o[0], o[1], emptyList)).collect(Collectors.toList());
     }
 }

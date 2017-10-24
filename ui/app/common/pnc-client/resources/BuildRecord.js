@@ -69,7 +69,7 @@
          */
         getLastByConfiguration: {
           method: 'GET',
-          url: BUILDS_ENDPOINT + '/?q=buildConfigurationAudited.idRev.id==:id&pageIndex=0&pageSize=1&sort==desc=id'
+          url: BUILDS_ENDPOINT + '/?q=buildConfigurationId==:id&pageIndex=0&pageSize=1&sort==desc=id'
         },
         /**
          * Gets BuildRecords by configuration.
@@ -77,7 +77,7 @@
         getByConfiguration: {
           method: 'GET',
           isPaged: true,
-          url: BUILDS_ENDPOINT + '/?q=buildConfigurationAudited.idRev.id==:id'
+          url: BUILDS_ENDPOINT + '/?q=buildConfigurationId==:id'
         },
         /**
          * Gets all completed BuildRecords

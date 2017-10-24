@@ -115,16 +115,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
         this.attributes = buildRecord.getAttributes();
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
-                () -> buildConfigurationId = buildRecord.getBuildConfigurationAudited().getId().getId());
+        this.buildConfigurationId = buildRecord.getBuildConfigurationId();
+        this.buildConfigurationRev = buildRecord.getBuildConfigurationRev();
+
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationName = buildRecord.getBuildConfigurationAudited().getName());
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
-                () -> buildConfigurationRev = buildRecord.getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> projectId = buildRecord.getBuildConfigurationAudited().getProject().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> projectName = buildRecord.getBuildConfigurationAudited().getName());
+
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
         performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
@@ -168,6 +168,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRepoURL = buildExecutionConfig.getScmRepoURL();
         this.scmRevision = buildExecutionConfig.getScmRevision();
 
+        this.buildConfigurationId = buildConfigurationAudited.getId();
         this.projectId = buildConfigurationAudited.getProjectId();
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());
