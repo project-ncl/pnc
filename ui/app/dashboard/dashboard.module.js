@@ -22,8 +22,7 @@
   var module = angular.module('pnc.dashboard', [
     'ui.router',
     'pnc.common.components',
-    'patternfly.notification',
-    'angularUtils.directives.uiBreadcrumbs'
+    'patternfly.notification'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {

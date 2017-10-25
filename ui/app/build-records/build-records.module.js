@@ -20,7 +20,6 @@
 
   var module = angular.module('pnc.build-records', [
     'ui.router',
-    'angularUtils.directives.uiBreadcrumbs',
     'angular-websocket',
     'pnc.common.events',
     'pnc.common.directives',

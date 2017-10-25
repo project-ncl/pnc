@@ -20,7 +20,6 @@
 
   var module = angular.module('pnc.configuration-set-record', [
     'ui.router',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.restclient'
   ]);
 

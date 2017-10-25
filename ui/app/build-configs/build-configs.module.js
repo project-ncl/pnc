@@ -24,7 +24,6 @@
     'xeditable',
     'pnc.common.restclient',
     'pnc.common.directives',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.build-records',
     'infinite-scroll',
     'pnc.common.authentication'

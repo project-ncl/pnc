@@ -24,8 +24,7 @@
     'patternfly',
     'pnc.product',
     'pnc.common.restclient',
-    'pnc.common.util',
-    'angularUtils.directives.uiBreadcrumbs'
+    'pnc.common.util'
   ]);
 
   module.config(['$stateProvider', function ($stateProvider) {
