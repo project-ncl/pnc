@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.executor.notifications;
 
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

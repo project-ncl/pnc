@@ -31,6 +31,7 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     private Integer buildTaskId;
     private Integer userId;
     private Integer buildConfigurationId;
+    private Integer buildConfigurationRevision;
     private String buildConfigurationName;
     private Date buildStartTime;
     private Date buildEndTime;
@@ -55,6 +56,10 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
         this.buildConfigurationId = buildConfigurationId;
     }
 
+    public void setBuildConfigurationRevision(Integer buildConfigurationRevision) {
+        this.buildConfigurationRevision = buildConfigurationRevision;
+    }
+
     public void setBuildConfigurationName(String buildConfigurationName) {
         this.buildConfigurationName = buildConfigurationName;
     }
@@ -75,6 +80,11 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     @Override
     public Integer getBuildConfigurationId() {
         return buildConfigurationId;
+    }
+
+    @Override
+    public Integer getBuildConfigurationRevision() {
+        return buildConfigurationRevision;
     }
 
     @Override

@@ -20,7 +20,7 @@ package org.jboss.pnc.restmodel.serialization;
 
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationRestMockBuilder;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.junit.Assert;
 import org.junit.Test;

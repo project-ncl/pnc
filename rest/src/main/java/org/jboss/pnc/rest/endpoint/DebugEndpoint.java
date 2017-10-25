@@ -18,14 +18,23 @@
 package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Date;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -40,10 +49,49 @@ public class DebugEndpoint {
     @Inject
     private BuildQueue buildQueue;
 
+    @Inject
+    private Instance<MessageSender> messageSender;
+
+    @Inject
+    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+
+
     @GET
     @Path("/build-queue")
     public Response getBuildQueueInfo() {
         String info = buildQueue.getDebugInfo();
         return Response.ok(info).build();
+    }
+
+    /**
+     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message
+     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
+     */
+    @POST
+    @Path("/mq-send-dummy-message")
+    public Response sendDummyMessageToQueue(@QueryParam("type") String type) {
+        if (messageSender.isUnsatisfied()) {
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("Message sender is not available to inject.")
+                    .build();
+        } else {
+            if (type != null && type.equals("status")) {
+                buildStatusChangedEventNotifier.fire(new DefaultBuildStatusChangedEvent(
+                        BuildCoordinationStatus.ENQUEUED,
+                        BuildCoordinationStatus.CANCELLED,
+                        1,
+                        2,
+                        3,
+                        "debug configuration name",
+                        new Date(),
+                        null,
+                        4
+                ));
+            } else {
+                messageSender.get().sendToTopic("Test Message.");
+            }
+            return Response.ok().build();
+        }
     }
 }

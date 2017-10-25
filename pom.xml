@@ -22,17 +22,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <!--<parent>-->
-    <!--<groupId>org.jboss.bom</groupId>-->
-    <!--<artifactId>jboss-eap-javaee7-with-tools</artifactId>-->
-    <!--<version>7.0.0.GA</version>-->
-  <!--</parent>-->
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
     <version>24</version>
     <relativePath />
   </parent>
+  <!--<parent> TODO: use EAP parent -->
+    <!--<groupId>org.jboss.eap</groupId>-->
+    <!--<artifactId>jboss-eap-parent</artifactId>-->
+    <!--<version>7.0.7.GA-redhat-3</version>-->
+  <!--</parent>-->
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
@@ -72,6 +72,8 @@
     <module>moduleconfig</module>
     <module>auth</module>
     <module>datastore</module>
+    <module>messaging-spi</module>
+    <module>messaging</module>
     <module>ear-package</module>
     <module>termd-build-driver</module>
     <module>maven-repository-manager</module>
@@ -95,6 +97,9 @@
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
+    <version.javax.enterprise>1.2.0.redhat-2</version.javax.enterprise>
+    <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.0.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
+    <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final-redhat-3</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>0.16.0</atlasVersion>
     <indyVersion>1.2.0-SNAPSHOT</indyVersion>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
@@ -102,8 +107,8 @@
     <version.mockito>2.8.47</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.guava>17.0</version.guava>
-    <version.org.apache.httpcomponents.httpclient>4.4</version.org.apache.httpcomponents.httpclient>
-    <version.org.apache.httpcomponents.httpcore>4.4</version.org.apache.httpcomponents.httpcore>
+    <version.org.apache.httpcomponents.httpclient>4.5</version.org.apache.httpcomponents.httpclient>
+    <version.org.apache.httpcomponents.httpcore>4.4.1</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.org.json>20141113</version.org.json>
     <version.jclouds>1.8.1</version.jclouds>
@@ -177,6 +182,8 @@
   <dependencyManagement>
     <dependencies>
 
+      <!-- BOMs -->
+
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-javaee7-with-tools</artifactId>
@@ -184,7 +191,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
       <dependency>
         <groupId>org.jboss.arquillian.extension</groupId>
         <artifactId>arquillian-transaction-bom</artifactId>
@@ -192,12 +198,21 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
       <dependency>
-          <groupId>org.keycloak</groupId>
-          <artifactId>keycloak-core</artifactId>
-          <version>${version.keycloak}</version>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-bom</artifactId>
+        <version>${version.shrinkwrap}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
+      <dependency>
+        <groupId>org.jboss.arquillian</groupId>
+        <artifactId>arquillian-bom</artifactId>
+        <version>1.1.13.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
 
       <!-- Project modules, to support cross-module dependencies -->
       <dependency>
@@ -235,6 +250,18 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>datastore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>messaging-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>messaging</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -396,11 +423,33 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.shrinkwrap.resolver</groupId>
-        <artifactId>shrinkwrap-resolver-bom</artifactId>
-        <version>${version.shrinkwrap}</version>
-        <scope>import</scope>
-        <type>pom</type>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>${version.keycloak}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>${version.javax.enterprise}</version>
+        <scope>provided</scope>
+      </dependency>
+      <!--<dependency>-->
+        <!--<groupId>org.jboss.spec.javax.jms</groupId>-->
+        <!--<artifactId>jboss-jms-api_2.0_spec</artifactId>-->
+        <!--<version>${version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec}</version>-->
+        <!--<scope>provided</scope>-->
+      <!--</dependency>-->
+      <dependency>
+        <groupId>org.jboss.spec.javax.jms</groupId>
+        <artifactId>jboss-jms-api_1.1_spec</artifactId>
+        <version>${version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.spec.javax.ejb</groupId>
+        <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+        <version>1.0.0.Final-redhat-1</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -497,14 +546,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.arquillian</groupId>
-        <artifactId>arquillian-bom</artifactId>
-        <version>1.1.13.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
         <version>2.5.0.Final</version>
@@ -514,6 +555,25 @@
         <groupId>org.jboss.arquillian.container</groupId>
         <artifactId>arquillian-weld-se-embedded-1.1</artifactId>
         <version>1.0.0.CR8</version>
+        <scope>test</scope>
+      </dependency>
+      <!--<dependency>-->
+        <!--<groupId>org.jboss.arquillian.junit</groupId>-->
+        <!--<artifactId>arquillian-junit-container</artifactId>-->
+        <!--<version>{version.org.wildfly.arquillian}</version>-->
+        <!--<scope>test</scope>-->
+      <!--</dependency>-->
+      <!--<dependency>-->
+        <!--<groupId>org.wildfly.arquillian</groupId>-->
+        <!--<artifactId>wildfly-arquillian-container-managed</artifactId>-->
+        <!--<version>{version.org.wildfly.arquillian}</version>-->
+        <!--<scope>test</scope>-->
+      <!--</dependency>-->
+      <dependency>
+        <groupId>org.jboss.arquillian.extension</groupId>
+        <artifactId>arquillian-jacoco</artifactId>
+        <version>1.0.0.Alpha7</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -681,12 +741,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.arquillian.extension</groupId>
-        <artifactId>arquillian-jacoco</artifactId>
-        <version>1.0.0.Alpha7</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jacoco</groupId>
         <artifactId>org.jacoco.core</artifactId>
         <version>0.7.1.201405082137</version>
@@ -839,6 +893,7 @@
         <artifactId>commons-validator</artifactId>
         <version>1.5.0</version>
       </dependency>
+      
     </dependencies>
   </dependencyManagement>
 

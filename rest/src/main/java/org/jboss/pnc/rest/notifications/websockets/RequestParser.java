@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.notifications.websockets;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;

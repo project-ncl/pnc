@@ -31,6 +31,20 @@
   <artifactId>ear-package</artifactId>
   <packaging>ear</packaging>
 
+  <properties>
+    <includeMessagingInAppXml>true</includeMessagingInAppXml>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>without-messaging</id>
+      <properties>
+        <excludeMessaging>messaging.jar</excludeMessaging>
+        <includeMessagingInAppXml>false</includeMessagingInAppXml>
+      </properties>
+    </profile>
+  </profiles>
+
   <dependencies>
     <!-- Depend on the modules so that we can package them -->
     <dependency>
@@ -104,6 +118,14 @@
       <artifactId>web</artifactId>
       <type>war</type>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>messaging-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>messaging</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -122,6 +144,7 @@
         <configuration>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <fileNameMapping>no-version</fileNameMapping>
+          <packagingExcludes>${excludeMessaging}</packagingExcludes>
           <modules>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
@@ -198,6 +221,18 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>demo-data</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>messaging</artifactId>
+              <includeInApplicationXml>${includeMessagingInAppXml}</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>messaging-spi</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

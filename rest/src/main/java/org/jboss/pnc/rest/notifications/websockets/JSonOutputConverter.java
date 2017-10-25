@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 
 public class JSonOutputConverter implements OutputConverter {

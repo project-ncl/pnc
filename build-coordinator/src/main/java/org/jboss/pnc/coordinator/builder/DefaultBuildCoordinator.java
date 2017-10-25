@@ -322,6 +322,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 status,
                 task.getId(),
                 task.getBuildConfigurationAudited().getId(),
+                task.getBuildConfigurationAudited().getRev(),
                 task.getBuildConfigurationAudited().getName(),
                 task.getStartTime(),
                 task.getEndTime(),

@@ -29,16 +29,26 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     private final Integer buildTaskId;
     private final Integer userId;
     private final Integer buildConfigurationId;
+    private final Integer buildConfigurationRevision;
     private final String buildConfigurationName;
     private final Date buildStartTime;
     private final Date buildEndTime;
 
-    public DefaultBuildStatusChangedEvent(BuildCoordinationStatus oldStatus, BuildCoordinationStatus newStatus, Integer buildTaskId,
-            Integer buildConfigurationId, String buildConfigurationName, Date buildStartTime, Date buildEndTime, Integer userId) {
+    public DefaultBuildStatusChangedEvent(
+            BuildCoordinationStatus oldStatus,
+            BuildCoordinationStatus newStatus,
+            Integer buildTaskId,
+            Integer buildConfigurationId,
+            Integer buildConfigurationRevision,
+            String buildConfigurationName,
+            Date buildStartTime,
+            Date buildEndTime,
+            Integer userId) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
         this.buildConfigurationId = buildConfigurationId;
+        this.buildConfigurationRevision = buildConfigurationRevision;
         this.buildConfigurationName = buildConfigurationName;
         this.buildStartTime = buildStartTime;
         this.buildEndTime = buildEndTime;
@@ -58,6 +68,11 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     @Override
     public Integer getBuildConfigurationId() {
         return buildConfigurationId;
+    }
+
+    @Override
+    public Integer getBuildConfigurationRevision() {
+        return buildConfigurationRevision;
     }
 
     @Override

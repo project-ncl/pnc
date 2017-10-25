@@ -27,7 +27,7 @@ import org.jboss.pnc.rest.notifications.websockets.MessageType;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.rest.notifications.websockets.ProgressUpdatesRequest;
 import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
@@ -104,7 +104,7 @@ public class ProcessProgressNotificationTest {
         // given
         Integer taskId = 1;
         BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, taskId, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+                BuildCoordinationStatus.DONE, taskId, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);

@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
     JBoss, Home of Professional Open Source.
@@ -17,8 +18,5 @@
     limitations under the License.
 
 -->
-<jboss-web version="7.2"
-           xmlns="http://www.jboss.com/xml/ns/javaee"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee schema/jboss-web_7_2.xsd">
-</jboss-web>
+<beans xmlns="http://java.sun.com/xml/ns/javaee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://jboss.org/schema/cdi/beans_1_0.xsd"/>

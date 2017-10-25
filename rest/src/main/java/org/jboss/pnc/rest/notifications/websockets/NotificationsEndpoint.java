@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.notifications.websockets;
 
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;

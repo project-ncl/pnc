@@ -19,7 +19,7 @@ package org.jboss.pnc.web;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
