@@ -22,7 +22,6 @@
     'ui.router',
     'xeditable',
     'pnc.common.restclient',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.events',
     'pnc.common.authentication',
     'pnc.common.pnc-client'

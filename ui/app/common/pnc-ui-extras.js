@@ -17,7 +17,7 @@
  */
 'use strict'; // jshint ignore: start
 
-angular.module('pnc-ui-extras', ['pnc-ui-extras.templates', 'pnc-ui-extras.combobox']);
+angular.module('pnc-ui-extras', ['pnc-ui-extras.templates', 'pnc-ui-extras.combobox', 'pnc-ui-extras.uiBreadcrumbs']);
 
 angular.module('pnc-ui-extras.templates', []);
 'use strict';
@@ -407,8 +407,202 @@ var pxExpression = function pxExpression() {
 angular.module('pnc-ui-extras.combobox').directive('pxExpression', pxExpression);
 'use strict';
 
+// jshint ignore:start
+//
+// CUSTOMIZED IMPLEMENTATION TO MAKE IT COMPATIBLE WITH ui-router 1.0
+//
+/**
+ * uiBreadcrumbs automatic breadcrumbs directive for AngularJS & Angular ui-router.
+ *
+ * https://github.com/michaelbromley/angularUtils/tree/master/src/directives/uiBreadcrumbs
+ *
+ * Copyright 2014 Michael Bromley <michael@michaelbromley.co.uk>
+ */
+
+(function () {
+
+    /**
+     * Config
+     */
+    var moduleName = 'pnc-ui-extras.uiBreadcrumbs';
+    var _templateUrl = 'pnc-ui-extras/ui-breadcrumbs/uiBreadcrumbs.tpl.html';
+
+    /**
+     * Module
+     */
+    var module;
+    try {
+        module = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        module = angular.module(moduleName, ['ui.router']);
+    }
+
+    module.directive('uiBreadcrumbs', ['$interpolate', '$state', '$transitions', function ($interpolate, $state, $transitions) {
+        return {
+            restrict: 'E',
+            templateUrl: function templateUrl(elem, attrs) {
+                return attrs.templateUrl || _templateUrl;
+            },
+            scope: {
+                displaynameProperty: '@',
+                abstractProxyProperty: '@?'
+            },
+            link: function link(scope) {
+                var transition;
+
+                scope.breadcrumbs = [];
+                if ($state.$current.name !== '') {
+                    updateBreadcrumbsArray();
+                }
+                $transitions.onSuccess({}, function (_transition) {
+                    transition = _transition;
+                    updateBreadcrumbsArray();
+                });
+
+                /**
+                 * Start with the current state and traverse up the path to build the
+                 * array of breadcrumbs that can be used in an ng-repeat in the template.
+                 */
+                function updateBreadcrumbsArray() {
+                    var workingState;
+                    var displayName;
+                    var breadcrumbs = [];
+                    var currentState = $state.$current;
+
+                    while (currentState && currentState.name !== '') {
+                        workingState = getWorkingState(currentState);
+                        if (workingState) {
+                            displayName = getDisplayName(workingState);
+
+                            if (displayName !== false && !stateAlreadyInBreadcrumbs(workingState, breadcrumbs)) {
+                                breadcrumbs.push({
+                                    displayName: displayName,
+                                    route: workingState.name
+                                });
+                            }
+                        }
+                        currentState = currentState.parent;
+                    }
+                    breadcrumbs.reverse();
+                    scope.breadcrumbs = breadcrumbs;
+                }
+
+                /**
+                 * Get the state to put in the breadcrumbs array, taking into account that if the current state is abstract,
+                 * we need to either substitute it with the state named in the `scope.abstractProxyProperty` property, or
+                 * set it to `false` which means this breadcrumb level will be skipped entirely.
+                 * @param currentState
+                 * @returns {*}
+                 */
+                function getWorkingState(currentState) {
+                    var proxyStateName;
+                    var workingState = currentState;
+                    if (currentState.abstract === true) {
+                        if (typeof scope.abstractProxyProperty !== 'undefined') {
+                            proxyStateName = getObjectValue(scope.abstractProxyProperty, currentState);
+                            if (proxyStateName) {
+                                workingState = angular.copy($state.get(proxyStateName));
+                                if (workingState) {
+                                    workingState.locals = currentState.locals;
+                                }
+                            } else {
+                                workingState = false;
+                            }
+                        } else {
+                            workingState = false;
+                        }
+                    }
+                    return workingState;
+                }
+
+                /**
+                 * Resolve the displayName of the specified state. Take the property specified by the `displayname-property`
+                 * attribute and look up the corresponding property on the state's config object. The specified string can be interpolated against any resolved
+                 * properties on the state config object, by using the usual {{ }} syntax.
+                 * @param currentState
+                 * @returns {*}
+                 */
+                function getDisplayName(currentState) {
+                    var interpolationContext;
+                    var propertyReference;
+                    var displayName;
+
+                    if (!scope.displaynameProperty) {
+                        // if the displayname-property attribute was not specified, default to the state's name
+                        return currentState.name;
+                    }
+                    propertyReference = getObjectValue(scope.displaynameProperty, currentState);
+
+                    if (propertyReference === false) {
+                        return false;
+                    } else if (typeof propertyReference === 'undefined') {
+                        return currentState.name;
+                    } else {
+                        // use the $interpolate service to handle any bindings in the propertyReference string.
+                        // see https://ui-router.github.io/ng1/docs/latest/classes/transition.transition-1.html#getresolvetokens
+                        interpolationContext = {};
+                        transition.getResolveTokens().forEach(function (token) {
+                            if (angular.isString(token) && !token.startsWith('$')) {
+                                interpolationContext[token] = transition.injector().get(token);
+                            }
+                        });
+
+                        displayName = $interpolate(propertyReference)(interpolationContext);
+                        return displayName;
+                    }
+                }
+
+                /**
+                 * Given a string of the type 'object.property.property', traverse the given context (eg the current $state object) and return the
+                 * value found at that path.
+                 *
+                 * @param objectPath
+                 * @param context
+                 * @returns {*}
+                 */
+                function getObjectValue(objectPath, context) {
+                    var i;
+                    var propertyArray = objectPath.split('.');
+                    var propertyReference = context;
+
+                    for (i = 0; i < propertyArray.length; i++) {
+                        if (angular.isDefined(propertyReference[propertyArray[i]])) {
+                            propertyReference = propertyReference[propertyArray[i]];
+                        } else {
+                            // if the specified property was not found, default to the state's name
+                            return undefined;
+                        }
+                    }
+                    return propertyReference;
+                }
+
+                /**
+                 * Check whether the current `state` has already appeared in the current breadcrumbs array. This check is necessary
+                 * when using abstract states that might specify a proxy that is already there in the breadcrumbs.
+                 * @param state
+                 * @param breadcrumbs
+                 * @returns {boolean}
+                 */
+                function stateAlreadyInBreadcrumbs(state, breadcrumbs) {
+                    var i;
+                    var alreadyUsed = false;
+                    for (i = 0; i < breadcrumbs.length; i++) {
+                        if (breadcrumbs[i].route === state.name) {
+                            alreadyUsed = true;
+                        }
+                    }
+                    return alreadyUsed;
+                }
+            }
+        };
+    }]);
+})();
+'use strict';
+
 angular.module('pnc-ui-extras.templates').run(['$templateCache', function ($templateCache) {
   $templateCache.put('pnc-ui-extras/combobox/combobox-option.template.html', '<a ng-click="$ctrl.select(option)" href>{{ $ctrl.getViewValue(option) }}</a>\n');
   $templateCache.put('pnc-ui-extras/combobox/combobox.template.html', '<style>\n.px-search-clear {\n  position: absolute;\n  z-index: 100;\n  right: 18px;\n  top: 2px;\n  height: 14px;\n  margin: auto;\n  color: inherit;\n  cursor:  pointer;\n}\n\n.px-search-clear > a:hover {\n  background-color: inherit;\n  color: inherit;\n  cursor:  pointer;\n}\n\n.px-combobox-dropdown {\n  display: block;\n}\n.px-combobox-active a,a:hover {\n  background-color: #def3ff;\n}\n.px-combobox-dropdown > .px-combobox-option a,a:hover {\n  border-width: 0px;\n}\n\n.px-combobox-dropdown > .px-combobobox-option {\n  whitespace: normal !important;\n  overflow-wrap: break-word !important;\n}\n\n</style>\n<div class="combobox-container" ng-keydown="$event.stopPropagation()">\n  <div class="input-group">\n    <input type="text" autocomplete="off" id="combobox-{{::$id}}" ng-keyup="$ctrl.onKey($event)" placeholder="{{ ::$ctrl.placeholder }}" class="combobox form-control" ng-focus="$ctrl.openDropDown()" ng-model="$ctrl.inputModel" ng-model-options="$ctrl.modelOptions" pf-focused="$ctrl.showDropDown">\n    <div class="px-search-clear"><a class="px-search-clear" ng-show="$ctrl.inputModel" ng-click="$ctrl.clear()"><span class="pficon pficon-close"></span></a></div>\n    <ul class="typeahead typeahead-long dropdown-menu px-combobox-dropdown" ng-if="$ctrl.options.length > 0 && $ctrl.showDropDown">\n      <li ng-repeat="option in $ctrl.options" ng-include="$ctrl.optionTemplateUrl" class="px-combobox-option" ng-mouseover="$ctrl.setHighlighted($index)" ng-class="{ \'px-combobox-active\': $ctrl.isHighlighted($index) }">\n      </li>\n      <li data-value="spinner" class="text-center" ng-show="$ctrl.isLoading()">\n        <span class="spinner spinner-xs spinner-inline"></span>\n      </li>\n    </ul>\n    <span class="input-group-addon dropdown-toggle" ng-class="{ \'dropup\': $ctrl.showDropDown }" data-dropdown="dropdown" role="button" ng-click="$ctrl.toggleDropDown()">\n      <span class="caret"></span>\n    </span>\n  </div>\n</div>\n');
+  $templateCache.put('pnc-ui-extras/ui-breadcrumbs/uiBreadcrumbs.tpl.html', '<ol class="breadcrumb">\n  <li ng-repeat="crumb in breadcrumbs"\n      ng-class="{ active: $last }"><a ui-sref="{{ crumb.route }}" ng-if="!$last">{{ crumb.displayName }}&nbsp;</a><span ng-show="$last">{{ crumb.displayName }}</span>\n  </li>\n</ol>');
 }]);
 //# sourceMappingURL=pnc-ui-extras.js.map

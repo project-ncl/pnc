@@ -22,7 +22,6 @@
     'ui.router',
     'ui.bootstrap',
     'pnc.common.restclient',
-    'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.authentication',
     'pnc.common.pnc-client',
     'pnc.common.select-modals',

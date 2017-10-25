@@ -28,7 +28,8 @@
     'pnc.common.pnc-client',
     'pnc.common.restclient',
     'pnc.common.select-modals',
-    'pnc.common.util'
+    'pnc.common.util',
+    'pnc-ui-extras.uiBreadcrumbs'
   ]);
 
 })();
