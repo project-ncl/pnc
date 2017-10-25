@@ -117,9 +117,9 @@
                   content[i] = new Resource(content[i]);
                 }
 
-                p.index = response.data.pageIndex;
-                p.size = response.data.pageSize;
-                p.total = response.data.totalPages;
+                p.index = response.data.pageIndex || 0;
+                p.size = response.data.pageSize || 0;
+                p.total = response.data.totalPages || 1;
                 p._config = response.config;
                 p.data = content;
                 p.$resolved = true;
