@@ -61,7 +61,7 @@ import java.util.List;
 public class BuildRestClient extends AbstractRestClient<BuildRecordRest> {
 
     private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/builds/";
-    private static final String BY_BUILD_CONFIGURATION_NAME = "build-configuration-name/";
+    private static final String BY_BUILD_CONFIGURATION_NAME = "?andFindByBuildConfigurationName==";
 
     public BuildRestClient() {
         super(BUILD_RECORD_REST_ENDPOINT, BuildRecordRest.class, false);

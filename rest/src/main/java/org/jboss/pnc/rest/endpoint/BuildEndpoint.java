@@ -110,13 +110,16 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
-    @Override
     public Response getAll(
             @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecords(pageIndex, pageSize, sort, q));
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Find by BuildConfigurationName (query is combined with other criteria using OR.).", required = false)
+            @QueryParam("orFindByBuildConfigurationName") String orFindByBuildConfigurationName,
+            @ApiParam(value = "Find by BuildConfigurationName (query is combined with other criteria using AND.).", required = false)
+                @QueryParam("andFindByBuildConfigurationName") String andFindByBuildConfigurationName) {
+        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecords(pageIndex, pageSize, sort, orFindByBuildConfigurationName, andFindByBuildConfigurationName, q));
     }
 
     @ApiOperation(value = "Gets a BuildRecord (active or archived)")
@@ -183,22 +186,4 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
             return Response.serverError().build();
         }
     }
-
-    @ApiOperation(value = "Gets the Builds of BuildConfiguration name.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
-    @GET
-    @Path("/build-configuration-name/{name}")
-    public Response getAllForProject(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "BuildConfiguration name", required = true) @PathParam("name") String name,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsWithMatchingBuildConfigurationName(pageIndex, pageSize, sortingRsql, rsql, name));
-    }
-
 }

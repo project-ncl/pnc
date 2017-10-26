@@ -67,7 +67,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -400,86 +399,87 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return toRESTModel().apply(buildRecords.get(0));
     }
 
+    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecords(
+            Integer pageIndex,
+            Integer pageSize,
+            String sort,
+            String orFindByBuildConfigurationName,
+            String andFindByBuildConfigurationName,
+            String search) {
 
-    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecords(Integer pageIndex, Integer pageSize, String sort, String search) {
-        return getBuilds(pageIndex, pageSize, sort, search);
+         return getBuilds(pageIndex, pageSize, sort, orFindByBuildConfigurationName, andFindByBuildConfigurationName, search);
     }
 
     public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsByUserId(Integer pageIndex, Integer pageSize, String sort, String search, Integer userId) {
-        return getBuilds(pageIndex, pageSize, sort, search, String.format(QUERY_BY_USER, userId));
+        return getBuilds(pageIndex, pageSize, sort, null, null, search, String.format(QUERY_BY_USER, userId));
     }
 
     public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsByBuildConfigurationId(Integer pageIndex, Integer pageSize, String sort, String search, Integer buildConfigurationId) {
-        return getBuilds(pageIndex, pageSize, sort, search, String.format(QUERY_BY_BUILD_CONFIGURATION_ID, buildConfigurationId));
-    }
-
-    public CollectionInfo<BuildRecordRest> getRunningAndCompletedBuildRecordsWithMatchingBuildConfigurationName(Integer pageIndex, Integer pageSize, String sort, String search, String buildConfigurationName) {
-
-        String searchPattern = buildConfigurationName.replaceAll("_", ".").replaceAll("%", ".*");
-        Set<BuildRecordRest> running = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
-                .map(this::createNewBuildRecordRest)
-                .filter(buildRecordRest -> buildRecordRest.getBuildConfigurationName().matches(searchPattern))
-                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, combineRsqlQueriesMatchAll(search)))
-                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
-                .collect(Collectors.toSet());
-
-        final int totalRunning = running.size();
-
-        CollectionInfo<BuildRecordRest> page = null;
-
-        List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
-                .searchForBuildConfigurationName(buildConfigurationName);
-
-        List<Predicate<BuildRecord>> dbPredicates = new ArrayList<>();
-        dbPredicates.add(rsqlPredicateProducer.getPredicate(BuildRecord.class, search));
-
-        if (running.size() == 0 && buildConfigurationAuditeds.isEmpty()) {
-            return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
-        }
-
-        if (buildConfigurationAuditeds.isEmpty()) {
-            dbPredicates.add(Predicate.nonMatching());
-        } else {
-            dbPredicates.add(
-                    BuildRecordPredicates.withBuildConfigurationIdRev(
-                            buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
-                    )
-            );
-        }
-
-        for (int i = 0; i <= pageIndex; i++) {
-            final int offset = totalRunning - running.size();
-
-            if (offset == totalRunning) {
-                page = createInterleavedPage(pageIndex, pageSize, offset, totalRunning, sort, running, dbPredicates.toArray(new Predicate[dbPredicates.size()]));
-                break;
-            }
-
-            page = createInterleavedPage(i, pageSize, offset, totalRunning, sort, running, dbPredicates.toArray(new Predicate[dbPredicates.size()]));
-            running.removeAll(page.getContent());
-        }
-        return page;
-
+        return getBuilds(pageIndex, pageSize, sort, null, null, search, String.format(QUERY_BY_BUILD_CONFIGURATION_ID, buildConfigurationId));
     }
 
     /*
      * Abstracts away the implementation detail that BuildRecords are not persisted to the database until the build is
      * complete. This abstraction allows clients to query for a list of all builds whether running or completed.
      */
-    private CollectionInfo<BuildRecordRest> getBuilds(Integer pageIndex, Integer pageSize, String sort, String... rsqlQueries) {
-
-        Predicate[] dbPredicates = Arrays.stream(rsqlQueries)
+    private CollectionInfo<BuildRecordRest> getBuilds(Integer pageIndex, Integer pageSize, String sort, String orFindByBuildConfigurationName, String andFindByBuildConfigurationName, String... rsqlQueries) {
+        List<Predicate<BuildRecord>> dbPredicatesList = Arrays.stream(rsqlQueries)
                 .map(p -> rsqlPredicateProducer.getPredicate(BuildRecord.class, p))
-                .toArray(Predicate[]::new);
+                .collect(Collectors.toList());
+
+        String combinedQueries = combineRsqlQueriesMatchAll(rsqlQueries);
+        if (!StringUtils.isEmpty(orFindByBuildConfigurationName)) {
+            //add steam condition
+            if (StringUtils.isEmpty(combinedQueries)) {
+                combinedQueries = "(buildConfigurationName==" + orFindByBuildConfigurationName + ")";
+            } else {
+                combinedQueries = "(" + combinedQueries + "),(buildConfigurationName==" + orFindByBuildConfigurationName + ")";
+            }
+
+            //add DB predicate
+            List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
+                    .searchForBuildConfigurationName(orFindByBuildConfigurationName);
+            if (!buildConfigurationAuditeds.isEmpty()) {
+                dbPredicatesList.add(
+                        BuildRecordPredicates.withBuildConfigurationIdRev(
+                                buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
+                        )
+                );
+            }
+        }
+
+        if (!StringUtils.isEmpty(andFindByBuildConfigurationName)) {
+            //add steam condition
+            if (StringUtils.isEmpty(combinedQueries)) {
+                combinedQueries = "(buildConfigurationName==" + andFindByBuildConfigurationName + ")";
+            } else {
+                combinedQueries = "(" + combinedQueries + ");(buildConfigurationName==" + andFindByBuildConfigurationName + ")";
+            }
+
+            //add DB predicate
+            List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
+                    .searchForBuildConfigurationName(andFindByBuildConfigurationName);
+            if (!buildConfigurationAuditeds.isEmpty()) {
+                dbPredicatesList.add(
+                        BuildRecordPredicates.withBuildConfigurationIdRev(
+                                buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
+                        )
+                );
+            } else {
+                dbPredicatesList.add(Predicate.nonMatching());
+            }
+        }
 
         Set<BuildRecordRest> running = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
                 .map(this::createNewBuildRecordRest)
-                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, combineRsqlQueriesMatchAll(rsqlQueries)))
+                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, combinedQueries))
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .collect(Collectors.toSet());
 
         final int totalRunning = running.size();
 
+
+        Predicate[] dbPredicates = dbPredicatesList.toArray(new Predicate[dbPredicatesList.size()]);
         CollectionInfo<BuildRecordRest> page = null;
 
         for (int i = 0; i <= pageIndex; i++) {

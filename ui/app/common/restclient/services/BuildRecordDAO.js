@@ -44,7 +44,7 @@
         q: '@q'
       }, {
         _getAll: {
-          method: 'GET', //TODO use /build-records/build-configuration-name/{buildConfigurationName} endpoint
+          method: 'GET', //TODO use /builds?orFindByBuildConfigurationName{buildConfigurationName} or /builds?andFindByBuildConfigurationName{buildConfigurationName}
           url: ENDPOINT + qh.searchOnly(['buildConfigurationAudited.name', 'buildConfigurationAudited.project.name'])
         },
         getLog: {
