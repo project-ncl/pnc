@@ -431,9 +431,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         if (!StringUtils.isEmpty(orFindByBuildConfigurationName)) {
             //add steam condition
             if (StringUtils.isEmpty(combinedQueries)) {
-                combinedQueries = "(buildConfigurationName==" + orFindByBuildConfigurationName + ")";
+                combinedQueries = "(buildConfigurationName=like=" + orFindByBuildConfigurationName + ")";
             } else {
-                combinedQueries = "(" + combinedQueries + "),(buildConfigurationName==" + orFindByBuildConfigurationName + ")";
+                combinedQueries = "(" + combinedQueries + "),(buildConfigurationName=like=" + orFindByBuildConfigurationName + ")";
             }
 
             //add DB predicate
