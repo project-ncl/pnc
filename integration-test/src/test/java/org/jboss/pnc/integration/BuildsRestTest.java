@@ -298,6 +298,38 @@ public class BuildsRestTest  {
     }
 
     @Test
+    public void shouldFilterByBuildConfigurationNameAndUserId() throws Exception {
+        // given
+        String rsql = "user.username==demo-user";
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+                .getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).hasSize(1);
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationNameAndInvalidUserId() throws Exception {
+        // given
+        String rsql = "user.username==no-user";
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+                .getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).isEmpty();
+    }
+
+    @Test
     public void runningBuildShouldHaveGenericParameters() throws Exception {
         // given
         String rsql = "id==99";
