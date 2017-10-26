@@ -22,7 +22,7 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
-import org.jboss.pnc.rest.executor.notifications.NotificationsEndpoint;
+import org.jboss.pnc.rest.executor.notifications.NotificationSender;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.utils.BpmNotifier;
@@ -34,6 +34,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.net.URI;
 import java.util.Optional;
@@ -42,6 +43,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Dependent
 public class BuildExecutorTriggerer {
 
     private final Logger log = Logger.getLogger(BuildExecutorTriggerer.class);
@@ -54,7 +56,7 @@ public class BuildExecutorTriggerer {
     @Deprecated
     BpmManager bpmManager;
 
-    private NotificationsEndpoint notificationsEndpoint;
+    private NotificationSender notificationSender;
 
     @Deprecated //CDI workaround
     public BuildExecutorTriggerer() {}
@@ -63,11 +65,11 @@ public class BuildExecutorTriggerer {
     public BuildExecutorTriggerer(
             BuildExecutor buildExecutor,
             BpmNotifier bpmNotifier,
-            NotificationsEndpoint notificationsEndpoint,
+            NotificationSender notificationSender,
             BpmManager bpmManager) {
         this.buildExecutor = buildExecutor;
         this.bpmNotifier = bpmNotifier;
-        this.notificationsEndpoint = notificationsEndpoint;
+        this.notificationSender = notificationSender;
         this.bpmManager = bpmManager;
     }
 
@@ -82,7 +84,7 @@ public class BuildExecutorTriggerer {
 
             Optional<ProcessProgressUpdate> processProgressUpdate = toProcessProgressUpdate(statusChangedEvent);
             if (processProgressUpdate.isPresent()) {
-                notificationsEndpoint.send(processProgressUpdate.get());
+                notificationSender.send(processProgressUpdate.get());
                 //As there is a plan to split the Executor from Coordinator, the notification should be sent over http
                 //to the endpoint /bpm/tasks/{taskId}/notify
                 //bpmManager should be aupdated to accept notifications identified by buildTaskId
