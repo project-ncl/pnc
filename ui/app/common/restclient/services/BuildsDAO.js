@@ -37,7 +37,7 @@
 
       var resource = $resource(ENDPOINT, {}, {
         _getAll: {
-          method: 'GET', //TODO use /builds/build-configuration-name/{buildConfigurationName} endpoint
+          method: 'GET', //TODO use /builds?orFindByBuildConfigurationName{buildConfigurationName} or /builds?andFindByBuildConfigurationName{buildConfigurationName}
           url: ENDPOINT + qh.searchOnly(['buildConfigurationAudited.name', 'user.username'])
         },
         _getByConfiguration: {
