@@ -17,62 +17,44 @@
  */
 package org.jboss.pnc.rest.executor.notifications;
 
-import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnOpen;
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Web Sockets notification implementation.
  */
-@ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
-public class NotificationsEndpoint {
+@ServerEndpoint(ExecutorNotificationsEndpoint.ENDPOINT_PATH)
+public class ExecutorNotificationsEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String ENDPOINT_PATH = "/ws/executor/notifications";
 
-    private ConcurrentMap<String, Session> sessions = new ConcurrentHashMap<>();
-
-    private SendHandler sendHandler = new SendHandler() {
-        @Override
-        public void onResult(SendResult result) {
-            if (!result.isOK()) {
-                logger.warn("Notification client threw an error, removing it. ", result.getException());
-            }
-        }
-    };
+    @Inject
+    NotificationSender notificationSender;
 
     @OnOpen
     public void onOpen(Session session) {
-        sessions.put(session.getId(), session);
+        notificationSender.getSessions().put(session.getId(), session);
     }
 
     @OnClose
     public void onClose(Session session) {
-        sessions.remove(session.getId());
+        notificationSender.getSessions().remove(session.getId());
     }
 
     @OnError
     public void onError(Session session, Throwable t) {
         logger.warn("An error occurred in client: " + session + ". Removing it. ", t);
-        sessions.remove(session.getId());
+        notificationSender.getSessions().remove(session.getId());
     }
 
-    public void send(ProcessProgressUpdate processProgressUpdate) {
-        sessions.forEach((id, session) -> {
-            session.getAsyncRemote().sendText(JsonOutputConverterMapper.apply(processProgressUpdate), sendHandler);
-        });
-    }
 }

@@ -17,10 +17,8 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 public class AuthenticationModuleConfig extends AbstractModuleConfig{
     

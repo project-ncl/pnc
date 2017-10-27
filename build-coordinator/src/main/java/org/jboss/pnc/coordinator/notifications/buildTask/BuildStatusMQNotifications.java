@@ -26,6 +26,7 @@ import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ import java.util.Optional;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Dependent
 public class BuildStatusMQNotifications {
 
     private Logger logger = LoggerFactory.getLogger(BuildStatusMQNotifications.class);

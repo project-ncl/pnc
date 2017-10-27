@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>termd-build-driver</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <description>Build driver used to communicate with a remote pnc-build-agent.</description>
 

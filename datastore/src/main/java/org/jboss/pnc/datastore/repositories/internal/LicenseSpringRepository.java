@@ -21,6 +21,9 @@ import org.jboss.pnc.model.License;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.enterprise.context.Dependent;
+
+@Dependent
 public interface LicenseSpringRepository extends JpaRepository<License, Integer>, JpaSpecificationExecutor<License> {
 
 }

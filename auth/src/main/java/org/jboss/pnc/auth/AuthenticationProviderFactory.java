@@ -25,6 +25,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Dependent
 public class AuthenticationProviderFactory {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationProviderFactory.class);
 

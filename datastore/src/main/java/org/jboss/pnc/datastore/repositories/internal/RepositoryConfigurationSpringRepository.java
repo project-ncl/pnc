@@ -21,9 +21,12 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.enterprise.context.Dependent;
+
 /**
  * @author Jakub Bartecek
  */
+@Dependent
 public interface RepositoryConfigurationSpringRepository extends JpaRepository<RepositoryConfiguration, Integer>,
         JpaSpecificationExecutor<RepositoryConfiguration> {
 }

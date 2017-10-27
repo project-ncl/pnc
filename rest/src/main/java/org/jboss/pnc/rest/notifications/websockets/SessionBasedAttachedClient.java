@@ -20,10 +20,10 @@ package org.jboss.pnc.rest.notifications.websockets;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
-import org.jboss.pnc.spi.notifications.OutputConverter;
 
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
@@ -34,14 +34,12 @@ import java.util.List;
 public class SessionBasedAttachedClient implements AttachedClient {
 
     private final Session session;
-    private final OutputConverter outputConverter;
     private Notifier notifier;
 
     private List<Subscription> subscriptions = new ArrayList();
 
-    public SessionBasedAttachedClient(Session session, OutputConverter outputConverter, Notifier notifier) {
+    public SessionBasedAttachedClient(Session session, Notifier notifier) {
         this.session = session;
-        this.outputConverter = outputConverter;
         this.notifier = notifier;
     }
 
@@ -58,7 +56,7 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public void sendMessage(Object messageBody, MessageCallback callback) {
 
-        session.getAsyncRemote().sendText(outputConverter.apply(messageBody), new SendHandler() {
+        session.getAsyncRemote().sendText(JsonOutputConverterMapper.apply(messageBody), new SendHandler() {
             @Override
             public void onResult(SendResult sendResult) {
                 if (!sendResult.isOK()) {
@@ -104,8 +102,6 @@ public class SessionBasedAttachedClient implements AttachedClient {
 
         SessionBasedAttachedClient that = (SessionBasedAttachedClient) o;
 
-        if (outputConverter != null ? !outputConverter.equals(that.outputConverter) : that.outputConverter != null)
-            return false;
         if (session != null ? !session.equals(that.session) : that.session != null)
             return false;
 
@@ -115,7 +111,6 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public int hashCode() {
         int result = session != null ? session.hashCode() : 0;
-        result = 31 * result + (outputConverter != null ? outputConverter.hashCode() : 0);
         return result;
     }
 

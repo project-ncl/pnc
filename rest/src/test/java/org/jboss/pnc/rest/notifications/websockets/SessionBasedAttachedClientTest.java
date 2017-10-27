@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.notifications.websockets;
 
 import org.jboss.pnc.spi.notifications.Notifier;
-import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.junit.Test;
 
 import javax.websocket.Session;
@@ -32,11 +31,10 @@ public class SessionBasedAttachedClientTest {
     public void shouldTwoInstancesCreatedTheSameWayBeEqual() throws Exception {
         //given
         Session session = mock(Session.class);
-        OutputConverter converter = new JSonOutputConverter();
         Notifier notifier = mock(Notifier.class);
 
-        SessionBasedAttachedClient client1 = new SessionBasedAttachedClient(session, converter, notifier);
-        SessionBasedAttachedClient client2 = new SessionBasedAttachedClient(session, converter, notifier);
+        SessionBasedAttachedClient client1 = new SessionBasedAttachedClient(session, notifier);
+        SessionBasedAttachedClient client2 = new SessionBasedAttachedClient(session, notifier);
 
         //when//then
         assertEquals(client1, client2);

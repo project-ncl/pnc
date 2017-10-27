@@ -22,6 +22,9 @@
   <description>A system for managing, executing, and tracking builds.</description>
   <display-name>ear-package</display-name>
   <module>
+    <java>auth.jar</java>
+  </module>
+  <module>
     <java>common.jar</java>
   </module>
   <module>
@@ -64,10 +67,7 @@
     <java>messaging-spi.jar</java>
   </module>
   <module>
-    <web>
-      <web-uri>termd-build-driver.war</web-uri>
-      <context-root>/pnc-build-driver</context-root>
-    </web>
+    <java>termd-build-driver.jar</java>
   </module>
   <module>
     <web>

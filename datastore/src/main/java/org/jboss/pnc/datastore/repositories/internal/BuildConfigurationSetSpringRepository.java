@@ -21,6 +21,9 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.enterprise.context.Dependent;
+
+@Dependent
 public interface BuildConfigurationSetSpringRepository extends JpaRepository<BuildConfigurationSet, Integer>,
         JpaSpecificationExecutor<BuildConfigurationSet> {
 

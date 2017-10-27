@@ -21,6 +21,9 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.enterprise.context.Dependent;
+
+@Dependent
 public interface ProductMilestoneSpringRepository extends JpaRepository<ProductMilestone, Integer>,
         JpaSpecificationExecutor<ProductMilestone> {
 

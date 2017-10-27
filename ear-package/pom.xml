@@ -70,7 +70,6 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>termd-build-driver</artifactId>
-      <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -146,6 +145,12 @@
           <fileNameMapping>no-version</fileNameMapping>
           <packagingExcludes>${excludeMessaging}</packagingExcludes>
           <modules>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>auth</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>common</artifactId>
@@ -236,12 +241,12 @@
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
-            <webModule>
+            <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>termd-build-driver</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
-              <contextRoot>/pnc-build-driver</contextRoot>
-            </webModule>
+            </jarModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>rest</artifactId>

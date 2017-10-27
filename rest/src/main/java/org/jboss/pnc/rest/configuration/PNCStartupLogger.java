@@ -27,7 +27,8 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@WebListener public class PNCStartupLogger implements ServletContextListener {
+@WebListener
+public class PNCStartupLogger implements ServletContextListener {
 
     public static final Logger log = Logger.getLogger(PNCStartupLogger.class.getName());
 
