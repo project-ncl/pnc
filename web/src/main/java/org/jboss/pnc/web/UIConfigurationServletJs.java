@@ -21,6 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,6 +38,7 @@ import java.io.PrintWriter;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @WebServlet("/scripts/config.js")
+@Dependent
 public class UIConfigurationServletJs extends HttpServlet {
 
     public static final int CACHE_EXPIRES_IN = 0; // Cache time in seconds.
