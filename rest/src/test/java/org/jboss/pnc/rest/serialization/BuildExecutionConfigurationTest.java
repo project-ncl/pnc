@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.rest.serialization;
 
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.SystemImageType;
-import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -45,8 +45,7 @@ public class BuildExecutionConfigurationTest {
         BuildExecutionConfiguration buildExecutionConfiguration = getBuildExecutionConfigurationMock();
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 
-        JSonOutputConverter converter = new JSonOutputConverter();
-        String buildExecutionConfigurationJson = converter.apply(buildExecutionConfigurationREST);
+        String buildExecutionConfigurationJson = JsonOutputConverterMapper.apply(buildExecutionConfigurationREST);
         log.debug("Json : {}", buildExecutionConfigurationJson);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(buildExecutionConfigurationJson);

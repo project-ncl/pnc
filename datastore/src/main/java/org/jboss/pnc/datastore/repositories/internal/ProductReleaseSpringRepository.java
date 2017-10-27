@@ -21,6 +21,9 @@ import org.jboss.pnc.model.ProductRelease;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.enterprise.context.Dependent;
+
+@Dependent
 public interface ProductReleaseSpringRepository extends JpaRepository<ProductRelease, Integer>,
         JpaSpecificationExecutor<ProductRelease> {
 

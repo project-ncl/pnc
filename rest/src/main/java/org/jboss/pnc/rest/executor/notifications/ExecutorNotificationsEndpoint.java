@@ -31,8 +31,8 @@ import java.lang.invoke.MethodHandles;
 /**
  * Web Sockets notification implementation.
  */
-@ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
-public class NotificationsEndpoint {
+@ServerEndpoint(ExecutorNotificationsEndpoint.ENDPOINT_PATH)
+public class ExecutorNotificationsEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

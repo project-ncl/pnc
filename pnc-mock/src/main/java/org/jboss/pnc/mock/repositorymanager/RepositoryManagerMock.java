@@ -28,11 +28,13 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
  */
+@ApplicationScoped
 public class RepositoryManagerMock implements RepositoryManager {
 
     private Boolean promotionSuccess;

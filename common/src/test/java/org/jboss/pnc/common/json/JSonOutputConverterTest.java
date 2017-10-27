@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.common.json;
 
 import org.junit.Test;
 
@@ -43,10 +43,8 @@ public class JSonOutputConverterTest {
         SampleObject objectToConvert = new SampleObject();
         objectToConvert.sampleField = "test";
 
-        JSonOutputConverter converter = new JSonOutputConverter();
-
         //when
-        String convertedSting = converter.apply(objectToConvert);
+        String convertedSting = JsonOutputConverterMapper.apply(objectToConvert);
 
         //than
         assertThat(convertedSting).isEqualTo("{\"sampleField\":\"test\"}");
@@ -62,11 +60,9 @@ public class JSonOutputConverterTest {
         SampleObject objectToConvert = new SampleObject();
         objectToConvert.sampleField = "test";
 
-        JSonOutputConverter converter = new JSonOutputConverter();
-
         //when//then
         try {
-            converter.apply(objectToConvert);
+            JsonOutputConverterMapper.apply(objectToConvert);
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -74,11 +70,8 @@ public class JSonOutputConverterTest {
 
     @Test
     public void shouldNotFailWhenPassingNull() throws Exception {
-        //given
-        JSonOutputConverter converter = new JSonOutputConverter();
-
         //when
-        String convertedString = converter.apply(null);
+        String convertedString = JsonOutputConverterMapper.apply(null);
 
         //then
         assertThat(convertedString).isEqualTo("{}");
@@ -111,10 +104,9 @@ public class JSonOutputConverterTest {
 
         SampleObject sampleObject = new SampleObject();
         sampleObject.sampleField = "test";
-        JSonOutputConverter converter = new JSonOutputConverter();
 
         //when
-        String convertedString = converter.apply(sampleObject);
+        String convertedString = JsonOutputConverterMapper.apply(sampleObject);
 
         //then
         assertThat(convertedString).isEqualTo("{\"sampleField\":\"test\"}");

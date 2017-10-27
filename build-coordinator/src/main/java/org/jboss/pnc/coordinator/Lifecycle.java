@@ -19,12 +19,14 @@ package org.jboss.pnc.coordinator;
 
 import org.jboss.logging.Logger;
 
+import javax.enterprise.context.Dependent;
 
 /**
  * Not in use
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
  */
+@Dependent
 public class Lifecycle {
 
     private static final Logger log = Logger.getLogger(Lifecycle.class);

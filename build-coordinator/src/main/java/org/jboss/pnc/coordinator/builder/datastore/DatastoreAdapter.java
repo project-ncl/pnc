@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -57,6 +58,7 @@ import static org.jboss.pnc.model.BuildStatus.UNKNOWN;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
  */
+@Dependent
 public class DatastoreAdapter {
 
     private Datastore datastore;

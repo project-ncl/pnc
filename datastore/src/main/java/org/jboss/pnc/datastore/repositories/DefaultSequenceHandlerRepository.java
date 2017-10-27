@@ -27,6 +27,7 @@ import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.sql.Connection;
@@ -35,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+@Dependent
 public class DefaultSequenceHandlerRepository implements SequenceHandlerRepository {
 
     public DefaultSequenceHandlerRepository() {

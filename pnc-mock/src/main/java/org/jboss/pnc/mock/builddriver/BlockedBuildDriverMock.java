@@ -28,6 +28,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
@@ -36,6 +37,7 @@ import java.util.function.Consumer;
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
  */
+@ApplicationScoped
 public class BlockedBuildDriverMock extends BuildDriverBase implements BuildDriver {
 
     public static final Logger log = LoggerFactory.getLogger(BlockedBuildDriverMock.class);

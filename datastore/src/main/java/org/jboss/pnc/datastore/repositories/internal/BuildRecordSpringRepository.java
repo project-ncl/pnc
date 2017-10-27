@@ -22,6 +22,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.enterprise.context.Dependent;
+
+@Dependent
 public interface BuildRecordSpringRepository
         extends JpaRepository<BuildRecord, Integer>, JpaSpecificationExecutor<BuildRecord> {
 

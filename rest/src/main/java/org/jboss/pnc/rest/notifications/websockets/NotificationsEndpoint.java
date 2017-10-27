@@ -22,7 +22,6 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
-import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +49,7 @@ public class NotificationsEndpoint {
     public static final String ENDPOINT_PATH = "/ws/build-records/notifications"; //TODO rename endpoint
 
     @Inject
-    private OutputConverter outputConverter;
-
-    @Inject
-    private Notifier notifier;
+    Notifier notifier;
 
     private final MessageCallback messageCallback = new MessageCallback() {
 
@@ -72,18 +68,18 @@ public class NotificationsEndpoint {
     @OnOpen
     public void attach(Session attachedSession) {
         logger.debug("Opened new session id: {}, uri: {}.", attachedSession.getId(), attachedSession.getRequestURI());
-        notifier.attachClient(new SessionBasedAttachedClient(attachedSession, outputConverter, notifier));
+        notifier.attachClient(new SessionBasedAttachedClient(attachedSession, notifier));
     }
 
     @OnClose
     public void detach(Session detachedSession) {
-        notifier.detachClient(new SessionBasedAttachedClient(detachedSession, outputConverter, notifier));
+        notifier.detachClient(new SessionBasedAttachedClient(detachedSession, notifier));
     }
 
     @OnError
     public void onError(Session session, Throwable t) {
         logger.warn("An error occurred in client: " + session + ". Removing it", t);
-        notifier.detachClient(new SessionBasedAttachedClient(session, outputConverter, notifier));
+        notifier.detachClient(new SessionBasedAttachedClient(session, notifier));
     }
 
     /**
