@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import lombok.ToString;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -27,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "User") //TODO lowercase
+@ToString
 public class UserRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)
