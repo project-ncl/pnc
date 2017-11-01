@@ -61,14 +61,21 @@ import java.util.List;
 public class BuildRestClient extends AbstractRestClient<BuildRecordRest> {
 
     private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/builds/";
-    private static final String BY_BUILD_CONFIGURATION_NAME = "?andFindByBuildConfigurationName==";
+    private static final String AND_BY_BUILD_CONFIGURATION_NAME = "?andFindByBuildConfigurationName==";
+    private static final String OR_BY_BUILD_CONFIGURATION_NAME = "?orFindByBuildConfigurationName==";
 
     public BuildRestClient() {
         super(BUILD_RECORD_REST_ENDPOINT, BuildRecordRest.class, false);
     }
 
-    public RestResponse<List<BuildRecordRest>> findByBuildConfigurationName(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort, String buildConfigurationName) {
-        String url = BUILD_RECORD_REST_ENDPOINT + BY_BUILD_CONFIGURATION_NAME + buildConfigurationName;
+    public RestResponse<List<BuildRecordRest>> findAndByBuildConfigurationName(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort, String buildConfigurationName) {
+        String url = BUILD_RECORD_REST_ENDPOINT + AND_BY_BUILD_CONFIGURATION_NAME + buildConfigurationName;
+        return all(BuildRecordRest.class, url, withValidation, pageIndex, pageSize, rsql, sort);
+    }
+
+
+    public RestResponse<List<BuildRecordRest>> findOrByBuildConfigurationName(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort, String buildConfigurationName) {
+        String url = BUILD_RECORD_REST_ENDPOINT + OR_BY_BUILD_CONFIGURATION_NAME + buildConfigurationName;
         return all(BuildRecordRest.class, url, withValidation, pageIndex, pageSize, rsql, sort);
     }
 
