@@ -45,6 +45,11 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
+    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates, List<Predicate<BuildRecord>> orPredicates) {
+        return null;
+    }
+
+    @Override
     public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
         return queryAll().stream()
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
