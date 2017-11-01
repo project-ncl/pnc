@@ -274,7 +274,7 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, null, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, null, null, "jboss-modules-1.5.0")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -289,7 +289,7 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, null, null, "does-not-exists-1.5.1")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, null, null, "does-not-exists-1.5.1")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -305,12 +305,44 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
         assertThat(sorted).hasSize(1);
+    }
+
+
+    @Test
+    public void shouldFilterByBuildConfigurationNameFromDatabase() throws Exception {
+        // given
+        //1 BC with name jboss-modules-1.5.0 is in database inserted with demo-data
+
+        // when
+        List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, null, null, "jboss-modules-1.5.0")
+                .getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).hasSize(1);
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationNameOrUserId() throws Exception {
+        // given
+        String rsql = "user.username==test-username";
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+        //1 BC with name jboss-modules-1.5.0 is in database inserted with demo-data, 1 build task started as test-username is mocked
+
+        // when
+        List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+                .getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).hasSize(2);
     }
 
     @Test
@@ -321,7 +353,7 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
