@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,6 +73,11 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
 
     @Override
     public int count(Predicate<EntityType>... predicates) {
+        return 0;
+    }
+
+    @Override
+    public int count(Collection<Predicate<EntityType>> andPredicates, Collection<Predicate<EntityType>> orPredicates) {
         return 0;
     }
 
