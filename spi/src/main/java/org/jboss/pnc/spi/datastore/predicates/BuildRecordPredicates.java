@@ -101,8 +101,6 @@ public class BuildRecordPredicates {
         };
     }
 
-
-
     public static Predicate<BuildRecord> withArtifactDistributedInMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
             SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);

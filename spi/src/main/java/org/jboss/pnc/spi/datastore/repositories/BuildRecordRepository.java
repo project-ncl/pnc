@@ -35,6 +35,9 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates);
 
+    List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates,
+                                                            List<Predicate<BuildRecord>> orPredicates);
+
     BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId);
 
     default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords) {

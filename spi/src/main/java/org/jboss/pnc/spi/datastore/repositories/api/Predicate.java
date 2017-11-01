@@ -24,6 +24,8 @@ import javax.persistence.criteria.Root;
 public interface Predicate<T> {
     javax.persistence.criteria.Predicate apply(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb);
 
+    javax.persistence.criteria.Predicate or(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb);
+
     static <T>Predicate<T> nonMatching() {
        return (root, query, cb) -> cb.disjunction();
     }
