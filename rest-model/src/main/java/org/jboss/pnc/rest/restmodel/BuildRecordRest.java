@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -37,6 +38,7 @@ import java.util.Map;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecord")
+@ToString
 public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)
