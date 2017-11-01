@@ -22,6 +22,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +33,16 @@ public class SpecificationsMapper {
         return (root, query, cb) -> {
             List<javax.persistence.criteria.Predicate> jpaPredicates = Stream.of(predicates)
                     .map(predicate -> predicate.apply(root, query, cb)).collect(Collectors.toList());
+            return cb.and(jpaPredicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        };
+    }
+
+    public static <T extends GenericEntity<? extends Serializable>> Specification<T> map(Collection<Predicate<T>> andPredicates, Collection<Predicate<T>> orPredicates) {
+        return (root, query, cb) -> {
+            List<javax.persistence.criteria.Predicate> jpaPredicates = andPredicates.stream()
+                    .map(predicate -> predicate.apply(root, query, cb)).collect(Collectors.toList());
+            jpaPredicates.addAll(orPredicates.stream()
+                .map(predicate -> predicate.or(root, query, cb)).collect(Collectors.toList()));
             return cb.and(jpaPredicates.toArray(new javax.persistence.criteria.Predicate[0]));
         };
     }

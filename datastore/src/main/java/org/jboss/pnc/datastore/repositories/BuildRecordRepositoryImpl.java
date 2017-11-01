@@ -63,6 +63,12 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
+    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates,
+                                                            List<Predicate<BuildRecord>> orPredicates) {
+        return repository.findAll(SpecificationsMapper.map(andPredicates, orPredicates), PageableMapper.mapCursored(pageInfo, sortInfo)).getContent();
+    }
+
+    @Override
     public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
         List<BuildRecord> buildRecords = queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
 
