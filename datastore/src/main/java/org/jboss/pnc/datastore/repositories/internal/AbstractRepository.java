@@ -26,6 +26,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializable> implements Repository<T, ID> {
@@ -74,6 +75,12 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
     @Override
     public int count(Predicate<T>... predicates) {
         long countAsLong = springSpecificationsExecutor.count(SpecificationsMapper.map(predicates));
+        return (int)countAsLong;
+    }
+
+    @Override
+    public int count(Collection<Predicate<T>> andPredicates, Collection<Predicate<T>> orPredicates) {
+        long countAsLong = springSpecificationsExecutor.count(SpecificationsMapper.map(andPredicates, orPredicates));
         return (int)countAsLong;
     }
 
