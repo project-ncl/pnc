@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
@@ -35,6 +36,7 @@ import java.util.Map;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildConfigurationAudited")
+@ToString
 public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)

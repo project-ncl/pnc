@@ -67,6 +67,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -423,9 +424,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
      * complete. This abstraction allows clients to query for a list of all builds whether running or completed.
      */
     private CollectionInfo<BuildRecordRest> getBuilds(Integer pageIndex, Integer pageSize, String sort, String orFindByBuildConfigurationName, String andFindByBuildConfigurationName, String... rsqlQueries) {
-        List<Predicate<BuildRecord>> dbPredicatesList = Arrays.stream(rsqlQueries)
+        List<Predicate<BuildRecord>> dbAndPredicatesList = Arrays.stream(rsqlQueries)
+                .filter(rsqlString -> rsqlString != null && !rsqlString.isEmpty())
                 .map(p -> rsqlPredicateProducer.getPredicate(BuildRecord.class, p))
                 .collect(Collectors.toList());
+        List<Predicate<BuildRecord>> dbOrPredicateList = new ArrayList<>();
 
         String combinedQueries = combineRsqlQueriesMatchAll(rsqlQueries);
         if (!StringUtils.isEmpty(orFindByBuildConfigurationName)) {
@@ -440,7 +443,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
                     .searchForBuildConfigurationName(orFindByBuildConfigurationName);
             if (!buildConfigurationAuditeds.isEmpty()) {
-                dbPredicatesList.add(
+                dbOrPredicateList.add(
                         BuildRecordPredicates.withBuildConfigurationIdRev(
                                 buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
                         )
@@ -460,13 +463,13 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
                     .searchForBuildConfigurationName(andFindByBuildConfigurationName);
             if (!buildConfigurationAuditeds.isEmpty()) {
-                dbPredicatesList.add(
+                dbAndPredicatesList.add(
                         BuildRecordPredicates.withBuildConfigurationIdRev(
                                 buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
                         )
                 );
             } else {
-                dbPredicatesList.add(Predicate.nonMatching());
+                dbAndPredicatesList.add(Predicate.nonMatching());
             }
         }
 
@@ -479,42 +482,40 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         final int totalRunning = running.size();
 
 
-        Predicate[] dbPredicates = dbPredicatesList.toArray(new Predicate[dbPredicatesList.size()]);
         CollectionInfo<BuildRecordRest> page = null;
-
         for (int i = 0; i <= pageIndex; i++) {
             final int offset = totalRunning - running.size();
 
             if (offset == totalRunning) {
-                page = createInterleavedPage(pageIndex, pageSize, offset, totalRunning, sort, running, dbPredicates);
+                page = createInterleavedPage(pageIndex, pageSize, offset, totalRunning, sort, running, dbAndPredicatesList, dbOrPredicateList);
                 break;
             }
 
-            page = createInterleavedPage(i, pageSize, offset, totalRunning, sort, running, dbPredicates);
+            page = createInterleavedPage(i, pageSize, offset, totalRunning, sort, running, dbAndPredicatesList, dbOrPredicateList);
             running.removeAll(page.getContent());
         }
         return page;
     }
 
-    @SafeVarargs
     private final CollectionInfo<BuildRecordRest> createInterleavedPage(int pageIndex, int pageSize, int offset, int totalRunning,
-            String sort, Set<BuildRecordRest> running, Predicate<BuildRecord>... dbPredicates) {
+            String sort, Set<BuildRecordRest> running, List<Predicate<BuildRecord>> dbAndPredicates,
+            List<Predicate<BuildRecord>> dbOrPredicates) {
 
         PageInfo pageInfo = new DefaultPageInfo(pageIndex * pageSize - offset, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sort);
 
-        List<BuildRecordRest> content = nullableStreamOf(((BuildRecordRepository) repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, dbPredicates))
+
+        List<BuildRecordRest> content = nullableStreamOf(((BuildRecordRepository) repository)
+                .queryWithPredicatesUsingCursor(pageInfo, sortInfo, dbAndPredicates, dbOrPredicates))
                 .map(toRESTModel())
                 .collect(Collectors.toList());
-
         content.addAll(running);
 
         content = content.stream()
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .limit(pageSize)
                 .collect(Collectors.toList());
-
-        int totalPages = calculateInterleavedPageCount(totalRunning, repository.count(dbPredicates), pageSize);
+        int totalPages = calculateInterleavedPageCount(totalRunning, repository.count(dbAndPredicates, dbOrPredicates), pageSize);
 
         return new CollectionInfo<>(pageIndex, pageSize, totalPages, content);
     }
