@@ -38,8 +38,4 @@ public class EmptyRSQLPredicate implements org.jboss.pnc.spi.datastore.repositor
         return cb.conjunction();
     }
 
-    @Override
-    public Predicate or(Root root, CriteriaQuery query, CriteriaBuilder cb) {
-        return cb.disjunction();
-    }
 }
