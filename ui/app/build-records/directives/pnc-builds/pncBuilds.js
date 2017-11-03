@@ -36,6 +36,11 @@
       function PncBuildsCtrl($log, $scope, BuildsDAO, eventTypes) {
         $scope.page = BuildsDAO.getPaged();
 
+        $scope.page.setUrlParameters([{
+          name: 'orFindByBuildConfigurationName',
+          type: 'SEARCH'
+        }]);
+
         $scope.$on(eventTypes.BUILD_STARTED, $scope.page.reload);
         $scope.$on(eventTypes.BUILD_FINISHED, $scope.page.reload);
       }

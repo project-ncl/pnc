@@ -48,6 +48,7 @@
         if (_.isUndefined(pageSize)) {
           pageSize = DEFAULT_PAGE_SIZE;
         }
+        var urlParameters = [];
 
         var EMPTY_DATA = {
           pageIndex: 0,
@@ -74,7 +75,7 @@
           add = typeof add !== 'undefined' ? add : false; // default parameter
 
           page.isLoaded = false;
-          return loader(index, pageSize, searchText).then(function (data) {
+          return loader(index, pageSize, searchText, urlParameters).then(function (data) {
             if (!factory.verifyPageFormat(data)) {
               data = factory._getEmptyPage();
             }
@@ -164,6 +165,20 @@
           return page._refresh(DEFAULT_INDEX, pageSize, searchText);
         };
 
+        /**
+         * Set array consisting of Url Parameters when Url Parameter 
+         * (like orFindByBuildCongigurationName) needs to be applied.
+         * 
+         * Url Parameter format:
+         * {
+         *   name: 'urlParameterName',
+         *   type: 'SEARCH'
+         * }
+         */
+        page.setUrlParameters = function (newUrlParameters) {
+          urlParameters = newUrlParameters;
+        };
+
         page.reload = function () {
           return page._refresh(page.getPageIndex(), page.getPageSize(), page._searchText);
         };
@@ -205,13 +220,30 @@
       factory.decorate = function (resource, methodName, newMethodName) {
         var origMethod = resource[methodName];
         resource[newMethodName] = function (origArgs) {
-          return factory.build(resource, function (pageIndex, pageSize, searchText) {
-            var args = _({
+          return factory.build(resource, function (pageIndex, pageSize, searchText, urlParameters) {
+            var newArgs = {
               pageIndex: pageIndex,
               pageSize: pageSize,
               search: searchText, // search must be done in backend, either via RSQL or directly
               sort: 'sort=desc=id' // if the data are not sorted, pagination makes no sense
-            }).extend(origArgs).value(); // args overwrite the paging properties, but no sense other that sorting
+            };
+
+            /**
+             * See page.setUrlParameters()
+             */
+            urlParameters.forEach(function (urlParameter) {
+              switch (urlParameter.type) {
+                case 'SEARCH':
+                  // Add searchText value to arguments only if it is not empty.
+                  // Using empty based filtering causes performance issues.
+                  newArgs[urlParameter.name] = searchText ? '%' + searchText + '%' : undefined;
+                  break;
+                default:
+                  throw 'Unknown Url Parameter Type: ' + urlParameter.type;
+              }
+            });
+
+            var args = _(newArgs).extend(origArgs).value(); // args overwrite the paging properties, but no sense other that sorting
             return origMethod(args).$promise;
           });
         };
