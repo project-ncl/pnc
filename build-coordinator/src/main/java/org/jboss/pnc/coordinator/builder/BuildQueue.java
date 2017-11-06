@@ -222,6 +222,10 @@ public class BuildQueue {
         return unfinishedTasks.stream().filter(buildTask -> buildTask.getBuildConfiguration().equals(buildConfiguration)).findFirst();
     }
 
+    public synchronized Optional<BuildTask> getUnfinishedTask(BuildConfigurationAudited buildConfigurationAudited) {
+        return unfinishedTasks.stream().filter(buildTask -> buildTask.getBuildConfigurationAudited().equals(buildConfigurationAudited)).findFirst();
+    }
+
     public synchronized Set<BuildTask> getUnfinishedTasks() {
         return new HashSet<>(unfinishedTasks);
     }

@@ -27,6 +27,7 @@ import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
@@ -180,7 +181,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 forceRebuildAll,
                 keepPodAliveAfterFailure,
                 this::buildRecordIdSupplier,
-                buildConfigurations);
+                buildConfigurations,
+                buildQueue.getUnfinishedTasks());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
         checkForEmptyBuildSetTask(buildSetTask);
@@ -215,14 +217,30 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private void addTaskToBuildQueue(BuildTask task) {
-        log.debug("Adding task {} to buildQueue.", task);
-        if (task.readyToBuild()) {
-            updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED);
-            buildQueue.addReadyTask(task);
+    private void addTaskToBuildQueue(BuildTask buildTask) {
+        if (isBuildConfigurationAlreadyInQueue(buildTask)) {
+            log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
+            return;
+        }
+        log.debug("Adding buildTask {} to buildQueue.", buildTask);
+
+        if (buildTask.readyToBuild()) {
+            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
+            buildQueue.addReadyTask(buildTask);
         } else {
-            updateBuildTaskStatus(task, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
-            buildQueue.addWaitingTask(task, () -> updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED));
+            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
+            buildQueue.addWaitingTask(buildTask, () -> updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED));
+        }
+    }
+
+    private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {
+        BuildConfigurationAudited buildConfigurationAudited = buildTask.getBuildConfigurationAudited();
+        Optional<BuildTask> unfinishedTask = buildQueue.getUnfinishedTask(buildConfigurationAudited);
+        if (unfinishedTask.isPresent()) {
+            log.debug("Task with the same buildConfigurationAudited is in the queue {}.", unfinishedTask.get());
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -496,10 +514,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private synchronized void markFinished(BuildTask task, BuildCoordinationStatus status, String statusDescription) {
+        log.debug("Finishing buildTask {}. Setting status {}.", task, status);
+        buildQueue.removeTask(task);
         task.setStatus(status);
         task.setStatusDescription(statusDescription);
-        log.debug("Finishing buildTask {} ...", task);
-        buildQueue.removeTask(task);
         switch (status) {
             case DONE:
             case REJECTED_ALREADY_BUILT:
@@ -577,11 +595,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void finishDueToFailedDependency(BuildTask failedTask, BuildTask dependentTask) {
         log.debug("Finishing task {} due ta failed dependency.", dependentTask);
+        buildQueue.removeTask(dependentTask);
         updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
                 "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);
-        buildQueue.removeTask(dependentTask);
     }
 
     public List<BuildTask> getSubmittedBuildTasks() {

@@ -22,6 +22,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.util.ObjectWrapper;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
@@ -94,6 +95,9 @@ public class StatusUpdatesTest {
 
     @Inject
     DatastoreAdapter datastoreAdapter;
+
+    @Inject
+    BuildQueue buildQueue;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
@@ -169,7 +173,9 @@ public class StatusUpdatesTest {
                 true,
                 false,
                 () -> atomicInteger.getAndIncrement(),
-                buildConfigurationSet.getBuildConfigurations());
+                buildConfigurationSet.getBuildConfigurations(),
+                buildQueue.getUnfinishedTasks()
+                );
     }
 
 

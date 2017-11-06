@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -48,8 +49,6 @@ public class BuildTasksInitializer {
 
     private DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
 
-    private Set<BuildTask> submittedBuildTasks;
-
     public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
     }
@@ -62,8 +61,6 @@ public class BuildTasksInitializer {
             Supplier<Integer> buildTaskIdProvider,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
 
-        this.submittedBuildTasks = submittedBuildTasks;
-
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .forceRebuildAll(scope.isForceRebuild())
@@ -73,7 +70,8 @@ public class BuildTasksInitializer {
 
         Set<BuildConfiguration> toBuild = new HashSet<>();
         collectBuildTasks(configuration, scope, toBuild);
-        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), toBuild);
+        log.debug("Collected build tasks for configuration: {}. Collected: {}.", configuration, toBuild.stream().map(BuildConfiguration::toString).collect(Collectors.joining(", ")));
+        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), toBuild, submittedBuildTasks);
         return buildSetTask;
     }
 
@@ -96,12 +94,6 @@ public class BuildTasksInitializer {
 
         visited.add(configuration);
 
-        //do not add dependencies that are already in queue
-        if (submittedBuildTasks.stream().anyMatch(buildTask -> buildTask.getBuildConfiguration().equals(configuration))) {
-            log.debug("Configuration {} already in queue.", configuration);
-            return false;
-        }
-
         boolean requiresRebuild = datastoreAdapter.requiresRebuild(configuration);
         for (BuildConfiguration dependency : configuration.getDependencies()) {
             requiresRebuild |= collectDependentConfigurations(dependency, toBuild, visited);
@@ -120,7 +112,8 @@ public class BuildTasksInitializer {
             boolean rebuildAll,
             boolean keepAfterFailure,
             Supplier<Integer> buildTaskIdProvider,
-            Set<BuildConfiguration> buildConfigurations) throws CoreException {
+            Set<BuildConfiguration> buildConfigurations,
+            Set<BuildTask> submittedBuildTasks) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -149,7 +142,8 @@ public class BuildTasksInitializer {
                 user,
                 buildTaskIdProvider,
                 buildConfigurationSet.getCurrentProductMilestone(),
-                buildConfigurations);
+                buildConfigurations,
+                submittedBuildTasks);
         return buildSetTask;
     }
 
@@ -163,20 +157,32 @@ public class BuildTasksInitializer {
                                   User user,
                                   Supplier<Integer> buildTaskIdProvider,
                                   ProductMilestone productMilestone,
-                                  Set<BuildConfiguration> toBuild) {
+                                  Set<BuildConfiguration> toBuild,
+                                  Set<BuildTask> alreadySubmittedBuildTasks) { //TODO toBuild should be a set of BuildConfigurationAudited entities
         for (BuildConfiguration buildConfig : toBuild) {
             BuildConfigurationAudited buildConfigAudited =
                     datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
 
-            BuildTask buildTask = BuildTask.build(
-                    buildConfig,
-                    buildConfigAudited,
-                    buildSetTask.isKeepAfterFailure(),
-                    buildSetTask.getForceRebuildAll(),
-                    user,
-                    buildTaskIdProvider.get(),
-                    buildSetTask,
-                    buildSetTask.getStartTime(), productMilestone);
+            Optional<BuildTask> taskOptional = alreadySubmittedBuildTasks.stream()
+                    .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
+                    .findAny();
+
+            BuildTask buildTask;
+            if (taskOptional.isPresent()) {
+                buildTask = taskOptional.get();
+                log.debug("Linking BuildConfigurationAudited {} to existing task {}.", buildConfigAudited, buildTask);
+            } else {
+                buildTask = BuildTask.build(
+                        buildConfig,
+                        buildConfigAudited,
+                        buildSetTask.isKeepAfterFailure(),
+                        buildSetTask.getForceRebuildAll(),
+                        user,
+                        buildTaskIdProvider.get(),
+                        buildSetTask,
+                        buildSetTask.getStartTime(), productMilestone);
+                log.debug("Created new buildTask {} for BuildConfigurationAudited {}.", buildTask, buildConfigAudited);
+            }
 
             buildSetTask.addBuildTask(buildTask);
         }

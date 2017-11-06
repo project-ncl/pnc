@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -52,6 +53,9 @@ public class ReadDependenciesTest extends ProjectBuilder {
     private DatastoreAdapter datastoreAdapter;
 
     @Inject
+    private BuildQueue buildQueue;
+
+    @Inject
     Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Test
@@ -80,6 +84,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
                 true,
                 false,
                 atomicInteger::getAndIncrement,
-                buildConfigurationSet.getBuildConfigurations());
+                buildConfigurationSet.getBuildConfigurations(),
+                buildQueue.getUnfinishedTasks());
     }
 }

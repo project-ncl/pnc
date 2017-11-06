@@ -78,14 +78,14 @@ public class BuildSetTask {
     public void taskStatusUpdatedToFinalState() {
         // If any of the build tasks have failed or all are complete, then the build set is done
         if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
-            log.debug("Marking build set as FAILED as one or more tasks failed.");
+            log.debug("Marking build set as FAILED as one or more tasks failed. BuildSetTask: {}", this);
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
             }
             buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.FAILED));
             finishBuildSetTask();
         } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
-            log.debug("Marking build set as SUCCESS.");
+            log.debug("Marking build set as SUCCESS. BuildSetTask: {}", this);
             buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.SUCCESS));
             finishBuildSetTask();
         } else {
