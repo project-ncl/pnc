@@ -57,6 +57,8 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.time.temporal.ChronoUnit;
@@ -68,6 +70,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,11 +85,14 @@ import static org.mockito.Mockito.when;
  */
 @SuppressWarnings("deprecation")
 public abstract class AbstractDependentBuildTest {
+
+    private Logger logger = LoggerFactory.getLogger(AbstractDependentBuildTest.class);
+
     protected static final AtomicInteger configIdSequence = new AtomicInteger(0);
     protected static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
     protected static final AtomicInteger buildRecordIdSequence = new AtomicInteger(0);
 
-    private List<BuildTask> builtTasks;
+    protected List<BuildTask> builtTasks;
 
     private BuildConfigurationAuditedRepositoryMock buildConfigurationAuditedRepository;
 
@@ -96,6 +102,7 @@ public abstract class AbstractDependentBuildTest {
 
     protected BuildCoordinator coordinator;
     protected BuildRecordRepositoryMock buildRecordRepository;
+    protected BuildSchedulerFactory buildSchedulerFactory;
 
     @Before
     @SuppressWarnings("unchecked")
@@ -129,8 +136,12 @@ public abstract class AbstractDependentBuildTest {
         );
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
+        if (buildSchedulerFactory == null) {
+            buildSchedulerFactory = new MockBuildSchedulerFactory();
+        }
+
         coordinator = new DefaultBuildCoordinator(datastoreAdapter, mock(Event.class), mock(Event.class),
-                new MockBuildSchedulerFactory(),
+                buildSchedulerFactory,
                 buildQueue,
                 config);
         buildQueue.initSemaphore();
@@ -223,7 +234,23 @@ public abstract class AbstractDependentBuildTest {
         } catch (BuildConflictException | CoreException e) {
             throw new RuntimeException("Failed to run a build of: " + config, e);
         }
-        coordinator.start();
+    }
+
+    protected BuildTask getBuildTaskById(Integer taskId) {
+        Optional<BuildTask> buildTask = builtTasks.stream()
+                .filter(bt -> bt.getId() == taskId)
+                .findAny();
+        if (buildTask.isPresent()) {
+            return buildTask.get();
+        } else {
+            throw new RuntimeException("Task with id [" + taskId + "] was not found.");
+        }
+    }
+
+    protected Optional<BuildTask> getScheduledBuildTaskByConfigurationId(Integer configurationId) {
+        return builtTasks.stream()
+                .filter(bt -> bt.getBuildConfiguration().getId().equals(configurationId))
+                .findAny();
     }
 
     protected List<BuildConfiguration> getBuiltConfigs() {
@@ -239,7 +266,11 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected void waitForEmptyBuildQueue() throws InterruptedException, TimeoutException {
-        Wait.forCondition(() -> buildQueue.isEmpty(), 10, ChronoUnit.SECONDS, "Tired waiting for BuildQueue to be empty.");
+        Supplier<String> errorMessage = () -> {
+            return "Tired waiting for BuildQueue to be empty."
+                + "There are still tasks in the queue: " + buildQueue.getUnfinishedTasks();
+        };
+        Wait.forCondition(() -> buildQueue.isEmpty(), 10, ChronoUnit.SECONDS, errorMessage);
     }
 
     private class MockBuildSchedulerFactory extends BuildSchedulerFactory {
@@ -269,7 +300,7 @@ public abstract class AbstractDependentBuildTest {
         }
     }
 
-    private static BuildResult buildResult() {
+    protected static BuildResult buildResult() {
         return new BuildResult(
                 CompletionStatus.SUCCESS,
                 Optional.empty(),
