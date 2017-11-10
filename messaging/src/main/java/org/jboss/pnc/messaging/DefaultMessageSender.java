@@ -52,16 +52,11 @@ public class DefaultMessageSender implements MessageSender {
     private Destination destination;
 
     private Connection connection;
-    private Session session;
-    private MessageProducer messageProducer;
 
     @PostConstruct
     public void init() {
         try {
             connection = connectionFactory.createConnection();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-            messageProducer = session.createProducer(destination);
             logger.info("JMS client ID {}.", connection.getClientID());
             logger.info("JMSXPropertyNames {}.", connection.getMetaData().getJMSXPropertyNames());
         } catch (JMSException e) {
@@ -107,6 +102,33 @@ public class DefaultMessageSender implements MessageSender {
      */
     @Override
     public void sendToTopic(String message, Map<String, String> headers) {
+        Session session = null;
+        MessageProducer messageProducer = null;
+        try {
+            session = getSession();
+            messageProducer = session.createProducer(destination);
+            send(message, headers, session, messageProducer);
+        } catch (JMSException e) {
+            throw new MessagingRuntimeException(e);
+        } finally {
+            if (session != null) {
+                try {
+                    session.close();
+                } catch (JMSException e) {
+                    logger.error("Cannot close JMS session.");
+                }
+            }
+            if (messageProducer != null) {
+                try {
+                    messageProducer.close();
+                } catch (JMSException e) {
+                    logger.error("Cannot close JMS messageProducer.");
+                }
+            }
+        }
+    }
+
+    private void send(String message, Map<String, String> headers, Session session, MessageProducer messageProducer) {
         TextMessage textMessage;
         try {
             textMessage = session.createTextMessage(message);
@@ -134,6 +156,10 @@ public class DefaultMessageSender implements MessageSender {
         } catch (JMSException e) {
             throw new MessagingRuntimeException(e);
         }
+    }
+
+    private Session getSession() throws JMSException {
+        return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     }
 
 }
