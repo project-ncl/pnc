@@ -40,6 +40,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -236,6 +237,11 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Type(type = "org.hibernate.type.StringType")
     @Basic(fetch = FetchType.LAZY)
     private String repourLog;
+
+    @OneToMany(mappedBy = "buildRecord")
+    @Getter
+    @Setter
+    private Set<BuildRecordPushResult> buildRecordPushResults;
 
     /**
      * Instantiates a new project build result.

@@ -1,0 +1,88 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jboss.pnc.rest.restmodel;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+@JsonDeserialize(builder = BuildRecordPushResultRest.BuildRecordPushResultRestBuilder.class)
+@AllArgsConstructor
+@Builder
+public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    private Integer id;
+
+    @NotNull
+    @Getter
+    private Integer buildRecordId;
+
+    @NotNull
+    @Getter
+    private BuildRecordPushResult.Status buildRecordPushResultStatus;
+
+    @NotNull
+    @Getter
+    private String log;
+
+    public BuildRecordPushResultRest(BuildRecordPushResult buildRecordPushResult) {
+        this.id = buildRecordPushResult.getId();
+        this.buildRecordId = buildRecordPushResult.getBuildRecord().getId();
+        this.buildRecordPushResultStatus = buildRecordPushResult.getBuildRecordPushResultStatus();
+        this.log = buildRecordPushResult.getLog();
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class BuildRecordPushResultRestBuilder {
+    }
+
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
+    }
+
+    public BuildRecordPushResult.BuildRecordPushResultBuilder toDBEntityBuilder() {
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildRecordId).build();
+        BuildRecordPushResult.BuildRecordPushResultBuilder builder = BuildRecordPushResult.builder()
+                .id(id)
+                .buildRecordPushResultStatus(buildRecordPushResultStatus)
+                .log(this.log)
+                .buildRecord(buildRecord);
+
+        return builder;
+    }
+
+}

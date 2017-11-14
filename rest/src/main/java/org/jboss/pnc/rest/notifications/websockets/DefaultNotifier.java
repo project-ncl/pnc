@@ -23,13 +23,14 @@ import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
+import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -247,6 +248,12 @@ public class DefaultNotifier implements Notifier {
         sendToSubscribers(processProgressUpdate, "component-build", buildTaskId);
     }
 
+    public void collectBuildRecordPushResultRestEvent(@Observes BuildRecordPushResultRest buildRecordPushResultRest) {
+        logger.trace("Observed new BuildRecordPushResultRest event {}.", buildRecordPushResultRest);
+        sendToSubscribers(buildRecordPushResultRest, "causeway-push", buildRecordPushResultRest.getBuildRecordId().toString());
+        logger.trace("BuildRecordPushResultRest event processed {}.", buildRecordPushResultRest);
+    }
+
 
     public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
@@ -259,4 +266,6 @@ public class DefaultNotifier implements Notifier {
         sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
     }
+
+
 }
