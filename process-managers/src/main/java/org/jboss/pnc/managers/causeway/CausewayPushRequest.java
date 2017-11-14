@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.restmodel;
+package org.jboss.pnc.managers.causeway;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.model.ArtifactRepo;
 
@@ -29,6 +30,7 @@ import java.util.Set;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @AllArgsConstructor()
+@Getter
 public class CausewayPushRequest {
 
     private String name;
@@ -52,28 +54,31 @@ public class CausewayPushRequest {
     }
 
     @AllArgsConstructor
+    @Getter
     public static class BuildRoot {
-        final String container = "DOCKER_IMAGE";
-        final String host = "rhel";
-        final String architecture = "x86_64"; //TODO set based on env, some env has native build tools
-        Map<String, String> tools;
+        private final String container = "DOCKER_IMAGE";
+        private final String host = "rhel";
+        private final String architecture = "x86_64"; //TODO set based on env, some env has native build tools
+        private Map<String, String> tools;
     }
 
     @AllArgsConstructor
+    @Getter
     public static class Dependency {
-        ArtifactRepo.Type type; // "MAVEN|http"
-        String fileName;
-        String md5;
-        String sha256;
-        long size;
+        private ArtifactRepo.Type type; // "MAVEN|http"
+        private String fileName;
+        private String md5;
+        private String sha256;
+        private long size;
     }
 
+    @Getter
     public static class BuiltArtifact extends Dependency {
-        final String architecture = "noarch";
-        String url; // url where the artifact can be downloaded from (deployURL)
-        String groupId;
-        String artifactId;
-        String version;
+        private final String architecture = "noarch"; //TODO set architecture
+        private String url; // url where the artifact can be downloaded from (deployURL)
+        private String groupId;
+        private String artifactId;
+        private String version;
 
         public BuiltArtifact(
                 ArtifactRepo.Type type,

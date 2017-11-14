@@ -17,18 +17,9 @@
  */
 package org.jboss.pnc.managers;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicHeader;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.maven.Gav;
-import org.jboss.pnc.managers.restmodel.CausewayPushRequest;
+import org.jboss.pnc.managers.causeway.CausewayClient;
+import org.jboss.pnc.managers.causeway.CausewayPushRequest;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -42,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +50,8 @@ public class BuildResultPushManager {
     private InProgress inProgress;
     private Notifier notifier;
 
+    private CausewayClient causewayClient;
+
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
     private String causewayEndpoint;
     private String indyBaseUrl;
@@ -71,19 +63,12 @@ public class BuildResultPushManager {
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             InProgress inProgress,
             Notifier notifier,
-            Configuration configuration) {
+            CausewayClient causewayClient) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.inProgress = inProgress;
         this.notifier = notifier;
-
-        try {
-            String causewayBaseUrl = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class))
-                    .getCausewayBaseUrl();
-            causewayEndpoint = causewayBaseUrl + "BR_PUSH_PATH"; //TODO set Causeway path
-        } catch (ConfigurationParseException e) {
-            logger.error("There is a problem while parsing system configuration. Using defaults.", e);
-        }
+        this.causewayClient = causewayClient;
     }
 
     /**
@@ -105,38 +90,20 @@ public class BuildResultPushManager {
 
     private boolean pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl) throws ProcessException {
         if (!inProgress.add(buildRecordId)) {
-            throw new ProcessException("Push for this BR already running.");
+            logger.warn("Push for BR.id {} already running.", buildRecordId);
+            return false;
         }
 
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
-        Header authHeader = new BasicHeader("Authorization", authToken);
-        Header callBackHeader = new BasicHeader("Completion-callback", callBackUrl);
         CausewayPushRequest causewayPushRequest = createCausewayPushRequest(buildRecord);
-
         String jsonMessage = causewayPushRequest.toString();
 
-        try {
-            HttpResponse response = Request.Post(causewayEndpoint)
-                    .addHeader(authHeader)
-                    .addHeader(callBackHeader)
-                    .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
-                    .execute()
-                    .returnResponse();
-
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                inProgress.remove(buildRecordId);
-                logger.error("Trying to invoke remote Causeway push failed with http code {}.", statusCode);
-                return false;
-            }
-
-        } catch (IOException e) {
-            logger.error("Trying to invoke remote Causeway push failed.", e);
+        boolean successfullyPushed = causewayClient.push(jsonMessage, authToken, callBackUrl);
+        if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
-            return false;
         }
-        return true;
+        return successfullyPushed;
     }
 
     private CausewayPushRequest createCausewayPushRequest(BuildRecord buildRecord) {
@@ -194,7 +161,7 @@ public class BuildResultPushManager {
                 .collect(Collectors.toSet());
     }
 
-    public Integer pushCompleted(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) throws ProcessException {
+    public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) throws ProcessException {
         //accept only listed elements otherwise a new request might be wrongly completed from response of an older one
         if (!inProgress.remove(buildRecordId)) {
             throw new ProcessException("Did not find the referenced element.");
