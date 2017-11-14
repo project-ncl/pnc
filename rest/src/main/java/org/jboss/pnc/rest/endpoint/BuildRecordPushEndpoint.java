@@ -81,10 +81,6 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private String pncBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
-    @Deprecated
-    public BuildRecordPushEndpoint() {
-    } // CDI workaround
-
     @Inject
     public BuildRecordPushEndpoint(
             BuildRecordPushResultProvider buildRecordPushResultProvider,

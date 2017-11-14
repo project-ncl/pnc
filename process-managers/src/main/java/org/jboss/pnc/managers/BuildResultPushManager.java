@@ -27,11 +27,11 @@ import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,13 +48,12 @@ public class BuildResultPushManager {
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
     private InProgress inProgress;
-    private Notifier notifier;
 
     private CausewayClient causewayClient;
 
+    private Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent;
+
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
-    private String causewayEndpoint;
-    private String indyBaseUrl;
 
     private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
 
@@ -62,13 +61,13 @@ public class BuildResultPushManager {
     public BuildResultPushManager(BuildRecordRepository buildRecordRepository,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             InProgress inProgress,
-            Notifier notifier,
-            CausewayClient causewayClient) {
+            CausewayClient causewayClient,
+            Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.inProgress = inProgress;
-        this.notifier = notifier;
         this.causewayClient = causewayClient;
+        this.buildRecordPushResultRestEvent = buildRecordPushResultRestEvent;
     }
 
     /**
@@ -169,7 +168,7 @@ public class BuildResultPushManager {
 
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
 
-        notifier.sendToSubscribers(saved, "causeway-push", buildRecordId.toString());
+        buildRecordPushResultRestEvent.fire(new BuildRecordPushResultRest(saved));
         return saved.getId();
     }
 
@@ -180,7 +179,7 @@ public class BuildResultPushManager {
                 .log("Canceled.")
                 .build();
         boolean canceled = inProgress.remove(buildRecordId);
-        notifier.sendToSubscribers(buildRecordPushResultRest, "causeway-push", buildRecordId.toString());
+        buildRecordPushResultRestEvent.fire(buildRecordPushResultRest);
         return canceled;
     }
 

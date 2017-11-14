@@ -29,11 +29,11 @@ import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.notifications.Notifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.enterprise.event.Event;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -69,16 +69,16 @@ public class BuildResultPushManagerTest {
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
         InProgress inProgress = new InProgress();
 
-        Notifier notifier = Mockito.mock(Notifier.class);
+        Event<BuildRecordPushResultRest> event = Mockito.mock(Event.class);
         CausewayClient causewayClient = new TestCausewayClient();
 
         buildResultPushManager = new BuildResultPushManager(
                 buildRecordRepository,
                 buildRecordPushResultRepository,
                 inProgress,
-                notifier,
-                causewayClient
-        );
+                causewayClient,
+                event
+                );
 
     }
 

@@ -47,12 +47,15 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     @NotNull
+    @Getter
     private Integer buildRecordId;
 
     @NotNull
+    @Getter
     private BuildRecordPushResult.Status buildRecordPushResultStatus;
 
     @NotNull
+    @Getter
     private String log;
 
     public BuildRecordPushResultRest(BuildRecordPushResult buildRecordPushResult) {
