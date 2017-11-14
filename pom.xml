@@ -520,6 +520,12 @@
         <groupId>org.commonjava.maven.atlas</groupId>
         <artifactId>atlas-identities</artifactId>
         <version>${atlasVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -753,22 +759,46 @@
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-promote-client-java</artifactId>
         <version>${indyVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-folo-client-java</artifactId>
         <version>${indyVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-client-core-java</artifactId>
         <version>${indyVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.commonjava.indy.embed</groupId>
         <artifactId>indy-embedder-savant</artifactId>
         <version>${indyVersion}</version>
         <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.commonjava.indy</groupId>
@@ -779,6 +809,10 @@
           <exclusion>
             <groupId>org.commonjava.indy.boot</groupId>
             <artifactId>indy-booter-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

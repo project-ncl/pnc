@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -80,16 +81,20 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private String pncBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
+    @Deprecated
+    public BuildRecordPushEndpoint() {
+    } // CDI workaround
+
     @Inject
     public BuildRecordPushEndpoint(
             BuildRecordPushResultProvider buildRecordPushResultProvider,
             BuildResultPushManager buildResultPushManager,
-            AuthenticationProvider authenticationProvider,
+            AuthenticationProviderFactory authenticationProviderFactory,
             Configuration configuration,
             BuildRecordPushResultRepository buildRecordPushResultRepository) {
         super(buildRecordPushResultProvider);
         this.buildResultPushManager = buildResultPushManager;
-        this.authenticationProvider = authenticationProvider;
+        this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         try {
             pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());

@@ -35,6 +35,7 @@
     <class>org.jboss.pnc.model.BuildConfigurationSet</class>
     <class>org.jboss.pnc.model.BuildEnvironment</class>
     <class>org.jboss.pnc.model.BuildRecord</class>
+    <class>org.jboss.pnc.model.BuildRecordPushResult</class>
     <class>org.jboss.pnc.model.License</class>
     <class>org.jboss.pnc.model.Product</class>
     <class>org.jboss.pnc.model.ProductMilestone</class>
