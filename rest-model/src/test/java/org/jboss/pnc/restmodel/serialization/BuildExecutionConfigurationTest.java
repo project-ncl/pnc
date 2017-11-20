@@ -54,7 +54,9 @@ public class BuildExecutionConfigurationTest {
                 SystemImageType.DOCKER_IMAGE,
                 false,
                 null,
-                new HashMap<>()
+                new HashMap<>(),
+                false,
+                null
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 

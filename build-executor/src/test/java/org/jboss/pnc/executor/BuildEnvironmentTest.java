@@ -154,7 +154,9 @@ public class BuildEnvironmentTest {
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
                 keepAliveOnFailure,
                 null,
-                buildConfiguration.getGenericParameters());
+                buildConfiguration.getGenericParameters(),
+                buildConfiguration.getTempBuild(),
+                buildConfiguration.getTempBuildTimestamp());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }

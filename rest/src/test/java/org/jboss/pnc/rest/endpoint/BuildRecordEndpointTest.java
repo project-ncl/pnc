@@ -148,7 +148,9 @@ public class BuildRecordEndpointTest {
                 SystemImageType.DOCKER_IMAGE,
                 false,
                 null,
-                new HashMap<>());
+                new HashMap<>(),
+                false,
+                null);
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);

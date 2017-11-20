@@ -193,6 +193,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();
 
+    @Getter
+    @Setter
+    private Boolean tempBuild = false;
+
+    @Getter
+    @Setter
+    private String tempBuildTimestamp;
+
     /**
      * Instantiates a new project build configuration.
      */
