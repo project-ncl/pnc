@@ -24,7 +24,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -44,7 +44,7 @@
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
     <url>https://github.com/project-ncl/pnc/</url>
-    <tag>HEAD</tag>
+    <tag>1.2.0</tag>
   </scm>
 
   <developers>
@@ -84,7 +84,7 @@
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
     <atlasVersion>0.16.0</atlasVersion>
-    <indyVersion>1.2.0-SNAPSHOT</indyVersion>
+    <indyVersion>1.2.0</indyVersion>
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.junit>4.11</version.junit>
