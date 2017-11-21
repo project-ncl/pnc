@@ -117,13 +117,15 @@ public class BasicModelTest extends AbstractModelTest {
     public void testCreateBuildRecordAndArtifacts() {
         EntityManager em = getEmFactory().createEntityManager();
 
+        TargetRepository targetRepository = getTargetRepository("builds-untested");
+
         Artifact artifact1 = Artifact.Builder.newBuilder()
                 .identifier("org.jboss:artifact1")
                 .md5("md-fake-ABCD1234")
                 .sha1("sha1-fake-ABCD1234")
                 .sha256("sha256-fake-ABCD1234")
                 .filename("artifact1.jar")
-                .repoType(ArtifactRepo.Type.MAVEN)
+                .targetRepository(targetRepository)
                 .build();
         Artifact artifact2 = Artifact.Builder.newBuilder()
                 .identifier("org.jboss:artifact2")
@@ -131,14 +133,16 @@ public class BasicModelTest extends AbstractModelTest {
                 .sha1("sha1-fake-BBCD1234")
                 .sha256("sha256-fake-BBCD1234")
                 .filename("artifact2.jar").originUrl("http://central/artifact2.jar").importDate(Date.from(Instant.now()))
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
         Artifact artifact3 = Artifact.Builder.newBuilder()
                 .identifier("org.jboss:artifact3")
                 .md5("md-fake-CBCD1234")
                 .sha1("sha1-fake-CBCD1234")
                 .sha256("sha256-fake-CBCD1234")
                 .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
 
         BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
@@ -152,11 +156,20 @@ public class BasicModelTest extends AbstractModelTest {
                 .user(pncUser).build();
 
         em.getTransaction().begin();
+        em.persist(targetRepository);
         em.persist(artifact1);
         em.persist(artifact2);
         em.persist(artifact3);
         em.persist(buildRecord1);
         em.getTransaction().commit();
+    }
+
+    private TargetRepository getTargetRepository(String path) {
+        return TargetRepository.builder()
+                    .identifier("indy-maven")
+                    .repositoryPath(path)
+                    .repositoryType(TargetRepository.Type.MAVEN)
+                    .build();
     }
 
     private BuildConfigurationAudited findBuildConfigurationAudited(EntityManager em) {
@@ -176,19 +189,24 @@ public class BasicModelTest extends AbstractModelTest {
 
         EntityManager em = getEmFactory().createEntityManager();
 
+        TargetRepository targetRepository = getTargetRepository("builds-untested2");
+
         Artifact builtArtifact = Artifact.Builder.newBuilder()
                 .identifier("org.jboss:builtArtifact")
                 .md5("md-fake-12345678")
                 .sha1("sha1-fake-12345678")
                 .sha256("sha256-fake-12345678")
-                .filename("buildArtifact.jar").repoType(ArtifactRepo.Type.MAVEN).build();
+                .filename("buildArtifact.jar")
+                .targetRepository(targetRepository)
+                .build();
         Artifact importedArtifact = Artifact.Builder.newBuilder()
                 .identifier("org.jboss:importedArtifact")
                 .md5("md-fake-12345678")
                 .sha1("sha1-fake-12345678")
                 .sha256("sha256-fake-12345678")
                 .filename("importedArtifact.jar").originUrl("http://central/importedArtifact.jar").importDate(Date.from(Instant.now()))
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
 
         BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
@@ -201,6 +219,7 @@ public class BasicModelTest extends AbstractModelTest {
                 .build();
 
         em.getTransaction().begin();
+        em.persist(targetRepository);
         em.persist(builtArtifact);
         em.persist(importedArtifact);
         em.persist(buildRecord);
@@ -215,13 +234,16 @@ public class BasicModelTest extends AbstractModelTest {
         EntityManager em = getEmFactory().createEntityManager();
         ProductMilestone productMilestone1 = em.find(ProductMilestone.class, 1);
 
+        TargetRepository targetRepository = getTargetRepository("builds-untested3");
+
         Artifact artifact = Artifact.Builder.newBuilder()
                 .identifier("org.test:artifact1:1.0:jar")
                 .md5("md-fake-987654321")
                 .sha1("sha1-fake-987654321")
                 .sha256("sha256-fake-987654321")
                 .filename("artifact1.jar").originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
         productMilestone1.addDistributedArtifact(artifact);
         ProductRelease productRelease1 = ProductRelease.Builder.newBuilder().version("1.0.0.Beta1")
                 .productMilestone(productMilestone1).build();
@@ -232,6 +254,7 @@ public class BasicModelTest extends AbstractModelTest {
 
         try {
             tx.begin();
+            em.persist(targetRepository);
             em.persist(artifact);
             em.persist(productMilestone1);
             em.persist(productRelease1);

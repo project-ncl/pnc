@@ -132,7 +132,7 @@ public class BuildResultPushManager {
         return builtArtifacts.stream().map(artifact -> {
                 Gav gav = Gav.parse(artifact.getIdentifier());
                 return new CausewayPushRequest.BuiltArtifact(
-                        artifact.getRepoType(),
+                        artifact.getTargetRepository().getRepositoryType(),
                         artifact.getFilename(),
                         artifact.getMd5(),
                         artifact.getSha256(),
@@ -152,7 +152,7 @@ public class BuildResultPushManager {
 
     private Set<CausewayPushRequest.Dependency> collectDependencies(Set<Artifact> dependencies) {
         return dependencies.stream().map(artifact -> new CausewayPushRequest.Dependency(
-                        artifact.getRepoType(),
+                        artifact.getTargetRepository().getRepositoryType(),
                         artifact.getFilename(),
                         artifact.getMd5(),
                         artifact.getSha256(),

@@ -45,7 +45,7 @@ public class ArtifactRepositoryRest implements ArtifactRepository {
     public ArtifactRepositoryRest() {}
 
     public ArtifactRepositoryRest(String serialized) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper(); //TODO replace with JsonOutputConverterMapper
         ArtifactRepositoryRest artifactRepositoryRestFromJson = mapper.readValue(serialized, ArtifactRepositoryRest.class);
         ArtifactRepository artifactRepository = artifactRepositoryRestFromJson.toArtifactRepository();
 

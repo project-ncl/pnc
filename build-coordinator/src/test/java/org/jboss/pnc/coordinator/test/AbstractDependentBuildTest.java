@@ -33,6 +33,7 @@ import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
+import org.jboss.pnc.mock.repository.TargetRepositoryRepositoryMock;
 import org.jboss.pnc.mock.repository.UserRepositoryMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -49,6 +50,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -125,6 +127,8 @@ public abstract class AbstractDependentBuildTest {
 
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildConfigurationAuditedRepository = new BuildConfigurationAuditedRepositoryMock();
+        TargetRepositoryRepository targetRepositoryRepository = new TargetRepositoryRepositoryMock();
+
         DefaultDatastore datastore = new DefaultDatastore(
                 new ArtifactRepositoryMock(),
                 buildRecordRepository,
@@ -132,7 +136,8 @@ public abstract class AbstractDependentBuildTest {
                 buildConfigurationAuditedRepository,
                 new BuildConfigSetRecordRepositoryMock(),
                 new UserRepositoryMock(),
-                new SequenceHandlerRepositoryMock()
+                new SequenceHandlerRepositoryMock(),
+                targetRepositoryRepository
         );
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 

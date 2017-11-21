@@ -18,7 +18,7 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
@@ -75,6 +75,6 @@ public interface RepositoryManager {
      */
     void close(String accessToken);
     
-    boolean canManage(ArtifactRepo.Type managerType);
+    boolean canManage(TargetRepository.Type managerType);
 
 }

@@ -18,7 +18,7 @@
 package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -74,7 +74,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public boolean canManage(ArtifactRepo.Type managerType) {
+    public boolean canManage(TargetRepository.Type managerType) {
         return true;
     }
 

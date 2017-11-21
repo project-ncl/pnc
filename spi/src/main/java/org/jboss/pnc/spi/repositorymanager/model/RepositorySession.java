@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.repositorymanager.model;
 
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
@@ -26,7 +26,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
  */
 public interface RepositorySession {
 
-    ArtifactRepo.Type getType();
+    TargetRepository.Type getType();
 
     String getBuildRepositoryId();
 

@@ -19,7 +19,7 @@ package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -52,6 +52,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
 import javax.ejb.Singleton;
@@ -99,6 +100,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     private ArtifactRepository artifactRepository;
+
+    @Inject
+    private TargetRepositoryRepository targetRepositoryRepository;
 
     @Inject
     private ProjectRepository projectRepository;
@@ -402,16 +406,26 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
 
+        TargetRepository targetRepository = TargetRepository.builder()
+                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryPath("builds-untested")
+                .identifier("indy-maven")
+                .build();
+
+        targetRepositoryRepository.save(targetRepository);
+
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact1:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 1")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 1")
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact2:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 2")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 2")
                 .md5("md-fake-abcd2345")
                 .sha1("sha1-fake-abcd2345")
                 .sha256("sha256-fake-abcd2345")
@@ -422,7 +436,8 @@ public class DatabaseDataInitializer {
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact1:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 1")
+                .targetRepository(targetRepository)
+                .filename("demo imported artifact 1")
                 .originUrl("http://central/import1.jar")
                 .importDate(Date.from(Instant.now()))
                 .md5("md-fake-abcd1234")
@@ -431,7 +446,8 @@ public class DatabaseDataInitializer {
                 .deployPath("http://google.pl/imported1").build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact2:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 2")
+                .targetRepository(targetRepository)
+                .filename("demo imported artifact 2")
                 .originUrl("http://central/import2.jar")
                 .importDate(Date.from(Instant.now()))
                 .md5("md-fake-abcd1234")
@@ -477,7 +493,8 @@ public class DatabaseDataInitializer {
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact3:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 3")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 3")
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
@@ -485,7 +502,8 @@ public class DatabaseDataInitializer {
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact4:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 4")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 4")
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")

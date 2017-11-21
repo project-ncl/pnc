@@ -21,7 +21,6 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
@@ -31,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeploymentFactory {
@@ -39,29 +39,49 @@ public class DeploymentFactory {
 
     public static Archive<?> createDatastoreDeployment() {
         JavaArchive datastoreJar = ShrinkWrap.create(JavaArchive.class, "datastore.jar")
-                .addPackages(true, "org.jboss.pnc.datastore").addAsManifestResource("test-persistence.xml", "persistence.xml")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+                .addPackages(true, "org.jboss.pnc.datastore")
+                .addAsManifestResource("test-persistence.xml", "persistence.xml");
+
+        logger.info("Deployment datastoreJar: {}", datastoreJar.toString(true));
+
 
         File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeAndTestDependencies().resolve()
                 .withTransitivity().asFile();
 
         //remove "model-<version>.jar" from the archive and add it as "model.jar" so we can reference it in the test-persistence.xml
         ObjectWrapper<File> modelJarWrapper = new ObjectWrapper();
-        List<File> dependenciesNoModel = Arrays.stream(dependencies).filter(jar -> extractModelJar(jar, modelJarWrapper))
+        List<File> dependenciesFiltered = Arrays.stream(dependencies)
+                .filter(jar -> extractModelJar(jar, modelJarWrapper))
+                .filter(jar -> !mockJarMatches(jar))
                 .collect(Collectors.toList());
         File modelJar = modelJarWrapper.get();
         if (modelJar == null) {
             throw new RuntimeException(new DeploymentException("Cannot find model*.jar"));
         }
 
+        Optional<File> mockJarOptional = Arrays.stream(dependencies).filter(jar -> mockJarMatches(jar)).findAny();
+        if (!mockJarOptional.isPresent()) {
+            throw new RuntimeException(new DeploymentException("Cannot find mock*.jar"));
+        }
+
+        JavaArchive mockJar = ShrinkWrap.createFromZipFile(JavaArchive.class, mockJarOptional.get());
+        mockJar.addAsManifestResource("mock-beans.xml", "beans.xml");
+
+        logger.info("Deployment mockJar: {}", mockJar.toString(true));
+
         EnterpriseArchive enterpriseArchive = ShrinkWrap.create(EnterpriseArchive.class, "datastore-test.ear")
                 .addAsModule(datastoreJar)
-                .addAsLibraries(dependenciesNoModel.toArray(new File[dependenciesNoModel.size()]))
+                .addAsLibraries(dependenciesFiltered.toArray(new File[dependenciesFiltered.size()]))
+                .addAsLibrary(mockJar)
                 .addAsLibrary(modelJar, "model.jar");
 
-        logger.debug("Deployment: {}", enterpriseArchive.toString(true));
+        logger.info("Deployment: {}", enterpriseArchive.toString(true));
 
         return enterpriseArchive;
+    }
+
+    private static boolean mockJarMatches(File jar) {
+        return jar.getName().matches("pnc-mock.*\\.jar");
     }
 
     private static boolean extractModelJar(File jar, ObjectWrapper<File> modelJar) {

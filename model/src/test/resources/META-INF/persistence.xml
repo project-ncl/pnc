@@ -43,6 +43,7 @@
     <class>org.jboss.pnc.model.ProductRelease</class>
     <class>org.jboss.pnc.model.ProductVersion</class>
     <class>org.jboss.pnc.model.Project</class>
+    <class>org.jboss.pnc.model.TargetRepository</class>
     <class>org.jboss.pnc.model.User</class>
 
     <!-- Configure hibernate with HSQL -->

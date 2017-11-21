@@ -28,6 +28,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -49,7 +50,7 @@ import java.util.Set;
  * 
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256", "targetRepository_id"}) )
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -92,16 +93,18 @@ public class Artifact implements GenericEntity<Integer> {
     private Long size;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) //TODO store as set, to keep history
     private Artifact.Quality artifactQuality;
 
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
      * the format of the identifier string.
      */
+    @Getter
+    @Setter
     @NotNull
-    @Column(updatable=false)
-    private ArtifactRepo.Type repoType;
+    @ManyToOne
+    private TargetRepository targetRepository;
 
     @Size(max=255)
     @Column(updatable=false)
@@ -177,6 +180,11 @@ public class Artifact implements GenericEntity<Integer> {
          * The artifact contains a severe defect, possibly a functional or security issue.
          */
         BLACKLISTED,
+
+        /**
+         * The artifact is from a snapshot or a Pull Request build
+         */
+        TEMPORAL
 
     }
 
@@ -280,7 +288,7 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public boolean isTrusted() {
-        return (isBuilt() || ArtifactRepo.isTrusted(originUrl));
+        return (isBuilt() || TargetRepository.isTrusted(originUrl, targetRepository));
     }
 
     /**
@@ -361,20 +369,6 @@ public class Artifact implements GenericEntity<Integer> {
         }
     }
 
-    /**
-     * @return the repoType
-     */
-    public ArtifactRepo.Type getRepoType() {
-        return repoType;
-    }
-
-    /**
-     * @param repoType the repoType to set
-     */
-    public void setRepoType(ArtifactRepo.Type repoType) {
-        this.repoType = repoType;
-    }
-
     public String getOriginUrl() {
         return originUrl;
     }
@@ -444,7 +438,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Quality artifactQuality;
 
-        private ArtifactRepo.Type repoType;
+        private TargetRepository targetRepository;
 
         private String filename;
 
@@ -482,7 +476,7 @@ public class Artifact implements GenericEntity<Integer> {
                 artifactQuality = Quality.NEW;
             }
             artifact.setArtifactQuality(artifactQuality);
-            artifact.setRepoType(repoType);
+            artifact.setTargetRepository(targetRepository);
             artifact.setFilename(filename);
             artifact.setDeployPath(deployPath);
             if (dependantBuildRecords != null) {
@@ -531,8 +525,8 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder repoType(ArtifactRepo.Type repoType) {
-            this.repoType = repoType;
+        public Builder targetRepository(TargetRepository targetRepository) {
+            this.targetRepository = targetRepository;
             return this;
         }
 

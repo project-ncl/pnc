@@ -19,7 +19,7 @@
 package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 
 import java.time.Instant;
 import java.util.Date;
@@ -40,7 +40,7 @@ public class ArtifactBuilder {
                 .sha256("sha256-fake-ABCDABCD" + id)
                 .size(12342L)
                 .deployPath("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
-                .repoType(ArtifactRepo.Type.MAVEN)
+                .targetRepository(mockTargetRepository(""))
                 .filename("artifactFile" + id + ".jar");
     }
 
@@ -58,6 +58,14 @@ public class ArtifactBuilder {
         return getArtifactBuilder(id)
                 .importDate(Date.from(Instant.now()))
                 .originUrl("http://central.maven.org/org/jboss/mock/artifactFile" + id + ".jar")
+                .build();
+    }
+
+    public static TargetRepository mockTargetRepository(String path) {
+        return TargetRepository.builder()
+                .identifier("indy-maven")
+                .repositoryPath(path)
+                .repositoryType(TargetRepository.Type.MAVEN)
                 .build();
     }
 

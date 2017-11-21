@@ -37,7 +37,7 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -116,8 +116,8 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     @Override
-    public ArtifactRepo.Type getType() {
-        return ArtifactRepo.Type.MAVEN;
+    public TargetRepository.Type getType() {
+        return TargetRepository.Type.MAVEN;
     }
 
     @Override
@@ -269,6 +269,13 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
+                TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
+                TargetRepository targetRepository = TargetRepository.builder()
+                        .identifier("") //TODO targetRepository identifier
+                        .repositoryType(repoType)
+                        .repositoryPath("") //TODO targetRepository path
+                        .build();
+
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
                         .sha1(download.getSha1())
@@ -279,7 +286,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName())
                         .identifier(identifier)
-                        .repoType(toRepoType(download.getAccessChannel()));
+                        .targetRepository(targetRepository);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 deps.add(artifact);
@@ -350,6 +357,12 @@ public class MavenRepositorySession implements RepositorySession {
 
                 logger.info("Recording upload: {}", identifier);
 
+                TargetRepository targetRepository = TargetRepository.builder()
+                        .identifier("") //TODO targetRepository identifier
+                        .repositoryType(TargetRepository.Type.MAVEN)
+                        .repositoryPath("") //TODO targetRepository path
+                        .build();
+
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(upload.getMd5())
                         .sha1(upload.getSha1())
@@ -358,7 +371,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .deployPath(upload.getPath())
                         .filename(new File(path).getName())
                         .identifier(identifier)
-                        .repoType(ArtifactRepo.Type.MAVEN);
+                        .targetRepository(targetRepository);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
@@ -475,14 +488,14 @@ public class MavenRepositorySession implements RepositorySession {
         return false;
     }
 
-    private ArtifactRepo.Type toRepoType(AccessChannel accessChannel) {
+    private TargetRepository.Type toRepoType(AccessChannel accessChannel) {
         switch (accessChannel) {
             case MAVEN_REPO:
-                return ArtifactRepo.Type.MAVEN;
+                return TargetRepository.Type.MAVEN;
             case GENERIC_PROXY:
-                return ArtifactRepo.Type.GENERIC_PROXY;
+                return TargetRepository.Type.GENERIC_PROXY;
             default:
-                return ArtifactRepo.Type.GENERIC_PROXY;
+                return TargetRepository.Type.GENERIC_PROXY;
         }
     }
 }

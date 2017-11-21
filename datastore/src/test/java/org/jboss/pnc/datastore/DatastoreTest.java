@@ -21,7 +21,17 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.License;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -33,6 +43,7 @@ import org.jboss.pnc.spi.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -41,9 +52,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +63,8 @@ import java.util.List;
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class DatastoreTest {
+
+    Logger logger = LoggerFactory.getLogger(DatastoreTest.class);
 
     private static String ARTIFACT_1_IDENTIFIER = "org.jboss.test:artifact1";
 
@@ -70,9 +84,11 @@ public class DatastoreTest {
 
     private static Long ARTIFACT_3_SIZE = 333L;
 
-
     @Inject
     ArtifactRepository artifactRepository;
+
+    @Inject
+    TargetRepositoryRepository targetRepositoryRepository;
 
     @Inject
     BuildConfigurationRepository buildConfigurationRepository;
@@ -136,6 +152,7 @@ public class DatastoreTest {
         buildConfig.setBuildEnvironment(buildEnv);
         buildConfig = buildConfigurationRepository.save(buildConfig);
         Assert.assertNotNull(buildConfig.getId());
+
     }
 
     /**
@@ -156,12 +173,21 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
+        TargetRepository targetRepository = TargetRepository.builder()
+                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryPath("builds-untested")
+                .identifier("indy-maven-datastore-test")
+                .build();
+        targetRepository = targetRepositoryRepository.save(targetRepository);
+        logger.info("Saved targetRepository: {}", targetRepository);
+
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER)
                 .md5("md-fake-" + ARTIFACT_1_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_1_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_1_CHECKSUM)
                 .size(ARTIFACT_1_SIZE)
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER)
                 .md5("md-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_2_CHECKSUM)
@@ -169,7 +195,8 @@ public class DatastoreTest {
                 .size(ARTIFACT_2_SIZE)
                 .originUrl("http://test/artifact2.jar")
                 .importDate(Date.from(Instant.now()))
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
 
         User user = User.Builder.newBuilder()
                 .username("pnc").email("pnc@redhat.com").build();
@@ -210,27 +237,45 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
+        TargetRepository targetRepository = TargetRepository.builder()
+                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryPath("builds-untested")
+                .identifier("indy-maven-datastore-test")
+                .build();
+
+        String now = Instant.now().toString();
+        TargetRepository targetRepositoryTmp = TargetRepository.builder()
+                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryPath("temp-" + now)
+                .identifier("indy-maven-temp-" + now)
+                .build();
+
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
                 .identifier(ARTIFACT_1_IDENTIFIER)
                 .size(ARTIFACT_1_SIZE)
                 .md5("md-fake-" + ARTIFACT_1_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_1_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_1_CHECKSUM)
-                .repoType(ArtifactRepo.Type.MAVEN).build();
+                .targetRepository(targetRepository)
+                .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier(ARTIFACT_2_IDENTIFIER)
                 .size(ARTIFACT_2_SIZE)
                 .md5("md-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_2_CHECKSUM)
-                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
+                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now()))
+                .targetRepository(targetRepository)
+                .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .identifier(ARTIFACT_3_IDENTIFIER)
                 .md5("md-fake-" + ARTIFACT_3_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_3_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_3_CHECKSUM)
                 .size(ARTIFACT_3_SIZE).originUrl("http://test/importArtifact2.jar")
-                .importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
+                .importDate(Date.from(Instant.now()))
+                .targetRepository(targetRepositoryTmp)
+                .build();
 
 
         User user = User.Builder.newBuilder()

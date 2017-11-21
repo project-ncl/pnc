@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.executor.servicefactories;
 
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
@@ -35,7 +35,7 @@ public class RepositoryManagerFactory {
     @Inject
     Instance<RepositoryManager> availableManagers;
 
-    public RepositoryManager getRepositoryManager(ArtifactRepo.Type managerType) throws ExecutorException {
+    public RepositoryManager getRepositoryManager(TargetRepository.Type managerType) throws ExecutorException {
 
         for (RepositoryManager manager : availableManagers) {
             if (manager.canManage(managerType)) {
