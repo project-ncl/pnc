@@ -270,11 +270,7 @@ public class MavenRepositorySession implements RepositorySession {
                 }
 
                 TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
-                TargetRepository targetRepository = TargetRepository.builder()
-                        .identifier("") //TODO targetRepository identifier
-                        .repositoryType(repoType)
-                        .repositoryPath("") //TODO targetRepository path
-                        .build();
+                TargetRepository targetRepository = getDownloadsTargetRepository(repoType);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -299,6 +295,52 @@ public class MavenRepositorySession implements RepositorySession {
         }
 
         return deps;
+    }
+
+    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
+        TargetRepository targetRepository;
+        if (repoType.equals(TargetRepository.Type.MAVEN)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven")
+                    .repositoryType(repoType)
+                    .repositoryPath("/api/hosted/shared-imports/")
+                    .build();
+        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORAL)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven-temporal")
+                    .repositoryType(repoType)
+                    .repositoryPath("/api/hosted/shared-imports-temporal/") //TODO set the path to temporal builds
+                    .build();
+        } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-http")
+                    .repositoryType(repoType)
+                    .repositoryPath("/not-available/") //TODO set the path for http cache
+                    .build();
+        } else {
+            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+        }
+        return targetRepository;
+    }
+
+    private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
+        TargetRepository targetRepository;
+        if (repoType.equals(TargetRepository.Type.MAVEN)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven")
+                    .repositoryType(TargetRepository.Type.MAVEN)
+                    .repositoryPath("/api/group/builds-untested/") //TODO targetRepository path
+                    .build();
+        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORAL)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven-temporal")
+                    .repositoryType(TargetRepository.Type.MAVEN_TEMPORAL)
+                    .repositoryPath("/api/group/builds-untested-temporal/") //TODO set the path to temporal builds
+                    .build();
+        } else {
+            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+        }
+        return targetRepository;
     }
 
     private boolean isExternalOrigin(StoreKey sk) {
@@ -357,11 +399,8 @@ public class MavenRepositorySession implements RepositorySession {
 
                 logger.info("Recording upload: {}", identifier);
 
-                TargetRepository targetRepository = TargetRepository.builder()
-                        .identifier("") //TODO targetRepository identifier
-                        .repositoryType(TargetRepository.Type.MAVEN)
-                        .repositoryPath("") //TODO targetRepository path
-                        .build();
+                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel());
+                TargetRepository targetRepository = getUploadsTargetRepository(repoType);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(upload.getMd5())
