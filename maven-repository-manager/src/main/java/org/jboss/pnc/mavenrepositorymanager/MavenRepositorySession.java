@@ -307,7 +307,7 @@ public class MavenRepositorySession implements RepositorySession {
                     .build();
         } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORAL)) {
             targetRepository = TargetRepository.builder()
-                    .identifier("indy-maven-temporal")
+                    .identifier("indy-maven-temp")
                     .repositoryType(repoType)
                     .repositoryPath("/api/hosted/shared-imports-temporal/") //TODO set the path to temporal builds
                     .build();
@@ -333,7 +333,7 @@ public class MavenRepositorySession implements RepositorySession {
                     .build();
         } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORAL)) {
             targetRepository = TargetRepository.builder()
-                    .identifier("indy-maven-temporal")
+                    .identifier("indy-maven-temp")
                     .repositoryType(TargetRepository.Type.MAVEN_TEMPORAL)
                     .repositoryPath("/api/group/builds-untested-temporal/") //TODO set the path to temporal builds
                     .build();

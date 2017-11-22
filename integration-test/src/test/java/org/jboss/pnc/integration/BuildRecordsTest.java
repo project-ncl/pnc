@@ -140,7 +140,7 @@ public class BuildRecordsTest {
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
-        TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifier("indy-maven");
+        TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
 
         builtArtifact1 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")

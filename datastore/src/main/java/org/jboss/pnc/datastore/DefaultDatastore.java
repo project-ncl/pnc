@@ -165,7 +165,8 @@ public class DefaultDatastore implements Datastore {
     }
 
     private TargetRepository saveTargetRepository(TargetRepository targetRepository) {
-        TargetRepository targetRepositoryFromDb = targetRepositoryRepository.queryByIdentifier(targetRepository.getIdentifier());
+        TargetRepository targetRepositoryFromDb = targetRepositoryRepository
+                .queryByIdentifierAndPath(targetRepository.getIdentifier(), targetRepository.getRepositoryPath());
         if (targetRepositoryFromDb == null) {
             targetRepositoryFromDb = targetRepositoryRepository.save(targetRepository);
         }

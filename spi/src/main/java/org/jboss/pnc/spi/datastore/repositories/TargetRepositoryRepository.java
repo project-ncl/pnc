@@ -25,5 +25,5 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
  */
 public interface TargetRepositoryRepository extends Repository<TargetRepository, Integer> {
 
-    TargetRepository queryByIdentifier(String identifier);
+    TargetRepository queryByIdentifierAndPath(String identifier, String repositoryPath);
 }

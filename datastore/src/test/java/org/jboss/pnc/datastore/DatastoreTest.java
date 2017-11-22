@@ -176,7 +176,7 @@ public class DatastoreTest {
         TargetRepository targetRepository = TargetRepository.builder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
-                .identifier("indy-maven-datastore-test")
+                .identifier("indy-maven")
                 .build();
         targetRepository = targetRepositoryRepository.save(targetRepository);
         logger.info("Saved targetRepository: {}", targetRepository);
@@ -240,14 +240,14 @@ public class DatastoreTest {
         TargetRepository targetRepository = TargetRepository.builder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
-                .identifier("indy-maven-datastore-test")
+                .identifier("indy-maven")
                 .build();
 
         String now = Instant.now().toString();
         TargetRepository targetRepositoryTmp = TargetRepository.builder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("temp-" + now)
-                .identifier("indy-maven-temp-" + now)
+                .identifier("indy-maven-temp")
                 .build();
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()

@@ -26,7 +26,12 @@ import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 public class TargetRepositoryRepositoryMock  extends RepositoryMock<TargetRepository> implements TargetRepositoryRepository {
 
     @Override
-    public TargetRepository queryByIdentifier(String identifier) {
-        return data.stream().filter(tr -> tr.getIdentifier().equals(identifier)).findAny().orElse(null);
+    public TargetRepository queryByIdentifierAndPath(String identifier, String repositoryPath) {
+        return data.stream()
+                .filter(
+                        tr -> tr.getIdentifier().equals(identifier)
+                        && tr.getRepositoryPath().equals(repositoryPath)
+                )
+                .findAny().orElse(null);
     }
 }

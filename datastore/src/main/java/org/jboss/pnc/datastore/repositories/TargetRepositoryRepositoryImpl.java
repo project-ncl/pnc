@@ -46,7 +46,7 @@ public class TargetRepositoryRepositoryImpl extends AbstractRepository<TargetRep
     }
 
     @Override
-    public TargetRepository queryByIdentifier(String identifier) {
-        return queryByPredicates(TargetRepositoryPredicates.byIdentifier(identifier));
+    public TargetRepository queryByIdentifierAndPath(String identifier, String repositoryPath) {
+        return queryByPredicates(TargetRepositoryPredicates.byIdentifierAndPath(identifier, repositoryPath));
     }
 }

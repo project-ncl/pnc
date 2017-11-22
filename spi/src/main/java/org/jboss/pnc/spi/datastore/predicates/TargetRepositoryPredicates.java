@@ -26,8 +26,11 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
  */
 public class TargetRepositoryPredicates {
 
-    public static Predicate<TargetRepository> byIdentifier(String identifier) {
-        return (root, query, cb) -> cb.equal(root.get(TargetRepository_.identifier), identifier);
+    public static Predicate<TargetRepository> byIdentifierAndPath(String identifier, String repositoryPath) {
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get(TargetRepository_.identifier), identifier),
+                cb.equal(root.get(TargetRepository_.repositoryPath), repositoryPath)
+                );
     }
 
 }
