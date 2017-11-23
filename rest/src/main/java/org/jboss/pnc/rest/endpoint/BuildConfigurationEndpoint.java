@@ -45,6 +45,7 @@ import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -250,32 +251,40 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/build")
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
-            @ApiParam(value = "Build scope: SINGLE, WITH_DEPENDENCIES, REBUILD.") @QueryParam("scope") @DefaultValue("WITH_DEPENDENCIES") BuildScope scope,
-            @ApiParam(value = "Keep pod alive when the build fails") @QueryParam("keepPodAliveOnFailure") @DefaultValue("false") boolean keepPodAliveOnFailure,
-            @ApiParam(value = "Build the unbuilt dependencies") @QueryParam("buildDependencies") @DefaultValue("false") boolean buildDependencies,
+            @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+            @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "Should we build also dependencies of this BuildConfiguration?") @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
+            @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
+            @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
-
         logger.debug("Endpoint /build requested for buildConfigurationId [{}]", id);
+        User currentUser = getCurrentUser();
 
-        User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
-        if (currentUser == null) {
-            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
-                    + " user must be initialized through /users/getLoggedUser");
-        }
+        BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
+        buildOptions.checkBuildOptionsValidity(); //TODO reject build if the options combination is not valid
 
         Integer runningBuildId = null;
         // if callbackUrl is provided trigger build accordingly
-        if (callbackUrl == null || callbackUrl.isEmpty()) {
-            logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, scope);
-        } else {
+        if (callbackUrl != null && !callbackUrl.isEmpty()) {
             logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, scope, new URL(callbackUrl));
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, buildOptions, new URL(callbackUrl));
+        } else {
+            logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, buildOptions);
         }
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
         URI uri = uriBuilder.build(runningBuildId);
         return Response.ok(uri).header("location", uri).entity(new Singleton<>(buildRecordProvider.getSpecificRunning(runningBuildId))).build();
+    }
+
+    private User getCurrentUser() throws InvalidEntityException {
+        User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
+        if (currentUser == null) {
+            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
+                    + " user must be initialized through /users/getLoggedUser");
+        }
+        return currentUser;
     }
 
     private Response validateRequiredField(String parameter, String parameterName) {

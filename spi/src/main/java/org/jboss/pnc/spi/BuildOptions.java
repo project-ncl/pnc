@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Class used to store all available build options of a BuildConfiguration
+ * Class used to store all available build options of a BuildConfiguration or BuildConfigurationSet
  *
  * @author Jakub Bartecek
  */
@@ -23,27 +23,27 @@ public class BuildOptions {
     /**
      * Temporary build or standard build?
      */
-    private boolean temporaryBuild;
+    private boolean temporaryBuild = false;
 
     /**
      * Should we force the rebuild?
      */
-    private boolean forceRebuild;
+    private boolean forceRebuild = false;
 
     /**
-     * Should we build also dependencies of this BuildConfiguration?
+     * Should we build also dependencies of this BuildConfiguration? Valid only for BuildConfiguration
      */
-    private boolean buildDependencies;
+    private boolean buildDependencies = true;
 
     /**
      * Should we keep the build container running, if the build fails?
      */
-    private boolean keepPodOnFailure;
+    private boolean keepPodOnFailure = false;
 
     /**
      * Should we add a timestamp during the alignment?
      */
-    private boolean timestampAlignment;
+    private boolean timestampAlignment = false;
 
     public boolean checkBuildOptionsValidity() {
         if(!temporaryBuild && timestampAlignment) {

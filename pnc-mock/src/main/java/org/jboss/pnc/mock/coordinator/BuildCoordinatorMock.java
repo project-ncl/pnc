@@ -39,6 +39,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -70,13 +71,13 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildScope scope, boolean keepAliveOnFailure) throws BuildConflictException {
+    public BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions) throws BuildConflictException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
 
     @Override
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean keepAliveOnFailure, boolean rebuildAll) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) throws CoreException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }

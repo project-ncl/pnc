@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -53,36 +54,31 @@ public class BuildTasksInitializer {
         this.datastoreAdapter = datastoreAdapter;
     }
 
-    public BuildSetTask createBuildSetTask(
-            BuildConfiguration configuration,
-            User user,
-            BuildScope scope,
-            boolean keepAfterFailure,
-            Supplier<Integer> buildTaskIdProvider,
-            Set<BuildTask> submittedBuildTasks) throws CoreException {
+    public BuildSetTask createBuildSetTask(BuildConfiguration configuration, User user, BuildOptions buildOptions,
+            Supplier<Integer> buildTaskIdProvider, Set<BuildTask> submittedBuildTasks) throws CoreException {
 
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
-                        .forceRebuildAll(scope.isForceRebuild())
+                        .forceRebuildAll(buildOptions.isForceRebuild())
                         .startTime(new Date())
-                        .keepAfterFailure(keepAfterFailure).build();
+                        .keepAfterFailure(buildOptions.isKeepPodOnFailure()).build();
 
 
         Set<BuildConfiguration> toBuild = new HashSet<>();
-        collectBuildTasks(configuration, scope, toBuild);
+        collectBuildTasks(configuration, buildOptions, toBuild);
         log.debug("Collected build tasks for configuration: {}. Collected: {}.", configuration, toBuild.stream().map(BuildConfiguration::toString).collect(Collectors.joining(", ")));
         fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), toBuild, submittedBuildTasks);
         return buildSetTask;
     }
 
-    private void collectBuildTasks(BuildConfiguration configuration, BuildScope scope, Set<BuildConfiguration> toBuild) {
-        log.debug("will create build tasks for scope: {} and configuration: {}", scope, configuration);
+    private void collectBuildTasks(BuildConfiguration configuration, BuildOptions buildOptions, Set<BuildConfiguration> toBuild) {
+        log.debug("will create build tasks for scope: {} and configuration: {}", buildOptions, configuration);
         Set<BuildConfiguration> visited = new HashSet<>();
         if (toBuild.contains(configuration)) {
             return;
         }
         toBuild.add(configuration);
-        if (scope.isRecursive()) {
+        if (buildOptions.isBuildDependencies()) {
             configuration.getDependencies().forEach(c -> collectDependentConfigurations(c, toBuild, visited));
         }
     }
@@ -108,9 +104,7 @@ public class BuildTasksInitializer {
 
     public BuildSetTask createBuildSetTask(
             BuildConfigurationSet buildConfigurationSet,
-            User user,
-            boolean rebuildAll,
-            boolean keepAfterFailure,
+            User user, BuildOptions buildOptions,
             Supplier<Integer> buildTaskIdProvider,
             Set<BuildConfiguration> buildConfigurations,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
@@ -132,8 +126,8 @@ public class BuildTasksInitializer {
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildConfigSetRecord(configSetRecord)
-                        .forceRebuildAll(rebuildAll)
-                        .keepAfterFailure(keepAfterFailure).build();
+                        .forceRebuildAll(buildOptions.isForceRebuild())
+                        .keepAfterFailure(buildOptions.isKeepPodOnFailure()).build();
 
         // initializeBuildTasksInSet
         log.debug("Initializing BuildTasks In Set for BCs: {}.", buildConfigurations.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));

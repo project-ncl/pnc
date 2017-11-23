@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -62,7 +63,10 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         User user = User.Builder.newBuilder().id(1).build();
 
-        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, user, BuildScope.SINGLE, false);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setBuildDependencies(false);
+
+        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, user, buildOptions);
         Set<BuildTask> buildTasks = taskSet.getBuildTasks();
         assertThat(buildTasks).hasSize(1);
         BuildTask buildTask = buildTasks.iterator().next();
@@ -78,7 +82,9 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         User user = User.Builder.newBuilder().id(1).build();
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, false, true);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, buildOptions);
         Assert.assertEquals(BuildSetStatus.REJECTED, buildSetTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildSetTask.getStatusDescription(), buildSetTask.getStatusDescription().contains("Cycle dependencies found"));
     }

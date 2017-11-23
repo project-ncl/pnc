@@ -42,6 +42,7 @@ import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -298,30 +299,39 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     public Response build(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
-            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
+            @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+            @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo)
             throws InterruptedException, CoreException, DatastoreException, BuildDriverException, RepositoryManagerException,
             MalformedURLException, InvalidEntityException {
         logger.info("Executing build configuration set id: " + id );
+        User currentUser = getCurrentUser();
 
-        User currentUser = endpointAuthProvider.getCurrentUser(httpServletRequest);
-        if (currentUser == null) {
-            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
-                    + " user must be initialized through /users/getLoggedUser");
-        }
+        BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, false, false, timestampAlignment);
+        buildOptions.checkBuildOptionsValidity(); //TODO reject build if the options combination is not valid
 
         BuildConfigurationSetTriggerResult result;
         // if callbackUrl is provided trigger build accordingly
-        if (callbackUrl == null || callbackUrl.isEmpty()) {
-            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll);
+        if (callbackUrl != null && !callbackUrl.isEmpty()) {
+            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, buildOptions, new URL(callbackUrl));
         } else {
-            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll, new URL(callbackUrl));
+            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, buildOptions);
         }
         logger.info("Started build configuration set id: {}. Build Tasks: {}",
                 id,
                 result.getBuildTasks().stream().map(bt -> Integer.toString(bt.getId())).collect(
                 Collectors.joining()));
         return buildRecordProvider.createResultSet(result, uriInfo);
+    }
+
+    private User getCurrentUser() throws InvalidEntityException {
+        User currentUser = endpointAuthProvider.getCurrentUser(httpServletRequest);
+        if (currentUser == null) {
+            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
+                    + " user must be initialized through /users/getLoggedUser");
+        }
+        return currentUser;
     }
 
     @ApiOperation(value = "Get all build config set execution records associated with this build config set, returns empty list if none are found")

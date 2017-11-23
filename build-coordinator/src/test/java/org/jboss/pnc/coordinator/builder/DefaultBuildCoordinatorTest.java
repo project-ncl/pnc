@@ -30,6 +30,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -144,7 +145,9 @@ public class DefaultBuildCoordinatorTest {
                         .build())
                 .build());
 
-        BuildSetTask bsTask = coordinator.build(bcSet, user, false, false);
+        BuildOptions buildOptions = new BuildOptions();
+
+        BuildSetTask bsTask = coordinator.build(bcSet, user, buildOptions);
         assertThat(bsTask.getBuildConfigSetRecord().get().getStatus())
             .isEqualTo(BuildStatus.REJECTED);
     }

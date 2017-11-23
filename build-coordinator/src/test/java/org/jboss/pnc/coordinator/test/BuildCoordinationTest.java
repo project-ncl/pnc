@@ -31,6 +31,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -95,7 +96,9 @@ public class BuildCoordinationTest {
 
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
@@ -114,7 +117,9 @@ public class BuildCoordinationTest {
 
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
@@ -145,7 +150,9 @@ public class BuildCoordinationTest {
 
         log.info("Running builds ...");
 
-        buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to NEW for task set. Received: " + buildSetStatusChangedEvents);
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to DONE for task set. Received: " + buildSetStatusChangedEvents);
