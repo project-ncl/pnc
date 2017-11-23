@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.rest.swagger.response;
 
-import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
 
-public class BuildConfigurationSetRecordPage extends Page<BuildConfigSetRecord> {
+public class BuildConfigurationSetRecordPage extends Page<BuildConfigSetRecordRest> {
 
 }
