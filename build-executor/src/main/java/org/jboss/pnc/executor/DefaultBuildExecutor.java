@@ -28,7 +28,7 @@ import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -174,7 +174,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
         try {
-            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(ArtifactRepo.Type.MAVEN);
+            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
             return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken());
         } catch (Throwable e) {
@@ -372,7 +372,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         String accessToken = buildExecutionSession.getAccessToken();
         log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
         try {
-            repositoryManagerFactory.getRepositoryManager(ArtifactRepo.Type.MAVEN).close(accessToken);
+            repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN).close(accessToken);
         } catch (ExecutorException executionException) {
             buildExecutionSession.setException(executionException);
         }

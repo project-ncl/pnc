@@ -25,12 +25,12 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -42,6 +42,7 @@ import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -95,6 +96,9 @@ public class BuildRecordsTest {
     private ArtifactRepository artifactRepository;
 
     @Inject
+    private TargetRepositoryRepository targetRepositoryRepository;
+
+    @Inject
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
@@ -136,11 +140,12 @@ public class BuildRecordsTest {
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
+        TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
 
         builtArtifact1 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")
                 .identifier("integration-test:built-artifact1:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN)
+                .targetRepository(targetRepository)
                 .md5("md-fake-1")
                 .sha1("sha1-fake-1")
                 .sha256("sha256-fake-1")
@@ -149,7 +154,7 @@ public class BuildRecordsTest {
         builtArtifact2 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact2.jar")
                 .identifier("integration-test:built-artifact2:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN)
+                .targetRepository(targetRepository)
                 .md5("md-fake-2")
                 .sha1("sha1-fake-2")
                 .sha256("sha256-fake-2")
@@ -158,7 +163,7 @@ public class BuildRecordsTest {
         builtArtifact3 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact3.jar")
                 .identifier("integration-test:built-artifact3:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN)
+                .targetRepository(targetRepository)
                 .md5("md-fake-3")
                 .sha1("sha1-fake-3")
                 .sha256("sha256-fake-3")
@@ -167,7 +172,7 @@ public class BuildRecordsTest {
         importedArtifact1 = Artifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
                 .identifier("integration-test:import-artifact1:jar:1.0")
-                .repoType(ArtifactRepo.Type.MAVEN)
+                .targetRepository(targetRepository)
                 .md5("md-fake-i1")
                 .sha1("sha1-fake-i1")
                 .sha256("sha256-fake-i1")
@@ -323,7 +328,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds").containsExactly(
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds").containsExactly(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
                 toRestArtifact(builtArtifact3));
@@ -334,7 +339,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds").containsExactly(
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds").containsExactly(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
                 toRestArtifact(builtArtifact3));
@@ -345,7 +350,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==builtArtifact2.jar", buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact2));
     }
 
@@ -378,7 +383,7 @@ public class BuildRecordsTest {
 
         String matchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact1Sha256 + " and filename==" + builtArtifact1Filename;
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, buildRecordWithArtifactsId);
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact1));
 
         String builtArtifact2Sha256 = builtArtifact2.getSha256();
@@ -403,7 +408,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
         .contains(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
@@ -419,14 +424,14 @@ public class BuildRecordsTest {
         String query = "id==" + builtArtifact1Id + " or sha256==" + builtArtifact2Sha256;
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 1, null, query, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact1));
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
 
         //when
         artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(1, 1, null, query, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact2));
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
     }

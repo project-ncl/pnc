@@ -18,7 +18,7 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,8 @@ public class DefaultDatastore implements Datastore {
 
     private SequenceHandlerRepository sequenceHandlerRepository;
 
+    private TargetRepositoryRepository targetRepositoryRepository;
+
     public DefaultDatastore() {
     }
 
@@ -90,7 +93,8 @@ public class DefaultDatastore implements Datastore {
                             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
                             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
                             UserRepository userRepository,
-                            SequenceHandlerRepository sequenceHandlerRepository) {
+                            SequenceHandlerRepository sequenceHandlerRepository,
+                            TargetRepositoryRepository targetRepositoryRepository) {
         this.artifactRepository = artifactRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigurationRepository = buildConfigurationRepository;
@@ -98,6 +102,7 @@ public class DefaultDatastore implements Datastore {
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.userRepository = userRepository;
         this.sequenceHandlerRepository = sequenceHandlerRepository;
+        this.targetRepositoryRepository = targetRepositoryRepository;
     }
 
     private static final String ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different identifier already exists";
@@ -145,8 +150,10 @@ public class DefaultDatastore implements Datastore {
         logger.debug("Saving {} artifacts.", artifacts.size());
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
+            TargetRepository targetRepository = saveTargetRepository(artifact.getTargetRepository());
+            artifact.setTargetRepository(targetRepository);
             Artifact artifactFromDb;
-            if (ArtifactRepo.Type.GENERIC_PROXY.equals(artifact.getRepoType())) {
+            if (TargetRepository.Type.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType())) {
                 artifactFromDb = saveHttpArtifacts(artifact);
             } else {
                 artifactFromDb = saveRepositoryArtifacts(artifact);
@@ -155,6 +162,15 @@ public class DefaultDatastore implements Datastore {
         }
         logger.debug("Artifacts saved: {}.", artifacts);
         return savedArtifacts;
+    }
+
+    private TargetRepository saveTargetRepository(TargetRepository targetRepository) {
+        TargetRepository targetRepositoryFromDb = targetRepositoryRepository
+                .queryByIdentifierAndPath(targetRepository.getIdentifier(), targetRepository.getRepositoryPath());
+        if (targetRepositoryFromDb == null) {
+            targetRepositoryFromDb = targetRepositoryRepository.save(targetRepository);
+        }
+        return targetRepositoryFromDb;
     }
 
     private Artifact saveRepositoryArtifacts(Artifact artifact) {
@@ -245,9 +261,6 @@ public class DefaultDatastore implements Datastore {
 
     /**
      * Rebuild is required if Build Configuration has been modified or a dependency has been rebuilt since last successful build.
-     *
-     * @param configuration configuration to check
-     * @return
      */
     @Override
     public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {

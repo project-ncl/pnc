@@ -37,7 +37,7 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -116,8 +116,8 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     @Override
-    public ArtifactRepo.Type getType() {
-        return ArtifactRepo.Type.MAVEN;
+    public TargetRepository.Type getType() {
+        return TargetRepository.Type.MAVEN;
     }
 
     @Override
@@ -269,6 +269,9 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
+                TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
+                TargetRepository targetRepository = getDownloadsTargetRepository(repoType);
+
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
                         .sha1(download.getSha1())
@@ -279,7 +282,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName())
                         .identifier(identifier)
-                        .repoType(toRepoType(download.getAccessChannel()));
+                        .targetRepository(targetRepository);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 deps.add(artifact);
@@ -292,6 +295,52 @@ public class MavenRepositorySession implements RepositorySession {
         }
 
         return deps;
+    }
+
+    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
+        TargetRepository targetRepository;
+        if (repoType.equals(TargetRepository.Type.MAVEN)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven")
+                    .repositoryType(repoType)
+                    .repositoryPath("/api/hosted/shared-imports/")
+                    .build();
+        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORAL)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven-temp")
+                    .repositoryType(repoType)
+                    .repositoryPath("/api/hosted/shared-imports-temporal/") //TODO set the path to temporal builds
+                    .build();
+        } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-http")
+                    .repositoryType(repoType)
+                    .repositoryPath("/not-available/") //TODO set the path for http cache
+                    .build();
+        } else {
+            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+        }
+        return targetRepository;
+    }
+
+    private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
+        TargetRepository targetRepository;
+        if (repoType.equals(TargetRepository.Type.MAVEN)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven")
+                    .repositoryType(TargetRepository.Type.MAVEN)
+                    .repositoryPath("/api/group/builds-untested/") //TODO targetRepository path
+                    .build();
+        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORAL)) {
+            targetRepository = TargetRepository.builder()
+                    .identifier("indy-maven-temp")
+                    .repositoryType(TargetRepository.Type.MAVEN_TEMPORAL)
+                    .repositoryPath("/api/group/builds-untested-temporal/") //TODO set the path to temporal builds
+                    .build();
+        } else {
+            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+        }
+        return targetRepository;
     }
 
     private boolean isExternalOrigin(StoreKey sk) {
@@ -350,6 +399,9 @@ public class MavenRepositorySession implements RepositorySession {
 
                 logger.info("Recording upload: {}", identifier);
 
+                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel());
+                TargetRepository targetRepository = getUploadsTargetRepository(repoType);
+
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(upload.getMd5())
                         .sha1(upload.getSha1())
@@ -358,7 +410,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .deployPath(upload.getPath())
                         .filename(new File(path).getName())
                         .identifier(identifier)
-                        .repoType(ArtifactRepo.Type.MAVEN);
+                        .targetRepository(targetRepository);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
@@ -475,14 +527,14 @@ public class MavenRepositorySession implements RepositorySession {
         return false;
     }
 
-    private ArtifactRepo.Type toRepoType(AccessChannel accessChannel) {
+    private TargetRepository.Type toRepoType(AccessChannel accessChannel) {
         switch (accessChannel) {
             case MAVEN_REPO:
-                return ArtifactRepo.Type.MAVEN;
+                return TargetRepository.Type.MAVEN;
             case GENERIC_PROXY:
-                return ArtifactRepo.Type.GENERIC_PROXY;
+                return TargetRepository.Type.GENERIC_PROXY;
             default:
-                return ArtifactRepo.Type.GENERIC_PROXY;
+                return TargetRepository.Type.GENERIC_PROXY;
         }
     }
 }

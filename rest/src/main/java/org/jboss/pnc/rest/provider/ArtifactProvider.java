@@ -23,8 +23,8 @@ import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
@@ -124,7 +124,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     private String getDeployUrl(Artifact artifact) {
-        if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
+        if (artifact.getTargetRepository().getRepositoryType().equals(TargetRepository.Type.MAVEN)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
@@ -136,7 +136,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     private String getPublicUrl(Artifact artifact) {
-        if (artifact.getRepoType().equals(ArtifactRepo.Type.MAVEN)) {
+        if (artifact.getTargetRepository().getRepositoryType().equals(TargetRepository.Type.MAVEN)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {

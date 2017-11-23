@@ -226,7 +226,13 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Index(name="idx_buildrecord_buildconfigsetrecord")
     private BuildConfigSetRecord buildConfigSetRecord;
 
-
+    /**
+     * Example attributes
+     * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
+     * brewLink: http://pathToArtifact
+     * brewId: 1007192
+     * TEMPORARY_BUILD: TRUE/FALSE
+     */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id"))
     @MapKeyColumn(name="key")

@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -49,8 +48,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private Artifact.Quality artifactQuality;
 
-    @ApiModelProperty(dataType = "string")
-    private ArtifactRepo.Type repoType;
+    @Getter
+    private TargetRepositoryRest targetRepository;
 
     @Getter
     @Setter
@@ -101,7 +100,6 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     public ArtifactRest(Artifact artifact, String deployUrl, String publicUrl) {
         this.id = artifact.getId();
         this.identifier = artifact.getIdentifier();
-        this.repoType = artifact.getRepoType();
         this.md5 = artifact.getMd5();
         this.sha1= artifact.getSha1();
         this.sha256= artifact.getSha256();
@@ -117,6 +115,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.size = artifact.getSize();
         this.deployUrl = deployUrl;
         this.publicUrl = publicUrl;
+
+        this.targetRepository = new TargetRepositoryRest(artifact.getTargetRepository());
     }
 
     public ArtifactRest(Artifact artifact) {
@@ -141,12 +141,12 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.identifier = identifier;
     }
 
-    public ArtifactRepo.Type getRepoType() {
-        return repoType;
+    public TargetRepositoryRest getTargetRepository() {
+        return targetRepository;
     }
 
-    public void setRepoType(ArtifactRepo.Type repoType) {
-        this.repoType = repoType;
+    public void setTargetRepository(TargetRepositoryRest targetRepository) {
+        this.targetRepository = targetRepository;
     }
 
     public Artifact.Quality getArtifactQuality() {
@@ -232,7 +232,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
                 .sha1(this.getSha1())
                 .sha256(this.getSha256())
                 .size(this.getSize())
-                .repoType(this.getRepoType())
+                .targetRepository(targetRepository.toDBEntityBuilder().build())
                 .artifactQuality(this.getArtifactQuality())
                 .deployPath(this.getDeployPath())
                 .importDate(this.getImportDate())
@@ -255,7 +255,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
                 "id=" + id +
                 ", identifier='" + identifier + '\'' +
                 ", artifactQuality=" + artifactQuality +
-                ", repoType=" + repoType +
+                ", targetRepository=" + targetRepository.toString() +
                 ", md5='" + md5 + '\'' +
                 ", sha1='" + sha1 + '\'' +
                 ", sha256='" + sha256 + '\'' +

@@ -20,19 +20,26 @@ package org.jboss.pnc.model;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -100,6 +107,19 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     @ForeignKey(name = "fk_buildconfigsetrecord_productversion")
     @Index(name="idx_buildconfigsetrecord_productversion")
     private ProductVersion productVersion;
+
+    /**
+     * Example attributes
+     * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
+     * brewLink: http://pathToArtifact
+     * brewId: 1007192
+     * TEMPORARY_BUILD: TRUE/FALSE
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="build_config_set_record_attributes", joinColumns=@JoinColumn(name="build_config_set_record_id"))
+    @MapKeyColumn(name="key")
+    @Column(name="value")
+    private Map<String, String> attributes = new HashMap<>();
 
     /**
      * Instantiates a new project build result.
