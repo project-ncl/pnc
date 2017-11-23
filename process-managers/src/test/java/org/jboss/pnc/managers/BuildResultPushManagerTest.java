@@ -115,14 +115,15 @@ public class BuildResultPushManagerTest {
         buildRecordIds.add(buildRecordId);
 
         //when
-        Map<Integer, Boolean> pushed = buildResultPushManager.push(buildRecordIds, "", "don't/call/me/back");
+        String tagPrefix = "tagPrefix";
+        Map<Integer, Boolean> pushed = buildResultPushManager.push(buildRecordIds, "", "don't/call/me/back", tagPrefix);
 
         //then expect push started
         Assertions.assertThat(pushed.get(buildRecordId)).isTrue();
 
 
         //when pushed again
-        Map<Integer, Boolean> pushed2 = buildResultPushManager.push(buildRecordIds, "", "don't/call/me/back");
+        Map<Integer, Boolean> pushed2 = buildResultPushManager.push(buildRecordIds, "", "don't/call/me/back", tagPrefix);
 
         //then expect push is rejected
         Assertions.assertThat(pushed2.get(buildRecordId)).isFalse();
@@ -136,17 +137,17 @@ public class BuildResultPushManagerTest {
         //then the result should be stored
         BuildRecordPushResult buildRecordPushResult = buildRecordPushResultRepository.queryById(pushResultId);
         Assertions.assertThat(buildRecordPushResult.getLog()).isEqualTo(PUSH_LOG);
-        Assertions.assertThat(buildRecordPushResult.getBuildRecordPushResultStatus()).isEqualTo(BuildRecordPushResult.Status.SUCCESS);
+        Assertions.assertThat(buildRecordPushResult.getStatus()).isEqualTo(BuildRecordPushResult.Status.SUCCESS);
 
         //then expect push is accepted again
-        Map<Integer, Boolean> pushed3 = buildResultPushManager.push(buildRecordIds, "", "don't/call/me/back");
+        Map<Integer, Boolean> pushed3 = buildResultPushManager.push(buildRecordIds, "", "don't/call/me/back", tagPrefix);
         Assertions.assertThat(pushed3.get(buildRecordId)).isTrue();
 
     }
 
     private BuildRecordPushResultRest getBuildRecordPushResultRest(Integer buildRecordId) {
         return BuildRecordPushResultRest.builder()
-                    .buildRecordPushResultStatus(BuildRecordPushResult.Status.SUCCESS)
+                    .status(BuildRecordPushResult.Status.SUCCESS)
                     .log(PUSH_LOG)
                     .buildRecordId(buildRecordId)
                     .build();

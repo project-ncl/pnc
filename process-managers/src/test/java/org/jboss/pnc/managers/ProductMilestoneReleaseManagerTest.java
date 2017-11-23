@@ -21,6 +21,7 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductMilestoneReleaseRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductMilestoneRepositoryMock;
@@ -33,6 +34,7 @@ import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -79,10 +81,12 @@ public class ProductMilestoneReleaseManagerTest {
         releaseRepository = new ProductMilestoneReleaseRepositoryMock();
         productVersionRepository = new ProductVersionRepositoryMock();
         buildRecordRepository = new BuildRecordRepositoryMock();
+        BuildRecordPushResultRepository buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
         MockitoAnnotations.initMocks(this);
         when(bpmManager.startTask(any())).then(answer);
-        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmManager, new ArtifactRepositoryMock(), productVersionRepository, buildRecordRepository, milestoneRepository);
+        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmManager, new ArtifactRepositoryMock(), productVersionRepository, buildRecordRepository, milestoneRepository,
+                buildRecordPushResultRepository);
     }
 
     @Test

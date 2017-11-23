@@ -30,12 +30,17 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.managers.BuildResultPushManager;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.provider.BuildRecordPushResultProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +58,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -80,6 +87,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private AuthenticationProvider authenticationProvider;
     private String pncBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
     public BuildRecordPushEndpoint(
@@ -87,11 +95,13 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             BuildResultPushManager buildResultPushManager,
             AuthenticationProviderFactory authenticationProviderFactory,
             Configuration configuration,
-            BuildRecordPushResultRepository buildRecordPushResultRepository) {
+            BuildRecordPushResultRepository buildRecordPushResultRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
         super(buildRecordPushResultProvider);
         this.buildResultPushManager = buildResultPushManager;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         try {
             pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
         } catch (ConfigurationParseException e) {
@@ -107,14 +117,56 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response push(Set<Integer> buildRecordIds,
+    public Response push(
+            BuildRecordPushRequestRest buildRecordPushRequestRest,
             @Context UriInfo uriInfo,
             @Context HttpServletRequest httpServletRequest) throws ValidationException, ProcessException {
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
+        Integer buildRecordId = buildRecordPushRequestRest.getBuildRecordId();
+        Set<Integer> buildRecordIds = new HashSet<>();
+        buildRecordIds.add(buildRecordId);
+
         String callbackUrl = pncBaseUrl + "/%d/complete/";
-        Map<Integer, Boolean> pushed = buildResultPushManager.push(buildRecordIds, loginInUser.getTokenString(), callbackUrl);
+        Map<Integer, Boolean> pushed = buildResultPushManager.push(
+                buildRecordIds,
+                loginInUser.getTokenString(),
+                callbackUrl,
+                buildRecordPushRequestRest.getTagPrefix());
+
+        return Response.ok().entity(JsonOutputConverterMapper.apply(pushed.get(buildRecordId))).build();
+    }
+
+    @ApiOperation(value = "Push build config set record to Brew.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", response = Map.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/record-set/")
+    public Response pushRecordSet(
+            BuildConfigSetRecordPushRequestRest buildConfigSetRecordPushRequestRest,
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpServletRequest) throws ValidationException, ProcessException {
+
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
+                .queryById(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId());
+
+        Set<Integer> buildRecordIds = buildConfigSetRecord.getBuildRecords().stream()
+                .map(BuildRecord::getId)
+                .collect(Collectors.toSet());
+
+        String callbackUrl = pncBaseUrl + "/%d/complete/";
+        Map<Integer, Boolean> pushed = buildResultPushManager.push(
+                buildRecordIds,
+                loginInUser.getTokenString(),
+                callbackUrl,
+                buildConfigSetRecordPushRequestRest.getTagPrefix());
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushed)).build();
     }

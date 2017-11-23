@@ -20,6 +20,9 @@ package org.jboss.pnc.rest.restmodel.causeway;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 8/25/16
@@ -30,4 +33,28 @@ import lombok.Data;
 public class ArtifactImportError {
     private Integer artifactId;
     private String errorMessage;
+
+    public static String combineMessages(List<ArtifactImportError> artifactImportErrors) {
+        if (artifactImportErrors == null || artifactImportErrors.isEmpty()) {
+            return "";
+        }
+        return " --- artifact errors ---\n" +
+                artifactImportErrors.stream()
+                        .map(e -> e.getArtifactId() + ": " + e.getErrorMessage())
+                        .collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * @return append artifacts errors to the prefix and return combined string. When artifactImportErrors is empty only a prefix is returned.
+     */
+    public static String combineMessages(String prefix, List<ArtifactImportError> artifactImportErrors) {
+        String errors = ArtifactImportError.combineMessages(artifactImportErrors);
+        if (!errors.isEmpty()) {
+            return prefix + "\n\n" + errors;
+        } else {
+            return prefix;
+        }
+
+    }
+
 }

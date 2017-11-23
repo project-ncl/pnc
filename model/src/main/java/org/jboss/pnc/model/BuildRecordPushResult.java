@@ -49,13 +49,27 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     @Getter
     @Setter
     @Enumerated(EnumType.STRING)
-    private BuildRecordPushResult.Status buildRecordPushResultStatus;
+    private BuildRecordPushResult.Status status;
 
     @Getter
     @Setter
     private String log;
 
+    /**
+     * build id assigned by brew
+     */
+    @Getter
+    @Setter
+    private Integer brewBuildId; //TODO do not duplicate the value in the BR attributes
+
+    /**
+     * link to brew
+     */
+    @Getter
+    @Setter
+    private String brewBuildUrl;
+
     public enum Status {
-        SUCCESS, FAILED, CANCELED;
+        SUCCESS, FAILED, SYSTEM_ERROR, CANCELED;
     }
 }
