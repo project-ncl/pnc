@@ -29,6 +29,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -112,8 +113,8 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     @ApiOperation(value = "Gets the build records associated with this set")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSetRecordPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationSetRecordPage.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
