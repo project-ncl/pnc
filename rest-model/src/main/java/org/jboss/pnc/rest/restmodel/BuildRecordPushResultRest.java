@@ -26,11 +26,13 @@ import lombok.Setter;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -52,17 +54,36 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
 
     @NotNull
     @Getter
-    private BuildRecordPushResult.Status buildRecordPushResultStatus;
+    private BuildRecordPushResult.Status status;
 
     @NotNull
     @Getter
     private String log;
 
+    /**
+     * list of errors for artifact imports
+     */
+    private List<ArtifactImportError> artifactImportErrors;
+
+    /**
+     * build id assigned by brew
+     */
+    @Getter
+    private Integer brewBuildId;
+
+    /**
+     * link to brew
+     */
+    @Getter
+    private String brewBuildUrl;
+
     public BuildRecordPushResultRest(BuildRecordPushResult buildRecordPushResult) {
         this.id = buildRecordPushResult.getId();
         this.buildRecordId = buildRecordPushResult.getBuildRecord().getId();
-        this.buildRecordPushResultStatus = buildRecordPushResult.getBuildRecordPushResultStatus();
+        this.status = buildRecordPushResult.getStatus();
         this.log = buildRecordPushResult.getLog();
+        this.brewBuildId = buildRecordPushResult.getBrewBuildId();
+        this.brewBuildUrl = buildRecordPushResult.getBrewBuildUrl();
     }
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -78,11 +99,16 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildRecordId).build();
         BuildRecordPushResult.BuildRecordPushResultBuilder builder = BuildRecordPushResult.builder()
                 .id(id)
-                .buildRecordPushResultStatus(buildRecordPushResultStatus)
-                .log(this.log)
-                .buildRecord(buildRecord);
+                .status(status)
+                .log(combineLog())
+                .buildRecord(buildRecord)
+                .brewBuildId(brewBuildId)
+                .brewBuildUrl(brewBuildUrl);
 
         return builder;
     }
 
+    private String combineLog() {
+        return ArtifactImportError.combineMessages(log, artifactImportErrors);
+    }
 }

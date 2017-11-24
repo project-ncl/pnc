@@ -44,6 +44,7 @@ public class CausewayPushRequest {
     private Date endTime;
     private String scmURL;
     private String scmRevision;
+    private String tagPrefix;
 
     private BuildRoot buildRoot;
 
@@ -77,6 +78,7 @@ public class CausewayPushRequest {
     @Getter
     public static class BuiltArtifact extends Dependency {
         private final String architecture = "noarch"; //TODO set architecture
+        private String buildType = "maven"; //TODO set proper type once we add support for other build types (eg. npm)
         private String url; // url where the artifact can be downloaded from (deployURL)
         private String groupId;
         private String artifactId;

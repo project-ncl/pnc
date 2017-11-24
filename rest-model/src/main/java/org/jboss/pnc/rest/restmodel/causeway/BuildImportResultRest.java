@@ -28,7 +28,9 @@ import java.util.List;
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 8/25/16
  * Time: 2:48 PM
+ *
  */
+@Deprecated
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
@@ -58,4 +60,5 @@ public class BuildImportResultRest {
      * list of errors for artifact imports
      */
     private List<ArtifactImportError> errors;
+
 }

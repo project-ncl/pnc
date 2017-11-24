@@ -75,19 +75,27 @@ public class BuildResultPushManager {
      * @param buildRecordIds
      * @param authToken
      * @param callBackUrlTemplate %d in the template will be replaced with BuildRecord.id
+     * @param tagPrefix
      * @return
      * @throws ProcessException
      */
-    public Map<Integer, Boolean> push(Set<Integer> buildRecordIds, String authToken, String callBackUrlTemplate) throws ProcessException {
+    public Map<Integer, Boolean> push(
+            Set<Integer> buildRecordIds,
+            String authToken,
+            String callBackUrlTemplate, String tagPrefix) throws ProcessException {
+
         Map<Integer, Boolean> result = new HashMap<>();
         for (Integer buildRecordId : buildRecordIds) {
-            boolean success = pushToCauseway(authToken, buildRecordId, String.format(callBackUrlTemplate, buildRecordId));
+            boolean success = pushToCauseway(
+                    authToken, buildRecordId,
+                    String.format(callBackUrlTemplate, buildRecordId),
+                    tagPrefix);
             result.put(buildRecordId, success);
         }
         return result;
     }
 
-    private boolean pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl) throws ProcessException {
+    private boolean pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix) throws ProcessException {
         if (!inProgress.add(buildRecordId)) {
             logger.warn("Push for BR.id {} already running.", buildRecordId);
             return false;
@@ -95,7 +103,7 @@ public class BuildResultPushManager {
 
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
-        CausewayPushRequest causewayPushRequest = createCausewayPushRequest(buildRecord);
+        CausewayPushRequest causewayPushRequest = createCausewayPushRequest(buildRecord, tagPrefix);
         String jsonMessage = causewayPushRequest.toString();
 
         boolean successfullyPushed = causewayClient.push(jsonMessage, authToken, callBackUrl);
@@ -105,7 +113,7 @@ public class BuildResultPushManager {
         return successfullyPushed;
     }
 
-    private CausewayPushRequest createCausewayPushRequest(BuildRecord buildRecord) {
+    private CausewayPushRequest createCausewayPushRequest(BuildRecord buildRecord, String tagPrefix) {
         CausewayPushRequest.BuildRoot buildRoot = new CausewayPushRequest.BuildRoot(
                 buildRecord.getBuildEnvironment().getAttributes()
         );
@@ -122,6 +130,7 @@ public class BuildResultPushManager {
                 buildRecord.getEndTime(),
                 buildRecord.getScmRepoURL(),
                 buildRecord.getScmRevision(),
+                tagPrefix,
                 buildRoot,
                 dependencies,
                 builtArtifacts
@@ -174,7 +183,7 @@ public class BuildResultPushManager {
 
     public boolean cancelInProgressPush(Integer buildRecordId) {
         BuildRecordPushResultRest buildRecordPushResultRest = BuildRecordPushResultRest.builder()
-                .buildRecordPushResultStatus(BuildRecordPushResult.Status.CANCELED)
+                .status(BuildRecordPushResult.Status.CANCELED)
                 .buildRecordId(buildRecordId)
                 .log("Canceled.")
                 .build();

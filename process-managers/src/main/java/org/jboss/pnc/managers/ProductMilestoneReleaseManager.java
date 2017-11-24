@@ -23,6 +23,7 @@ import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.MilestoneReleaseStatus;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
@@ -34,11 +35,13 @@ import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +73,8 @@ public class ProductMilestoneReleaseManager {
     private BuildRecordRepository buildRecordRepository;
     private ProductMilestoneReleaseRepository releaseRepository;
     private ProductMilestoneRepository milestoneRepository;
+    private BuildRecordPushResultRepository buildRecordPushResultRepository;
+
 
     @Deprecated // for ejb
     public ProductMilestoneReleaseManager() {
@@ -82,13 +87,14 @@ public class ProductMilestoneReleaseManager {
             ArtifactRepository artifactRepository,
             ProductVersionRepository productVersionRepository,
             BuildRecordRepository buildRecordRepository,
-            ProductMilestoneRepository milestoneRepository) {
+            ProductMilestoneRepository milestoneRepository, BuildRecordPushResultRepository buildRecordPushResultRepository) {
         this.releaseRepository = releaseRepository;
         this.bpmManager = bpmManager;
         this.artifactRepository = artifactRepository;
         this.productVersionRepository = productVersionRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.milestoneRepository = milestoneRepository;
+        this.buildRecordPushResultRepository = buildRecordPushResultRepository;
     }
 
     /**
@@ -189,6 +195,38 @@ public class ProductMilestoneReleaseManager {
             record.putAttribute(BREW_LINK, brewBuildUrl);
         }
         buildRecordRepository.save(record);
+
+        String combinedLog = ArtifactImportError.combineMessages(buildRest.getErrorMessage(), buildRest.getErrors());
+
+
+        BuildRecordPushResult.Status status;
+        try {
+            status = convertStatus(buildRest.getStatus());
+        } catch (ProcessManagerException e) {
+            log.error("Cannot convert status.", e);
+            throw new RuntimeException("Cannot convert status.", e);
+        }
+
+        BuildRecordPushResult buildRecordPush = BuildRecordPushResult.builder()
+                .buildRecord(record)
+                .status(status)
+                .log(combinedLog)
+                .brewBuildId(buildRest.getBrewBuildId())
+                .brewBuildUrl(buildRest.getBrewBuildUrl())
+                .build();
+        buildRecordPushResultRepository.save(buildRecordPush);
+    }
+
+    private BuildRecordPushResult.Status convertStatus(BuildImportStatus status) throws ProcessManagerException {
+        switch (status) {
+            case SUCCESSFUL:
+                return BuildRecordPushResult.Status.SUCCESS;
+            case FAILED:
+                return BuildRecordPushResult.Status.FAILED;
+            case ERROR:
+                return BuildRecordPushResult.Status.SYSTEM_ERROR;
+        }
+        throw new ProcessManagerException("Invalid BuildImportStatus: " + status.toString());
     }
 
     private void updateRelease(ProductMilestone milestone, String message, MilestoneReleaseStatus status) {

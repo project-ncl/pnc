@@ -33,6 +33,7 @@ import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneRepository
 import org.jboss.pnc.rest.utils.mock.BpmMock;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
@@ -90,15 +91,20 @@ public class AbstractMilestoneReleaseTest {
     @Mock
     Configuration pncConfiguration;
 
+    @Mock
+    private BuildRecordPushResultRepository buildRecordPushResultRepository;
+
     ProductMilestoneEndpoint milestoneEndpoint;
     ProductMilestoneReleaseManager releaseManager;
     BpmEndpoint bpmEndpoint;
+
 
     @Before
     public void setUp() throws CoreException, ConfigurationParseException {
         bpmMock = new BpmMock();
         MockitoAnnotations.initMocks(this);
-        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmMock, artifactRepository, productVersionRepository, buildRecordRepository, productMilestoneRepository);
+        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmMock, artifactRepository, productVersionRepository, buildRecordRepository, productMilestoneRepository,
+                buildRecordPushResultRepository);
         ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(productMilestoneRepository,
                 artifactRepository,
                 releaseManager,
