@@ -21,6 +21,7 @@ import org.jboss.pnc.common.security.Sha256;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
@@ -30,7 +31,7 @@ import java.security.NoSuchAlgorithmException;
 public class Sha256Test {
 
     @Test
-    public void calculateSha256() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public void calculateSha256() throws IOException, NoSuchAlgorithmException {
         String encoded = Sha256.digest("The quick brown fox jumps over the lazy dog.");
         String expected = "ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c";
 
