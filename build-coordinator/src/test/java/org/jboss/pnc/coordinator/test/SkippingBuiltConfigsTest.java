@@ -25,7 +25,6 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -220,8 +219,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         waitForEmptyBuildQueue();
 
         BuildOptions buildOptions2 = new BuildOptions();
-        buildOptions2.setForceRebuild(true);
-        coordinator.build(configSet, null, buildOptions2); //forced rebuild build
+        coordinator.build(configSet, null, buildOptions2); // rebuild build
         waitForEmptyBuildQueue();
 
         //then
@@ -238,9 +236,9 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         coordinator.build(configSet, null, buildOptions); //first build
         waitForEmptyBuildQueue();
 
+
         coordinator.build(configSet, null, buildOptions); //forced rebuild build
         waitForEmptyBuildQueue();
-
         //then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
         logRecords(buildRecords);

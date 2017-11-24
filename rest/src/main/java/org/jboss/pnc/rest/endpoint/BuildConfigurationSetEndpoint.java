@@ -300,7 +300,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo)
             throws InterruptedException, CoreException, DatastoreException, BuildDriverException, RepositoryManagerException,
