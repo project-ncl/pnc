@@ -18,35 +18,34 @@
 package org.jboss.pnc.common.security;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.StringReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class Sha256 {
+public class CheckSum {
+    static String calculateDigest(String message, String algorithm) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance(algorithm);
 
-    MessageDigest md;
+        StringReader reader = new StringReader(message);
+        char[] buffer = new char[1024];
 
-    public Sha256() throws NoSuchAlgorithmException {
-        md = MessageDigest.getInstance("SHA-256");
-    }
+        while (true) {
+            int read = reader.read(buffer);
+            if (read == -1) {
+                break;
+            }
+            md.update(String.valueOf(buffer, 0, read).getBytes("UTF-8"));
+        }
 
-    public static String digest(String message)
-            throws NoSuchAlgorithmException, IOException {
-        return CheckSum.calculateDigest(message, "SHA-256");
-    }
-
-    public void add(String message) throws UnsupportedEncodingException {
-        md.update(message.getBytes("UTF-8"));
-    }
-
-    public String digest() {
         byte[] digest = md.digest();
-        return CheckSum.format(digest);
+        return format(digest);
     }
 
-
+    static String format(byte[] digest) {
+        return String.format("%064x", new java.math.BigInteger(1, digest));
+    }
 
 }

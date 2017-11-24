@@ -22,6 +22,8 @@ import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
+import org.jboss.pnc.common.security.Md5;
+import org.jboss.pnc.common.security.Sha256;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,8 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,6 +147,18 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Type(type = "org.hibernate.type.StringType")
     @Basic(fetch = FetchType.LAZY)
     private String buildLog;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    private String buildLogMd5;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    private String buildLogSha256;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    private Integer buildLogSize;
 
     @Enumerated(EnumType.STRING)
     private BuildStatus status;
@@ -243,6 +259,18 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Type(type = "org.hibernate.type.StringType")
     @Basic(fetch = FetchType.LAZY)
     private String repourLog;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    private String repourLogMd5;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    private String repourLogSha256;
+
+    @Getter
+    @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    private Integer repourLogSize;
 
     @OneToMany(mappedBy = "buildRecord")
     @Getter
@@ -357,6 +385,11 @@ public class BuildRecord implements GenericEntity<Integer> {
         return repourLog;
     }
 
+    /**
+     *
+     * @deprecated use builder instead
+     */
+    @Deprecated
     public void setRepourLog(String repourLog) {
         this.repourLog = repourLog;
     }
@@ -374,7 +407,10 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Sets the builds the log.
      *
      * @param buildLog the new builds the log
+     *
+     * @deprecated use builder instead
      */
+    @Deprecated
     public void setBuildLog(String buildLog) {
         this.buildLog = buildLog;
     }
@@ -643,8 +679,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setUser(user);
             buildRecord.setScmRepoURL(scmRepoURL);
             buildRecord.setScmRevision(scmRevision);
-            buildRecord.setRepourLog(repourLog);
-            buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setProductMilestone(productMilestone);
@@ -655,6 +689,23 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setExecutionRootVersion(executionRootVersion);
             buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
             buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
+
+            buildRecord.setRepourLog(repourLog);
+            buildRecord.setRepourLogSize(repourLog.length());
+            buildRecord.setBuildLog(buildLog);
+            buildRecord.setBuildLogSize(buildLog.length());
+
+            try {
+                buildRecord.setBuildLogMd5(Md5.digest(buildLog));
+                buildRecord.setBuildLogSha256(Sha256.digest(buildLog));
+
+                buildRecord.setRepourLogMd5(Md5.digest(repourLog));
+                buildRecord.setRepourLogSha256(Sha256.digest(repourLog));
+
+            } catch (NoSuchAlgorithmException | IOException e) {
+                logger.error("Cannot compute log checksum.", e);
+                throw new RuntimeException("Cannot compute log checksum.", e);
+            }
 
             if (buildConfigurationAudited != null) {
                 setBuildConfigurationAuditedIfValid(buildRecord,

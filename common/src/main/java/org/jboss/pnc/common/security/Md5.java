@@ -25,17 +25,17 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class Sha256 {
+public class Md5 {
 
-    MessageDigest md;
+    private MessageDigest md;
 
-    public Sha256() throws NoSuchAlgorithmException {
-        md = MessageDigest.getInstance("SHA-256");
+    public Md5() throws NoSuchAlgorithmException {
+        md = MessageDigest.getInstance("MD5");
     }
 
     public static String digest(String message)
             throws NoSuchAlgorithmException, IOException {
-        return CheckSum.calculateDigest(message, "SHA-256");
+        return CheckSum.calculateDigest(message, "MD5");
     }
 
     public void add(String message) throws UnsupportedEncodingException {
@@ -46,7 +46,6 @@ public class Sha256 {
         byte[] digest = md.digest();
         return CheckSum.format(digest);
     }
-
 
 
 }
