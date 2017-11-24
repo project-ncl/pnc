@@ -57,6 +57,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private List<ArtifactRepository> artifactRepositories;
     private Map<String, String> genericParameters;
 
+    private boolean tempBuild = false;
+    private String tempBuildTimestamp;
+
     public BuildExecutionConfigurationRest() {}
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
@@ -86,6 +89,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         user = new UserRest(buildExecutionConfiguration.getUserId());
         podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
         genericParameters = buildExecutionConfiguration.getGenericParameters();
+        tempBuild = buildExecutionConfiguration.isTempBuild();
+        tempBuildTimestamp = buildExecutionConfiguration.getTempBuildTimestamp();
 
         if (buildExecutionConfiguration.getArtifactRepositories() != null) {
             artifactRepositories = new ArrayList<>(buildExecutionConfiguration.getArtifactRepositories().size());
@@ -111,7 +116,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 systemImageType,
                 podKeptOnFailure,
                 artifactRepositories,
-                genericParameters
+                genericParameters,
+                tempBuild,
+                tempBuildTimestamp
         );
     }
 
@@ -283,6 +290,25 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     @Override
     public Map<String, String> getGenericParameters() {
         return genericParameters;
+    }
+
+
+    public void setTempBuild(boolean tempBuild) {
+        this.tempBuild = tempBuild;
+    }
+
+    @Override
+    public boolean isTempBuild() {
+        return tempBuild;
+    }
+
+    public void setTempBuildTimestamp(String timestamp) {
+        this.tempBuildTimestamp = timestamp;
+    }
+
+    @Override
+    public String getTempBuildTimestamp() {
+        return tempBuildTimestamp;
     }
 
     @Override

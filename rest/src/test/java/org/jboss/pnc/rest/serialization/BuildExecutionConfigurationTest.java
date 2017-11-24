@@ -85,7 +85,9 @@ public class BuildExecutionConfigurationTest {
                     SystemImageType.DOCKER_IMAGE,
                     false,
                     null,
-                    genericParameters
+                    genericParameters,
+                    false,
+                    null
             );
     }
 

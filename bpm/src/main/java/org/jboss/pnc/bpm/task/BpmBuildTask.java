@@ -77,7 +77,6 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getUser().getId(),
                 buildConfiguration.getBuildScript(),
                 buildConfiguration.getName(),
-                //TODO update to use also other parts or Repository Configuration
                 buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getRepositoryConfiguration().getExternalUrl(),
@@ -86,7 +85,9 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
                 buildTask.isPodKeptAfterFailure(),
-                buildConfiguration.getGenericParameters());
+                buildConfiguration.getGenericParameters(),
+                buildConfiguration.getTempBuild(),
+                buildConfiguration.getTempBuildTimestamp());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
     }

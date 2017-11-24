@@ -45,7 +45,9 @@ public class BuildExecutionConfigurationMock {
                 SystemImageType.DOCKER_IMAGE,
                 false,
                 null,
-                new HashMap<>()
+                new HashMap<>(),
+                false,
+                null
         );
     }
 }
