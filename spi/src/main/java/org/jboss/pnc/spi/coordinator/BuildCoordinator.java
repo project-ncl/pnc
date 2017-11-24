@@ -23,7 +23,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 

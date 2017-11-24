@@ -23,6 +23,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.spi.BuildOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,13 @@ public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildCon
         super(BUILD_CONFIGURATION_SET_REST_ENDPOINT, BuildConfigurationSetRest.class);
     }
 
-    public RestResponse<BuildConfigurationSetRest> trigger(int id, boolean rebuildAll) {
-        Response response = request().when().queryParam("rebuildAll", rebuildAll).post(collectionUrl + id + "/build");
+    public RestResponse<BuildConfigurationSetRest> trigger(int id, BuildOptions options) {
+        Response response = request().when()
+                .queryParam("temporaryBuild", options.isTemporaryBuild())
+                .queryParam("forceRebuild", options.isForceRebuild())
+                .queryParam("timestampAlignment", options.isTimestampAlignment())
+
+                .post(collectionUrl + id + "/build");
 
         response.then().statusCode(200);
 

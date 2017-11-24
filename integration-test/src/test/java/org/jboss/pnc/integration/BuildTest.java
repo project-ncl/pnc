@@ -31,7 +31,7 @@ import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.spi.BuildScope;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -113,7 +113,10 @@ public class BuildTest {
         logger.debug("LoggedUser: {}", loggedUser.hasValue() ? loggedUser.getValue() : "-no-logged-user-");
 
         logger.info("About to trigger build: {} with id: {}.", buildConfiguration.getName(), buildConfiguration.getId());
-        RestResponse<BuildConfigurationRest> triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), BuildScope.REBUILD);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        RestResponse<BuildConfigurationRest> triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), buildOptions);
         logger.debug("Response from triggered build: {}.", triggeredConfiguration.hasValue() ? triggeredConfiguration.getValue() : "-response-not-available-");
         Integer buildRecordId = ResponseUtils.getIdFromLocationHeader(triggeredConfiguration.getRestCallResponse());
         logger.info("New build record id: {}.", buildRecordId);
@@ -133,7 +136,9 @@ public class BuildTest {
 
         //when
         userRestClient.getLoggedUser(); //initialize user
-        RestResponse<BuildConfigurationSetRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), true);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        RestResponse<BuildConfigurationSetRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildOptions);
         Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(response.getRestCallResponse());
 
         //then

@@ -29,7 +29,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;

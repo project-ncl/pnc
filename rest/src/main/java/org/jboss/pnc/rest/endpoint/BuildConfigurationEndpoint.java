@@ -46,7 +46,6 @@ import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;

@@ -53,7 +53,7 @@ public class BuildOptions {
     private boolean buildDependencies = true;
 
     /**
-     * Should we keep the build container running, if the build fails?
+     * Should we keep the build container running, if the build fails? Valid only for BuildConfiguration
      */
     private boolean keepPodOnFailure = false;
 

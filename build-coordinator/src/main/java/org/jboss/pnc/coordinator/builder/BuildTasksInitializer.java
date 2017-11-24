@@ -26,7 +26,6 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
