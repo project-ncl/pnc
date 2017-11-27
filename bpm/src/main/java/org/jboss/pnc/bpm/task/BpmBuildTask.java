@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -85,10 +87,34 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                buildTask.isPodKeptAfterFailure(),
-                buildConfiguration.getGenericParameters());
+                buildTask.getBuildOptions().isKeepPodOnFailure(),
+                buildConfiguration.getGenericParameters(),
+                buildTask.getBuildOptions().isTemporaryBuild(),
+                generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
+                        buildTask.getBuildSetTask().getStartTime()) );
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+    }
+
+    /**
+     * Generate timestamp in required format tYYYYMMDD-HHMMSS-XXX  (XXX = miliseconds)
+     *
+     * @param generationEnabled Flag indicating, if the generation of timestamp is enabled
+     * @param dateInstant Time instant for which the timestamp will be generated
+     * @return Timestamp string or null, if generation is disabled
+     */
+    private String generateTimestamp(boolean generationEnabled, Date dateInstant) {
+        if(!generationEnabled)
+            return null;
+
+        Calendar instant = new Calendar.Builder().
+                setInstant(dateInstant)
+                .build();
+
+
+        return String.format("t%d%d%d-%d%d%d-%d", instant.get(Calendar.YEAR), instant.get(Calendar.MONTH) + 1,
+                instant.get(Calendar.DAY_OF_MONTH), instant.get(Calendar.HOUR_OF_DAY), instant.get(Calendar.MINUTE),
+                instant.get(Calendar.SECOND), instant.get(Calendar.MILLISECOND));
     }
 
     @Override

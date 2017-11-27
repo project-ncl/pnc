@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import lombok.Getter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +42,8 @@ public class BuildSetTask {
 
     private final Optional<BuildConfigSetRecord> buildConfigSetRecord;
 
-    private final boolean forceRebuildAll;
-    private final boolean keepAfterFailure;
+    @Getter
+    private final BuildOptions buildOptions;
 
     private BuildSetStatus status;
 
@@ -55,16 +57,13 @@ public class BuildSetTask {
      * Create build set task for running a single build or set of builds
      * 
      * @param buildConfigSetRecord The config set record which will be stored to the db
-     * @param forceRebuildAll Rebuild all configs in the set regardless of whether they were built previously
-     * @param keepAfterFailure Don't stop the pod after build failure
+     * @param buildOptions Build parameters
      */
     private BuildSetTask(
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
-            boolean forceRebuildAll,
-            boolean keepAfterFailure) {
+            BuildOptions buildOptions) {
         this.buildConfigSetRecord = Optional.ofNullable(buildConfigSetRecord);
-        this.forceRebuildAll = forceRebuildAll;
-        this.keepAfterFailure = keepAfterFailure;
+        this.buildOptions = buildOptions;
     }
 
     public void setStatus(BuildSetStatus status) {
@@ -151,18 +150,9 @@ public class BuildSetTask {
         return buildConfigSetRecord;
     }
 
-    public boolean getForceRebuildAll() {
-        return forceRebuildAll;
-    }
-
-    public boolean isKeepAfterFailure() {
-        return keepAfterFailure;
-    }
-
     public static class Builder {
         private BuildConfigSetRecord buildConfigSetRecord; //TODO decouple datastore entity
-        private boolean forceRebuildAll;
-        private boolean keepAfterFailure;
+        private BuildOptions buildOptions;
         private Date startTime;
 
         private Builder() {}
@@ -176,13 +166,8 @@ public class BuildSetTask {
             this.startTime(buildConfigSetRecord.getStartTime());
             return this;
         }
-        public Builder forceRebuildAll(boolean forceRebuildAll) {
-            this.forceRebuildAll = forceRebuildAll;
-            return this;
-        }
-
-        public Builder keepAfterFailure(boolean keepAfterFailure) {
-            this.keepAfterFailure = keepAfterFailure;
+        public Builder buildOptions(BuildOptions buildOptions) {
+            this.buildOptions = buildOptions;
             return this;
         }
 
@@ -192,7 +177,7 @@ public class BuildSetTask {
         }
 
         public BuildSetTask build() {
-            BuildSetTask buildSetTask = new BuildSetTask(buildConfigSetRecord, forceRebuildAll, keepAfterFailure);
+            BuildSetTask buildSetTask = new BuildSetTask(buildConfigSetRecord, buildOptions);
             buildSetTask.startTime = this.startTime;
             return buildSetTask;
         }

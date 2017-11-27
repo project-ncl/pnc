@@ -58,9 +58,8 @@ public class BuildTasksInitializer {
 
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
-                        .forceRebuildAll(buildOptions.isForceRebuild())
-                        .startTime(new Date())
-                        .keepAfterFailure(buildOptions.isKeepPodOnFailure()).build();
+                        .buildOptions(buildOptions)
+                        .startTime(new Date()).build();
 
 
         Set<BuildConfiguration> toBuild = new HashSet<>();
@@ -125,8 +124,7 @@ public class BuildTasksInitializer {
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildConfigSetRecord(configSetRecord)
-                        .forceRebuildAll(buildOptions.isForceRebuild())
-                        .keepAfterFailure(buildOptions.isKeepPodOnFailure()).build();
+                        .buildOptions(buildOptions).build();
 
         // initializeBuildTasksInSet
         log.debug("Initializing BuildTasks In Set for BCs: {}.", buildConfigurations.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
@@ -168,8 +166,7 @@ public class BuildTasksInitializer {
                 buildTask = BuildTask.build(
                         buildConfig,
                         buildConfigAudited,
-                        buildSetTask.isKeepAfterFailure(),
-                        buildSetTask.getForceRebuildAll(),
+                        buildSetTask.getBuildOptions(),
                         user,
                         buildTaskIdProvider.get(),
                         buildSetTask,

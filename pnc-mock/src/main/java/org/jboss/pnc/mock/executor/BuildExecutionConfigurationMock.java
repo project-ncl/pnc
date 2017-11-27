@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.mock.executor;
 
+import jdk.nashorn.internal.objects.annotations.Setter;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -45,6 +46,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private SystemImageType systemImageType;
     private List<ArtifactRepository> artifactRepositories;
     private Map<String, String> genericParameters;
+    private boolean tempBuild;
+    private String tempBuildTimestamp;
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
@@ -58,6 +61,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setSystemImageType(SystemImageType.DOCKER_IMAGE);
         mock.setArtifactRepositories(null);
         mock.setGenericParameters(new HashMap<>());
+        mock.setTempBuild(false);
+        mock.setTempBuildTimestamp(null);
 
         return mock;
     }
@@ -186,6 +191,23 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setGenericParameters(Map<String, String> genericParameters) {
         this.genericParameters = genericParameters;
+    }
+    @Override
+    public boolean isTempBuild() {
+        return tempBuild;
+    }
+
+    public void setTempBuild(boolean tempBuild) {
+        this.tempBuild = tempBuild;
+    }
+
+    @Override
+    public String getTempBuildTimestamp() {
+        return tempBuildTimestamp;
+    }
+
+    public void setTempBuildTimestamp(String tempBuildTimestamp) {
+        this.tempBuildTimestamp = tempBuildTimestamp;
     }
 
 }

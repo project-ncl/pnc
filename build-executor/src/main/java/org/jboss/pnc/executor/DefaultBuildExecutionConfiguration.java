@@ -45,6 +45,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final boolean podKeptAfterFailure;
     private final List<ArtifactRepository> artifactRepositories;
     private final Map<String, String> genericParameters;
+    private final boolean tempBuild;
+    private final String tempBuildTimestamp;
 
     public DefaultBuildExecutionConfiguration(
             int id,
@@ -61,7 +63,9 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             SystemImageType systemImageType,
             boolean podKeptAfterFailure,
             List<ArtifactRepository> artifactRepositories,
-            Map<String, String> genericParameters) {
+            Map<String, String> genericParameters,
+            boolean tempBuild,
+            String tempBuildTimestamp) {
 
         this.id = id;
         this.buildContentId = buildContentId;
@@ -78,6 +82,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.podKeptAfterFailure = podKeptAfterFailure;
         this.artifactRepositories = artifactRepositories;
         this.genericParameters = genericParameters;
+        this.tempBuild = tempBuild;
+        this.tempBuildTimestamp = tempBuildTimestamp;
     }
 
     @Override
@@ -153,5 +159,15 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public Map<String, String> getGenericParameters() {
         return genericParameters;
+    }
+
+    @Override
+    public boolean isTempBuild() {
+        return tempBuild;
+    }
+
+    @Override
+    public String getTempBuildTimestamp() {
+        return tempBuildTimestamp;
     }
 }

@@ -21,6 +21,8 @@ package org.jboss.pnc.rest.restmodel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -57,6 +59,12 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private List<ArtifactRepository> artifactRepositories;
     private Map<String, String> genericParameters;
 
+    private boolean tempBuild;
+
+    @Getter
+    @Setter
+    private String tempBuildTimestamp;
+
     public BuildExecutionConfigurationRest() {}
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
@@ -86,6 +94,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         user = new UserRest(buildExecutionConfiguration.getUserId());
         podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
         genericParameters = buildExecutionConfiguration.getGenericParameters();
+        tempBuild = buildExecutionConfiguration.isTempBuild();
+        tempBuildTimestamp = buildExecutionConfiguration.getTempBuildTimestamp();
 
         if (buildExecutionConfiguration.getArtifactRepositories() != null) {
             artifactRepositories = new ArrayList<>(buildExecutionConfiguration.getArtifactRepositories().size());
@@ -111,7 +121,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 systemImageType,
                 podKeptOnFailure,
                 artifactRepositories,
-                genericParameters
+                genericParameters,
+                tempBuild,
+                tempBuildTimestamp
         );
     }
 
@@ -283,6 +295,11 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     @Override
     public Map<String, String> getGenericParameters() {
         return genericParameters;
+    }
+
+    @Override
+    public boolean isTempBuild() {
+        return tempBuild;
     }
 
     @Override
