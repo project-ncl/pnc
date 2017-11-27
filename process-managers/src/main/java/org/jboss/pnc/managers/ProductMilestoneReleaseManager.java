@@ -186,16 +186,6 @@ public class ProductMilestoneReleaseManager {
             return;
         }
 
-        Integer brewBuildId = buildRest.getBrewBuildId();
-        String brewBuildUrl = buildRest.getBrewBuildUrl();
-        if (brewBuildId != null) {
-            record.putAttribute(BREW_ID, String.valueOf(brewBuildId));
-        }
-        if (brewBuildUrl != null) {
-            record.putAttribute(BREW_LINK, brewBuildUrl);
-        }
-        buildRecordRepository.save(record);
-
         String combinedLog = ArtifactImportError.combineMessages(buildRest.getErrorMessage(), buildRest.getErrors());
 
 

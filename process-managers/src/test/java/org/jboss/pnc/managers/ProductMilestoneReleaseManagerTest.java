@@ -27,6 +27,7 @@ import org.jboss.pnc.mock.repository.ProductMilestoneReleaseRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductMilestoneRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductVersionRepositoryMock;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
@@ -34,7 +35,6 @@ import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -68,6 +68,7 @@ public class ProductMilestoneReleaseManagerTest {
     private ProductMilestoneReleaseRepository releaseRepository;
     private ProductVersionRepository productVersionRepository;
     private BuildRecordRepositoryMock buildRecordRepository;
+    private BuildRecordPushResultRepositoryMock buildRecordPushResultRepository;
 
     private ProductMilestoneReleaseManager releaseManager;
     private final CallbackAnswer answer = new CallbackAnswer();
@@ -81,11 +82,17 @@ public class ProductMilestoneReleaseManagerTest {
         releaseRepository = new ProductMilestoneReleaseRepositoryMock();
         productVersionRepository = new ProductVersionRepositoryMock();
         buildRecordRepository = new BuildRecordRepositoryMock();
-        BuildRecordPushResultRepository buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
+        buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
         MockitoAnnotations.initMocks(this);
         when(bpmManager.startTask(any())).then(answer);
-        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmManager, new ArtifactRepositoryMock(), productVersionRepository, buildRecordRepository, milestoneRepository,
+        releaseManager = new ProductMilestoneReleaseManager(
+                releaseRepository,
+                bpmManager,
+                new ArtifactRepositoryMock(),
+                productVersionRepository,
+                buildRecordRepository,
+                milestoneRepository,
                 buildRecordPushResultRepository);
     }
 
@@ -98,7 +105,7 @@ public class ProductMilestoneReleaseManagerTest {
         // when
         release(milestone, brewBuildId, record);
         // then
-        assertBrewAttributesInRecord(record, String.valueOf(brewBuildId), brewUrl(brewBuildId));
+        assertPushResultLinkedToRecord(record, brewBuildId, brewUrl(brewBuildId));
     }
 
     @Test
@@ -114,7 +121,7 @@ public class ProductMilestoneReleaseManagerTest {
         // then
         for (int i = 0; i < 2; i++) {
             BuildRecord record = records[i];
-            assertBrewAttributesInRecord(record, String.valueOf(brewBuildId + i), brewUrl(brewBuildId + i));
+            assertPushResultLinkedToRecord(record, brewBuildId + i, brewUrl(brewBuildId + i));
         }
     }
 
@@ -125,11 +132,11 @@ public class ProductMilestoneReleaseManagerTest {
         assertThat(releases).hasSize(1);
     }
 
-    private void assertBrewAttributesInRecord(BuildRecord record, String expectedBrewId, String expectedBrewLink) {
-        assertThat(record.getAttributes()).isNotEmpty();
-
-        assertThat(record.getAttribute(ProductMilestoneReleaseManager.BREW_ID)).isEqualTo(expectedBrewId);
-        assertThat(record.getAttribute(ProductMilestoneReleaseManager.BREW_LINK)).isEqualTo(expectedBrewLink);
+    private void assertPushResultLinkedToRecord(BuildRecord record, Integer expectedBrewId, String expectedBrewLink) {
+        BuildRecordPushResult pushResult = buildRecordPushResultRepository.getLatestForBuildRecord(record.getId());
+        assertThat(pushResult).isNotNull();
+        assertThat(pushResult.getBrewBuildId()).isEqualTo(expectedBrewId);
+        assertThat(pushResult.getBrewBuildUrl()).isEqualTo(expectedBrewLink);
     }
 
     private MilestoneReleaseResultRest successfulReleaseResult(int brewBuildId, BuildRecord... records) {
