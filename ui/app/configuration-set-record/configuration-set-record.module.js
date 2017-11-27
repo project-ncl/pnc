@@ -79,9 +79,23 @@
               });
           },
           // only records that belong to the current csRecord
-          records: function ($q, csRecordDetail, BuildRecordDAO) {
-            return BuildRecordDAO.query().then(function (r) {
-              return _(r).filter({buildConfigSetRecordId: csRecordDetail.id});
+          records: function ($q, csRecordDetail, BuildConfigSetRecord) {
+            return BuildConfigSetRecord.getBuildRecords({
+              id: csRecordDetail.id,
+              pageSize: 100
+            }).$promise.then(function (page) {
+              // load other pages when they exist
+              // some type of pagination should be considered in the future
+              if (page.total > 1) {
+                return BuildConfigSetRecord.getBuildRecords({
+                  id: csRecordDetail.id,
+                  pageSize: page.total * page.size
+                }).$promise.then(function (page) {
+                  return page.data;
+                });
+              } else {
+                return page.data;
+              }
             });
           }
         }
