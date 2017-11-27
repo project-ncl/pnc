@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.restmodel.serialization;
 
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
-import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationRestMockBuilder;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
+import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,24 +32,24 @@ import java.io.IOException;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class RepositoryCreationRestSerializationTest {
+public class RepositoryCreationUrlAutoRestSerializationTest {
 
-    private final Logger log = LoggerFactory.getLogger(RepositoryCreationRestSerializationTest.class);
+    private final Logger log = LoggerFactory.getLogger(RepositoryCreationUrlAutoRestSerializationTest.class);
 
     @Test
     public void serializeAndDeserialize() throws IOException, BuildDriverException {
 
-        RepositoryCreationRest repositoryCreationRest = RepositoryCreationRestMockBuilder.mock("BC1", "mvn deploy", "http://giturl");
+        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder.mock("BC1", "mvn deploy", "http://giturl");
 
         String json = repositoryCreationRest.toString();
         log.debug("json : {}", json);
 
-        RepositoryCreationRest deserialized = JsonOutputConverterMapper.readValue(json, RepositoryCreationRest.class);
+        RepositoryCreationUrlAutoRest deserialized = JsonOutputConverterMapper.readValue(json, RepositoryCreationUrlAutoRest.class);
 
         String message = "Deserialized object does not match the original.";
 
         Assert.assertEquals(message, repositoryCreationRest.getBuildConfigurationRest().getName(), deserialized.getBuildConfigurationRest().getName());
-        Assert.assertEquals(message, repositoryCreationRest.getRepositoryConfigurationRest().getInternalUrl(), deserialized.getRepositoryConfigurationRest().getInternalUrl());
+        Assert.assertEquals(message, repositoryCreationRest.getScmUrl(), deserialized.getScmUrl());
 
     }
 }

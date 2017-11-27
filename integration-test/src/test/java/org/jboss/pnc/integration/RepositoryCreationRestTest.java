@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration;
 
 import com.jayway.restassured.response.Response;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
@@ -26,9 +27,9 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
-import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationRestMockBuilder;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
+import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.util.Optional;
 
 /**
@@ -85,13 +87,10 @@ public class RepositoryCreationRestTest {
         String internalScmUrl = INTERNAL_REPO + "/my/repo.git";
 
         String buildConfigurationName = "pnc-1.1";
-        RepositoryCreationRest repositoryCreationRest = RepositoryCreationRestMockBuilder.mock(
+        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder.mock(
                 buildConfigurationName,
                 "mvn clean deploy",
-                internalScmUrl,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty());
+                internalScmUrl);
 
         //when invoking remote endpoint
         //Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
@@ -114,14 +113,12 @@ public class RepositoryCreationRestTest {
     public void shouldCreateRCOnly() {
         //given
         String internalScmUrl = INTERNAL_REPO + "/my/repo2.git";
-        RepositoryConfigurationRest repositoryConfiguration = RepositoryConfigurationRest.builder()
-                .internalUrl(internalScmUrl)
+        RepositoryCreationUrlAutoRest repositoryConfiguration = RepositoryCreationUrlAutoRest.builder()
+                .scmUrl(internalScmUrl)
                 .build();
 
-        RepositoryCreationRest repositoryCreationRest = new RepositoryCreationRest(repositoryConfiguration, null);
-
         //when invoking remote endpoint
-        //        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
+        //        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryConfiguration);
         Response response = null;
 
         //expect

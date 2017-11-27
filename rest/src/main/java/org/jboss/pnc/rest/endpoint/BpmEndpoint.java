@@ -45,7 +45,6 @@ import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationProcessRest;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
@@ -213,120 +212,67 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
     }
 
-    @ApiOperation(value = "Start Repository Creation (RC) task (which stores the RC) and store the BC on success task completion.", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Success")
-    })
-    @POST
-    @Path("/tasks/start-repository-configuration-creation")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response startRCreationTask(
-            @ApiParam(value = "Task parameters.", required = true) RepositoryCreationRest repositoryCreationRest,
-            @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
+    /**
+     * Given the successful BC creation, add the BC into the BC sets. This solution has been
+     * selected because if this was done in BPM process there would have to be a foreach cycle and
+     * at least two REST requests for each BC Set ID. The process would become too complicated.
+     * Notification listeners are ideal for these kind of operations.
+     */
+    private void onRCCreationSuccess(BpmNotificationRest notification, BuildConfigurationRest buildConfigurationRest) {
+        LOG.debug("Received BPM event RC_CREATION_SUCCESS: " + notification);
 
-        LOG.debug("Received request to start RC creation: " + repositoryCreationRest);
+        BpmStringMapNotificationRest repositoryCreationTaskResult = (BpmStringMapNotificationRest) notification;
 
-        validate(repositoryCreationRest);
-
-        RepositoryConfigurationRest repositoryConfigurationRest = repositoryCreationRest.getRepositoryConfigurationRest();
-
-        Response message = checkIfInternalUrlExits(repositoryConfigurationRest);
-        if (message != null) {
-            return message;
-        }
-
-        message = checkIfExternalUrlExits(repositoryConfigurationRest);
-        if (message != null) {
-            return message;
-        }
-
-        BuildConfigurationRest buildConfigurationRest = repositoryCreationRest.getBuildConfigurationRest();
-        ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
-                .validateAnnotations();
-
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-
-        RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
-                repositoryCreationRest.getRepositoryConfigurationRest());
-
-        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
-
-        /**
-         * Given the successful BC creation, add the BC into the BC sets.
-         * This solution has been selected because if this was done in BPM process
-         * there would have to be a foreach cycle and at least two REST requests
-         * for each BC Set ID. The process would become too complicated.
-         * Notification listeners are ideal for these kind of operations.
-         */
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, x -> {
-            LOG.debug("Received BPM event RC_CREATION_SUCCESS: " + x);
-
-            BpmStringMapNotificationRest repositoryCreationTaskResult = (BpmStringMapNotificationRest) x;
-
-            int repositoryConfigurationId = -1;
-            int buildConfigurationSavedId = -1;
-            try {
-                repositoryConfigurationId = Integer.valueOf(repositoryCreationTaskResult.getData().get("repositoryConfigurationId"));
-            } catch (NumberFormatException ex) {
-                String errorMessage = "Receive notification about successful BC creation '" + repositoryCreationTaskResult +
-                                "' but the ID of the newly created RC '" + repositoryCreationTaskResult.getData()
-                                .get("repositoryConfigurationId") +
-                                "' is not a number. It should be present under 'repositoryConfigurationId' key.";
-
-                LOG.error(errorMessage, ex);
-                sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
-                return;
-            }
-
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
-            if (repositoryConfiguration == null) {
-                String errorMessage = "Repository Configuration was not found in database.";
-                LOG.error(errorMessage);
-                sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
-                return;
-            }
-
-            if (buildConfigurationRest != null) { //TODO test me
-                BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
-                        .repositoryConfiguration(repositoryConfiguration)
-                        .build();
-                BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
-                buildConfigurationSavedId = buildConfigurationSaved.getId();
-
-                Set<Integer> bcSetIds = buildConfigurationRest.getBuildConfigurationSetIds();
-                try {
-                    if (bcSetIds != null) {
-                        addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
-                    }
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
-                    sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, e.getMessage());
-                    return;
-                }
-            }
-
-            RepositoryCreationResultRest repositoryCreationResultRest =
-                    new RepositoryCreationResultRest(
-                            repositoryConfigurationId,
-                            buildConfigurationSavedId,
-                            RepositoryCreationResultRest.EventType.RC_CREATION_SUCCESS,
-                            null);
-
-            wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
-        });
-
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR, x -> {
-            LOG.debug("Received BPM event RC_CREATION_ERROR: " + x);
-        });
-
-        addWebsocketForwardingListeners(repositoryCreationTask);
-
+        int repositoryConfigurationId = -1;
+        int buildConfigurationSavedId = -1;
         try {
-            bpmManager.startTask(repositoryCreationTask);
-        } catch (CoreException e) {
-            throw new CoreException("Could not start BPM task: " + repositoryCreationTask, e);
+            repositoryConfigurationId = Integer.valueOf(repositoryCreationTaskResult.getData().get("repositoryConfigurationId"));
+        } catch (NumberFormatException ex) {
+            String errorMessage = "Receive notification about successful BC creation '" + repositoryCreationTaskResult
+                    + "' but the ID of the newly created RC '" + repositoryCreationTaskResult.getData()
+                    .get("repositoryConfigurationId")
+                    + "' is not a number. It should be present under 'repositoryConfigurationId' key.";
+
+            LOG.error(errorMessage, ex);
+            sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
+            return;
         }
-        return Response.ok(repositoryCreationTask.getTaskId()).build();
+
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
+        if (repositoryConfiguration == null) {
+            String errorMessage = "Repository Configuration was not found in database.";
+            LOG.error(errorMessage);
+            sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
+            return;
+        }
+
+        if (buildConfigurationRest != null) { //TODO test me
+            BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
+                    .repositoryConfiguration(repositoryConfiguration)
+                    .build();
+            BuildConfiguration buildConfigurationSaved = buildConfigurationRepository.save(buildConfiguration);
+            buildConfigurationSavedId = buildConfigurationSaved.getId();
+
+            Set<Integer> bcSetIds = buildConfigurationRest.getBuildConfigurationSetIds();
+            try {
+                if (bcSetIds != null) {
+                    addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
+                }
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+                sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, e.getMessage());
+                return;
+            }
+        }
+
+        RepositoryCreationResultRest repositoryCreationResultRest
+                = new RepositoryCreationResultRest(
+                        repositoryConfigurationId,
+                        buildConfigurationSavedId,
+                        RepositoryCreationResultRest.EventType.RC_CREATION_SUCCESS,
+                        null);
+
+        wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
     }
 
     private void sendErrorMessage(int repositoryConfigurationId, int buildConfigurationId, String message) {
@@ -339,9 +285,9 @@ public class BpmEndpoint extends AbstractEndpoint {
         wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
     }
 
-    public Response checkIfInternalUrlExits(RepositoryConfigurationRest repositoryConfigurationRest) throws InvalidEntityException {
-        if (repositoryConfigurationRest.getInternalUrl() != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(repositoryConfigurationRest.getInternalUrl());
+    private Response checkIfInternalUrlExits(String internalUrl) throws InvalidEntityException {
+        if (internalUrl != null) {
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(internalUrl);
             if (repositoryConfiguration != null) {
                 String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
@@ -350,9 +296,9 @@ public class BpmEndpoint extends AbstractEndpoint {
         return null;
     }
 
-    public Response checkIfExternalUrlExits(RepositoryConfigurationRest repositoryConfigurationRest) throws InvalidEntityException {
-        if (repositoryConfigurationRest.getExternalUrl() != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(repositoryConfigurationRest.getExternalUrl());
+    private Response checkIfExternalUrlExits(String externalUrl) throws InvalidEntityException {
+        if (externalUrl != null) {
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(externalUrl);
             if (repositoryConfiguration != null) {
                 String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
@@ -373,30 +319,65 @@ public class BpmEndpoint extends AbstractEndpoint {
             @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
 
         LOG.debug("Received request to start RC creation with url autodetect: " + repositoryCreationUrlAutoRest);
+        final BuildConfigurationRest buildConfigurationRest = repositoryCreationUrlAutoRest.getBuildConfigurationRest();
 
-        ValidationBuilder.validateObject(repositoryCreationUrlAutoRest, WhenCreatingNew.class);
+        ValidationBuilder.validateObject(repositoryCreationUrlAutoRest, WhenCreatingNew.class)
+                .validateAnnotations();
+        ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
+                .validateAnnotations();
 
         RepositoryConfigurationRest.RepositoryConfigurationRestBuilder repositoryConfigurationBuilder = RepositoryConfigurationRest.builder();
         repositoryConfigurationBuilder.preBuildSyncEnabled(repositoryCreationUrlAutoRest.isPreBuildSyncEnabled());
 
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         String scmUrl = repositoryCreationUrlAutoRest.getScmUrl();
-        Boolean isUrlInternal = RepositoryConfigurationProvider.isInternalRepository(
-                internalScmAuthority,
-                scmUrl);
+        if (!ScmUrlValidator.isValid(scmUrl)) {
+            throw new InvalidEntityException("Invalid scmUrl.");
+        }
+        Boolean isUrlInternal = scmUrl.contains(internalScmAuthority);
 
         if (isUrlInternal) {
+            repositoryConfigurationProvider.validateInternalRepository(scmUrl);
+            Response message = checkIfInternalUrlExits(scmUrl);
+            if (message != null) {
+                return message;
+            }
             repositoryConfigurationBuilder.internalUrl(scmUrl);
         } else {
+            Response message = checkIfExternalUrlExits(scmUrl);
+            if (message != null) {
+                return message;
+            }
             repositoryConfigurationBuilder.externalUrl(scmUrl);
         }
+        RepositoryCreationTask task = startRCreationTask(repositoryConfigurationBuilder.build(), buildConfigurationRest, httpServletRequest);
+        return Response.ok(task.getTaskId()).build();
+    }
 
-        RepositoryCreationRest repositoryCreationRest = RepositoryCreationRest.builder()
-                .buildConfigurationRest(repositoryCreationUrlAutoRest.getBuildConfigurationRest())
-                .repositoryConfigurationRest(repositoryConfigurationBuilder.build())
-                .build();
+    private RepositoryCreationTask startRCreationTask(RepositoryConfigurationRest repositoryConfigurationRest, BuildConfigurationRest buildConfigurationRest,
+            HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
-        return startRCreationTask(repositoryCreationRest, httpServletRequest);
+        RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
+                repositoryConfigurationRest);
+
+        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
+
+        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS,
+                x -> onRCCreationSuccess(x, buildConfigurationRest));
+
+        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR, x -> {
+            LOG.debug("Received BPM event RC_CREATION_ERROR: " + x);
+        });
+
+        addWebsocketForwardingListeners(repositoryCreationTask);
+
+        try {
+            bpmManager.startTask(repositoryCreationTask);
+        } catch (CoreException e) {
+            throw new CoreException("Could not start BPM task: " + repositoryCreationTask, e);
+        }
+        return repositoryCreationTask;
     }
 
     private void addBuildConfigurationToSet(BuildConfiguration buildConfiguration, Set<Integer> bcSetIds) throws Exception {
@@ -407,36 +388,6 @@ public class BpmEndpoint extends AbstractEndpoint {
                 throw new Exception("Could not add BC with ID '" + buildConfiguration.getId() +
                         "' to a BC Set with id '" + setId + "'.", e);
             }
-        }
-    }
-
-    /**
-     * Manually validate RepositoryConfiguration as annotations with more constraints are required for the direct usage (CRUD) of the RepositoryConfiguration
-     */
-    private void validate(RepositoryCreationRest repositoryCreationRest)
-            throws EmptyEntityException, InvalidEntityException {
-
-        if (repositoryCreationRest == null) {
-            throw new InvalidEntityException("Missing required entity.");
-        }
-
-        RepositoryConfigurationRest repositoryConfiguration = repositoryCreationRest.getRepositoryConfigurationRest();
-
-        if (repositoryConfiguration == null) {
-            throw new InvalidEntityException("Missing required field.");
-        }
-
-        String internalUrl = repositoryConfiguration.getInternalUrl();
-        if (!ScmUrlValidator.isValid(internalUrl)) {
-            throw new InvalidEntityException("Invalid internalURL.");
-        }
-
-        if (internalUrl != null) {
-            repositoryConfigurationProvider.validateInternalRepository(internalUrl);
-        }
-
-        if (!ScmUrlValidator.isValid(repositoryConfiguration.getExternalUrl())) {
-            throw new InvalidEntityException("Invalid externalURL.");
         }
     }
 
