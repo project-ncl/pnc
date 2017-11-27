@@ -60,7 +60,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
      */
     @Getter
     @Setter
-    private Integer brewBuildId; //TODO do not duplicate the value in the BR attributes
+    private Integer brewBuildId;
 
     /**
      * link to brew
