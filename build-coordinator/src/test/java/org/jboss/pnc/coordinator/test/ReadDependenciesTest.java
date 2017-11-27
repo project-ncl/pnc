@@ -85,7 +85,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
 
         return buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
-                user, buildOptions,
+                user,
+                buildOptions,
                 atomicInteger::getAndIncrement,
                 buildConfigurationSet.getBuildConfigurations(),
                 buildQueue.getUnfinishedTasks());

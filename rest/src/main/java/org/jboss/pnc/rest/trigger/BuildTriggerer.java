@@ -90,7 +90,8 @@ public class BuildTriggerer {
     }
 
     public int triggerBuild(final Integer buildConfigurationId,
-                            User currentUser, BuildOptions buildOptions,
+                            User currentUser,
+                            BuildOptions buildOptions,
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
@@ -128,7 +129,8 @@ public class BuildTriggerer {
 
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
-                currentUser, buildOptions);
+                currentUser,
+                buildOptions);
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
 
@@ -138,7 +140,8 @@ public class BuildTriggerer {
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
             final Integer buildConfigurationSetId,
-            User currentUser, BuildOptions buildOptions,
+            User currentUser,
+            BuildOptions buildOptions,
             URL callBackUrl)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
@@ -162,7 +165,8 @@ public class BuildTriggerer {
 
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
-                currentUser, buildOptions);
+                currentUser,
+                buildOptions);
 
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }

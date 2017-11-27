@@ -45,7 +45,6 @@ public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildCon
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
                 .queryParam("timestampAlignment", options.isTimestampAlignment())
-
                 .post(collectionUrl + id + "/build");
 
         response.then().statusCode(200);

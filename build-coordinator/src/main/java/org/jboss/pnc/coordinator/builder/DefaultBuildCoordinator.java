@@ -129,7 +129,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         BuildSetTask buildSetTask =
                 buildTasksInitializer.createBuildSetTask(
-                        buildConfiguration, user, buildOptions,
+                        buildConfiguration,
+                        user,
+                        buildOptions,
                         this::buildRecordIdSupplier,
                         buildQueue.getUnfinishedTasks());
 
@@ -167,8 +169,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         Set<BuildConfiguration> buildConfigurations = datastoreAdapter.getBuildConfigurations(buildConfigurationSet);
 
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
-                buildConfigurationSet, user, buildOptions,
-                this::buildRecordIdSupplier, buildConfigurations,
+                buildConfigurationSet,
+                user,
+                buildOptions,
+                this::buildRecordIdSupplier,
+                buildConfigurations,
                 buildQueue.getUnfinishedTasks());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
