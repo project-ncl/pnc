@@ -43,8 +43,8 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -225,17 +225,21 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected void build(BuildConfigurationSet configSet, boolean rebuildAll) throws CoreException {
-        coordinator.build(configSet, null, false, rebuildAll);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(rebuildAll);
+
+        coordinator.build(configSet, null, buildOptions);
         coordinator.start();
     }
 
     protected void build(BuildConfiguration config) {
-        build(config, BuildScope.WITH_DEPENDENCIES, false);
+        BuildOptions buildOptions = new BuildOptions();
+        build(config, buildOptions);
     }
 
-    protected void build(BuildConfiguration config, BuildScope scope, boolean rebuildAll) {
+    protected void build(BuildConfiguration config, BuildOptions buildOptions) {
         try {
-            coordinator.build(config, null, scope, rebuildAll);
+            coordinator.build(config, null, buildOptions);
         } catch (BuildConflictException | CoreException e) {
             throw new RuntimeException("Failed to run a build of: " + config, e);
         }

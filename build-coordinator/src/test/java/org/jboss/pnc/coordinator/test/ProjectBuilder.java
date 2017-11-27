@@ -27,7 +27,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.BuildScope;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -106,7 +106,7 @@ public class ProjectBuilder {
         //Defines a number of callbacks, which are executed after buildStatus update
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdateInternal, N_STATUS_UPDATES_PER_TASK);
 
-        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), BuildScope.SINGLE, false);
+        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), new BuildOptions());
         Set<BuildTask> buildTasks = taskSet.getBuildTasks();
         assertThat(buildTasks).hasSize(1);
         BuildTask buildTask = buildTasks.iterator().next();
@@ -172,7 +172,9 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdate, nStatusUpdates);
         final Semaphore buildSetSemaphore = registerBuildSetListeners(receivedSetStatuses, BUILD_SET_STATUS_UPDATES);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), false, true);
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), buildOptions);
 
         assertBuildStartedSuccessfully(buildSetTask);
 

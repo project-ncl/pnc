@@ -36,6 +36,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -167,11 +168,12 @@ public class StatusUpdatesTest {
         BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
         return buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
-                true,
-                false,
+                buildOptions,
                 () -> atomicInteger.getAndIncrement(),
                 buildConfigurationSet.getBuildConfigurations(),
                 buildQueue.getUnfinishedTasks()

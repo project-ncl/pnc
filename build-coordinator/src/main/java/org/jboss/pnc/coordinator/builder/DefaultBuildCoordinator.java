@@ -32,8 +32,8 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.BuildScope;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -114,17 +114,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
-     * @param keepPodAliveAfterFailure Don't stop the pod in which the build is running after build failure
-     * @param scope Build scope.
+     * @param buildOptions Customization of a build specified by user
      *
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
     @Override
     public BuildSetTask build(BuildConfiguration buildConfiguration,
-                           User user,
-                           BuildScope scope,
-                           boolean keepPodAliveAfterFailure) throws BuildConflictException, CoreException {
+                           User user, BuildOptions buildOptions) throws BuildConflictException, CoreException {
 
         if (buildQueue.getUnfinishedTask(buildConfiguration).isPresent()) {
             throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
@@ -134,8 +131,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 buildTasksInitializer.createBuildSetTask(
                         buildConfiguration,
                         user,
-                        scope,
-                        keepPodAliveAfterFailure,
+                        buildOptions,
                         this::buildRecordIdSupplier,
                         buildQueue.getUnfinishedTasks());
 
@@ -160,8 +156,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      *
      * @param buildConfigurationSet The set of builds to be executed.
      * @param user The user who triggered the build.
-     * @param forceRebuildAll Rebuild all configs in the set even if some of them have already been built
-     * @param keepPodAliveAfterFailure Don't kill the pod after build failure
+     * @param buildOptions Customization of a build specified by user
      *
      * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
@@ -169,24 +164,21 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     @Override
     public BuildSetTask build(
             BuildConfigurationSet buildConfigurationSet,
-            User user,
-            boolean keepPodAliveAfterFailure,
-            boolean forceRebuildAll) throws CoreException {
+            User user, BuildOptions buildOptions) throws CoreException {
 
         Set<BuildConfiguration> buildConfigurations = datastoreAdapter.getBuildConfigurations(buildConfigurationSet);
 
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
-                forceRebuildAll,
-                keepPodAliveAfterFailure,
+                buildOptions,
                 this::buildRecordIdSupplier,
                 buildConfigurations,
                 buildQueue.getUnfinishedTasks());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
         checkForEmptyBuildSetTask(buildSetTask);
-        if (!forceRebuildAll) {
+        if (!buildOptions.isForceRebuild()) {
             checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet);
         }
 

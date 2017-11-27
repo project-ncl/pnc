@@ -28,7 +28,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
-import org.jboss.pnc.spi.BuildScope;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -52,9 +52,6 @@ import java.util.function.Consumer;
 
 @Stateless
 public class BuildTriggerer {
-
-
-
     private final Logger log = Logger.getLogger(BuildTriggerer.class);
 
     private BuildCoordinator buildCoordinator;
@@ -94,8 +91,7 @@ public class BuildTriggerer {
 
     public int triggerBuild(final Integer buildConfigurationId,
                             User currentUser,
-                            boolean keepPodAliveAfterFailure,
-                            BuildScope scope,
+                            BuildOptions buildOptions,
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
@@ -105,7 +101,7 @@ public class BuildTriggerer {
             }
         };
 
-        BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, currentUser, keepPodAliveAfterFailure, scope);
+        BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, currentUser, buildOptions);
         result.getBuildTasks().forEach(t -> buildStatusNotifications.subscribe(new BuildCallBack(t.getId(), onStatusUpdate)));
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigurationId);
     }
@@ -118,27 +114,23 @@ public class BuildTriggerer {
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
 
-    public int triggerBuild(final Integer configurationId,
-                            User currentUser,
-                            boolean keepPodAliveAfterFailure,
-                            BuildScope scope) throws BuildConflictException, CoreException {
+    public int triggerBuild(final Integer configurationId, User currentUser, BuildOptions buildOptions)
+            throws BuildConflictException, CoreException {
         BuildConfigurationSetTriggerResult result =
-                doTriggerBuild(configurationId, currentUser, keepPodAliveAfterFailure, scope);
+                doTriggerBuild(configurationId, currentUser, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), configurationId);
     }
 
-    private BuildConfigurationSetTriggerResult doTriggerBuild(final Integer configurationId,
-                                                              User currentUser,
-                                                              boolean keepPodAliveAfterFailure,
-                                                              BuildScope scope) throws BuildConflictException, CoreException {
+    private BuildConfigurationSetTriggerResult doTriggerBuild(final Integer configurationId, User currentUser,
+                                                              BuildOptions buildOptions)
+            throws BuildConflictException, CoreException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 currentUser,
-                scope,
-                keepPodAliveAfterFailure);
+                buildOptions);
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
 
@@ -149,8 +141,7 @@ public class BuildTriggerer {
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
             final Integer buildConfigurationSetId,
             User currentUser,
-            boolean keepPodAliveAfterFailure,
-            boolean rebuildAll,
+            BuildOptions buildOptions,
             URL callBackUrl)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
@@ -160,15 +151,13 @@ public class BuildTriggerer {
             }
         };
 
-        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser,
-                keepPodAliveAfterFailure,
-                rebuildAll);
+        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, buildOptions);
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
         return result;
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
-            User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll)
+            User currentUser, BuildOptions buildOptions)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null,
@@ -177,8 +166,7 @@ public class BuildTriggerer {
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
                 currentUser,
-                keepPodAliveAfterFailure,
-                rebuildAll);
+                buildOptions);
 
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
