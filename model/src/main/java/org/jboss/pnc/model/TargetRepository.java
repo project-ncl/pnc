@@ -50,7 +50,7 @@ public class TargetRepository implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String SEQUENCE_NAME = "artifact_repo_id_seq";
+    public static final String SEQUENCE_NAME = "target_repository_repo_id_seq";
 
     @Id
     @Getter
