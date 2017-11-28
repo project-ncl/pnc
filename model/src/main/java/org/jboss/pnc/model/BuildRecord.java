@@ -19,7 +19,6 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.common.security.Md5;
@@ -35,6 +34,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -122,7 +122,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne
-    @ForeignKey(name = "fk_buildrecord_user")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_user"))
     @Index(name="idx_buildrecord_user")
     private User user;
 
@@ -198,10 +198,20 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @ManyToMany
     @JoinTable(name = "build_record_built_artifact_map", joinColumns = {
-            @JoinColumn(name = "build_record_id", referencedColumnName = "id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "built_artifact_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "uk_build_record_id_built_artifact_id", columnNames = {
-                            "build_record_id", "built_artifact_id" }) )
-    @ForeignKey(name = "fk_build_record_built_artifact_map")
+            @JoinColumn(
+                name = "build_record_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map")
+            )
+        },
+        inverseJoinColumns = {
+            @JoinColumn(name = "built_artifact_id", referencedColumnName = "id")
+        },
+        uniqueConstraints = @UniqueConstraint(
+            name = "uk_build_record_id_built_artifact_id",
+            columnNames = {"build_record_id", "built_artifact_id" }
+        )
+    )
     @Index(name = "idx_build_record_built_artifact_map")
     private Set<Artifact> builtArtifacts;
 
@@ -210,10 +220,20 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @ManyToMany
     @JoinTable(name = "build_record_artifact_dependencies_map", joinColumns = {
-            @JoinColumn(name = "build_record_id", referencedColumnName = "id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "dependency_artifact_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "uk_build_record_id_dependency_artifact_id", columnNames = {
-                            "build_record_id", "dependency_artifact_id" }) )
-    @ForeignKey(name = "fk_build_record_artifact_dependencies_map")
+            @JoinColumn(
+                name = "build_record_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map")
+            )
+        },
+        inverseJoinColumns = {
+            @JoinColumn(name = "dependency_artifact_id", referencedColumnName = "id")
+        },
+        uniqueConstraints = @UniqueConstraint(
+            name = "uk_build_record_id_dependency_artifact_id",
+            columnNames = {"build_record_id", "dependency_artifact_id" }
+        )
+    )
     @Index(name = "idx_build_record_artifact_dependencies_map")
     private Set<Artifact> dependencies;
 
@@ -221,7 +241,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Environment configuration (including system image) that was used to instantiate the build host.
      */
     @ManyToOne
-    @ForeignKey(name = "fk_buildrecord_buildenvironment")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildenvironment"))
     @Index(name="idx_buildrecord_buildenvironment")
     private BuildEnvironment buildEnvironment;
 
@@ -238,7 +258,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * this field will be null.
      */
     @ManyToOne
-    @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord"))
     @Index(name="idx_buildrecord_buildconfigsetrecord")
     private BuildConfigSetRecord buildConfigSetRecord;
 
