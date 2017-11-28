@@ -25,8 +25,12 @@ import lombok.ToString;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -34,6 +38,7 @@ import javax.persistence.ManyToOne;
 @ToString
 @Builder
 @Entity
+@Table(indexes = {@Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id")})
 public class BuildRecordPushResult implements GenericEntity<Integer> {
 
     @Id
@@ -41,6 +46,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     @Setter
     private Integer id;
 
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecordpushresult_buildrecord"))
     @ManyToOne
     @Getter
     @Setter

@@ -35,8 +35,8 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.provider.BuildRecordPushResultProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordPushRequestRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.coordinator.ProcessException;
@@ -50,7 +50,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -88,6 +87,10 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private String pncBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
+    @Deprecated //RestEasy - CDI workaround
+    public BuildRecordPushEndpoint() {
+    }
 
     @Inject
     public BuildRecordPushEndpoint(
@@ -193,7 +196,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
-    @PUT
+    @POST
     @Path("/{buildRecordId}/cancel/")
     public Response cancel(
             BuildRecordPushResultRest buildRecordPushResult,
@@ -214,7 +217,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
-    @PUT
+    @POST
     @Path("/{buildRecordId}/complete/")
     public Response push(
             BuildRecordPushResultRest buildRecordPushResult,

@@ -24,9 +24,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
@@ -50,7 +53,9 @@ import java.util.Set;
  * 
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256", "targetRepository_id"}) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256", "targetRepository_id"}),
+        indexes = {@Index(name="idx_artifact_targetRepository", columnList = "targetRepository_id")}
+)
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -100,6 +105,7 @@ public class Artifact implements GenericEntity<Integer> {
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
      * the format of the identifier string.
      */
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @Getter
     @Setter
     @NotNull
