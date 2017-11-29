@@ -17,9 +17,20 @@
  */
 package org.jboss.pnc.managers;
 
+import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
+import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.managers.causeway.CausewayClient;
-import org.jboss.pnc.managers.causeway.CausewayPushRequest;
+import org.jboss.pnc.managers.causeway.remotespi.Build;
+import org.jboss.pnc.managers.causeway.remotespi.BuildImportRequest;
+import org.jboss.pnc.managers.causeway.remotespi.BuildRoot;
+import org.jboss.pnc.managers.causeway.remotespi.BuiltArtifact;
+import org.jboss.pnc.managers.causeway.remotespi.CallbackMethod;
+import org.jboss.pnc.managers.causeway.remotespi.CallbackTarget;
+import org.jboss.pnc.managers.causeway.remotespi.Dependency;
+import org.jboss.pnc.managers.causeway.remotespi.Logfile;
+import org.jboss.pnc.managers.causeway.remotespi.MavenBuild;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -34,6 +45,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,6 +68,8 @@ public class BuildResultPushManager {
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
     private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
+    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
+    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/rest/build-records/%d/repour-log";
 
     @Inject
     public BuildResultPushManager(BuildRecordRepository buildRecordRepository,
@@ -103,54 +117,89 @@ public class BuildResultPushManager {
 
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
-        CausewayPushRequest causewayPushRequest = createCausewayPushRequest(buildRecord, tagPrefix);
-        String jsonMessage = causewayPushRequest.toString();
+        BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl);
+        String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);
 
-        boolean successfullyPushed = causewayClient.push(jsonMessage, authToken, callBackUrl);
+        boolean successfullyPushed = causewayClient.push(jsonMessage, authToken);
         if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
         }
         return successfullyPushed;
     }
 
-    private CausewayPushRequest createCausewayPushRequest(BuildRecord buildRecord, String tagPrefix) {
-        CausewayPushRequest.BuildRoot buildRoot = new CausewayPushRequest.BuildRoot(
+    private BuildImportRequest createCausewayPushRequest(BuildRecord buildRecord, String tagPrefix, String callBackUrl) {
+        BuildRoot buildRoot = new BuildRoot(
+                "DOCKER_IMAGE",
+                "x86_64", //TODO set based on env, some env has native build tools
+                "rhel",
+                "x86_64",
                 buildRecord.getBuildEnvironment().getAttributes()
         );
 
-        Set<CausewayPushRequest.Dependency> dependencies = collectDependencies(buildRecord.getDependencies());
-        Set<CausewayPushRequest.BuiltArtifact> builtArtifacts = collectBuiltArtifacts(buildRecord.getBuiltArtifacts());
+        Set<Dependency> dependencies = collectDependencies(buildRecord.getDependencies());
+        Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(buildRecord.getBuiltArtifacts());
 
-        return new CausewayPushRequest(
+        CallbackTarget callbackTarget = new CallbackTarget(callBackUrl, CallbackMethod.POST);
+        ProjectVersionRef projectVersionRef = buildRootToGAV(
+                buildRecord.getExecutionRootName(),
+                buildRecord.getExecutionRootVersion());
+        Set<Logfile> logs = new HashSet<>();
+        logs.add(new Logfile("build.log", getBuildLogPath(buildRecord.getId()), buildRecord.getBuildLogSize(), buildRecord.getBuildLogMd5()));
+        logs.add(new Logfile("repour.log", getRepourLogPath(buildRecord.getId()), buildRecord.getRepourLogSize(), buildRecord.getRepourLogMd5()));
+
+        Build build = new MavenBuild(
+                projectVersionRef.getGroupId(),
+                projectVersionRef.getArtifactId(),
+                projectVersionRef.getVersionString(),
                 buildRecord.getExecutionRootName(),
                 buildRecord.getExecutionRootVersion(),
-                buildRecord.getId().toString(),
+                "PNC",
+                buildRecord.getId(),
                 String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()),
                 buildRecord.getStartTime(),
                 buildRecord.getEndTime(),
                 buildRecord.getScmRepoURL(),
                 buildRecord.getScmRevision(),
-                tagPrefix,
                 buildRoot,
+                logs,
                 dependencies,
-                builtArtifacts
+                builtArtifacts,
+                tagPrefix
         );
+
+        return new BuildImportRequest(callbackTarget, build);
     }
 
-    private Set<CausewayPushRequest.BuiltArtifact> collectBuiltArtifacts(Set<Artifact> builtArtifacts) {
+    private String getRepourLogPath(Integer id) {
+        return String.format(PNC_REPOUR_LOG_PATH, id);
+    }
+
+    private String getBuildLogPath(Integer id) {
+        return String.format(PNC_BUILD_LOG_PATH, id);
+    }
+
+    private ProjectVersionRef buildRootToGAV(String executionRootName, String executionRootVersion) {
+        String[] splittedName = executionRootName.split(":");
+        if(splittedName.length != 2)
+            throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesnt seem to be maven G:A.");
+
+        return new SimpleProjectVersionRef(
+                splittedName[0],
+                splittedName.length < 2 ? null : splittedName[1],
+                executionRootVersion);
+    }
+
+    private Set<BuiltArtifact> collectBuiltArtifacts(Set<Artifact> builtArtifacts) {
         return builtArtifacts.stream().map(artifact -> {
                 Gav gav = Gav.parse(artifact.getIdentifier());
-                return new CausewayPushRequest.BuiltArtifact(
-                        artifact.getTargetRepository().getRepositoryType(),
+                return new BuiltArtifact(
+                        artifact.getId(),
                         artifact.getFilename(),
+                        artifact.getTargetRepository().getRepositoryType().toString(),
                         artifact.getMd5(),
-                        artifact.getSha256(),
-                        artifact.getSize(),
                         getDeployUrl(artifact),
-                        gav.getGroupId(),
-                        gav.getArtifactId(),
-                        gav.getVersion()
-                    );
+                        artifact.getSize().intValue()
+                        );
                 })
             .collect(Collectors.toSet());
     }
@@ -159,13 +208,13 @@ public class BuildResultPushManager {
         return artifact.getDeployPath();
     }
 
-    private Set<CausewayPushRequest.Dependency> collectDependencies(Set<Artifact> dependencies) {
-        return dependencies.stream().map(artifact -> new CausewayPushRequest.Dependency(
-                        artifact.getTargetRepository().getRepositoryType(),
+    private Set<Dependency> collectDependencies(Set<Artifact> dependencies) {
+        return dependencies.stream()
+                .map(artifact -> new Dependency(
                         artifact.getFilename(),
                         artifact.getMd5(),
-                        artifact.getSha256(),
-                        artifact.getSize()))
+                        artifact.getSize())
+                )
                 .collect(Collectors.toSet());
     }
 

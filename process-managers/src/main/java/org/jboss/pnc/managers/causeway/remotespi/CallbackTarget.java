@@ -15,12 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway;
+package org.jboss.pnc.managers.causeway.remotespi;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NonNull;
+
+import javax.ws.rs.DefaultValue;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public interface CausewayClient {
+@Data
+public class CallbackTarget {
+    @NonNull
+    private final String url;
+    
+    @NonNull
+    private final CallbackMethod method;
 
-    boolean push(String jsonMessage, String authToken);
+    @JsonCreator
+    public CallbackTarget(@JsonProperty("url") String url,
+            @JsonProperty("method") @DefaultValue("POST") CallbackMethod method) {
+        this.url = url;
+        this.method = method;
+    }
+    
+    
 }

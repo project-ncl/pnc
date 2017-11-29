@@ -46,8 +46,8 @@ import java.util.Set;
  */
 public class BuildResultPushManagerTest {
 
-    private static final String EXECUTION_ROOT_NAME = "EXECUTION_ROOT_NAME";
-    private static final String EXECUTION_ROOT_VERSION = "EXECUTION_ROOT_VERSION";
+    private static final String EXECUTION_ROOT_NAME = "org.jboss.pnc:parent";
+    private static final String EXECUTION_ROOT_VERSION = "1.2.3";
     private static final String SCM_REPO_URL = "SCM_REPO_URL";
     private static final String SCM_REPO_REVISION = "SCM_REPO_REVISION";
 
@@ -156,19 +156,19 @@ public class BuildResultPushManagerTest {
     private class TestCausewayClient implements CausewayClient {
 
         @Override
-        public boolean push(String jsonMessage, String authToken, String callBackUrl) {
+        public boolean push(String jsonMessage, String authToken) {
             if (jsonMessage.contains(EXECUTION_ROOT_NAME)
                     && jsonMessage.contains(EXECUTION_ROOT_VERSION)
                     && jsonMessage.contains(SCM_REPO_URL)
                     && jsonMessage.contains(SCM_REPO_REVISION)
                     && jsonMessage.contains(dependency1.getFilename())
-                    && jsonMessage.contains(dependency1.getSha256())
+                    && jsonMessage.contains(dependency1.getMd5())
                     && jsonMessage.contains(dependency2.getFilename())
-                    && jsonMessage.contains(dependency2.getSha256())
+                    && jsonMessage.contains(dependency2.getMd5())
                     && jsonMessage.contains(builtArtifact1.getFilename())
-                    && jsonMessage.contains(builtArtifact1.getSha256())
+                    && jsonMessage.contains(builtArtifact1.getMd5())
                     && jsonMessage.contains(builtArtifact2.getFilename())
-                    && jsonMessage.contains(builtArtifact2.getSha256())
+                    && jsonMessage.contains(builtArtifact2.getMd5())
                     ) {
                 return true;
             } else {
