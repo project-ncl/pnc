@@ -88,6 +88,9 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
+    @Context
+    private HttpServletRequest httpServletRequest;
+
     @Deprecated //RestEasy - CDI workaround
     public BuildRecordPushEndpoint() {
     }
