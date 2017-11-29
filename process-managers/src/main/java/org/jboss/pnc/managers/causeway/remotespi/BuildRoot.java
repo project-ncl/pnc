@@ -15,12 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway;
+package org.jboss.pnc.managers.causeway.remotespi;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.Map;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @author Honza Brázdil <janinko.g@gmail.com>
  */
-public interface CausewayClient {
+@Data
+@Builder
+@AllArgsConstructor
+public class BuildRoot {
 
-    boolean push(String jsonMessage, String authToken);
+    private final String container;
+    private final String containerArchitecture;
+    private final String host;
+    private final String hostArchitecture;
+    private final Map<String, String> tools;
 }

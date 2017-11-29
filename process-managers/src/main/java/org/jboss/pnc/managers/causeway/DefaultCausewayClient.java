@@ -40,6 +40,8 @@ import java.io.IOException;
 @Dependent
 public class DefaultCausewayClient implements CausewayClient {
 
+    private final String BR_PUSH_PATH = "/import/build";
+
     Logger logger = LoggerFactory.getLogger(DefaultCausewayClient.class);
 
     private String causewayEndpoint;
@@ -49,7 +51,7 @@ public class DefaultCausewayClient implements CausewayClient {
         try {
             String causewayBaseUrl = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class))
                     .getCausewayBaseUrl();
-            causewayEndpoint = causewayBaseUrl + "BR_PUSH_PATH"; //TODO set Causeway path
+            causewayEndpoint = causewayBaseUrl + BR_PUSH_PATH;
         } catch (ConfigurationParseException e) {
             logger.error("There is a problem while parsing system configuration. Using defaults.", e);
         }
@@ -57,14 +59,12 @@ public class DefaultCausewayClient implements CausewayClient {
     }
 
     @Override
-    public boolean push(String jsonMessage, String authToken, String callBackUrl) {
+    public boolean push(String jsonMessage, String authToken) {
         Header authHeader = new BasicHeader("Authorization", authToken);
-        Header callBackHeader = new BasicHeader("Completion-callback", callBackUrl);
 
         try {
             HttpResponse response = Request.Post(causewayEndpoint)
                     .addHeader(authHeader)
-                    .addHeader(callBackHeader)
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
                     .execute()
                     .returnResponse();
