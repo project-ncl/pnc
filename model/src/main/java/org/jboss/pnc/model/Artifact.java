@@ -190,7 +190,7 @@ public class Artifact implements GenericEntity<Integer> {
         /**
          * The artifact is from a snapshot or a Pull Request build
          */
-        TEMPORAL
+        TEMPORARY
 
     }
 
