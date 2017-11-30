@@ -44,6 +44,6 @@ public class TimeUtilsTest {
         String timestamp = TimeUtils.generateTimestamp(true, date);
 
         //then
-        assertEquals("t20171130-145345-464", timestamp);
+        assertEquals("t20171130-135345-464", timestamp);
     }
 }
