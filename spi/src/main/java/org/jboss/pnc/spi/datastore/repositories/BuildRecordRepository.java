@@ -33,6 +33,8 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     BuildRecord findByIdFetchAllProperties(Integer id);
 
+    BuildRecord findByIdFetchProperties(Integer id);
+
     List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates);
 
     List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates,

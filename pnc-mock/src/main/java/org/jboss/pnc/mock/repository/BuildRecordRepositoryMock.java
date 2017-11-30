@@ -38,6 +38,11 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
         return queryById(id);
     }
 
+    @Override
+    public BuildRecord findByIdFetchProperties(Integer id) {
+        return queryById(id);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates) {

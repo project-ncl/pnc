@@ -30,4 +30,11 @@ public interface BuildRecordSpringRepository
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
     BuildRecord findByIdFetchAllProperties(Integer id);
+
+    @Query("select br from BuildRecord br "
+            + "left join fetch br.productMilestone "
+            + "left join fetch br.buildConfigSetRecord "
+            + "left join fetch br.user "
+            + "where br.id = ?1")
+    BuildRecord findByIdFetchProperties(Integer id);
 }

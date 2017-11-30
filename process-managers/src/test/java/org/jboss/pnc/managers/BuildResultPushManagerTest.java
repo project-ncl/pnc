@@ -23,6 +23,8 @@ import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -89,6 +91,12 @@ public class BuildResultPushManagerTest {
                 .attribute("java", "1.8")
                 .build();
 
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+                .buildEnvironment(environment)
+                .build();
+
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 1);
+
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
                 .executionRootName(EXECUTION_ROOT_NAME)
                 .executionRootVersion(EXECUTION_ROOT_VERSION)
@@ -100,7 +108,7 @@ public class BuildResultPushManagerTest {
                 .dependency(dependency2)
                 .builtArtifact(builtArtifact1)
                 .builtArtifact(builtArtifact2)
-                .buildEnvironment(environment)
+                .buildConfigurationAudited(buildConfigurationAudited)
                 .build();
 
         return buildRecordRepository.save(buildRecord).getId();
