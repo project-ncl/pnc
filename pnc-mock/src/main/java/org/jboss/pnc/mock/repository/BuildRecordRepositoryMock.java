@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
-        return null;
+        return queryById(id);
     }
 
     @SuppressWarnings("unchecked")
