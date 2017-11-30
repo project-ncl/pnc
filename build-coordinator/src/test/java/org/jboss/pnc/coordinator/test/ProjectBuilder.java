@@ -94,6 +94,15 @@ public class ProjectBuilder {
             BuildCoordinator buildCoordinator,
             Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate)
             throws BuildConflictException, InterruptedException, CoreException {
+        return buildProject(buildConfiguration, buildCoordinator, onStatusUpdate, new BuildOptions());
+    }
+
+    BuildTask buildProject(
+            BuildConfiguration buildConfiguration,
+            BuildCoordinator buildCoordinator,
+            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate,
+            BuildOptions buildOptions)
+            throws BuildConflictException, InterruptedException, CoreException {
 
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
@@ -106,7 +115,7 @@ public class ProjectBuilder {
         //Defines a number of callbacks, which are executed after buildStatus update
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdateInternal, N_STATUS_UPDATES_PER_TASK);
 
-        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), new BuildOptions());
+        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), buildOptions);
         Set<BuildTask> buildTasks = taskSet.getBuildTasks();
         assertThat(buildTasks).hasSize(1);
         BuildTask buildTask = buildTasks.iterator().next();

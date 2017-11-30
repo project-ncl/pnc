@@ -24,8 +24,11 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -34,6 +37,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,6 +129,12 @@ public class BuildConfigurationEndpointTest {
 
         assertThat(supportedParameters).containsKey(CUSTOM_PME_PARAMETERS);
         assertThat(supportedParameters.get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
+    }
+
+    @Test(expected = InvalidEntityException.class)
+    public void invalidBuildOptionsRejectedTest() throws InvalidEntityException, MalformedURLException, CoreException, BuildConflictException {
+        // when
+        bcEndpoint.trigger(1, null, false, false, false, false, true, null);
     }
 
 }

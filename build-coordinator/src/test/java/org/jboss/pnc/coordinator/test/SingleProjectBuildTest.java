@@ -23,7 +23,9 @@ import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -77,5 +79,40 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         receivedStatuses.stream().filter(e -> e.getNewStatus().isCompleted()).forEach(e -> {
             Assert.assertNotNull("Final event " + e + " should have end build time.", e.getBuildEndTime());
         });
+    }
+
+    @Test
+    public void buildWithBasicOptionsTest() throws Exception {
+        //given
+        DatastoreMock datastoreMock = new DatastoreMock();
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+
+        //when
+        BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
+        BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add);
+
+        //then
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
+        Assert.assertEquals(new BuildOptions(), buildTask.getBuildOptions());
+    }
+
+    @Test
+    public void buildWithAdvancedOptionsTest() throws Exception {
+        //given
+        BuildOptions originalBuildOptions = new BuildOptions(true, true, true, true, true);
+        DatastoreMock datastoreMock = new DatastoreMock();
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+
+        //when
+        BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
+        BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add, originalBuildOptions);
+
+        //then
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
+        Assert.assertEquals(originalBuildOptions, buildTask.getBuildOptions());
     }
 }

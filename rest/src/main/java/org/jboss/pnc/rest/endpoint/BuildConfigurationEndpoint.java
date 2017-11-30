@@ -119,7 +119,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private java.util.Map<String, String> buildConfigurationSupportedGenericParameters;
 
     public static void checkBuildOptionsValidity(BuildOptions buildOptions) throws InvalidEntityException {
-        if(!buildOptions.isTemporaryBuild() && buildOptions.isTemporaryBuild()) {
+        if(!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
             // Combination timestampAlignment + standard build is not allowed
             throw new InvalidEntityException("Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
         }
