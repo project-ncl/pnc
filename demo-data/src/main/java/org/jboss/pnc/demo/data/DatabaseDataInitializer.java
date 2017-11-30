@@ -421,6 +421,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
+                .size(10L)
                 .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact2:jar:1.0")
@@ -429,6 +430,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd2345")
                 .sha1("sha1-fake-abcd2345")
                 .sha256("sha256-fake-abcd2345")
+                .size(11L)
                 .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
@@ -443,6 +445,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
+                .size(10L)
                 .deployPath("http://google.pl/imported1").build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact2:jar:1.0")
@@ -453,6 +456,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
+                .size(10L)
                 .deployPath("http://google.pl/imported2").build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
@@ -484,6 +488,9 @@ public class DatabaseDataInitializer {
                     .productMilestone(demoProductMilestone1)
                     .sshCommand("ssh worker@localhost -P 9999")
                     .sshPassword("dontchangeme")
+                    .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.2.3")
                     .build();
 
             buildRecordRepository.save(buildRecord1);
@@ -498,6 +505,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
+                .size(10L)
                 .deployPath("http://google.pl/built3")
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
@@ -507,6 +515,7 @@ public class DatabaseDataInitializer {
                 .md5("md-fake-abcd1234")
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
+                .size(10L)
                 .deployPath("http://google.pl/built4")
                 .build();
 
@@ -537,6 +546,9 @@ public class DatabaseDataInitializer {
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.2.4")
                     .build();
 
             buildRecordRepository.save(buildRecord2);

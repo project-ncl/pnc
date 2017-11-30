@@ -67,10 +67,10 @@ public class BuildTest {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         restWar.addClass(BuildTest.class);
-        restWar.addAsWebInfResource("beans-use-mock-executor.xml", "beans.xml");
+        restWar.addAsWebInfResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
-        coordinatorJar.addAsManifestResource("beans-use-mock-executor.xml", "beans.xml");
+        coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         addBuildExecutorMock(enterpriseArchive);
 

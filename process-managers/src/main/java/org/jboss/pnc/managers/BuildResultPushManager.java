@@ -32,6 +32,7 @@ import org.jboss.pnc.managers.causeway.remotespi.Dependency;
 import org.jboss.pnc.managers.causeway.remotespi.Logfile;
 import org.jboss.pnc.managers.causeway.remotespi.MavenBuild;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
@@ -41,7 +42,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
+import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Dependent
+@Stateless
 public class BuildResultPushManager {
 
     private BuildRecordRepository buildRecordRepository;
@@ -70,6 +71,10 @@ public class BuildResultPushManager {
     private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
     private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
     private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/rest/build-records/%d/repour-log";
+
+    @Deprecated //required by EJB
+    public BuildResultPushManager() {
+    }
 
     @Inject
     public BuildResultPushManager(BuildRecordRepository buildRecordRepository,
@@ -133,12 +138,16 @@ public class BuildResultPushManager {
     }
 
     private BuildImportRequest createCausewayPushRequest(BuildRecord buildRecord, String tagPrefix, String callBackUrl) {
+        BuildEnvironment buildEnvironment = buildRecord.getBuildEnvironment();
+        logger.debug("BuildRecord: {}", buildRecord.getId());
+        logger.debug("BuildEnvironment: {}", buildEnvironment);
+
         BuildRoot buildRoot = new BuildRoot(
                 "DOCKER_IMAGE",
                 "x86_64", //TODO set based on env, some env has native build tools
                 "rhel",
                 "x86_64",
-                buildRecord.getBuildEnvironment().getAttributes()
+                buildEnvironment.getAttributes()
         );
 
         Set<Dependency> dependencies = collectDependencies(buildRecord.getDependencies());

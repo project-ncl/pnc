@@ -141,7 +141,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 getCompleteCallbackUrl(),
                 buildRecordPushRequestRest.getTagPrefix());
 
-        return Response.ok().entity(JsonOutputConverterMapper.apply(pushed.get(buildRecordId))).build();
+        return Response.ok().entity(JsonOutputConverterMapper.apply(pushed)).build();
     }
 
     @ApiOperation(value = "Push build config set record to Brew.")

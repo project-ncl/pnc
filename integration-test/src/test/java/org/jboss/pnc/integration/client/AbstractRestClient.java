@@ -123,6 +123,26 @@ public abstract class AbstractRestClient<T> {
         return new RestResponse(response, object);
     }
 
+    public RestResponse<T> post(String path, Object body, boolean withValidation) {
+        Response response = getRestClient().post(path, body);
+
+        if(withValidation) {
+            response.then().statusCode(200);
+        }
+
+        T object = null;
+        try {
+            object = response.then().extract().body().jsonPath().getObject("", entityClass);
+        } catch (Exception e) {
+            if(withValidation) {
+                throw new AssertionError("JSON unmarshalling error", e);
+            }
+        }
+
+        return new RestResponse(response, object);
+    }
+
+
     public RestResponse<T> firstNotNull() {
         return firstNotNull(true);
     }
