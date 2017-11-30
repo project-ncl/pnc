@@ -115,7 +115,7 @@ public class BuildResultPushManager {
             return false;
         }
 
-        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {
             logger.warn("Did not find build record by id: " + buildRecordId);
             //TODO response with failure description
