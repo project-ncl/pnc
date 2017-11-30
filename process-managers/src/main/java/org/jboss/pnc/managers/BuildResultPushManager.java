@@ -116,6 +116,11 @@ public class BuildResultPushManager {
         }
 
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        if (buildRecord == null) {
+            logger.warn("Did not find build record by id: " + buildRecordId);
+            //TODO response with failure description
+            return false;
+        }
 
         BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl);
         String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);

@@ -84,7 +84,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
     private BuildResultPushManager buildResultPushManager;
     private AuthenticationProvider authenticationProvider;
-    private String pncBaseUrl;
+    private String pncRestBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
@@ -109,7 +109,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         try {
-            pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
+            String pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
+            pncRestBaseUrl = StringUtils.stripEndingSlash(pncBaseUrl);
         } catch (ConfigurationParseException e) {
             logger.error("There is a problem while parsing system configuration. Using defaults.", e);
         }
@@ -134,11 +135,10 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         Set<Integer> buildRecordIds = new HashSet<>();
         buildRecordIds.add(buildRecordId);
 
-        String callbackUrl = pncBaseUrl + "/%d/complete/";
         Map<Integer, Boolean> pushed = buildResultPushManager.push(
                 buildRecordIds,
                 loginInUser.getTokenString(),
-                callbackUrl,
+                getCompleteCallbackUrl(),
                 buildRecordPushRequestRest.getTagPrefix());
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushed.get(buildRecordId))).build();
@@ -167,11 +167,10 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 .map(BuildRecord::getId)
                 .collect(Collectors.toSet());
 
-        String callbackUrl = pncBaseUrl + "/%d/complete/";
         Map<Integer, Boolean> pushed = buildResultPushManager.push(
                 buildRecordIds,
                 loginInUser.getTokenString(),
-                callbackUrl,
+                getCompleteCallbackUrl(),
                 buildConfigSetRecordPushRequestRest.getTagPrefix());
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushed)).build();
@@ -249,5 +248,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         return Response.ok().entity(buildRecordPushResultRest.toString()).build();
     }
 
-
+    private String getCompleteCallbackUrl() {
+        return pncRestBaseUrl + "/build-record-push/%d/complete/";
+    }
 }
