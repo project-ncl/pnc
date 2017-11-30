@@ -58,9 +58,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     Map<String, String> getGenericParameters();
 
-    boolean isTempBuild();
+    @Override
+	boolean isTempBuild();
 
-    String getTempBuildTimestamp();
+    @Override
+	String getTempBuildTimestamp();
 
     static BuildExecutionConfiguration build(
             int id,

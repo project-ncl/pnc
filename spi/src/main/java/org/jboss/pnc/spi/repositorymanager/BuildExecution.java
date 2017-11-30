@@ -25,8 +25,12 @@ public interface BuildExecution {
 
     String getBuildContentId();
 
+    boolean isTempBuild();
+
+    String getTempBuildTimestamp();
+
     /**
-     * Gets the list of repositories needed to run a succesful build.
+     * Gets the list of repositories needed to run a successful build.
      *
      * @return the list of artifact repositories
      */

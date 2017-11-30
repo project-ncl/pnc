@@ -28,8 +28,11 @@ public class MavenRepositoryConstants {
     /** Name of group used to manage external artifact sources. */
     public static final String PUBLIC_GROUP_ID = "public";
 
-    /** Name of group used to access all previous, marginally validated, build output. */
+    /** Name of group used to access all previous, marginally validated, build outputs. */
     public static final String UNTESTED_BUILDS_GROUP = "builds-untested";
+
+    /** Name of group used to access all previous temporary build outputs. */
+    public static final String TEMPORARY_BUILDS_GROUP = "temporary-builds";
 
     /** Name of hosted repository used to store artifacts from external sources. */
     public static final String SHARED_IMPORTS_ID = "shared-imports";
