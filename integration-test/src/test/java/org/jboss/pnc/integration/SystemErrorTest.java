@@ -103,10 +103,10 @@ public class SystemErrorTest extends AbstractTest {
         restWar.addClass(BuildConfigurationProvider.class);
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);
-        restWar.addAsWebInfResource("beans-use-mock-executor.xml", "beans.xml");
+        restWar.addAsWebInfResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
-        coordinatorJar.addAsManifestResource("beans-use-mock-executor.xml", "beans.xml");
+        coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         addBuildExecutorMock(enterpriseArchive);
 

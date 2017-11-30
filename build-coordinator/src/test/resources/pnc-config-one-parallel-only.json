@@ -4,13 +4,11 @@
     "configs": [
         {
             "@module-group": "global",
-            "config": {
-                "aproxUrl": "${env.PNC_APROX_URL}",
-                "bpmUrl": "${env.BPM_INSTANCE_URL}",
-                "pncUrl": "${env.PNC_URL}",
-                "repourUrl": "${env.PNC_REPOUR_URL}",
-                "daUrl": "${env.PNC_DA_URL}"
-            }
+            "aproxUrl": "${env.PNC_APROX_URL}",
+            "bpmUrl": "${env.BPM_INSTANCE_URL}",
+            "pncUrl": "${env.PNC_URL}",
+            "repourUrl": "${env.PNC_REPOUR_URL}",
+            "daUrl": "${env.PNC_DA_URL}"
         },
         {
             "@module-group": "pnc",

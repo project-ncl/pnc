@@ -46,6 +46,7 @@ public class AbstractTest {
     protected static final String PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT = PRODUCT_MILESTONE_REST_ENDPOINT + "%d";
 
     public static final String REST_WAR_PATH = "/rest.war";
+    public static final String PROCESS_MANAGERS_JAR = "/process-managers.jar";
     public static final String COORDINATOR_JAR = "/build-coordinator.jar";
     public static final String EXECUTOR_JAR = "/build-executor.jar";
 

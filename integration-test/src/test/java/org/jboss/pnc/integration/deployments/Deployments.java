@@ -93,7 +93,7 @@ public class Deployments {
         jar.addClass(ArtifactBuilder.class);
 
 
-        jar.addAsManifestResource("beans-use-mock-executor.xml", "beans.xml");
+        jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         logger.info(jar.toString(true));
 
