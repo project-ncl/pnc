@@ -20,6 +20,7 @@ package org.jboss.pnc.bpm.task;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
@@ -90,31 +91,10 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getBuildOptions().isKeepPodOnFailure(),
                 buildConfiguration.getGenericParameters(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
-                generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
-                        buildTask.getBuildSetTask().getStartTime()) );
+                TimeUtils.generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
+                        buildTask.getBuildSetTask().getStartTime()));
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
-    }
-
-    /**
-     * Generate timestamp in required format tYYYYMMDD-HHMMSS-XXX  (XXX = miliseconds)
-     *
-     * @param generationEnabled Flag indicating, if the generation of timestamp is enabled
-     * @param dateInstant Time instant for which the timestamp will be generated
-     * @return Timestamp string or null, if generation is disabled
-     */
-    private String generateTimestamp(boolean generationEnabled, Date dateInstant) {
-        if(!generationEnabled)
-            return null;
-
-        Calendar instant = new Calendar.Builder().
-                setInstant(dateInstant)
-                .build();
-
-
-        return String.format("t%d%d%d-%d%d%d-%d", instant.get(Calendar.YEAR), instant.get(Calendar.MONTH) + 1,
-                instant.get(Calendar.DAY_OF_MONTH), instant.get(Calendar.HOUR_OF_DAY), instant.get(Calendar.MINUTE),
-                instant.get(Calendar.SECOND), instant.get(Calendar.MILLISECOND));
     }
 
     @Override

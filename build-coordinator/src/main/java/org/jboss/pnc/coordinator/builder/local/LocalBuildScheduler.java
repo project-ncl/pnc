@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder.local;
 
+import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -91,7 +92,8 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.getBuildOptions().isKeepPodOnFailure(),
                 configuration.getGenericParameters(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
-                null);
+                TimeUtils.generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
+                        buildTask.getBuildSetTask().getStartTime()));
 
         try {
             buildExecutor.startBuilding(

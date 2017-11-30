@@ -19,6 +19,8 @@
 package org.jboss.pnc.common.util;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -86,5 +88,27 @@ public class TimeUtils {
             default:
                 throw new IllegalArgumentException("ChronoUnit cannot be converted to TimeUnit: " + unit);
         }
+    }
+
+
+    /**
+     * Generate timestamp in the format tYYYYMMDD-HHMMSS-XXX  (XXX = miliseconds)
+     *
+     * @param generationEnabled Flag indicating, if the generation of timestamp is enabled
+     * @param dateInstant Time instant for which the timestamp will be generated
+     * @return Timestamp string or null, if generation is disabled
+     */
+    public static String generateTimestamp(boolean generationEnabled, Date dateInstant) {
+        if(!generationEnabled)
+            return null;
+
+        Calendar instant = new Calendar.Builder().
+                setInstant(dateInstant)
+                .build();
+
+
+        return String.format("t%d%d%d-%d%d%d-%d", instant.get(Calendar.YEAR), instant.get(Calendar.MONTH) + 1,
+                instant.get(Calendar.DAY_OF_MONTH), instant.get(Calendar.HOUR_OF_DAY), instant.get(Calendar.MINUTE),
+                instant.get(Calendar.SECOND), instant.get(Calendar.MILLISECOND));
     }
 }
