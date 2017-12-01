@@ -243,7 +243,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
             boolean tempBuild = execution.isTempBuild();
-			boolean snapshotBuild = tempBuild && StringUtils.isEmpty(execution.getTempBuildTimestamp());
+            boolean snapshotBuild = tempBuild && StringUtils.isEmpty(execution.getTempBuildTimestamp());
             if (!indy.stores().exists(hostedKey)) {
                 HostedRepository buildArtifacts = new HostedRepository(MAVEN_PKG_KEY, buildContentId);
                 buildArtifacts.setAllowSnapshots(snapshotBuild);
