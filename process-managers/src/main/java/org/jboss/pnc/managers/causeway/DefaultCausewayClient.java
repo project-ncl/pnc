@@ -63,11 +63,14 @@ public class DefaultCausewayClient implements CausewayClient {
         Header authHeader = new BasicHeader("Authorization", "Bearer " + authToken);
 
         try {
+            logger.info("Making POST request to {}.", causewayEndpoint);
+            logger.debug("Request body {}.", jsonMessage);
             HttpResponse response = Request.Post(causewayEndpoint)
                     .addHeader(authHeader)
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
                     .execute()
                     .returnResponse();
+            logger.info("Response status: {}", response.getStatusLine().getStatusCode());
 
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
