@@ -243,10 +243,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
             boolean tempBuild = execution.isTempBuild();
-            boolean snapshotBuild = tempBuild && StringUtils.isEmpty(execution.getTempBuildTimestamp());
             if (!indy.stores().exists(hostedKey)) {
                 HostedRepository buildArtifacts = new HostedRepository(MAVEN_PKG_KEY, buildContentId);
-                buildArtifacts.setAllowSnapshots(snapshotBuild);
+                buildArtifacts.setAllowSnapshots(tempBuild);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
@@ -257,9 +256,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             Group buildGroup = new Group(MAVEN_PKG_KEY, buildContentId);
             String adjective = "";
-            if (snapshotBuild) {
-                adjective = "snapshot ";
-            } else if (tempBuild) {
+            if (tempBuild) {
                 adjective = "temporary ";
             }
             buildGroup.setDescription(String.format("Aggregation group for PNC %sbuild #%s", adjective, id));
