@@ -21,8 +21,11 @@ import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
 import org.jboss.pnc.datastore.repositories.internal.SpecificationsMapper;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -36,6 +39,7 @@ import java.util.List;
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
 
     private BuildRecordSpringRepository repository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     /**
      * @deprecated Created for CDI.
@@ -46,14 +50,28 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Inject
-    public BuildRecordRepositoryImpl(BuildRecordSpringRepository buildRecordSpringRepository) {
+    public BuildRecordRepositoryImpl(
+            BuildRecordSpringRepository buildRecordSpringRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
         super(buildRecordSpringRepository, buildRecordSpringRepository);
-        repository = buildRecordSpringRepository;
+        this.repository = buildRecordSpringRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
     }
 
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
         return repository.findByIdFetchAllProperties(id);
+    }
+
+    @Override
+    public BuildRecord findByIdFetchProperties(Integer id) {
+        BuildRecord buildRecord = repository.findByIdFetchProperties(id);
+
+        Integer revision = buildRecord.getBuildConfigurationRev();
+        BuildConfigurationAudited buildConfigurationAudited =
+                buildConfigurationAuditedRepository.queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
+        buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
+        return buildRecord;
     }
 
 

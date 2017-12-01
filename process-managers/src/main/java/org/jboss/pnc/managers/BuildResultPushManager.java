@@ -120,7 +120,7 @@ public class BuildResultPushManager {
             return false;
         }
 
-        BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
         if (buildRecord == null) {
             logger.warn("Did not find build record by id: " + buildRecordId);
             //TODO response with failure description
@@ -138,7 +138,7 @@ public class BuildResultPushManager {
     }
 
     private BuildImportRequest createCausewayPushRequest(BuildRecord buildRecord, String tagPrefix, String callBackUrl) {
-        BuildEnvironment buildEnvironment = buildRecord.getBuildEnvironment();
+        BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
         logger.debug("BuildRecord: {}", buildRecord.getId());
         logger.debug("BuildEnvironment: {}", buildEnvironment);
 
@@ -147,7 +147,7 @@ public class BuildResultPushManager {
                 "x86_64", //TODO set based on env, some env has native build tools
                 "rhel",
                 "x86_64",
-                buildEnvironment.getAttributes()
+                 buildEnvironment.getAttributes()
         );
 
         Set<Dependency> dependencies = collectDependencies(buildRecord.getDependencies());

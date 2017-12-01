@@ -239,7 +239,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     /**
      * Environment configuration (including system image) that was used to instantiate the build host.
+     *
+     * @deprecated environment is linked via build configuration audited
      */
+    @Deprecated
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildenvironment"))
     @Index(name="idx_buildrecord_buildenvironment")
@@ -502,6 +505,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the environment settings used on the build host
      */
+    @Deprecated
     public BuildEnvironment getBuildEnvironment() {
         return buildEnvironment;
     }
@@ -511,6 +515,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param buildEnvironment the build environment configuration
      */
+    @Deprecated
     public void setBuildEnvironment(BuildEnvironment buildEnvironment) {
         this.buildEnvironment = buildEnvironment;
     }
@@ -844,6 +849,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
+        @Deprecated
         public Builder buildEnvironment(BuildEnvironment buildEnvironment) {
             this.buildEnvironment = buildEnvironment;
             return this;
