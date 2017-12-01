@@ -106,7 +106,8 @@ public class BuildResultPushManager {
         Map<Integer, Boolean> result = new HashMap<>();
         for (Integer buildRecordId : buildRecordIds) {
             boolean success = pushToCauseway(
-                    authToken, buildRecordId,
+                    authToken,
+                    buildRecordId,
                     String.format(callBackUrlTemplate, buildRecordId),
                     tagPrefix);
             result.put(buildRecordId, success);

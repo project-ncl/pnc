@@ -60,7 +60,7 @@ public class DefaultCausewayClient implements CausewayClient {
 
     @Override
     public boolean push(String jsonMessage, String authToken) {
-        Header authHeader = new BasicHeader("Authorization", authToken);
+        Header authHeader = new BasicHeader("Authorization", "Bearer " + authToken);
 
         try {
             HttpResponse response = Request.Post(causewayEndpoint)
