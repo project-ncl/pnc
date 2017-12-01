@@ -309,7 +309,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         User currentUser = getCurrentUser();
 
         BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, false, false, timestampAlignment);
-        buildOptions.checkBuildOptionsValidity(); //TODO reject build if the options combination is not valid
+        BuildConfigurationEndpoint.checkBuildOptionsValidity(buildOptions);
 
         BuildConfigurationSetTriggerResult result;
         // if callbackUrl is provided trigger build accordingly

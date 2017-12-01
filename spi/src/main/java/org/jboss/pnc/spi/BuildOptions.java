@@ -62,12 +62,4 @@ public class BuildOptions {
      */
     private boolean timestampAlignment = false;
 
-    public boolean checkBuildOptionsValidity() {
-        if(!temporaryBuild && timestampAlignment) {
-            // Combination timestampAlignment + standard build is not allowed
-            return false;
-        }
-        return true;
-    }
-
 }

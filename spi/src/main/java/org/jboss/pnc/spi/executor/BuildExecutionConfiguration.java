@@ -58,6 +58,10 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     Map<String, String> getGenericParameters();
 
+    boolean isTempBuild();
+
+    String getTempBuildTimestamp();
+
     static BuildExecutionConfiguration build(
             int id,
             String buildContentId,
@@ -72,9 +76,12 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
             boolean podKeptAfterFailure,
-            Map<String, String> genericParameters) {
+            Map<String, String> genericParameters,
+            boolean tempBuild,
+            String tempBuildTimestamp) {
         return build(id, buildContentId, userId, buildScript, name, scmRepoURL, scmRevision, originRepoURL, preBuildSyncEnabled,
-                systemImageId, systemImageRepositoryUrl, systemImageType, podKeptAfterFailure, null, genericParameters);
+                systemImageId, systemImageRepositoryUrl, systemImageType, podKeptAfterFailure, null, genericParameters,
+                tempBuild, tempBuildTimestamp);
     }
 
     static BuildExecutionConfiguration build(
@@ -92,7 +99,9 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             SystemImageType systemImageType,
             boolean podKeptAfterFailure,
             List<ArtifactRepository> artifactRepositories,
-            Map<String, String> genericParameters) {
+            Map<String, String> genericParameters,
+            boolean tempBuild,
+            String tempBuildTimestamp) {
 
         List<ArtifactRepository> builtRepositories;
         if (artifactRepositories == null) {
@@ -180,6 +189,16 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public Map<String, String> getGenericParameters() {
                 return genericParameters;
+            }
+
+            @Override
+            public boolean isTempBuild() {
+                return tempBuild;
+            }
+
+            @Override
+            public String getTempBuildTimestamp() {
+                return tempBuildTimestamp;
             }
         };
     }

@@ -20,6 +20,7 @@ package org.jboss.pnc.bpm.task;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
@@ -31,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -85,8 +88,11 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                buildTask.isPodKeptAfterFailure(),
-                buildConfiguration.getGenericParameters());
+                buildTask.getBuildOptions().isKeepPodOnFailure(),
+                buildConfiguration.getGenericParameters(),
+                buildTask.getBuildOptions().isTemporaryBuild(),
+                TimeUtils.generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
+                        buildTask.getBuildSetTask().getStartTime()));
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
     }

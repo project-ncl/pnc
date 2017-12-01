@@ -407,7 +407,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     return;
                 }
 
-                if (!task.isForcedRebuild() && !datastoreAdapter.requiresRebuild(task)) {
+                if (!task.getBuildOptions().isForceRebuild() && !datastoreAdapter.requiresRebuild(task)) {
                     updateBuildTaskStatus(task,
                             BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
                             "The configuration has already been built");

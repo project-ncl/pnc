@@ -17,12 +17,14 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import lombok.Getter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,8 @@ public class BuildTask {
     private final BuildConfiguration buildConfiguration; //TODO decouple DB entity
     private final BuildConfigurationAudited buildConfigurationAudited; //TODO decouple DB entity
 
-    private final boolean podKeptAfterFailure;
+    @Getter
+    private final BuildOptions buildOptions;
 
     private final User user;
     private final Date submitTime;
@@ -69,12 +72,10 @@ public class BuildTask {
 
     //called when all dependencies are built
     private final Integer buildConfigSetRecordId;
-    private boolean forcedRebuild;
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
-                      boolean podKeptAfterFailure,
-                      boolean forceRebuild,
+                      BuildOptions buildOptions,
                       User user,
                       Date submitTime,
                       BuildSetTask buildSetTask,
@@ -85,8 +86,7 @@ public class BuildTask {
         this.id = id;
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
-        this.podKeptAfterFailure = podKeptAfterFailure;
-        this.forcedRebuild = forceRebuild;
+        this.buildOptions = buildOptions;
         this.user = user;
         this.submitTime = submitTime;
 
@@ -247,8 +247,7 @@ public class BuildTask {
 
     public static BuildTask build(BuildConfiguration buildConfiguration,
                                   BuildConfigurationAudited buildConfigAudited,
-                                  boolean podKeptAfterFailure,
-                                  boolean forceRebuild, User user,
+                                  BuildOptions buildOptions, User user,
                                   int buildTaskId,
                                   BuildSetTask buildSetTask,
                                   Date submitTime,
@@ -263,8 +262,7 @@ public class BuildTask {
         return new BuildTask(
                 buildConfiguration,
                 buildConfigAudited,
-                podKeptAfterFailure,
-                forceRebuild,
+                buildOptions,
                 user,
                 submitTime,
                 buildSetTask,
@@ -276,14 +274,6 @@ public class BuildTask {
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;
-    }
-
-    public boolean isPodKeptAfterFailure() {
-        return podKeptAfterFailure;
-    }
-
-    public boolean isForcedRebuild() {
-        return forcedRebuild;
     }
 
 }

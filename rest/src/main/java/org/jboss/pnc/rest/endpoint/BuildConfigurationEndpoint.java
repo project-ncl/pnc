@@ -118,6 +118,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     
     private java.util.Map<String, String> buildConfigurationSupportedGenericParameters;
 
+    public static void checkBuildOptionsValidity(BuildOptions buildOptions) throws InvalidEntityException {
+        if(!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
+            // Combination timestampAlignment + standard build is not allowed
+            throw new InvalidEntityException("Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
+        }
+    }
 
     public BuildConfigurationEndpoint() {
     }
@@ -260,7 +266,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         User currentUser = getCurrentUser();
 
         BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
-        buildOptions.checkBuildOptionsValidity(); //TODO reject build if the options combination is not valid
+        checkBuildOptionsValidity(buildOptions);
 
         Integer runningBuildId = null;
         // if callbackUrl is provided trigger build accordingly
@@ -285,17 +291,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         }
         return currentUser;
     }
-
-    private Response validateRequiredField(String parameter, String parameterName) {
-        if (parameter == null || parameter.equals("")) {
-            String msg = "Missing required " + parameterName + " parameter.";
-            logger.error(msg);
-            return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
-        } else {
-            return null;
-        }
-    }
-
 
     @ApiOperation(value = "Gets all Build Configurations of a Project")
     @ApiResponses(value = {
