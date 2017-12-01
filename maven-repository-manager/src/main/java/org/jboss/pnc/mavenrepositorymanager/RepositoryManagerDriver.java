@@ -255,10 +255,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             }
 
             Group buildGroup = new Group(MAVEN_PKG_KEY, buildContentId);
-            String adjective = "";
-            if (tempBuild) {
-                adjective = "temporary ";
-            }
+            String adjective = tempBuild ? "temporary " : "";
             buildGroup.setDescription(String.format("Aggregation group for PNC %sbuild #%s", adjective, id));
 
             // build-local artifacts
