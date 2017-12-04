@@ -63,6 +63,7 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
     /**
      * list of errors for artifact imports
      */
+    @Getter
     private List<ArtifactImportError> artifactImportErrors;
 
     /**
