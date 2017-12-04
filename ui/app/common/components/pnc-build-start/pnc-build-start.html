@@ -1,0 +1,101 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="btn-group pnc-build-start">
+  <button type="button" class="btn btn-{{ $ctrl.size ? $ctrl.size : 'lg'}} btn-default" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2000" tooltip-placement="top" tooltip-append-to-body="true" ng-click="$ctrl.build()" pnc-requires-auth>
+    <i class="pficon pficon-build"></i> Build
+  </button>
+
+  <!-- button with dropdown -->
+  <button class="btn btn-{{ $ctrl.size ? $ctrl.size : 'lg'}} btn-default dropdown-btn" ng-click="$ctrl.dropdownMenu = !$ctrl.dropdownMenu" uib-tooltip="Configure a build" tooltip-popup-delay="1500" tooltip-placement="top" tooltip-append-to-body="true" pnc-requires-auth>
+    {{ $ctrl.params.temporaryBuild ? 'Temporary' : 'Persistent' }}
+    <span class="fa fa-angle-up" ng-if="$ctrl.dropdownMenu"></span>
+    <span class="fa fa-angle-down" ng-if="!$ctrl.dropdownMenu"></span>
+  </button>
+
+  <div class="dropdown-menu ng-hide" ng-show="$ctrl.dropdownMenu">
+
+    <!-- build type -->
+    <div class="radio">
+      <label>
+        <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="false" ng-change="$ctrl.refreshBuildModes()"> persistent
+        <a uib-popover="Standard build, which can be used for product release" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </label>
+    </div>
+    <div class="radio">
+      <label>
+        <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="true" ng-change="$ctrl.refreshBuildModes()"> temporary
+        <a uib-popover="Test build, which cannot be used for product release and which will be garbage collected" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </label>
+    </div>
+
+    <hr>
+
+    <!-- build mode -->
+    <div class="checkbox" ng-if="::$ctrl.buildConfig">
+      <label>
+        <input type="checkbox" ng-model="$ctrl.params.keepPodOnFailure"> keep pod alive
+        <a uib-popover="The builder container won't be destroyed if the build fails and you can use SSH to debug it" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </label>
+    </div>
+    <div class="checkbox" ng-class="{'disabled-option': $ctrl.params.temporaryBuild}" title="{{ $ctrl.params.temporaryBuild ? 'Not valid option' : '' }}">
+      <label>
+        <input type="checkbox" ng-model="$ctrl.params.forceRebuild"> force rebuild
+        <a uib-popover="Perform the build even if successful build of the same configuration is present" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </label>
+    </div>
+    <div class="checkbox" ng-if="::$ctrl.buildConfig">
+      <label>
+        <input type="checkbox" ng-model="$ctrl.params.buildDependencies"> with dependencies
+        <a uib-popover="Build also dependencies of this build configuration if they are not built yet" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </label>
+    </div>
+    <div class="checkbox" ng-class="{'disabled-option': !$ctrl.params.temporaryBuild}" title="{{ !$ctrl.params.temporaryBuild ? 'Not valid option' : '' }}">
+      <label>
+        <input type="checkbox" ng-model="$ctrl.params.timestampAlignment"> timestamp alignment
+        <a uib-popover="Append timestamp to the artifact's maven version during the alignment phase" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </label>
+    </div>
+
+    <hr>
+
+    <div class="text-center">
+      <small>
+        Press <em>Build</em> button to start 
+        {{ $ctrl.params.temporaryBuild ? 'temporary' : 'persistent' }} build
+        {{ $ctrl.params.forceRebuild && $ctrl.params.buildDependencies ? 'forcing only build itself (without its dependencies)' : '' }}
+      </small>
+    </div>
+
+  </div>
+  <!-- dropdown with button -->
+
+</div>

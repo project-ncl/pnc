@@ -38,27 +38,8 @@
           version: '='
         },
         link: function (scope) {
-
           scope.page = BuildConfigurationDAO.getPagedByProductVersion({
             productId: scope.version.productId, versionId: scope.version.id });
-
-          // Executing a build of a configuration forcing all the rebuilds
-          scope.forceBuildConfig = function(config) {
-            $log.debug('**Initiating FORCE build of: %O', config.name);
-
-            BuildConfigurationDAO.forceBuild({
-              configurationId: config.id
-            }, {});
-          };
-
-          // Executing a build of a configuration
-          scope.buildConfig = function(config) {
-            $log.debug('**Initiating build of: %O', config.name);
-
-            BuildConfigurationDAO.build({
-              configurationId: config.id
-            }, {});
-          };
         }
       };
     }

@@ -150,7 +150,6 @@
     '$state',
     '$scope',
     'BuildRecordDAO',
-    'BuildConfigurationSetDAO',
     'ProductVersionDAO',
     'ProductVersion',
     'configurationSetDetail',
@@ -159,7 +158,7 @@
     'productVersion',
     'previousState',
     'modalSelectService',
-    function($log, $state, $scope, BuildRecordDAO, BuildConfigurationSetDAO, ProductVersionDAO, ProductVersion,
+    function($log, $state, $scope, BuildRecordDAO, ProductVersionDAO, ProductVersion,
         configurationSetDetail, configurations, records, productVersion, previousState, modalSelectService) {
 
       var self = this;
@@ -204,22 +203,6 @@
           }
         );
       });
-
-      self.forceBuild = function() {
-        $log.info('Initiating forced build of group: %', self.set.name);
-
-        BuildConfigurationSetDAO.forceBuild({
-          configurationSetId: self.set.id
-        }, {});
-      };
-
-      self.build = function() {
-        $log.info('Initiating build of group: %s', self.set.name);
-
-        BuildConfigurationSetDAO.build({
-          configurationSetId: self.set.id
-        }, {});
-      };
 
       // Update a build configuration set after editing
       self.update = function() {

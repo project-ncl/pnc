@@ -35,7 +35,6 @@
     '$filter',
     'pncNotify',
     'ProductDAO',
-    'BuildConfigurationDAO',
     'BuildConfigurationSetDAO',
     'configurationDetail',
     'environments',
@@ -45,7 +44,7 @@
     'configurations',
     'configurationSetList',
     'linkedConfigurationSetList',
-    function($log, $state, $filter, pncNotify, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
+    function($log, $state, $filter, pncNotify, ProductDAO, BuildConfigurationSetDAO,
       configurationDetail, environments, products,
       linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList) {
 
@@ -75,36 +74,6 @@
       // Selection of ConfigurationSets
       that.buildgroupconfigs = {
         selected: _.clone(linkedConfigurationSetList)
-      };
-
-      // Executing a build of a configuration forcing a rebuild
-      that.forceBuild = function() {
-        $log.debug('Initiating FORCED build of: %O', that.configuration);
-        BuildConfigurationDAO.forceBuild({
-          configurationId: that.configuration.id
-        }, {});
-      };
-
-      that.buildSingle = function() {
-        $log.debug('Initiating single build of :%0', that.configuration);
-        BuildConfigurationDAO.buildSingle({
-          configurationId: that.configuration.id
-        }, {});
-      };
-
-      that.buildAndKeepAliveOnError = function() {
-        $log.debug('Initiating FORCED build of :%0 with keeping pod alive on failure enabled', that.configuration);
-        BuildConfigurationDAO.buildAndKeepAliveOnError({
-          configurationId: that.configuration.id
-        }, {});
-      };
-
-      // Executing a build of a configuration
-      that.build = function() {
-        $log.debug('Initiating build of: %O with dependencies', that.configuration);
-        BuildConfigurationDAO.build({
-          configurationId: that.configuration.id
-        }, {});
       };
 
       // Update a build configuration after editting
