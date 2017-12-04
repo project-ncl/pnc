@@ -38,14 +38,14 @@
         return attrs.pncTemplate || DEFAULT_TEMPLATE;
       },
       scope: {
-        'pncBuildRecord': '='
+        'buildRecord': '='
       },
       controllerAs: 'ctrl',
       controller: ['$scope',
         function ($scope) {
           var self = this;
 
-          self.record = $scope.pncBuildRecord;
+          self.record = $scope.buildRecord;
 
           self.refresh = function () {
             self.record.$get();

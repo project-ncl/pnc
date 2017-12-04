@@ -17,15 +17,4 @@
     limitations under the License.
 
 -->
-<div class="row push-down">
-  <div class="col-sm-12 col-md-10 col-lg-8">
-    <pnc-build-details build-record="recordCtrl.record"></pnc-build-details>
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <div ng-if="::recordCtrl.record.status==='BUILDING'">
-      <pnc-live-log build-record="recordCtrl.record"></pnc-live-log>
-    </div>
-  </div>
-</div>
+<button ng-if="::$ctrl.isButtonVisible()" ng-click="$ctrl.openTagNameModal()" type="button" class="btn btn-default"><i class="pficon pficon-export"></i>&nbsp;Push To Brew</button>

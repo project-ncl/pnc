@@ -24,6 +24,7 @@
   module.value('BUILDS_PATH', '/builds');
   module.value('BUILD_PATH', '/builds/:id');
   module.value('SSH_CREDENTIALS_PATH', '/builds/ssh-credentials/:recordId');
+  module.value('BUILD_RECORD_PUSH_PATH', '/build-record-push');
 
   /**
    *
@@ -31,20 +32,32 @@
   module.factory('BuildRecord', [
     '$resource',
     '$q',
+    '$http',
     'restConfig',
     'BUILD_RECORD_PATH',
     'BUILDS_PATH',
     'BUILD_PATH',
     'SSH_CREDENTIALS_PATH',
+    'BUILD_RECORD_PUSH_PATH',
     'rsqlQuery',
     'authService',
-    function($resource, $q, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, BUILD_PATH, SSH_CREDENTIALS_PATH,
-             rsqlQuery, authService) {
+    function($resource, $q, $http, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, BUILD_PATH, SSH_CREDENTIALS_PATH,
+             BUILD_RECORD_PUSH_PATH, rsqlQuery, authService) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PATH;
       var BUILDS_ENDPOINT = restConfig.getPncUrl() + BUILDS_PATH;
       var BUILD_ENDPOINT = restConfig.getPncUrl() + BUILD_PATH;
       var SSH_CREDENTIALS_ENDPOINT = restConfig.getPncUrl() + SSH_CREDENTIALS_PATH;
+      var BUILD_RECORD_PUSH_ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PUSH_PATH;
 
+      var FINAL_STATUSES = [
+        'DONE',
+        'REJECTED',
+        'REJECTED_FAILED_DEPENDENCIES',
+        'REJECTED_ALREADY_BUILT',
+        'SYSTEM_ERROR',
+        'DONE_WITH_ERRORS',
+        'CANCELLED'
+      ];
 
       var resource = $resource(ENDPOINT, {
         id: '@id'
@@ -151,7 +164,7 @@
         return resource.query({ q: rsqlQuery().where('user.id').eq(params.userId).end() });
       };
 
-      resource.getSshCredentials = function(params) {
+      resource.getSshCredentials = function (params) {
         return $q.when(authService.isAuthenticated())
             .then(function (authenticated) {
               if (authenticated) {
@@ -159,6 +172,33 @@
               }
             });
       };
+
+      resource.push = function (buildRecordId, tagPrefix) {
+        return $http.post(BUILD_RECORD_PUSH_ENDPOINT, {
+          buildRecordId: buildRecordId,
+          tagPrefix: tagPrefix
+        });
+      };
+
+      resource.getLatestPushStatus = function (buildRecordId) {
+        return $http(BUILD_RECORD_PUSH_ENDPOINT + '/status/' + buildRecordId);
+      };
+
+      resource.prototype.$isCompleted = function () {
+        return isCompleted(this.status);
+      };
+
+      resource.prototype.$hasFailed = function () {
+        return hasFailed(this.status);
+      };
+
+      function isCompleted(status) {
+        return FINAL_STATUSES.includes(status);
+      }
+
+      function hasFailed(status) {
+        return isCompleted(status) && status !== 'DONE'; 
+      }
 
       return resource;
     }
