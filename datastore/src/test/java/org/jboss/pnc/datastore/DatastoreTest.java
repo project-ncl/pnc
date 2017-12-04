@@ -205,9 +205,14 @@ public class DatastoreTest {
         
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
-                .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
-                .builtArtifact(builtArtifact1).dependency(importedArtifact2)
-                .user(user).build();
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .builtArtifact(builtArtifact1)
+                .dependency(importedArtifact2)
+                .user(user)
+                .temporaryBuild(false)
+                .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
@@ -283,11 +288,17 @@ public class DatastoreTest {
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
         
-        BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
+        BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
-                .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
-                .builtArtifact(builtArtifact1).dependency(importedArtifact2).builtArtifact(builtArtifact3)
-                .user(user);
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .builtArtifact(builtArtifact1)
+                .dependency(importedArtifact2)
+                .builtArtifact(builtArtifact3)
+                .user(user)
+                .temporaryBuild(false);
 
         BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder);
 

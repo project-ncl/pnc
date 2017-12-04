@@ -107,7 +107,7 @@ public class TargetRepository implements GenericEntity<Integer> {
          * Maven artifact repository such as Maven central (http://central.maven.org/maven2/)
          */
         MAVEN,
-        MAVEN_TEMPORAL,
+        MAVEN_TEMPORARY,
 
         /**
          * Node.js package repository such as https://registry.npmjs.org/
@@ -143,7 +143,7 @@ public class TargetRepository implements GenericEntity<Integer> {
      * @return true if the artifact url came from a trusted repo, false otherwise
      */
     static boolean isTrusted(String artifactOriginUrl, TargetRepository targetRepository) {
-        if (targetRepository.repositoryType.equals(Type.MAVEN_TEMPORAL)) {
+        if (targetRepository.repositoryType.equals(Type.MAVEN_TEMPORARY)) {
             return false;
         }
         if (artifactOriginUrl == null || artifactOriginUrl.isEmpty()) {

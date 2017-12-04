@@ -26,9 +26,9 @@ create table TargetRepository (
 );
 -- insert default repositories
 insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (1, 'indy-maven', 'builds-untested', 'MAVEN');
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (2, 'indy-maven', 'builds-untested-temp', 'MAVEN_TEMPORAL');
+insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (2, 'indy-maven', 'builds-untested-temp', 'MAVEN_TEMPORARY');
 insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (3, 'indy-maven', 'shared-imports', 'MAVEN');
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (4, 'indy-maven', 'shared-imports', 'MAVEN_TEMPORAL');
+insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (4, 'indy-maven', 'shared-imports', 'MAVEN_TEMPORARY');
 insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (5, 'indy-http', '', 'GENERIC_PROXY');
 
 alter table Artifact add targetRepository_id integer;

@@ -99,6 +99,11 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Size(max=100)
     private String buildContentId;
 
+    @Getter
+    @Setter
+    @NotNull
+    private boolean temporaryBuild;
+
     /**
      * The time which the build was submitted to the system.
      */
@@ -268,9 +273,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     /**
      * Example attributes
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
-     * brewLink: http://pathToArtifact
-     * brewId: 1007192
-     * TEMPORARY_BUILD: TRUE/FALSE
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id"))
@@ -641,6 +643,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildContentId;
 
+        private Boolean temporaryBuild;
+
         private Date submitTime;
 
         private Date startTime;
@@ -720,6 +724,11 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setBuildLog(buildLog);
             buildRecord.setBuildLogSize(buildLog.length());
 
+            if (temporaryBuild == null) {
+                temporaryBuild = true;
+            }
+            buildRecord.setTemporaryBuild(temporaryBuild);
+
             try {
                 buildRecord.setBuildLogMd5(Md5.digest(buildLog));
                 buildRecord.setBuildLogSha256(Sha256.digest(buildLog));
@@ -756,6 +765,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder buildContentId(String buildContentId) {
             this.buildContentId = buildContentId;
+            return this;
+        }
+
+        public Builder temporaryBuild(boolean temporaryBuild) {
+            this.temporaryBuild = temporaryBuild;
             return this;
         }
 

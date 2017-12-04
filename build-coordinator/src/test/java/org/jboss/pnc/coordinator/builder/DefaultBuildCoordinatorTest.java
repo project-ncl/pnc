@@ -20,14 +20,16 @@ package org.jboss.pnc.coordinator.builder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
@@ -55,9 +57,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,6 +145,7 @@ public class DefaultBuildCoordinatorTest {
                         .id(1)
                         .version("7.1")
                         .build())
+                .temporaryBuild(false)
                 .build());
 
         BuildOptions buildOptions = new BuildOptions();
@@ -167,12 +170,24 @@ public class DefaultBuildCoordinatorTest {
     }
 
     private BuildTask mockBuildTask() {
-        BuildTask task = mock(BuildTask.class);
-        BuildConfigurationAudited config = mock(BuildConfigurationAudited.class);
-        when(config.getIdRev()).thenReturn(new IdRev(12, 13));
-        when(task.getBuildConfigurationAudited()).thenReturn(config);
-        when(task.getStatus()).thenReturn(BuildCoordinationStatus.DONE);
-        return task;
+        BuildConfiguration buildConfiguration = new BuildConfiguration();
+        buildConfiguration.setId(12);
+        buildConfiguration.setProject(new Project());
+
+        BuildOptions buildOptions = new BuildOptions(false, false, true, false, false);
+        BuildTask buildTask = BuildTask.build(
+                buildConfiguration,
+                BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
+                buildOptions,
+                MockUser.newTestUser(1),
+                1,
+                null,
+                new Date(),
+                null
+        );
+
+        buildTask.setStatus(BuildCoordinationStatus.DONE);
+        return buildTask;
     }
 
     private static class ArgumentGrabbingAnswer<T> implements Answer<T> {

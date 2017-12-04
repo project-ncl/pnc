@@ -491,6 +491,7 @@ public class DatabaseDataInitializer {
                     .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
                     .executionRootName("org.jboss.pnc:parent")
                     .executionRootVersion("1.2.3")
+                    .temporaryBuild(false)
                     .build();
 
             buildRecordRepository.save(buildRecord1);
@@ -549,6 +550,7 @@ public class DatabaseDataInitializer {
                     .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
                     .executionRootName("org.jboss.pnc:parent")
                     .executionRootVersion("1.2.4")
+                    .temporaryBuild(false)
                     .build();
 
             buildRecordRepository.save(buildRecord2);
@@ -557,16 +559,23 @@ public class DatabaseDataInitializer {
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet1)
-                .startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
+                .startTime(Timestamp.from(Instant.now()))
+                .endTime(Timestamp.from(Instant.now()))
                 .user(demoUser)
-                .status(BuildStatus.FAILED).build();
+                .status(BuildStatus.FAILED)
+                .temporaryBuild(false)
+                .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
         BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet1)
-                .buildRecords(buildRecords).startTime(Timestamp.from(Instant.now()))
+                .buildRecords(buildRecords)
+                .startTime(Timestamp.from(Instant.now()))
                 .endTime(Timestamp.from(Instant.now()))
-                .user(demoUser).status(BuildStatus.SUCCESS).build();
+                .user(demoUser)
+                .status(BuildStatus.SUCCESS)
+                .temporaryBuild(false)
+                .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
 
         demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
