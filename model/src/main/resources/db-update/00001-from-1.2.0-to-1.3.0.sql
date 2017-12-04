@@ -33,6 +33,12 @@ insert into TargetRepository (id, identifier, repositoryPath, repositoryType) va
 
 alter table Artifact add targetRepository_id integer;
 
+-- Start the sequence id for target repository from last value = 6
+-- We need to set last_value to 6 and not to 5 because the sequence has column
+-- 'is_called' set to false
+-- https://www.postgresql.org/docs/8.1/static/functions-sequence.html
+alter sequence target_repository_repo_id_seq restart with 6;
+
 -- migrate data
 -- old repotype 0 -> maven (1)
 -- old repotype 3 -> generic proxy (5)
