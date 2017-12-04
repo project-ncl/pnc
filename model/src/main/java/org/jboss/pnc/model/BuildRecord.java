@@ -144,7 +144,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String scmRevision;
 
     @Lob
-    @Type(type = "org.hibernate.type.StringType")
+    @Type(type = "org.hibernate.type.MaterializedClobType")
     @Basic(fetch = FetchType.LAZY)
     private String buildLog;
 
@@ -279,7 +279,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     private Map<String, String> attributes = new HashMap<>();
 
     @Lob
-    @Type(type = "org.hibernate.type.StringType")
+    @Type(type = "org.hibernate.type.MaterializedClobType")
     @Basic(fetch = FetchType.LAZY)
     private String repourLog;
 
