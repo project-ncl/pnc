@@ -43,23 +43,8 @@
     <td>
       <pnc-latest-build build-group="buildconfigurationset"></pnc-latest-build>
     </td>
-    <td class="td-actions">
-      <div class="btn-group">
-        <button class="btn btn-default ng-scope" uib-tooltip="Start Build" tooltip-placement="top" ng-click="buildConfigSet(buildconfigurationset)" pnc-requires-auth>
-          <i class="pficon pficon-build"></i>
-          <span class="shrink">Build</span>
-        </button>
-        <span><!-- needs to be wrapped to correct behavior -->
-          <button class="btn btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-right">
-            <li>
-              <a href ng-click="forceBuildConfigSet(buildconfigurationset)" uib-tooltip="Starts a build of this group, building all components even if they have already been successfully built." tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Rebuild</span></a>
-            </li>
-          </ul>
-        </span>
-      </div>
+    <td class="table-data-5-column-even-width">
+      <pnc-build-start build-group="buildconfigurationset" size="md"></pnc-build-start>
     </td>
   </tr>
   </tbody>

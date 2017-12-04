@@ -21,23 +21,7 @@
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.configuration.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <div class="btn-group">
-        <button type="button" class="btn btn-lg btn-default ng-scope" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailCtrl.build()" pnc-requires-auth>
-          <i class="pficon pficon-build"></i>
-          <span class="shrink">Build</span>
-        </button>
-        <ul class="dropdown-menu"></ul>
-          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a href ng-click="detailCtrl.buildSingle()" uib-tooltip="Starts a build of this config. Does not start builds of dependencies." tooltip-popup-delay="1000" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Single Build</span></a>
-              <a href ng-click="detailCtrl.forceBuild()" uib-tooltip="Starts a build of this config, forcing a rebuild if a successful build already exists" tooltip-popup-delay="1000" tooltip-append-to-body="true"><span><i class="pficon pficon-build fa-color-red"></i>&nbsp;Force Build</span></a>
-              <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" uib-tooltip="Starts a build of this config and keeps its OSE pod alive. In the event of failure you will be able to SSH into the container to investigate the cause." tooltip-popup-delay="1000"><span><i class="pficon pficon-build"></i>&nbsp;Debug Build</span></a>
-            </li>
-          </ul>
-      </div>
+      <pnc-build-start build-config="detailCtrl.configuration"></pnc-build-start>
       <button type="button" class="btn btn-lg btn-default" uib-tooltip="Clone Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="detailCtrl.clone()" pnc-requires-auth><i class="fa fa-files-o"></i> Clone</button>
       <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="configurationForm.$show()" ng-class="{ 'active': configurationForm.$visible }" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
       <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + detailCtrl.configuration.name + ' ?'}}" pnc-requires-auth><i class="pficon pficon-delete"></i> Delete</button>

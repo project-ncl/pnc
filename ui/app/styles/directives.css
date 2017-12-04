@@ -246,3 +246,38 @@
 .pnc-repository-configuration-combobox .px-combobox-dropdown > .px-combobox-option a {
   white-space: pre;
 }
+
+
+/**
+ * pnc-build-start
+ */
+.pnc-build-start {
+  float: left;
+  margin-right: 20px;
+}
+.pnc-build-start .dropdown-btn {
+  min-width: 95px;
+}
+.pnc-build-start .dropdown-btn.btn-lg {
+  min-width: 112px;
+}
+/* override .dropdown-menu properties */
+.pnc-build-start .dropdown-menu {
+  right: 0;
+  left: auto;
+  min-width: 190px;
+  padding: 5px 15px;
+  margin-bottom: 15px;
+  
+  display: block;
+}
+.pnc-build-start .dropdown-menu hr {
+  margin: 5px 0;
+}
+.pnc-build-start .dropdown-menu .disabled-option {
+  cursor: not-allowed;
+}
+.pnc-build-start .dropdown-menu .disabled-option * {
+  pointer-events: none;
+  opacity: 0.5;
+}
