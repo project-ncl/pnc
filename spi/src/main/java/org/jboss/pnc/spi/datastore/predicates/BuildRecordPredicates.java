@@ -36,6 +36,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.SetJoin;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,6 +129,11 @@ public class BuildRecordPredicates {
             MapJoin<Object, Object, Object> mapJoinAttributes = root.joinMap(BuildRecord_.attributes.getName());
             return query.where(cb.and(cb.equal(mapJoinAttributes.key(), key), cb.equal(mapJoinAttributes.value(), value))).getRestriction();
         };
+    }
+
+    public static Predicate<BuildRecord> buildFinishedBefore(Date date) {
+        return (root, query, cb) -> cb.lessThan(root.get(BuildRecord_.endTime), date);
+
     }
 
 }

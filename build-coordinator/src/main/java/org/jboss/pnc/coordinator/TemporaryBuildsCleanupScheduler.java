@@ -22,13 +22,16 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,6 +47,8 @@ public class TemporaryBuildsCleanupScheduler {
 
     private final int TEMPORARY_BUILD_LIFESPAN;
 
+    private BuildRecordRepository buildRecordRepository;
+
     @Deprecated
     public TemporaryBuildsCleanupScheduler() {
         log.warn("Deprecated constructor used to init TemporaryBuildsCleanupScheduler. Default values will be used.");
@@ -51,7 +56,7 @@ public class TemporaryBuildsCleanupScheduler {
     }
 
     @Inject
-    public TemporaryBuildsCleanupScheduler(Configuration configuration) {
+    public TemporaryBuildsCleanupScheduler(Configuration configuration, BuildRecordRepository buildRecordRepository) {
         int _temporaryBuildLifeSpan;
         try {
             SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
@@ -61,6 +66,7 @@ public class TemporaryBuildsCleanupScheduler {
             _temporaryBuildLifeSpan = DEFAULT_LIFESPAN;
         }
         this.TEMPORARY_BUILD_LIFESPAN = _temporaryBuildLifeSpan;
+        this.buildRecordRepository = buildRecordRepository;
     }
 
 
@@ -71,8 +77,11 @@ public class TemporaryBuildsCleanupScheduler {
     public void cleanupExpiredTemporaryBuilds() {
         log.info("Regular cleanup of expired temporary builds started. Removing builds older than " + TEMPORARY_BUILD_LIFESPAN
                 + " days.");
-
-        List<BuildRecord> expiredBuilds= null;
+        Date expirationThreshold = TimeUtils.getDateXDaysAgo(TEMPORARY_BUILD_LIFESPAN);
+        List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
+        for(BuildRecord br : expiredBuilds) {
+            // TODO trigger a delete of the BR
+        }
 
         log.info("Regular cleanup of expired temporary builds finished.");
     }

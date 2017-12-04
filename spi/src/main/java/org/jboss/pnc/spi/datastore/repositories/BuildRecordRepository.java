@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,4 +51,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     }
 
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
+
+    List<BuildRecord> findTemporaryBuildsOlderThan(Date date);
 }

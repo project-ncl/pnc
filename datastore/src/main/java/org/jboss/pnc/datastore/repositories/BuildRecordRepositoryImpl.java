@@ -33,6 +33,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 @Stateless
@@ -96,6 +97,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     @Override
     public List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId) {
         return queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
+    }
+
+    @Override
+    public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
+        return queryWithPredicates(BuildRecordPredicates.buildFinishedBefore(date));
     }
 
 }

@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jakub Bartecek
@@ -47,7 +48,6 @@ public class TimeUtilsTest {
         assertEquals("t20171130-135345-464", timestamp);
     }
 
-
     @Test
     public void generateCorrectTimeStampFormatForSingleDigitDates() {
         // given
@@ -59,6 +59,17 @@ public class TimeUtilsTest {
 
         // then
         assertEquals("t20170803-010305-009", timestamp);
+    }
 
+    @Test
+    public void getDateXDaysAgoBeforeNowTest() {
+        // given
+        Date now = new Date();
+
+        //when
+        Date date = TimeUtils.getDateXDaysAgo(14);
+
+        //then
+        assertTrue(date.before(now));
     }
 }
