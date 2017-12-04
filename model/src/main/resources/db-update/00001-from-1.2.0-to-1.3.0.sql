@@ -46,3 +46,13 @@ update Artifact set targetRepository_id = 1 where repotype = 0;
 update Artifact set targetRepository_id = 5 where repotype = 3;
 alter table Artifact alter column targetRepository_id set not null;
 alter table Artifact drop column repotype;
+
+-- temporary build flags
+alter table buildrecord add temporarybuild boolean;
+update buildrecord set temporarybuild = true;
+alter table buildrecord alter column temporarybuild set not null;
+
+alter table buildconfigsetrecord add temporarybuild boolean;
+update buildconfigsetrecord set temporarybuild = true;
+alter table buildconfigsetrecord alter column temporarybuild set not null;
+
