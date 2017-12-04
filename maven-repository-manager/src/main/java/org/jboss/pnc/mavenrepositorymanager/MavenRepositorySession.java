@@ -77,6 +77,8 @@ public class MavenRepositorySession implements RepositorySession {
 
     private Set<String> ignoredPathSuffixes;
 
+    private boolean isTempBuild;
+
     private Indy indy;
     private final String buildContentId;
     private List<String> internalRepoPatterns;
@@ -100,7 +102,8 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info,
-            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes, String buildPromotionGroup) {
+            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes, String buildPromotionGroup,
+            boolean isTempBuild) {
         this.indy = indy;
         this.buildContentId = buildContentId;
         this.internalRepoPatterns = internalRepoPatterns;
@@ -108,6 +111,7 @@ public class MavenRepositorySession implements RepositorySession {
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
         this.buildPromotionGroup = buildPromotionGroup;
+        this.isTempBuild = isTempBuild; //TODO define based on buildPromotionGroup
     }
 
     @Override
@@ -269,7 +273,7 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
+                TargetRepository.Type repoType = toRepoType(download.getAccessChannel(), false); //no temp downloads (they are all together)
                 TargetRepository targetRepository = getDownloadsTargetRepository(repoType);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -305,7 +309,7 @@ public class MavenRepositorySession implements RepositorySession {
                     .repositoryType(repoType)
                     .repositoryPath("/api/hosted/shared-imports/")
                     .build();
-        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
+        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) { //TODO do we store downloads in temp repo ?
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven-temp")
                     .repositoryType(repoType)
@@ -329,13 +333,13 @@ public class MavenRepositorySession implements RepositorySession {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("/api/group/builds-untested/") //TODO targetRepository path
+                    .repositoryPath("builds-untested")
                     .build();
         } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven-temp")
                     .repositoryType(TargetRepository.Type.MAVEN_TEMPORARY)
-                    .repositoryPath("/api/group/builds-untested-temporal/") //TODO set the path to temporal builds
+                    .repositoryPath("builds-untested-temp")
                     .build();
         } else {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
@@ -399,9 +403,10 @@ public class MavenRepositorySession implements RepositorySession {
 
                 logger.info("Recording upload: {}", identifier);
 
-                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel());
+                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel(), isTempBuild);
                 TargetRepository targetRepository = getUploadsTargetRepository(repoType);
 
+                Artifact.Quality artifactQuality = getArtifactQuality(isTempBuild);
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(upload.getMd5())
                         .sha1(upload.getSha1())
@@ -410,7 +415,8 @@ public class MavenRepositorySession implements RepositorySession {
                         .deployPath(upload.getPath())
                         .filename(new File(path).getName())
                         .identifier(identifier)
-                        .targetRepository(targetRepository);
+                        .targetRepository(targetRepository)
+                        .artifactQuality(artifactQuality);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
@@ -527,14 +533,27 @@ public class MavenRepositorySession implements RepositorySession {
         return false;
     }
 
-    private TargetRepository.Type toRepoType(AccessChannel accessChannel) {
+    private TargetRepository.Type toRepoType(AccessChannel accessChannel, boolean isTempBuild) {
         switch (accessChannel) {
             case MAVEN_REPO:
-                return TargetRepository.Type.MAVEN;
+                if (isTempBuild) {
+                    return TargetRepository.Type.MAVEN_TEMPORARY;
+                } else {
+                    return TargetRepository.Type.MAVEN;
+                }
             case GENERIC_PROXY:
                 return TargetRepository.Type.GENERIC_PROXY;
             default:
                 return TargetRepository.Type.GENERIC_PROXY;
         }
     }
+
+    private Artifact.Quality getArtifactQuality(boolean isTempBuild) {
+        if (isTempBuild) {
+            return Artifact.Quality.TEMPORARY;
+        } else {
+            return Artifact.Quality.NEW;
+        }
+    }
+
 }

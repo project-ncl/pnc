@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -270,12 +271,14 @@ public class DatastoreAdapter {
      * @return The initialized build record builder
      */
     private BuildRecord.Builder initBuildRecordBuilder(BuildTask buildTask) {
+        BuildOptions buildOptions = buildTask.getBuildOptions();
         BuildRecord.Builder builder = BuildRecord.Builder.newBuilder().id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
-                .productMilestone(buildTask.getProductMilestone());
+                .productMilestone(buildTask.getProductMilestone())
+                .temporaryBuild(buildOptions.isTemporaryBuild());
 
         if (buildTask.getEndTime() == null) {
             buildTask.setEndTime(Date.from(Instant.now()));

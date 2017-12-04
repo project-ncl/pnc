@@ -167,6 +167,7 @@ public abstract class AbstractDependentBuildTest {
                 .id(buildRecordIdSequence.getAndIncrement())
                 .status(BuildStatus.SUCCESS)
                 .buildConfigurationAudited(configurationAudited)
+                .temporaryBuild(false)
                 .build();
     }
 

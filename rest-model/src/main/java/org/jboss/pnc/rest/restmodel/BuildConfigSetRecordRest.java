@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -58,6 +60,10 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
 
     private Set<Integer> buildRecordIds;
 
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private Boolean temporaryBuild;
+
     public BuildConfigSetRecordRest() {
     }
 
@@ -78,6 +84,7 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
         requireNonNull(buildConfigSetRecord.getBuildRecords());
         this.buildRecordIds = buildConfigSetRecord.getBuildRecords().stream().map(BuildRecord::getId)
                 .collect(Collectors.toSet());
+        this.temporaryBuild = buildConfigSetRecord.isTemporaryBuild();
     }
 
     @Override

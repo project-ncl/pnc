@@ -143,6 +143,7 @@ public class DefaultBuildCoordinatorTest {
                         .id(1)
                         .version("7.1")
                         .build())
+                .temporaryBuild(false)
                 .build());
 
         BuildOptions buildOptions = new BuildOptions();

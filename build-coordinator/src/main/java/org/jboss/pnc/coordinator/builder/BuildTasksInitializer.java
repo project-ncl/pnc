@@ -102,7 +102,8 @@ public class BuildTasksInitializer {
 
     public BuildSetTask createBuildSetTask(
             BuildConfigurationSet buildConfigurationSet,
-            User user, BuildOptions buildOptions,
+            User user,
+            BuildOptions buildOptions,
             Supplier<Integer> buildTaskIdProvider,
             Set<BuildConfiguration> buildConfigurations,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
@@ -111,6 +112,7 @@ public class BuildTasksInitializer {
                 .user(user)
                 .startTime(new Date())
                 .status(org.jboss.pnc.model.BuildStatus.BUILDING)
+                .temporaryBuild(buildOptions.isTemporaryBuild())
                 .build();
 
         final BuildConfigSetRecord configSetRecord;

@@ -202,6 +202,7 @@ public class BuildRecordsTest {
                 .builtArtifact(builtArtifact1)
                 .dependency(importedArtifact1)
                 .attribute("attributeKey", "attributeValue1")
+                .temporaryBuild(false)
                 .build();
                 
         buildRecord1 = buildRecordRepository.save(buildRecord1);
@@ -225,6 +226,7 @@ public class BuildRecordsTest {
                 .dependency(builtArtifact1FromDb)
                 .dependency(importedArtifact1)
                 .attribute("attributeKey", "attributeValue2")
+                .temporaryBuild(false)
                 .build();
 
         buildRecord2 = buildRecordRepository.save(buildRecord2);
@@ -247,6 +249,7 @@ public class BuildRecordsTest {
                 .dependency(builtArtifact1FromDb)
                 .dependency(importedArtifact1)
                 .attribute("attributeKey", "attributeValue2")
+                .temporaryBuild(false)
                 .build();
 
         buildRecordWithArtifacts = buildRecordRepository.save(buildRecordWithArtifacts);

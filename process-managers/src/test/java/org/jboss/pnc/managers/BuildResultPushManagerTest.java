@@ -109,6 +109,7 @@ public class BuildResultPushManagerTest {
                 .builtArtifact(builtArtifact1)
                 .builtArtifact(builtArtifact2)
                 .buildConfigurationAudited(buildConfigurationAudited)
+                .temporaryBuild(false)
                 .build();
 
         return buildRecordRepository.save(buildRecord).getId();

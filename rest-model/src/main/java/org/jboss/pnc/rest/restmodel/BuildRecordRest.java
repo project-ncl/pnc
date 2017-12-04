@@ -82,6 +82,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private String buildContentId;
 
+    @Getter
+    @Setter(onMethod=@__({@Deprecated}))
+    private Boolean temporaryBuild;
+
     /**
      * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
      */
@@ -135,6 +139,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
         this.buildContentId = buildRecord.getBuildContentId();
+        this.temporaryBuild = buildRecord.isTemporaryBuild();
         
         performIfNotNull(buildRecord.getProductMilestone(), () -> productMilestoneId = buildRecord.getProductMilestone().getId());
         performIfNotNull(buildRecord.getUser(), () -> user = new UserRest(buildRecord.getUser()));
@@ -146,7 +151,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         executionRootVersion = buildRecord.getExecutionRootVersion();
     }
 
-    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user,
+    public BuildRecordRest(
+            BuildExecutionSession buildExecutionSession,
+            Date submitTime, UserRest user,
             BuildConfigurationAuditedRest buildConfigurationAudited) {
         this.id = buildExecutionSession.getId();
         this.submitTime = submitTime;
@@ -174,10 +181,18 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.projectId = buildConfigurationAudited.getProjectId();
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());
+
+        this.temporaryBuild = buildExecutionConfig.isTempBuild();
     }
 
-    public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime,
-            Date endTime, UserRest user, BuildConfigurationAuditedRest buildConfigurationAudited) {
+    public BuildRecordRest(
+            Integer id,
+            BuildCoordinationStatus buildCoordinationStatus,
+            Date submitTime,
+            Date startTime,
+            Date endTime,
+            UserRest user,
+            BuildConfigurationAuditedRest buildConfigurationAudited) {
         this.id = id;
         this.submitTime = submitTime;
         this.startTime = startTime;

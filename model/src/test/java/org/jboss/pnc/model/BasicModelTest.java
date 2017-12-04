@@ -151,9 +151,15 @@ public class BasicModelTest extends AbstractModelTest {
                 .buildConfigurationAudited(buildConfigAud)
                 .buildLog("Build Completed.")
                 .buildContentId("foo")
-                .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
-                .builtArtifact(artifact1).builtArtifact(artifact2).dependency(artifact3)
-                .user(pncUser).build();
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .builtArtifact(artifact1)
+                .builtArtifact(artifact2)
+                .dependency(artifact3)
+                .user(pncUser)
+                .temporaryBuild(false)
+                .build();
 
         em.getTransaction().begin();
         em.persist(targetRepository);
@@ -211,11 +217,18 @@ public class BasicModelTest extends AbstractModelTest {
         BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(2).buildConfigurationAudited(buildConfigAud)
-                .buildLog("Bulid Complete").buildContentId("foo")
-                .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
+                .buildLog("Bulid Complete")
+                .buildContentId("foo")
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
                 //Add the built artifact and dependency artifact twice
-                .builtArtifact(builtArtifact).builtArtifact(builtArtifact).dependency(importedArtifact).dependency(importedArtifact)
+                .builtArtifact(builtArtifact)
+                .builtArtifact(builtArtifact)
+                .dependency(importedArtifact)
+                .dependency(importedArtifact)
                 .user(pncUser)
+                .temporaryBuild(false)
                 .build();
 
         em.getTransaction().begin();

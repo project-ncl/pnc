@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -108,12 +110,15 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     @Index(name="idx_buildconfigsetrecord_productversion")
     private ProductVersion productVersion;
 
+
+    @NotNull
+    @Getter
+    @Setter
+    private boolean temporaryBuild;
+
     /**
      * Example attributes
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
-     * brewLink: http://pathToArtifact
-     * brewId: 1007192
-     * TEMPORARY_BUILD: TRUE/FALSE
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_config_set_record_attributes", joinColumns=@JoinColumn(name="build_config_set_record_id"))
@@ -279,6 +284,8 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
         private Set<BuildRecord> buildRecords;
 
+        private Boolean temporaryBuild;
+
         public Builder() {
             buildRecords = new HashSet<>();
         }
@@ -295,6 +302,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             buildConfigSetRecord.setEndTime(endTime);
             buildConfigSetRecord.setUser(user);
             buildConfigSetRecord.setStatus(status);
+            buildConfigSetRecord.setTemporaryBuild(temporaryBuild);
 
             if (productVersion == null && buildConfigurationSet != null) {
                 productVersion = buildConfigurationSet.getProductVersion();
@@ -349,6 +357,13 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             this.buildRecords = buildRecords;
             return this;
         }
+
+        public Builder temporaryBuild(boolean temporaryBuild) {
+            this.temporaryBuild = temporaryBuild;
+            return this;
+        }
+
+
 
     }
 
