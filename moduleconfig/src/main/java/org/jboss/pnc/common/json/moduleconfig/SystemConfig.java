@@ -55,6 +55,13 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private int coordinatorMaxConcurrentBuilds;
 
+    /**
+     * Temporary builds life span set as number of days. After the expiration the temporary builds gets deleted.
+     * Defaults to 14 days.
+     */
+    private int temporaryBuildsLifeSpan;
+
+
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
@@ -62,7 +69,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
             @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
-            @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds) {
+            @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
+            @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan ) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.authenticationProviderId = authenticationProviderId;
@@ -70,6 +78,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
+        this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
     }
 
     public String getBuildDriverId() {
@@ -88,16 +97,16 @@ public class SystemConfig extends AbstractModuleConfig {
         return builderThreadPoolSize;
     }
 
-    public void setBuilderThreadPoolSize(String builderThreadPoolSize) {
-        this.builderThreadPoolSize = builderThreadPoolSize;
-    }
-
     public int getCoordinatorThreadPoolSize() {
         return coordinatorThreadPoolSize;
     }
 
     public int getCoordinatorMaxConcurrentBuilds() {
         return coordinatorMaxConcurrentBuilds;
+    }
+
+    public int getTemporaryBuildsLifeSpan() {
+        return temporaryBuildsLifeSpan;
     }
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
