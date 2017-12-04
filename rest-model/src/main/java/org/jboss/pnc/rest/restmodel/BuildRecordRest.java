@@ -54,6 +54,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private BuildCoordinationStatus status;
 
+    private boolean completed;
+
+    private boolean failed;
+
     private Integer buildConfigurationId;
 
     private String buildConfigurationName;
@@ -131,6 +135,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
         performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
         this.status = BuildCoordinationStatus.fromBuildStatus(buildRecord.getStatus());
+        this.completed = status.isCompleted();
+        this.failed = status.hasFailed();
         if (buildRecord.getBuildConfigSetRecord() != null)
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
@@ -157,6 +163,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         //TODO Why masking i.e. BUILD_WAITING status with BUILDING ?
         this.status = BuildCoordinationStatus.fromBuildExecutionStatus(buildExecutionSession.getStatus());
         buildExecutionSession.getLiveLogsUri().ifPresent(logsUri -> setLiveLogsUri(logsUri.toString()));
+        this.completed = status.isCompleted();
+        this.failed = status.hasFailed();
 
         this.userId = user.getId();
         this.username = user.getUsername();
@@ -184,6 +192,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = endTime;
 
         this.status = buildCoordinationStatus;
+        this.completed = status.isCompleted();
+        this.failed = status.hasFailed();
 
         this.userId = user.getId();
         this.username = user.getUsername();
@@ -239,6 +249,22 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public void setStatus(BuildCoordinationStatus status) {
         this.status = status;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean isFailed() {
+        return failed;
+    }
+
+    public void setFailed(boolean failed) {
+        this.failed = failed;
     }
 
     public Integer getBuildConfigurationId() {
