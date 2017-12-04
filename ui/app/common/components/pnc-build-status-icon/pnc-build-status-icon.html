@@ -37,7 +37,10 @@
   </span>
   <span ng-if="::!$ctrl.noWarnings">
     <span ng-if="$ctrl.isCorrupted">
-      <i class="pficon pficon-warning-triangle-o" uib-tooltip="The build may have completed successfully but has since been corrupted by a system error" tooltip-popup-delay="1000"></i>
+      <i class="pficon pficon-warning-triangle-o fa-lg" uib-tooltip="The build may have completed successfully but has since been corrupted by a system error" tooltip-popup-delay="1000" tooltip-placement="right"></i>
+    </span>
+    <span ng-if="$ctrl.isTemporary">
+      <i class="fa fa-clock-o fa-lg c-info" uib-tooltip="Test build, which cannot be used for product release and which will be garbage collected" tooltip-popup-delay="1000" tooltip-placement="right"></i>
     </span>
   </span>
 </span>
