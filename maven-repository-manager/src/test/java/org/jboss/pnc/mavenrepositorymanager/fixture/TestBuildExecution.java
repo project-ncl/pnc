@@ -59,4 +59,14 @@ public class TestBuildExecution implements BuildExecution {
         this.artifactRepositories = artifactRepositories;
     }
 
+	@Override
+	public boolean isTempBuild() {
+		return false;
+	}
+
+	@Override
+	public String getTempBuildTimestamp() {
+		return null;
+	}
+
 }

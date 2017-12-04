@@ -67,6 +67,7 @@ import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAV
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMPORARY_BUILDS_GROUP;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
@@ -84,8 +85,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final int DEFAULT_REQUEST_TIMEOUT;
 
-    private final boolean BUILD_REPOSITORY_ALLOW_SNAPSHOTS;
-
     private final String BUILD_PROMOTION_GROUP;
 
     private String baseUrl;
@@ -98,7 +97,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
-        this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = false;
         this.BUILD_PROMOTION_GROUP = "";
     }
 
@@ -112,7 +110,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
-        this.BUILD_REPOSITORY_ALLOW_SNAPSHOTS = config.getBuildRepositoryAllowSnapshots();
         this.BUILD_PROMOTION_GROUP = config.getBuildPromotionGroup();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
@@ -181,7 +178,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Use the AProx client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
+     * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
      * build. Calculate the URL to use for resolving artifacts using the AProx Folo API (Folo is an artifact activity-tracker).
      * Return a new session ({@link MavenRepositorySession}) containing this information.
      *
@@ -245,9 +242,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
         if (!indy.stores().exists(groupKey)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+            boolean tempBuild = execution.isTempBuild();
             if (!indy.stores().exists(hostedKey)) {
                 HostedRepository buildArtifacts = new HostedRepository(MAVEN_PKG_KEY, buildContentId);
-                buildArtifacts.setAllowSnapshots(BUILD_REPOSITORY_ALLOW_SNAPSHOTS);
+                buildArtifacts.setAllowSnapshots(tempBuild);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
@@ -257,13 +255,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
             }
 
             Group buildGroup = new Group(MAVEN_PKG_KEY, buildContentId);
-            buildGroup.setDescription(String.format("Aggregation group for PNC build #%s", id));
+            String adjective = tempBuild ? "temporary " : "";
+            buildGroup.setDescription(String.format("Aggregation group for PNC %sbuild #%s", adjective, id));
 
             // build-local artifacts
             buildGroup.addConstituent(hostedKey);
 
             // Global-level repos, for captured/shared artifacts and access to the outside world
-            addGlobalConstituents(buildGroup);
+            addGlobalConstituents(buildGroup, tempBuild);
 
             // add extra repositories removed from poms by the adjust process
             addExtraConstituents(execution.getArtifactRepositories(), id, buildContentId, indy, buildGroup);
@@ -333,14 +332,18 @@ public class RepositoryManagerDriver implements RepositoryManager {
     /**
      * Add the constituents that every build repository group should contain:
      * <ol>
-     * <li>shared-releases (Group)</li>
+     * <li>builds-untested (Group)</li>
+     * <li>for temporary builds add also temporary-builds (Group)</li>
      * <li>shared-imports (Hosted Repo)</li>
      * <li>public (Group)</li>
      * </ol>
      */
-    private void addGlobalConstituents(Group group) {
-        // 1. global shared-releases artifacts
+    private void addGlobalConstituents(Group group, boolean tempBuild) {
+        // 1. global builds artifacts
         group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, UNTESTED_BUILDS_GROUP));
+        if (tempBuild) {
+            group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, TEMPORARY_BUILDS_GROUP));
+        }
 
         // 2. global shared-imports artifacts
         group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID));
