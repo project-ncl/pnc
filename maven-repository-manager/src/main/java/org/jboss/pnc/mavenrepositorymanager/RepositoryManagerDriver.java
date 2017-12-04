@@ -239,7 +239,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         // if the build-level group doesn't exist, create it.
         StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
-        boolean tempBuild = true; //TODO
+
         if (!indy.stores().exists(groupKey)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);

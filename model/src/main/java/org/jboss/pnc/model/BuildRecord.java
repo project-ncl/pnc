@@ -702,7 +702,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
             buildRecord.setBuildContentId(buildContentId);
-            buildRecord.setTemporaryBuild(temporaryBuild);
             buildRecord.setSubmitTime(submitTime);
             buildRecord.setStartTime(startTime);
             buildRecord.setEndTime(endTime);
@@ -724,6 +723,11 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setRepourLogSize(repourLog.length());
             buildRecord.setBuildLog(buildLog);
             buildRecord.setBuildLogSize(buildLog.length());
+
+            if (temporaryBuild == null) {
+                temporaryBuild = true;
+            }
+            buildRecord.setTemporaryBuild(temporaryBuild);
 
             try {
                 buildRecord.setBuildLogMd5(Md5.digest(buildLog));

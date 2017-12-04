@@ -22,12 +22,16 @@ import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
+import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -39,6 +43,7 @@ import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -114,10 +119,7 @@ public class DatastoreAdapterTest {
                 .buildConfiguration(buildConfiguration)
                 .build();
 
-        BuildTask buildTask = mock(BuildTask.class);
-        when(buildTask.getId()).thenReturn(123);
-        when(buildTask.getBuildConfigurationAudited()).thenReturn(buildConfigurationAudited);
-
+        BuildTask buildTask = mockBuildTask();
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
         BuildResult buildResult = new BuildResult(
@@ -153,18 +155,6 @@ public class DatastoreAdapterTest {
         when(repositoryManagerResult.getLog()).thenReturn(REPOSITORY_MANAGER_LOG);
 
 
-        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
-                .name("Configuration.")
-                .build();
-
-        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
-                .buildConfiguration(buildConfiguration)
-                .build();
-
-        BuildTask buildTask = mock(BuildTask.class);
-        when(buildTask.getId()).thenReturn(123);
-        when(buildTask.getBuildConfigurationAudited()).thenReturn(buildConfigurationAudited);
-
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
         BuildResult buildResult = new BuildResult(
@@ -177,7 +167,30 @@ public class DatastoreAdapterTest {
                 Optional.of(EnvironmentDriverResultMock.mock()),
                 Optional.of(RepourResultMock.mock()));
 
+        BuildTask buildTask = mockBuildTask();
         datastoreAdapter.storeResult(buildTask, buildResult);
+    }
+
+    private BuildTask mockBuildTask() {
+        BuildConfiguration buildConfiguration = new BuildConfiguration();
+        buildConfiguration.setId(12);
+        buildConfiguration.setName("Configuration.");
+        buildConfiguration.setProject(new Project());
+
+        BuildOptions buildOptions = new BuildOptions(false, false, true, false, false);
+        BuildTask buildTask = BuildTask.build(
+                buildConfiguration,
+                BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
+                buildOptions,
+                MockUser.newTestUser(1),
+                123,
+                null,
+                new Date(),
+                null
+        );
+
+        buildTask.setStatus(BuildCoordinationStatus.DONE);
+        return buildTask;
     }
 
 }
