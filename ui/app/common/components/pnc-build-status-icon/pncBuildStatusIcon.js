@@ -40,6 +40,7 @@
     // -- Controller API --
 
     $ctrl.isCorrupted = false;
+    $ctrl.isTemporary = false;
 
     // --------------------
 
@@ -52,9 +53,14 @@
       );
     }
 
+    function isTemporary(buildRecord) {
+      return buildRecord.temporaryBuild;
+    }
+
     $ctrl.$onChanges = function (changes) {
       if (changes.buildRecord && changes.buildRecord.currentValue) {
         $ctrl.isCorrupted = isCorrupted(changes.buildRecord.currentValue);
+        $ctrl.isTemporary = isTemporary(changes.buildRecord.currentValue);
       }
     };
   }

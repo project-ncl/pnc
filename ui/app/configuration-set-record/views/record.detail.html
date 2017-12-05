@@ -21,9 +21,10 @@
   <div class="col-md-12">
     <div class="page-header">
       <h1>
-        <pnc-build-status-icon build-record="ctrl.csRecordDetail"></pnc-build-status-icon>
+        <pnc-build-status-icon build-record="ctrl.csRecordDetail" no-warnings="true"></pnc-build-status-icon>
         # {{ ctrl.csRecordDetail.id }} &mdash; {{ ctrl.csRecordDetail.getConfigurationSet().name }} &mdash; {{ ctrl.csRecordDetail.startTime |
         date:'medium'}}
+        <pnc-temporary-build-record-label build-group-record="ctrl.csRecordDetail" class="label-sm"></pnc-temporary-build-record-label>
       </h1>
     </div>
   </div>

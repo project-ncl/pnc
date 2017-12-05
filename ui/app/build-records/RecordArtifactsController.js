@@ -50,7 +50,8 @@
             filterType: 'select',
             filterValues: [
               'MAVEN',
-              'GENERIC_PROXY'
+              'GENERIC_PROXY',
+              'MAVEN_TEMPORARY'
             ]
           },
           {
@@ -63,7 +64,8 @@
               'VERIFIED',
               'TESTED',
               'DEPRECATED',
-              'BLACKLISTED'
+              'BLACKLISTED',
+              'TEMPORARY'
             ]
           },
           {
