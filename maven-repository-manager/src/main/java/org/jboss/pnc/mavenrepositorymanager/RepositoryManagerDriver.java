@@ -87,6 +87,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final String BUILD_PROMOTION_GROUP;
 
+    private final String TEMP_BUILD_PROMOTION_GROUP;
+
     private String baseUrl;
     private Map<String, Indy> indyMap = new HashMap<>();
 
@@ -98,6 +100,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
         this.BUILD_PROMOTION_GROUP = "";
+        this.TEMP_BUILD_PROMOTION_GROUP = "";
     }
 
     @Inject
@@ -111,6 +114,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
         this.BUILD_PROMOTION_GROUP = config.getBuildPromotionGroup();
+        this.TEMP_BUILD_PROMOTION_GROUP = config.getTempBuildPromotionGroup();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -218,8 +222,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
+        boolean tempBuild = buildExecution.isTempBuild();
+        String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_GROUP;
         return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns, ignoredPathSuffixes, BUILD_PROMOTION_GROUP, buildExecution.isTempBuild());
+                internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
     }
 
     /**
