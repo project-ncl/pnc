@@ -263,6 +263,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
         logger.debug("Endpoint /build requested for buildConfigurationId [{}]", id);
+        logger.debug("temporaryBuild: {}, forceRebuild: {}, buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
+                temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
+
         User currentUser = getCurrentUser();
 
         BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
