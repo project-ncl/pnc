@@ -18,10 +18,15 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.
  */
 public interface BuildConfigSetRecordRepository extends Repository<BuildConfigSetRecord, Integer> {
+    List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date);
 }

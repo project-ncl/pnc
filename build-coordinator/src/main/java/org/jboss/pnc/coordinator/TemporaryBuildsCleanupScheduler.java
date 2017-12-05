@@ -23,7 +23,9 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.TimeUtils;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,8 @@ public class TemporaryBuildsCleanupScheduler {
 
     private BuildRecordRepository buildRecordRepository;
 
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
     @Deprecated
     public TemporaryBuildsCleanupScheduler() {
         log.warn("Deprecated constructor used to init TemporaryBuildsCleanupScheduler. Default values will be used.");
@@ -56,7 +60,8 @@ public class TemporaryBuildsCleanupScheduler {
     }
 
     @Inject
-    public TemporaryBuildsCleanupScheduler(Configuration configuration, BuildRecordRepository buildRecordRepository) {
+    public TemporaryBuildsCleanupScheduler(Configuration configuration, BuildRecordRepository buildRecordRepository,
+                                           BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
         int _temporaryBuildLifeSpan;
         try {
             SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
@@ -67,6 +72,7 @@ public class TemporaryBuildsCleanupScheduler {
         }
         this.TEMPORARY_BUILD_LIFESPAN = _temporaryBuildLifeSpan;
         this.buildRecordRepository = buildRecordRepository;
+        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
     }
 
 
@@ -78,11 +84,27 @@ public class TemporaryBuildsCleanupScheduler {
         log.info("Regular cleanup of expired temporary builds started. Removing builds older than " + TEMPORARY_BUILD_LIFESPAN
                 + " days.");
         Date expirationThreshold = TimeUtils.getDateXDaysAgo(TEMPORARY_BUILD_LIFESPAN);
+
+        deleteExpiredBuildConfigSetRecords(expirationThreshold);
+        deleteExpiredBuildRecords(expirationThreshold);
+
+        log.info("Regular cleanup of expired temporary builds finished.");
+    }
+
+    private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold) {
+        List<BuildConfigSetRecord> expiredBCSRecords = buildConfigSetRecordRepository.findTemporaryBuildConfigSetRecordsOlderThan(expirationThreshold);
+        for(BuildConfigSetRecord bcsr : expiredBCSRecords) {
+            // TODO trigger a delete of the bcsr
+
+        }
+    }
+
+    private void deleteExpiredBuildRecords(Date expirationThreshold) {
         List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
         for(BuildRecord br : expiredBuilds) {
             // TODO trigger a delete of the BR
         }
-
-        log.info("Regular cleanup of expired temporary builds finished.");
     }
+
+
 }

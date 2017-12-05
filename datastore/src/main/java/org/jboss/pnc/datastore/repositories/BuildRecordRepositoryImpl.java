@@ -101,7 +101,9 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
     @Override
     public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
-        return queryWithPredicates(BuildRecordPredicates.buildFinishedBefore(date));
+        return queryWithPredicates(
+                BuildRecordPredicates.temporaryBuild(),
+                BuildRecordPredicates.buildFinishedBefore(date));
     }
 
 }

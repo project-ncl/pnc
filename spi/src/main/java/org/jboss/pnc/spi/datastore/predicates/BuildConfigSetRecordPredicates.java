@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import java.util.Date;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.
@@ -36,5 +37,14 @@ public class BuildConfigSetRecordPredicates {
             return cb.equal(buildConfigurationSet.get(BuildConfigurationSet_.id), buildConfigSetId);
         };
     }
-    
+
+    public static Predicate<BuildConfigSetRecord> buildFinishedBefore(Date date) {
+        return (root, query, cb) -> cb.and(
+                cb.isNotNull(root.get(BuildConfigSetRecord_.endTime)),
+                cb.lessThan(root.get(BuildConfigSetRecord_.endTime), date));
+    }
+
+    public static Predicate<BuildConfigSetRecord> temporaryBuild() {
+        return (root, query, cb) -> cb.isTrue(root.get(BuildConfigSetRecord_.temporaryBuild));
+    }
 }

@@ -79,4 +79,9 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     public BuildRecord save(BuildRecord entity) {
         return super.save(entity);
     }
+
+    @Override
+    public List<BuildRecord> queryAll() {
+        return super.queryAll();
+    }
 }
