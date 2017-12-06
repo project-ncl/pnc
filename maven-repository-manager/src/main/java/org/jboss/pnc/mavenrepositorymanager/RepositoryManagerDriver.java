@@ -139,7 +139,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private Indy init(String accessToken) {
         Indy indy = indyMap.get(accessToken);
-        if (indy == null) {
+        if (indy == null) { //TODO use indyConcurrentMap.computeIfAbsent
             IndyClientAuthenticator authenticator = null;
             if (accessToken != null) {
                 authenticator = new OAuth20BearerTokenAuthenticator(accessToken);

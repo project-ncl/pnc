@@ -55,6 +55,8 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private int coordinatorMaxConcurrentBuilds;
 
+    private KeycloakClientConfig keycloakServiceAccountConfig;
+
     /**
      * Temporary builds life span set as number of days. After the expiration the temporary builds gets deleted.
      * Defaults to 14 days.
@@ -70,6 +72,7 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
+            @JsonProperty("keycloakServiceAccountConfig") KeycloakClientConfig keycloakServiceAccountConfig,
             @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan ) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
@@ -78,6 +81,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
+        this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
     }
 
@@ -97,6 +101,10 @@ public class SystemConfig extends AbstractModuleConfig {
         return builderThreadPoolSize;
     }
 
+    public void setBuilderThreadPoolSize(String builderThreadPoolSize) {
+        this.builderThreadPoolSize = builderThreadPoolSize;
+    }
+
     public int getCoordinatorThreadPoolSize() {
         return coordinatorThreadPoolSize;
     }
@@ -107,6 +115,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getTemporaryBuildsLifeSpan() {
         return temporaryBuildsLifeSpan;
+    }
+
+    public KeycloakClientConfig getKeycloakServiceAccountConfig() {
+        return keycloakServiceAccountConfig;
     }
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
@@ -138,4 +150,5 @@ public class SystemConfig extends AbstractModuleConfig {
     public String getAuthenticationProviderId() {
         return authenticationProviderId;
     }
+
 }
