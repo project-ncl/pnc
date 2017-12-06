@@ -58,9 +58,7 @@
     }
 
     $ctrl.refreshBuildModes = function() {
-      if ($ctrl.params.temporaryBuild) {
-        $ctrl.params.forceRebuild = false;
-      } else {
+      if (!$ctrl.params.temporaryBuild) {
         $ctrl.params.timestampAlignment = false;
       }
     };
@@ -70,19 +68,13 @@
 
       if ($ctrl.buildConfig) {
         $log.debug('pncBuildStart: Initiating build of: %O', $ctrl.buildConfig);
-        BuildConfigurationDAO.build({
-          configurationId: $ctrl.buildConfig.id
-        }, {
-          params: $ctrl.params
-        });
+        $ctrl.params.configurationId = $ctrl.buildConfig.id;
+        BuildConfigurationDAO.build($ctrl.params, {});
 
       } else if ($ctrl.buildGroup) {
         $log.debug('pncBuildStart: Initiating build of: %O', $ctrl.buildGroup);
-        BuildConfigurationSetDAO.build({
-          configurationSetId: $ctrl.buildGroup.id
-        }, {
-          params: $ctrl.params
-        });
+        $ctrl.params.configurationSetId = $ctrl.buildGroup.id;
+        BuildConfigurationSetDAO.build($ctrl.params, {});
       }
 
     };

@@ -18,7 +18,7 @@
 
 -->
 <div class="btn-group pnc-build-start">
-  <button type="button" class="btn btn-{{ $ctrl.size ? $ctrl.size : 'lg'}} btn-default" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2000" tooltip-placement="top" tooltip-append-to-body="true" ng-click="$ctrl.build()" pnc-requires-auth>
+  <button type="button" class="btn btn-{{ $ctrl.size ? $ctrl.size : 'lg'}} btn-primary" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2000" tooltip-placement="top" tooltip-append-to-body="true" ng-click="$ctrl.build()" pnc-requires-auth>
     <i class="pficon pficon-build"></i> Build
   </button>
 
@@ -60,7 +60,7 @@
         </a>
       </label>
     </div>
-    <div class="checkbox" ng-class="{'disabled-option': $ctrl.params.temporaryBuild}" title="{{ $ctrl.params.temporaryBuild ? 'Not valid option' : '' }}">
+    <div class="checkbox">
       <label>
         <input type="checkbox" ng-model="$ctrl.params.forceRebuild"> force rebuild
         <a uib-popover="Perform the build even if successful build of the same configuration is present" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
@@ -91,7 +91,7 @@
       <small>
         Press <em>Build</em> button to start 
         {{ $ctrl.params.temporaryBuild ? 'temporary' : 'persistent' }} build
-        {{ $ctrl.params.forceRebuild && $ctrl.params.buildDependencies ? 'forcing only build itself (without its dependencies)' : '' }}
+        {{ $ctrl.params.forceRebuild && $ctrl.params.buildDependencies ? 'forcing only build itself, not forcing its dependencies' : '' }}
       </small>
     </div>
 
