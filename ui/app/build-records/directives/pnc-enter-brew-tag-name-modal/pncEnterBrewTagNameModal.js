@@ -18,11 +18,11 @@
 
 (function () {
     'use strict';
-  
+
     angular.module('pnc.build-records').component('pncEnterBrewTagNameModal', {
       bindings: {
         /**
-         * Injected by $uibModal 
+         * Injected by $uibModal
          */
         doClose: '&close',
         doDismiss: '&dismiss'
@@ -30,17 +30,23 @@
       templateUrl: 'build-records/directives/pnc-enter-brew-tag-name-modal/pnc-enter-brew-tag-name-modal.html',
       controller: [Controller]
     });
-  
+
     function Controller() {
       var $ctrl = this;
-  
+
       // -- Controller API --
-    
+
       $ctrl.done = done;
       $ctrl.cancel = cancel;
 
       // --------------------
-  
+
+
+      $ctrl.$onInit = function () {
+        $ctrl.data = {};
+        $ctrl.data.tagName = '';
+      };
+
       function done() {
         $ctrl.doClose({
           $value: {
@@ -55,4 +61,3 @@
     }
 
   })();
-  
