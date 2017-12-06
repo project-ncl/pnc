@@ -23,6 +23,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -61,25 +62,29 @@ public class DefaultCausewayClient implements CausewayClient {
     @Override
     public boolean push(String jsonMessage, String authToken) {
         Header authHeader = new BasicHeader("Authorization", "Bearer " + authToken);
-
+        HttpResponse response;
         try {
             logger.info("Making POST request to {}.", causewayEndpoint);
             logger.debug("Request body {}.", jsonMessage);
-            HttpResponse response = Request.Post(causewayEndpoint)
+            response = Request.Post(causewayEndpoint)
                     .addHeader(authHeader)
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
                     .execute()
                     .returnResponse();
-            logger.info("Response status: {}", response.getStatusLine().getStatusCode());
-
+        } catch (IOException e) {
+            logger.error("Failed to invoke remote Causeway.", e);
+            return false;
+        }
+        try {
             int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("Response status: {}", statusCode);
+            logger.debug(EntityUtils.toString(response.getEntity()));
+
             if (statusCode != HttpStatus.SC_OK) {
-                logger.error("Trying to invoke remote Causeway push failed with http code {}.", statusCode);
                 return false;
             }
-
         } catch (IOException e) {
-            logger.error("Trying to invoke remote Causeway push failed.", e);
+            logger.error("Failed to read Causeway response.", e);
             return false;
         }
         return true;
