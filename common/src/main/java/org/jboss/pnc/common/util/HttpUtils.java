@@ -132,4 +132,9 @@ public class HttpUtils {
     public static CloseableHttpClient getPermissiveHttpClient() {
         return getPermissiveHttpClient(3);
     }
+
+    public static boolean isSuccess(int statusCode) {
+        return statusCode / 100 == 2;
+    }
+
 }
