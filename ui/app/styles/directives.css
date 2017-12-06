@@ -255,6 +255,9 @@
   float: left;
   margin-right: 20px;
 }
+.pnc-build-start .btn-primary {
+  z-index: 3;
+}
 .pnc-build-start .dropdown-btn {
   min-width: 95px;
 }
