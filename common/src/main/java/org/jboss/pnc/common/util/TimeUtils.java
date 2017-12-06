@@ -109,7 +109,7 @@ public class TimeUtils {
                 .build();
 
 
-        return String.format("t%d%d%d-%d%d%d-%d", instant.get(Calendar.YEAR), instant.get(Calendar.MONTH) + 1,
+        return String.format("t%d%02d%02d-%02d%02d%02d-%03d", instant.get(Calendar.YEAR), instant.get(Calendar.MONTH) + 1,
                 instant.get(Calendar.DAY_OF_MONTH), instant.get(Calendar.HOUR_OF_DAY), instant.get(Calendar.MINUTE),
                 instant.get(Calendar.SECOND), instant.get(Calendar.MILLISECOND));
     }
