@@ -19,7 +19,6 @@ package org.jboss.pnc.managers.causeway;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
@@ -28,6 +27,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +79,7 @@ public class DefaultCausewayClient implements CausewayClient {
             int statusCode = response.getStatusLine().getStatusCode();
             logger.info("Response status: {}", statusCode);
             logger.debug(EntityUtils.toString(response.getEntity()));
-
-            if (statusCode != HttpStatus.SC_OK) {
+            if (!HttpUtils.isSuccess(statusCode)) {
                 return false;
             }
         } catch (IOException e) {

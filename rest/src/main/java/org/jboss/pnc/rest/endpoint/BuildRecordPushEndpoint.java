@@ -225,6 +225,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             BuildRecordPushResultRest buildRecordPushResult,
             @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId,
             @Context UriInfo uriInfo) throws ValidationException, ProcessException {
+        logger.info("Received completion notification for BuildRecord.id: {}. Object received: {}.", buildRecordId, buildRecordPushResult);
         Integer id = buildResultPushManager.complete(buildRecordId, buildRecordPushResult.toDBEntityBuilder().build());
         return Response.ok().entity(id).build();
     }
