@@ -21,16 +21,21 @@
   var module = angular.module('pnc.common.pnc-client.resources');
 
   module.value('BUILD_CONFIG_SET_RECORD_PATH', '/build-config-set-records/:id');
+  module.value('BUILD_CONFIG_SET_RECORD_PUSH_PATH', '/build-record-push/record-set');
+
 
   /**
    * @author Martin Kelnar
    */
   module.factory('BuildConfigSetRecord', [
     '$resource',
+    '$http',
     'restConfig',
     'BUILD_CONFIG_SET_RECORD_PATH',
-    function($resource, restConfig, BUILD_CONFIG_SET_RECORD_PATH) {
+    'BUILD_CONFIG_SET_RECORD_PUSH_PATH',
+    function($resource, $http, restConfig, BUILD_CONFIG_SET_RECORD_PATH, BUILD_CONFIG_SET_RECORD_PUSH_PATH) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PATH;
+      var PUSH_ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PUSH_PATH;
 
       var resource = $resource(ENDPOINT, {
         id: '@id'
@@ -41,6 +46,13 @@
           isPaged: true
         }
       });
+
+      resource.push = function (buildConfigSetRecordId, tagPrefix) {
+        return $http.post(PUSH_ENDPOINT, {
+          buildConfigSetRecordId: buildConfigSetRecordId,
+          tagPrefix: tagPrefix
+        });
+      };
 
       return resource;
     }
