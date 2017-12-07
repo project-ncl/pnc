@@ -17,100 +17,100 @@
  */
 
 (function () {
-    'use strict';
+  'use strict';
 
-    angular.module('pnc.build-records').component('pncBuildRecordPushButton', {
-      bindings: {
-        buildRecord: '<?',
-        buildGroupRecord: '<?',
-        size: '@?',
-        buttonText: '@?',
-        buttonIconClass: '@?'
-      },
-      templateUrl: 'build-records/directives/pnc-build-record-push-button/pnc-build-record-push-button.html',
-      controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'BuildConfigSetRecord', 'messageBus', Controller]
-    });
+  angular.module('pnc.build-records').component('pncBuildRecordPushButton', {
+    bindings: {
+      buildRecord: '<?',
+      buildGroupRecord: '<?',
+      size: '@?',
+      buttonText: '@?',
+      buttonIconClass: '@?'
+    },
+    templateUrl: 'build-records/directives/pnc-build-record-push-button/pnc-build-record-push-button.html',
+    controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'BuildConfigSetRecord', 'messageBus', Controller]
+  });
 
-    function Controller($uibModal, pncNotify, BuildRecord, BuildConfigSetRecord, messageBus) {
-      var $ctrl = this,
-          unsubscribe;
+  function Controller($uibModal, pncNotify, BuildRecord, BuildConfigSetRecord, messageBus) {
+    var $ctrl = this,
+    unsubscribe;
 
-      // -- Controller API --
+    // -- Controller API --
 
-      $ctrl.isButtonVisible = isButtonVisible;
-      $ctrl.openTagNameModal = openTagNameModal;
+    $ctrl.isButtonVisible = isButtonVisible;
+    $ctrl.openTagNameModal = openTagNameModal;
 
-      // --------------------
+    // --------------------
 
-      $ctrl.$onDestroy = function () {
-        if (unsubscribe) {
-          unsubscribe();
-        }
-      };
-
-      function isButtonVisible() {
-        if (isBuildRecord()) {
-          return $ctrl.buildRecord.$isCompleted() && !$ctrl.buildRecord.$hasFailed();
-        } else if (isBuildGroupRecord()) {
-          return true;
-        }
+    $ctrl.$onDestroy = function () {
+      if (unsubscribe) {
+        unsubscribe();
       }
+    };
 
-      function openTagNameModal() {
-        var modal = $uibModal.open({
-          animation: true,
-          backdrop: 'static',
-          component: 'pncEnterBrewTagNameModal',
-          size: 'md'
-        });
-
-        modal.result.then(function (modalValues) {
-          return isBuildRecord() ? doPushBuildRecord(modalValues) : doPushBuildGroupRecord(modalValues);
-        });
+    function isButtonVisible() {
+      if (isBuildRecord()) {
+        return $ctrl.buildRecord.$isCompleted() && !$ctrl.buildRecord.$hasFailed();
+      } else if (isBuildGroupRecord()) {
+        return true;
       }
-
-      function doPushBuildRecord(modalValues) {
-        BuildRecord.push($ctrl.buildRecord.id, modalValues.tagName).then(function (result) {
-          var accepted = result.data[$ctrl.buildRecord.id];
-          var humanReadableId = $ctrl.buildRecord.buildConfigurationName + '#' + $ctrl.buildRecord.id;
-
-          if (accepted) {
-            unsubscribe = messageBus.subscribe({
-              topic: 'causeway-push',
-              id: $ctrl.buildRecord.id
-            });
-            pncNotify.info('Brew push process started for: ' + humanReadableId);
-          } else {
-            pncNotify.error('Brew push was rejected for: ' + humanReadableId);
-          }
-        });
-      }
-
-      function doPushBuildGroupRecord(modalValues) {
-        BuildConfigSetRecord.push($ctrl.buildGroupRecord.id, modalValues.tagName).then(function (result) {
-          var accepted = result.data[$ctrl.buildGroupRecord.id];
-          var humanReadableId = $ctrl.buildGroupRecord.buildConfigurationSetName + '#' + $ctrl.buildGroupRecord.id;
-
-          if (accepted) {
-            unsubscribe = messageBus.subscribe({
-              topic: 'causeway-push',
-              id: $ctrl.buildGroupRecord.id
-            });
-            pncNotify.info('Brew push process started for group: ' + humanReadableId);
-          } else {
-            pncNotify.error('Brew push was rejected for group: ' + humanReadableId);
-          }
-        });
-      }
-
-      function isBuildRecord() {
-        return angular.isDefined($ctrl.buildRecord);
-      }
-
-      function isBuildGroupRecord() {
-        return angular.isDefined($ctrl.buildGroupRecord);
-      }
-
     }
 
-  })();
+    function openTagNameModal() {
+      var modal = $uibModal.open({
+        animation: true,
+        backdrop: 'static',
+        component: 'pncEnterBrewTagNameModal',
+        size: 'md'
+      });
+
+      modal.result.then(function (modalValues) {
+        return isBuildRecord() ? doPushBuildRecord(modalValues) : doPushBuildGroupRecord(modalValues);
+      });
+    }
+
+    function doPushBuildRecord(modalValues) {
+      BuildRecord.push($ctrl.buildRecord.id, modalValues.tagName).then(function (result) {
+        var accepted = result.data[$ctrl.buildRecord.id];
+        var humanReadableId = $ctrl.buildRecord.buildConfigurationName + '#' + $ctrl.buildRecord.id;
+
+        if (accepted) {
+          unsubscribe = messageBus.subscribe({
+            topic: 'causeway-push',
+            id: $ctrl.buildRecord.id
+          });
+          pncNotify.info('Brew push process started for: ' + humanReadableId);
+        } else {
+          pncNotify.error('Brew push was rejected for: ' + humanReadableId);
+        }
+      });
+    }
+
+    function doPushBuildGroupRecord(modalValues) {
+      BuildConfigSetRecord.push($ctrl.buildGroupRecord.id, modalValues.tagName).then(function (result) {
+        var accepted = result.data[$ctrl.buildGroupRecord.id];
+        var humanReadableId = $ctrl.buildGroupRecord.buildConfigurationSetName + '#' + $ctrl.buildGroupRecord.id;
+
+        if (accepted) {
+          unsubscribe = messageBus.subscribe({
+            topic: 'causeway-push',
+            id: $ctrl.buildGroupRecord.id
+          });
+          pncNotify.info('Brew push process started for group: ' + humanReadableId);
+        } else {
+          pncNotify.error('Brew push was rejected for group: ' + humanReadableId);
+        }
+      });
+    }
+
+    function isBuildRecord() {
+      return angular.isDefined($ctrl.buildRecord);
+    }
+
+    function isBuildGroupRecord() {
+      return angular.isDefined($ctrl.buildGroupRecord);
+    }
+
+  }
+
+})();
