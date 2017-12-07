@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 import javax.ws.rs.DefaultValue;
+import java.util.Map;
 
 /**
  *
@@ -36,11 +37,15 @@ public class CallbackTarget {
     @NonNull
     private final CallbackMethod method;
 
+    private final Map<String,String> headers;
+
     @JsonCreator
     public CallbackTarget(@JsonProperty("url") String url,
-            @JsonProperty("method") @DefaultValue("POST") CallbackMethod method) {
+            @JsonProperty("method") @DefaultValue("POST") CallbackMethod method,
+            @JsonProperty("headers") @DefaultValue("{}") Map<String,String> headers) {
         this.url = url;
         this.method = method;
+        this.headers = headers;
     }
     
     
