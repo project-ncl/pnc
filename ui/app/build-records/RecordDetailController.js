@@ -22,11 +22,17 @@
     '$scope',
     '$state',
     '$log',
+    '$uibModal',
     'eventTypes',
+    'BuildRecord',
     'recordDetail',
     'messageBus',
-    function($scope, $state, $log, eventTypes, recordDetail, messageBus) {
+    function($scope, $state, $log, $uibModal, eventTypes, BuildRecord, recordDetail, messageBus) {
       this.record = recordDetail;
+
+      this.hasPushResults = function () {
+        return true;
+      };
 
       $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
         if (recordDetail.id === payload.id) {
@@ -39,9 +45,7 @@
         id: recordDetail.id
       });
 
-      $scope.$on('$destroy', function () {
-        unsubscribe();
-      });
+      $scope.$on('$destroy', unsubscribe);
     }
   ]);
 

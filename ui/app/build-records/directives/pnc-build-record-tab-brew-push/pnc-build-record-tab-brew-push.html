@@ -17,15 +17,24 @@
     limitations under the License.
 
 -->
-<div class="row push-down">
-  <div class="col-sm-12 col-md-10 col-lg-8">
-    <pnc-build-details build-record="recordCtrl.record"></pnc-build-details>
+<div class="row">
+  <div class="col-md-12">
+    <div class="pnc-build-details">
+      <dl class="dl-horizontal">
+        <dt>Status</dt>
+        <dd>{{ ::$ctrl.pushResult.status }}</dd>
+        <dt>Brew Build Id</dt>
+        <dd>{{ ::$ctrl.pushResult.brewBuildId }}</dd>
+        <dt>Brew Build URL</dt>
+        <dd><a target="_blank" href="{{ ::$ctrl.pushResult.brewBuildUrl }}">{{ ::$ctrl.pushResult.brewBuildUrl }}</a></dd>
+      </dl>
+    </div>
   </div>
 </div>
 <div class="row">
   <div class="col-md-12">
-    <div ng-if="::recordCtrl.record.status==='BUILDING'">
-      <pnc-live-log build-record="recordCtrl.record"></pnc-live-log>
+    <div class="pnc-log-canvas-parent log-console well well-sm">
+      <div class="pnc-log-canvas-content">{{ ::$ctrl.pushResult.log }}</div>
     </div>
   </div>
 </div>
