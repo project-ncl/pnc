@@ -44,7 +44,7 @@ public class Sha256 {
 
     public String digest() {
         byte[] digest = md.digest();
-        return CheckSum.format(digest);
+        return CheckSum.format(digest, 64);
     }
 
 
