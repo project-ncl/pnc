@@ -28,7 +28,7 @@
     });
 
     function Controller() {
-      var $ctrl = this;
+      //var $ctrl = this;
 
       // -- Controller API --
 
