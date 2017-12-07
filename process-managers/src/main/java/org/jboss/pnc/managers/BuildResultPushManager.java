@@ -128,7 +128,7 @@ public class BuildResultPushManager {
             return false;
         }
 
-        BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl);
+        BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken);
         String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);
 
         boolean successfullyPushed = causewayClient.push(jsonMessage, authToken);
@@ -138,7 +138,11 @@ public class BuildResultPushManager {
         return successfullyPushed;
     }
 
-    private BuildImportRequest createCausewayPushRequest(BuildRecord buildRecord, String tagPrefix, String callBackUrl) {
+    private BuildImportRequest createCausewayPushRequest(
+            BuildRecord buildRecord,
+            String tagPrefix,
+            String callBackUrl,
+            String authToken) {
         BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
         logger.debug("BuildRecord: {}", buildRecord.getId());
         logger.debug("BuildEnvironment: {}", buildEnvironment);
@@ -154,7 +158,10 @@ public class BuildResultPushManager {
         Set<Dependency> dependencies = collectDependencies(buildRecord.getDependencies());
         Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(buildRecord.getBuiltArtifacts());
 
-        CallbackTarget callbackTarget = new CallbackTarget(callBackUrl, CallbackMethod.POST);
+        Map<String, String> callbackHeaders = new HashMap<>();
+        callbackHeaders.put("Authorization", "Bearer " + authToken);
+
+        CallbackTarget callbackTarget = new CallbackTarget(callBackUrl, CallbackMethod.POST, callbackHeaders);
         ProjectVersionRef projectVersionRef = buildRootToGAV(
                 buildRecord.getExecutionRootName(),
                 buildRecord.getExecutionRootVersion());
