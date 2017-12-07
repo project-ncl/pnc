@@ -486,8 +486,8 @@ public class MavenRepositorySession implements RepositorySession {
 
 
     /**
-     * Promote the build output to shared-releases (using group promotion, where the build repo is added to the group's
-     * membership).
+     * Promote the build output to the correct build group (using group promotion, where the build repo is added to the
+     * group's membership).
      */
     public void promoteToBuildContentSet() throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
@@ -526,8 +526,9 @@ public class MavenRepositorySession implements RepositorySession {
 
     private boolean ignoreContent(String path) {
         for (String suffix : ignoredPathSuffixes) {
-            if (path.endsWith(suffix))
+            if (path.endsWith(suffix)) {
                 return true;
+            }
         }
 
         return false;
