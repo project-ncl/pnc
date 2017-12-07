@@ -17,8 +17,10 @@
  */
 package org.jboss.pnc.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
@@ -42,6 +44,8 @@ import javax.persistence.Table;
  */
 @ToString
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(indexes = {@Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id")})
 public class BuildRecordPushResult implements GenericEntity<Integer> {
