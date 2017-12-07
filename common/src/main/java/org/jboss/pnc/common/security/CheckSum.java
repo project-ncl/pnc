@@ -41,11 +41,11 @@ public class CheckSum {
         }
 
         byte[] digest = md.digest();
-        return format(digest);
+        return format(digest, md.getDigestLength());
     }
 
-    static String format(byte[] digest) {
-        return String.format("%064x", new java.math.BigInteger(1, digest));
+    static String format(byte[] digest, int length) {
+        return String.format("%0" + length + "x", new java.math.BigInteger(1, digest));
     }
 
 }
