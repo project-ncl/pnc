@@ -21,7 +21,8 @@
 
     angular.module('pnc.build-records').component('pncBuildRecordTabBrewPush', {
       bindings: {
-        buildRecord: '<?'
+        buildRecord: '<',
+        buildRecordPushResult: '<'
       },
       templateUrl: 'build-records/directives/pnc-build-record-tab-brew-push/pnc-build-record-tab-brew-push.html',
       controller: [Controller]
