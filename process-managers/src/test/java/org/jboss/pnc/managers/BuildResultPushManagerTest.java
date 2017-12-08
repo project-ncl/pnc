@@ -28,6 +28,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -110,6 +111,7 @@ public class BuildResultPushManagerTest {
                 .builtArtifact(builtArtifact2)
                 .buildConfigurationAudited(buildConfigurationAudited)
                 .temporaryBuild(false)
+                .status(BuildStatus.SUCCESS)
                 .build();
 
         return buildRecordRepository.save(buildRecord).getId();
