@@ -128,6 +128,12 @@ public class BuildResultPushManager {
             return false;
         }
 
+        if (!buildRecord.getStatus().completedSuccessfully()) {
+            logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
+            //TODO response with failure description
+            return false;
+        }
+
         BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken);
         String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);
 
@@ -155,8 +161,13 @@ public class BuildResultPushManager {
                  buildEnvironment.getAttributes()
         );
 
-        Set<Dependency> dependencies = collectDependencies(buildRecord.getDependencies());
-        Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(buildRecord.getBuiltArtifacts());
+        Set<Artifact> builtArtifactEntities = buildRecord.getBuiltArtifacts();
+        Set<Artifact> dependencyEntities = buildRecord.getDependencies();
+
+        logger.debug("Preparing BuildImportRequest containing {} built artifacts and {} dependencies.", builtArtifactEntities.size(), dependencyEntities.size());
+
+        Set<Dependency> dependencies = collectDependencies(dependencyEntities);
+        Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities);
 
         Map<String, String> callbackHeaders = new HashMap<>();
         callbackHeaders.put("Authorization", "Bearer " + authToken);
@@ -217,7 +228,7 @@ public class BuildResultPushManager {
     private ProjectVersionRef buildRootToGAV(String executionRootName, String executionRootVersion) {
         String[] splittedName = executionRootName.split(":");
         if(splittedName.length != 2)
-            throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesnt seem to be maven G:A.");
+            throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
 
         return new SimpleProjectVersionRef(
                 splittedName[0],
