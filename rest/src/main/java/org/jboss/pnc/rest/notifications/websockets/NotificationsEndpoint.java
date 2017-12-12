@@ -154,6 +154,7 @@ public class NotificationsEndpoint {
         String messagesId = progressUpdatesRequest.getId();
 
         if (Action.SUBSCRIBE.equals(progressUpdatesRequest.getAction())) {
+            logger.debug("Subscribing new updates listener for topic: {} and messageId: {}.", topic, messagesId);
             client.subscribe(topic, messagesId);
         } else if (Action.UNSUBSCRIBE.equals(progressUpdatesRequest.getAction())) {
             client.unsubscribe(topic, messagesId);
