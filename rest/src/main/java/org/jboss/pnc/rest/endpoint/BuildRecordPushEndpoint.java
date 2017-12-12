@@ -244,9 +244,12 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             throws ValidationException, ProcessException {
 
         BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildRecordId);
-        BuildRecordPushResultRest buildRecordPushResultRest = new BuildRecordPushResultRest(latestForBuildRecord);
-
-        return Response.ok().entity(buildRecordPushResultRest.toString()).build();
+        if (latestForBuildRecord != null) {
+            BuildRecordPushResultRest buildRecordPushResultRest = new BuildRecordPushResultRest(latestForBuildRecord);
+            return Response.ok().entity(buildRecordPushResultRest.toString()).build();
+        } else {
+            return Response.noContent().build();
+        }
     }
 
     private String getCompleteCallbackUrl() {
