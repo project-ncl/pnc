@@ -181,7 +181,9 @@
       };
 
       resource.getLatestPushStatus = function (buildRecordId) {
-        return $http(BUILD_RECORD_PUSH_ENDPOINT + '/status/' + buildRecordId);
+        return $http.get(BUILD_RECORD_PUSH_ENDPOINT + '/status/' + buildRecordId).then(function (result) {
+          return result.data;
+        });
       };
 
       resource.prototype.$isCompleted = function () {
@@ -197,7 +199,7 @@
       }
 
       function hasFailed(status) {
-        return isCompleted(status) && status !== 'DONE'; 
+        return isCompleted(status) && status !== 'DONE';
       }
 
       return resource;
