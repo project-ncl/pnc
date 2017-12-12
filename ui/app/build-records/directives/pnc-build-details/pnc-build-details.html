@@ -35,9 +35,9 @@
     <dd ng-show="ctrl.record.endTime">{{ (ctrl.record.endTime | date : 'medium') }}</dd>
 
     <!-- repository configuration -->
-    <dt>Internal SCM URL:</dt>
+    <dt>SCM URL:</dt>
     <dd>
-      <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.scmRepoURL }}</span>
+      <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}</span>
       <span ng-hide="ctrl.record.scmRepoURL">&mdash;</span>
     </dd>
     <!-- repository configuration -->
