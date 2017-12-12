@@ -75,28 +75,35 @@ public class BuildRecordPushTest extends AbstractTest {
 
     @Test
     public void shouldPushBuildRecord() throws IOException, DeploymentException, TimeoutException, InterruptedException {
-
-
-        BuildRecordRestClient buildRecordRestClient = new BuildRecordRestClient();
-        BuildRecordRest buildRecordRest = buildRecordRestClient.firstNotNull().getValue();
-        Integer buildRecordId = buildRecordRest.getId();
-
         List<BuildRecordPushResultRest> results = new ArrayList<>();
         Consumer<BuildRecordPushResultRest> onMessage = (result) -> {
             results.add(result);
         };
 
+        BuildRecordRestClient buildRecordRestClient = new BuildRecordRestClient();
+        BuildRecordRest buildRecordRest = buildRecordRestClient.firstNotNull().getValue();
+        Integer buildRecordId = buildRecordRest.getId();
+
         connectToWsNotifications(buildRecordId, onMessage);
 
         BuildRecordPushRestClient pushRestClient = new BuildRecordPushRestClient();
 
+        //when push BR
         BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId);
         RestResponse<Map> restResponse = pushRestClient.push(pushRequest);
 
-        //make sure the request has been accepted
+        //then make sure the request has been accepted
         Map<String, Boolean> responseValue = restResponse.getValue();
         Assertions.assertThat(responseValue.get(buildRecordId.toString())).isTrue();
 
+        //when the same BuildRecord pushed again
+        RestResponse<Map> secondResponse = pushRestClient.push(pushRequest);
+
+        //then it should be rejected
+        Map<String, Boolean> secondValue = secondResponse.getValue();
+        Assertions.assertThat(secondValue.get(buildRecordId.toString())).isFalse();
+
+        //when completed
         mockCompletedFromCauseway(pushRestClient, buildRecordId);
 
         //test the completion notification
@@ -105,6 +112,14 @@ public class BuildRecordPushTest extends AbstractTest {
 
         //test DB entry
         BuildRecordPushResultRest result = pushRestClient.getStatus(buildRecordId);
+        Assertions.assertThat(result.getLog()).isEqualTo(PUSH_LOG);
+
+        //when the same BuildRecord pushed again
+        RestResponse<Map> thirdResponse = pushRestClient.push(pushRequest);
+
+        //then it should be accepted again
+        Map<String, Boolean> thirdValue = thirdResponse.getValue();
+        Assertions.assertThat(thirdValue.get(buildRecordId.toString())).isTrue();
 
     }
 
