@@ -25,6 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -41,6 +42,12 @@ public class BuildRecordPushResultRepositoryImpl
 
     @Override
     public BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId) {
-        return queryByPredicates(BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(buildRecordId));
+        List<BuildRecordPushResult> buildRecordPushResults = queryWithPredicates(BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(
+                buildRecordId));
+        if (buildRecordPushResults == null || buildRecordPushResults.size() == 0) {
+            return null;
+        } else {
+            return buildRecordPushResults.get(0);
+        }
     }
 }
