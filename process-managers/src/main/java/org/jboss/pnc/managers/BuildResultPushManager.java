@@ -31,12 +31,15 @@ import org.jboss.pnc.managers.causeway.remotespi.CallbackTarget;
 import org.jboss.pnc.managers.causeway.remotespi.Dependency;
 import org.jboss.pnc.managers.causeway.remotespi.Logfile;
 import org.jboss.pnc.managers.causeway.remotespi.MavenBuild;
+import org.jboss.pnc.managers.causeway.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
@@ -45,8 +48,10 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,6 +64,7 @@ public class BuildResultPushManager {
 
     private BuildRecordRepository buildRecordRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
+    private ArtifactRepository artifactRepository;
 
     private InProgress inProgress;
 
@@ -81,12 +87,15 @@ public class BuildResultPushManager {
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             InProgress inProgress,
             CausewayClient causewayClient,
-            Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent) {
+            Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent,
+            ArtifactRepository artifactRepository
+    ) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.inProgress = inProgress;
         this.causewayClient = causewayClient;
         this.buildRecordPushResultRestEvent = buildRecordPushResultRestEvent;
+        this.artifactRepository = artifactRepository;
     }
 
     /**
@@ -161,8 +170,8 @@ public class BuildResultPushManager {
                  buildEnvironment.getAttributes()
         );
 
-        Set<Artifact> builtArtifactEntities = buildRecord.getBuiltArtifacts();
-        Set<Artifact> dependencyEntities = buildRecord.getDependencies();
+        List<Artifact> builtArtifactEntities = artifactRepository.queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
+        List<Artifact> dependencyEntities = artifactRepository.queryWithPredicates(ArtifactPredicates.withDependantBuildRecordId(buildRecord.getId()));
 
         logger.debug("Preparing BuildImportRequest containing {} built artifacts and {} dependencies.", builtArtifactEntities.size(), dependencyEntities.size());
 
@@ -236,10 +245,13 @@ public class BuildResultPushManager {
                 executionRootVersion);
     }
 
-    private Set<BuiltArtifact> collectBuiltArtifacts(Set<Artifact> builtArtifacts) {
+    private Set<BuiltArtifact> collectBuiltArtifacts(Collection<Artifact> builtArtifacts) {
         return builtArtifacts.stream().map(artifact -> {
                 Gav gav = Gav.parse(artifact.getIdentifier());
-                return new BuiltArtifact(
+                return new MavenBuiltArtifact(
+                        gav.getGroupId(),
+                        gav.getArtifactId(),
+                        gav.getVersion(),
                         artifact.getId(),
                         artifact.getFilename(),
                         artifact.getTargetRepository().getRepositoryType().toString(),
@@ -255,7 +267,7 @@ public class BuildResultPushManager {
         return artifact.getDeployPath();
     }
 
-    private Set<Dependency> collectDependencies(Set<Artifact> dependencies) {
+    private Set<Dependency> collectDependencies(Collection<Artifact> dependencies) {
         return dependencies.stream()
                 .map(artifact -> new Dependency(
                         artifact.getFilename(),

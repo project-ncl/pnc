@@ -40,13 +40,17 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 @Getter
-public class ProgressUpdatesRequest {
+public class ProgressUpdatesRequest { //TODO use generic name for all type of subscription based notifications
 
     private Action action;
 
     private String topic;
 
     private String id;
+
+    public static ProgressUpdatesRequest subscribe(String topic, String id) {
+        return new ProgressUpdatesRequest(Action.SUBSCRIBE, topic, id);
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class ProgressUpdatesRequestBuilder {

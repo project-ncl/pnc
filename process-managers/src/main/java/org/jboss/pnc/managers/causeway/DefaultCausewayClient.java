@@ -78,7 +78,7 @@ public class DefaultCausewayClient implements CausewayClient {
         try {
             int statusCode = response.getStatusLine().getStatusCode();
             logger.info("Response status: {}", statusCode);
-            logger.debug(EntityUtils.toString(response.getEntity()));
+            logger.debug("Response: " + EntityUtils.toString(response.getEntity()));
             if (!HttpUtils.isSuccess(statusCode)) {
                 return false;
             }

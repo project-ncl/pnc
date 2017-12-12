@@ -17,8 +17,10 @@
  */
 package org.jboss.pnc.integration.client;
 
+import com.jayway.restassured.response.Response;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 
 import java.util.Map;
 
@@ -32,5 +34,14 @@ public class BuildRecordPushRestClient extends AbstractRestClient<Map> {
 
     public RestResponse<Map> push(BuildRecordPushRequestRest buildRecordPushRequestRest) {
         return post(BUILD_RECORD_PUSH_REST_ENDPOINT, buildRecordPushRequestRest, true);
+    }
+
+    public RestResponse<Map> complete(BuildRecordPushResultRest pushResultRest) {
+        return post(BUILD_RECORD_PUSH_REST_ENDPOINT + pushResultRest.getBuildRecordId() + "/complete/", pushResultRest, false);
+    }
+
+    public BuildRecordPushResultRest getStatus(Integer buildRecordId) {
+        Response response = getRestClient().get(BUILD_RECORD_PUSH_REST_ENDPOINT + "status/" + buildRecordId);
+        return response.then().extract().body().jsonPath().getObject("", BuildRecordPushResultRest.class);
     }
 }
