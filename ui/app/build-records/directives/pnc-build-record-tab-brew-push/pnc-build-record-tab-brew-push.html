@@ -22,11 +22,11 @@
     <div class="pnc-build-details">
       <dl class="dl-horizontal">
         <dt>Status</dt>
-        <dd>{{ ::$ctrl.pushResult.status }}</dd>
+        <dd>{{ ::$ctrl.buildRecordPushResult.status }}</dd>
         <dt>Brew Build Id</dt>
-        <dd>{{ ::$ctrl.pushResult.brewBuildId }}</dd>
+        <dd>{{ ::$ctrl.buildRecordPushResult.brewBuildId }}</dd>
         <dt>Brew Build URL</dt>
-        <dd><a target="_blank" href="{{ ::$ctrl.pushResult.brewBuildUrl }}">{{ ::$ctrl.pushResult.brewBuildUrl }}</a></dd>
+        <dd><a target="_blank" href="{{ ::$ctrl.buildRecordPushResult.brewBuildUrl }}">{{ ::$ctrl.buildRecordPushResult.brewBuildUrl }}</a></dd>
       </dl>
     </div>
   </div>
@@ -34,7 +34,7 @@
 <div class="row">
   <div class="col-md-12">
     <div class="pnc-log-canvas-parent log-console well well-sm">
-      <div class="pnc-log-canvas-content">{{ ::$ctrl.pushResult.log }}</div>
+      <div class="pnc-log-canvas-content">{{ ::$ctrl.buildRecordPushResult.log }}</div>
     </div>
   </div>
 </div>

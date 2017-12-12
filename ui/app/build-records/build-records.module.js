@@ -160,6 +160,9 @@
         resolve: {
           recordDetail: function (BuildRecord, $stateParams) {
             return BuildRecord.get({ id: $stateParams.recordId }).$promise;
+          },
+          buildRecordPushResult: function (BuildRecord, $stateParams) {
+            return BuildRecord.getLatestPushStatus($stateParams.recordId);
           }
         }
       });
