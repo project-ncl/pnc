@@ -53,6 +53,8 @@ public class TemporaryBuildsCleanupScheduler {
 
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
+    private TemporaryBuildsCleaner temporaryBuildsCleaner;
+
     @Deprecated
     public TemporaryBuildsCleanupScheduler() {
         log.warn("Deprecated constructor used to init TemporaryBuildsCleanupScheduler. Default values will be used.");
@@ -61,7 +63,8 @@ public class TemporaryBuildsCleanupScheduler {
 
     @Inject
     public TemporaryBuildsCleanupScheduler(Configuration configuration, BuildRecordRepository buildRecordRepository,
-                                           BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
+                                           BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+                                           TemporaryBuildsCleaner temporaryBuildsCleaner) {
         int _temporaryBuildLifeSpan;
         try {
             SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
@@ -73,8 +76,8 @@ public class TemporaryBuildsCleanupScheduler {
         this.TEMPORARY_BUILD_LIFESPAN = _temporaryBuildLifeSpan;
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
+        this.temporaryBuildsCleaner = temporaryBuildsCleaner;
     }
-
 
     /**
      * Cleanup old temporary builds every midnight
@@ -93,18 +96,12 @@ public class TemporaryBuildsCleanupScheduler {
 
     private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold) {
         List<BuildConfigSetRecord> expiredBCSRecords = buildConfigSetRecordRepository.findTemporaryBuildConfigSetRecordsOlderThan(expirationThreshold);
-        for(BuildConfigSetRecord bcsr : expiredBCSRecords) {
-            // TODO trigger a delete of the bcsr
-
-        }
+        expiredBCSRecords.forEach(bcsr -> temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(bcsr));
     }
 
     private void deleteExpiredBuildRecords(Date expirationThreshold) {
         List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
-        for(BuildRecord br : expiredBuilds) {
-            // TODO trigger a delete of the BR
-        }
+        expiredBuilds.forEach(br -> temporaryBuildsCleaner.deleteTemporaryBuilds(br));
     }
-
 
 }
