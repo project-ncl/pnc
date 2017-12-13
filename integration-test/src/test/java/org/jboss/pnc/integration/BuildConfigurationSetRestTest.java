@@ -50,9 +50,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -250,8 +255,53 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
     }
 
+    /**
+     * reproducer for NCL-3552
+     */
     @Test
     @InSequence(5)
+    public void testConcurrentGet() {
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        Map<Integer, Response> responseMap = new HashMap<>();
+
+        String endpointUrl = String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId)
+                + "/build-configurations";
+        executorService.execute(() -> {
+                    logger.info("Making 1st request ...");
+                    Response response = given().headers(testHeaders)
+                            .contentType(ContentType.JSON).port(getHttpPort()).when()
+                            .get(endpointUrl);
+                    logger.info("1st done.");
+                    responseMap.put(1, response);
+                }
+        );
+
+        executorService.execute(() -> {
+                    logger.info("Making 2nd request ...");
+                    Response response = given().headers(testHeaders)
+                            .contentType(ContentType.JSON).port(getHttpPort()).when()
+                            .get(endpointUrl);
+                    logger.info("2nd done.");
+                    responseMap.put(2, response);
+                }
+        );
+
+
+        // Wait for all the threads to gracefully shutdown
+        try {
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            throw new AssertionError("Requests were not completed in given timeout.", e);
+        }
+
+        ResponseAssertion.assertThat(responseMap.get(1)).as("First response.").hasStatus(200);
+        ResponseAssertion.assertThat(responseMap.get(2)).as("Second response.").hasStatus(200);
+    }
+
+    @Test
+    @InSequence(6)
     public void testRemoveBuildConfigurationToBuildConfigurationSet() {
 
         Response response = given().headers(testHeaders)
@@ -262,7 +312,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     }
 
     @Test
-    @InSequence(5)
+    @InSequence(7)
     public void testGetBuildConfigurationsForBuildConfigurationSet() {
 
         Response response = given().headers(testHeaders)
@@ -274,7 +324,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     }
 
     @Test
-    @InSequence(6)
+    @InSequence(8)
     public void testDeleteBuildConfigurationSet() {
 
         Response response = given().headers(testHeaders)
