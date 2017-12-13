@@ -110,4 +110,27 @@ public abstract class AbstractModelTest {
         IDataSet dataSet = flatXmlDataSetBuilder.build(dataSetStream);
         DatabaseOperation.INSERT.execute(connection, dataSet);
     }
+
+    /**
+     * Inserts example BuildConfigurations to the database
+     *
+     * @param em Entity manager
+     * @param repositoryConfiguration RepositoryConfiguration object, which was already persisted to the database
+     */
+    protected void insertExampleBuildConfigurations(EntityManager em, RepositoryConfiguration repositoryConfiguration) {
+        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")
+                .description("Test Build Configuration 1 Description").project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(repositoryConfiguration).buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+
+        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 2")
+                .description("Test Build Configuration 2 Description").project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(repositoryConfiguration).buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+
+        em.getTransaction().begin();
+        em.persist(buildConfig1);
+        em.persist(buildConfig2);
+        em.getTransaction().commit();
+    }
 }

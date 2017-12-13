@@ -44,6 +44,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.PersistenceException;
+import javax.persistence.PreRemove;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -335,6 +337,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     public BuildRecord() {
         dependencies = new HashSet<>();
         builtArtifacts = new HashSet<>();
+    }
+
+    @PreRemove
+    public void preRemove() {
+        if(this.temporaryBuild == false )
+            throw new PersistenceException("The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
     }
 
     /**
