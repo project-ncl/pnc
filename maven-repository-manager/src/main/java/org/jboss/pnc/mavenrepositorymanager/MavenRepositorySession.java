@@ -303,17 +303,11 @@ public class MavenRepositorySession implements RepositorySession {
 
     private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
         TargetRepository targetRepository;
-        if (repoType.equals(TargetRepository.Type.MAVEN)) {
+        if (repoType.equals(TargetRepository.Type.MAVEN) || repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(repoType)
-                    .repositoryPath("/api/hosted/shared-imports/")
-                    .build();
-        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) { //TODO do we store downloads in temp repo ?
-            targetRepository = TargetRepository.builder()
-                    .identifier("indy-maven-temp")
-                    .repositoryType(repoType)
-                    .repositoryPath("/api/hosted/shared-imports-temporal/") //TODO set the path to temporal builds
+                    .repositoryPath("/api/content/maven/hosted/shared-imports/")
                     .build();
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
             targetRepository = TargetRepository.builder()
@@ -333,13 +327,13 @@ public class MavenRepositorySession implements RepositorySession {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("builds-untested")
+                    .repositoryPath("/api/content/maven/group/builds-untested")
                     .build();
         } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven-temp")
                     .repositoryType(TargetRepository.Type.MAVEN_TEMPORARY)
-                    .repositoryPath("builds-untested-temp")
+                    .repositoryPath("/api/content/maven/group/builds-untested-temp")
                     .build();
         } else {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
