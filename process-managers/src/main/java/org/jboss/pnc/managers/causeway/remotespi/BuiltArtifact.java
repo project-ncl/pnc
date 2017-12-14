@@ -37,15 +37,18 @@ public class BuiltArtifact {
     @NonNull
     private final String md5;
     @NonNull
-    private final String deployPath;
+    private final String artifactPath;
+    @NonNull
+    private final String repositoryPath;
     private final int size;
 
-    public BuiltArtifact(int id, String filename, String architecture, String md5, String deployPath, int size) {
+    public BuiltArtifact(int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
         this.id = id;
         this.filename = filename;
         this.architecture = architecture;
         this.md5 = md5;
-        this.deployPath = deployPath;
+        this.artifactPath = artifactPath;
+        this.repositoryPath = repositoryPath;
         this.size = size;
     }
 }

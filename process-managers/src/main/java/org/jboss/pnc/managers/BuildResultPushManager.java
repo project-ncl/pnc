@@ -256,15 +256,12 @@ public class BuildResultPushManager {
                         artifact.getFilename(),
                         artifact.getTargetRepository().getRepositoryType().toString(),
                         artifact.getMd5(),
-                        getDeployUrl(artifact),
+                        artifact.getDeployPath(),
+                        artifact.getTargetRepository().getRepositoryPath(),
                         artifact.getSize().intValue()
                         );
                 })
             .collect(Collectors.toSet());
-    }
-
-    private String getDeployUrl(Artifact artifact) {
-        return artifact.getDeployPath();
     }
 
     private Set<Dependency> collectDependencies(Collection<Artifact> dependencies) {

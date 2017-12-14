@@ -46,8 +46,8 @@ public class MavenBuiltArtifact extends BuiltArtifact {
     private final String version;
 
     @Builder
-    public MavenBuiltArtifact(String groupId, String artifactId, String version, int id, String filename, String architecture, String md5, String deployPath, int size) {
-        super(id, filename, architecture, md5, deployPath, size);
+    public MavenBuiltArtifact(String groupId, String artifactId, String version, int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
+        super(id, filename, architecture, md5, artifactPath, repositoryPath, size);
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
