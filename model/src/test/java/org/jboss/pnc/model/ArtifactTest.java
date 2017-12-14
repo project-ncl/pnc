@@ -24,8 +24,6 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -34,38 +32,18 @@ import static org.junit.Assert.fail;
 /**
  * @author Jakub Bartecek
  */
-public class BuildRecordTest extends AbstractModelTest {
-
-    protected final RepositoryConfiguration REPOSITORY_CONFIGURATION_ID_1 = RepositoryConfiguration.Builder
-            .newBuilder().id(1).build();
-
+public class ArtifactTest extends AbstractModelTest {
     private EntityManager em;
 
-    private User user = null;
-
-    private BuildEnvironment buildEnvironment = null;
+    private TargetRepository targetRepository = null;
 
     @Before
     public void init() throws Exception {
         clearDatabaseTables();
 
         this.em = getEmFactory().createEntityManager();
-
         initDatabaseUsingDataset(em, BasicModelTest.DBUNIT_DATASET_FILE);
-        insertExampleBuildConfigurations(em, REPOSITORY_CONFIGURATION_ID_1);
-
-        if(user == null) {
-            this.user = User.Builder.newBuilder()
-                    .id(1)
-                    .build();
-        }
-
-        if (buildEnvironment == null) {
-            this.buildEnvironment = BuildEnvironment.Builder
-                    .newBuilder()
-                    .id(1)
-                    .build();
-        }
+        insertBasicTargetRepository();
     }
 
     @After
@@ -75,60 +53,71 @@ public class BuildRecordTest extends AbstractModelTest {
     }
 
     @Test
-    public void shouldProhibitDeletionOfNonTemporaryBuild() {
+    public void shouldProhibitDeletionOfNonTemporaryArtifact() {
         // given
-        int brId = 666;
-        BuildRecord br = prepareBuildRecordBuilder()
-                .id(brId)
-                .temporaryBuild(false)
+        Artifact artifact = prepareArtifactBuilder()
+                .artifactQuality(Artifact.Quality.NEW)
                 .build();
 
         em.getTransaction().begin();
-        em.persist(br);
+        em.persist(artifact);
         em.getTransaction().commit();
+        int artifactId = artifact.getId();
 
         // when, then
         try {
             em.getTransaction().begin();
-            em.remove(br);
+            em.remove(artifact);
             em.getTransaction().commit();
         } catch (PersistenceException ex) {
-            BuildRecord obtainedBr = em.find(BuildRecord.class, brId);
-            assertNotNull(obtainedBr);
-            assertEquals(brId, obtainedBr.getId().intValue());
+            Artifact obtainedArtifact = em.find(Artifact.class, artifactId);
+            assertNotNull(obtainedArtifact);
+            assertEquals(artifactId, obtainedArtifact.getId().intValue());
             return;
         }
-        fail("Deletion of the standard BuildRecord should be prohibited.");
+        fail("Deletion of the non Temporary artifact should be prohibited.");
     }
 
     @Test
-    public void shouldAllowDeletionOfTemporaryBuild() {
+    public void shouldAllowDeletionOfTemporaryArtifact() {
         // given
-        int brId = 666;
-        BuildRecord br = prepareBuildRecordBuilder()
-                .id(brId)
-                .temporaryBuild(true)
+        Artifact artifact = prepareArtifactBuilder()
+                .artifactQuality(Artifact.Quality.TEMPORARY)
                 .build();
 
         em.getTransaction().begin();
-        em.persist(br);
+        em.persist(artifact);
         em.getTransaction().commit();
+        int artifactId = artifact.getId();
+        assertTrue(artifact.getId() != null);
+        assertTrue(artifact.getId() != 0);
 
         // when
         em.getTransaction().begin();
-        em.remove(br);
+        em.remove(artifact);
         em.getTransaction().commit();
 
         // then
-        assertTrue(em.find(BuildRecord.class, brId) == null);
+        assertTrue(em.find(Artifact.class, artifactId) == null);
     }
 
-    private BuildRecord.Builder prepareBuildRecordBuilder() {
-        return BuildRecord.Builder.newBuilder()
-                .buildConfigurationAuditedId(1)
-                .buildConfigurationAuditedRev(1)
-                .submitTime(new Date())
-                .user(user)
-                .buildEnvironment(buildEnvironment);
+    private void insertBasicTargetRepository() {
+        this.targetRepository = TargetRepository.builder()
+                .identifier("Indy")
+                .repositoryPath("/api")
+                .repositoryType(TargetRepository.Type.MAVEN)
+                .build();
+        em.getTransaction().begin();
+        em.persist(targetRepository);
+        em.getTransaction().commit();
+    }
+
+    private Artifact.Builder prepareArtifactBuilder() {
+        return Artifact.Builder.newBuilder()
+                .identifier("g:a:v")
+                .targetRepository(targetRepository)
+                .md5("md5")
+                .sha1("sha1")
+                .sha256("sha256");
     }
 }

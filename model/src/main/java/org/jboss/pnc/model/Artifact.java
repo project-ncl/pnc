@@ -32,6 +32,8 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.PersistenceException;
+import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -204,6 +206,13 @@ public class Artifact implements GenericEntity<Integer> {
         buildRecords = new HashSet<>();
         dependantBuildRecords = new HashSet<>();
         distributedInProductMilestones = new HashSet<>();
+    }
+
+    @PreRemove
+    public void preRemove() {
+        if(artifactQuality != Quality.TEMPORARY) {
+            throw new PersistenceException("The non-temporary artifacts cannot be deleted! Only deletion of temporary artifacts is supported ");
+        }
     }
 
     /**
