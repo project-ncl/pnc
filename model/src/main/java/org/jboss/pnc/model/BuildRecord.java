@@ -19,7 +19,6 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
@@ -36,6 +35,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -43,6 +43,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -66,6 +67,11 @@ import java.util.Set;
  * the set of buildRecord that compose a Product
  */
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_buildrecord_user", columnList = "user_id"),
+        @Index(name="idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
+        @Index(name="idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id")
+})
 public class BuildRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -5472083609387609797L;
@@ -88,47 +94,48 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Getter
     @NotNull
-    @Column(name = "buildconfiguration_id")
+    @Column(name = "buildconfiguration_id", updatable = false)
     private Integer buildConfigurationId;
 
     @Getter
     @NotNull
-    @Column(name = "buildconfiguration_rev")
+    @Column(name = "buildconfiguration_rev", updatable = false)
     private Integer buildConfigurationRev;
 
     @Size(max=100)
+    @Column(updatable = false)
     private String buildContentId;
 
     @Getter
     @Setter
     @NotNull
+    @Column(updatable = false)
     private boolean temporaryBuild;
 
     /**
      * The time which the build was submitted to the system.
      */
     @NotNull
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition="timestamp with time zone", updatable = false)
     private Date submitTime;
 
     /**
      * The time when the build execution started.  Note that it's possible for this to
      * be null in the case of a system error before the build is started.
      */
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition="timestamp with time zone", updatable = false)
     private Date startTime;
 
     /**
      * The time when the build completed.  Note that it's possible for this to be null
      * if the build never finished.
      */
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition="timestamp with time zone", updatable = false)
     private Date endTime;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_user"))
-    @Index(name="idx_buildrecord_user")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_user"), updatable = false)
     private User user;
 
     /**
@@ -137,6 +144,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * processing tasks such as repository mirroring and automated build changes.
      */
     @Size(max=255)
+    @Column(updatable = false)
     private String scmRepoURL;
 
     /**
@@ -146,36 +154,44 @@ public class BuildRecord implements GenericEntity<Integer> {
      * and should never be a tag or branch.
      */
     @Size(max=255)
+    @Column(updatable = false)
     private String scmRevision;
 
     @Lob
     @Type(type = "org.hibernate.type.MaterializedClobType")
     @Basic(fetch = FetchType.LAZY)
+    @Column(updatable = false)
     private String buildLog;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    @Column(updatable = false)
     private String buildLogMd5;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    @Column(updatable = false)
     private String buildLogSha256;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    @Column(updatable = false)
     private Integer buildLogSize;
 
     @Enumerated(EnumType.STRING)
+    @Column(updatable = false)
     private BuildStatus status;
 
     @Getter
     @Setter
     @Size(max=150)
+    @Column(updatable = false)
     private String sshCommand;
 
     @Getter
     @Setter
     @Size(max=64)
+    @Column(updatable = false)
     private String sshPassword;
 
     /**
@@ -187,6 +203,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Getter
     @Setter
     @Size(max=255)
+    @Column(updatable = false)
     private String executionRootName;
 
     /**
@@ -196,6 +213,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Getter
     @Setter
     @Size(max=100)
+    @Column(updatable = false)
     private String executionRootVersion;
 
     /**
@@ -215,9 +233,12 @@ public class BuildRecord implements GenericEntity<Integer> {
         uniqueConstraints = @UniqueConstraint(
             name = "uk_build_record_id_built_artifact_id",
             columnNames = {"build_record_id", "built_artifact_id" }
-        )
+        ),
+        indexes = {
+                @Index(name = "idx_build_record_built_artifact_map", columnList = "built_artifact_id")
+        }
     )
-    @Index(name = "idx_build_record_built_artifact_map")
+    @Column(updatable = false)
     private Set<Artifact> builtArtifacts;
 
     /**
@@ -237,9 +258,12 @@ public class BuildRecord implements GenericEntity<Integer> {
         uniqueConstraints = @UniqueConstraint(
             name = "uk_build_record_id_dependency_artifact_id",
             columnNames = {"build_record_id", "dependency_artifact_id" }
-        )
+        ),
+        indexes = {
+            @Index(name = "idx_build_record_artifact_dependencies_map", columnList = "dependency_artifact_id")
+        }
     )
-    @Index(name = "idx_build_record_artifact_dependencies_map")
+    @Column(updatable = false)
     private Set<Artifact> dependencies;
 
     /**
@@ -249,8 +273,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @Deprecated
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildenvironment"))
-    @Index(name="idx_buildrecord_buildenvironment")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildenvironment"), updatable = false)
     private BuildEnvironment buildEnvironment;
 
     /**
@@ -259,6 +282,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * should only be a single primary product milestone which originally produced this build.
      */
     @ManyToOne
+    @JoinColumn(updatable = false)
     private ProductMilestone productMilestone;
 
     /**
@@ -266,8 +290,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * this field will be null.
      */
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord"))
-    @Index(name="idx_buildrecord_buildconfigsetrecord")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord"), updatable = false)
     private BuildConfigSetRecord buildConfigSetRecord;
 
     /**
@@ -283,18 +306,22 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Lob
     @Type(type = "org.hibernate.type.MaterializedClobType")
     @Basic(fetch = FetchType.LAZY)
+    @Column(updatable = false)
     private String repourLog;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    @Column(updatable = false)
     private String repourLogMd5;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    @Column(updatable = false)
     private String repourLogSha256;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
+    @Column(updatable = false)
     private Integer repourLogSize;
 
     @OneToMany(mappedBy = "buildRecord")
