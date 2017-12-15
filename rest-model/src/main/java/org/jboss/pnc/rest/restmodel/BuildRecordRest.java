@@ -192,7 +192,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             Date startTime,
             Date endTime,
             UserRest user,
-            BuildConfigurationAuditedRest buildConfigurationAudited) {
+            BuildConfigurationAuditedRest buildConfigurationAudited,
+            boolean temporaryBuild) {
         this.id = id;
         this.submitTime = submitTime;
         this.startTime = startTime;
@@ -208,6 +209,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildConfigurationId = buildConfigurationAudited.getId();
         this.buildConfigurationName = buildConfigurationAudited.getName();
         this.projectId = buildConfigurationAudited.getProjectId();
+        this.temporaryBuild = temporaryBuild;
 
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());

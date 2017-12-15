@@ -33,6 +33,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -389,6 +390,7 @@ public class BuildsRestTest  {
         doReturn(buildConfigurationAudited).when(mockedTask).getBuildConfigurationAudited();
         when(mockedTask.getUser().getId()).thenReturn(99);
         when(mockedTask.getUser().getUsername()).thenReturn("test-username");
+        when(mockedTask.getBuildOptions()).thenReturn(new BuildOptions());
         return mockedTask;
     }
 }
