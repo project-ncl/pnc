@@ -55,6 +55,9 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private SystemImageType systemImageType;
 
+    @ApiModelProperty(dataType = "boolean")
+    private boolean deprecated;
+
     public BuildEnvironmentRest() {
     }
 
@@ -66,6 +69,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.systemImageId = buildEnvironment.getSystemImageId();
         this.attributes = buildEnvironment.getAttributes();
         this.systemImageType = buildEnvironment.getSystemImageType();
+        this.deprecated = buildEnvironment.isDeprecated();
     }
 
     @Override
@@ -137,6 +141,14 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.attributes = attributes;
     }
 
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
+
     public BuildEnvironment.Builder toDBEntityBuilder() {
         return BuildEnvironment.Builder.newBuilder()
                 .id(this.getId())
@@ -145,6 +157,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
                 .systemImageRepositoryUrl(this.getSystemImageRepositoryUrl())
                 .systemImageId(this.getSystemImageId())
                 .attributes(this.getAttributes())
-                .systemImageType(this.getSystemImageType());
+                .systemImageType(this.getSystemImageType())
+                .deprecated(this.isDeprecated());
     }
 }

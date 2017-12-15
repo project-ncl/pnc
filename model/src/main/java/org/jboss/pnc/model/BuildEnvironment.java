@@ -81,6 +81,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<String, String>();
 
+    private Boolean deprecated = false;
+
     public BuildEnvironment() {
     }
 
@@ -146,6 +148,14 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         this.systemImageType = systemImageType;
     }
 
+    public boolean isDeprecated() {
+        return deprecated != null && deprecated != Boolean.FALSE;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
+
     @Override
     public String toString() {
         return "Build Environment [name: " + name + ", image id: " + this.systemImageId + "]";
@@ -167,6 +177,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         private SystemImageType systemImageType;
 
+        private Boolean deprecated = false;
+
         private Builder() {
             
         }
@@ -184,6 +196,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             buildEnvironment.systemImageId = systemImageId;
             buildEnvironment.setAttributes(attributes);
             buildEnvironment.setSystemImageType(systemImageType);
+            buildEnvironment.deprecated = deprecated;
             return buildEnvironment;
         }
 
@@ -224,6 +237,11 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         public Builder systemImageType(SystemImageType systemImageType) {
             this.systemImageType = systemImageType;
+            return this;
+        }
+
+        public Builder deprecated(boolean isDeprecated) {
+            this.deprecated = isDeprecated;
             return this;
         }
 
