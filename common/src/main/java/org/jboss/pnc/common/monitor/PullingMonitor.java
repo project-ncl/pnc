@@ -45,9 +45,11 @@ public class PullingMonitor {
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
     private static final int DEFAULT_TIMEOUT = 300;
+    private static final String PULLING_MONITOR_TIMEOUT_KEY = "pulling_monitor_timeout";
 
     /** Interval between two checks if the services are fully up and running (in second) */
     private static final int DEFAULT_CHECK_INTERVAL = 1;
+    private static final String PULLING_MONITOR_CHECK_INTERVAL_KEY = "pulling_monitor_check_interval";
 
     /** */
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
@@ -60,23 +62,19 @@ public class PullingMonitor {
 
     private ConcurrentSet<RunningTask> runningTasks;
 
+    private int timeout;
+    private int checkInterval;
+
     public PullingMonitor() {
 
-        int threadSize = DEFAULT_EXECUTOR_THREADPOOL_SIZE;
-        String threadSizeEnv = System.getenv(PULLING_MONITOR_THREADPOOL_KEY);
-        String threadSizeSys = System.getProperty(PULLING_MONITOR_THREADPOOL_KEY);
+        timeout = getValueFromPropertyOrDefault(PULLING_MONITOR_TIMEOUT_KEY, DEFAULT_TIMEOUT, "timeout");
+        checkInterval = getValueFromPropertyOrDefault(PULLING_MONITOR_CHECK_INTERVAL_KEY,
+                                                      DEFAULT_CHECK_INTERVAL,
+                                                      "check interval");
 
-        try {
-            if (threadSizeSys != null) {
-                threadSize = Integer.parseInt(threadSizeSys);
-            } else if (threadSizeEnv != null) {
-                threadSize = Integer.parseInt(threadSizeEnv);
-            }
-            log.info("Updated executor ThreadPool size for PullingMonitor to: " + threadSize);
-        } catch (NumberFormatException e) {
-            log.warn("Could not parse the '" + PULLING_MONITOR_THREADPOOL_KEY +
-                     "' system property. Using default value: " + DEFAULT_EXECUTOR_THREADPOOL_SIZE);
-        }
+        int threadSize = getValueFromPropertyOrDefault(PULLING_MONITOR_THREADPOOL_KEY,
+                DEFAULT_EXECUTOR_THREADPOOL_SIZE,
+                "thread size");
 
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
@@ -84,7 +82,7 @@ public class PullingMonitor {
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
-        monitor(onMonitorComplete, onMonitorError, condition, DEFAULT_CHECK_INTERVAL, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
+        monitor(onMonitorComplete, onMonitorError, condition, timeout, checkInterval, DEFAULT_TIME_UNIT);
     }
 
     /**
@@ -146,5 +144,39 @@ public class PullingMonitor {
     public void destroy() {
         executorService.shutdownNow();
         timeOutVerifierService.shutdownNow();
+    }
+
+    /**
+     * If propertyName has no value (either specified in system property or environment property), then just return
+     * the default value. System property value has priority over environment property value.
+     *
+     * If value can't be parsed, just return the default value.
+     *
+     * @param propertyName property name to check the value
+     * @param defaultValue default value to use
+     * @param description description to print in case value can't be parsed as an integer
+     *
+     * @return value from property, or default value
+     */
+    private int getValueFromPropertyOrDefault(String propertyName, int defaultValue, String description) {
+
+        int value = defaultValue;
+
+        String valueEnv = System.getenv(propertyName);
+        String valueSys = System.getProperty(propertyName);
+
+        try {
+            if (valueSys != null) {
+                value = Integer.parseInt(valueSys);
+            } else if (valueEnv != null) {
+                value = Integer.parseInt(valueEnv);
+            }
+            log.info("Updated " + description + " for PullingMonitor to: " + value);
+            return value;
+        } catch (NumberFormatException e) {
+            log.warn("Could not parse the '" + propertyName +
+                    "' system property. Using default value: " + defaultValue);
+            return value;
+        }
     }
 }

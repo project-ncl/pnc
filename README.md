@@ -147,13 +147,17 @@ Or you can configure the app using the environment variables listred in the file
 
 For the configuration descriptions see api doc of classes in `moduleconfig/src/main/java/org/jboss/pnc/common/json/moduleconfig`
 
-### PullingMonitor ThreadPool size configuration
+### PullingMonitor configuration
 
 If you want to specify the ThreadPool size for `PullingMonitor`, you can do so by using the system property `pulling_monitor_threadpool`.
 
 For example, you can specify via `-Dpulling-monitor-threadpool=10` parameter
 
 You can also specify the environment variable `pulling_monitor_threadpool`.
+
+Similarly, to configure the timeout to wait for the builder pod to start, we can specify it either by the system property or environment property `pulling_monitor_timeout`
+Finally, to configure the check interval in seconds for the builder pod to start, we can specify it either by the system property or environment property `pulling_monitor_check_interval`
+
 Note that the system property has precedence over the environment variable if both are defined.
 
 
