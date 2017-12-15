@@ -17,14 +17,23 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.SshCredentials;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.junit.Before;
@@ -35,6 +44,10 @@ import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.Response;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
@@ -44,9 +57,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/8/16
- * Time: 4:05 PM
+ * @author Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
+ * @author Jakub Bartecek
  */
 public class BuildEndpointTest {
 
@@ -60,8 +72,15 @@ public class BuildEndpointTest {
     private Datastore datastore;
     @Mock
     private EndpointAuthenticationProvider authProvider;
+    @Mock
+    private BuildCoordinator buildCoordinator;
+    @Mock
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    /** new BuildRecordProvider(buildRecordRepository, buildCoordinator, null, null, buildConfigurationAuditedRepository, buildExecutor);*/
     @InjectMocks
-    private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();  //new BuildRecordProvider(buildRecordRepository, null, null, null, null, buildExecutor);
+    private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
+
     private BuildEndpoint endpoint;
 
     @Mock
@@ -75,6 +94,7 @@ public class BuildEndpointTest {
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);
         when(authProvider.getCurrentUser(any())).thenReturn(user);
+        when(buildRecordProvider.getSpecific(any())).thenReturn(null);
     }
 
     @Test
@@ -107,6 +127,39 @@ public class BuildEndpointTest {
         Object entity = getSshCredentials(buildRecordId, 204);
         assertThat(entity).isNull();
 
+    }
+
+    @Test
+    public void shouldMarkBuildAsTemporaryWhenSpecifiedAndNoRunningBuildExecution() {
+        // given
+        int buildId = 1;
+        List<BuildTask> buildTasks = new ArrayList<>();
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setTemporaryBuild(true);
+
+        BuildSetTask buildSetTask = mock(BuildSetTask.class);
+        when(buildSetTask.getBuildConfigSetRecord()).thenReturn(Optional.empty());
+
+        User user = User.Builder.newBuilder()
+                .id(CURRENT_USER)
+                .build();
+
+        IdRev idRev = new IdRev(1, 1);
+        BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited();
+        buildConfigurationAudited.setIdRev(idRev);
+        when(buildConfigurationAuditedRepository.queryById(idRev)).thenReturn(buildConfigurationAudited);
+
+        buildTasks.add( BuildTask.build(null, buildConfigurationAudited, buildOptions, user, buildId, buildSetTask, null, null));
+        when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(buildTasks);
+
+        // when
+        Response response = endpoint.getSpecific(buildId);
+        assertThat(response.getStatus()).isEqualTo(200);
+        Singleton<BuildRecordRest> buildRecordSingleton = (Singleton<BuildRecordRest>) response.getEntity();
+
+        // then
+        assertThat(buildRecordSingleton.getContent().getTemporaryBuild()).isEqualTo(true);
     }
 
     private void prepareEndpointForKeepPodAlive(int buildRecordId, int buildRequesterId, String sshCommand, String sshPassword) {
