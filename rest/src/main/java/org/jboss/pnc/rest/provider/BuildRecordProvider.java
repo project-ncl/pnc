@@ -186,7 +186,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     buildTask.getSubmitTime(),
                     buildTask.getStartTime(),
                     buildTask.getEndTime(),
-                    user, buildConfigAuditedRest);
+                    user, 
+                    buildConfigAuditedRest,
+                    buildTask.getBuildOptions().isTemporaryBuild());
         }
         return buildRecRest;
     }
