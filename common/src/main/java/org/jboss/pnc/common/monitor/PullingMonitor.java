@@ -82,7 +82,7 @@ public class PullingMonitor {
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
-        monitor(onMonitorComplete, onMonitorError, condition, timeout, checkInterval, DEFAULT_TIME_UNIT);
+        monitor(onMonitorComplete, onMonitorError, condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
     }
 
     /**
