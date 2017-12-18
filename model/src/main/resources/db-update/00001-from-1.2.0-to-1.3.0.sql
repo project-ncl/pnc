@@ -60,11 +60,11 @@ alter table Artifact drop column repotype;
 
 -- temporary build flags
 alter table buildrecord add temporarybuild boolean;
-update buildrecord set temporarybuild = true;
+update buildrecord set temporarybuild = false;
 alter table buildrecord alter column temporarybuild set not null;
 
 alter table buildconfigsetrecord add temporarybuild boolean;
-update buildconfigsetrecord set temporarybuild = true;
+update buildconfigsetrecord set temporarybuild = false;
 alter table buildconfigsetrecord alter column temporarybuild set not null;
 
 
