@@ -23,11 +23,11 @@ import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
-import java.util.Map;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.Map;
 
 @XmlRootElement(name = "BuildEnvironment")
 public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
@@ -67,7 +67,9 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.description = buildEnvironment.getDescription();
         this.systemImageRepositoryUrl = buildEnvironment.getSystemImageRepositoryUrl();
         this.systemImageId = buildEnvironment.getSystemImageId();
-        this.attributes = buildEnvironment.getAttributes();
+        if (buildEnvironment.getAttributes() != null) {
+            this.attributes = Collections.unmodifiableMap(buildEnvironment.getAttributes());
+        }
         this.systemImageType = buildEnvironment.getSystemImageType();
         this.deprecated = buildEnvironment.isDeprecated();
     }
