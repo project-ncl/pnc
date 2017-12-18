@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -91,10 +92,16 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.description = buildConfiguration.getDescription();
         this.buildScript = buildConfiguration.getBuildScript();
         this.scmRevision = buildConfiguration.getScmRevision();
-        this.creationTime = buildConfiguration.getCreationTime();
-        this.lastModificationTime = buildConfiguration.getLastModificationTime();
+        if (buildConfiguration.getCreationTime() != null) {
+            this.creationTime = new Date(buildConfiguration.getCreationTime().getTime());
+        }
+        if (buildConfiguration.getLastModificationTime() != null) {
+            this.lastModificationTime = new Date(buildConfiguration.getLastModificationTime().getTime());
+        }
         this.archived = buildConfiguration.isArchived();
-        this.genericParameters = buildConfiguration.getGenericParameters();
+        if (buildConfiguration.getGenericParameters() != null) {
+            this.genericParameters = Collections.unmodifiableMap(buildConfiguration.getGenericParameters());
+        }
 
         performIfNotNull(buildConfiguration.getRepositoryConfiguration(),
                 () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfiguration.getRepositoryConfiguration()));

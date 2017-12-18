@@ -44,10 +44,10 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.text.ParseException;
@@ -147,14 +147,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(columnDefinition = "timestamp with time zone", updatable=false)
     private Date creationTime;
 
-    /**
-     * The time at which this entity was last modified and saved to the database.  This is automatically
-     * managed by JPA.
-     */
     @NotNull
-    @Version
     @Column(columnDefinition = "timestamp with time zone")
     private Date lastModificationTime;
+
+    @PreUpdate
+    void onUpdate() {
+        lastModificationTime = new Date();
+    }
 
     /**
      * Normally set to true.
@@ -561,6 +561,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             clone.name = retrieveCloneName(name, now);
             clone.creationTime = now;
             clone.id = null;
+            clone.genericParameters = new HashMap<>(genericParameters);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Cloning error" + e);
