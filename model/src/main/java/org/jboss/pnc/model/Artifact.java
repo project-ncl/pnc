@@ -417,6 +417,13 @@ public class Artifact implements GenericEntity<Integer> {
         return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + "]";
     }
 
+    public String getDescriptiveString() {
+        return String.format("Identifier=%s, Sha256=%s, Target repository=%s, Deploy path=%s, Quality=%s",
+                identifier, sha256, targetRepository.getId(), deployPath,
+                artifactQuality);
+
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Artifact)) {
