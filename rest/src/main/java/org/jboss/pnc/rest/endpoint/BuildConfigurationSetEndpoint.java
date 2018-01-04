@@ -30,6 +30,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
@@ -68,9 +69,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -322,7 +325,10 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
                 id,
                 result.getBuildTasks().stream().map(bt -> Integer.toString(bt.getId())).collect(
                 Collectors.joining()));
-        return buildRecordProvider.createResultSet(result, uriInfo);
+
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
+        URI uri = uriBuilder.build(result.getBuildRecordSetId());
+        return Response.ok(uri).header("location", uri).entity(new Singleton<>(buildConfigSetRecordProvider.getSpecific(result.getBuildRecordSetId()))).build();
     }
 
     private User getCurrentUser() throws InvalidEntityException {
