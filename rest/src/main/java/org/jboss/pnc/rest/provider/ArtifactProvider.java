@@ -124,7 +124,8 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     private String getDeployUrl(Artifact artifact) {
-        if (artifact.getTargetRepository().getRepositoryType().equals(TargetRepository.Type.MAVEN)) {
+        TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
+        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
@@ -140,7 +141,8 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     private String getPublicUrl(Artifact artifact) {
-        if (artifact.getTargetRepository().getRepositoryType().equals(TargetRepository.Type.MAVEN)) {
+        TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
+        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
