@@ -357,11 +357,6 @@ public class BuildRecordsTest {
                 .containsExactly(toRestArtifact(builtArtifact2));
     }
 
-    /**
-     * TODO enable me
-     * the 3rd condition "or field=value" is ignored, probably an issue with rsql parser, try to update the rsql-parser to the latest version
-     */
-    @Ignore
     @Test
     public void shouldFilterBuiltArtifactsByFilenameIdOrChecksum() {
 
@@ -372,7 +367,7 @@ public class BuildRecordsTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==" +  builtArtifact2Id + " or sha256==" +  builtArtifact1Sha256 + " or filename==" + builtArtifact3Filename, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(
+        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds").contains(
                 toRestArtifact(builtArtifact1),
                 toRestArtifact(builtArtifact2),
                 toRestArtifact(builtArtifact3));
