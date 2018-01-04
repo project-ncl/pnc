@@ -21,7 +21,6 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
@@ -40,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -128,7 +128,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
-                return StringUtils.addEndingSlash(moduleConfig.getInternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+                return Paths.get(
+                        moduleConfig.getInternalRepositoryMvnPath(),
+                        artifact.getTargetRepository().getRepositoryPath(),
+                        artifact.getDeployPath())
+                    .toString();
             }
         } else {
             return artifact.getOriginUrl();
@@ -140,7 +144,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
-                return StringUtils.addEndingSlash(moduleConfig.getExternalRepositoryMvnPath()) + StringUtils.stripTrailingSlash(artifact.getDeployPath());
+                return Paths.get(
+                        moduleConfig.getExternalRepositoryMvnPath(),
+                        artifact.getTargetRepository().getRepositoryPath(),
+                        artifact.getDeployPath())
+                        .toString();
             }
         } else {
             return artifact.getOriginUrl();
