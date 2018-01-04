@@ -361,7 +361,6 @@ public class BuildRecordsTest {
      * TODO enable me
      * the 3rd condition "or field=value" is ignored, probably an issue with rsql parser, try to update the rsql-parser to the latest version
      */
-    @Ignore
     @Test
     public void shouldFilterBuiltArtifactsByFilenameIdOrChecksum() {
 

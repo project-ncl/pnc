@@ -22,17 +22,11 @@ import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.EqualNode;
-import cz.jirutka.rsql.parser.ast.GreaterThanNode;
-import cz.jirutka.rsql.parser.ast.GreaterThanOrEqualNode;
-import cz.jirutka.rsql.parser.ast.InNode;
-import cz.jirutka.rsql.parser.ast.LessThanNode;
-import cz.jirutka.rsql.parser.ast.LessThanOrEqualNode;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.Node;
-import cz.jirutka.rsql.parser.ast.NotEqualNode;
-import cz.jirutka.rsql.parser.ast.NotInNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
+import cz.jirutka.rsql.parser.ast.RSQLOperators;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.NestedNullException;
 import org.slf4j.Logger;
@@ -50,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,34 +58,38 @@ public class RSQLNodeTravellerPredicate<Entity> {
 
     private final Class<Entity> selectingClass;
 
-    private final Map<Class<? extends ComparisonNode>, Transformer<Entity>> operations = new HashMap<>();
+    private final Map<ComparisonOperator, Transformer<Entity>> operations = new HashMap<>();
 
     private final static Pattern likePattern = Pattern.compile("(\\%[a-zA-Z0-9\\s]+\\%)");
     private String UNKNOWN_PART_PLACEHOLDER = "_";
 
+    private final static ComparisonOperator LIKE = new ComparisonOperator("=like=");
+    private final static ComparisonOperator IS_NULL = new ComparisonOperator("=isnull=");
+
+
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
-        operations.put(EqualNode.class, new AbstractTransformer<Entity>() {
+        operations.put(RSQLOperators.EQUAL, new AbstractTransformer<Entity>() {
             @Override
             Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
                 return cb.equal(selectedPath, convertedArguments.get(0));
             }
         });
 
-        operations.put(NotEqualNode.class, new AbstractTransformer<Entity>() {
+        operations.put(RSQLOperators.NOT_EQUAL, new AbstractTransformer<Entity>() {
             @Override
             Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
                 return cb.notEqual(selectedPath, convertedArguments.get(0));
             }
         });
 
-        operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
-        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not(((Path) selectWithOperand(r, operand, clazz)).in(arguments)));
-        operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
-        operations.put(IsNullNode.class, (r, cb, clazz, operand, arguments) -> {
+        operations.put(RSQLOperators.GREATER_THAN, (r, cb, clazz, operand, arguments) -> cb.greaterThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(RSQLOperators.GREATER_THAN_OR_EQUAL, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(RSQLOperators.LESS_THAN, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(RSQLOperators.LESS_THAN_OR_EQUAL, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(RSQLOperators.IN, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
+        operations.put(RSQLOperators.NOT_IN, (r, cb, clazz, operand, arguments) -> cb.not(((Path) selectWithOperand(r, operand, clazz)).in(arguments)));
+        operations.put(LIKE, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
+        operations.put(IS_NULL, (r, cb, clazz, operand, arguments) -> {
             if (Boolean.parseBoolean(arguments.get(0))) {
                 return cb.isNull((Path) selectWithOperand(r, operand, clazz));
             } else {
@@ -98,7 +97,11 @@ public class RSQLNodeTravellerPredicate<Entity> {
             }
         });
 
-        rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(preprocessRSQL(rsql));
+        Set<ComparisonOperator> operators = RSQLOperators.defaultOperators();
+        operators.add(LIKE);
+        operators.add(IS_NULL);
+
+        rootNode = new RSQLParser(operators).parse(preprocessRSQL(rsql));
         selectingClass = entityClass;
     }
 
@@ -117,7 +120,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
                 }
 
                 private Predicate proceedSelection(ComparisonNode node) {
-                    Transformer<Entity> transformation = operations.get(node.getClass());
+                    Transformer<Entity> transformation = operations.get(node.getOperator());
                     Preconditions.checkArgument(transformation != null, "Operation not supported");
                     return transformation.transform(root, cb, selectingClass, node.getSelector(), node.getArguments());
                 }
@@ -173,8 +176,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
                     try {
                         String propertyValue = BeanUtils.getProperty(instance, fieldName);
 
-
-                        if (node.getOperator().equals(IsNullNode.OPERATOR)) {
+                        if (node.getOperator().equals(IS_NULL)) {
                             return Boolean.valueOf(propertyValue == null).equals(Boolean.valueOf(argument));
                         }
 
@@ -183,57 +185,35 @@ public class RSQLNodeTravellerPredicate<Entity> {
                             return false;
                         }
 
-                        switch (node.getOperator()) {
-                            case "==": {
-                                return propertyValue.equals(argument);
-                            }
-                            case "!=": {
-                                return !propertyValue.equals(argument);
-                            }
-                            case ">":
-                            case "=gt=": {
-                                NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argumentNumber = numberFormat.parse(argument);
-                                return numberFormat.parse(propertyValue).intValue() < argumentNumber.intValue();
-                            }
-
-                            case ">=":
-                            case "=ge=": {
-                                NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argumentNumber = numberFormat.parse(argument);
-                                return numberFormat.parse(propertyValue).intValue() <= argumentNumber.intValue();
-                            }
-
-                            case "<":
-                            case "=lt=": {
-                                NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argumentNumber = numberFormat.parse(argument);
-                                return numberFormat.parse(propertyValue).intValue() > argumentNumber.intValue();
-                            }
-
-                            case "<=":
-                            case "=le=": {
-                                NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argumentNumber = numberFormat.parse(argument);
-                                return numberFormat.parse(propertyValue).intValue() >= argumentNumber.intValue();
-                            }
-
-                            case "=like=": {
-                                argument = argument.replaceAll(UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
-                                return propertyValue.matches(argument);
-                            }
-
-                            case "=in=": {
-                                return node.getArguments().contains(propertyValue);
-                            }
-
-                            case "=out=": {
-                                return !node.getArguments().contains(propertyValue);
-                            }
-
-                            default: {
-                                throw new UnsupportedOperationException("Not Implemented yet!");
-                            }
+                        if (node.getOperator().equals(RSQLOperators.EQUAL)) {
+                            return propertyValue.equals(argument);
+                        } else if (node.getOperator().equals(RSQLOperators.NOT_EQUAL)) {
+                            return !propertyValue.equals(argument);
+                        } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN)) {
+                            NumberFormat numberFormat = NumberFormat.getInstance();
+                            Number argumentNumber = numberFormat.parse(argument);
+                            return numberFormat.parse(propertyValue).intValue() < argumentNumber.intValue();
+                        } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN_OR_EQUAL)) {
+                            NumberFormat numberFormat = NumberFormat.getInstance();
+                            Number argumentNumber = numberFormat.parse(argument);
+                            return numberFormat.parse(propertyValue).intValue() <= argumentNumber.intValue();
+                        } else if (node.getOperator().equals(RSQLOperators.LESS_THAN)) {
+                            NumberFormat numberFormat = NumberFormat.getInstance();
+                            Number argumentNumber = numberFormat.parse(argument);
+                            return numberFormat.parse(propertyValue).intValue() > argumentNumber.intValue();
+                        } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN_OR_EQUAL)) {
+                            NumberFormat numberFormat = NumberFormat.getInstance();
+                            Number argumentNumber = numberFormat.parse(argument);
+                            return numberFormat.parse(propertyValue).intValue() >= argumentNumber.intValue();
+                        } else if (node.getOperator().equals(LIKE)) {
+                            argument = argument.replaceAll(UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
+                            return propertyValue.matches(argument);
+                        } else if (node.getOperator().equals(RSQLOperators.IN)) {
+                            return node.getArguments().contains(propertyValue);
+                        } else if (node.getOperator().equals(RSQLOperators.NOT_IN)) {
+                            return !node.getArguments().contains(propertyValue);
+                        } else {
+                            throw new UnsupportedOperationException("Not Implemented yet!");
                         }
                     } catch (NestedNullException e) {
                         // If a nested property is null (i.e. idRev.id is null), it is considered a false equality
