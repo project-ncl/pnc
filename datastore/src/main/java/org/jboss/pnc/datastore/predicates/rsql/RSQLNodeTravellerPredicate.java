@@ -127,10 +127,22 @@ public class RSQLNodeTravellerPredicate<Entity> {
 
                 private Predicate proceedEmbeddedNodes(LogicalNode node) {
                     Iterator<Node> iterator = node.iterator();
+                    Predicate p1 = visit(iterator.next());
+                    Predicate p2 = visit(iterator.next());
                     if (node instanceof AndNode) {
-                        return cb.and(visit(iterator.next()), visit(iterator.next()));
+                        Predicate pCombined = cb.and(p1, p2);
+                        while (iterator.hasNext()) {
+                            Predicate pNext = visit(iterator.next());
+                            pCombined =  cb.and(pCombined, pNext);
+                        }
+                        return pCombined;
                     } else if (node instanceof OrNode) {
-                        return cb.or(visit(iterator.next()), visit(iterator.next()));
+                        Predicate pCombined = cb.or(p1, p2);
+                        while (iterator.hasNext()) {
+                            Predicate pNext = visit(iterator.next());
+                            pCombined =  cb.or(pCombined, pNext);
+                        }
+                        return pCombined;
                     } else {
                         throw new UnsupportedOperationException("Logical operation not supported");
                     }
