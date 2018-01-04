@@ -62,6 +62,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMPORARY_BUILDS_GROUP;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
@@ -327,13 +329,13 @@ public class MavenRepositorySession implements RepositorySession {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("/api/content/maven/group/builds-untested")
+                    .repositoryPath("/api/content/maven/group/" + UNTESTED_BUILDS_GROUP)
                     .build();
         } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven-temp")
                     .repositoryType(TargetRepository.Type.MAVEN_TEMPORARY)
-                    .repositoryPath("/api/content/maven/group/builds-untested-temp")
+                    .repositoryPath("/api/content/maven/group/" + TEMPORARY_BUILDS_GROUP)
                     .build();
         } else {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
