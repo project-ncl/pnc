@@ -21,6 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -129,11 +130,14 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
-                return Paths.get(
-                        moduleConfig.getInternalRepositoryMvnPath(),
-                        artifact.getTargetRepository().getRepositoryPath(),
-                        artifact.getDeployPath())
-                    .toString();
+                try {
+                    return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
+                            artifact.getTargetRepository().getRepositoryPath(),
+                            artifact.getDeployPath());
+                } catch (MalformedURLException e) {
+                    logger.error("Cannot construct internal artifact URL.", e);
+                    return null;
+                }
             }
         } else {
             return artifact.getOriginUrl();
@@ -146,11 +150,14 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
-                return Paths.get(
-                        moduleConfig.getExternalRepositoryMvnPath(),
-                        artifact.getTargetRepository().getRepositoryPath(),
-                        artifact.getDeployPath())
-                        .toString();
+                try {
+                    return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
+                            artifact.getTargetRepository().getRepositoryPath(),
+                            artifact.getDeployPath());
+                } catch (MalformedURLException e) {
+                    logger.error("Cannot construct public artifact URL.", e);
+                    return null;
+                }
             }
         } else {
             return artifact.getOriginUrl();
