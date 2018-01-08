@@ -37,13 +37,22 @@
     <!-- repository configuration -->
     <dt>SCM URL:</dt>
     <dd>
-      <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}</span>
-      <span ng-hide="ctrl.record.scmRepoURL">&mdash;</span>
+      <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.scmRepoURL }}</span>
+      <span ng-hide="ctrl.record.scmRepoURL">
+        <span class="pficon pficon-warning-triangle-o" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
+        Based on {{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}
+      </span>
     </dd>
     <!-- repository configuration -->
 
     <dt>SCM Revision:</dt>
-    <dd>{{ ctrl.record.scmRevision || '&mdash;'}}</dd>
+    <dd>
+      <span ng-show="ctrl.record.scmRevision">{{ ctrl.record.scmRevision }}</span>
+      <span ng-hide="ctrl.record.scmRevision">
+        <span class="pficon pficon-warning-triangle-o" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
+        Based on {{ ctrl.record.buildConfigurationAudited.scmRevision }}
+      </span>
+    </dd>
 
     <dt>Environment:</dt>
     <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
