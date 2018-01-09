@@ -90,9 +90,12 @@ public class TemporaryBuildsCleaner {
     public void deleteTemporaryBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
         if (!buildConfigSetRecord.isTemporaryBuild())
             throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
+        log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
-        throw new NotImplementedException();
-        // TODO
+        buildConfigSetRecord.getBuildRecords().forEach(br -> deleteTemporaryBuilds(br));
+        buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
+
+        log.info("Deletion of a temporary build record set finished: " + buildConfigSetRecord);
     }
 
     private void removeDependencyRelationBuildRecordArtifact(BuildRecord buildRecord, Set<Artifact> artifactsToBeDeleted,
