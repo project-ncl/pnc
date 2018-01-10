@@ -67,6 +67,10 @@
   font-family: monospace !important;
 }
 
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
 @media (min-width: 768px) {
   .text-right-sm { text-align: right; }
 }
