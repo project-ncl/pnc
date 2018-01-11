@@ -627,8 +627,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildRecord [id=" + id + ", project=" + buildConfigurationAudited.getProject().getName()
-                + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
+        return "BuildRecord [id=" + id + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
     }
 
     public Map<String, String> getAttributes() {
