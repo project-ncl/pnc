@@ -101,7 +101,7 @@ public class TemporaryBuildsCleanupScheduler {
 
     private void deleteExpiredBuildRecords(Date expirationThreshold) {
         List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
-        expiredBuilds.forEach(br -> temporaryBuildsCleaner.deleteTemporaryBuilds(br));
+        expiredBuilds.forEach(br -> temporaryBuildsCleaner.deleteTemporaryBuild(br));
     }
 
 }

@@ -25,7 +25,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -65,7 +64,7 @@ public class TemporaryBuildsCleaner {
      *
      * @param buildRecord BuildRecord to be deleted
      */
-    public void deleteTemporaryBuilds(BuildRecord buildRecord) {
+    public void deleteTemporaryBuild(BuildRecord buildRecord) {
         if (!buildRecord.isTemporaryBuild())
             throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
         log.info("Starting deletion of a temporary build " + buildRecord);
@@ -92,7 +91,7 @@ public class TemporaryBuildsCleaner {
             throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
-        buildConfigSetRecord.getBuildRecords().forEach(br -> deleteTemporaryBuilds(br));
+        buildConfigSetRecord.getBuildRecords().forEach(br -> deleteTemporaryBuild(br));
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 
         log.info("Deletion of a temporary build record set finished: " + buildConfigSetRecord);
