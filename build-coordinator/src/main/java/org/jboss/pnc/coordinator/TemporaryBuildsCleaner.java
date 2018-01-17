@@ -26,6 +26,9 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collections;
@@ -37,7 +40,7 @@ import java.util.Set;
  *
  * @author Jakub Bartecek
  */
-@ApplicationScoped
+@Stateless
 public class TemporaryBuildsCleaner {
     private final Logger log = LoggerFactory.getLogger(TemporaryBuildsCleaner.class);
 
@@ -62,12 +65,14 @@ public class TemporaryBuildsCleaner {
     /**
      * Deletes a temporary build and artifacts created during the build or orphan dependencies used
      *
-     * @param buildRecord BuildRecord to be deleted
+     * @param detachedBuildRecord BuildRecord to be deleted
      */
-    public void deleteTemporaryBuild(BuildRecord buildRecord) {
-        if (!buildRecord.isTemporaryBuild())
+    public void deleteTemporaryBuild(BuildRecord detachedBuildRecord) {
+        if (!detachedBuildRecord.isTemporaryBuild())
             throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
-        log.info("Starting deletion of a temporary build " + buildRecord);
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(detachedBuildRecord.getId());
+        log.info("Starting deletion of a temporary build " + buildRecord + "; Built artifacts: " + buildRecord.getBuiltArtifacts()
+                + "; Dependencies: " + buildRecord.getDependencies());
 
         /** Delete relation between BuildRecord and Artifact */
         Set<Artifact> artifactsToBeDeleted = new HashSet<>();
@@ -86,9 +91,15 @@ public class TemporaryBuildsCleaner {
         buildRecordRepository.delete(buildRecord.getId());
     }
 
-    public void deleteTemporaryBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
-        if (!buildConfigSetRecord.isTemporaryBuild())
+    /**
+     * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
+     *
+     * @param detachedBuildConfigSetRecord BuildConfigSetRecord to be deleted
+     */
+    public void deleteTemporaryBuildConfigSetRecord(BuildConfigSetRecord detachedBuildConfigSetRecord) {
+        if (!detachedBuildConfigSetRecord.isTemporaryBuild())
             throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(detachedBuildConfigSetRecord.getId());
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
         buildConfigSetRecord.getBuildRecords().forEach(br -> deleteTemporaryBuild(br));
@@ -99,8 +110,15 @@ public class TemporaryBuildsCleaner {
 
     private void removeDependencyRelationBuildRecordArtifact(BuildRecord buildRecord, Set<Artifact> artifactsToBeDeleted,
                                                              boolean applyToBuiltArtifacts) {
-        Set<Artifact> builtArtifacts = buildRecord.getBuiltArtifacts();
-        for (Artifact artifact : builtArtifacts) {
+        Set<Artifact> artifacts;
+        if (applyToBuiltArtifacts){
+            artifacts = buildRecord.getBuiltArtifacts();
+        }
+        else {
+            artifacts = buildRecord.getDependencies();
+        }
+
+        for (Artifact artifact : artifacts) {
             log.info(String.format("Deleting relation BR-Artifact. BuiltArtifacts? %s, BR=%s, artifact=%s", applyToBuiltArtifacts,
                     buildRecord, artifact.getDescriptiveString()));
 
