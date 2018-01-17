@@ -26,7 +26,10 @@
   "appPath": "app",
   "resolutions": {
     "angular": "1.5.8",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "bootstrap-datepicker": "^1.7.1",
+    "datatables-colreorder": "^1.4.1",
+    "moment": "^2.19.1"
   },
   "overrides": {
     "angular-websocket": {
