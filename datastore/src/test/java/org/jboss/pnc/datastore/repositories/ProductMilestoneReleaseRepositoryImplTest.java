@@ -105,7 +105,7 @@ public class ProductMilestoneReleaseRepositoryImplTest {
         ProductVersion productVersion = ProductVersion.Builder.newBuilder()
                 .version(version)
                 .product(product)
-                .generateBrewTagPrefix(product.getAbbreviation(), version)
+                .generateBrewTagPrefix(product.getAbbreviation(), version, "${product_short_name}-${product_version}-pnc")
                 .build();
         
         productVersionRepository.save(productVersion);

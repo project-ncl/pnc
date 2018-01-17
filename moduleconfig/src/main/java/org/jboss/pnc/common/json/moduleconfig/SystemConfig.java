@@ -49,6 +49,8 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private int coordinatorThreadPoolSize;
 
+    private String brewTagPattern;
+
     /**
      * maximum number of build tasks processed at a time (build tasks that are in progress,
      * regardless of whether they are starting bpm process, being build by executor, etc)
@@ -70,6 +72,7 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
             @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
+            @JsonProperty("brewTagPattern") String brewTagPattern,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
             @JsonProperty("keycloakServiceAccountConfig") KeycloakClientConfig keycloakServiceAccountConfig,
             @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan ) {
@@ -80,6 +83,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
+        this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
     }
@@ -110,6 +114,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getCoordinatorMaxConcurrentBuilds() {
         return coordinatorMaxConcurrentBuilds;
+    }
+
+    public String getBrewTagPattern() {
+        return brewTagPattern;
     }
 
     public int getTemporaryBuildsLifeSpan() {
@@ -149,5 +157,4 @@ public class SystemConfig extends AbstractModuleConfig {
     public String getAuthenticationProviderId() {
         return authenticationProviderId;
     }
-
 }

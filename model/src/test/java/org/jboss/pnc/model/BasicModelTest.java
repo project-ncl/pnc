@@ -307,7 +307,7 @@ public class BasicModelTest extends AbstractModelTest {
 
         ProductVersion productVersionOriginal = ProductVersion.Builder.newBuilder()
                 .version(version).product(product)
-                .generateBrewTagPrefix("TP1", version)
+                .generateBrewTagPrefix("TP1", version, "${product_short_name}-${product_version}-pnc")
                 .build();
 
         tx.begin();
@@ -315,7 +315,7 @@ public class BasicModelTest extends AbstractModelTest {
         tx.commit();
 
         ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
-        Assert.assertEquals("pnc-jb-tp1-" + version, productVersionLoaded.getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
+        Assert.assertEquals("tp1-" + version + "-pnc", productVersionLoaded.getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
         
         
     }
