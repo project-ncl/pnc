@@ -24,6 +24,7 @@ import org.jboss.pnc.datastore.DeploymentFactory;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -53,6 +54,9 @@ public class BuildRecordRepositoryTest {
     @Inject
     private BuildRecordRepository buildRecordRepository;
 
+    @Inject
+    private Datastore datastore;
+
     @Deployment
     public static Archive<?> getDeployment() {
         return DeploymentFactory.createDatastoreDeployment();
@@ -60,29 +64,12 @@ public class BuildRecordRepositoryTest {
 
     @InSequence(1)
     @Test
-    public void shouldFindExpiredTemporaryBuilds() {
-        // given
-        BuildRecord givenBr = initBuildRecordBuilder()
-                .endTime(new Date(0))
-                .build();
-        givenBr = buildRecordRepository.save(givenBr);
-
-        // when
-        List<BuildRecord> found = buildRecordRepository.findTemporaryBuildsOlderThan(new Date());
-
-        // then
-        assertEquals(1, found.size());
-        assertEquals(givenBr.getId(), found.get(0).getId());
-
-    }
-
-    @InSequence(2)
-    @Test
     public void shouldFindNoneExpiredTemporaryBuilds() {
-        Date now = new Date();
         // given
+        Date now = new Date();
         BuildRecord givenBr = initBuildRecordBuilder()
                 .endTime(now)
+                .temporaryBuild(true)
                 .build();
         buildRecordRepository.save(givenBr);
 
@@ -91,8 +78,26 @@ public class BuildRecordRepositoryTest {
 
         // then
         assertEquals(0, found.size());
-
     }
+
+    @InSequence(2)
+    @Test
+    public void shouldFindExpiredTemporaryBuilds() {
+        // given
+        BuildRecord givenBr = initBuildRecordBuilder()
+                .endTime(new Date(0))
+                .temporaryBuild(true)
+                .build();
+        givenBr = buildRecordRepository.save(givenBr);
+
+        // when
+        List<BuildRecord> found = buildRecordRepository.findTemporaryBuildsOlderThan(new Date(1000));
+
+        // then
+        assertEquals(1, found.size());
+        assertEquals(givenBr.getId(), found.get(0).getId());
+    }
+
 
     private BuildRecord.Builder initBuildRecordBuilder() {
         if(user == null) {
@@ -106,7 +111,7 @@ public class BuildRecordRepositoryTest {
         }
 
         return BuildRecord.Builder.newBuilder()
-                .id(8888)
+                .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAuditedId(1)
                 .buildConfigurationAuditedRev(1)
                 .submitTime(new Date())
