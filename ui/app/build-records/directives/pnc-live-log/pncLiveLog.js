@@ -31,7 +31,10 @@
         socket,
         logWriter,
         HR = '----------------------------------------------------------------------',
-        EM = '***';
+        EM = '***',
+        messages = [],
+        isProcessingActive = false,
+        processingInterval = 750;
 
 
     function writelogln(line) {
@@ -48,18 +51,41 @@
       writelogln(EM + ' ' + line + ' ' + EM);
     }
 
+    function processMessages() {
+      if (messages.length) {
+        isProcessingActive = true;
+        writelogln(messages.join('<br>'));
+        messages = [];
+
+        if (socket.readyState === 1) {
+          setTimeout(function () {
+            processMessages();
+          }, processingInterval);
+        }
+
+      } else {
+        // suspend processing until onMessage event is fired
+        isProcessingActive = false;
+      }
+    }
+
     function connect(url, serviceName) {
       serviceName = serviceName || 'service';
       $log.debug('Attempting to connect to %s at: %s for updates', serviceName, url);
       socket = $websocket(url, { autoApply: false });
 
       socket.onMessage(function (msg) {
-        writelogln(msg.data);
+        messages.push(msg.data);
+
+        if (!isProcessingActive) {
+          processMessages();
+        }
       });
 
       socket.onOpen(function () {
         $log.info('Connected to %s at: %s', serviceName, socket.url);
         writeLogEm('Connected to ' + serviceName);
+        processMessages();
       });
 
       socket.onError(function() {
