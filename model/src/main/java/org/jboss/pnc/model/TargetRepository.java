@@ -60,6 +60,15 @@ public class TargetRepository implements GenericEntity<Integer> {
     private Integer id;
 
     /**
+     * Flag that the repository is temporary.
+     */
+    @Getter
+    @Setter
+    @NotNull
+    @Column(updatable=false)
+    private Boolean temporaryRepo;
+
+    /**
      * Identifier to link repository configurations (eg. hostname)
      */
     @Getter
@@ -143,7 +152,7 @@ public class TargetRepository implements GenericEntity<Integer> {
      * @return true if the artifact url came from a trusted repo, false otherwise
      */
     static boolean isTrusted(String artifactOriginUrl, TargetRepository targetRepository) {
-        if (targetRepository.repositoryType.equals(Type.MAVEN_TEMPORARY)) {
+        if (targetRepository.temporaryRepo) {
             return false;
         }
         if (artifactOriginUrl == null || artifactOriginUrl.isEmpty()) {

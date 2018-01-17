@@ -22,6 +22,7 @@ create sequence target_repository_repo_id_seq;
 -- ## Updates required by new artifact repository relations
 create table TargetRepository (
     id integer not null,
+    temporaryRepo boolean not null,
     identifier varchar(255) not null,
     repositoryPath varchar(255) not null,
     repositoryType varchar(255) not null,
@@ -29,17 +30,16 @@ create table TargetRepository (
     unique (identifier, repositoryPath)
 );
 -- insert default repositories
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (1, 'indy-maven', 'builds-untested', 'MAVEN');
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (2, 'indy-maven', 'builds-untested-temp', 'MAVEN_TEMPORARY');
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (3, 'indy-maven', 'shared-imports', 'MAVEN');
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (4, 'indy-maven', 'shared-imports', 'MAVEN_TEMPORARY');
-insert into TargetRepository (id, identifier, repositoryPath, repositoryType) values (5, 'indy-http', '', 'GENERIC_PROXY');
+insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, repositoryType) values (1, false, 'indy-maven', '/api/content/maven/group/builds-untested', 'MAVEN');
+insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, repositoryType) values (2, true, 'indy-maven', '/api/content/maven/group/temporary-builds', 'MAVEN');
+insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, repositoryType) values (3, false, 'indy-maven', '/api/content/maven/hosted/shared-imports', 'MAVEN');
+insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, repositoryType) values (4, false, 'indy-http', '', 'GENERIC_PROXY');
 
 -- Start the sequence id for target repository from last value = 6
 -- We need to set last_value to 6 and not to 5 because the sequence has column
 -- 'is_called' set to false
 -- https://www.postgresql.org/docs/8.1/static/functions-sequence.html
-alter sequence target_repository_repo_id_seq restart with 6;
+alter sequence target_repository_repo_id_seq restart with 5;
 
 -- Artifact
 alter table Artifact add targetRepository_id integer;
@@ -53,7 +53,7 @@ alter table Artifact
 -- old repotype 0 -> maven (1)
 -- old repotype 3 -> generic proxy (5)
 update Artifact set targetRepository_id = 1 where repotype = 0;
-update Artifact set targetRepository_id = 5 where repotype = 3;
+update Artifact set targetRepository_id = 4 where repotype = 3;
 
 alter table Artifact alter column targetRepository_id set not null;
 alter table Artifact drop column repotype;

@@ -326,16 +326,17 @@ public class MavenRepositorySession implements RepositorySession {
     private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
         TargetRepository targetRepository;
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
+            String groupName;
+            if (isTempBuild) {
+                groupName = TEMPORARY_BUILDS_GROUP;
+            } else {
+                groupName = UNTESTED_BUILDS_GROUP;
+            }
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("/api/content/maven/group/" + UNTESTED_BUILDS_GROUP)
-                    .build();
-        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
-            targetRepository = TargetRepository.builder()
-                    .identifier("indy-maven-temp")
-                    .repositoryType(TargetRepository.Type.MAVEN_TEMPORARY)
-                    .repositoryPath("/api/content/maven/group/" + TEMPORARY_BUILDS_GROUP)
+                    .repositoryPath("/api/content/maven/group/" + groupName)
+                    .temporaryRepo(isTempBuild)
                     .build();
         } else {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");

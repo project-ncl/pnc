@@ -116,7 +116,7 @@ public class DatastoreTest {
 
     @Inject
     LicenseRepository licenseRepository;
-    
+
     @Inject
     UserRepository userRepository;
 
@@ -129,7 +129,7 @@ public class DatastoreTest {
     }
 
     /**
-     * The data initialization of the build configurations needs to be done in a separate test method so that 
+     * The data initialization of the build configurations needs to be done in a separate test method so that
      * the transaction can complete, and the hibernate envers BuildConfigurationAudit is created.
      */
     @Test
@@ -217,7 +217,7 @@ public class DatastoreTest {
                 .username("pnc").email("pnc@redhat.com").build();
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
-        
+
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
@@ -267,7 +267,7 @@ public class DatastoreTest {
         TargetRepository targetRepositoryTmp = TargetRepository.builder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("temp-" + now)
-                .identifier("indy-maven-temp")
+                .identifier("indy-maven")
                 .build();
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
@@ -302,7 +302,7 @@ public class DatastoreTest {
                 .username("pnc2").email("pnc2@redhat.com").build();
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
-        
+
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
