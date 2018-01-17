@@ -192,6 +192,7 @@ public class DatastoreTest {
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
+                .temporaryRepo(false)
                 .build();
         targetRepository = targetRepositoryRepository.save(targetRepository);
         logger.info("Saved targetRepository: {}", targetRepository);
@@ -261,6 +262,7 @@ public class DatastoreTest {
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
+                .temporaryRepo(false)
                 .build();
 
         String now = Instant.now().toString();
@@ -268,6 +270,7 @@ public class DatastoreTest {
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("temp-" + now)
                 .identifier("indy-maven")
+                .temporaryRepo(true)
                 .build();
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
