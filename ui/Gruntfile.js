@@ -339,7 +339,8 @@ module.exports = function (grunt) {
           'bower_components/datatables-colvis/css/dataTables.colVis.css',
           'bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
           'bower_components/font-awesome/css/font-awesome.css',
-          'bower_components/google-code-prettify/bin/prettify.min.css'
+          'bower_components/google-code-prettify/bin/prettify.min.css',
+          'bower_components/bootstrap-sass/assets/javascripts/bootstrap.js' /* prevent bootstrap from loading twice */
         ],
         ignorePath:  /\.\.\//
       }
