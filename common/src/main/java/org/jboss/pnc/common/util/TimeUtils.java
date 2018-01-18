@@ -113,4 +113,15 @@ public class TimeUtils {
                 instant.get(Calendar.DAY_OF_MONTH), instant.get(Calendar.HOUR_OF_DAY), instant.get(Calendar.MINUTE),
                 instant.get(Calendar.SECOND), instant.get(Calendar.MILLISECOND));
     }
+
+    /**
+     * Get date object representing timestamp X days ago specified by parameter
+     *
+     * @param numberOfDays Number of days to shift the time back
+     * @return New Date object representing a timestamp X days before now
+     */
+    public static Date getDateXDaysAgo(int numberOfDays) {
+        long unixMilisecondsExpirationThreshold = new Date().getTime() - (1000 * 60 * 60 * 24 * numberOfDays);
+        return new Date(unixMilisecondsExpirationThreshold);
+    }
 }

@@ -20,10 +20,14 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigSetRecordSpringRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
 
 @Stateless
 public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Integer> implements
@@ -40,5 +44,13 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
     @Inject
     public BuildConfigSetRecordRepositoryImpl(BuildConfigSetRecordSpringRepository buildConfigSetRecordSpringRepository) {
         super(buildConfigSetRecordSpringRepository, buildConfigSetRecordSpringRepository);
+    }
+
+    @Override
+    public List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date) {
+        return queryWithPredicates(
+                BuildConfigSetRecordPredicates.temporaryBuild(),
+                BuildConfigSetRecordPredicates.buildFinishedBefore(date)
+        );
     }
 }

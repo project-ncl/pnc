@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,7 +71,17 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
+    public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
+        return null;
+    }
+
+    @Override
     public BuildRecord save(BuildRecord entity) {
         return super.save(entity);
+    }
+
+    @Override
+    public List<BuildRecord> queryAll() {
+        return super.queryAll();
     }
 }

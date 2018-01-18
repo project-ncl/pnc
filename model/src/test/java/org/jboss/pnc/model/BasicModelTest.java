@@ -35,7 +35,7 @@ import java.util.List;
 public class BasicModelTest extends AbstractModelTest {
 
     /** located in src/test/resources */
-    private final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
+    final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
     
     private User pncUser;
 
@@ -52,22 +52,9 @@ public class BasicModelTest extends AbstractModelTest {
         initDatabaseUsingDataset(em, DBUNIT_DATASET_FILE);
 
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
-        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")
-                .description("Test Build Configuration 1 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+        insertExampleBuildConfigurations(em, basicRepositoryConfiguration);
 
-        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 2")
-                .description("Test Build Configuration 2 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
-
-        em.getTransaction().begin();
-        em.persist(buildConfig1);
-        em.persist(buildConfig2);
-        em.getTransaction().commit();
         em.close();
-        
         this.pncUser = User.Builder.newBuilder().id(1).build();
     }
 

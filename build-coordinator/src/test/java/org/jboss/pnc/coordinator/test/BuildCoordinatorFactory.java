@@ -67,7 +67,7 @@ public class BuildCoordinatorFactory {
     private Configuration createConfiguration() {
         try {
             Configuration configuration = mock(Configuration.class);
-            doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "NO_AUTH", "10", "10", "10", "10")).when(configuration)
+            doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "NO_AUTH", "10", "10", "10", "10", "14")).when(configuration)
                     .getModuleConfig(any(PncConfigProvider.class));
             return configuration;
         } catch (ConfigurationParseException e) {
