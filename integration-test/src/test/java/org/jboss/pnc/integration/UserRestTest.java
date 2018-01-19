@@ -273,12 +273,42 @@ public class UserRestTest {
 
         // then
         assertThat(updateResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        UserRest updatedUser = updateResponse.getValue();
+        UserRest updatedUser = userRestClient.get(user.getId()).getValue();
         assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getEmail()).isEqualTo(newEmail);
         assertThat(updatedUser.getUsername()).isEqualTo(newUsername);
     }
 
+    @Test
+    public void shouldUpdateUsersNotRequiredFields() {
+        // given
+        String email = "pnc@pnc.com";
+        String username = "pnc";
+        UserRest user = new UserRest();
+        user.setEmail(email);
+        user.setUsername(username);
+
+        RestResponse<UserRest> response = userRestClient.createNew(user);
+        assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(201);
+        user = response.getValue();
+
+        // when
+        String firstName = "firstName";
+        String lastName = "lastName";
+        UserRest userWithNewValues = new UserRest();
+        userWithNewValues.setFirstName(firstName);
+        userWithNewValues.setLastName(lastName);
+        RestResponse<UserRest> updateResponse = userRestClient.update(user.getId(), userWithNewValues);
+
+        // then
+        assertThat(updateResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        UserRest updatedUser = userRestClient.get(user.getId()).getValue();
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.getEmail()).isEqualTo(email);
+        assertThat(updatedUser.getUsername()).isEqualTo(username);
+        assertThat(updatedUser.getFirstName()).isEqualTo(firstName);
+        assertThat(updatedUser.getLastName()).isEqualTo(lastName);
+    }
 
     protected BuildTask mockBuildTask(int id, int userId, String username) {
         BuildTask mockedTask = mock(BuildTask.class);
