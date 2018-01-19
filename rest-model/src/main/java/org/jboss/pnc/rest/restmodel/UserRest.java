@@ -103,6 +103,7 @@ public class UserRest implements GenericRestEntity<Integer> {
     @XmlTransient
     public User.Builder toDBEntityBuilder() {
         User.Builder builder = User.Builder.newBuilder()
+                .id(id)
                 .username(username)
                 .email(email)
                 .firstName(firstName)
