@@ -256,8 +256,8 @@ public class UserRestTest {
     public void shouldUpdateUsersRequiredFields() {
         // given
         UserRest user = new UserRest();
-        user.setEmail("pnc@pnc.com");
-        user.setUsername("pnc");
+        user.setEmail("shouldUpdateUsersRequiredFields@pnc.com");
+        user.setUsername("shouldUpdateUsersRequiredFields");
 
         RestResponse<UserRest> response = userRestClient.createNew(user);
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(201);
@@ -282,8 +282,8 @@ public class UserRestTest {
     @Test
     public void shouldUpdateUsersNotRequiredFields() {
         // given
-        String email = "pnc@pnc.com";
-        String username = "pnc";
+        String email = "shouldUpdateUsersNotRequiredFields@pnc.com";
+        String username = "shouldUpdateUsersNotRequiredFields";
         UserRest user = new UserRest();
         user.setEmail(email);
         user.setUsername(username);
@@ -296,6 +296,8 @@ public class UserRestTest {
         String firstName = "firstName";
         String lastName = "lastName";
         UserRest userWithNewValues = new UserRest();
+        userWithNewValues.setEmail(email);
+        userWithNewValues.setUsername(username);
         userWithNewValues.setFirstName(firstName);
         userWithNewValues.setLastName(lastName);
         RestResponse<UserRest> updateResponse = userRestClient.update(user.getId(), userWithNewValues);
