@@ -28,8 +28,6 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.CausewayClientMock;
 import org.jboss.pnc.integration.websockets.WsUpdatesClient;
-import org.jboss.pnc.managers.causeway.CausewayClient;
-import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
@@ -53,6 +51,8 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
+
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildRecordPushTest extends AbstractTest {
@@ -65,10 +65,11 @@ public class BuildRecordPushTest extends AbstractTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.PROCESS_MANAGERS_JAR);
+        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.CAUSEWAY_CLIENT_JAR);
         processManager.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
         processManager.addClass(CausewayClientMock.class);
-        processManager.addClass(BuildExecutorMock.class);
+
+        addBuildExecutorMock(enterpriseArchive);
 
         return enterpriseArchive;
     }
@@ -147,13 +148,6 @@ public class BuildRecordPushTest extends AbstractTest {
 
         WsUpdatesClient wsUpdatesClient = new WsUpdatesClient();
         wsUpdatesClient.subscribeBlocking("causeway-push", buildRecordId.toString(), onMessageInternal);
-    }
-
-    private class TestCausewayClient implements CausewayClient {
-        @Override
-        public boolean push(String jsonMessage, String authToken) {
-            return true;
-        }
     }
 
 }

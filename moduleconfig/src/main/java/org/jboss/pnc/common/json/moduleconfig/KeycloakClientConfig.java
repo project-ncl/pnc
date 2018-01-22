@@ -43,7 +43,7 @@ public class KeycloakClientConfig {
             @JsonProperty("realm-public-key") String realmPublicKey,
             @JsonProperty("auth-server-url") String authServerUrl,
             @JsonProperty("ssl-required") @DefaultValue("none") String sslRequired,
-            @JsonProperty("ssl-required") String resource,
+            @JsonProperty("resource") String resource,
             @JsonProperty("credentials") @DefaultValue("{}") Map<String, String> credentials) {
         this.realm = realm;
         this.realmPublicKey = realmPublicKey;

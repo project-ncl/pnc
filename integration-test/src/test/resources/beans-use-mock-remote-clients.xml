@@ -20,9 +20,8 @@
 -->
 <beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" bean-discovery-mode="annotated">
   <scan>
-    <exclude name="org.jboss.pnc.managers.causeway.DefaultCausewayClient" />
+    <exclude name="org.jboss.pnc.causewayclient.DefaultCausewayClient" />
+    <exclude name="org.jboss.pnc.coordinator.maintenance.DefaultRemoteBuildsCleaner" />
+    <exclude name="org.jboss.pnc.executor.DefaultBuildExecutor" />
   </scan>
-  <alternatives>
-    <class>org.jboss.pnc.mock.executor.BuildExecutorMock</class>
-  </alternatives>
 </beans>

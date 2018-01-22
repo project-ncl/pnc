@@ -68,8 +68,16 @@
       <artifactId>auth</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>causeway-client</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-promote-client-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-folo-client-java</artifactId>
     </dependency>
 
 

@@ -15,11 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.causewayclient.remotespi;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -28,13 +26,29 @@ import lombok.NonNull;
  * @author Honza Brázdil <janinko.g@gmail.com>
  */
 @Data
-@Builder
-@AllArgsConstructor
-public class Dependency {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+        property = "@artifactType")
+public class BuiltArtifact {
+    private final int id;
     @NonNull
     private final String filename;
     @NonNull
+    private final String architecture;
+    @NonNull
     private final String md5;
-    private final long size;
-    
+    @NonNull
+    private final String artifactPath;
+    @NonNull
+    private final String repositoryPath;
+    private final int size;
+
+    public BuiltArtifact(int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
+        this.id = id;
+        this.filename = filename;
+        this.architecture = architecture;
+        this.md5 = md5;
+        this.artifactPath = artifactPath;
+        this.repositoryPath = repositoryPath;
+        this.size = size;
+    }
 }

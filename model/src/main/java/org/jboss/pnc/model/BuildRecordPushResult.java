@@ -90,6 +90,10 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     @Setter
     private String brewBuildUrl;
 
+    @Getter
+    @Setter
+    private String tagPrefix;
+
     public enum Status {
         SUCCESS, FAILED, SYSTEM_ERROR, CANCELED;
     }

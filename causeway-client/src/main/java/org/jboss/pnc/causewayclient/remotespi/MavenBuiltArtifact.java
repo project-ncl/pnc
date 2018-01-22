@@ -15,30 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.causewayclient.remotespi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
-import java.util.Date;
-import java.util.Set;
-
 /**
  *
- * @author Honza Brázdil <jbrazdil@redhat.com>
+ * @author Honza Brázdil <janinko.g@gmail.com>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName(value = "maven")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = MavenBuild.MavenBuildBuilder.class)
-public class MavenBuild extends Build {
+@JsonDeserialize(builder = MavenBuiltArtifact.MavenBuiltArtifactBuilder.class)
+public class MavenBuiltArtifact extends BuiltArtifact {
 
     @NonNull
     private final String groupId;
@@ -48,20 +46,15 @@ public class MavenBuild extends Build {
     private final String version;
 
     @Builder
-    public MavenBuild(String groupId, String artifactId, String version, String buildName,
-            String buildVersion, String externalBuildSystem, int externalBuildID,
-            String externalBuildURL, Date startTime, Date endTime, String scmURL,
-            String scmRevision, BuildRoot buildRoot, Set<Logfile> logs,
-            Set<Dependency> dependencies, Set<BuiltArtifact> builtArtifacts, String tagPrefix) {
-        super(buildName, buildVersion, externalBuildSystem, externalBuildID, externalBuildURL,
-                startTime, endTime, scmURL, scmRevision, buildRoot, logs, dependencies,
-                builtArtifacts, tagPrefix);
+    public MavenBuiltArtifact(String groupId, String artifactId, String version, int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
+        super(id, filename, architecture, md5, artifactPath, repositoryPath, size);
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class MavenBuildBuilder {
+    public static class MavenBuiltArtifactBuilder {
+
     }
 }

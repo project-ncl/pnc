@@ -15,25 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.causewayclient;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
+import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 
 /**
- *
- * @author Honza Brázdil <janinko.g@gmail.com>
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Data
-@Builder
-@AllArgsConstructor
-public class BuildImportRequest {
+public interface CausewayClient {
 
-    @NonNull
-    private final CallbackTarget callback;
-    @NonNull
-    private final Build build;
+    boolean importBuild(BuildImportRequest buildImportRequest, String authToken);
 
+    boolean untagBuild(UntagRequest untagRequest, String authToken);
 }

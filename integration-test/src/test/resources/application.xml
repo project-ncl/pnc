@@ -70,6 +70,9 @@
     <java>termd-build-driver.jar</java>
   </module>
   <module>
+    <java>causeway-client.jar</java>
+  </module>
+  <module>
     <web>
       <web-uri>rest.war</web-uri>
       <context-root>/pnc-rest</context-root>

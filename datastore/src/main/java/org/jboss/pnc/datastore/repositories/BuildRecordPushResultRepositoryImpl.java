@@ -42,12 +42,18 @@ public class BuildRecordPushResultRepositoryImpl
 
     @Override
     public BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId) {
-        List<BuildRecordPushResult> buildRecordPushResults = queryWithPredicates(BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(
-                buildRecordId));
+        List<BuildRecordPushResult> buildRecordPushResults = queryWithPredicates(
+                BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(buildRecordId)
+        );
         if (buildRecordPushResults == null || buildRecordPushResults.size() == 0) {
             return null;
         } else {
             return buildRecordPushResults.get(0);
         }
+    }
+
+    @Override
+    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Integer buildRecordId) {
+        return queryWithPredicates(BuildRecordPushResultPredicates.successForBuildRecord(buildRecordId));
     }
 }

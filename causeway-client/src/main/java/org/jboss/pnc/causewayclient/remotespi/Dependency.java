@@ -15,11 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.causewayclient.remotespi;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,21 +29,12 @@ import lombok.NonNull;
  */
 @Data
 @Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = Logfile.LogfileBuilder.class)
 @AllArgsConstructor
-public class Logfile {
-    
+public class Dependency {
     @NonNull
     private final String filename;
     @NonNull
-    private final String deployPath;
-    private final int size;
-    @NonNull
     private final String md5;
+    private final long size;
     
-    @JsonPOJOBuilder(withPrefix = "")
-    public static class LogfileBuilder {
-
-    }
 }

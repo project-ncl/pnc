@@ -15,26 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.integration.mock;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
+import org.jboss.pnc.model.BuildRecord;
 
-import java.util.Map;
+import javax.enterprise.context.Dependent;
 
 /**
- *
- * @author Honza Brázdil <janinko.g@gmail.com>
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Data
-@Builder
-@AllArgsConstructor
-public class BuildRoot {
+@Dependent
+public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
 
-    private final String container;
-    private final String containerArchitecture;
-    private final String host;
-    private final String hostArchitecture;
-    private final Map<String, String> tools;
+    @Override
+    public boolean deleteRemoteBuilds(BuildRecord buildRecord) {
+        return true;
+    }
 }

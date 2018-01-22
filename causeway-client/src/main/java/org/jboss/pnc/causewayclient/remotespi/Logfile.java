@@ -15,16 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.causewayclient.remotespi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 /**
@@ -32,29 +30,22 @@ import lombok.NonNull;
  * @author Honza Brázdil <janinko.g@gmail.com>
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeName(value = "maven")
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = MavenBuiltArtifact.MavenBuiltArtifactBuilder.class)
-public class MavenBuiltArtifact extends BuiltArtifact {
-
+@JsonDeserialize(builder = Logfile.LogfileBuilder.class)
+@AllArgsConstructor
+public class Logfile {
+    
     @NonNull
-    private final String groupId;
+    private final String filename;
     @NonNull
-    private final String artifactId;
+    private final String deployPath;
+    private final int size;
     @NonNull
-    private final String version;
-
-    @Builder
-    public MavenBuiltArtifact(String groupId, String artifactId, String version, int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
-        super(id, filename, architecture, md5, artifactPath, repositoryPath, size);
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-    }
-
+    private final String md5;
+    
     @JsonPOJOBuilder(withPrefix = "")
-    public static class MavenBuiltArtifactBuilder {
+    public static class LogfileBuilder {
 
     }
 }

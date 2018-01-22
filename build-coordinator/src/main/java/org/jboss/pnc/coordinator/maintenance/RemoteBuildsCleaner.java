@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.coordinator.maintenance;
+
+import org.jboss.pnc.model.BuildRecord;
 
 /**
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public enum CallbackMethod {
-    POST,
-    PUT;
+public interface RemoteBuildsCleaner {
+
+    boolean deleteRemoteBuilds(BuildRecord buildRecord);
 }

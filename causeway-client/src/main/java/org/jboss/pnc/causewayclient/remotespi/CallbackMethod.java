@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway;
+package org.jboss.pnc.causewayclient.remotespi;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public interface CausewayClient {
-
-    boolean push(String jsonMessage, String authToken);
+public enum CallbackMethod {
+    POST,
+    PUT;
 }

@@ -19,19 +19,17 @@ package org.jboss.pnc.managers;
 
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.causewayclient.CausewayClient;
+import org.jboss.pnc.causewayclient.remotespi.Build;
+import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
+import org.jboss.pnc.causewayclient.remotespi.BuildRoot;
+import org.jboss.pnc.causewayclient.remotespi.BuiltArtifact;
+import org.jboss.pnc.causewayclient.remotespi.CallbackTarget;
+import org.jboss.pnc.causewayclient.remotespi.Dependency;
+import org.jboss.pnc.causewayclient.remotespi.Logfile;
+import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
+import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
-import org.jboss.pnc.managers.causeway.CausewayClient;
-import org.jboss.pnc.managers.causeway.remotespi.Build;
-import org.jboss.pnc.managers.causeway.remotespi.BuildImportRequest;
-import org.jboss.pnc.managers.causeway.remotespi.BuildRoot;
-import org.jboss.pnc.managers.causeway.remotespi.BuiltArtifact;
-import org.jboss.pnc.managers.causeway.remotespi.CallbackMethod;
-import org.jboss.pnc.managers.causeway.remotespi.CallbackTarget;
-import org.jboss.pnc.managers.causeway.remotespi.Dependency;
-import org.jboss.pnc.managers.causeway.remotespi.Logfile;
-import org.jboss.pnc.managers.causeway.remotespi.MavenBuild;
-import org.jboss.pnc.managers.causeway.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
@@ -86,16 +84,16 @@ public class BuildResultPushManager {
     public BuildResultPushManager(BuildRecordRepository buildRecordRepository,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             InProgress inProgress,
-            CausewayClient causewayClient,
             Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent,
-            ArtifactRepository artifactRepository
+            ArtifactRepository artifactRepository,
+            CausewayClient causewayClient
     ) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.inProgress = inProgress;
-        this.causewayClient = causewayClient;
         this.buildRecordPushResultRestEvent = buildRecordPushResultRestEvent;
         this.artifactRepository = artifactRepository;
+        this.causewayClient = causewayClient;
     }
 
     /**
@@ -125,7 +123,9 @@ public class BuildResultPushManager {
     }
 
     private boolean pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix) throws ProcessException {
-        if (!inProgress.add(buildRecordId)) {
+        logger.info("Pushing to causeway BR.id: {}", buildRecordId);
+
+        if (!inProgress.add(buildRecordId, tagPrefix)) {
             logger.warn("Push for BR.id {} already running.", buildRecordId);
             return false;
         }
@@ -144,9 +144,7 @@ public class BuildResultPushManager {
         }
 
         BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken);
-        String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);
-
-        boolean successfullyPushed = causewayClient.push(jsonMessage, authToken);
+        boolean successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
         if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
         }
@@ -178,10 +176,7 @@ public class BuildResultPushManager {
         Set<Dependency> dependencies = collectDependencies(dependencyEntities);
         Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities);
 
-        Map<String, String> callbackHeaders = new HashMap<>();
-        callbackHeaders.put("Authorization", "Bearer " + authToken);
-
-        CallbackTarget callbackTarget = new CallbackTarget(callBackUrl, CallbackMethod.POST, callbackHeaders);
+        CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken);
         ProjectVersionRef projectVersionRef = buildRootToGAV(
                 buildRecord.getExecutionRootName(),
                 buildRecord.getExecutionRootVersion());
@@ -276,10 +271,12 @@ public class BuildResultPushManager {
 
     public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) throws ProcessException {
         //accept only listed elements otherwise a new request might be wrongly completed from response of an older one
-        if (!inProgress.remove(buildRecordId)) {
+        String completedTag = inProgress.remove(buildRecordId);
+        if (completedTag == null) {
             throw new ProcessException("Did not find the referenced element.");
         }
 
+        buildRecordPushResult.setTagPrefix(completedTag);
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
 
         buildRecordPushResultRestEvent.fire(new BuildRecordPushResultRest(saved));
@@ -292,12 +289,12 @@ public class BuildResultPushManager {
                 .buildRecordId(buildRecordId)
                 .log("Canceled.")
                 .build();
-        boolean canceled = inProgress.remove(buildRecordId);
+        boolean canceled = inProgress.remove(buildRecordId) != null;
         buildRecordPushResultRestEvent.fire(buildRecordPushResultRest);
         return canceled;
     }
 
     public Set<Integer> getInProgress() {
-        return inProgress.getAll();
+        return inProgress.getAllIds();
     }
 }

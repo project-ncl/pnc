@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway.remotespi;
+package org.jboss.pnc.causewayclient.remotespi;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 import javax.ws.rs.DefaultValue;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -47,6 +48,12 @@ public class CallbackTarget {
         this.method = method;
         this.headers = headers;
     }
-    
-    
+
+
+    public static CallbackTarget callbackPost(String callBackUrl, String authToken) {
+        Map<String, String> callbackHeaders = new HashMap<>();
+        callbackHeaders.put("Authorization", "Bearer " + authToken);
+
+        return new CallbackTarget(callBackUrl, CallbackMethod.POST, callbackHeaders);
+    }
 }

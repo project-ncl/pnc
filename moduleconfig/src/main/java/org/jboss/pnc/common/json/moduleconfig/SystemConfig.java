@@ -63,7 +63,6 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private int temporaryBuildsLifeSpan;
 
-
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,

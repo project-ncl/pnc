@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import static org.keycloak.client.admin.cli.util.IoUtil.copyStream;
+import static org.jboss.pnc.auth.keycloakutil.util.IoUtil.copyStream;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>

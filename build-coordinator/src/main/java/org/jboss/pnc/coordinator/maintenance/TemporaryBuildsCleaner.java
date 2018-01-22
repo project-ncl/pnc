@@ -15,8 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator;
+package org.jboss.pnc.coordinator.maintenance;
 
+import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
@@ -27,9 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,16 +48,22 @@ public class TemporaryBuildsCleaner {
 
     private ArtifactRepository artifactRepository;
 
+    private RemoteBuildsCleaner remoteBuildsCleaner;
+
     @Deprecated
     public TemporaryBuildsCleaner() {
     }
 
     @Inject
-    public TemporaryBuildsCleaner(BuildRecordRepository buildRecordRepository, BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-                                  ArtifactRepository artifactRepository) {
+    public TemporaryBuildsCleaner(
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+            ArtifactRepository artifactRepository,
+            RemoteBuildsCleaner remoteBuildsCleaner) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.artifactRepository = artifactRepository;
+        this.remoteBuildsCleaner = remoteBuildsCleaner;
     }
 
     /**
@@ -67,12 +71,18 @@ public class TemporaryBuildsCleaner {
      *
      * @param detachedBuildRecord BuildRecord to be deleted
      */
-    public void deleteTemporaryBuild(BuildRecord detachedBuildRecord) {
-        if (!detachedBuildRecord.isTemporaryBuild())
-            throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
+    public void deleteTemporaryBuild(BuildRecord detachedBuildRecord) throws BuildCoordinationException {
+        if (!detachedBuildRecord.isTemporaryBuild()) {
+            throw new BuildCoordinationException("Only deletion of the temporary builds is allowed");
+        }
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(detachedBuildRecord.getId());
         log.info("Starting deletion of a temporary build " + buildRecord + "; Built artifacts: " + buildRecord.getBuiltArtifacts()
                 + "; Dependencies: " + buildRecord.getDependencies());
+
+        if (!remoteBuildsCleaner.deleteRemoteBuilds(buildRecord)) {
+            log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
+            return;
+        }
 
         /** Delete relation between BuildRecord and Artifact */
         Set<Artifact> artifactsToBeDeleted = new HashSet<>();
@@ -96,25 +106,31 @@ public class TemporaryBuildsCleaner {
      *
      * @param detachedBuildConfigSetRecord BuildConfigSetRecord to be deleted
      */
-    public void deleteTemporaryBuildConfigSetRecord(BuildConfigSetRecord detachedBuildConfigSetRecord) {
-        if (!detachedBuildConfigSetRecord.isTemporaryBuild())
-            throw new IllegalArgumentException("Only deletion of the temporary builds is allowed");
+    public void deleteTemporaryBuildConfigSetRecord(BuildConfigSetRecord detachedBuildConfigSetRecord)
+            throws BuildCoordinationException {
+
+        if (!detachedBuildConfigSetRecord.isTemporaryBuild()) {
+            throw new BuildCoordinationException("Only deletion of the temporary builds is allowed");
+        }
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(detachedBuildConfigSetRecord.getId());
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
-        buildConfigSetRecord.getBuildRecords().forEach(br -> deleteTemporaryBuild(br));
+        for (BuildRecord br : buildConfigSetRecord.getBuildRecords()) {
+            deleteTemporaryBuild(br);
+        }
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 
         log.info("Deletion of a temporary build record set finished: " + buildConfigSetRecord);
     }
 
-    private void removeDependencyRelationBuildRecordArtifact(BuildRecord buildRecord, Set<Artifact> artifactsToBeDeleted,
-                                                             boolean applyToBuiltArtifacts) {
+    private void removeDependencyRelationBuildRecordArtifact(
+            BuildRecord buildRecord,
+            Set<Artifact> artifactsToBeDeleted,
+            boolean applyToBuiltArtifacts) {
         Set<Artifact> artifacts;
         if (applyToBuiltArtifacts){
             artifacts = buildRecord.getBuiltArtifacts();
-        }
-        else {
+        } else {
             artifacts = buildRecord.getDependencies();
         }
 
@@ -128,21 +144,21 @@ public class TemporaryBuildsCleaner {
                 continue;
             }
 
-            if (applyToBuiltArtifacts)
+            if (applyToBuiltArtifacts) {
                 artifact.getBuildRecords().remove(buildRecord);
-            else
+            } else {
                 artifact.getDependantBuildRecords().remove(buildRecord);
+            }
 
             artifactRepository.save(artifact);
             artifactsToBeDeleted.add(artifact);
         }
 
-        if (applyToBuiltArtifacts)
+        if (applyToBuiltArtifacts) {
             buildRecord.setBuiltArtifacts(Collections.emptySet());
-        else
+        } else {
             buildRecord.setDependencies(Collections.emptySet());
-
+        }
         buildRecordRepository.save(buildRecord);
     }
-
 }

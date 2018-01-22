@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers.causeway;
+package org.jboss.pnc.causewayclient;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -23,10 +23,10 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
+import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,32 +41,29 @@ import java.io.IOException;
 @Dependent
 public class DefaultCausewayClient implements CausewayClient {
 
-    private final String BR_PUSH_PATH = "/import/build";
-
     Logger logger = LoggerFactory.getLogger(DefaultCausewayClient.class);
 
-    private String causewayEndpoint;
+    private String buildPushEndpoint;
+    private String untagEndpoint;
 
-    @Inject
-    public DefaultCausewayClient(Configuration configuration) {
-        try {
-            String causewayBaseUrl = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class))
-                    .getCausewayBaseUrl();
-            causewayEndpoint = causewayBaseUrl + BR_PUSH_PATH;
-        } catch (ConfigurationParseException e) {
-            logger.error("There is a problem while parsing system configuration. Using defaults.", e);
-        }
-
+    @Deprecated //CDI workaround
+    public DefaultCausewayClient() {
     }
 
-    @Override
-    public boolean push(String jsonMessage, String authToken) {
+    @Inject
+    public DefaultCausewayClient(BpmModuleConfig bpmModuleConfig) {
+        String causewayBaseUrl = bpmModuleConfig.getCausewayBaseUrl();
+        buildPushEndpoint = causewayBaseUrl + "/import/build";
+        untagEndpoint = causewayBaseUrl + "/untag/build";
+    }
+
+    boolean post(String url, String jsonMessage, String authToken) {
         Header authHeader = new BasicHeader("Authorization", "Bearer " + authToken);
         HttpResponse response;
         try {
-            logger.info("Making POST request to {}.", causewayEndpoint);
+            logger.info("Making POST request to {}.", url);
             logger.debug("Request body {}.", jsonMessage);
-            response = Request.Post(causewayEndpoint)
+            response = Request.Post(url)
                     .addHeader(authHeader)
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
                     .execute()
@@ -88,4 +85,18 @@ public class DefaultCausewayClient implements CausewayClient {
         }
         return true;
     }
+
+    @Override
+    public boolean importBuild(BuildImportRequest buildImportRequest, String authToken) {
+        String jsonMessage = JsonOutputConverterMapper.apply(buildImportRequest);
+        return post(buildPushEndpoint, jsonMessage, authToken);
+    }
+
+    @Override
+    public boolean untagBuild(UntagRequest untagRequest, String authToken) {
+        String jsonMessage = JsonOutputConverterMapper.apply(untagRequest);
+        return post(untagEndpoint, jsonMessage, authToken);
+    }
+
+
 }

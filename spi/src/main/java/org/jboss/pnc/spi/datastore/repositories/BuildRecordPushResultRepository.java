@@ -20,10 +20,14 @@ package org.jboss.pnc.spi.datastore.repositories;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import java.util.List;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildRecordPushResultRepository extends Repository<BuildRecordPushResult, Integer> {
 
     BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId);
+
+    List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Integer buildRecordId);
 }

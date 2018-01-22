@@ -69,6 +69,7 @@
   <modules>
     <module>test-common</module>
     <module>common</module>
+    <module>causeway-client</module>
     <module>moduleconfig</module>
     <module>auth</module>
     <module>datastore</module>
@@ -243,6 +244,12 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>causeway-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>moduleconfig</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -301,6 +308,7 @@
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-mock</artifactId>
         <version>${project.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>

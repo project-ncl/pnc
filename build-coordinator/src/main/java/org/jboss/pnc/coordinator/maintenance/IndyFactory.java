@@ -24,18 +24,15 @@ import org.commonjava.indy.client.core.IndyClientHttp;
 import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
 import org.commonjava.indy.client.core.auth.OAuth20BearerTokenAuthenticator;
+import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -43,18 +40,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @ApplicationScoped
 public class IndyFactory {
 
-    private final Integer defaultRequestTimeout;
-    private final String baseUrl;
+    private Integer defaultRequestTimeout;
+    private String baseUrl;
+
+    @Deprecated //CDI workaround
+    public IndyFactory() {
+    }
 
     @Inject
-    public IndyFactory(Configuration configuration) {
-        MavenRepoDriverModuleConfig config;
-        try {
-            config = configuration
-                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
-        } catch (ConfigurationParseException e) {
-            throw new IllegalStateException("Cannot read configuration for Indy.", e);
-        }
+    public IndyFactory(MavenRepoDriverModuleConfig config) {
         this.defaultRequestTimeout = config.getDefaultRequestTimeout();
 
         String baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");

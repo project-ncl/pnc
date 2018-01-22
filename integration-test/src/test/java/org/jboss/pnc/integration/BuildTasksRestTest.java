@@ -33,7 +33,6 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
@@ -57,6 +56,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -75,10 +76,12 @@ public class BuildTasksRestTest extends AbstractTest{
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(BuildTaskEndpoint.class);
-        war.addClass(BuildExecutorMock.class);
         war.addClass(BuildExecutorTriggerer.class);
         log.info("EAR: " + enterpriseArchive.toString(true));
         log.info("WAR: " + war.toString(true));
+
+        addBuildExecutorMock(enterpriseArchive);
+
         return enterpriseArchive;
     }
 
