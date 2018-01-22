@@ -32,6 +32,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -251,6 +252,65 @@ public class UserRestTest {
         assertThat(sorted).isEmpty();
     }
 
+    @Test
+    public void shouldUpdateUsersRequiredFields() {
+        // given
+        UserRest user = new UserRest();
+        user.setEmail("shouldUpdateUsersRequiredFields@pnc.com");
+        user.setUsername("shouldUpdateUsersRequiredFields");
+
+        RestResponse<UserRest> response = userRestClient.createNew(user);
+        assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(201);
+        user = response.getValue();
+
+        // when
+        String newEmail = "new@pnc.com";
+        String newUsername = "newPncUser";
+        UserRest userWithNewValues = new UserRest();
+        userWithNewValues.setUsername(newUsername);
+        userWithNewValues.setEmail(newEmail);
+        RestResponse<UserRest> updateResponse = userRestClient.update(user.getId(), userWithNewValues);
+
+        // then
+        assertThat(updateResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        UserRest updatedUser = userRestClient.get(user.getId()).getValue();
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.getEmail()).isEqualTo(newEmail);
+        assertThat(updatedUser.getUsername()).isEqualTo(newUsername);
+    }
+
+    @Test
+    public void shouldUpdateUsersNotRequiredFields() {
+        // given
+        String email = "shouldUpdateUsersNotRequiredFields@pnc.com";
+        String username = "shouldUpdateUsersNotRequiredFields";
+        UserRest user = new UserRest();
+        user.setEmail(email);
+        user.setUsername(username);
+
+        RestResponse<UserRest> response = userRestClient.createNew(user);
+        assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(201);
+        user = response.getValue();
+
+        // when
+        String firstName = "firstName";
+        String lastName = "lastName";
+        UserRest userWithNewValues = new UserRest();
+        userWithNewValues.setEmail(email);
+        userWithNewValues.setUsername(username);
+        userWithNewValues.setFirstName(firstName);
+        userWithNewValues.setLastName(lastName);
+        RestResponse<UserRest> updateResponse = userRestClient.update(user.getId(), userWithNewValues);
+
+        // then
+        assertThat(updateResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        UserRest updatedUser = userRestClient.get(user.getId()).getValue();
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.getEmail()).isEqualTo(email);
+        assertThat(updatedUser.getUsername()).isEqualTo(username);
+        assertThat(updatedUser.getFirstName()).isEqualTo(firstName);
+        assertThat(updatedUser.getLastName()).isEqualTo(lastName);
+    }
 
     protected BuildTask mockBuildTask(int id, int userId, String username) {
         BuildTask mockedTask = mock(BuildTask.class);
