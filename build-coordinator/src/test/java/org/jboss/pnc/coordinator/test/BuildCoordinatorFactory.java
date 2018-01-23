@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
@@ -33,6 +34,8 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
+import java.util.Collections;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -67,8 +70,17 @@ public class BuildCoordinatorFactory {
     private Configuration createConfiguration() {
         try {
             Configuration configuration = mock(Configuration.class);
-            doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "NO_AUTH", "10", "10", "10", "10", "14")).when(configuration)
-                    .getModuleConfig(any(PncConfigProvider.class));
+            doReturn(new SystemConfig(
+                    "ProperDriver",
+                    "local-build-scheduler",
+                    "NO_AUTH",
+                    "10",
+                    "10",
+                    "10",
+                    "10",
+                     new KeycloakClientConfig("", "", "", "", "", Collections.EMPTY_MAP),
+                    "14")
+            ).when(configuration).getModuleConfig(any(PncConfigProvider.class));
             return configuration;
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Unexpected exception while creating configuration mock", e);

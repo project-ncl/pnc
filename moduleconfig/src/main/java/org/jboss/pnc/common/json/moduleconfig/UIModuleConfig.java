@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import java.util.Map;
-
 /**
  * Runtime configuration parameters for the Web UI.
  *
@@ -39,7 +37,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String daImportUrl;
     private final String daImportRpcUrl;
     private final String userGuideUrl;
-    private final Keycloak keycloak;
+    private final KeycloakConfig keycloak;
 
     public UIModuleConfig(
             @JsonProperty("pncUrl") String pncUrl,
@@ -48,7 +46,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("daImportUrl") String daImportUrl,
             @JsonProperty("daImportRpcUrl") String daImportRpcUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
-            @JsonProperty("keycloak") Keycloak keycloak) {
+            @JsonProperty("keycloak") KeycloakConfig keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
@@ -109,7 +107,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
      * @return Keycloak object of Web UI configuration parameters for the Keycloak JavaScript adapter.
      */
     @JsonProperty("keycloak")
-    public Keycloak getKeycloak() {
+    public KeycloakConfig getKeycloak() {
         return keycloak;
     }
 
@@ -126,49 +124,4 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 '}';
     }
 
-    /**
-     * Web UI configuration parameters for Keycloak JavaScript adapter.
-     *
-     * @author Alex Creasy
-     * @see <a href="http://keycloak.github.io/docs/userguide/keycloak-server/html/ch08.html#javascript-adapter">Keycloak JS Adapter Documentation</a>
-     */
-    static class Keycloak {
-
-        private final String url;
-        private final String realm;
-        private final String clientId;
-
-        public Keycloak(
-                @JsonProperty("url") String url,
-                @JsonProperty("realm") String realm,
-                @JsonProperty("clientId") String clientId) {
-            this.url = url;
-            this.realm = realm;
-            this.clientId = clientId;
-        }
-
-        @JsonProperty("url")
-        public String getUrl() {
-            return url;
-        }
-
-        @JsonProperty("realm")
-        public String getRealm() {
-            return realm;
-        }
-
-        @JsonProperty("clientId")
-        public String getClientId() {
-            return clientId;
-        }
-
-        @Override
-        public String toString() {
-            return "Keycloak{" +
-                    "url='" + url + '\'' +
-                    ", realm='" + realm + '\'' +
-                    ", clientId='" + clientId + '\'' +
-                    '}';
-        }
-    }
 }

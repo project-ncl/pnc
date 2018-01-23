@@ -125,6 +125,10 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>messaging</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>causeway-client</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -244,6 +248,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>termd-build-driver</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>causeway-client</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

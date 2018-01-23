@@ -23,6 +23,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -58,6 +59,7 @@ public class RestResponseFormattingTest extends AbstractTest {
 
         JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
         coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+        coordinatorJar.addClass(RemoteBuildsCleanerMock.class);
 
         addBuildExecutorMock(enterpriseArchive);
 

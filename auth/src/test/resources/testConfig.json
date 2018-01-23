@@ -1,0 +1,26 @@
+{
+  "@class":"ModuleConfigJson","name":"pnc-config",
+  "configs":[
+    {
+      "@module-group":"pnc",
+      "configs": [
+        {
+          "@module-config":"system-config",
+          "buildDriverId":"not me",
+          "buildSchedulerId":"not me",
+          "keycloakServiceAccountConfig" :
+          {
+            "realm": "pncredhat",
+            "realm-public-key": "abc123...",
+            "auth-server-url": "https://keycloak.host.com/auth",
+            "ssl-required": "none",
+            "resource": "pnc-orchestrator",
+            "credentials": {
+              "secret": "1234-5678-..."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

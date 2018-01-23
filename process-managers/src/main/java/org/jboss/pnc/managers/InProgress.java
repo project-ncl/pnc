@@ -17,28 +17,28 @@
  */
 package org.jboss.pnc.managers;
 
-import org.jboss.util.collection.ConcurrentSet;
-
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
 public class InProgress {
-    private Set<Integer> inProgress = new ConcurrentSet<>();
+    private Map<Integer, String> inProgress = new ConcurrentHashMap<Integer, String>();
 
-    public boolean add(Integer id) {
-        return inProgress.add(id);
+    public boolean add(Integer id, String tagPrefix) {
+        return inProgress.put(id, tagPrefix) == null;
     }
 
-    public boolean remove(Integer id) {
+    public String remove(Integer id) {
         return inProgress.remove(id);
     }
 
-    public Set<Integer> getAll() {
-        return Collections.unmodifiableSet(inProgress);
+    public Set<Integer> getAllIds() {
+        return Collections.unmodifiableSet(inProgress.keySet());
     }
 }

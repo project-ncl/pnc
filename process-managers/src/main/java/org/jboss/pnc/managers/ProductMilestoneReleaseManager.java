@@ -203,6 +203,7 @@ public class ProductMilestoneReleaseManager {
                 .log(combinedLog)
                 .brewBuildId(buildRest.getBrewBuildId())
                 .brewBuildUrl(buildRest.getBrewBuildUrl())
+                .tagPrefix("") //TODO tag!
                 .build();
         buildRecordPushResultRepository.save(buildRecordPush);
     }

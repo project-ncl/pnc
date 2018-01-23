@@ -27,6 +27,7 @@ import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -71,6 +72,7 @@ public class BuildTest {
 
         JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
         coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+        coordinatorJar.addClass(RemoteBuildsCleanerMock.class);
 
         addBuildExecutorMock(enterpriseArchive);
 

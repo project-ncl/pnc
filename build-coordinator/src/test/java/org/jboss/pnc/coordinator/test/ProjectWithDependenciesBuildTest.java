@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
+import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -61,7 +62,12 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+        JavaArchive jar = BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+        jar.addClass(TestCDIBuildSetStatusChangedReceiver.class);
+        jar.addClass(TestCDIBuildStatusChangedReceiver.class);
+        jar.addClass(DatastoreMock.class);
+
+        return jar;
     }
 
     @Test

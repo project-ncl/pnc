@@ -51,6 +51,10 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>bpm</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>causeway-client</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>

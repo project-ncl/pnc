@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +60,7 @@ import static org.junit.Assert.fail;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
+@Dependent
 public class ProjectBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);

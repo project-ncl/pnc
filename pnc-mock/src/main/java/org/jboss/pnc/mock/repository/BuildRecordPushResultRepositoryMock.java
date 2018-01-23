@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -36,5 +37,10 @@ public class BuildRecordPushResultRepositoryMock
                 .sorted(Comparator.comparing(BuildRecordPushResult::getId).reversed())
                 .findFirst()
                 .get();
+    }
+
+    @Override
+    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Integer buildRecordId) {
+        throw new RuntimeException("Not implemented!");
     }
 }

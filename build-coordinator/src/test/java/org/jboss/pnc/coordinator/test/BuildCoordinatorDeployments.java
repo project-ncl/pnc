@@ -26,6 +26,7 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -42,6 +43,8 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ArchivePath;
+import org.jboss.shrinkwrap.api.Filter;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -87,6 +90,19 @@ public class BuildCoordinatorDeployments {
     }
 
     private static JavaArchive defaultLibs() {
+        Filter<ArchivePath> filter = path -> {
+            String packageStylePath = path.get()
+                    .replaceAll("/", ".")
+                    .replaceAll("\\.class$", "")
+                    .substring(1);
+            log.debug("Checking path: {}.", packageStylePath);
+            if (packageStylePath.equals(DefaultBuildExecutor.class.getName())) {
+                return false;
+            }
+            return true;
+        };
+
+
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addClass(BuildSetStatusChangedEvent.class)
@@ -94,7 +110,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
-                .addPackages(true,
+                .addPackages(true, filter,
                         BuildCoordinator.class.getPackage(),
                         DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
@@ -107,11 +123,14 @@ public class BuildCoordinatorDeployments {
                         BuildCoordinationStatus.class.getPackage(),
                         DefaultBuildStatusChangedEvent.class.getPackage(),
                         BuildExecutorMock.class.getPackage(),
-                        DefaultBuildExecutor.class.getPackage(),
+                        DefaultBuildExecutionSession.class.getPackage(),
                         BpmManager.class.getPackage(),
                         MessageSender.class.getPackage())
-                .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).getOrCreateAlternatives().clazz(BuildExecutorMock.class.getName()).up().exportAsString()), "beans.xml")
+                //TODO remove, no need to use default beans.xml
+                .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()), "beans.xml")
                 .addAsResource("simplelogger.properties");
+
+        log.info("Deployment content: {}", jar.toString(true));
 
         ShrinkwrapDeployerUtils.addPomLibs(jar, "org.slf4j:slf4j-simple");
 

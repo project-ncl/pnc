@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.integration.mock;
 
-import org.jboss.pnc.managers.causeway.CausewayClient;
+import org.jboss.pnc.causewayclient.CausewayClient;
+import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
+import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 
 import javax.enterprise.context.Dependent;
 
@@ -28,7 +30,12 @@ import javax.enterprise.context.Dependent;
 public class CausewayClientMock implements CausewayClient {
 
     @Override
-    public boolean push(String jsonMessage, String authToken) {
+    public boolean importBuild(BuildImportRequest buildImportRequest, String authToken) {
+        return true;
+    }
+
+    @Override
+    public boolean untagBuild(UntagRequest untagRequest, String authToken) {
         return true;
     }
 }
