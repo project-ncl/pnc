@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.collect.Sets;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
@@ -60,13 +61,21 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
 
     private ProductRepository productRepository;
 
+    private SystemConfig systemConfig;
+
     @Inject
-    public ProductVersionProvider(ProductVersionRepository productVersionRepository, BuildConfigurationSetRepository buildConfigurationSetRepository,
-            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-            ProductRepository productRepository) {
+    public ProductVersionProvider(
+            ProductVersionRepository productVersionRepository,
+            BuildConfigurationSetRepository buildConfigurationSetRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer,
+            ProductRepository productRepository,
+            SystemConfig systemConfig) {
         super(productVersionRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.productRepository = productRepository;
+        this.systemConfig = systemConfig;
     }
 
     // needed for EJB/CDI
@@ -159,7 +168,7 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         validateBeforeSaving(restEntity);
         ProductVersion.Builder productVersionBuilder = restEntity.toDBEntityBuilder();
         Product product = productRepository.queryById(restEntity.getProductId());
-        productVersionBuilder.generateBrewTagPrefix(product.getAbbreviation(), restEntity.getVersion());
+        productVersionBuilder.generateBrewTagPrefix(product.getAbbreviation(), restEntity.getVersion(), systemConfig.getBrewTagPattern());
         
         return repository.save(productVersionBuilder.build()).getId();
     }

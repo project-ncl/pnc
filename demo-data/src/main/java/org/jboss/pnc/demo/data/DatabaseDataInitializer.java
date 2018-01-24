@@ -18,6 +18,7 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -149,6 +150,9 @@ public class DatabaseDataInitializer {
     @Inject
     private Datastore datastore;
 
+    @Inject
+    SystemConfig systemConfig;
+
     BuildConfiguration buildConfiguration1;
 
     BuildConfiguration buildConfiguration2;
@@ -244,13 +248,13 @@ public class DatabaseDataInitializer {
         // Example product version, release, and milestone of the product
         ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_1).product(product)
-                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_1)
+                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_1, systemConfig.getBrewTagPattern())
                 .build();
         productVersion1 = productVersionRepository.save(productVersion1);
 
         ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_2).product(product)
-                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_2)
+                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_2, systemConfig.getBrewTagPattern())
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 

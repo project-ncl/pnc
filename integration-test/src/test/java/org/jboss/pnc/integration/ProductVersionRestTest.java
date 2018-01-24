@@ -188,7 +188,7 @@ public class ProductVersionRestTest {
 
         //then
         assertTrue(clientResponse.hasValue());
-        assertEquals("pnc-jb-" + product.getAbbreviation().toLowerCase() + "-98.0", 
+        assertEquals(product.getAbbreviation().toLowerCase() + "-98.0" + "-pnc",
                 clientResponse.getValue().getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
     }
 

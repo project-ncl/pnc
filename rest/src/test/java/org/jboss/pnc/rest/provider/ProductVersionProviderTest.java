@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
@@ -62,14 +63,18 @@ public class ProductVersionProviderTest {
     public void setup() {
         mockProductVersionRepository = mock(ProductVersionRepository.class);
         mockBuildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
-        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null, null);
+
+        SystemConfig systemConfig = mock(SystemConfig.class);
+        when(systemConfig.getBrewTagPattern()).thenReturn("${product_short_name}-${product_version}-pnc");
+
+        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null, null, systemConfig);
 
         product1 = Product.Builder.newBuilder().id(1).name("product-1").build();
 
         productVersion1 = ProductVersion.Builder.newBuilder().id(1).version("1.0").product(product1)
-                .generateBrewTagPrefix("TMP", "1.0").build();
+                .generateBrewTagPrefix("TMP", "1.0", "${product_short_name}-${product_version}-pnc").build();
         productVersion2 = ProductVersion.Builder.newBuilder().id(2).version("2.0").product(product1)
-                .generateBrewTagPrefix("TMP", "2.0").build();
+                .generateBrewTagPrefix("TMP", "2.0", "${product_short_name}-${product_version}-pnc").build();
 
         when(mockProductVersionRepository.queryById(1)).thenReturn(productVersion1);
         when(mockProductVersionRepository.queryById(2)).thenReturn(productVersion2);

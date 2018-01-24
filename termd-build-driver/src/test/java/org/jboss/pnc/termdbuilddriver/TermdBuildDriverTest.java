@@ -27,7 +27,6 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +48,6 @@ import static org.mockito.Mockito.mock;
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    private Configuration configuration = mock(Configuration.class);
-
-    @Before
-    public void before() throws ConfigurationParseException {
-        doReturn(new SystemConfig(null, null, null, null, null, null, null, null, null)).when(configuration).getModuleConfig(any());
-    }
 
     @Test(timeout = 15_000)
     public void shouldFetchFromGitAndBuild() throws Exception {
