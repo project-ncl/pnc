@@ -28,7 +28,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -86,14 +86,15 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     }
 
     @Override
-    protected void validateBeforeSaving(RepositoryConfigurationRest repositoryConfigurationRest) throws ValidationException {
+    protected void validateBeforeSaving(RepositoryConfigurationRest repositoryConfigurationRest) throws RestValidationException {
         super.validateBeforeSaving(repositoryConfigurationRest);
         validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
         validateIfItsNotConflicting(repositoryConfigurationRest);
     }
 
     @Override
-    protected void validateBeforeUpdating(Integer id, RepositoryConfigurationRest repositoryConfigurationRest) throws ValidationException {
+    protected void validateBeforeUpdating(Integer id, RepositoryConfigurationRest repositoryConfigurationRest) throws
+            RestValidationException {
         super.validateBeforeUpdating(id, repositoryConfigurationRest);
         validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
     }

@@ -24,7 +24,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.client.ProductRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.restmodel.ProductRest;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class ProductRestTest extends AbstractTest {
     }
 
     @Test
-    public void shouldAddProduct() throws ValidationException, URISyntaxException {
+    public void shouldAddProduct() throws RestValidationException, URISyntaxException {
         ProductRest dto = new ProductRest();
         dto.setName(randomAlphabetic(20));
         dto.setAbbreviation(randomAlphabetic(3));
@@ -81,7 +81,7 @@ public class ProductRestTest extends AbstractTest {
     }
 
     @Test
-    public void shouldFailToAddConflictingProduct() throws ValidationException, URISyntaxException {
+    public void shouldFailToAddConflictingProduct() throws RestValidationException, URISyntaxException {
         ProductRest dto = new ProductRest();
         dto.setName(randomAlphabetic(20));
         dto.setAbbreviation(randomAlphabetic(3));

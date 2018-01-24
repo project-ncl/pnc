@@ -25,7 +25,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenDeleting;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -107,37 +107,37 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
         return null;
     }
 
-    public Integer store(RESTEntity restEntity) throws ValidationException {
+    public Integer store(RESTEntity restEntity) throws RestValidationException {
         validateBeforeSaving(restEntity);
         log.debug("Storing entity: " + restEntity.toString());
         return repository.save(toDBModel().apply(restEntity)).getId();
     }
 
-    public void update(Integer id, RESTEntity restEntity) throws ValidationException {
+    public void update(Integer id, RESTEntity restEntity) throws RestValidationException {
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
         log.debug("Updating entity: " + restEntity.toString());
         repository.save(toDBModel().apply(restEntity));
     }
 
-    public void delete(Integer id) throws ValidationException {
+    public void delete(Integer id) throws RestValidationException {
         validateBeforeDeleting(id);
         repository.delete(id);
     }
 
-    protected void validateBeforeUpdating(Integer id, RESTEntity restEntity) throws ValidationException {
+    protected void validateBeforeUpdating(Integer id, RESTEntity restEntity) throws RestValidationException {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations()
                 .validateAgainstRepository(repository, id, true);
     }
 
-    protected void validateBeforeSaving(RESTEntity restEntity) throws ValidationException {
+    protected void validateBeforeSaving(RESTEntity restEntity) throws RestValidationException {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(Integer id) throws ValidationException {
+    protected void validateBeforeDeleting(Integer id) throws RestValidationException {
         ValidationBuilder.validateObject(WhenDeleting.class)
                 .validateAgainstRepository(repository, id, true)
                 .validateAnnotations();

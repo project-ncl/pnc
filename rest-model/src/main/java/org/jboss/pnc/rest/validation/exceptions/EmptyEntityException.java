@@ -38,7 +38,7 @@ package org.jboss.pnc.rest.validation.exceptions;
 
 import java.util.Optional;
 
-public class EmptyEntityException extends ValidationException {
+public class EmptyEntityException extends RestValidationException {
 
     public EmptyEntityException(String message) {
         super(message);

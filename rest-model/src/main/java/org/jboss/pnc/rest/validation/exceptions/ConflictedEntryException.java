@@ -22,7 +22,7 @@ import org.jboss.pnc.rest.validation.exceptions.model.ConflictedEntryDetailsRest
 
 import java.util.Optional;
 
-public class ConflictedEntryException extends ValidationException {
+public class ConflictedEntryException extends RestValidationException {
 
     private final Integer conflictedRecordId;
     private final Class<? extends GenericEntity<?>> conflictedEntity;

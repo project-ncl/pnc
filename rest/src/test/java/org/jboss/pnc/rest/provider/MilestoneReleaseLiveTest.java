@@ -21,7 +21,7 @@ import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -63,7 +63,7 @@ public class MilestoneReleaseLiveTest extends AbstractMilestoneReleaseTest {
         ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(productMilestone);
         return assertThat(release.getLog());
     }
-    private void triggerMilestoneRelease(ProductMilestone milestone) throws ValidationException {
+    private void triggerMilestoneRelease(ProductMilestone milestone) throws RestValidationException {
         ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
         restEntity.setEndDate(new Date());
         milestoneEndpoint.update(milestone.getId(), restEntity);

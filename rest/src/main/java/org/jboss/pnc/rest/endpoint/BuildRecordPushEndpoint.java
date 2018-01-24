@@ -38,7 +38,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
@@ -127,7 +127,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     public Response push(
             BuildRecordPushRequestRest buildRecordPushRequestRest,
             @Context UriInfo uriInfo,
-            @Context HttpServletRequest httpServletRequest) throws ValidationException, ProcessException {
+            @Context HttpServletRequest httpServletRequest) throws RestValidationException, ProcessException {
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
@@ -156,7 +156,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     public Response pushRecordSet(
             BuildConfigSetRecordPushRequestRest buildConfigSetRecordPushRequestRest,
             @Context UriInfo uriInfo,
-            @Context HttpServletRequest httpServletRequest) throws ValidationException, ProcessException {
+            @Context HttpServletRequest httpServletRequest) throws RestValidationException, ProcessException {
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
@@ -187,7 +187,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     @Path("/{buildRecordPushResultId}")
     public Response get(
             @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordPushResultId
-    ) throws ValidationException, ProcessException {
+    ) throws RestValidationException, ProcessException {
         return getSpecific(buildRecordPushResultId);
     }
 
@@ -203,7 +203,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     public Response cancel(
             BuildRecordPushResultRest buildRecordPushResult,
             @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId,
-            @Context UriInfo uriInfo) throws ValidationException, ProcessException {
+            @Context UriInfo uriInfo) throws RestValidationException, ProcessException {
         boolean canceled = buildResultPushManager.cancelInProgressPush(buildRecordId);
         if (canceled) {
             return Response.ok().build();
@@ -224,7 +224,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     public Response push(
             BuildRecordPushResultRest buildRecordPushResult,
             @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId,
-            @Context UriInfo uriInfo) throws ValidationException, ProcessException {
+            @Context UriInfo uriInfo) throws RestValidationException, ProcessException {
         logger.info("Received completion notification for BuildRecord.id: {}. Object received: {}.", buildRecordId, buildRecordPushResult);
         Integer id = buildResultPushManager.complete(buildRecordId, buildRecordPushResult.toDBEntityBuilder().build());
         return Response.ok().entity(id).build();
@@ -241,7 +241,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     @Path("/status/{buildRecordId}")
     public Response status(
             @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId)
-            throws ValidationException, ProcessException {
+            throws RestValidationException, ProcessException {
 
         BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildRecordId);
         if (latestForBuildRecord != null) {

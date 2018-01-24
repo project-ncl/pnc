@@ -34,7 +34,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.UserPage;
 import org.jboss.pnc.rest.swagger.response.UserSingleton;
 import org.jboss.pnc.rest.utils.ErrorResponse;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +145,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(UserRest userRest, @Context UriInfo uriInfo) throws ValidationException {
+    public Response createNew(UserRest userRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.createNew(userRest, uriInfo);
     }
     
@@ -161,7 +161,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     public Response getLoggedUser(
             @Context UriInfo uriInfo,
             @Context HttpServletRequest httpServletRequest
-    ) throws ValidationException {
+    ) throws RestValidationException {
         try {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
@@ -198,7 +198,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id,
-            UserRest userRest) throws ValidationException {
+            UserRest userRest) throws RestValidationException {
        return super.update(id, userRest);
     }
 

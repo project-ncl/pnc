@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -45,7 +45,7 @@ public class ProjectProvider extends AbstractProvider<Project, ProjectRest> {
     }
 
     @Override
-    protected void validateBeforeSaving(ProjectRest projectRest) throws ValidationException {
+    protected void validateBeforeSaving(ProjectRest projectRest) throws RestValidationException {
         Project project = repository.queryByPredicates(withProjectName(projectRest.getName()));
         //don't validate against myself
         if(project != null && !project.getId().equals(projectRest.getId())) {

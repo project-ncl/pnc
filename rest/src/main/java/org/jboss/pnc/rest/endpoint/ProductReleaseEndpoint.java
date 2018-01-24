@@ -51,7 +51,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordIds;
 import org.jboss.pnc.rest.swagger.response.ProductReleasePage;
 import org.jboss.pnc.rest.swagger.response.ProductReleaseSingleton;
 import org.jboss.pnc.rest.swagger.response.SupportLevelPage;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -149,7 +149,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ValidationException {
+    public Response createNew(ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.createNew(productReleaseRest, uriInfo);
     }
 
@@ -163,7 +163,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id,
-            ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ValidationException {
+            ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(id, productReleaseRest);
     }
 

@@ -30,13 +30,12 @@ import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
 import org.jboss.pnc.rest.utils.mock.BpmMock.Push;
 import org.jboss.pnc.rest.utils.mock.BpmMock.PushList;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -206,7 +205,7 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
         return assertThat(release == null ? null : release.getLog());
     }
 
-    private void triggerMilestoneRelease(ProductMilestone milestone) throws ValidationException {
+    private void triggerMilestoneRelease(ProductMilestone milestone) throws RestValidationException {
         ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
         milestoneEndpoint.closeMilestone(milestone.getId(), restEntity, null);
     }

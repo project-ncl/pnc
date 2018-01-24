@@ -38,10 +38,14 @@ package org.jboss.pnc.rest.validation.exceptions;
 
 import java.util.Optional;
 
-public class RepositoryViolationException extends ValidationException {
+public class RepositoryViolationException extends RestValidationException {
 
     public RepositoryViolationException(String message) {
         super(message);
+    }
+
+    public RepositoryViolationException(Throwable cause) {
+        super(cause);
     }
 
     @Override

@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -30,10 +31,13 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
+import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
+import org.jboss.pnc.spi.exception.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -72,14 +76,19 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     private BuildRecordProvider buildRecordProvider;
 
+    private TemporaryBuildsCleaner temporaryBuildsCleaner;
+
     public BuildConfigSetRecordEndpoint() {
     }
 
     @Inject
-    public BuildConfigSetRecordEndpoint(BuildConfigSetRecordProvider buildConfigSetRecordProvider,
-            BuildRecordProvider buildRecordProvider) {
+    public BuildConfigSetRecordEndpoint(
+            BuildConfigSetRecordProvider buildConfigSetRecordProvider,
+            BuildRecordProvider buildRecordProvider,
+            TemporaryBuildsCleaner temporaryBuildsCleaner) {
         super(buildConfigSetRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
+        this.temporaryBuildsCleaner = temporaryBuildsCleaner;
     }
 
     @ApiOperation(value = "Gets all build config set execution records")
@@ -109,6 +118,25 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") @NotNull Integer id) {
         return super.getSpecific(id);
+    }
+
+    @ApiOperation(value = "Delete specific Build Config Set Record (it must be from a temporary build).")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id)
+            throws RepositoryViolationException {
+        try {
+            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(id);
+        } catch (ValidationException e) {
+            throw new RepositoryViolationException(e);
+        }
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Gets the build records associated with this set")

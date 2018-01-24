@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -54,7 +54,7 @@ public class UserProvider extends AbstractProvider<User, UserRest> {
     }
 
     @Override
-    protected void validateBeforeSaving(UserRest restEntity) throws ValidationException {
+    protected void validateBeforeSaving(UserRest restEntity) throws RestValidationException {
 
 
         if(repository.count(UserPredicates.withEmail(restEntity.getEmail())) != 0) {

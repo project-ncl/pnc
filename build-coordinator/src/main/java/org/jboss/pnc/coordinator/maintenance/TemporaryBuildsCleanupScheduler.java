@@ -23,11 +23,11 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.TimeUtils;
-import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public class TemporaryBuildsCleanupScheduler {
      * Cleanup old temporary builds every midnight
      */
     @Schedule
-    public void cleanupExpiredTemporaryBuilds() throws BuildCoordinationException {
+    public void cleanupExpiredTemporaryBuilds() throws ValidationException {
         log.info("Regular cleanup of expired temporary builds started. Removing builds older than " + TEMPORARY_BUILD_LIFESPAN
                 + " days.");
         Date expirationThreshold = TimeUtils.getDateXDaysAgo(TEMPORARY_BUILD_LIFESPAN);
@@ -95,17 +95,17 @@ public class TemporaryBuildsCleanupScheduler {
         log.info("Regular cleanup of expired temporary builds finished.");
     }
 
-    private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold) throws BuildCoordinationException {
+    private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold) throws ValidationException {
         List<BuildConfigSetRecord> expiredBCSRecords = buildConfigSetRecordRepository.findTemporaryBuildConfigSetRecordsOlderThan(expirationThreshold);
         for (BuildConfigSetRecord bcsr : expiredBCSRecords) {
-            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(bcsr);
+            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(bcsr.getId());
         }
     }
 
-    private void deleteExpiredBuildRecords(Date expirationThreshold) throws BuildCoordinationException {
+    private void deleteExpiredBuildRecords(Date expirationThreshold) throws ValidationException {
         List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
         for (BuildRecord br : expiredBuilds) {
-            temporaryBuildsCleaner.deleteTemporaryBuild(br);
+            temporaryBuildsCleaner.deleteTemporaryBuild(br.getId());
         }
     }
 

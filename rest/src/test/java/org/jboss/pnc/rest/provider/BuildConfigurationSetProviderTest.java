@@ -20,20 +20,16 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +79,7 @@ public class BuildConfigurationSetProviderTest {
         try {
             buildConfigurationSetProvider.addConfiguration(1, 2);
             fail();
-        } catch (ValidationException ignoreMe) {
+        } catch (RestValidationException ignoreMe) {
             //then
         }
     }

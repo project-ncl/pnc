@@ -15,17 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.spi.exception;
 
-package org.jboss.pnc.rest.validation.exceptions;
-
-import java.util.Optional;
-
-/**
- * TopMost Validation Exception
- *
- * @author Sebastian Laskawiec
- */
-public abstract class ValidationException extends Exception {
+public class ValidationException extends Exception {
 
     public ValidationException() {
     }
@@ -45,6 +37,4 @@ public abstract class ValidationException extends Exception {
     public ValidationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
-
-    public abstract Optional<Object> getRestModelForException();
 }

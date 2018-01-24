@@ -25,14 +25,12 @@ import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
-import org.jboss.pnc.rest.provider.collection.CollectionInfo;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.ProjectPage;
 import org.jboss.pnc.rest.swagger.response.ProjectSingleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -126,7 +124,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(ProjectRest projectRest, @Context UriInfo uriInfo) throws ValidationException {
+    public Response createNew(ProjectRest projectRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.createNew(projectRest, uriInfo);
     }
 
@@ -140,7 +138,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id,
-            ProjectRest projectRest, @Context UriInfo uriInfo) throws ValidationException {
+            ProjectRest projectRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(id, projectRest);
     }
 
@@ -153,7 +151,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
     @DELETE
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id)
-            throws ValidationException {
+            throws RestValidationException {
         return super.delete(id);
     }
 

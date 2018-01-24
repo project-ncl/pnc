@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
@@ -28,12 +27,11 @@ import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
@@ -87,7 +85,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     @Override
-    protected void validateBeforeSaving(ProductMilestoneRest restEntity) throws ValidationException {
+    protected void validateBeforeSaving(ProductMilestoneRest restEntity) throws RestValidationException {
         super.validateBeforeSaving(restEntity);
         validateDoesNotConflict(restEntity);
     }
@@ -108,7 +106,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
             });
     }
 
-    public void addDistributedArtifact(Integer milestoneId, Integer artifactId) throws ValidationException {
+    public void addDistributedArtifact(Integer milestoneId, Integer artifactId) throws RestValidationException {
         ProductMilestone milestone = repository.queryById(milestoneId);
         Artifact artifact = artifactRepository.queryById(artifactId);
         ValidationBuilder.validateObject(milestone, WhenUpdating.class)
@@ -119,7 +117,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         repository.save(milestone);
     }
 
-    public void removeDistributedArtifact(Integer milestoneId, Integer artifactId) throws ValidationException {
+    public void removeDistributedArtifact(Integer milestoneId, Integer artifactId) throws RestValidationException {
         ProductMilestone milestone = repository.queryById(milestoneId);
         Artifact artifact = artifactRepository.queryById(artifactId);
         ValidationBuilder.validateObject(milestone, WhenUpdating.class)
@@ -130,11 +128,11 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     @Override
-    public void update(Integer id, ProductMilestoneRest restEntity) throws ValidationException {
+    public void update(Integer id, ProductMilestoneRest restEntity) throws RestValidationException {
         update(id, restEntity, "");
     }
 
-    public void update(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
+    public void update(Integer id, ProductMilestoneRest restEntity, String accessToken) throws RestValidationException {
 
         ProductMilestone milestoneInDb = repository.queryById(id);
 
@@ -157,11 +155,11 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         repository.save(milestone);
     }
 
-    public void closeMilestone(Integer id, ProductMilestoneRest restEntity) throws ValidationException {
+    public void closeMilestone(Integer id, ProductMilestoneRest restEntity) throws RestValidationException {
         closeMilestone(id, restEntity, "");
     }
 
-    public void closeMilestone(Integer id, ProductMilestoneRest restEntity, String accessToken) throws ValidationException {
+    public void closeMilestone(Integer id, ProductMilestoneRest restEntity, String accessToken) throws RestValidationException {
         ProductMilestone milestoneInDb = repository.queryById(id);
 
         // If we want to close a milestone, make sure it's not already released (by checking end date)
