@@ -20,7 +20,7 @@ package org.jboss.pnc.mavenrepositorymanager;
 /**
  * Constants used by the maven repository driver.
  */
-public class MavenRepositoryConstants {
+public class IndyRepositoryConstants {
 
     /** ID used to distinguish this repository driver from other types to the rest of the PNC system. */
     public static final String DRIVER_ID = "maven-repo-driver";

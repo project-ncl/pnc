@@ -29,12 +29,16 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 public class ModuleConfigJsonTest {
 
@@ -47,9 +51,11 @@ public class ModuleConfigJsonTest {
                 new MavenRepoDriverModuleConfig("http://something/base");
         mavenRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         mavenRepoDriverModuleConfig.setDefaultRequestTimeout(100);
-        List<String> ignoredSuffixes = new ArrayList<>(2);
-        ignoredSuffixes.add("/maven-metadata.xml");
-        ignoredSuffixes.add(".sha1");
+        Map<String, List<String>> ignoredSuffixes = new HashMap<>();
+        List<String> ignoredSuffixesMaven = new ArrayList<>(2);
+        ignoredSuffixes.put(MAVEN_PKG_KEY, ignoredSuffixesMaven);
+        ignoredSuffixesMaven.add("/maven-metadata.xml");
+        ignoredSuffixesMaven.add(".sha1");
         mavenRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);
 
         PNCModuleGroup pncGroup = new PNCModuleGroup();

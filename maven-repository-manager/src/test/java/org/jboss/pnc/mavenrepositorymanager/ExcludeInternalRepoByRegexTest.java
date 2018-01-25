@@ -37,13 +37,14 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.IndyRepositoryConstants.PUBLIC_GROUP_ID;
+import static org.jboss.pnc.mavenrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
@@ -55,8 +56,8 @@ public class ExcludeInternalRepoByRegexTest
     private static final String EXTERNAL = "external";
 
     @Override
-    protected List<String> getInternalRepoPatterns() {
-        return Collections.singletonList("in.+");
+    protected Map<String, List<String>> getInternalRepoPatterns() {
+        return Collections.singletonMap(MAVEN_PKG_KEY, Collections.singletonList("in.+"));
     }
 
     @Test

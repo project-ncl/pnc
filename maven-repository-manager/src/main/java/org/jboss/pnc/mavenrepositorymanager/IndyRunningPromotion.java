@@ -28,16 +28,16 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import java.util.function.Consumer;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+public class IndyRunningPromotion implements RunningRepositoryPromotion {
 
-public class MavenRunningPromotion implements RunningRepositoryPromotion {
-
+    private String pkgType;
     private StoreType fromType;
     private String fromId;
     private String toId;
     private Indy indy;
 
-    public MavenRunningPromotion(StoreType fromType, String fromId, String toId, Indy indy) {
+    public IndyRunningPromotion(String pkgType, StoreType fromType, String fromId, String toId, Indy indy) {
+        this.pkgType = pkgType;
         this.fromType = fromType;
         this.fromId = fromId;
         this.toId = toId;
@@ -53,12 +53,12 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {
-            StoreKey fromKey = new StoreKey(MAVEN_PKG_KEY, fromType, fromId);
+            StoreKey fromKey = new StoreKey(pkgType, fromType, fromId);
             if (!indy.stores().exists(fromKey)) {
                 throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
             }
 
-            StoreKey toKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, toId);
+            StoreKey toKey = new StoreKey(pkgType, StoreType.group, toId);
             Group recordSetGroup = indy.stores().load(toKey, Group.class);
             if (recordSetGroup == null) {
                 throw new RepositoryManagerException("No such group: %s", toId);
@@ -69,7 +69,7 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
             boolean result = indy.stores().update(recordSetGroup,
                     "Promoting " + fromType.singularEndpointName() + " repository : " + fromId + " to group: " + toId);
 
-            onComplete.accept(new MavenCompletedPromotion(result));
+            onComplete.accept(new IndyCompletedPromotion(result));
 
         } catch (IndyClientException | RepositoryManagerException e) {
             onError.accept(e);

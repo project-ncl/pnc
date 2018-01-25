@@ -58,8 +58,10 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
+        String pkgType = MAVEN_PKG_KEY;
+
         // simulate a build deploying a file.
-        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
+        StoreKey hostedKey = new StoreKey(pkgType, StoreType.hosted, buildId);
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
@@ -78,7 +80,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         record.setBuildContentId(buildId);
 
         // manually promote the build to the public group (since it's convenient)
-        RunningRepositoryPromotion promotion = driver.promoteBuild(record, PUBLIC, accessToken);
+        RunningRepositoryPromotion promotion = driver.promoteBuild(record, pkgType, PUBLIC, accessToken);
         promotion.monitor(completed -> {
             assertThat("Manual promotion failed.", completed.isSuccessful(), equalTo(true));
         }, error -> {
@@ -87,7 +89,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         });
 
         // end result: the chain group should contain the build hosted repo.
-        StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC);
+        StoreKey publicKey = new StoreKey(pkgType, StoreType.group, PUBLIC);
         Group publicGroup = driver.getIndy(accessToken).stores().load(publicKey, Group.class);
         System.out.println("public group constituents: " + publicGroup.getConstituents());
         assertThat(publicGroup.getConstituents().contains(hostedKey), equalTo(true));

@@ -72,21 +72,26 @@
       <artifactId>resteasy-jaxrs</artifactId>
       <scope>provided</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>common</artifactId>
     </dependency>
-    
-    
+
+
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-model-core-java</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-  
+
   <build>
     <testResources>
       <testResource>
@@ -95,5 +100,5 @@
       </testResource>
     </testResources>
   </build>
-  
+
 </project>

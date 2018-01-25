@@ -22,7 +22,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MavenRepositoryConnectionInfo implements RepositoryConnectionInfo {
+public class IndyRepositoryConnectionInfo implements RepositoryConnectionInfo {
 
     private static final String ALT_DEPLOY_OPTION = "altDeploymentRepository";
     private static final String ALT_DEPLOY_FORMAT = "deploy::default::%s";
@@ -30,7 +30,7 @@ public class MavenRepositoryConnectionInfo implements RepositoryConnectionInfo {
     private String url;
     private String deployUrl;
 
-    public MavenRepositoryConnectionInfo(String url, String deployUrl) {
+    public IndyRepositoryConnectionInfo(String url, String deployUrl) {
         this.url = url;
         this.deployUrl = deployUrl;
     }

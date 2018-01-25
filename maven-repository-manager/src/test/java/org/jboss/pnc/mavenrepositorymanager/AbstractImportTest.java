@@ -37,8 +37,8 @@ import java.util.Collections;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.IndyRepositoryConstants.PUBLIC_GROUP_ID;
+import static org.jboss.pnc.mavenrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
 
 public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {

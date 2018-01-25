@@ -79,13 +79,13 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pkgType, String toGroup, String accessToken)
             throws RepositoryManagerException {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken)
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pkgType, String accessToken)
     		throws RepositoryManagerException {
         return new RunningRepositoryDeletionMock(deletionSuccess, deletionError);
     }

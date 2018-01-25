@@ -26,6 +26,7 @@ import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import java.util.List;
+import java.util.Map;
 
 @ToString
 public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
@@ -42,14 +43,14 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      * represents an internal build (from a trusted build system, for instance).
      */
     @JsonProperty("internal-repo-patterns")
-    private List<String> internalRepoPatterns;
+    private Map<String, List<String>> internalRepoPatterns;
 
     /**
      * Comma-separated list of path suffixes to be ignored from showing in UI and to be part of a promotion. This
      * applies for both downloads and uploads.
      */
     @JsonProperty("ignored-path-suffixes")
-    private List<String> ignoredPathSuffixes;
+    private Map<String, List<String>> ignoredPathSuffixes;
 
     /**
      * Internal network (cloud) maven repository path
@@ -62,6 +63,18 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
      */
     @JsonProperty
     private String externalRepositoryMvnPath;
+
+    /**
+     * Internal network (cloud) NPM repository path
+     */
+    @JsonProperty
+    private String internalRepositoryNpmPath;
+
+    /**
+     * External network NPM repository path
+     */
+    @JsonProperty
+    private String externalRepositoryNpmPath;
 
     /**
      * Request timeout for the whole client in seconds
@@ -107,19 +120,19 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
         this.baseUrl = baseUrl;
     }
 
-    public List<String> getInternalRepoPatterns() {
+    public Map<String, List<String>> getInternalRepoPatterns() {
         return internalRepoPatterns;
     }
 
-    public void setInternalRepoPatterns(List<String> internalRepoPatterns) {
+    public void setInternalRepoPatterns(Map<String, List<String>> internalRepoPatterns) {
         this.internalRepoPatterns = internalRepoPatterns;
     }
 
-    public List<String> getIgnoredPathSuffixes() {
+    public Map<String, List<String>> getIgnoredPathSuffixes() {
         return ignoredPathSuffixes;
     }
 
-    public void setIgnoredPathSuffixes(List<String> ignoredPathSuffixes) {
+    public void setIgnoredPathSuffixes(Map<String, List<String>> ignoredPathSuffixes) {
         this.ignoredPathSuffixes = ignoredPathSuffixes;
     }
 
@@ -137,5 +150,21 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
 
     public void setExternalRepositoryMvnPath(String externalRepositoryMvnPath) {
         this.externalRepositoryMvnPath = externalRepositoryMvnPath;
+    }
+
+    public String getInternalRepositoryNpmPath() {
+        return internalRepositoryNpmPath;
+    }
+
+    public void setInternalRepositoryNpmPath(String internalRepositoryNpmPath) {
+        this.internalRepositoryNpmPath = internalRepositoryNpmPath;
+    }
+
+    public String getExternalRepositoryNpmPath() {
+        return externalRepositoryNpmPath;
+    }
+
+    public void setExternalRepositoryNpmPath(String externalRepositoryNpmPath) {
+        this.externalRepositoryNpmPath = externalRepositoryNpmPath;
     }
 }

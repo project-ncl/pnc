@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;
+import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryPromotion;
 
-public class MavenCompletedDeletion implements CompletedRepositoryDeletion {
+public class IndyCompletedPromotion implements CompletedRepositoryPromotion {
 
     private boolean success;
 
-    public MavenCompletedDeletion(boolean success) {
+    public IndyCompletedPromotion(boolean success) {
         this.success = success;
     }
 

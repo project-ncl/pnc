@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -47,7 +48,7 @@ import static org.junit.Assert.assertThat;
 public class AbstractRepositoryManagerDriverTest {
 
     protected static final String CONFIG_SYSPROP = "pnc-config-file";
-    
+
     protected static final String PNC_BUILDS_GROUP = "pnc-builds";
 
     @Rule
@@ -79,8 +80,8 @@ public class AbstractRepositoryManagerDriverTest {
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider = 
-                new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class);
+        PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider =
+                new PncConfigProvider<>(MavenRepoDriverModuleConfig.class);
         pncProvider.registerProvider(mapper);
         mapper.writeValue(configFile, moduleConfigJson);
 
@@ -105,7 +106,7 @@ public class AbstractRepositoryManagerDriverTest {
         driver = new RepositoryManagerDriver(config);
     }
 
-    protected List<String> getInternalRepoPatterns() {
+    protected Map<String, List<String>> getInternalRepoPatterns() {
         return null;
     }
 

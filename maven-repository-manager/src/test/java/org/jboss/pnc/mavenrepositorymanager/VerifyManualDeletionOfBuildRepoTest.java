@@ -54,8 +54,10 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
+        String pkgType = MAVEN_PKG_KEY;
+
         // simulate a build deploying a file.
-        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
+        StoreKey hostedKey = new StoreKey(pkgType, StoreType.hosted, buildId);
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
@@ -74,7 +76,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         record.setBuildContentId(buildId);
 
         // manually delete the build to the public group (since it's convenient)
-        RunningRepositoryDeletion deletion = driver.deleteBuild(record, accessToken);
+        RunningRepositoryDeletion deletion = driver.deleteBuild(record, pkgType, accessToken);
         deletion.monitor(completed -> {
             assertThat("Manual deletion failed.", completed.isSuccessful(), equalTo(true));
         }, error -> {

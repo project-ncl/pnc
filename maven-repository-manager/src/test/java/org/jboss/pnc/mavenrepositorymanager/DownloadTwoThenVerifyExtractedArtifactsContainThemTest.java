@@ -44,7 +44,7 @@ import java.util.Set;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)

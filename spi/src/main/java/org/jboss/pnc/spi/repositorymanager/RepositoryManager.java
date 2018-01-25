@@ -46,14 +46,14 @@ public interface RepositoryManager {
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryPromotion} instance.
      *
      * @param buildRecord The build output to promote
+     * @param pkgType package type key used by repository manager
      * @param toGroup The ID of the repository group where the build output should be promoted
      * @param accessToken The access token to use
-     *
      * @return An object representing the running promotion process, with callbacks for result and error.
      *
      * @throws RepositoryManagerException If there is a problem promoting the build
      */
-    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
+    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pkgType, String toGroup, String accessToken)
             throws RepositoryManagerException;
 
     /**
@@ -62,19 +62,20 @@ public interface RepositoryManager {
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryDeletion} instance.
      *
      * @param buildRecord The build whose artifacts/repositories should be removed
+     * @param pkgType package type key used by repository manager
      * @param accessToken The access token to use
      * @return An object representing the running deletion, with callbacks for result and error.
      *
      * @throws RepositoryManagerException If there is a problem deleting the build
      */
-    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken) throws RepositoryManagerException;
+    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pkgType, String accessToken) throws RepositoryManagerException;
 
     /**
      * Closes connection to the repository driver for the given accessToken.
      * @param accessToken The access token to use
      */
     void close(String accessToken);
-    
+
     boolean canManage(TargetRepository.Type managerType);
 
 }

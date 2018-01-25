@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
-public class MavenRepositoryManagerResult implements RepositoryManagerResult {
+public class IndyRepositoryManagerResult implements RepositoryManagerResult {
 
     private final CompletionStatus completionStatus;
     private final String log;
@@ -37,10 +37,10 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
 
     /**
      *
-     * @deprecated Use constructor which status and log parameter
+     * @deprecated Use constructor with status and log parameter
      */
     @Deprecated
-    public MavenRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
+    public IndyRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
         this.buildContentId = buildContentId;
@@ -48,7 +48,7 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
         this.log = "";
     }
 
-    public MavenRepositoryManagerResult(
+    public IndyRepositoryManagerResult(
             List<Artifact> builtArtifacts,
             List<Artifact> dependencies,
             String buildContentId,
