@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -27,6 +28,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.EnvironmentRestClient;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.model.SystemImageType;
@@ -44,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -134,6 +137,26 @@ public class EnvironmentRestTest extends AbstractTest {
         //then
         ResponseAssertion.assertThat(deleteResponse).hasStatus(200);
         ResponseAssertion.assertThat(getResponse).hasStatus(404);
+    }
+
+    @Test
+    @InSequence(3)
+    public void shouldQueryForEnvironment() {
+        //given
+        EnvironmentRestClient client = new EnvironmentRestClient();
+
+        //when
+        RestResponse<List<BuildEnvironmentRest>> allNonDeprecated = client.all(true, 0, 50, "deprecated==false", "");
+        //then
+        BuildEnvironmentRest deprecatedEnv = allNonDeprecated.getValue().get(0);
+        Assertions.assertThat(deprecatedEnv.isDeprecated()).isFalse();
+
+
+        //when
+        RestResponse<List<BuildEnvironmentRest>> allDeprecated = client.all(true, 0, 50, "deprecated==true", "");
+        //then
+        BuildEnvironmentRest nonDeprecatedEnv = allDeprecated.getValue().get(0);
+        Assertions.assertThat(nonDeprecatedEnv.isDeprecated()).isTrue();
     }
 
     private BuildEnvironmentRest exampleEnvironment() {
