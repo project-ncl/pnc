@@ -20,12 +20,24 @@ package org.jboss.pnc.model;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The BuildEnvironment, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
@@ -81,7 +93,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<String, String>();
 
-    private Boolean deprecated = false;
+    @NotNull
+    private boolean deprecated = false;
 
     public BuildEnvironment() {
     }
@@ -149,7 +162,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     }
 
     public boolean isDeprecated() {
-        return deprecated != null && deprecated != Boolean.FALSE;
+        return deprecated;
     }
 
     public void setDeprecated(boolean deprecated) {

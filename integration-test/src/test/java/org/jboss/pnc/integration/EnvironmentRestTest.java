@@ -148,15 +148,15 @@ public class EnvironmentRestTest extends AbstractTest {
         //when
         RestResponse<List<BuildEnvironmentRest>> allNonDeprecated = client.all(true, 0, 50, "deprecated==false", "");
         //then
-        BuildEnvironmentRest deprecatedEnv = allNonDeprecated.getValue().get(0);
-        Assertions.assertThat(deprecatedEnv.isDeprecated()).isFalse();
+        BuildEnvironmentRest nonDeprecatedEnv = allNonDeprecated.getValue().get(0);
+        Assertions.assertThat(nonDeprecatedEnv.isDeprecated()).isFalse();
 
 
         //when
         RestResponse<List<BuildEnvironmentRest>> allDeprecated = client.all(true, 0, 50, "deprecated==true", "");
         //then
-        BuildEnvironmentRest nonDeprecatedEnv = allDeprecated.getValue().get(0);
-        Assertions.assertThat(nonDeprecatedEnv.isDeprecated()).isTrue();
+        BuildEnvironmentRest deprecatedEnv = allDeprecated.getValue().get(0);
+        Assertions.assertThat(deprecatedEnv.isDeprecated()).isTrue();
     }
 
     private BuildEnvironmentRest exampleEnvironment() {

@@ -48,7 +48,7 @@
 
   <buildenvironment id="1" name="Mock Test Build System"
     description="Mock build system record for testing" systemImageId="123456"
-    systemImageType="DOCKER_IMAGE" />
+    systemImageType="DOCKER_IMAGE" deprecated="false" />
 
   <project id="1" name="Test Project 1" description="Test Project 1 Description"
     issueTrackerUrl="http://issues.jboss.org" license_id="1" />
