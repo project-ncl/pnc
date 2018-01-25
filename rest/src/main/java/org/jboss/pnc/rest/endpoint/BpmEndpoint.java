@@ -55,7 +55,7 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.validators.ScmUrlValidator;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -384,7 +384,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         for (Integer setId : bcSetIds) {
             try {
                 bcSetProvider.addConfiguration(setId, buildConfiguration.getId());
-            } catch (ValidationException e) {
+            } catch (RestValidationException e) {
                 throw new Exception("Could not add BC with ID '" + buildConfiguration.getId() +
                         "' to a BC Set with id '" + setId + "'.", e);
             }

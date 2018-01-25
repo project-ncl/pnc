@@ -24,11 +24,9 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -61,14 +59,14 @@ public class BuildConfigurationProviderTest {
     }
 
     @Test
-    public void shouldSucceedOnUpdateWithLackOfMirrorGitUrl() throws ValidationException {
+    public void shouldSucceedOnUpdateWithLackOfMirrorGitUrl() throws RestValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
         configuration.setId(EXISTING_ID);
         provider.validateBeforeUpdating(EXISTING_ID, configuration);
     }
 
     @Test
-    public void shouldSucceedOnLackOfMirrorGitUrl() throws ValidationException {
+    public void shouldSucceedOnLackOfMirrorGitUrl() throws RestValidationException {
         BuildConfigurationRest configuration = createValidConfiguration();
         provider.validateBeforeSaving(configuration);
     }

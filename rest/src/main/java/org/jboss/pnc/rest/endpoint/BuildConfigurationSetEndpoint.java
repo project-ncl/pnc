@@ -42,7 +42,7 @@ import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -167,7 +167,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     })
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
-            throws ValidationException {
+            throws RestValidationException {
         logger.debug("Creating new BuildConfigurationSet: {}", buildConfigurationSetRest.toString());
         return super.createNew(buildConfigurationSetRest, uriInfo);
     }
@@ -196,7 +196,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest) throws ValidationException {
+            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest) throws RestValidationException {
         return super.update(id, buildConfigurationSetRest);
     }
 
@@ -209,7 +209,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @DELETE
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id)
-            throws ValidationException {
+            throws RestValidationException {
         return super.delete(id);
     }
 
@@ -234,7 +234,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @PUT
     @Path("/{id}/build-configurations")
     public Response updateConfigurations(@ApiParam(value = "Build Configuration Set Id", required = true) @PathParam("id") Integer id,
-            List<BuildConfigurationRest> buildConfigurationRests) throws ValidationException {
+            List<BuildConfigurationRest> buildConfigurationRests) throws RestValidationException {
         buildConfigurationSetProvider.updateConfigurations(id, buildConfigurationRests);
         return Response.ok().build();
     }
@@ -249,7 +249,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}/build-configurations")
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfig) throws ValidationException {
+            BuildConfigurationRest buildConfig) throws RestValidationException {
         if (buildConfig == null || buildConfig.getId() == null) {
             throw new EmptyEntityException("No valid build config included in request to add config to set id: " + id);
         }
@@ -267,7 +267,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}/build-configurations/{configId}")
     public Response removeConfiguration(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) throws ValidationException {
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) throws
+            RestValidationException {
         buildConfigurationSetProvider.removeConfiguration(id, configId);
         return fromEmpty();
     }

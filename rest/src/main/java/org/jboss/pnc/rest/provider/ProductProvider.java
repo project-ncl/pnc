@@ -22,7 +22,7 @@ import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator.ConflictedEntryValidationError;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.ValidationGroup;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -60,12 +60,12 @@ public class ProductProvider extends AbstractProvider<Product, ProductRest> {
     }
 
     @Override
-    protected void validateBeforeSaving(ProductRest restEntity) throws ValidationException {
+    protected void validateBeforeSaving(ProductRest restEntity) throws RestValidationException {
         super.validateBeforeSaving(restEntity);
         validateIfNotConflicted(restEntity, WhenCreatingNew.class);
     }
     @Override
-    protected void validateBeforeUpdating(Integer id, ProductRest restEntity) throws ValidationException {
+    protected void validateBeforeUpdating(Integer id, ProductRest restEntity) throws RestValidationException {
         super.validateBeforeUpdating(id, restEntity);
         validateIfNotConflicted(restEntity, WhenUpdating.class);
     }

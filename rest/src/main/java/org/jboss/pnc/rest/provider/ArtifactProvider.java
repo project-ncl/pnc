@@ -28,7 +28,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -178,15 +178,15 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         return null;
     }
 
-    public Integer store(ArtifactRest restEntity) throws ValidationException {
+    public Integer store(ArtifactRest restEntity) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }
 
-    public void update(Integer id, ArtifactRest restEntity) throws ValidationException {
+    public void update(Integer id, ArtifactRest restEntity) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }
 
-    public void delete(Integer id) throws ValidationException {
+    public void delete(Integer id) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }
 

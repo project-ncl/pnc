@@ -35,7 +35,7 @@ import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -120,7 +120,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     @Override
-    protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ValidationException {
+    protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
         super.validateBeforeSaving(buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateRepositoryConfigurationId(buildConfigurationRest.getRepositoryConfiguration());
@@ -128,7 +128,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     @Override
     protected void validateBeforeUpdating(Integer id, BuildConfigurationRest buildConfigurationRest)
-            throws ValidationException {
+            throws RestValidationException {
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
@@ -202,7 +202,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         };
     }
 
-    public void archive(Integer buildConfigurationId)  throws ValidationException {
+    public void archive(Integer buildConfigurationId)  throws RestValidationException {
         ValidationBuilder.validateObject(WhenUpdating.class).validateAgainstRepository(repository, buildConfigurationId,
                 true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
@@ -218,7 +218,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfiguration);
     }
 
-    public Integer clone(Integer buildConfigurationId) throws ValidationException {
+    public Integer clone(Integer buildConfigurationId) throws RestValidationException {
         ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repository, buildConfigurationId,
                 true);
 
@@ -230,7 +230,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         return clonedBuildConfiguration.getId();
     }
 
-    public void addDependency(Integer configId, Integer dependencyId) throws ValidationException {
+    public void addDependency(Integer configId, Integer dependencyId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
 
@@ -245,7 +245,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public void removeDependency(Integer configId, Integer dependencyId) throws ValidationException {
+    public void removeDependency(Integer configId, Integer dependencyId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
@@ -255,7 +255,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public void setProductVersion(Integer configId, Integer productVersionId) throws ValidationException {
+    public void setProductVersion(Integer configId, Integer productVersionId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig!=null, "No build config exists with id: " + configId);

@@ -25,7 +25,6 @@ import io.swagger.annotations.ApiResponses;
 
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
-import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
@@ -33,7 +32,7 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.swagger.response.ProductVersionSingleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -134,7 +133,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
-            ProductVersionRest productVersionRest) throws ValidationException {
+            ProductVersionRest productVersionRest) throws RestValidationException {
         return super.update(id, productVersionRest);
     }
 
@@ -160,7 +159,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @PUT
     @Path("/{id}/build-configuration-sets")
     public Response updateBuildConfigurationSets(@ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
-            List<BuildConfigurationSetRest> buildConfigurationSetRests) throws ValidationException {
+            List<BuildConfigurationSetRest> buildConfigurationSetRests) throws RestValidationException {
         productVersionProvider.updateBuildConfigurationSets(id, buildConfigurationSetRests);
         return Response.ok().build();
     }
@@ -174,7 +173,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     })
     @POST
     public Response createNewProductVersion(ProductVersionRest productVersionRest, @Context UriInfo uriInfo)
-            throws ValidationException {
+            throws RestValidationException {
         return super.createNew(productVersionRest, uriInfo);
     }
 

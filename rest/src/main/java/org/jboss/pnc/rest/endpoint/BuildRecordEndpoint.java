@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -33,6 +34,8 @@ import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
+import org.jboss.pnc.spi.exception.ValidationException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -81,6 +84,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     private ArtifactProvider artifactProvider;
     private EndpointAuthenticationProvider authProvider;
 
+    private TemporaryBuildsCleaner temporaryBuildsCleaner;
+
     @Context
     private HttpServletRequest httpServletRequest;
 
@@ -88,13 +93,16 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     }
 
     @Inject
-    public BuildRecordEndpoint(BuildRecordProvider buildRecordProvider,
-                               ArtifactProvider artifactProvider,
-                               EndpointAuthenticationProvider authProvider) {
+    public BuildRecordEndpoint(
+            BuildRecordProvider buildRecordProvider,
+            ArtifactProvider artifactProvider,
+            EndpointAuthenticationProvider authProvider,
+            TemporaryBuildsCleaner temporaryBuildsCleaner) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.artifactProvider = artifactProvider;
         this.authProvider = authProvider;
+        this.temporaryBuildsCleaner = temporaryBuildsCleaner;
     }
 
     @ApiOperation(value = "Gets all Build Records")
@@ -125,6 +133,25 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return super.getSpecific(id);
+    }
+
+    @ApiOperation(value = "Delete specific Build Record (it must be from a temporary build).")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id)
+            throws RepositoryViolationException {
+        try {
+            temporaryBuildsCleaner.deleteTemporaryBuild(id);
+        } catch (ValidationException e) {
+            throw new RepositoryViolationException(e);
+        }
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Gets logs for specific Build Record")

@@ -44,7 +44,7 @@ import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -174,7 +174,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @POST
     public Response createNew(BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo)
-            throws ValidationException {
+            throws RestValidationException {
         return super.createNew(buildConfigurationRest, uriInfo);
     }
     
@@ -211,7 +211,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfigurationRest) throws ValidationException {
+            BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
         return super.update(id, buildConfigurationRest);
     }
 
@@ -224,7 +224,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @DELETE
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id)
-            throws ValidationException {
+            throws RestValidationException {
         buildConfigurationProvider.archive(id);
         return Response.ok().build();
     }
@@ -239,7 +239,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/clone")
     public Response clone(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            @Context UriInfo uriInfo) throws ValidationException {
+            @Context UriInfo uriInfo) throws RestValidationException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
         int newId = buildConfigurationProvider.clone(id);
         return Response.created(uriBuilder.build(newId)).entity(new Singleton(buildConfigurationProvider.getSpecific(newId))).build();
@@ -374,7 +374,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/dependencies")
     public Response addDependency(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest dependency) throws ValidationException {
+            BuildConfigurationRest dependency) throws RestValidationException {
         buildConfigurationProvider.addDependency(id, dependency.getId());
         return fromEmpty();
     }
@@ -389,7 +389,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/dependencies/{dependencyId}")
     public Response removeDependency(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) throws ValidationException {
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) throws
+            RestValidationException {
         buildConfigurationProvider.removeDependency(id, dependencyId);
         return fromEmpty();
     }
@@ -449,7 +450,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response addProductVersion(
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            ProductVersionRest productVersion) throws ValidationException {        
+            ProductVersionRest productVersion) throws RestValidationException {
         buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
     }
@@ -468,7 +469,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response removeProductVersion(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) throws ValidationException {
+            @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) throws
+            RestValidationException {
         buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }

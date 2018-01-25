@@ -21,7 +21,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
@@ -115,7 +115,7 @@ public class AbstractProviderTest {
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider() {
             @Override
-            protected void validateBeforeSaving(BuildConfigurationRest restEntity) throws ValidationException {
+            protected void validateBeforeSaving(BuildConfigurationRest restEntity) throws RestValidationException {
 
             }
         };

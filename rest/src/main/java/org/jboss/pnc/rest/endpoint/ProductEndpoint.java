@@ -30,7 +30,7 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ProductPage;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.swagger.response.ProductSingleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -125,7 +125,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(ProductRest productRest, @Context UriInfo uriInfo) throws ValidationException {
+    public Response createNew(ProductRest productRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.createNew(productRest, uriInfo);
     }
 
@@ -139,7 +139,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId,
-            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ValidationException {
+            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(productId, productRest);
     }
 

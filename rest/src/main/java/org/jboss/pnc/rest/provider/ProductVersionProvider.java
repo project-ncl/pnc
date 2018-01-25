@@ -28,7 +28,7 @@ import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -93,7 +93,8 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
     }
 
-    public ProductVersion updateBuildConfigurationSets(Integer id, List<BuildConfigurationSetRest> buildConfigurationSetsToAdd) throws ValidationException {
+    public ProductVersion updateBuildConfigurationSets(Integer id, List<BuildConfigurationSetRest> buildConfigurationSetsToAdd) throws
+            RestValidationException {
         if (buildConfigurationSetsToAdd == null) {
             throw new InvalidEntityException("No BuildConfigurationSets supplied");
         }
@@ -164,7 +165,7 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     }
     
     @Override
-    public Integer store(ProductVersionRest restEntity) throws ValidationException {
+    public Integer store(ProductVersionRest restEntity) throws RestValidationException {
         validateBeforeSaving(restEntity);
         ProductVersion.Builder productVersionBuilder = restEntity.toDBEntityBuilder();
         Product product = productRepository.queryById(restEntity.getProductId());
@@ -174,7 +175,7 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     }
 
     @Override
-    protected void validateBeforeSaving(ProductVersionRest restEntity) throws ValidationException {
+    protected void validateBeforeSaving(ProductVersionRest restEntity) throws RestValidationException {
         super.validateBeforeSaving(restEntity);
         Product product = productRepository.queryById(restEntity.getProductId());
         if (product == null) {

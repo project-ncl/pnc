@@ -37,7 +37,7 @@ package org.jboss.pnc.rest.configuration;
 
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +47,12 @@ import javax.ws.rs.ext.Provider;
 import java.lang.invoke.MethodHandles;
 
 @Provider
-public class ValidationExceptionExceptionMapper implements ExceptionMapper<ValidationException> {
+public class ValidationExceptionExceptionMapper implements ExceptionMapper<RestValidationException> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Override
-    public Response toResponse(ValidationException e) {
+    public Response toResponse(RestValidationException e) {
         Response.Status status = Response.Status.BAD_REQUEST;
         if(e instanceof ConflictedEntryException) {
             status = Response.Status.CONFLICT;

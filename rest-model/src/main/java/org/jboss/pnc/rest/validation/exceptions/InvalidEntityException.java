@@ -24,7 +24,7 @@ import javax.validation.ConstraintViolation;
 import java.lang.reflect.Field;
 import java.util.Optional;
 
-public class InvalidEntityException extends ValidationException {
+public class InvalidEntityException extends RestValidationException {
 
     private final String field;
 

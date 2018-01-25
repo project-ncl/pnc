@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.model.BuildRecord;
@@ -67,6 +68,8 @@ public class BuildRecordEndpointTest {
     private Datastore datastore;
     @Mock
     private EndpointAuthenticationProvider authProvider;
+    @Mock
+    private TemporaryBuildsCleaner temporaryBuildsCleaner;
 
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
@@ -83,7 +86,7 @@ public class BuildRecordEndpointTest {
                 BUILD_RECORD_NOT_VALID_ID)).thenReturn(new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0,
                         Collections.emptyList()));
 
-        endpoint = new BuildRecordEndpoint(buildRecordProvider, artifactProvider, authProvider);
+        endpoint = new BuildRecordEndpoint(buildRecordProvider, artifactProvider, authProvider, temporaryBuildsCleaner);
 
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);

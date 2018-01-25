@@ -41,7 +41,7 @@ import org.jboss.pnc.rest.swagger.response.ProductMilestonePage;
 import org.jboss.pnc.rest.swagger.response.ProductMilestoneReleaseSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductMilestoneSingleton;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 
 import javax.inject.Inject;
@@ -178,7 +178,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     })
     @POST
     public Response createNew(ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo)
-            throws ValidationException {
+            throws RestValidationException {
         return super.createNew(productMilestoneRest, uriInfo);
     }
 
@@ -195,7 +195,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
             ProductMilestoneRest productMilestoneRest,
             @Context UriInfo uriInfo,
-            @Context HttpServletRequest httpServletRequest) throws ValidationException {
+            @Context HttpServletRequest httpServletRequest) throws RestValidationException {
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
@@ -215,7 +215,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     public Response closeMilestone(
             @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
             ProductMilestoneRest productMilestoneRest,
-            @Context HttpServletRequest httpServletRequest) throws ValidationException {
+            @Context HttpServletRequest httpServletRequest) throws RestValidationException {
 
         if (httpServletRequest != null) {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
@@ -254,7 +254,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     @Path("/{id}/distributed-artifacts/")
     public Response addDistributedArtifact(
             @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id,
-            ArtifactRest artifact) throws ValidationException {
+            ArtifactRest artifact) throws RestValidationException {
         if (artifact == null || artifact.getId() == null) {
             throw new EmptyEntityException("No valid artifact included in request to add artifact to product milestone id: " + id);
         }
@@ -272,7 +272,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     @Path("/{id}/distributed-artifacts/{artifactId}")
     public Response removeDistributedArtifact(
             @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Artifact id", required = true) @PathParam("artifactId") Integer artifactId) throws ValidationException {
+            @ApiParam(value = "Artifact id", required = true) @PathParam("artifactId") Integer artifactId) throws
+            RestValidationException {
         productMilestoneProvider.removeDistributedArtifact(id, artifactId);
         return fromEmpty();
     }

@@ -28,15 +28,12 @@ import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildEnvironmentPage;
 import org.jboss.pnc.rest.swagger.response.BuildEnvironmentSingleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -46,8 +43,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -112,17 +107,17 @@ public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment,
     }
 
     public Response createNew(BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo)
-            throws ValidationException {
+            throws RestValidationException {
         return super.createNew(environmentRest, uriInfo);
     }
 
     public Response update(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId,
-            BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo) throws ValidationException {
+            BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(environmentId, environmentRest);
     }
 
     public Response delete(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id)
-            throws ValidationException {
+            throws RestValidationException {
         return super.delete(id);
     }
 }

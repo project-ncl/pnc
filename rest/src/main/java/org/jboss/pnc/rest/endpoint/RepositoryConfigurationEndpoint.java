@@ -28,7 +28,7 @@ import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.RepositoryConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.RepositoryConfigurationSingleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +122,7 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
     })
     @POST
     public Response createNew(RepositoryConfigurationRest repositoryConfigurationRest, @Context UriInfo uriInfo)
-            throws ValidationException {
+            throws RestValidationException {
         return super.createNew(repositoryConfigurationRest, uriInfo);
     }
 
@@ -150,7 +150,7 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Repository Configuration id", required = true) @PathParam("id") Integer id,
-                           RepositoryConfigurationRest repositoryConfigurationRest) throws ValidationException {
+                           RepositoryConfigurationRest repositoryConfigurationRest) throws RestValidationException {
         return super.update(id, repositoryConfigurationRest);
     }
 

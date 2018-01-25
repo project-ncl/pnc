@@ -28,7 +28,7 @@ import org.jboss.pnc.rest.restmodel.LicenseRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.LicensePage;
 import org.jboss.pnc.rest.swagger.response.LicenseSingleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -119,7 +119,7 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(LicenseRest licenseRest, @Context UriInfo uriInfo) throws ValidationException {
+    public Response createNew(LicenseRest licenseRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.createNew(licenseRest, uriInfo);
     }
 
@@ -133,7 +133,7 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId,
-            LicenseRest licenseRest) throws ValidationException {
+            LicenseRest licenseRest) throws RestValidationException {
         return super.update(licenseId, licenseRest);
     }
 
@@ -146,7 +146,7 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
     @DELETE
     @Path("/{id}")
     public Response delete(@ApiParam(value = "License id", required = true) @PathParam("id") Integer id)
-            throws ValidationException {
+            throws RestValidationException {
         return super.delete(id);
     }
 }

@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
-import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,13 +69,13 @@ public class TemporaryBuildsCleaner {
     /**
      * Deletes a temporary build and artifacts created during the build or orphan dependencies used
      *
-     * @param detachedBuildRecord BuildRecord to be deleted
+     * @param buildRecordId BuildRecord to be deleted
      */
-    public void deleteTemporaryBuild(BuildRecord detachedBuildRecord) throws BuildCoordinationException {
-        if (!detachedBuildRecord.isTemporaryBuild()) {
-            throw new BuildCoordinationException("Only deletion of the temporary builds is allowed");
+    public void deleteTemporaryBuild(Integer buildRecordId) throws ValidationException {
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
+        if (!buildRecord.isTemporaryBuild()) {
+            throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
-        BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(detachedBuildRecord.getId());
         log.info("Starting deletion of a temporary build " + buildRecord + "; Built artifacts: " + buildRecord.getBuiltArtifacts()
                 + "; Dependencies: " + buildRecord.getDependencies());
 
@@ -104,19 +104,19 @@ public class TemporaryBuildsCleaner {
     /**
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
      *
-     * @param detachedBuildConfigSetRecord BuildConfigSetRecord to be deleted
+     * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
      */
-    public void deleteTemporaryBuildConfigSetRecord(BuildConfigSetRecord detachedBuildConfigSetRecord)
-            throws BuildCoordinationException {
+    public void deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId)
+            throws ValidationException {
 
-        if (!detachedBuildConfigSetRecord.isTemporaryBuild()) {
-            throw new BuildCoordinationException("Only deletion of the temporary builds is allowed");
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
+        if (!buildConfigSetRecord.isTemporaryBuild()) {
+            throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(detachedBuildConfigSetRecord.getId());
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
         for (BuildRecord br : buildConfigSetRecord.getBuildRecords()) {
-            deleteTemporaryBuild(br);
+            deleteTemporaryBuild(br.getId());
         }
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 

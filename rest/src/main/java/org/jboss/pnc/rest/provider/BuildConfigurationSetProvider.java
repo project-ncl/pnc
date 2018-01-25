@@ -25,7 +25,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
@@ -77,7 +77,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     }
 
     @Override
-    protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws ValidationException {
+    protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws RestValidationException {
         BuildConfigurationSet buildConfigurationSetFromDB = repository
                 .queryByPredicates(withName(buildConfigurationSetRest.getName()));
         if (buildConfigurationSetFromDB != null) {
@@ -110,7 +110,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         };
     }
 
-    public void addConfiguration(Integer configSetId, Integer configId) throws ValidationException {
+    public void addConfiguration(Integer configSetId, Integer configId) throws RestValidationException {
         BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
@@ -125,7 +125,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigSet);
     }
 
-    public void removeConfiguration(Integer configSetId, Integer configId) throws ValidationException {
+    public void removeConfiguration(Integer configSetId, Integer configId) throws RestValidationException {
         BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
@@ -135,7 +135,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigSet);
     }
 
-    public void updateConfigurations(Integer configSetId, Collection<BuildConfigurationRest> buildConfigurationRests) throws ValidationException {
+    public void updateConfigurations(Integer configSetId, Collection<BuildConfigurationRest> buildConfigurationRests) throws
+            RestValidationException {
         BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
 
         if (buildConfigSet == null) {

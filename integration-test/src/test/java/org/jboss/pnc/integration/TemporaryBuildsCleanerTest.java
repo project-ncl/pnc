@@ -20,7 +20,6 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
-import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
@@ -42,6 +41,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -164,8 +164,8 @@ public class TemporaryBuildsCleanerTest {
     }
 
 
-    @Test(expected = BuildCoordinationException.class)
-    public void shouldNotDeleteNonTemporaryBuildTest() throws BuildCoordinationException {
+    @Test(expected = ValidationException.class)
+    public void shouldNotDeleteNonTemporaryBuildTest() throws ValidationException {
         // given
         BuildRecord nonTempBr = initBuildRecordBuilder()
                 .temporaryBuild(false)
@@ -173,13 +173,13 @@ public class TemporaryBuildsCleanerTest {
         buildRecordRepository.save(nonTempBr);
 
         // when - then
-        temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr);
+        temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr.getId());
 
         fail("Deletion of non-temporary build should be prohibited");
     }
 
     @Test
-    public void shouldDeleteTemporaryBuildWithoutArtifactsTest() throws BuildCoordinationException {
+    public void shouldDeleteTemporaryBuildWithoutArtifactsTest() throws ValidationException {
         // given
         BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
@@ -191,7 +191,7 @@ public class TemporaryBuildsCleanerTest {
         int numberOfBuilds = givenBuilds.size();
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr);
+        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
 
         // then
         assertEquals(numberOfBuilds - 1, buildRecordRepository.queryAll().size());
@@ -201,7 +201,7 @@ public class TemporaryBuildsCleanerTest {
     @Test
     public void shouldDeleteTemporaryBuildWithArtifactsTest()
             throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException,
-            BuildCoordinationException {
+            ValidationException {
         // given
         Artifact artifact1 = storeAndGetArtifact();
         Artifact artifact2 = storeAndGetArtifact();
@@ -228,7 +228,7 @@ public class TemporaryBuildsCleanerTest {
         int numberOfBuilds = givenBuilds.size();
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr);
+        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
 
         // then
         assertEquals(numberOfBuilds - 1, buildRecordRepository.queryAll().size());
@@ -258,7 +258,7 @@ public class TemporaryBuildsCleanerTest {
 
         // when - then
         try {
-            temporaryBuildsCleaner.deleteTemporaryBuild(tempBr);
+            temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
         } catch (Exception ex) {
             logger.error("Received exception.", ex);
             if(ex.getCause().getClass().equals(PersistenceException.class)) {
@@ -269,8 +269,8 @@ public class TemporaryBuildsCleanerTest {
         fail("Deletion of non-temporary artifacts should be prohibited");
     }
 
-    @Test(expected = BuildCoordinationException.class)
-    public void shouldNotDeleteNonTemporaryBuildSetTest() throws BuildCoordinationException {
+    @Test(expected = ValidationException.class)
+    public void shouldNotDeleteNonTemporaryBuildSetTest() throws ValidationException {
         // given
         BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
@@ -287,7 +287,7 @@ public class TemporaryBuildsCleanerTest {
         buildConfigSetRecordRepository.save(buildConfigSetRecord);
 
         // when - then
-        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord);
+        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId());
 
         fail("Deletion of non-temporary build should be prohibited");
     }
@@ -307,7 +307,7 @@ public class TemporaryBuildsCleanerTest {
         buildRecordRepository.save(tempBr);
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord);
+        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId());
 
         // then
         assertNull(buildConfigSetRecordRepository.queryById(buildConfigSetRecord.getId()));

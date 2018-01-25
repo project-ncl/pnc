@@ -22,7 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,21 +59,21 @@ public class RepositoryConfigurationProviderTest {
     }
 
     @Test(expected = InvalidEntityException.class)
-    public void shouldFailOnInvalidGitUrl() throws ValidationException {
+    public void shouldFailOnInvalidGitUrl() throws RestValidationException {
         RepositoryConfigurationRest configuration = createValidConfiguration();
         configuration.setInternalUrl("git+ssh://git@github.com/");
         repositoryConfigurationProvider.validateBeforeSaving(configuration);
     }
 
     @Test(expected = InvalidEntityException.class)
-    public void shouldFailOnValidGitUrlWithoutDotGit() throws ValidationException {
+    public void shouldFailOnValidGitUrlWithoutDotGit() throws RestValidationException {
         RepositoryConfigurationRest configuration = createValidConfiguration();
         configuration.setInternalUrl(URL_WITHOUT_SUFFIX);
         repositoryConfigurationProvider.validateBeforeSaving(configuration);
     }
 
     @Test(expected = InvalidEntityException.class)
-    public void shouldSucceedOnUpdateWithLackOfMirrorWithSlash() throws ValidationException {
+    public void shouldSucceedOnUpdateWithLackOfMirrorWithSlash() throws RestValidationException {
         RepositoryConfigurationRest configuration = createValidConfiguration();
         configuration.setInternalUrl(INVALID_URL);
         repositoryConfigurationProvider.validateBeforeSaving(configuration);

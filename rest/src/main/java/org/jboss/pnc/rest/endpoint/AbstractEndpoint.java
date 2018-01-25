@@ -24,7 +24,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
@@ -56,18 +56,18 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
         return fromSingleton(basicProvider.getSpecific(id));
     }
 
-    public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws ValidationException {
+    public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws RestValidationException {
         int id = basicProvider.store(restEntity);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(new Singleton(basicProvider.getSpecific(id))).build();
     }
 
-    public Response update(Integer id, RESTEntity restEntity) throws ValidationException {
+    public Response update(Integer id, RESTEntity restEntity) throws RestValidationException {
         basicProvider.update(id, restEntity);
         return Response.ok().build();
     }
 
-    protected Response delete(Integer id) throws ValidationException {
+    protected Response delete(Integer id) throws RestValidationException {
         basicProvider.delete(id);
         return Response.ok().build();
     }
