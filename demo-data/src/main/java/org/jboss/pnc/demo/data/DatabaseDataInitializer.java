@@ -232,8 +232,21 @@ public class DatabaseDataInitializer {
                 .systemImageId("12345678")
                 .systemImageRepositoryUrl("my.registry/newcastle")
                 .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .deprecated(false)
                 .build();
         BuildEnvironment environment1 = environmentRepository.save(environment1Unsaved);
+
+        BuildEnvironment environment2Unsaved = BuildEnvironment.Builder.newBuilder()
+                .name("Demo Environment 2")
+                .description("Basic Java and Maven Environment")
+                .attribute("JDK", "1.7.0")
+                .attribute("OS", "Linux")
+                .systemImageId("12345679")
+                .systemImageRepositoryUrl("my.registry/newcastle")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .deprecated(true)
+                .build();
+        BuildEnvironment environment2 = environmentRepository.save(environment2Unsaved);
 
         /*
          * All the bi-directional mapping settings are managed inside the Builders

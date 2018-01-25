@@ -21,6 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -59,6 +60,8 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -135,7 +138,18 @@ public class DatastoreTest {
     public void initBuildConfigData() {
         License license = License.Builder.newBuilder().fullName("test license").fullContent("test license").build();
         Project project = Project.Builder.newBuilder().name("Test Project 1").description("Test").build();
-        BuildEnvironment buildEnv = BuildEnvironment.Builder.newBuilder().name("test build env").systemImageId("12345").systemImageType(SystemImageType.DOCKER_IMAGE).build();
+        BuildEnvironment buildEnv = BuildEnvironment.Builder.newBuilder()
+                .name("test build env")
+                .systemImageId("12345")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .deprecated(false)
+                .build();
+        BuildEnvironment buildEnvDeprecated = BuildEnvironment.Builder.newBuilder()
+                .name("deprecated build env")
+                .systemImageId("12346")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .deprecated(true)
+                .build();
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl("github.com/project-ncl/pnc")
                 .build();
@@ -145,6 +159,7 @@ public class DatastoreTest {
         project.setLicense(license);
         project = projectRepository.save(project);
         buildEnv = buildEnvironmentRepository.save(buildEnv);
+        buildEnvironmentRepository.save(buildEnvDeprecated);
         repositoryConfiguration = repositoryConfigurationRepository.save(repositoryConfiguration);
 
         buildConfig.setRepositoryConfiguration(repositoryConfiguration);
@@ -384,5 +399,31 @@ public class DatastoreTest {
     public List<RepositoryConfiguration> searchForRepositoryConfigurations(String scmUrl) {
         Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.searchByScmUrl(scmUrl);
         return repositoryConfigurationRepository.queryWithPredicates(predicate);
+    }
+
+    @Test
+    @InSequence(5)
+    public void testBooleanQuery() {
+        //given
+        String findNotDeprecated="deprecated==false";
+        String findDeprecated="deprecated==true";
+
+        SpringDataRSQLPredicateProducer rsqlPredicateProducer = new SpringDataRSQLPredicateProducer();
+        Predicate<BuildEnvironment> notDeprecatedPredicate = rsqlPredicateProducer.getPredicate(BuildEnvironment.class, findNotDeprecated);
+        Predicate<BuildEnvironment> deprecatedPredicate = rsqlPredicateProducer.getPredicate(BuildEnvironment.class, findDeprecated);
+
+        //when
+        List<BuildEnvironment> notDeprecatedEnvironments = buildEnvironmentRepository.queryWithPredicates(notDeprecatedPredicate);
+
+        //expect
+        assertThat(notDeprecatedEnvironments.size()).isEqualTo(1);
+        assertThat(notDeprecatedEnvironments.get(0).isDeprecated()).isFalse();
+
+        //when
+        List<BuildEnvironment> deprecatedEnvironments = buildEnvironmentRepository.queryWithPredicates(deprecatedPredicate);
+
+        //expect
+        assertThat(deprecatedEnvironments.size()).isEqualTo(1);
+        assertThat(deprecatedEnvironments.get(0).isDeprecated()).isTrue();
     }
 }
