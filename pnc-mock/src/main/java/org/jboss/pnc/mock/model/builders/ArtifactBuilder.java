@@ -66,6 +66,7 @@ public class ArtifactBuilder {
                 .identifier("indy-maven")
                 .repositoryPath(path)
                 .repositoryType(TargetRepository.Type.MAVEN)
+                .temporaryRepo(false)
                 .build();
     }
 

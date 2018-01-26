@@ -116,7 +116,6 @@ public class TargetRepository implements GenericEntity<Integer> {
          * Maven artifact repository such as Maven central (http://central.maven.org/maven2/)
          */
         MAVEN,
-        MAVEN_TEMPORARY,
 
         /**
          * Node.js package repository such as https://registry.npmjs.org/
