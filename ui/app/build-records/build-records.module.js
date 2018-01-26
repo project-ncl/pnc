@@ -251,6 +251,11 @@
         },
         data: {
           displayName: 'Push Results'
+        },
+        resolve: {
+          buildRecordPushResult: function (BuildRecord, $stateParams) {
+            return BuildRecord.getLatestPushStatus($stateParams.recordId);
+          }
         }
       });
 
