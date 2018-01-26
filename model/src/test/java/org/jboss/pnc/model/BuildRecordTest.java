@@ -93,6 +93,7 @@ public class BuildRecordTest extends AbstractModelTest {
             em.remove(br);
             em.getTransaction().commit();
         } catch (PersistenceException ex) {
+            em.getTransaction().rollback();
             BuildRecord obtainedBr = em.find(BuildRecord.class, brId);
             assertNotNull(obtainedBr);
             assertEquals(brId, obtainedBr.getId().intValue());
