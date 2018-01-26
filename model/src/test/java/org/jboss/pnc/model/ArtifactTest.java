@@ -106,6 +106,7 @@ public class ArtifactTest extends AbstractModelTest {
                 .identifier("Indy")
                 .repositoryPath("/api")
                 .repositoryType(TargetRepository.Type.MAVEN)
+                .temporaryRepo(false)
                 .build();
         em.getTransaction().begin();
         em.persist(targetRepository);
