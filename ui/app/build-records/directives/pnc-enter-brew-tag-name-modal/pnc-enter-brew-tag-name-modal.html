@@ -20,14 +20,19 @@
 <div>
   <div class="modal-header">
     <button type="button" class="close" aria-label="Close" ng-click="$ctrl.cancel()"><span aria-hidden="true">&times;</span></button>
-    <h3 class="modal-title">Enter Brew Tag Name</h3>
+    <h3 class="modal-title">Enter Brew Tag Prefix</h3>
   </div>
   <div class="modal-body">
     <div class="row">
       <div class="col-md-12">
         <form name="form" novalidate>
           <div class="form-group">
-            <label class="control-label" for="brew-tag-name">Brew Tag Name</label>
+            <label class="control-label" for="brew-tag-name">
+              Brew Tag Prefix
+              <a uib-popover="The brew tag prefix entered will have '-candiate' appended to it, all artifacts pushed to brew will be added to this tag." popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
+                  <span class="fa fa-info-circle"></span>
+                </a>
+            </label>
             <input id="brew-tag-name" name="name" class="form-control" ng-model="$ctrl.data.name" type="text">
           </div>
         </form>
