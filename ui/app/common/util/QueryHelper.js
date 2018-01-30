@@ -32,8 +32,8 @@
         }, '') + ')';
     };
 
-    helper.searchOnly = function(searchFields) {
-      return '?q=' + helper.search(searchFields);
+    helper.searchOnly = function(searchFields, customs) {
+      return '?q=' + (customs ? '(' : '') + helper.search(searchFields) + (customs ? customs + ')' : '');
     };
 
     return helper;

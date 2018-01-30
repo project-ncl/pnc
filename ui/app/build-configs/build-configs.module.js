@@ -94,7 +94,7 @@
           },
 
           environments: function(EnvironmentDAO) {
-            return EnvironmentDAO.getAll().$promise;
+            return EnvironmentDAO.getAllNotDeprecated().$promise;
           },
           products: function(ProductDAO) {
             return ProductDAO.getAll().$promise;

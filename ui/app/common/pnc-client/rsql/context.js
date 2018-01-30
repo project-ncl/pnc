@@ -34,7 +34,7 @@
     'comparator',
     'operator',
     function (selector, comparator, operator) {
-      return function context() {
+      return function context(isOperatorFirst) {
         var that = {};
         var q = [];
 
@@ -53,7 +53,7 @@
           },
         };
 
-        nodes.next = nodes.selector.bind(nodes);
+        nodes.next = isOperatorFirst ? nodes.operator.bind(nodes) : nodes.selector.bind(nodes);
 
         that.addToQuery = function (str) {
           q.push(str);
