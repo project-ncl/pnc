@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.serialization;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -80,6 +81,7 @@ public class BuildExecutionConfigurationTest {
                     "1111111",
                     "https://pathToOriginRepo.git",
                     false,
+                    BuildType.MVN,
                     "abcd1234",
                     "image.repo.url/repo",
                     SystemImageType.DOCKER_IMAGE,

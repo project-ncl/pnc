@@ -149,6 +149,7 @@ public class BuildEnvironmentTest {
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getRepositoryConfiguration().getExternalUrl(),
                 buildConfiguration.getRepositoryConfiguration().isPreBuildSyncEnabled(),
+                buildConfiguration.getBuildType(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),

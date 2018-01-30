@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel.mock;
 
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
@@ -49,6 +50,7 @@ public class RepositoryCreationUrlAutoRestMockBuilder {
         BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder()
                 .id(1)
                 .build();
+        buildConfiguration.setBuildType(BuildType.MVN);
         buildConfiguration.setEnvironment(new BuildEnvironmentRest(buildEnvironment));
 
         ProjectRest projectRest = new ProjectRest();

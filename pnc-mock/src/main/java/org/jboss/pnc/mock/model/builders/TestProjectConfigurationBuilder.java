@@ -21,6 +21,7 @@ import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 
@@ -123,6 +124,7 @@ public class TestProjectConfigurationBuilder {
         buildConfiguration.setBuildScript(PASS);
         buildConfiguration.setName(id + "");
         buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
+        buildConfiguration.setBuildType(BuildType.MVN);
         buildConfiguration.setBuildEnvironment(javaBuildEnvironment);
         buildConfiguration.setProject(project);
         buildConfiguration.setProject(project);

@@ -21,6 +21,7 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
@@ -146,6 +147,7 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 false,
+                BuildType.MVN,
                 "",
                 "",
                 SystemImageType.DOCKER_IMAGE,

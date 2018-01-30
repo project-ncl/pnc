@@ -32,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -88,6 +86,7 @@ public class BpmBuildTask extends BpmTask {
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
                 buildConfiguration.getBuildEnvironment().getSystemImageType(),
+                buildConfiguration.getBuildType(),
                 buildTask.getBuildOptions().isKeepPodOnFailure(),
                 buildConfiguration.getGenericParameters(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
