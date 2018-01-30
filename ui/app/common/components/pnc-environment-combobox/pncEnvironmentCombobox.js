@@ -38,7 +38,8 @@
 
   function Controller($log, $scope, $element, Environment, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
-        initialValues;
+        initialValues,
+        q;
 
     // -- Controller API --
 
@@ -48,6 +49,8 @@
 
 
     $ctrl.$onInit = function () {
+
+      q = rsqlQuery().where('deprecated').eq(false).end();
 
       // Synchronise value from combobox with this component's ng-model
       $scope.$watch(function () {
@@ -74,7 +77,7 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = Environment.query({ pageSize: 20 }).$promise.then(function (page) {
+      initialValues = Environment.query({ pageSize: 20, q: q }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -96,9 +99,9 @@
     };
 
     function doSearch($viewValue) {
-      var q = rsqlQuery().where('name').like('*' + $viewValue + '*').end();
-
-      return Environment.query({ q: q }).$promise.then(function (page) {
+      return Environment.query({ 
+        q: q + rsqlQuery(true).and().where('name').like('*' + $viewValue + '*').end()
+      }).$promise.then(function (page) {
         return page.data;
       });
     }
