@@ -275,7 +275,7 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository.Type repoType = toRepoType(download.getAccessChannel(), false); //no temp downloads (they are all together)
+                TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
                 TargetRepository targetRepository = getDownloadsTargetRepository(repoType);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -305,17 +305,19 @@ public class MavenRepositorySession implements RepositorySession {
 
     private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
         TargetRepository targetRepository;
-        if (repoType.equals(TargetRepository.Type.MAVEN) || repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
+        if (repoType.equals(TargetRepository.Type.MAVEN)) {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(repoType)
                     .repositoryPath("/api/content/maven/hosted/shared-imports/")
+                    .temporaryRepo(false)
                     .build();
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
             targetRepository = TargetRepository.builder()
                     .identifier("indy-http")
                     .repositoryType(repoType)
                     .repositoryPath("/not-available/") //TODO set the path for http cache
+                    .temporaryRepo(false)
                     .build();
         } else {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
@@ -326,16 +328,17 @@ public class MavenRepositorySession implements RepositorySession {
     private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
         TargetRepository targetRepository;
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
+            String groupName;
+            if (isTempBuild) {
+                groupName = TEMPORARY_BUILDS_GROUP;
+            } else {
+                groupName = UNTESTED_BUILDS_GROUP;
+            }
             targetRepository = TargetRepository.builder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("/api/content/maven/group/" + UNTESTED_BUILDS_GROUP)
-                    .build();
-        } else if (repoType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
-            targetRepository = TargetRepository.builder()
-                    .identifier("indy-maven-temp")
-                    .repositoryType(TargetRepository.Type.MAVEN_TEMPORARY)
-                    .repositoryPath("/api/content/maven/group/" + TEMPORARY_BUILDS_GROUP)
+                    .repositoryPath("/api/content/maven/group/" + groupName)
+                    .temporaryRepo(isTempBuild)
                     .build();
         } else {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
@@ -399,7 +402,7 @@ public class MavenRepositorySession implements RepositorySession {
 
                 logger.info("Recording upload: {}", identifier);
 
-                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel(), isTempBuild);
+                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel());
                 TargetRepository targetRepository = getUploadsTargetRepository(repoType);
 
                 Artifact.Quality artifactQuality = getArtifactQuality(isTempBuild);
@@ -530,14 +533,10 @@ public class MavenRepositorySession implements RepositorySession {
         return false;
     }
 
-    private TargetRepository.Type toRepoType(AccessChannel accessChannel, boolean isTempBuild) {
+    private TargetRepository.Type toRepoType(AccessChannel accessChannel) {
         switch (accessChannel) {
             case MAVEN_REPO:
-                if (isTempBuild) {
-                    return TargetRepository.Type.MAVEN_TEMPORARY;
-                } else {
-                    return TargetRepository.Type.MAVEN;
-                }
+                return TargetRepository.Type.MAVEN;
             case GENERIC_PROXY:
                 return TargetRepository.Type.GENERIC_PROXY;
             default:

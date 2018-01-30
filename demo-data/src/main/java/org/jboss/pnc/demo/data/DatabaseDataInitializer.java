@@ -427,6 +427,7 @@ public class DatabaseDataInitializer {
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
+                .temporaryRepo(false)
                 .build();
 
         targetRepositoryRepository.save(targetRepository);
@@ -479,7 +480,7 @@ public class DatabaseDataInitializer {
         importedArtifact1 = artifactRepository.save(importedArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
 
-        Set<BuildRecord> buildRecords = new HashSet<BuildRecord>();
+        Set<BuildRecord> buildRecords = new HashSet<>();
 
         final int INITIAL_REVISION = 1;
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);

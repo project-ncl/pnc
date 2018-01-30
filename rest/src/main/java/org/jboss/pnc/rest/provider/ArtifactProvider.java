@@ -100,7 +100,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     /**
      * Lookups built artifacts for the specified BuildRecord
-     * 
+     *
      * @return Returns requested artifacts or empty collection if BuildRecord with the specified ID doesn't exists
      */
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
@@ -126,7 +126,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
+        if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
@@ -146,7 +146,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.MAVEN_TEMPORARY)) {
+        if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
@@ -178,14 +178,17 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         return null;
     }
 
+    @Override
     public Integer store(ArtifactRest restEntity) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }
 
+    @Override
     public void update(Integer id, ArtifactRest restEntity) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }
 
+    @Override
     public void delete(Integer id) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }

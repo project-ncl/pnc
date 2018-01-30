@@ -54,6 +54,13 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
+    /**
+     * Flag that the repository is temporary.
+     */
+    @Getter
+    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    private Boolean temporaryRepo;
+
     @Getter
     @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
     private String identifier;
@@ -76,11 +83,13 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
         identifier = targetRepository.getIdentifier();
         repositoryType = targetRepository.getRepositoryType();
         repositoryPath = targetRepository.getRepositoryPath();
+        temporaryRepo = targetRepository.getTemporaryRepo();
     }
 
     public TargetRepository.TargetRepositoryBuilder toDBEntityBuilder() {
         return TargetRepository.builder()
                 .id(id)
+                .temporaryRepo(temporaryRepo)
                 .identifier(identifier)
                 .repositoryType(repositoryType)
                 .repositoryPath(repositoryPath)

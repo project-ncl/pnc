@@ -36,7 +36,7 @@ public class BasicModelTest extends AbstractModelTest {
 
     /** located in src/test/resources */
     final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
-    
+
     private User pncUser;
 
     protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
@@ -159,6 +159,7 @@ public class BasicModelTest extends AbstractModelTest {
 
     private TargetRepository getTargetRepository(String path) {
         return TargetRepository.builder()
+                    .temporaryRepo(false)
                     .identifier("indy-maven")
                     .repositoryPath(path)
                     .repositoryType(TargetRepository.Type.MAVEN)
@@ -300,7 +301,7 @@ public class BasicModelTest extends AbstractModelTest {
     public void testProductVersionBrewTagGeneration() {
         EntityManager em = getEmFactory().createEntityManager();
         EntityTransaction tx = em.getTransaction();
-        
+
         final String version = "10.1";
         Product product = Product.Builder.newBuilder().id(1)
                 .build();
@@ -316,7 +317,7 @@ public class BasicModelTest extends AbstractModelTest {
 
         ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
         Assert.assertEquals("tp1-" + version + "-pnc", productVersionLoaded.getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
-        
-        
+
+
     }
 }
