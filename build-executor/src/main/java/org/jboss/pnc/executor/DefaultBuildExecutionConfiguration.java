@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -40,6 +41,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String scmTag;
     private final String originRepoURL;
     private final boolean preBuildSyncEnabled;
+    private final BuildType buildType;
     private final String systemImageId;
     private final String systemImageRepositoryUrl;
     private final SystemImageType systemImageType;
@@ -60,6 +62,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String scmTag,
             String originRepoURL,
             boolean preBuildSyncEnabled,
+            BuildType buildType,
             String systemImageId,
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
@@ -79,6 +82,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.scmTag = scmTag;
         this.originRepoURL = originRepoURL;
         this.preBuildSyncEnabled = preBuildSyncEnabled;
+        this.buildType = buildType;
         this.systemImageId = systemImageId;
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
         this.systemImageType = systemImageType;
@@ -137,6 +141,11 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public boolean isPreBuildSyncEnabled() {
         return preBuildSyncEnabled;
+    }
+
+    @Override
+    public BuildType getBuildType() {
+        return buildType;
     }
 
     @Override

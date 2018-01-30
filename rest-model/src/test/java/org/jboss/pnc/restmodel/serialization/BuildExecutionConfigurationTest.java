@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.restmodel.serialization;
 
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -53,6 +54,7 @@ public class BuildExecutionConfigurationTest {
                 "abcd1234",
                 "image.repo.url/repo",
                 SystemImageType.DOCKER_IMAGE,
+                BuildType.MVN,
                 false,
                 null,
                 new HashMap<>(),

@@ -15,19 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.executor.exceptions;
+package org.jboss.pnc.model;
 
 /**
- * Wraps exception in RuntimeException
+ * BuildType is used to define pre-build operations and to set proper repository.
  *
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class ExecutionExceptionWrapper extends RuntimeException {
-    public ExecutionExceptionWrapper(String message) {
-        super(message);
-    }
-
-    public ExecutionExceptionWrapper(Throwable cause) {
-        super(cause);
-    }
+public enum BuildType {
+    MVN,
+    NPM
 }

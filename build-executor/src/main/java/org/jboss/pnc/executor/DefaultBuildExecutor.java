@@ -31,6 +31,7 @@ import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -194,6 +195,14 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
         userLog.info("Setting up repository...");
         buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
+
+        BuildType buildType = buildExecutionSession.getBuildExecutionConfiguration().getBuildType();
+        if (buildType == null) {
+            throw new BuildProcessException("Missing required value buildExecutionConfiguration.buildType");
+        }
+        TargetRepository.Type repositoryType = BuildTypeToRepositoryType.getRepositoryType(buildType);
+        //TODO use repositoryType
+        
         try {
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();

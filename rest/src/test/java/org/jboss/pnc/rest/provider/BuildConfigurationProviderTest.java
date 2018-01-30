@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
@@ -179,6 +180,7 @@ public class BuildConfigurationProviderTest {
         configuration.setDescription(null);
         configuration.setScmRevision(SCM_REVISION);
         configuration.setRepositoryConfiguration(REPOSITORY);
+        configuration.setBuildType(BuildType.MVN);
         configuration.setEnvironment(ENVIRONMENT);
         configuration.setBuildScript(BUILD_SCRIPT);
         return configuration;

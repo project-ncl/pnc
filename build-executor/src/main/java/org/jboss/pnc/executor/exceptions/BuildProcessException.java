@@ -29,7 +29,11 @@ import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 public class BuildProcessException extends ExecutionExceptionWrapper {
     
     private DestroyableEnvironment destroyableEnvironment;
-    
+
+    public BuildProcessException(String message) {
+        super(message);
+    }
+
     public BuildProcessException(Throwable cause) {
         super(cause);
     }
