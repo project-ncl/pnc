@@ -27,16 +27,21 @@
    * @description
    * Provides a fluent API for creating RSQL queries
    *
+   * @param {boolean} isOperatorFirst
+   * Set true whether it should be possible to start rsql query with operator.
+   * This option is useful when you need to concatenate multiple rsql query strings.
+   * 
    * @example
    * rsqlQuery().where('buildConfiguration.name').like('jboss%').and().where('id').gt(4).end();
+   * rsqlQuery(true).and().where('key').eq('value').end();
    *
    * @author Alex Creasy
    */
   module.factory('rsqlQuery', [
     'context',
     function (context) {
-      return function rsqlQuery() {
-        var ctx = context();
+      return function rsqlQuery(isOperatorFirst) {
+        var ctx = context(isOperatorFirst);
         return ctx.next();
       };
     }

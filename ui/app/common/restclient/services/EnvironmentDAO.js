@@ -33,7 +33,8 @@
     'ENVIRONMENT_ENDPOINT',
     'PageFactory',
     'QueryHelper',
-    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT, PageFactory, qh) {
+    'rsqlQuery',
+    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT, PageFactory, qh, rsqlQuery) {
       var ENDPOINT = REST_BASE_URL + ENVIRONMENT_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -43,6 +44,10 @@
           method: 'GET',
           url: ENDPOINT + qh.searchOnly(['name', 'description'])
         },
+        _getAllNotDeprecated: {
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['name', 'description'], rsqlQuery(true).and().where('deprecated').eq(false).end())
+        },
         update: {
           method: 'PUT'
         }
@@ -50,6 +55,7 @@
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
       PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getAllNotDeprecated', 'getAllNotDeprecated');
 
       return resource;
     }
