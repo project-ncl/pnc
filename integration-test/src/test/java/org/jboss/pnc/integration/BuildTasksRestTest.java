@@ -33,6 +33,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
@@ -91,9 +92,24 @@ public class BuildTasksRestTest extends AbstractTest{
         request.addHeader(getAuthenticationHeaderApache());
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "f18de64523d5054395d82e24d4e28473a05a3880",
-                "1.0.0.redhat-1", "origin-scm-url", false, "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false, null, new HashMap<>(),
-                false, null);
+                1,
+                "test-content-id",
+                1,
+                "mvn clean install",
+                "jboss-modules",
+                "scm-url",
+                "master",
+                "origin-scm-url",
+                false,
+                "dummy-docker-image-id",
+                "dummy.repo.url/repo",
+                SystemImageType.DOCKER_IMAGE,
+                BuildType.MVN,
+                false,
+                null,
+                new HashMap<>(),
+                false,
+                null);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
 

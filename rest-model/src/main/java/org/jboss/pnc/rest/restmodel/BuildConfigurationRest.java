@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -69,6 +70,11 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private ProjectRest project;
 
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Getter
+    @Setter
+    private BuildType buildType;
+
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private BuildEnvironmentRest environment;
 
     private Set<Integer> dependencyIds;
@@ -113,6 +119,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .map(dependencyConfig -> dependencyConfig.getId()).collect(Collectors.toSet());
         performIfNotNull(buildConfiguration.getProductVersion(),
                 () -> this.productVersionId = buildConfiguration.getProductVersion().getId());
+        this.buildType = buildConfiguration.getBuildType();
     }
 
     @Override
@@ -229,7 +236,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .buildScript(this.getBuildScript())
                 .scmRevision(this.getScmRevision())
                 .archived(this.isArchived())
-                .genericParameters(this.getGenericParameters());
+                .genericParameters(this.getGenericParameters())
+                .buildType(this.getBuildType());
 
         performIfNotNull(this.getRepositoryConfiguration(), () -> builder.repositoryConfiguration(this.getRepositoryConfiguration().toDBEntityBuilder().build()));
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));

@@ -6,6 +6,7 @@
     "project": {
       "id": ${_projectId}
     },
+    "buildType" : "MVN",
     "environment": {
       "id": ${_environmentId}
     }

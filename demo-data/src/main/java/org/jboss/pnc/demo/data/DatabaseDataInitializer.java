@@ -28,6 +28,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
@@ -354,6 +355,7 @@ public class DatabaseDataInitializer {
                 .name(PNC_PROJECT_BUILD_CFG_ID)
                 .project(project1)
                 .description("Test build config for project newcastle")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration1)
@@ -367,6 +369,7 @@ public class DatabaseDataInitializer {
                 .name("termd")
                 .project(project2)
                 .description("Test configueration for Termd.")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn deploy -DskipTests=true")
                 .productVersion(productVersion1)
@@ -379,6 +382,7 @@ public class DatabaseDataInitializer {
                 .name("pnc-build-agent-0.4")
                 .project(project3)
                 .description("Test config for Pnc Build Agent.")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn deploy -DskipTests=true")
                 .productVersion(productVersion2)
@@ -390,6 +394,7 @@ public class DatabaseDataInitializer {
         BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
                 .name("dependency-analysis-1.3")
                 .project(project4).description("Test config for Dependency Analysis.")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration4)
@@ -400,6 +405,7 @@ public class DatabaseDataInitializer {
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder()
                 .name("maven-plugin-test")
                 .project(project5).description("Test build for Plugins with external downloads")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy")
                 .repositoryConfiguration(repositoryConfiguration5)

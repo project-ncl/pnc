@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -53,6 +54,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String originRepoURL;
     private boolean preBuildSyncEnabled;
 
+    private BuildType buildType;
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
@@ -90,6 +92,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         scmTag = buildExecutionConfiguration.getScmTag();
         originRepoURL = buildExecutionConfiguration.getOriginRepoURL();
         preBuildSyncEnabled = buildExecutionConfiguration.isPreBuildSyncEnabled();
+        buildType = buildExecutionConfiguration.getBuildType();
         systemImageId = buildExecutionConfiguration.getSystemImageId();
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
         systemImageType = buildExecutionConfiguration.getSystemImageType();
@@ -122,6 +125,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 systemImageId,
                 systemImageRepositoryUrl,
                 systemImageType,
+                buildType,
                 podKeptOnFailure,
                 artifactRepositories,
                 genericParameters,
@@ -228,12 +232,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return preBuildSyncEnabled;
     }
 
-    /**
-     * This is no longer used so it returns an empty string, for more info see NCL-1778
-     */
-    @Deprecated
-    public String getBuildType() {
-        return "";
+    public BuildType getBuildType() {
+        return buildType;
     }
 
     public UserRest getUser() {

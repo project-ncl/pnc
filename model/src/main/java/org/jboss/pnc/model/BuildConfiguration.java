@@ -29,6 +29,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -127,6 +129,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ForeignKey(name = "fk_buildconfiguration_project")
     @Index(name="idx_buildconfiguration_project")
     private Project project;
+
+    @Enumerated(EnumType.STRING)
+    private BuildType buildType;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
@@ -265,6 +270,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public BuildType getBuildType() {
+        return buildType;
+    }
+
+    public void setBuildType(BuildType buildType) {
+        this.buildType = buildType;
     }
 
     /**
@@ -668,6 +681,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Project project;
 
+        private BuildType buildType;
+
         private BuildEnvironment buildEnvironment;
 
         private ProductVersion productVersion;
@@ -710,7 +725,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
                 project.addBuildConfiguration(buildConfiguration);
             }
             buildConfiguration.setProject(project);
-
+            buildConfiguration.setBuildType(buildType);
             buildConfiguration.setBuildEnvironment(buildEnvironment);
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
@@ -772,6 +787,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder project(Project project) {
             this.project = project;
+            return this;
+        }
+
+        public Builder buildType(BuildType buildType) {
+            this.buildType = buildType;
             return this;
         }
 
