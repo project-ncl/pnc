@@ -20,6 +20,7 @@ package org.jboss.pnc.demo.data;
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -349,16 +350,19 @@ public class DatabaseDataInitializer {
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
                 .name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
                 .description("Test build config for project newcastle")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration1)
                 .productVersion(productVersion1).scmRevision("*/v0.2")
-                .genericParameters(genericParameters).build();
+                .genericParameters(genericParameters)
+                .build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
         buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0")
                 .project(project2)
                 .description("Test config for JBoss modules build master branch.")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion1)
                 .repositoryConfiguration(repositoryConfiguration2)
@@ -368,6 +372,7 @@ public class DatabaseDataInitializer {
         BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
                 .name("jboss-servlet-spec-api-1.0.1")
                 .project(project3).description("Test build for jboss java servlet api")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion2)
                 .repositoryConfiguration(repositoryConfiguration3)
@@ -377,6 +382,7 @@ public class DatabaseDataInitializer {
         BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
                 .name("io-fabric8-2.2-SNAPSHOT")
                 .project(project4).description("Test build for Fabric8")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration4)
@@ -386,6 +392,7 @@ public class DatabaseDataInitializer {
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder()
                 .name("maven-plugin-test")
                 .project(project5).description("Test build for Plugins with external downloads")
+                .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy")
                 .repositoryConfiguration(repositoryConfiguration5)

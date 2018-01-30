@@ -31,6 +31,7 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
@@ -446,12 +447,14 @@ public class BuildConfigurationRestTest extends AbstractTest {
         BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
         buildConfiguration.setName(UUID.randomUUID().toString());
         buildConfiguration.setProject(projectRestClient.getValue());
+        buildConfiguration.setBuildType(BuildType.MVN);
         buildConfiguration.setEnvironment(environmentRestClient.getValue());
         buildConfiguration.setRepositoryConfiguration(repositoryConfigurationRest);
 
         BuildConfigurationRest dependencyBuildConfiguration = new BuildConfigurationRest();
         dependencyBuildConfiguration.setName(UUID.randomUUID().toString());
         dependencyBuildConfiguration.setProject(projectRestClient.getValue());
+        dependencyBuildConfiguration.setBuildType(BuildType.MVN);
         dependencyBuildConfiguration.setEnvironment(environmentRestClient.getValue());
         dependencyBuildConfiguration.setRepositoryConfiguration(repositoryConfigurationRest);
 

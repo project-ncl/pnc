@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mock.executor;
 
-import jdk.nashorn.internal.objects.annotations.Setter;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -41,6 +41,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String scmRevision;
     private String originRepoURL;
     private boolean preBuildSyncEnabled;
+    private BuildType buildType;
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
@@ -56,6 +57,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setScmRepoURL("http://www.github.com");
         mock.setScmRevision("1234567890");
         mock.setPreBuildSyncEnabled(false);
+        mock.setBuildType(BuildType.MVN);
         mock.setSystemImageId("abcd1234");
         mock.setSystemImageRepositoryUrl("image.repo.url/repo");
         mock.setSystemImageType(SystemImageType.DOCKER_IMAGE);
@@ -145,6 +147,15 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setPreBuildSyncEnabled(boolean preBuildSyncEnabled) {
         this.preBuildSyncEnabled = preBuildSyncEnabled;
+    }
+
+    public void setBuildType(BuildType buildType) {
+        this.buildType = buildType;
+    }
+
+    @Override
+    public BuildType getBuildType() {
+        return buildType;
     }
 
     @Override

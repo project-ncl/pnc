@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.spi.executor;
 
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
@@ -54,6 +55,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     SystemImageType getSystemImageType();
 
+    BuildType getBuildType();
+
     boolean isPodKeptOnFailure();
 
     Map<String, String> getGenericParameters();
@@ -71,12 +74,13 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String systemImageId,
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
+            BuildType buildType,
             boolean podKeptAfterFailure,
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp) {
         return build(id, buildContentId, userId, buildScript, name, scmRepoURL, scmRevision, originRepoURL, preBuildSyncEnabled,
-                systemImageId, systemImageRepositoryUrl, systemImageType, podKeptAfterFailure, null, genericParameters,
+                systemImageId, systemImageRepositoryUrl, systemImageType, buildType, podKeptAfterFailure,null, genericParameters,
                 tempBuild, tempBuildTimestamp);
     }
 
@@ -93,6 +97,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String systemImageId,
             String systemImageRepositoryUrl,
             SystemImageType systemImageType,
+            BuildType buildType,
             boolean podKeptAfterFailure,
             List<ArtifactRepository> artifactRepositories,
             Map<String, String> genericParameters,
@@ -160,6 +165,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getSystemImageId() {
                 return systemImageId;
+            }
+
+            @Override
+            public BuildType getBuildType() {
+                return buildType;
             }
 
             @Override

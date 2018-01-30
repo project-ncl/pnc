@@ -15,19 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.executor.exceptions;
+package org.jboss.pnc.executor;
+
+import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.TargetRepository;
 
 /**
- * Wraps exception in RuntimeException
- *
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class ExecutionExceptionWrapper extends RuntimeException {
-    public ExecutionExceptionWrapper(String message) {
-        super(message);
-    }
+public class BuildTypeToRepositoryType {
 
-    public ExecutionExceptionWrapper(Throwable cause) {
-        super(cause);
+    public static TargetRepository.Type getRepositoryType(BuildType buildType) {
+        switch (buildType) {
+            case MVN:
+                return TargetRepository.Type.MAVEN;
+            case NPM:
+                return TargetRepository.Type.NPM;
+        }
+        throw new RuntimeException("Cannot create repository for build type: " + buildType);
     }
 }

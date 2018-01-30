@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
@@ -79,6 +80,7 @@ public class BuildConfigurationProviderTest {
         configuration.setProject(createProject());
         configuration.setName("config");
         configuration.setRepositoryConfiguration(repositoryConfigurationRest);
+        configuration.setBuildType(BuildType.MVN);
         configuration.setEnvironment(new BuildEnvironmentRest());
         return configuration;
     }
