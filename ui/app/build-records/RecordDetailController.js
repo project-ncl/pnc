@@ -28,12 +28,13 @@
     'recordDetail',
     'buildRecordPushResult',
     'messageBus',
-    function($scope, $state, $log, $uibModal, eventTypes, BuildRecord, recordDetail, buildRecordPushResult, messageBus) {
+    'utils',
+    function($scope, $state, $log, $uibModal, eventTypes, BuildRecord, recordDetail, buildRecordPushResult, messageBus, utils) {
       this.record = recordDetail;
       this.buildRecordPushResult = buildRecordPushResult;
 
       this.hasPushResults = function () {
-        return angular.isDefined(buildRecordPushResult);
+        return !utils.isEmpty(buildRecordPushResult);
       };
 
       $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
