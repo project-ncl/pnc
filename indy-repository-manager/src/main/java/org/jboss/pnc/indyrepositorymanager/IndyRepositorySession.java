@@ -285,7 +285,7 @@ public class IndyRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
+                TargetRepository.Type repoType = toRepoType(sk.getPackageType());
                 TargetRepository targetRepository = getDownloadsTargetRepository(repoType, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -442,7 +442,7 @@ public class IndyRepositorySession implements RepositorySession {
                     throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
                 }
 
-                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel());
+                TargetRepository.Type repoType = toRepoType(storeKey.getPackageType());
                 TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
 
                 Artifact.Quality artifactQuality = getArtifactQuality(isTempBuild);
@@ -580,11 +580,13 @@ public class IndyRepositorySession implements RepositorySession {
         return false;
     }
 
-    private TargetRepository.Type toRepoType(AccessChannel accessChannel) {
-        switch (accessChannel) {
-            case MAVEN_REPO:
+    private TargetRepository.Type toRepoType(String packageType) {
+        switch (packageType) {
+            case MAVEN_PKG_KEY:
                 return TargetRepository.Type.MAVEN;
-            case GENERIC_PROXY:
+            case NPM_PKG_KEY:
+                return TargetRepository.Type.NPM;
+            case GENERIC_PKG_KEY:
                 return TargetRepository.Type.GENERIC_PROXY;
             default:
                 return TargetRepository.Type.GENERIC_PROXY;
