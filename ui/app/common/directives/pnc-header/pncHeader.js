@@ -51,7 +51,7 @@
         });
 
         transclude(scope.$new(), function(clone) {
-          element.find('.btn-group').append(clone.filter('pnc-header-buttons'));
+          element.find('.btn-toolbar').append(clone.filter('pnc-header-buttons'));
           element.find('pnc-header-buttons').addClass('btn-group');
           element.find('pnc-header-buttons').find('button').removeClass('btn-lg btn-sm').addClass('btn-lg');
         });
