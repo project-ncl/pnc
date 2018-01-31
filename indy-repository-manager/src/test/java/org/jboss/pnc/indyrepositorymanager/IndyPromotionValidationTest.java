@@ -33,6 +33,7 @@ import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -71,7 +72,8 @@ public class IndyPromotionValidationTest {
 
         RepositoryManager driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
         try {
-            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null);
+            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null,
+                    TargetRepository.Type.MAVEN);
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();
 

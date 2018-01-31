@@ -179,12 +179,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
             throw new BuildProcessException("Missing required value buildExecutionConfiguration.buildType");
         }
         TargetRepository.Type repositoryType = BuildTypeToRepositoryType.getRepositoryType(buildType);
-        //TODO use repositoryType
 
         try {
-            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN);
+            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(repositoryType);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
-            return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken());
+            return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken(), repositoryType);
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
@@ -376,11 +375,13 @@ public class DefaultBuildExecutor implements BuildExecutor {
         } else {
             buildExecutionSession.setEndTime(new Date());
         }
-        
+
         String accessToken = buildExecutionSession.getAccessToken();
         log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
         try {
-            repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN).close(accessToken);
+            TargetRepository.Type repoType = BuildTypeToRepositoryType.getRepositoryType(
+                    buildExecutionSession.getBuildExecutionConfiguration().getBuildType());
+            repositoryManagerFactory.getRepositoryManager(repoType).close(accessToken);
         } catch (ExecutorException executionException) {
             buildExecutionSession.setException(executionException);
         }
@@ -421,8 +422,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
 
         try {
-            if (destroyableEnvironment != null)
+            if (destroyableEnvironment != null) {
                 destroyableEnvironment.destroyEnvironment();
+            }
 
         } catch (EnvironmentDriverException envE) {
             log.warn("Running environment" + destroyableEnvironment + " couldn't be destroyed!", envE);

@@ -31,6 +31,7 @@ import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -56,7 +57,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, TargetRepository.Type.MAVEN);
 
         assertThat(rc, notNullValue());
 

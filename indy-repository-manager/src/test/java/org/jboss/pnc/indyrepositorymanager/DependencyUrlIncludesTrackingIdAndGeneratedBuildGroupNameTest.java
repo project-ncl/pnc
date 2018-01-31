@@ -18,6 +18,7 @@
 package org.jboss.pnc.indyrepositorymanager;
 
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -30,7 +31,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest 
+public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest
     extends AbstractRepositoryManagerDriverTest
 {
 
@@ -39,7 +40,8 @@ public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken,
+                TargetRepository.Type.MAVEN);
 
         assertThat(repositoryConfiguration, notNullValue());
 

@@ -19,6 +19,7 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository.Type;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -66,7 +67,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken, Type repositoryType)
     		throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();

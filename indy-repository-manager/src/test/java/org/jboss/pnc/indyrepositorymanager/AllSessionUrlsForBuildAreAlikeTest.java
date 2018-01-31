@@ -24,13 +24,14 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.jboss.pnc.model.TargetRepository;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class AllSessionUrlsForBuildAreAlikeTest 
+public class AllSessionUrlsForBuildAreAlikeTest
     extends AbstractRepositoryManagerDriverTest
 {
 
@@ -39,7 +40,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, TargetRepository.Type.MAVEN);
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();

@@ -24,7 +24,6 @@ import org.commonjava.indy.client.core.module.IndyContentClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
-import org.commonjava.indy.model.core.AccessChannel;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
@@ -81,7 +80,7 @@ public class IndyRepositorySession implements RepositorySession {
 
     /**
      * Map of packageType-specific ignored suffixes. Key is the package type, value is set of suffixes. For suffixes
-     * applied to all package types empty string should be used as the key.
+     * applied to all package types (e.g. checksums) an empty string should be used as the key.
      */
     private Map<String, Set<String>> ignoredPathSuffixes;
 
@@ -89,6 +88,7 @@ public class IndyRepositorySession implements RepositorySession {
 
     private Indy indy;
     private final String buildContentId;
+    private final String packageKey;
     /**
      * Map of packageType-specific internal repository name patterns. Key is the package type, value is list of
      * patterns.
@@ -109,15 +109,17 @@ public class IndyRepositorySession implements RepositorySession {
                                   IndyRepositoryConnectionInfo info) {
         this.indy = indy;
         this.buildContentId = buildContentId;
+        this.packageKey = MAVEN_PKG_KEY;
         this.isSetBuild = isSetBuild;
         this.connectionInfo = info;
     }
 
-    public IndyRepositorySession(Indy indy, String buildContentId, IndyRepositoryConnectionInfo info,
-            Map<String, List<String>> internalRepoPatterns, Map<String, Set<String>> ignoredPathSuffixes,
-            String buildPromotionGroup, boolean isTempBuild) {
+    public IndyRepositorySession(Indy indy, String buildContentId, String packageKey,
+            IndyRepositoryConnectionInfo info, Map<String, List<String>> internalRepoPatterns,
+            Map<String, Set<String>> ignoredPathSuffixes, String buildPromotionGroup, boolean isTempBuild) {
         this.indy = indy;
         this.buildContentId = buildContentId;
+        this.packageKey = packageKey;
         this.internalRepoPatterns = internalRepoPatterns;
         this.ignoredPathSuffixes = ignoredPathSuffixes;
         this.isSetBuild = false; //TODO remove
@@ -133,7 +135,7 @@ public class IndyRepositorySession implements RepositorySession {
 
     @Override
     public TargetRepository.Type getType() {
-        return TargetRepository.Type.MAVEN;
+        return toRepoType(packageKey);
     }
 
     @Override
@@ -179,10 +181,10 @@ public class IndyRepositorySession implements RepositorySession {
         Collections.sort(downloads, comp);
 
         try {
-            StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
+            StoreKey key = new StoreKey(packageKey, StoreType.group, buildContentId);
             indy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
         }
 
         Logger logger = LoggerFactory.getLogger(getClass());
@@ -217,18 +219,14 @@ public class IndyRepositorySession implements RepositorySession {
         try {
             content = indy.content();
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy client module. Reason: %s", e, e.getMessage());
         }
 
         List<Artifact> deps = new ArrayList<>();
 
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
         if (downloads != null) {
-
             Map<StoreKey, Set<String>> toPromote = new HashMap<>();
-
-            StoreKey sharedImports = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID);
-//            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
                 String path = download.getPath();
@@ -241,7 +239,6 @@ public class IndyRepositorySession implements RepositorySession {
                 // If the entry is from a hosted repository, it shouldn't be auto-promoted.
                 // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
                 // New binary imports will be coming from a remote repository...
-                // TODO: Enterprise maven repository (product repo) handling...
                 if (isExternalOrigin(sk) && StoreType.hosted != sk.getType()) {
                     switch (sk.getPackageType()) {
                         case MAVEN_PKG_KEY:
@@ -304,13 +301,24 @@ public class IndyRepositorySession implements RepositorySession {
                 deps.add(artifact);
             }
 
+            Map<String, StoreKey> promotionTargets = new HashMap<>();
             for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
-                PathsPromoteRequest req = new PathsPromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
+                StoreKey source = entry.getKey();
+                StoreKey target = getPromotionTarget(source.getPackageType(), promotionTargets);
+                PathsPromoteRequest req = new PathsPromoteRequest(source, target, entry.getValue()).setPurgeSource(false);
                 doPromoteByPath(req);
             }
         }
 
         return deps;
+    }
+
+    private StoreKey getPromotionTarget(String packageType, Map<String, StoreKey> promotionTargets) {
+        if (!promotionTargets.containsKey(packageType)) {
+            StoreKey storeKey = new StoreKey(packageType, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID);
+            promotionTargets.put(packageType, storeKey);
+        }
+        return promotionTargets.get(packageType);
     }
 
     private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, IndyContentClientModule content)
@@ -340,7 +348,8 @@ public class IndyRepositorySession implements RepositorySession {
                     .temporaryRepo(false)
                     .build();
         } else {
-            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+            throw new RepositoryManagerException("Repository type " + repoType
+                    + " is not supported by Indy repo manager driver.");
         }
         return targetRepository;
     }
@@ -373,7 +382,8 @@ public class IndyRepositorySession implements RepositorySession {
                 break;
 
             default:
-                throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+                throw new RepositoryManagerException("Repository type " + repoType
+                        + " is not supported by Indy repo manager driver.");
         }
         return targetRepository;
     }
@@ -483,7 +493,7 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     /**
-     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular AProx artifact store to
+     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular Indy artifact store to
      * another, and handle the various error conditions that may arise. If the promote call fails, attempt to rollback before
      * throwing an exception.
      *
@@ -497,7 +507,7 @@ public class IndyRepositorySession implements RepositorySession {
         try {
             promoter = indy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy client module. Reason: %s", e, e.getMessage());
         }
 
         try {
@@ -533,10 +543,10 @@ public class IndyRepositorySession implements RepositorySession {
         try {
             promoter = indy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy client module. Reason: %s", e, e.getMessage());
         }
 
-        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+        StoreKey hostedKey = new StoreKey(packageKey, StoreType.hosted, buildContentId);
         GroupPromoteRequest request = new GroupPromoteRequest(hostedKey, buildPromotionGroup);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);

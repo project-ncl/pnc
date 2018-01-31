@@ -26,6 +26,7 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -94,7 +95,7 @@ public class ExcludeInternalRepoByRegexTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, TargetRepository.Type.MAVEN);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();

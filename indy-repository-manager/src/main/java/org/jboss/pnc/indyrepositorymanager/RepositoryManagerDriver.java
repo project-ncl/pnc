@@ -190,24 +190,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     @Override
     public boolean canManage(TargetRepository.Type managerType) {
-        return (managerType == TargetRepository.Type.MAVEN);
+        return (managerType == TargetRepository.Type.MAVEN) || (managerType == TargetRepository.Type.NPM);
     }
 
     /**
      * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
-     * build. Calculate the URL to use for resolving artifacts using the AProx Folo API (Folo is an artifact activity-tracker).
+     * build. Calculate the URL to use for resolving artifacts using the Indy Folo API (Folo is an artifact activity-tracker).
      * Return a new session ({@link IndyRepositorySession}) containing this information.
      *
      * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support the build
      *                                    (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
-            throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
+            TargetRepository.Type repositoryType) throws RepositoryManagerException {
         Indy indy = init(accessToken);
 
-        // TODO pkocandr: make this variable based on the build type from the config
-        String pkgType = MAVEN_PKG_KEY;
+        String pkgType = getIndyPackageTypeKey(repositoryType);
 
         String buildId = buildExecution.getBuildContentId();
         try {
@@ -239,8 +238,20 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_GROUP;
-        return new IndyRepositorySession(indy, buildId, new IndyRepositoryConnectionInfo(url, deployUrl),
+        return new IndyRepositorySession(indy, buildId, pkgType, new IndyRepositoryConnectionInfo(url, deployUrl),
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
+    }
+
+    private String getIndyPackageTypeKey(TargetRepository.Type repoType) {
+        switch (repoType) {
+            case MAVEN:
+                return MAVEN_PKG_KEY;
+            case NPM:
+                return NPM_PKG_KEY;
+            default:
+                throw new IllegalArgumentException("Repository type " + repoType
+                        + " is not supported by this repository manager driver.");
+        }
     }
 
     /**
