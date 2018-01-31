@@ -37,7 +37,7 @@
     <java>datastore.jar</java>
   </module>
   <module>
-    <java>maven-repository-manager.jar</java>
+    <java>indy-repository-manager.jar</java>
   </module>
   <module>
     <java>build-coordinator.jar</java>

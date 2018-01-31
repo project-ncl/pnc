@@ -28,7 +28,7 @@
     <version>1.4.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>maven-repository-manager</artifactId>
+  <artifactId>indy-repository-manager</artifactId>
 
   <description>Logic to operate with remote Indy repository manager (Implementation of spi:org.jboss.pnc.spi.repositorymanager).</description>
 
