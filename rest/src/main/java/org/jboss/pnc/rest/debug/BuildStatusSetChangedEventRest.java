@@ -34,7 +34,7 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
     private String buildSetConfigurationName;
     private Date buildSetStartTime;
     private Date buildSetEndTime;
-
+    private String description;
 
     public void setOldStatus(BuildSetStatus oldStatus) {
         this.oldStatus = oldStatus;
@@ -66,6 +66,10 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
 
     public void setBuildSetEndTime(Date buildSetEndTime) {
         this.buildSetEndTime = buildSetEndTime;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
@@ -106,6 +110,11 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
     @Override
     public Date getBuildSetEndTime() {
         return buildSetEndTime;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
 }

@@ -39,5 +39,5 @@ public interface BuildSetStatusChangedEvent {
     String getBuildSetConfigurationName();
     Date getBuildSetStartTime();
     Date getBuildSetEndTime();
-
+    String getDescription();
 }

@@ -353,10 +353,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status, String description) {
-        log.debug("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
+        log.info("Setting new status {} on buildSetTask.id {}. Description: {}.", status, buildSetTask.getId(), description);
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
-        sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord);
+        sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord, description);
         
         // Rejected status needs to be propagated to the BuildConfigSetRecord in database. 
         // Completed BuildSets are updated using BuildSetTask#taskStatusUpdatedToFinalState()
@@ -376,7 +376,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void sendSetStatusChangeEvent(BuildSetTask buildSetTask,
                                           BuildSetStatus status,
                                           BuildSetStatus oldStatus,
-                                          Optional<BuildConfigSetRecord> maybeRecord) {
+                                          Optional<BuildConfigSetRecord> maybeRecord,
+                                          String description) {
         maybeRecord.ifPresent(record -> {
             Integer userId = Optional.ofNullable(record.getUser()).map(User::getId).orElse(null);
 
@@ -388,7 +389,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     record.getBuildConfigurationSet().getName(),
                     record.getStartTime(),
                     record.getEndTime(),
-                    userId);
+                    userId,
+                    description);
             log.debug("Notifying build set status update {}.", event);
             buildSetStatusChangedEventNotifier.fire(event);
         });
