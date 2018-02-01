@@ -21,7 +21,7 @@
 create sequence target_repository_repo_id_seq;
 -- ## Updates required by new artifact repository relations
 create table TargetRepository (
-    id integer not null,
+    id integer default nextval('target_repository_repo_id_seq') not null,
     temporaryRepo boolean not null,
     identifier varchar(255) not null,
     repositoryPath varchar(255) not null,
@@ -35,8 +35,8 @@ insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, rep
 insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, repositoryType) values (3, false, 'indy-maven', '/api/content/maven/hosted/shared-imports', 'MAVEN');
 insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, repositoryType) values (4, false, 'indy-http', '', 'GENERIC_PROXY');
 
--- Start the sequence id for target repository from last value = 6
--- We need to set last_value to 6 and not to 5 because the sequence has column
+-- Start the sequence id for target repository from last value = 5
+-- We need to set last_value to 5 and not to 4 because the sequence has column
 -- 'is_called' set to false
 -- https://www.postgresql.org/docs/8.1/static/functions-sequence.html
 alter sequence target_repository_repo_id_seq restart with 5;
@@ -51,7 +51,7 @@ alter table Artifact
 
 -- migrate data
 -- old repotype 0 -> maven (1)
--- old repotype 3 -> generic proxy (5)
+-- old repotype 3 -> generic proxy (4)
 update Artifact set targetRepository_id = 1 where repotype = 0;
 update Artifact set targetRepository_id = 4 where repotype = 3;
 
