@@ -29,7 +29,7 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifi
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
-import org.jboss.pnc.mavenrepositorymanager.IndyRepositoryManagerResult;
+import org.jboss.pnc.indyrepositorymanager.IndyRepositoryManagerResult;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
