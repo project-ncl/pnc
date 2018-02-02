@@ -90,6 +90,27 @@ public class BuildCoordinationTest {
     }
 
     @Test
+    public void shouldBuildSetWithOneConfiguration() throws CoreException, TimeoutException, InterruptedException {
+        BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
+        testProjectConfigurationBuilder.build(223, "Project-223", buildConfigurationSet);
+
+        ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(false);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
+
+        Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
+
+        //check the result
+        Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
+        Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
+        assertThat(maybeSetRecord.isPresent()).isTrue();
+        Assert.assertEquals(BuildStatus.SUCCESS, maybeSetRecord.get().getStatus());
+        assertEmptyQueue();
+    }
+
+    @Test
     public void buildConfigSetRecordShouldBeMarkedSuccessWhenAllBuildsAreSuccess() throws CoreException, TimeoutException, InterruptedException {
         BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
         testProjectConfigurationBuilder.buildConfigurationWithDependencies(buildConfigurationSet);
