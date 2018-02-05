@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.integration.client.BuildConfigSetRecordRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
@@ -29,6 +30,7 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.utils.ResponseUtils;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
@@ -38,7 +40,6 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -60,6 +61,7 @@ public class BuildTest {
     private static BuildConfigurationRestClient buildConfigurationRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
     private static BuildRecordRestClient buildRecordRestClient;
+    private static BuildConfigSetRecordRestClient buildConfigSetRecordRestClient;
     private static BuildRestClient buildRestClient;
     private static UserRestClient userRestClient;
 
@@ -99,6 +101,10 @@ public class BuildTest {
             userRestClient.createUser("admin");
             userRestClient.createUser("user");
         }
+
+        if (buildConfigSetRecordRestClient == null) {
+            buildConfigSetRecordRestClient = new BuildConfigSetRecordRestClient();
+        }
     }
 
 
@@ -131,7 +137,6 @@ public class BuildTest {
 
     // The test is not running the actual build it uses BuildExecutorMock
     @Test
-    @Ignore //TODO enable me
     public void shouldTriggerBuildSetAndFinishWithoutProblems() throws Exception {
         //given
         BuildConfigurationSetRest buildConfigurationSet = buildConfigurationSetRestClient.firstNotNull().getValue();
@@ -139,12 +144,17 @@ public class BuildTest {
         //when
         userRestClient.getLoggedUser(); //initialize user
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setForceRebuild(false);
         RestResponse<BuildConfigurationSetRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildOptions);
         Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(response.getRestCallResponse());
 
         //then
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(200);
         assertThat(buildRecordSetId).isNotNull();
+
+        ResponseUtils.waitSynchronouslyFor(() -> buildConfigSetRecordRestClient.get(buildRecordSetId, false).hasValue(), 15, TimeUnit.SECONDS);
+
+        assertThat(buildConfigSetRecordRestClient.get(buildRecordSetId, false).getValue().getStatus())
+                .isNotEqualTo(BuildStatus.REJECTED);
     }
 }

@@ -190,7 +190,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask, BuildConfigurationSet buildConfigurationSet) {
         Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
         int requiresRebuild = buildConfigurations.size();
-        log.debug("There are {} configurations in a set.", requiresRebuild);
+        log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
         for (BuildConfiguration buildConfiguration : buildConfigurations) {
             if (!datastoreAdapter.requiresRebuild(buildConfiguration)) {
                 requiresRebuild--;
