@@ -326,8 +326,9 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .body("").contentType(ContentType.JSON).port(getHttpPort()).when().post(buildConfigurationRestURI);
 
         String location = response.getHeader("Location");
-        if(location == null)
+        if(location == null) {
             fail("Location header is not available.");
+        }
         Integer clonedBuildConfigurationId = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
         logger.info("Cloned id of buildConfiguration: " + clonedBuildConfigurationId);
 
