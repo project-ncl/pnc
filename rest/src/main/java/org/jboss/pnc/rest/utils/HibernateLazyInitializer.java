@@ -40,7 +40,7 @@ public class HibernateLazyInitializer {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration bc) {
-        log.debug("Initializing BC {}.", bc.getId());
+        log.trace("Initializing BC {}.", bc.getId());
         ProductVersion productVersion = bc.getProductVersion();
         if (productVersion != null) {
             productVersion.getProduct();
@@ -51,8 +51,7 @@ public class HibernateLazyInitializer {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfigurationSet initializeBuildConfigurationSetBeforeTriggeringIt(BuildConfigurationSet bcs) {
-        log.debug("Initializing {} build configurations in set {}.", bcs.getBuildConfigurations().size(), bcs.getId());
-        log.debug("-- Initializing {} build configurations in set {}.", bcs.getBuildConfigurations().size(), bcs.getId()); //TODO delete me
+        log.trace("Initializing {} build configurations in set {}.", bcs.getBuildConfigurations().size(), bcs.getId());
         bcs.getBuildConfigurations().stream()
                 .forEach(bc -> initializeBuildConfigurationBeforeTriggeringIt(bc));
         return bcs;

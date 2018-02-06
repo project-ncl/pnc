@@ -56,13 +56,13 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
         return fromSingleton(basicProvider.getSpecific(id));
     }
 
-    public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws RestValidationException {
+    public Response createNew(@NotNull RESTEntity restEntity, UriInfo uriInfo) throws RestValidationException {
         int id = basicProvider.store(restEntity);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(new Singleton(basicProvider.getSpecific(id))).build();
     }
 
-    public Response update(Integer id, RESTEntity restEntity) throws RestValidationException {
+    public Response update(Integer id, @NotNull RESTEntity restEntity) throws RestValidationException {
         basicProvider.update(id, restEntity);
         return Response.ok().build();
     }
