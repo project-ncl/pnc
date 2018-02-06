@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -166,7 +165,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
+    public Response createNew(@NotNull BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
             throws RestValidationException {
         logger.debug("Creating new BuildConfigurationSet: {}", buildConfigurationSetRest.toString());
         return super.createNew(buildConfigurationSetRest, uriInfo);
@@ -196,7 +195,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest) throws RestValidationException {
+            @NotNull BuildConfigurationSetRest buildConfigurationSetRest) throws RestValidationException {
         return super.update(id, buildConfigurationSetRest);
     }
 

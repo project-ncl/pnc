@@ -121,10 +121,12 @@
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
     <version.buildagent>0.3</version.buildagent>
     <version.jackson.core>2.5.4.redhat-1</version.jackson.core>
+    <version.org.jboss.resteasy>3.0.24.Final-redhat-1</version.org.jboss.resteasy>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
 
+    <javax.el.version>2.2.4</javax.el.version>
 
     <illegaltransitivereportonly>false</illegaltransitivereportonly>
 
@@ -140,7 +142,7 @@
 
     <!-- Integration tests -->
     <app.server>jboss-eap</app.server>
-    <jboss.version>7.0</jboss.version>
+    <jboss.version>7.1</jboss.version>
     <default.management.port>9999</default.management.port>
     <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
@@ -184,11 +186,10 @@
     <dependencies>
 
       <!-- BOMs -->
-
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-javaee7-with-tools</artifactId>
-        <version>7.0.7.GA</version>
+        <version>7.1.0.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -492,7 +493,7 @@
         <version>1.5.3</version>
       </dependency>
 
-      <dependency>
+      <dependency> <!-- javax.el-api vs el-api ? -->
         <groupId>javax.el</groupId>
         <artifactId>el-api</artifactId>
         <version>2.2</version>
@@ -502,7 +503,13 @@
       <dependency>
         <groupId>javax.el</groupId>
         <artifactId>javax.el-api</artifactId>
-        <version>2.2.4</version>
+        <version>${javax.el.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>javax.el</artifactId>
+        <version>${javax.el.version}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -653,7 +660,7 @@
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
-        <version>3.0.19.SP4-redhat-1</version>
+        <version>${version.org.jboss.resteasy}</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>

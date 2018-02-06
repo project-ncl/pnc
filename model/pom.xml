@@ -48,6 +48,10 @@
       <artifactId>javax.el-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>javax.el</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <scope>provided</scope>
@@ -100,7 +104,7 @@
 
   <build>
     <plugins>
-      <plugin>
+      <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
@@ -114,7 +118,7 @@
                     <path refid="maven.plugin.classpath" />
                   </classpath>
                 </taskdef>
-                <instrument verbose="true">
+                <instrument>
                   <fileset dir="${project.build.outputDirectory}">
                     <include name="org/jboss/pnc/model/**/*.class" />
                   </fileset>
@@ -139,7 +143,7 @@
             <version>3.20.0-GA</version>
           </dependency>
         </dependencies>
-      </plugin>
+      </plugin-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

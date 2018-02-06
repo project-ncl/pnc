@@ -21,6 +21,8 @@ package org.jboss.pnc.rest.utils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -34,8 +36,11 @@ import javax.ejb.TransactionAttributeType;
 @Stateless
 public class HibernateLazyInitializer {
 
+    private static final Logger log = LoggerFactory.getLogger(HibernateLazyInitializer.class);
+
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration bc) {
+        log.trace("Initializing BC {}.", bc.getId());
         ProductVersion productVersion = bc.getProductVersion();
         if (productVersion != null) {
             productVersion.getProduct();
@@ -46,6 +51,7 @@ public class HibernateLazyInitializer {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfigurationSet initializeBuildConfigurationSetBeforeTriggeringIt(BuildConfigurationSet bcs) {
+        log.trace("Initializing {} build configurations in set {}.", bcs.getBuildConfigurations().size(), bcs.getId());
         bcs.getBuildConfigurations().stream()
                 .forEach(bc -> initializeBuildConfigurationBeforeTriggeringIt(bc));
         return bcs;
