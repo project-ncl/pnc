@@ -562,6 +562,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             clone.creationTime = now;
             clone.id = null;
             clone.genericParameters = new HashMap<>(genericParameters);
+            clone.buildConfigurationSets = new HashSet<>(buildConfigurationSets);
+            clone.dependants = new HashSet<>(dependants);
+            clone.dependencies = new HashSet<>(dependencies);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Cloning error" + e);
