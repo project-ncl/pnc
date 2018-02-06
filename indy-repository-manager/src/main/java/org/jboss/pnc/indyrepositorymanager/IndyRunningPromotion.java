@@ -30,14 +30,14 @@ import java.util.function.Consumer;
 
 public class IndyRunningPromotion implements RunningRepositoryPromotion {
 
-    private String pkgType;
+    private String pakageType;
     private StoreType fromType;
     private String fromId;
     private String toId;
     private Indy indy;
 
-    public IndyRunningPromotion(String pkgType, StoreType fromType, String fromId, String toId, Indy indy) {
-        this.pkgType = pkgType;
+    public IndyRunningPromotion(String pakageType, StoreType fromType, String fromId, String toId, Indy indy) {
+        this.pakageType = pakageType;
         this.fromType = fromType;
         this.fromId = fromId;
         this.toId = toId;
@@ -53,12 +53,12 @@ public class IndyRunningPromotion implements RunningRepositoryPromotion {
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {
-            StoreKey fromKey = new StoreKey(pkgType, fromType, fromId);
+            StoreKey fromKey = new StoreKey(pakageType, fromType, fromId);
             if (!indy.stores().exists(fromKey)) {
                 throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
             }
 
-            StoreKey toKey = new StoreKey(pkgType, StoreType.group, toId);
+            StoreKey toKey = new StoreKey(pakageType, StoreType.group, toId);
             Group recordSetGroup = indy.stores().load(toKey, Group.class);
             if (recordSetGroup == null) {
                 throw new RepositoryManagerException("No such group: %s", toId);

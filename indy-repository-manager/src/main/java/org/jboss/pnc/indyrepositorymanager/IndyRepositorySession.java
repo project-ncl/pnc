@@ -96,23 +96,10 @@ public class IndyRepositorySession implements RepositorySession {
     private Map<String, List<String>> internalRepoPatterns;
 
     private final RepositoryConnectionInfo connectionInfo;
-    private boolean isSetBuild;
 
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private String buildPromotionGroup;
-
-    // TODO: Create and pass in suitable parameters to Indy to create the
-    //       proxy repository.
-    @Deprecated
-    public IndyRepositorySession(Indy indy, String buildContentId, boolean isSetBuild,
-                                  IndyRepositoryConnectionInfo info) {
-        this.indy = indy;
-        this.buildContentId = buildContentId;
-        this.packageKey = MAVEN_PKG_KEY;
-        this.isSetBuild = isSetBuild;
-        this.connectionInfo = info;
-    }
 
     public IndyRepositorySession(Indy indy, String buildContentId, String packageKey,
             IndyRepositoryConnectionInfo info, Map<String, List<String>> internalRepoPatterns,
@@ -122,7 +109,6 @@ public class IndyRepositorySession implements RepositorySession {
         this.packageKey = packageKey;
         this.internalRepoPatterns = internalRepoPatterns;
         this.ignoredPathSuffixes = ignoredPathSuffixes;
-        this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
         this.buildPromotionGroup = buildPromotionGroup;
         this.isTempBuild = isTempBuild; //TODO define based on buildPromotionGroup
@@ -230,32 +216,26 @@ public class IndyRepositorySession implements RepositorySession {
 
             for (TrackedContentEntryDTO download : downloads) {
                 String path = download.getPath();
-                StoreKey sk = download.getStoreKey();
-                if (ignoreContent(sk.getPackageType(), path)) {
-                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), sk);
+                StoreKey storeKey = download.getStoreKey();
+                String packageType = storeKey.getPackageType();
+                if (ignoreContent(packageType, path)) {
+                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), storeKey);
                     continue;
                 }
 
                 // If the entry is from a hosted repository, it shouldn't be auto-promoted.
                 // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
                 // New binary imports will be coming from a remote repository...
-                if (isExternalOrigin(sk) && StoreType.hosted != sk.getType()) {
-                    switch (sk.getPackageType()) {
-                        case MAVEN_PKG_KEY:
-                        case NPM_PKG_KEY:
-                            // this has not been captured, so promote it.
-                            Set<String> paths = toPromote.get(sk);
-                            if (paths == null) {
-                                paths = new HashSet<>();
-                                toPromote.put(sk, paths);
-                            }
+                if (isExternalOrigin(storeKey) && StoreType.hosted != storeKey.getType()) {
+                    if (MAVEN_PKG_KEY.equals(packageType) || NPM_PKG_KEY.equals(packageType)) {
+                        // this has not been captured, so promote it.
+                        Set<String> paths = toPromote.get(storeKey);
+                        if (paths == null) {
+                            paths = new HashSet<>();
+                            toPromote.put(storeKey, paths);
+                        }
 
-                            paths.add(download.getPath());
-                            break;
-
-                        default:
-                            // do not promote anything else anywhere
-                            break;
+                        paths.add(download.getPath());
                     }
                 }
 
@@ -282,7 +262,7 @@ public class IndyRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository.Type repoType = toRepoType(sk.getPackageType());
+                TargetRepository.Type repoType = toRepoType(packageType);
                 TargetRepository targetRepository = getDownloadsTargetRepository(repoType, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -323,74 +303,58 @@ public class IndyRepositorySession implements RepositorySession {
 
     private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, IndyContentClientModule content)
             throws RepositoryManagerException {
-        TargetRepository targetRepository;
-        if (repoType.equals(TargetRepository.Type.MAVEN)) {
-            String repoPath = content.contentPath(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
-            targetRepository = TargetRepository.builder()
-                    .identifier("indy-maven")
-                    .repositoryType(repoType)
-                    .repositoryPath(repoPath)
-                    .temporaryRepo(false)
-                    .build();
-        } else if (repoType.equals(TargetRepository.Type.NPM)) {
-            String repoPath = content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
-            targetRepository = TargetRepository.builder()
-                    .identifier("indy-npm")
-                    .repositoryType(repoType)
-                    .repositoryPath(repoPath)
-                    .temporaryRepo(false)
-                    .build();
-        } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
-            targetRepository = TargetRepository.builder()
-                    .identifier("indy-http")
-                    .repositoryType(repoType)
-                    .repositoryPath("/not-available/") //TODO set the path for http cache
-                    .temporaryRepo(false)
-                    .build();
+        String identifier;
+        String repoPath;
+        if (repoType == TargetRepository.Type.MAVEN) {
+                identifier = "indy-maven";
+                repoPath = content.contentPath(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+        } else if (repoType == TargetRepository.Type.NPM) {
+                identifier = "indy-npm";
+                repoPath = content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+        } else if (repoType == TargetRepository.Type.GENERIC_PROXY) {
+                identifier = "indy-http";
+                repoPath = "/not-available/"; //TODO set the path for http cache
         } else {
             throw new RepositoryManagerException("Repository type " + repoType
                     + " is not supported by Indy repo manager driver.");
         }
-        return targetRepository;
+
+        return TargetRepository.builder()
+                .identifier(identifier)
+                .repositoryType(repoType)
+                .repositoryPath(repoPath)
+                .temporaryRepo(false)
+                .build();
     }
 
     private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType,
             IndyContentClientModule content) throws RepositoryManagerException {
-        TargetRepository targetRepository;
-        switch (repoType) {
-            case MAVEN:
-            case NPM:
-                String groupName = (isTempBuild ?
-                        TEMPORARY_BUILDS_GROUP : UNTESTED_BUILDS_GROUP);
-                StoreKey storeKey;
-                String identifier;
-                if (repoType == TargetRepository.Type.MAVEN) {
-                    storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, groupName);
-                    identifier = "indy-maven";
-                } else {
-                    storeKey = new StoreKey(NPM_PKG_KEY, StoreType.group, groupName);
-                    identifier = "indy-npm";
-                }
-
-                String repoPath = content.contentPath(storeKey);
-                targetRepository = TargetRepository.builder()
-                        .identifier(identifier)
-                        .repositoryType(repoType)
-                        .repositoryPath(repoPath)
-                        .temporaryRepo(isTempBuild)
-                        .build();
-                break;
-
-            default:
-                throw new RepositoryManagerException("Repository type " + repoType
-                        + " is not supported by Indy repo manager driver.");
+        String groupName = (isTempBuild ? TEMPORARY_BUILDS_GROUP : UNTESTED_BUILDS_GROUP);
+        StoreKey storeKey;
+        String identifier;
+        if (repoType == TargetRepository.Type.MAVEN) {
+            storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, groupName);
+            identifier = "indy-maven";
+        } else if (repoType == TargetRepository.Type.NPM) {
+            storeKey = new StoreKey(NPM_PKG_KEY, StoreType.group, groupName);
+            identifier = "indy-npm";
+        } else {
+            throw new RepositoryManagerException("Repository type " + repoType
+                    + " is not supported for uploads by Indy repo manager driver.");
         }
-        return targetRepository;
+
+        String repoPath = content.contentPath(storeKey);
+        return TargetRepository.builder()
+                .identifier(identifier)
+                .repositoryType(repoType)
+                .repositoryPath(repoPath)
+                .temporaryRepo(isTempBuild)
+                .build();
     }
 
-    private boolean isExternalOrigin(StoreKey sk) {
-        String repoName = sk.getName();
-        for (String pattern : internalRepoPatterns.get(sk.getPackageType())) {
+    private boolean isExternalOrigin(StoreKey storeKey) {
+        String repoName = storeKey.getName();
+        for (String pattern : internalRepoPatterns.get(storeKey.getPackageType())) {
 //            Logger logger = LoggerFactory.getLogger(getClass());
 //            logger.info( "Checking ")
             if (pattern.equals(repoName)) {

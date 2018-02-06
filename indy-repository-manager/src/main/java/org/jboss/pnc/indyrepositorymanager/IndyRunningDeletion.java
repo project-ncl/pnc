@@ -28,13 +28,13 @@ import java.util.function.Consumer;
 
 public class IndyRunningDeletion implements RunningRepositoryDeletion {
 
-    private String pkgType;
+    private String pakageType;
     private StoreType fromType;
     private String fromId;
     private Indy indy;
 
-    public IndyRunningDeletion(String pkgType, StoreType fromType, String fromId, Indy indy) {
-        this.pkgType = pkgType;
+    public IndyRunningDeletion(String pakageType, StoreType fromType, String fromId, Indy indy) {
+        this.pakageType = pakageType;
         this.fromType = fromType;
         this.fromId = fromId;
         this.indy = indy;
@@ -49,7 +49,7 @@ public class IndyRunningDeletion implements RunningRepositoryDeletion {
     @Override
     public void monitor(Consumer<CompletedRepositoryDeletion> onComplete, Consumer<Exception> onError) {
         try {
-            StoreKey fromKey = new StoreKey(pkgType, fromType, fromId);
+            StoreKey fromKey = new StoreKey(pakageType, fromType, fromId);
             if (indy.stores().exists(fromKey)) {
                 indy.stores().delete(fromKey, "Deleting artifacts for PNC build");
             }

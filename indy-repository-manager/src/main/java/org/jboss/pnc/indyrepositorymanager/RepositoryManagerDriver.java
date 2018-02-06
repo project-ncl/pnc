@@ -206,11 +206,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
             TargetRepository.Type repositoryType) throws RepositoryManagerException {
         Indy indy = init(accessToken);
 
-        String pkgType = getIndyPackageTypeKey(repositoryType);
+        String pakageType = getIndyPackageTypeKey(repositoryType);
 
         String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildExecution, pkgType, indy);
+            setupBuildRepos(buildExecution, pakageType, indy);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
@@ -224,13 +224,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // manually initialize the tracking record, just in case (somehow) nothing gets downloaded/uploaded.
             indy.module(IndyFoloAdminClientModule.class).initReport(buildId);
 
-            StoreKey groupKey = new StoreKey(pkgType, StoreType.group, buildId);
+            StoreKey groupKey = new StoreKey(pakageType, StoreType.group, buildId);
             url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, groupKey);
 
-            StoreKey hostedKey = new StoreKey(pkgType, StoreType.hosted, buildId);
+            StoreKey hostedKey = new StoreKey(pakageType, StoreType.hosted, buildId);
             deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, hostedKey);
 
-            logger.info("Using '{}' for {} repository access in build: {}", url, pkgType, buildId);
+            logger.info("Using '{}' for {} repository access in build: {}", url, pakageType, buildId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve Indy client module for the artifact tracker: %s", e,
                     e.getMessage());
@@ -238,7 +238,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_GROUP;
-        return new IndyRepositorySession(indy, buildId, pkgType, new IndyRepositoryConnectionInfo(url, deployUrl),
+        return new IndyRepositorySession(indy, buildId, pakageType, new IndyRepositoryConnectionInfo(url, deployUrl),
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
     }
 
@@ -261,35 +261,34 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * repository manager can keep track of downloads and uploads for the build.
      *
      * @param execution The execution object, which contains the content id for creating the repo, and the build id.
-     * @param pkgType the package type key used by Indy
+     * @param pakageType the package type key used by Indy
      * @throws IndyClientException
      */
-    private void setupBuildRepos(BuildExecution execution, String pkgType, Indy indy)
+    private void setupBuildRepos(BuildExecution execution, String pakageType, Indy indy)
             throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
         int id = execution.getId();
 
         // if the build-level group doesn't exist, create it.
-        StoreKey groupKey = new StoreKey(pkgType, StoreType.group, buildContentId);
+        StoreKey groupKey = new StoreKey(pakageType, StoreType.group, buildContentId);
 
         if (!indy.stores().exists(groupKey)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            StoreKey hostedKey = new StoreKey(pkgType, StoreType.hosted, buildContentId);
+            StoreKey hostedKey = new StoreKey(pakageType, StoreType.hosted, buildContentId);
             boolean tempBuild = execution.isTempBuild();
             if (!indy.stores().exists(hostedKey)) {
-                HostedRepository buildArtifacts = new HostedRepository(pkgType, buildContentId);
+                HostedRepository buildArtifacts = new HostedRepository(pakageType, buildContentId);
                 buildArtifacts.setAllowSnapshots(tempBuild);
                 buildArtifacts.setAllowReleases(true);
 
-                buildArtifacts.setDescription(String.format("Build output for PNC %s build #%s", pkgType, id));
+                buildArtifacts.setDescription(String.format("Build output for PNC %s build #%s", pakageType, id));
 
-                indy.stores().create(buildArtifacts,
-                        "Creating hosted repository for " + pkgType + " build: " + id + " (repo: " + buildContentId + ")",
-                        HostedRepository.class);
+                indy.stores().create(buildArtifacts, "Creating hosted repository for " + pakageType + " build: " + id
+                        + " (repo: " + buildContentId + ")", HostedRepository.class);
             }
 
-            Group buildGroup = new Group(pkgType, buildContentId);
+            Group buildGroup = new Group(pakageType, buildContentId);
             String adjective = tempBuild ? "temporary " : "";
             buildGroup.setDescription(String.format("Aggregation group for PNC %sbuild #%s", adjective, id));
 
@@ -297,10 +296,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
             buildGroup.addConstituent(hostedKey);
 
             // Global-level repos, for captured/shared artifacts and access to the outside world
-            addGlobalConstituents(pkgType, buildGroup, tempBuild);
+            addGlobalConstituents(pakageType, buildGroup, tempBuild);
 
             // add extra repositories removed from poms by the adjust process
-            addExtraConstituents(pkgType, execution.getArtifactRepositories(), id, buildContentId, indy, buildGroup);
+            addExtraConstituents(pakageType, execution.getArtifactRepositories(), id, buildContentId, indy, buildGroup);
 
             indy.stores().create(buildGroup, "Creating repository group for resolving artifacts in build: " + id
                     + " (repo: " + buildContentId + ")", Group.class);
@@ -311,7 +310,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Adds extra remote repositories to the build group that are requested for the particular build. For a Maven build
      * these are repositories defined in the root pom removed by PME by the adjust process.
      *
-     * @param pkgType the package type key used by Indy
+     * @param pakageType
+     *            the package type key used by Indy
      * @param repositories
      *            the list of repositories to be added
      * @param buildId
@@ -326,10 +326,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @throws IndyClientException
      *             in case of an issue when communicating with the repository manager
      */
-    private void addExtraConstituents(String pkgType, List<ArtifactRepository> repositories, int buildId, String buildContentId,
-            Indy indy, Group buildGroup) throws IndyClientException {
+    private void addExtraConstituents(String pakageType, List<ArtifactRepository> repositories, int buildId,
+            String buildContentId, Indy indy, Group buildGroup) throws IndyClientException {
         if (repositories != null && !repositories.isEmpty()) {
-            StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(pkgType);
+            StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(pakageType);
             for (ArtifactRepository repository : repositories) {
                 StoreKey remoteKey = null;
                 for (RemoteRepository existingRepo : existingRepos) {
@@ -344,16 +344,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     String remoteName = "i-" + repository.getId();
 
                     // find a free repository ID for the newly created repo
-                    remoteKey = new StoreKey(pkgType, StoreType.remote, remoteName);
+                    remoteKey = new StoreKey(pakageType, StoreType.remote, remoteName);
                     int i = 2;
                     while (indy.stores().exists(remoteKey)) {
-                        remoteKey = new StoreKey(pkgType, StoreType.remote, remoteName + "-" + i++);
+                        remoteKey = new StoreKey(pakageType, StoreType.remote, remoteName + "-" + i++);
                     }
 
-                    RemoteRepository remoteRepo = new RemoteRepository(pkgType, remoteKey.getName(), repository.getUrl());
+                    RemoteRepository remoteRepo = new RemoteRepository(pakageType, remoteKey.getName(), repository.getUrl());
                     remoteRepo.setAllowReleases(repository.getReleases());
                     remoteRepo.setAllowSnapshots(repository.getSnapshots());
-                    remoteRepo.setDescription("Implicitly created " + pkgType + " repo for: " + repository.getName()
+                    remoteRepo.setDescription("Implicitly created " + pakageType + " repo for: " + repository.getName()
                             + " (" + repository.getId() + ") from repository declaration removed by PME in build "
                             + buildId + " (repo: " + buildContentId + ")");
                     indy.stores().create(remoteRepo, "Creating extra remote repository " + repository.getName() + " ("
@@ -374,20 +374,20 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * <li>shared-imports (Hosted Repo)</li>
      * <li>public (Group)</li>
      * </ol>
-     * @param pkgType package type key used by Indy
+     * @param pakageType package type key used by Indy
      */
-    private void addGlobalConstituents(String pkgType, Group group, boolean tempBuild) {
+    private void addGlobalConstituents(String pakageType, Group group, boolean tempBuild) {
         // 1. global builds artifacts
-        group.addConstituent(new StoreKey(pkgType, StoreType.group, UNTESTED_BUILDS_GROUP));
+        group.addConstituent(new StoreKey(pakageType, StoreType.group, UNTESTED_BUILDS_GROUP));
         if (tempBuild) {
-            group.addConstituent(new StoreKey(pkgType, StoreType.group, TEMPORARY_BUILDS_GROUP));
+            group.addConstituent(new StoreKey(pakageType, StoreType.group, TEMPORARY_BUILDS_GROUP));
         }
 
         // 2. global shared-imports artifacts
-        group.addConstituent(new StoreKey(pkgType, StoreType.hosted, SHARED_IMPORTS_ID));
+        group.addConstituent(new StoreKey(pakageType, StoreType.hosted, SHARED_IMPORTS_ID));
 
         // 3. public group, containing remote proxies to the outside world
-        group.addConstituent(new StoreKey(pkgType, StoreType.group, PUBLIC_GROUP_ID));
+        group.addConstituent(new StoreKey(pakageType, StoreType.group, PUBLIC_GROUP_ID));
     }
 
     /**
@@ -405,17 +405,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * called.
      */
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pkgType, String toGroup, String accessToken)
-            throws RepositoryManagerException {
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pakageType, String toGroup,
+            String accessToken) throws RepositoryManagerException {
         Indy indy = init(accessToken);
-        return new IndyRunningPromotion(pkgType, StoreType.hosted, buildRecord.getBuildContentId(), toGroup, indy);
+        return new IndyRunningPromotion(pakageType, StoreType.hosted, buildRecord.getBuildContentId(), toGroup, indy);
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pkgType, String accessToken)
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pakageType, String accessToken)
             throws RepositoryManagerException {
         Indy indy = init(accessToken);
-        return new IndyRunningDeletion(pkgType, StoreType.hosted, buildRecord.getBuildContentId(), indy);
+        return new IndyRunningDeletion(pakageType, StoreType.hosted, buildRecord.getBuildContentId(), indy);
     }
 
 }
