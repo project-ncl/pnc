@@ -40,6 +40,8 @@ import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
@@ -93,9 +95,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private String baseUrl;
     private Map<String, Indy> indyMap = new HashMap<>();
 
-    private Map<String, List<String>> internalRepoPatterns;
+    private InternalRepoPatterns internalRepoPatterns;
 
-    private Map<String, Set<String>> ignoredPathSuffixes;
+    private IgnoredPathSuffixes ignoredPathSuffixes;
 
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
@@ -124,28 +126,21 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         List<String> constInternalRepoPatterns = new ArrayList<>();
         constInternalRepoPatterns.add(IndyRepositoryConstants.SHARED_IMPORTS_ID);
-        internalRepoPatterns = new HashMap<>();
-        internalRepoPatterns.put(MAVEN_PKG_KEY, constInternalRepoPatterns);
-        internalRepoPatterns.put(NPM_PKG_KEY, new ArrayList<>(constInternalRepoPatterns));
+        internalRepoPatterns = new InternalRepoPatterns();
+        internalRepoPatterns.setMaven(constInternalRepoPatterns);
+        internalRepoPatterns.setNpm(new ArrayList<>(constInternalRepoPatterns));
 
-        Map<String, List<String>> extraInternalRepoPatterns = config.getInternalRepoPatterns();
+        InternalRepoPatterns extraInternalRepoPatterns = config.getInternalRepoPatterns();
         if (extraInternalRepoPatterns != null) {
-            for (Map.Entry<String, List<String>> entry : extraInternalRepoPatterns.entrySet()) {
-                if (!internalRepoPatterns.containsKey(entry.getKey())) {
-                    internalRepoPatterns.put(entry.getKey(), new ArrayList<>());
-                }
-                internalRepoPatterns.get(entry.getKey()).addAll(entry.getValue());
-            }
+            internalRepoPatterns.addMaven(extraInternalRepoPatterns.getMaven());
+            internalRepoPatterns.addNpm(extraInternalRepoPatterns.getNpm());
         }
 
-        Map<String, List<String>> ignoredPathSuffixes = config.getIgnoredPathSuffixes();
+        IgnoredPathSuffixes ignoredPathSuffixes = config.getIgnoredPathSuffixes();
         if (ignoredPathSuffixes == null) {
-            this.ignoredPathSuffixes = Collections.emptyMap();
+            this.ignoredPathSuffixes = new IgnoredPathSuffixes();
         } else {
-            this.ignoredPathSuffixes = new HashMap<>(ignoredPathSuffixes.size());
-            for (Map.Entry<String, List<String>> entry : ignoredPathSuffixes.entrySet()) {
-                this.ignoredPathSuffixes.put(entry.getKey(), new HashSet<>(entry.getValue()));
-            }
+            this.ignoredPathSuffixes = ignoredPathSuffixes; // TODO do we need a copy?
         }
     }
 

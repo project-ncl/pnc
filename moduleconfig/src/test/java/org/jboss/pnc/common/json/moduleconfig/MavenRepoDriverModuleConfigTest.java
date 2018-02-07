@@ -26,8 +26,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
-
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
@@ -46,8 +44,8 @@ public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
             assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
             assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
-            assertEquals(1, mavenConfig.getIgnoredPathSuffixes().size());
-            List<String> ignoredPathSuffixesMaven = mavenConfig.getIgnoredPathSuffixes().get(MAVEN_PKG_KEY);
+            assertEquals(0, mavenConfig.getIgnoredPathSuffixes().getNpm().size());
+            List<String> ignoredPathSuffixesMaven = mavenConfig.getIgnoredPathSuffixes().getMaven();
             assertNotNull(ignoredPathSuffixesMaven);
             assertEquals(2, ignoredPathSuffixesMaven.size());
             assertTrue(ignoredPathSuffixesMaven.contains("/maven-metadata.xml"));

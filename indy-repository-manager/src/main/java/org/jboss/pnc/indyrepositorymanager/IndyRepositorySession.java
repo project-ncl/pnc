@@ -35,6 +35,8 @@ import org.commonjava.indy.promote.model.ValidationResult;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -78,11 +80,8 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.UNTEST
  */
 public class IndyRepositorySession implements RepositorySession {
 
-    /**
-     * Map of packageType-specific ignored suffixes. Key is the package type, value is set of suffixes. For suffixes
-     * applied to all package types (e.g. checksums) an empty string should be used as the key.
-     */
-    private Map<String, Set<String>> ignoredPathSuffixes;
+    /** PackageType-specific ignored suffixes. */
+    private IgnoredPathSuffixes ignoredPathSuffixes;
 
     private boolean isTempBuild;
 
@@ -90,10 +89,9 @@ public class IndyRepositorySession implements RepositorySession {
     private final String buildContentId;
     private final String packageKey;
     /**
-     * Map of packageType-specific internal repository name patterns. Key is the package type, value is list of
-     * patterns.
+     * PackageType-specific internal repository name patterns.
      */
-    private Map<String, List<String>> internalRepoPatterns;
+    private InternalRepoPatterns internalRepoPatterns;
 
     private final RepositoryConnectionInfo connectionInfo;
 
@@ -102,8 +100,8 @@ public class IndyRepositorySession implements RepositorySession {
     private String buildPromotionGroup;
 
     public IndyRepositorySession(Indy indy, String buildContentId, String packageKey,
-            IndyRepositoryConnectionInfo info, Map<String, List<String>> internalRepoPatterns,
-            Map<String, Set<String>> ignoredPathSuffixes, String buildPromotionGroup, boolean isTempBuild) {
+            IndyRepositoryConnectionInfo info, InternalRepoPatterns internalRepoPatterns,
+            IgnoredPathSuffixes ignoredPathSuffixes, String buildPromotionGroup, boolean isTempBuild) {
         this.indy = indy;
         this.buildContentId = buildContentId;
         this.packageKey = packageKey;
@@ -354,7 +352,20 @@ public class IndyRepositorySession implements RepositorySession {
 
     private boolean isExternalOrigin(StoreKey storeKey) {
         String repoName = storeKey.getName();
-        for (String pattern : internalRepoPatterns.get(storeKey.getPackageType())) {
+        List<String> patterns;
+        switch (storeKey.getPackageType()) {
+            case MAVEN_PKG_KEY:
+                patterns = internalRepoPatterns.getMaven();
+                break;
+            case NPM_PKG_KEY:
+                patterns = internalRepoPatterns.getNpm();
+                break;
+            default:
+                throw new IllegalArgumentException("Package type " + storeKey.getPackageType()
+                        + " is not supported by Indy repository manager driver.");
+        }
+
+        for (String pattern : patterns) {
 //            Logger logger = LoggerFactory.getLogger(getClass());
 //            logger.info( "Checking ")
             if (pattern.equals(repoName)) {
@@ -538,14 +549,20 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     private boolean ignoreContent(String packageType, String path) {
-        // packageType-specific suffixes
-        for (String suffix : ignoredPathSuffixes.get(packageType)) {
-            if (path.endsWith(suffix)) {
-                return true;
-            }
+        List<String> suffixes;
+        switch (packageType) {
+            case MAVEN_PKG_KEY:
+                suffixes = ignoredPathSuffixes.getMavenWithShared();
+                break;
+            case NPM_PKG_KEY:
+                suffixes = ignoredPathSuffixes.getNpmWithShared();
+                break;
+            default:
+                throw new IllegalArgumentException("Package type " + packageType
+                        + " is not supported by Indy repository manager driver.");
         }
-        // ...and general suffixes
-        for (String suffix : ignoredPathSuffixes.get("")) {
+
+        for (String suffix : suffixes) {
             if (path.endsWith(suffix)) {
                 return true;
             }

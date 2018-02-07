@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.IgnoredPathSuffixes;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
 import org.junit.Test;
@@ -29,16 +30,13 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 
 public class ModuleConfigJsonTest {
 
@@ -51,9 +49,9 @@ public class ModuleConfigJsonTest {
                 new MavenRepoDriverModuleConfig("http://something/base");
         mavenRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         mavenRepoDriverModuleConfig.setDefaultRequestTimeout(100);
-        Map<String, List<String>> ignoredSuffixes = new HashMap<>();
+        IgnoredPathSuffixes ignoredSuffixes = new IgnoredPathSuffixes();
         List<String> ignoredSuffixesMaven = new ArrayList<>(2);
-        ignoredSuffixes.put(MAVEN_PKG_KEY, ignoredSuffixesMaven);
+        ignoredSuffixes.setMaven(ignoredSuffixesMaven);
         ignoredSuffixesMaven.add("/maven-metadata.xml");
         ignoredSuffixesMaven.add(".sha1");
         mavenRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);

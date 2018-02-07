@@ -24,6 +24,7 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
@@ -38,7 +39,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -57,8 +57,10 @@ public class ExcludeInternalRepoByRegexTest
     private static final String EXTERNAL = "external";
 
     @Override
-    protected Map<String, List<String>> getInternalRepoPatterns() {
-        return Collections.singletonMap(MAVEN_PKG_KEY, Collections.singletonList("in.+"));
+    protected InternalRepoPatterns getInternalRepoPatterns() {
+        InternalRepoPatterns result = new InternalRepoPatterns();
+        result.addMaven(Collections.singletonList("in.+"));
+        return result;
     }
 
     @Test

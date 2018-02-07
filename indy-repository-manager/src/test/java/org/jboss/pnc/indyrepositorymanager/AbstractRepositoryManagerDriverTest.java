@@ -27,6 +27,7 @@ import org.commonjava.indy.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
 import org.junit.After;
@@ -107,7 +108,7 @@ public class AbstractRepositoryManagerDriverTest {
         driver = new RepositoryManagerDriver(config);
     }
 
-    protected Map<String, List<String>> getInternalRepoPatterns() {
+    protected InternalRepoPatterns getInternalRepoPatterns() {
         return null;
     }
 
