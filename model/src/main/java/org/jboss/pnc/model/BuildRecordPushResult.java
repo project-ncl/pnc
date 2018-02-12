@@ -73,7 +73,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     @Getter
     @Setter
     @Lob
-    @Type(type = "org.hibernate.type.MaterializedClobType")
+    @Type(type = "org.hibernate.type.TextType")
     private String log;
 
     /**
