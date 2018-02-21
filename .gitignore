@@ -14,6 +14,6 @@ bin
 .idea
 
 # DB test file
-maven-repository-manager/derby.log
-maven-repository-manager/indexedStorePath
-maven-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
+indy-repository-manager/derby.log
+indy-repository-manager/indexedStorePath
+indy-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry

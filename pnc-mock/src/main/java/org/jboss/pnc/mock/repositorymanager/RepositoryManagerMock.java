@@ -19,6 +19,7 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository.Type;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -66,7 +67,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken, Type repositoryType)
     		throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
@@ -79,13 +80,13 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pkgType, String toGroup, String accessToken)
             throws RepositoryManagerException {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }
 
     @Override
-    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken)
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pkgType, String accessToken)
     		throws RepositoryManagerException {
         return new RunningRepositoryDeletionMock(deletionSuccess, deletionError);
     }

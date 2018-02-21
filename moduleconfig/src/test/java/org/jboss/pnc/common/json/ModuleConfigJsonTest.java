@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.IgnoredPathSuffixes;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 public class ModuleConfigJsonTest {
 
     @Test
@@ -47,9 +49,11 @@ public class ModuleConfigJsonTest {
                 new MavenRepoDriverModuleConfig("http://something/base");
         mavenRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         mavenRepoDriverModuleConfig.setDefaultRequestTimeout(100);
-        List<String> ignoredSuffixes = new ArrayList<>(2);
-        ignoredSuffixes.add("/maven-metadata.xml");
-        ignoredSuffixes.add(".sha1");
+        IgnoredPathSuffixes ignoredSuffixes = new IgnoredPathSuffixes();
+        List<String> ignoredSuffixesMaven = new ArrayList<>(2);
+        ignoredSuffixes.setMaven(ignoredSuffixesMaven);
+        ignoredSuffixesMaven.add("/maven-metadata.xml");
+        ignoredSuffixesMaven.add(".sha1");
         mavenRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);
 
         PNCModuleGroup pncGroup = new PNCModuleGroup();

@@ -34,11 +34,12 @@ public interface RepositoryManager {
      *
      * @param buildExecution The build execution currently running
      * @param accessToken The access token to use
+     * @param repositoryType the created repositories' type (npm, maven, etc.)
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
-            throws RepositoryManagerException;
+    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
+            TargetRepository.Type repositoryType) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the
@@ -46,15 +47,15 @@ public interface RepositoryManager {
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryPromotion} instance.
      *
      * @param buildRecord The build output to promote
+     * @param pakageType package type key used by repository manager
      * @param toGroup The ID of the repository group where the build output should be promoted
      * @param accessToken The access token to use
-     *
      * @return An object representing the running promotion process, with callbacks for result and error.
      *
      * @throws RepositoryManagerException If there is a problem promoting the build
      */
-    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
-            throws RepositoryManagerException;
+    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pakageType, String toGroup,
+            String accessToken) throws RepositoryManagerException;
 
     /**
      * Used to purge the artifacts that were output from a given build (including the specific hosted repository which was used
@@ -62,19 +63,21 @@ public interface RepositoryManager {
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryDeletion} instance.
      *
      * @param buildRecord The build whose artifacts/repositories should be removed
+     * @param pakageType package type key used by repository manager
      * @param accessToken The access token to use
      * @return An object representing the running deletion, with callbacks for result and error.
      *
      * @throws RepositoryManagerException If there is a problem deleting the build
      */
-    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String accessToken) throws RepositoryManagerException;
+    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pakageType, String accessToken)
+            throws RepositoryManagerException;
 
     /**
      * Closes connection to the repository driver for the given accessToken.
      * @param accessToken The access token to use
      */
     void close(String accessToken);
-    
+
     boolean canManage(TargetRepository.Type managerType);
 
 }

@@ -138,7 +138,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>maven-repository-manager</artifactId>
+      <artifactId>indy-repository-manager</artifactId>
       <scope>test</scope>
       <exclusions>
         <exclusion>

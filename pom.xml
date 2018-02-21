@@ -77,7 +77,7 @@
     <module>messaging</module>
     <module>ear-package</module>
     <module>termd-build-driver</module>
-    <module>maven-repository-manager</module>
+    <module>indy-repository-manager</module>
     <module>build-coordinator</module>
     <module>build-executor</module>
     <module>model</module>
@@ -289,7 +289,7 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>maven-repository-manager</artifactId>
+        <artifactId>indy-repository-manager</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -772,6 +772,11 @@
 
       <dependency>
         <groupId>org.commonjava.indy</groupId>
+        <artifactId>indy-model-core-java</artifactId>
+        <version>${indyVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.indy</groupId>
         <artifactId>indy-promote-client-java</artifactId>
         <version>${indyVersion}</version>
         <exclusions>
@@ -925,7 +930,7 @@
         <artifactId>commons-validator</artifactId>
         <version>1.5.0</version>
       </dependency>
-      
+
     </dependencies>
   </dependencyManagement>
 

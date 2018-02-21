@@ -23,7 +23,9 @@
                     "baseUrl": "1.1.1.1",
                     "defaultRequestTimeout": 100,
                     "buildRepositoryAllowSnapshots": true,
-                    "ignored-path-suffixes": ["/maven-metadata.xml", ".sha1"]
+                    "ignored-path-suffixes": {
+                        "maven": ["/maven-metadata.xml", ".sha1"]
+                    }
                 }
             ]
         }

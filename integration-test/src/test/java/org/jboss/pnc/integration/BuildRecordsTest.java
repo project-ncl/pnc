@@ -204,7 +204,7 @@ public class BuildRecordsTest {
                 .attribute("attributeKey", "attributeValue1")
                 .temporaryBuild(false)
                 .build();
-                
+
         buildRecord1 = buildRecordRepository.save(buildRecord1);
         buildRecord1Id = buildRecord1.getId();
 

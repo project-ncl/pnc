@@ -126,14 +126,20 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
+        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.NPM)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
                 try {
-                    return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
-                            artifact.getTargetRepository().getRepositoryPath(),
-                            artifact.getDeployPath());
+                    if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
+                        return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
+                                artifact.getTargetRepository().getRepositoryPath(),
+                                artifact.getDeployPath());
+                    } else {
+                        return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryNpmPath(),
+                                artifact.getTargetRepository().getRepositoryPath(),
+                                artifact.getDeployPath());
+                    }
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct internal artifact URL.", e);
                     return null;
@@ -146,14 +152,20 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
+        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.NPM)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
                 try {
-                    return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
-                            artifact.getTargetRepository().getRepositoryPath(),
-                            artifact.getDeployPath());
+                    if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
+                        return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
+                                artifact.getTargetRepository().getRepositoryPath(),
+                                artifact.getDeployPath());
+                    } else {
+                        return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryNpmPath(),
+                                artifact.getTargetRepository().getRepositoryPath(),
+                                artifact.getDeployPath());
+                    }
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct public artifact URL.", e);
                     return null;

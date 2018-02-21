@@ -24,6 +24,8 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.junit.Test;
 
+import java.util.List;
+
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
@@ -42,9 +44,12 @@ public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
             assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
             assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
-            assertEquals(2, mavenConfig.getIgnoredPathSuffixes().size());
-            assertTrue(mavenConfig.getIgnoredPathSuffixes().contains("/maven-metadata.xml"));
-            assertTrue(mavenConfig.getIgnoredPathSuffixes().contains(".sha1"));
+            assertEquals(0, mavenConfig.getIgnoredPathSuffixes().getNpm().size());
+            List<String> ignoredPathSuffixesMaven = mavenConfig.getIgnoredPathSuffixes().getMaven();
+            assertNotNull(ignoredPathSuffixesMaven);
+            assertEquals(2, ignoredPathSuffixesMaven.size());
+            assertTrue(ignoredPathSuffixesMaven.contains("/maven-metadata.xml"));
+            assertTrue(ignoredPathSuffixesMaven.contains(".sha1"));
     }
 
     @Test
@@ -56,10 +61,11 @@ public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
             MavenRepoDriverModuleConfig mavenConfig = configuration
                     .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
 
-            if (backupConfigPath != null)
+            if (backupConfigPath != null) {
                 System.setProperty("pnc-config-file", backupConfigPath);
-            else
+            } else {
                 System.getProperties().remove("pnc-config-file");
+            }
 
             assertNotNull(mavenConfig);
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
