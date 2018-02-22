@@ -34,7 +34,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -52,11 +51,11 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution, accessToken);
 
-        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
+        StoreKey hostedKey = new StoreKey(StoreType.hosted, buildId);
 
         // simulate a build deploying a file.
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
-                .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
+                .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the pnc-builds group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
@@ -69,8 +68,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the pnc-builds group should contain the build hosted repo.
-        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PNC_BUILDS_GROUP);
-        Group pncBuildsGroup = driver.getIndy(accessToken).stores().load(pncBuildsKey, Group.class);
+        Group pncBuildsGroup = driver.getIndy(accessToken).stores().load(StoreType.group, PNC_BUILDS_GROUP, Group.class);
         assertThat(pncBuildsGroup.getConstituents().contains(hostedKey), equalTo(true));
     }
 

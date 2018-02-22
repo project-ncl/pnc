@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.apache.commons.lang.StringUtils.join;
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -54,13 +53,13 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
         // - the "shared-imports" repo
         // - the public group
         // ...in that order
-        Group buildGroup = indy.stores().load(new StoreKey(MAVEN_PKG_KEY, StoreType.group, repoId), Group.class);
+        Group buildGroup = indy.stores().load(StoreType.group, repoId, Group.class);
 
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
-        assertGroupConstituents(buildGroup, new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, execution.getBuildContentId()),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.group, MavenRepositoryConstants.PUBLIC_GROUP_ID));
+        assertGroupConstituents(buildGroup, new StoreKey(StoreType.hosted, execution.getBuildContentId()),
+                new StoreKey(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP),
+                new StoreKey(StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID),
+                new StoreKey(StoreType.group, MavenRepositoryConstants.PUBLIC_GROUP_ID));
     }
 
 }

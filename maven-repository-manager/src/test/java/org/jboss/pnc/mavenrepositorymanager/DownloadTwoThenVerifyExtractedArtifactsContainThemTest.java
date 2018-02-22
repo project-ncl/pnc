@@ -41,7 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
@@ -105,7 +104,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
     }
 
     private void assertAvailableInSharedImports(Indy indy, String content, String path) throws IndyClientException, IOException {
-        InputStream stream = indy.content().get(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID), path);
+        InputStream stream = indy.content().get(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID), path);
         String downloaded = IOUtils.toString(stream);
         assertThat(downloaded, equalTo(content));
     }
