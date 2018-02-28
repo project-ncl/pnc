@@ -182,7 +182,7 @@ public class DefaultDatastore implements Datastore {
             logger.trace("Target repository saved {}.", targetRepositoryFromDb);
         }
         else {
-            logger.trace("Target repository already present in DB {}.", targetRepository);
+            logger.trace("Target repository already present in DB {}.", targetRepositoryFromDb);
         }
 
         return targetRepositoryFromDb;
