@@ -130,11 +130,14 @@ public class DefaultDatastore implements Datastore {
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build();
+        logger.debug("Storing completed build {}.", buildRecord);
+
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
+
         logger.debug("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
-        logger.trace("Build record saved {}.", buildRecord);
+        logger.debug("Build record saved {}.", buildRecord);
 
         return buildRecord;
     }
@@ -148,28 +151,40 @@ public class DefaultDatastore implements Datastore {
      */
     private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
         logger.debug("Saving {} artifacts.", artifacts.size());
+
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = saveTargetRepository(artifact.getTargetRepository());
             artifact.setTargetRepository(targetRepository);
+
             Artifact artifactFromDb;
             if (TargetRepository.Type.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType())) {
                 artifactFromDb = saveHttpArtifacts(artifact);
             } else {
                 artifactFromDb = saveRepositoryArtifacts(artifact);
             }
+
             savedArtifacts.add(artifactFromDb);
         }
+
         logger.debug("Artifacts saved: {}.", artifacts);
         return savedArtifacts;
     }
 
     private TargetRepository saveTargetRepository(TargetRepository targetRepository) {
+        logger.trace("Saving target repository {}.", targetRepository);
         TargetRepository targetRepositoryFromDb = targetRepositoryRepository
                 .queryByIdentifierAndPath(targetRepository.getIdentifier(), targetRepository.getRepositoryPath());
+
         if (targetRepositoryFromDb == null) {
+            logger.trace("Target repository is not in DB. Saving target repository {}.", targetRepository);
             targetRepositoryFromDb = targetRepositoryRepository.save(targetRepository);
+            logger.trace("Target repository saved {}.", targetRepositoryFromDb);
         }
+        else {
+            logger.trace("Target repository already present in DB {}.", targetRepositoryFromDb);
+        }
+
         return targetRepositoryFromDb;
     }
 
@@ -178,14 +193,21 @@ public class DefaultDatastore implements Datastore {
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()));
-        logger.trace("Found artifact {}.", artifactFromDb);
+
         if (artifactFromDb == null) {
+            logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
+
             //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
             artifact.setBuildRecords(Collections.emptySet());
             artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
+
             logger.trace("Saved new artifact {}.", artifactFromDb);
         }
+        else {
+            logger.trace("Artifact already present in DB {}", artifactFromDb);
+        }
+
         return artifactFromDb;
     }
 
@@ -194,17 +216,27 @@ public class DefaultDatastore implements Datastore {
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository
                 .queryByPredicates(withOriginUrl(artifact.getOriginUrl()));
+
         if (artifactFromDb == null) {
+            logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
+
             // remove checksum of http downloads because thay are mutable
             // persistent http downloads should be stored per build and not shared
             artifact.setSha1("");
             artifact.setMd5("");
             artifact.setSha256("");
+
             //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
             artifact.setBuildRecords(Collections.emptySet());
             artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
+
+            logger.trace("Saved new artifact {}.", artifactFromDb);
         }
+        else {
+            logger.trace("Artifact already present in DB {}", artifactFromDb);
+        }
+
         return artifactFromDb;
     }
 
