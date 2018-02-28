@@ -414,7 +414,8 @@ public class Artifact implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + "]";
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality
+                + ", targetRepository" + targetRepository + "]";
     }
 
     public String getDescriptiveString() {
