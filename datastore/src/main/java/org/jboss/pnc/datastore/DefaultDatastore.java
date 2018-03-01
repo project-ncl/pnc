@@ -137,7 +137,7 @@ public class DefaultDatastore implements Datastore {
 
         logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
-        logger.debug("Build record saved {}.", buildRecord);
+        logger.debug("Build record {} saved.", buildRecord.getId());
 
         return buildRecord;
     }
