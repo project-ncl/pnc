@@ -65,7 +65,7 @@ public class AuthenticationProviderFactory {
 
     private void setMatchingProvider(AuthenticationProvider provider, String id) {
         if (provider.getId().equals(id)) {
-            logger.debug("Using {} as authentication provider.", id);
+            logger.trace("Using {} as authentication provider.", id);
             authenticationProvider = provider;
         }
     }
