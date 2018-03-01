@@ -135,9 +135,9 @@ public class DefaultDatastore implements Datastore {
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
 
-        logger.debug("Saving build record {}.", buildRecord);
+        logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
-        logger.debug("Build record saved {}.", buildRecord);
+        logger.debug("Build record {} saved.", buildRecord.getId());
 
         return buildRecord;
     }
@@ -180,8 +180,7 @@ public class DefaultDatastore implements Datastore {
             logger.trace("Target repository is not in DB. Saving target repository {}.", targetRepository);
             targetRepositoryFromDb = targetRepositoryRepository.save(targetRepository);
             logger.trace("Target repository saved {}.", targetRepositoryFromDb);
-        }
-        else {
+        } else {
             logger.trace("Target repository already present in DB {}.", targetRepositoryFromDb);
         }
 
@@ -203,8 +202,7 @@ public class DefaultDatastore implements Datastore {
             artifactFromDb = artifactRepository.save(artifact);
 
             logger.trace("Saved new artifact {}.", artifactFromDb);
-        }
-        else {
+        } else {
             logger.trace("Artifact already present in DB {}", artifactFromDb);
         }
 
@@ -232,8 +230,7 @@ public class DefaultDatastore implements Datastore {
             artifactFromDb = artifactRepository.save(artifact);
 
             logger.trace("Saved new artifact {}.", artifactFromDb);
-        }
-        else {
+        } else {
             logger.trace("Artifact already present in DB {}", artifactFromDb);
         }
 
