@@ -68,7 +68,7 @@
     };
 
     function showTable() {
-      return $ctrl.items.length;
+      return $ctrl.items && $ctrl.items.length;
     }
 
     function showColumn(property) {

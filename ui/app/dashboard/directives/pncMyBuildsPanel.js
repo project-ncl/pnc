@@ -36,10 +36,11 @@
     'authService',
     'PageFactory',
     'BuildConfigurationDAO',
-    'BuildRecordDAO',
+    'BuildRecord',
     'UserDAO',
     'eventTypes',
-    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildRecordDAO, UserDAO, eventTypes) {
+    'paginator',
+    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildRecord, UserDAO, eventTypes, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
@@ -47,7 +48,7 @@
         link: function (scope) {
 
           scope.update = function() {
-            scope.page.reload();
+            scope.page.refresh();
           };
 
           scope.show = function() {
@@ -55,16 +56,14 @@
           };
 
           function init() {
-            scope.page = PageFactory.build(BuildRecordDAO, function (pageIndex, pageSize, searchText) {
-              return authService.getPncUser().then(function(result) {
-                return BuildRecordDAO._getByUser({
-                   userId: result.id,
-                   pageIndex: pageIndex,
-                   pageSize: pageSize,
-                   search: searchText,
-                   sort: 'sort=desc=id'
-                }).$promise;
-              });
+
+            authService.getPncUser().then(function(result) {
+              return BuildRecord.getByUser({
+                userId: result.id,
+                pageSize: 10
+              }).$promise.then(function(page){
+                scope.page = paginator(page);
+              }); 
             });
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];

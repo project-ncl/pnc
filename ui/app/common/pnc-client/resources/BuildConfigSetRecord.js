@@ -44,6 +44,14 @@
           url: ENDPOINT + '/build-records',
           method: 'GET',
           isPaged: true
+        },
+        /**
+         * Get Group Builds by user.
+         */
+        getByUser: {
+          method: 'GET',
+          isPaged: true,
+          url: ENDPOINT + '/?q=user.id==:userId',
         }
       });
 
