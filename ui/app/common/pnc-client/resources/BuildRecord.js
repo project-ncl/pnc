@@ -59,6 +59,13 @@
         'CANCELLED'
       ];
 
+      var CANCELABLE_STATUSES = [
+        'NEW',
+        'ENQUEUED',
+        'WAITING_FOR_DEPENDENCIES',
+        'BUILDING'
+      ];
+
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
@@ -194,12 +201,20 @@
         return hasFailed(this.status);
       };
 
+      resource.prototype.$isCancelable = function () {
+        return isCancelable(this.status);
+      };
+
       function isCompleted(status) {
         return FINAL_STATUSES.includes(status);
       }
 
       function hasFailed(status) {
         return isCompleted(status) && status !== 'DONE';
+      }
+
+      function isCancelable(status) {
+        return CANCELABLE_STATUSES.includes(status);
       }
 
       return resource;
