@@ -22,6 +22,7 @@ import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -122,12 +123,17 @@ public class BuildEnvironmentTest {
                           Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
                           ObjectWrapper<BuildResult> buildExecutionResultWrapper,
                           boolean keepAliveOnFailure) throws ExecutorException {
-        DefaultBuildExecutor executor = new DefaultBuildExecutor(
-                repositoryManagerFactory,
-                buildDriverFactory,
-                environmentDriverFactory,
-                new Configuration()
-        );
+        DefaultBuildExecutor executor = null;
+        try {
+            executor = new DefaultBuildExecutor(
+                    repositoryManagerFactory,
+                    buildDriverFactory,
+                    environmentDriverFactory,
+                    new Configuration()
+            );
+        } catch (ConfigurationParseException e) {
+            log.error(e.toString());
+        }
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
             log.debug("Received execution status update {}.", statusChangedEvent);

@@ -56,6 +56,11 @@ public class Configuration {
 
     private ConfigurationJSONParser configurationJsonParser = new ConfigurationJSONParser();
 
+
+    /**
+     *
+     * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
+     */
     public Configuration() throws ConfigurationParseException {
 
         try (InputStream configStream = this.getConfigStream()) {

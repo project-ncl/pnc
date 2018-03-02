@@ -21,6 +21,7 @@ package org.jboss.pnc.executor;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -95,7 +96,11 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 BuildExecutionStatus.DONE_WITH_ERRORS
         };
 
-        testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
+        try {
+            testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
+        } catch (ConfigurationParseException e) {
+            log.error(e.toString());
+        }
     }
 
     @Test(timeout=3000)
@@ -123,14 +128,18 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 BuildExecutionStatus.DONE_WITH_ERRORS
         };
 
-        testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
+        try {
+            testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
+        } catch (ConfigurationParseException e) {
+            log.error(e.toString());
+        }
     }
 
 
     private void testBuild(BuildExecutionStatus cancelAfter,
             BuildExecutionStatus[] expectedStatuses,
             BuildExecutionStatus[] unexpectedStatuses)
-            throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
+            throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException, ConfigurationParseException {
 
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();

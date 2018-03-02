@@ -70,8 +70,9 @@ public class IndyPromotionValidationTest {
             fail("No base URL has been specified");
         }
 
-        RepositoryManager driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
+        RepositoryManager driver = null;
         try {
+            driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
             RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null,
                     TargetRepository.Type.MAVEN);
             CloseableHttpClient client = HttpClientBuilder.create().build();
@@ -126,7 +127,7 @@ public class IndyPromotionValidationTest {
 
     private class TestConfiguration extends Configuration {
         private String baseUrl;
-        private TestConfiguration(String baseUrl) {
+        private TestConfiguration(String baseUrl) throws ConfigurationParseException{
             super();
             this.baseUrl = baseUrl;
         }
