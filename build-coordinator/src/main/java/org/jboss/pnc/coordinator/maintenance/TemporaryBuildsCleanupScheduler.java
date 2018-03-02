@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.maintenance;
 
 
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -56,6 +57,8 @@ public class TemporaryBuildsCleanupScheduler {
 
     private TemporaryBuildsCleaner temporaryBuildsCleaner;
 
+    private KeycloakServiceClient serviceClient;
+
     @Deprecated
     public TemporaryBuildsCleanupScheduler() {
         log.warn("Deprecated constructor used to init TemporaryBuildsCleanupScheduler. Default values will be used.");
@@ -63,9 +66,12 @@ public class TemporaryBuildsCleanupScheduler {
     }
 
     @Inject
-    public TemporaryBuildsCleanupScheduler(Configuration configuration, BuildRecordRepository buildRecordRepository,
-                                           BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-                                           TemporaryBuildsCleaner temporaryBuildsCleaner) {
+    public TemporaryBuildsCleanupScheduler(
+            Configuration configuration,
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+            TemporaryBuildsCleaner temporaryBuildsCleaner,
+            KeycloakServiceClient serviceClient) {
         int _temporaryBuildLifeSpan;
         try {
             SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
@@ -78,6 +84,7 @@ public class TemporaryBuildsCleanupScheduler {
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.temporaryBuildsCleaner = temporaryBuildsCleaner;
+        this.serviceClient = serviceClient;
     }
 
     /**
@@ -87,25 +94,27 @@ public class TemporaryBuildsCleanupScheduler {
     public void cleanupExpiredTemporaryBuilds() throws ValidationException {
         log.info("Regular cleanup of expired temporary builds started. Removing builds older than " + TEMPORARY_BUILD_LIFESPAN
                 + " days.");
+
         Date expirationThreshold = TimeUtils.getDateXDaysAgo(TEMPORARY_BUILD_LIFESPAN);
 
-        deleteExpiredBuildConfigSetRecords(expirationThreshold);
-        deleteExpiredBuildRecords(expirationThreshold);
+        String authToken = serviceClient.getAuthToken();
+        deleteExpiredBuildConfigSetRecords(expirationThreshold, authToken);
+        deleteExpiredBuildRecords(expirationThreshold, authToken);
 
         log.info("Regular cleanup of expired temporary builds finished.");
     }
 
-    private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold) throws ValidationException {
+    private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold, String authToken) throws ValidationException {
         List<BuildConfigSetRecord> expiredBCSRecords = buildConfigSetRecordRepository.findTemporaryBuildConfigSetRecordsOlderThan(expirationThreshold);
         for (BuildConfigSetRecord bcsr : expiredBCSRecords) {
-            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(bcsr.getId());
+            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(bcsr.getId(), authToken);
         }
     }
 
-    private void deleteExpiredBuildRecords(Date expirationThreshold) throws ValidationException {
+    private void deleteExpiredBuildRecords(Date expirationThreshold, String authToken) throws ValidationException {
         List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
         for (BuildRecord br : expiredBuilds) {
-            temporaryBuildsCleaner.deleteTemporaryBuild(br.getId());
+            temporaryBuildsCleaner.deleteTemporaryBuild(br.getId(), authToken);
         }
     }
 

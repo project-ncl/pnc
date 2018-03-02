@@ -29,7 +29,7 @@ import javax.enterprise.context.Dependent;
 public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
 
     @Override
-    public boolean deleteRemoteBuilds(BuildRecord buildRecord) {
+    public boolean deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
         return true;
     }
 }
