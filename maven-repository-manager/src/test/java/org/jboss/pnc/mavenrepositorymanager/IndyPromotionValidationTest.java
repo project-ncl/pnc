@@ -68,8 +68,8 @@ public class IndyPromotionValidationTest {
             fail("No base URL has been specified");
         }
 
-        RepositoryManager driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
         try {
+            RepositoryManager driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
             RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null);
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();
@@ -123,7 +123,7 @@ public class IndyPromotionValidationTest {
 
     private class TestConfiguration extends Configuration {
         private String baseUrl;
-        private TestConfiguration(String baseUrl) {
+        private TestConfiguration(String baseUrl) throws ConfigurationParseException {
             super();
             this.baseUrl = baseUrl;
         }

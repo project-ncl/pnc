@@ -21,6 +21,7 @@ package org.jboss.pnc.executor;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -74,7 +75,7 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
     }
 
     @Test(timeout=3000)
-    public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
+    public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException, ConfigurationParseException {
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
         ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
