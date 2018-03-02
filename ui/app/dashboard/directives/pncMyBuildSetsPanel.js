@@ -33,21 +33,21 @@
     '$log',
     'authService',
     'PageFactory',
-    'BuildConfigurationSetRecordDAO',
+    'BuildConfigSetRecord',
     'BuildRecordDAO',
     'UserDAO',
     'eventTypes',
-    function ($log, authService, PageFactory, BuildConfigurationSetRecordDAO,
-              BuildRecordDAO, UserDAO, eventTypes) {
+    'paginator',
+    function ($log, authService, PageFactory, BuildConfigSetRecord,
+              BuildRecordDAO, UserDAO, eventTypes, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-build-sets-panel.html',
         scope: {},
-        //template: '<div></div>',
         link: function (scope) {
 
           scope.update = function() {
-            scope.page.reload();
+            scope.page.refresh();
           };
 
           scope.show = function() {
@@ -55,15 +55,13 @@
           };
 
           function init() {
-            scope.page = PageFactory.build(BuildConfigurationSetRecordDAO, function (pageIndex, pageSize, searchText) {
-              return authService.getPncUser().then(function(result) {
-                return BuildConfigurationSetRecordDAO._getByUser({
-                   userId: result.id,
-                   pageIndex: pageIndex,
-                   pageSize: pageSize,
-                   search: searchText,
-                   sort: 'sort=desc=id'
-                }).$promise;
+
+            authService.getPncUser().then(function(result) {
+              return BuildConfigSetRecord.getByUser({
+                userId: result.id,
+                pageSize: 10
+              }).$promise.then(function(page) {
+                scope.page = paginator(page);
               });
             });
 

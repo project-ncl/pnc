@@ -93,6 +93,14 @@
           url: BUILDS_ENDPOINT + '/?q=buildConfigurationId==:id'
         },
         /**
+         * Gets BuildRecords by user.
+         */
+        getByUser: {
+          method: 'GET',
+          isPaged: true,
+          url: BUILDS_ENDPOINT + '/?q=user.id==:userId'
+        },
+        /**
          * Gets all completed BuildRecords
          */
         queryCompleted: {
