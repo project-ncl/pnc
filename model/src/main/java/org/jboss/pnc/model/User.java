@@ -37,7 +37,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "UserTable", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
         @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
-@ToString
 public class User implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8437525005838384722L;
@@ -252,6 +251,18 @@ public class User implements GenericEntity<Integer> {
 
     public void setLoginToken(String loginToken) {
         this.loginToken = loginToken;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", loginToken='" + loginToken + '\'' +
+                ", username='" + username + '\'' +
+                '}';
     }
 
     public static class Builder {
