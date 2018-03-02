@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
@@ -31,10 +32,12 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.spi.exception.ValidationException;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -44,11 +47,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
@@ -78,6 +82,10 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     private TemporaryBuildsCleaner temporaryBuildsCleaner;
 
+    private EndpointAuthenticationProvider authenticationProvider;
+    @Context
+    private HttpServletRequest httpServletRequest;
+
     public BuildConfigSetRecordEndpoint() {
     }
 
@@ -85,10 +93,12 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
     public BuildConfigSetRecordEndpoint(
             BuildConfigSetRecordProvider buildConfigSetRecordProvider,
             BuildRecordProvider buildRecordProvider,
-            TemporaryBuildsCleaner temporaryBuildsCleaner) {
+            TemporaryBuildsCleaner temporaryBuildsCleaner,
+            EndpointAuthenticationProvider authenticationProvider) {
         super(buildConfigSetRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.temporaryBuildsCleaner = temporaryBuildsCleaner;
+        this.authenticationProvider = authenticationProvider;
     }
 
     @ApiOperation(value = "Gets all build config set execution records")
@@ -131,8 +141,10 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
     @Path("/{id}")
     public Response delete(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id)
             throws RepositoryViolationException {
+        User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
+
         try {
-            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(id);
+            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken());
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }

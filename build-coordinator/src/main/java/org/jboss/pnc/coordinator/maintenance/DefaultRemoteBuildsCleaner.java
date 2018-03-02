@@ -64,8 +64,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     @Override
-    public boolean deleteRemoteBuilds(BuildRecord buildRecord) {
-        if (!deleteBuildsFromIndy(buildRecord.getBuildContentId())) {
+    public boolean deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
+        if (!deleteBuildsFromIndy(buildRecord.getBuildContentId(), authToken)) {
             return false;
         }
         if (!requestDeleteViaCauseway(buildRecord)) {
@@ -89,8 +89,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         return true;
     }
 
-    private boolean deleteBuildsFromIndy(String buildContentId) {
-        String authToken = serviceClient.getAuthToken();
+    private boolean deleteBuildsFromIndy(String buildContentId, String authToken) {
         Indy indy = indyFactory.get(authToken);
         try {
             //delete the content

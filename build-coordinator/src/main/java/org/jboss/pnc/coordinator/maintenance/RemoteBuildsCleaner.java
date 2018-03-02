@@ -24,5 +24,5 @@ import org.jboss.pnc.model.BuildRecord;
  */
 public interface RemoteBuildsCleaner {
 
-    boolean deleteRemoteBuilds(BuildRecord buildRecord);
+    boolean deleteRemoteBuilds(BuildRecord buildRecord, String authToken);
 }
