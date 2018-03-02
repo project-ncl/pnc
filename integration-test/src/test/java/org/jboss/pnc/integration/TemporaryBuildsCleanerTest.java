@@ -173,7 +173,7 @@ public class TemporaryBuildsCleanerTest {
         buildRecordRepository.save(nonTempBr);
 
         // when - then
-        temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr.getId());
+        temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr.getId(), "");
 
         fail("Deletion of non-temporary build should be prohibited");
     }
@@ -191,7 +191,7 @@ public class TemporaryBuildsCleanerTest {
         int numberOfBuilds = givenBuilds.size();
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
+        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
 
         // then
         assertEquals(numberOfBuilds - 1, buildRecordRepository.queryAll().size());
@@ -228,7 +228,7 @@ public class TemporaryBuildsCleanerTest {
         int numberOfBuilds = givenBuilds.size();
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
+        temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
 
         // then
         assertEquals(numberOfBuilds - 1, buildRecordRepository.queryAll().size());
@@ -258,7 +258,7 @@ public class TemporaryBuildsCleanerTest {
 
         // when - then
         try {
-            temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId());
+            temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
         } catch (Exception ex) {
             logger.error("Received exception.", ex);
             if(ex.getCause().getClass().equals(PersistenceException.class)) {
@@ -287,7 +287,7 @@ public class TemporaryBuildsCleanerTest {
         buildConfigSetRecordRepository.save(buildConfigSetRecord);
 
         // when - then
-        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId());
+        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId(), "");
 
         fail("Deletion of non-temporary build should be prohibited");
     }
@@ -307,7 +307,7 @@ public class TemporaryBuildsCleanerTest {
         buildRecordRepository.save(tempBr);
 
         // when
-        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId());
+        temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId(), "");
 
         // then
         assertNull(buildConfigSetRecordRepository.queryById(buildConfigSetRecord.getId()));

@@ -70,8 +70,9 @@ public class TemporaryBuildsCleaner {
      * Deletes a temporary build and artifacts created during the build or orphan dependencies used
      *
      * @param buildRecordId BuildRecord to be deleted
+     * @param authToken
      */
-    public void deleteTemporaryBuild(Integer buildRecordId) throws ValidationException {
+    public void deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
@@ -79,7 +80,7 @@ public class TemporaryBuildsCleaner {
         log.info("Starting deletion of a temporary build " + buildRecord + "; Built artifacts: " + buildRecord.getBuiltArtifacts()
                 + "; Dependencies: " + buildRecord.getDependencies());
 
-        if (!remoteBuildsCleaner.deleteRemoteBuilds(buildRecord)) {
+        if (!remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken)) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
             return;
         }
@@ -105,8 +106,9 @@ public class TemporaryBuildsCleaner {
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
      *
      * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
+     * @param authToken
      */
-    public void deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId)
+    public void deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken)
             throws ValidationException {
 
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
@@ -116,7 +118,7 @@ public class TemporaryBuildsCleaner {
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
         for (BuildRecord br : buildConfigSetRecord.getBuildRecords()) {
-            deleteTemporaryBuild(br.getId());
+            deleteTemporaryBuild(br.getId(), authToken);
         }
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 
