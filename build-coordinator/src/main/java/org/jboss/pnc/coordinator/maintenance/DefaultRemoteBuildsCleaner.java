@@ -53,14 +53,18 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     CausewayClient causewayClient;
 
+    private BuildRecordPushResultRepository buildRecordPushResultRepository;
+
     @Inject
     public DefaultRemoteBuildsCleaner(
             IndyFactory indyFactory,
             KeycloakServiceClient serviceClient,
-            CausewayClient causewayClient) {
+            CausewayClient causewayClient,
+            BuildRecordPushResultRepository buildRecordPushResultRepository) {
         this.indyFactory = indyFactory;
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
+        this.buildRecordPushResultRepository = buildRecordPushResultRepository;
     }
 
     @Override
@@ -75,7 +79,6 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     private boolean requestDeleteViaCauseway(BuildRecord buildRecord) {
-        BuildRecordPushResultRepository buildRecordPushResultRepository=null;
         List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository.getAllSuccessfulForBuildRecord(buildRecord.getId());
 
         for (BuildRecordPushResult pushResult : toRemove) {
