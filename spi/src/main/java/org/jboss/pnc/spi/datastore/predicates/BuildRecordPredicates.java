@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.datastore.predicates;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.BuildStatus;
@@ -84,6 +85,13 @@ public class BuildRecordPredicates {
         } else {
             return (root, query, cb) -> root.get(BuildRecord_.buildConfigurationId).in(buildConfigurationIds);
         }
+    }
+
+    public static Predicate<BuildRecord> withBuildConfigSetRecordId(Integer buildConfigSetRecordId) {
+        return (root, query, cb) -> {
+            Join<BuildRecord, BuildConfigSetRecord> joinedConfigSetRecord = root.join(BuildRecord_.buildConfigSetRecord);
+            return cb.equal(joinedConfigSetRecord.get(BuildConfigSetRecord_.id), buildConfigSetRecordId);
+        };
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationIdRev(List<IdRev> buildConfigurationsWithIdRevs) {
