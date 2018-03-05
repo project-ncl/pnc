@@ -262,9 +262,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
-        logger.debug("Endpoint /build requested for buildConfigurationId [{}]", id);
-        logger.debug("temporaryBuild: {}, forceRebuild: {}, buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
-                temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
+        logger.debug("Endpoint /build requested for buildConfigurationId [{}] temporaryBuild: {}, forceRebuild: {}, " +
+                        "buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
+                id, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
 
         User currentUser = getCurrentUser();
 

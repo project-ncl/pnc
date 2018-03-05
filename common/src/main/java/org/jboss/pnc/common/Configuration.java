@@ -47,12 +47,30 @@ public class Configuration {
     private static final Logger log = LoggerFactory.getLogger(Configuration.class);
     
     public static final String CONFIG_SYSPROP = "pnc-config-file";
+
+    private final String CONFIG_STRING;
     
     private Map<Class<?>, AbstractModuleConfig> configCache = new HashMap<>();
     
     private GlobalModuleGroup globalConfig;
 
     private ConfigurationJSONParser configurationJsonParser = new ConfigurationJSONParser();
+
+
+    /**
+     *
+     * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
+     */
+    public Configuration() throws ConfigurationParseException {
+
+        try (InputStream configStream = this.getConfigStream()) {
+            log.debug("Initializing configuration.");
+            this.CONFIG_STRING = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+            log.debug("Config string with replaced environment variables: {}", this.CONFIG_STRING);
+        } catch (IOException e) {
+            throw new ConfigurationParseException("Config could not be parsed.", e);
+        }
+    }
     
     /**
      * Reads configuration for module
@@ -69,20 +87,13 @@ public class Configuration {
             return (T) configCache.get(moduleClass);
         
         synchronized(this) {
-            if(configCache.containsKey(moduleClass))
+            if(configCache.containsKey(moduleClass)) {
                 return (T) configCache.get(moduleClass);
-            
-            try (InputStream configStream = this.getConfigStream()) {
-                log.info("Loading configuration for class: " + moduleClass);
-                String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
-                log.debug("Config string with replaced environment variables: {}", configString);
-                
-                T config = configurationJsonParser.parseJSONPNCConfig(configString,  provider);
-                configCache.put(moduleClass, config);
-                return config;
-            } catch (IOException e) {
-                throw new ConfigurationParseException("Config could not be parsed", e);
             }
+
+            T config = configurationJsonParser.parseJSONPNCConfig(CONFIG_STRING,  provider);
+            configCache.put(moduleClass, config);
+            return config;
         }
     }
 
@@ -91,19 +102,12 @@ public class Configuration {
             return globalConfig;
 
         synchronized(this){
-            if(globalConfig != null)
+            if(globalConfig != null) {
                 return globalConfig;
-
-            try (InputStream configStream = this.getConfigStream()) {
-                log.info("Loading global configuration.");
-                String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
-                log.debug("Config string with replaced environment variables: {}", configString);
-
-                globalConfig = configurationJsonParser.parseJSONGlobalConfig(configString);
-                return globalConfig;
-            } catch (IOException e) {
-                throw new ConfigurationParseException("Config could not be parsed", e);
             }
+
+            globalConfig = configurationJsonParser.parseJSONGlobalConfig(CONFIG_STRING);
+            return globalConfig;
         }
     }
 
