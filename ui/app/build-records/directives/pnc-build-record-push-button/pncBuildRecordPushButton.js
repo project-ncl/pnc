@@ -33,7 +33,7 @@
 
   function Controller($uibModal, pncNotify, BuildRecord, BuildConfigSetRecord, messageBus) {
     var $ctrl = this,
-    unsubscribe;
+        unsubscribes = [];
 
     // -- Controller API --
 
@@ -43,16 +43,24 @@
     // --------------------
 
     $ctrl.$onDestroy = function () {
-      if (unsubscribe) {
+      unsubscribes.forEach(function (unsubscribe) {
         unsubscribe();
-      }
+      });
     };
+
+    function isBuildRecord() {
+      return angular.isDefined($ctrl.buildRecord);
+    }
+
+    function isBuildGroupRecord() {
+      return angular.isDefined($ctrl.buildGroupRecord);
+    }
 
     function isButtonVisible() {
       if (isBuildRecord()) {
-        return $ctrl.buildRecord.$isCompleted() && !$ctrl.buildRecord.$hasFailed();
+        return $ctrl.buildRecord.$isSuccess();
       } else if (isBuildGroupRecord()) {
-        return true;
+        return BuildConfigSetRecord.isSuccess($ctrl.buildGroupRecord);
       }
     }
 
@@ -69,48 +77,28 @@
       });
     }
 
+    function subscribe(ids) {
+      Object.keys(ids).forEach(function (id) {
+        unsubscribes.push(messageBus.subscribe({
+          topic: 'causeway-push',
+          id: id
+        }));
+      });
+    }
+
     function doPushBuildRecord(modalValues) {
       BuildRecord.push($ctrl.buildRecord.id, modalValues.tagName).then(function (result) {
-        var accepted = result.data[$ctrl.buildRecord.id];
-        var humanReadableId = $ctrl.buildRecord.buildConfigurationName + '#' + $ctrl.buildRecord.id;
-
-        if (accepted) {
-          unsubscribe = messageBus.subscribe({
-            topic: 'causeway-push',
-            id: $ctrl.buildRecord.id
-          });
-          pncNotify.info('Brew push process started for: ' + humanReadableId);
-        } else {
-          pncNotify.error('Brew push was rejected for: ' + humanReadableId);
-        }
+        subscribe(result.data);
+        pncNotify.info('Brew push process started for: ' + $ctrl.buildRecord.$canonicalName());
       });
     }
 
     function doPushBuildGroupRecord(modalValues) {
       BuildConfigSetRecord.push($ctrl.buildGroupRecord.id, modalValues.tagName).then(function (result) {
-        var accepted = result.data[$ctrl.buildGroupRecord.id];
-        var humanReadableId = $ctrl.buildGroupRecord.buildConfigurationSetName + '#' + $ctrl.buildGroupRecord.id;
-
-        if (accepted) {
-          unsubscribe = messageBus.subscribe({
-            topic: 'causeway-push',
-            id: $ctrl.buildGroupRecord.id
-          });
-          pncNotify.info('Brew push process started for group: ' + humanReadableId);
-        } else {
-          pncNotify.error('Brew push was rejected for group: ' + humanReadableId);
-        }
+        subscribe(result.data);
+        pncNotify.info('Brew push process started for group: ' + BuildConfigSetRecord.canonicalName($ctrl.buildGroupRecord));
       });
     }
-
-    function isBuildRecord() {
-      return angular.isDefined($ctrl.buildRecord);
-    }
-
-    function isBuildGroupRecord() {
-      return angular.isDefined($ctrl.buildGroupRecord);
-    }
-
   }
 
 })();
