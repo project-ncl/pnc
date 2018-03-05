@@ -30,7 +30,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.managers.BuildResultPushManager;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.provider.BuildRecordPushResultProvider;
@@ -40,8 +39,9 @@ import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.coordinator.ProcessException;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +58,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,7 +87,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private AuthenticationProvider authenticationProvider;
     private String pncRestBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
-    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+    private BuildRecordRepository buildRecordRepository;
+
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -102,12 +104,12 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             AuthenticationProviderFactory authenticationProviderFactory,
             Configuration configuration,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
-            BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
+            BuildRecordRepository buildRecordRepository) {
         super(buildRecordPushResultProvider);
         this.buildResultPushManager = buildResultPushManager;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
-        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
+        this.buildRecordRepository = buildRecordRepository;
         try {
             String pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
             pncRestBaseUrl = StringUtils.stripEndingSlash(pncBaseUrl);
@@ -160,10 +162,10 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
-                .queryById(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId());
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
+                BuildRecordPredicates.withBuildConfigSetRecordId(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId()));
 
-        Set<Integer> buildRecordIds = buildConfigSetRecord.getBuildRecords().stream()
+        Set<Integer> buildRecordIds = buildRecords.stream()
                 .map(BuildRecord::getId)
                 .collect(Collectors.toSet());
 
