@@ -40,8 +40,8 @@
 			
             <li class="dropdown-list" ng-repeat="product in items.data">
                 <span class="text-bold">{{ product.name }}</span>
-                <div class="dropdown-item" ng-repeat="productVersion in product.productVersions" ng-mousedown="selectItem(productVersion); viewDropdown(false)">{{productVersion.version}}</div>
-                <div class="dropdown-item-empty" ng-hide="product.productVersions.length">└ no version available</div>
+                <div class="dropdown-item" ng-repeat="productVersionRef in product.productVersionRefs" ng-mousedown="selectItem(productVersion); viewDropdown(false)">{{productVersionRef.version}}</div>
+                <div class="dropdown-item-empty" ng-hide="product.productVersionRefs.length">└ no version available</div>
             </li>
         </ul>
     </div>
