@@ -60,7 +60,8 @@ public class ProductVersionRefRest implements GenericRestEntity<Integer> {
         this.version = productVersion.getVersion();
         this.productName = productVersion.getProduct().getName();
         this.productId = productVersion.getProduct().getId();
-        this.currentMilestoneId = productVersion.getCurrentProductMilestone().getId();
+        this.currentMilestoneId = productVersion.getCurrentProductMilestone() != null
+                ? productVersion.getCurrentProductMilestone().getId() : null;
     }
 
     /**
