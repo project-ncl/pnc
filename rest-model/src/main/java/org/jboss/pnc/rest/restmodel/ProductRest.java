@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -53,7 +55,9 @@ public class ProductRest implements GenericRestEntity<Integer> {
 
     private List<Integer> productVersionIds;
 
-    private Set<ProductVersionRest> productVersions;
+    @Getter
+    @Setter
+    private Set<ProductVersionRefRest> productVersionRefs;
 
     public ProductRest() {
     }
@@ -67,7 +71,7 @@ public class ProductRest implements GenericRestEntity<Integer> {
         this.pgmSystemName = product.getPgmSystemName();
         this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(ProductVersion::getId)
                 .collect(Collectors.toList());
-        this.productVersions = nullableStreamOf(product.getProductVersions()).map(ProductVersionRest::new)
+        this.productVersionRefs = nullableStreamOf(product.getProductVersions()).map(ProductVersionRefRest::new)
                 .collect(Collectors.toSet());
     }
 
@@ -127,14 +131,6 @@ public class ProductRest implements GenericRestEntity<Integer> {
 
     public void setProductVersionIds(List<Integer> productVersionIds) {
         this.productVersionIds = productVersionIds;
-    }
-
-    public Set<ProductVersionRest> getProductVersions() {
-        return productVersions;
-    }
-
-    public void setProductVersions(Set<ProductVersionRest> productVersions) {
-        this.productVersions = productVersions;
     }
 
     public Product.Builder toDBEntityBuilder() {
