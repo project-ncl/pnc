@@ -393,28 +393,6 @@ module.exports = function (grunt) {
       }
     },
 
-    imagemin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif,ico}',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-
-    svgmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.svg',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-
     htmlmin: {
       dist: {
         options: {
@@ -551,10 +529,7 @@ module.exports = function (grunt) {
       test: [
         'copy:styles'
       ],
-      dist: [
-        'imagemin',
-        // 'svgmin'
-      ]
+      dist: []
     },
 
     // Test settings
@@ -615,7 +590,6 @@ module.exports = function (grunt) {
     'wiredep',
     'includeSource:dist',
     'useminPrepare',
-    'concurrent:dist',
     'autoprefixer',
     'ngtemplates',
     'concat',
