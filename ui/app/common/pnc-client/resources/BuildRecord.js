@@ -46,6 +46,13 @@
       var SSH_CREDENTIALS_ENDPOINT = restConfig.getPncUrl() + SSH_CREDENTIALS_PATH;
 
 
+      var CANCELABLE_STATUSES = [
+        'NEW',
+        'ENQUEUED',
+        'WAITING_FOR_DEPENDENCIES',
+        'BUILDING'
+      ];
+
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
@@ -159,6 +166,14 @@
               }
             });
       };
+
+      resource.prototype.$isCancelable = function () {
+        return isCancelable(this.status);
+      };
+
+      function isCancelable(status) {
+        return CANCELABLE_STATUSES.includes(status);
+      }
 
       return resource;
     }
