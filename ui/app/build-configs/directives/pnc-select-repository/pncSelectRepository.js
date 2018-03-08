@@ -43,6 +43,7 @@
 
 
     $ctrl.$onInit = function () {
+      $ctrl.userData.preBuildSyncEnabled = false;
       $ctrl.ngModel.$render = function () {
         $ctrl.userData = $ctrl.ngModel.$viewValue;
       };
