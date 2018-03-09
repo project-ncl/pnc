@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -62,18 +61,18 @@ public class ExcludeInternalRepoByNameTest
     @Test
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
         // create a remote repo pointing at our server fixture's 'repo/test' directory.
-        indy.stores().create(new RemoteRepository(MAVEN_PKG_KEY, INTERNAL, server.formatUrl(INTERNAL)), "Creating internal test remote repo",
+        indy.stores().create(new RemoteRepository(INTERNAL, server.formatUrl(INTERNAL)), "Creating internal test remote repo",
                 RemoteRepository.class);
 
-        indy.stores().create(new RemoteRepository(MAVEN_PKG_KEY, EXTERNAL, server.formatUrl(EXTERNAL)), "Creating external test remote repo",
+        indy.stores().create(new RemoteRepository(EXTERNAL, server.formatUrl(EXTERNAL)), "Creating external test remote repo",
                 RemoteRepository.class);
 
-        Group publicGroup = indy.stores().load(new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID), Group.class);
+        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC_GROUP_ID, Group.class);
         if (publicGroup == null) {
-            publicGroup = new Group(MAVEN_PKG_KEY, PUBLIC_GROUP_ID, new StoreKey(MAVEN_PKG_KEY, StoreType.remote, INTERNAL), new StoreKey(MAVEN_PKG_KEY, StoreType.remote, EXTERNAL));
+            publicGroup = new Group(PUBLIC_GROUP_ID, new StoreKey(StoreType.remote, INTERNAL), new StoreKey(StoreType.remote, EXTERNAL));
             indy.stores().create(publicGroup, "creating public group", Group.class);
         } else {
-            publicGroup.setConstituents(Arrays.asList(new StoreKey(MAVEN_PKG_KEY, StoreType.remote, INTERNAL), new StoreKey(MAVEN_PKG_KEY, StoreType.remote, EXTERNAL)));
+            publicGroup.setConstituents(Arrays.asList(new StoreKey(StoreType.remote, INTERNAL), new StoreKey(StoreType.remote, EXTERNAL)));
             indy.stores().update(publicGroup, "adding test remotes to public group");
         }
 
@@ -111,7 +110,7 @@ public class ExcludeInternalRepoByNameTest
 
         Indy indy = driver.getIndy(accessToken);
 
-        StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
+        StoreKey sharedImportsKey = new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID);
 
         // check that the imports from external locations are available from shared-imports
         InputStream stream = indy.content().get(sharedImportsKey, externalPath);

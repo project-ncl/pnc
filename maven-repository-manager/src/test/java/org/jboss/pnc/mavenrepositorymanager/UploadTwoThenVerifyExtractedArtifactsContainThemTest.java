@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -100,7 +99,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
         // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {
-            StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, rc.getBuildRepositoryId());
+            StoreKey hostedKey = new StoreKey(StoreType.hosted, rc.getBuildRepositoryId());
             final String url = indy.content().contentUrl(hostedKey, path);
             boolean downloaded = client.execute(new HttpGet(url), response -> {
                 try {

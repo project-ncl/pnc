@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
@@ -210,11 +209,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // manually initialize the tracking record, just in case (somehow) nothing gets downloaded/uploaded.
             indy.module(IndyFoloAdminClientModule.class).initReport(buildId);
 
-            StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildId);
-            url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, groupKey);
-
-            StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
-            deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, hostedKey);
+            url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
+            deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.hosted, buildId);
 
             logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
         } catch (IndyClientException e) {
@@ -242,12 +238,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
         int id = execution.getId();
 
         // if the build-level group doesn't exist, create it.
-        StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
-        if (!indy.stores().exists(groupKey)) {
+        if (!indy.stores().exists(StoreType.group, buildContentId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
-            if (!indy.stores().exists(hostedKey)) {
-                HostedRepository buildArtifacts = new HostedRepository(MAVEN_PKG_KEY, buildContentId);
+            StoreKey hostedKey = new StoreKey(StoreType.hosted, buildContentId);
+            if (!indy.stores().exists(StoreType.hosted, buildContentId)) {
+                HostedRepository buildArtifacts = new HostedRepository(buildContentId);
                 buildArtifacts.setAllowSnapshots(BUILD_REPOSITORY_ALLOW_SNAPSHOTS);
                 buildArtifacts.setAllowReleases(true);
 
@@ -257,7 +252,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                         "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")", HostedRepository.class);
             }
 
-            Group buildGroup = new Group(MAVEN_PKG_KEY, buildContentId);
+            Group buildGroup = new Group(buildContentId);
             buildGroup.setDescription(String.format("Aggregation group for PNC build #%s", id));
 
             // build-local artifacts
@@ -294,7 +289,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private void addExtraConstituents(List<ArtifactRepository> repositories, int buildId, String buildContentId, Indy indy,
             Group buildGroup) throws IndyClientException {
         if (repositories != null && !repositories.isEmpty()) {
-            StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(MAVEN_PKG_KEY);
+            StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories();
             for (ArtifactRepository repository : repositories) {
                 StoreKey remoteKey = null;
                 for (RemoteRepository existingRepo : existingRepos) {
@@ -309,13 +304,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     String remoteName = "i-" + repository.getId();
 
                     // find a free repository ID for the newly created repo
-                    remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName);
+                    remoteKey = new StoreKey(StoreType.remote, remoteName);
                     int i = 2;
-                    while (indy.stores().exists(remoteKey)) {
-                        remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName + "-" + i++);
+                    while (indy.stores().exists(StoreType.remote, remoteName)) {
+                        remoteKey = new StoreKey(StoreType.remote, remoteName + "-" + i++);
                     }
 
-                    RemoteRepository remoteRepo = new RemoteRepository(MAVEN_PKG_KEY, remoteKey.getName(), repository.getUrl());
+                    RemoteRepository remoteRepo = new RemoteRepository(remoteKey.getName(), repository.getUrl());
                     remoteRepo.setAllowReleases(repository.getReleases());
                     remoteRepo.setAllowSnapshots(repository.getSnapshots());
                     remoteRepo.setDescription("Implicitly created repo for: " + repository.getName() + " ("
@@ -341,13 +336,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     private void addGlobalConstituents(Group group) {
         // 1. global shared-releases artifacts
-        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, UNTESTED_BUILDS_GROUP));
+        group.addConstituent(new StoreKey(StoreType.group, UNTESTED_BUILDS_GROUP));
 
         // 2. global shared-imports artifacts
-        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID));
+        group.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
 
         // 3. public group, containing remote proxies to the outside world
-        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID));
+        group.addConstituent(new StoreKey(StoreType.group, PUBLIC_GROUP_ID));
     }
 
     /**

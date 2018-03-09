@@ -32,7 +32,6 @@ import org.junit.experimental.categories.Category;
 import java.io.File;
 import java.util.List;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
@@ -66,7 +65,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: you should be able to download this artifact from shared-imports now.
-        StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
+        StoreKey sharedImportsKey = new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID);
         assertThat(download(indy.content().contentUrl(sharedImportsKey, path)), equalTo(content));
     }
 

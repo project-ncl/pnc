@@ -62,8 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
-
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
  * Indy server instance for repository management). This session contains connection information for rendering Maven
@@ -164,8 +162,7 @@ public class MavenRepositorySession implements RepositorySession {
         Collections.sort(downloads, comp);
 
         try {
-            StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
-            indy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
+            indy.stores().delete(StoreType.group, buildContentId, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
         }
@@ -212,7 +209,7 @@ public class MavenRepositorySession implements RepositorySession {
 
             Map<StoreKey, Set<String>> toPromote = new HashMap<>();
 
-            StoreKey sharedImports = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID);
+            StoreKey sharedImports = new StoreKey(StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID);
 //            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
@@ -440,7 +437,7 @@ public class MavenRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
-        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+        StoreKey hostedKey = new StoreKey(StoreType.hosted, buildContentId);
         GroupPromoteRequest request = new GroupPromoteRequest(hostedKey, buildPromotionGroup);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
@@ -469,8 +466,9 @@ public class MavenRepositorySession implements RepositorySession {
 
     private boolean ignoreContent(String path) {
         for (String suffix : ignoredPathSuffixes) {
-            if (path.endsWith(suffix))
+            if (path.endsWith(suffix)) {
                 return true;
+            }
         }
 
         return false;

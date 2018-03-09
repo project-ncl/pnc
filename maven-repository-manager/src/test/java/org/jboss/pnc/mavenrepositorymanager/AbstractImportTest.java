@@ -35,7 +35,6 @@ import org.junit.Rule;
 import java.io.InputStream;
 import java.util.Collections;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
@@ -56,30 +55,27 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
         indy = driver.getIndy(accessToken);
 
         // create a remote repo pointing at our server fixture's 'repo/test' directory.
-        indy.stores().create(new RemoteRepository(MAVEN_PKG_KEY, STORE, server.formatUrl(STORE)), "Creating test remote repo",
+        indy.stores().create(new RemoteRepository(STORE, server.formatUrl(STORE)), "Creating test remote repo",
                 RemoteRepository.class);
 
-        StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID);
-        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PNC_BUILDS_GROUP);
-        StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
-        StoreKey remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, STORE);
+        StoreKey remoteKey = new StoreKey(StoreType.remote, STORE);
 
-        Group publicGroup = indy.stores().load(publicKey, Group.class);
+        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC_GROUP_ID, Group.class);
         if (publicGroup == null) {
-            publicGroup = new Group(MAVEN_PKG_KEY, PUBLIC_GROUP_ID, remoteKey);
+            publicGroup = new Group(PUBLIC_GROUP_ID, remoteKey);
             indy.stores().create(publicGroup, "creating public group", Group.class);
         } else {
             publicGroup.setConstituents(Collections.singletonList(remoteKey));
             indy.stores().update(publicGroup, "adding test remote to public group");
         }
 
-        if (!indy.stores().exists(pncBuildsKey)) {
-            Group buildsUntested = new Group(MAVEN_PKG_KEY, PNC_BUILDS_GROUP);
+        if (!indy.stores().exists(StoreType.group, PNC_BUILDS_GROUP)) {
+            Group buildsUntested = new Group(PNC_BUILDS_GROUP);
             indy.stores().create(buildsUntested, "Creating global shared-builds repository group.", Group.class);
         }
 
-        if (!indy.stores().exists(sharedImportsKey)) {
-            HostedRepository sharedImports = new HostedRepository(MAVEN_PKG_KEY, SHARED_IMPORTS_ID);
+        if (!indy.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
+            HostedRepository sharedImports = new HostedRepository(SHARED_IMPORTS_ID);
             sharedImports.setAllowSnapshots(false);
             sharedImports.setAllowReleases(true);
 

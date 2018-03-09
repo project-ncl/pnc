@@ -28,8 +28,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import java.util.function.Consumer;
 
-import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
-
 public class MavenRunningPromotion implements RunningRepositoryPromotion {
 
     private StoreType fromType;
@@ -53,13 +51,12 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {
-            StoreKey fromKey = new StoreKey(MAVEN_PKG_KEY, fromType, fromId);
-            if (!indy.stores().exists(fromKey)) {
+            StoreKey fromKey = new StoreKey(fromType, fromId);
+            if (!indy.stores().exists(fromType, fromId)) {
                 throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
             }
 
-            StoreKey toKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, toId);
-            Group recordSetGroup = indy.stores().load(toKey, Group.class);
+            Group recordSetGroup = indy.stores().load(StoreType.group, toId, Group.class);
             if (recordSetGroup == null) {
                 throw new RepositoryManagerException("No such group: %s", toId);
             }
