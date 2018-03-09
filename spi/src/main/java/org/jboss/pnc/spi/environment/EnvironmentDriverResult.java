@@ -50,4 +50,20 @@ public class EnvironmentDriverResult implements Serializable {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class EnvironmentDriverResultBuilder {
     }
+
+    @Override
+    public String toString() {
+        return "EnvironmentDriverResult{" +
+                "completionStatus=" + completionStatus +
+                ", log='" + log + '\'' +
+                ", sshCredentials=" + sshCredentials +
+                '}';
+    }
+
+    public String toStringLimited() {
+        return "EnvironmentDriverResult{" +
+                "completionStatus=" + completionStatus +
+                ", sshCredentials=" + sshCredentials +
+                '}';
+    }
 }
