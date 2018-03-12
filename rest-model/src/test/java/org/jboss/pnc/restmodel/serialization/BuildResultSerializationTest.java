@@ -44,7 +44,7 @@ public class BuildResultSerializationTest {
         BuildResult buildResult = BuildResultMock.mock(BuildStatus.SUCCESS);
         BuildResultRest buildResultRest = new BuildResultRest(buildResult);
 
-        String buildResultJson = buildResultRest.toString();
+        String buildResultJson = buildResultRest.toFullLogString();
         log.debug("BuildResultJson : {}", buildResultJson);
 
         BuildResultRest buildResultRestFromJson = JsonOutputConverterMapper.readValue(buildResultJson, BuildResultRest.class);
