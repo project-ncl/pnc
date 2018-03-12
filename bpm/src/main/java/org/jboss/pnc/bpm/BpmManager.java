@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,7 @@ public class BpmManager {
     private Configuration configuration;
     private BpmModuleConfig bpmConfig;
     private int nextTaskId = 1;
-    private Map<Integer, BpmTask> tasks = new HashMap<>();
+    private Map<Integer, BpmTask> tasks = new ConcurrentHashMap<>();
     private KieSession session;
 
     private static final String SIGNAL_CANCEL = "CANCELLED";
@@ -291,11 +292,11 @@ public class BpmManager {
         return result.size() == 1 ? result.get(0) : null;
     }
 
-    public synchronized Collection<BpmTask> getActiveTasks() {
+    public Collection<BpmTask> getActiveTasks() {
         return Collections.unmodifiableCollection(new HashSet<>(tasks.values()));
     }
 
-    public synchronized Optional<BpmTask> getTaskById(int taskId) {
+    public Optional<BpmTask> getTaskById(int taskId) {
         return Optional.ofNullable(tasks.get(taskId));
     }
 }
