@@ -76,6 +76,24 @@ public class RepositoryManagerResultRest implements Serializable {
         return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId, log, completionStatus);
     }
 
+    @Override
+    public String toString() {
+        return "RepositoryManagerResultRest{" +
+                "builtArtifacts=" + builtArtifacts +
+                ", dependencies=" + dependencies +
+                ", buildContentId='" + buildContentId + '\'' +
+                ", log='" + log + '\'' +
+                ", completionStatus=" + completionStatus +
+                '}';
+    }
+
+    public String toStringLimited() {
+        return "RepositoryManagerResultRest{" +
+                ", buildContentId='" + buildContentId + '\'' +
+                ", completionStatus=" + completionStatus +
+                '}';
+    }
+
     private class GenericRepositoryManagerResult implements RepositoryManagerResult {
         private final List<Artifact> builtArtifacts;
         private final List<Artifact> dependencies;
