@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -77,7 +78,7 @@ public class BpmManager {
 
     private Configuration configuration;
     private BpmModuleConfig bpmConfig;
-    private int nextTaskId = 1;
+    private AtomicInteger nextTaskId = new AtomicInteger(1);
     private Map<Integer, BpmTask> tasks = new HashMap<>();
     private KieSession session;
 
@@ -130,18 +131,17 @@ public class BpmManager {
 
 
     private int getNextTaskId() {
-        if (nextTaskId == MAX_VALUE) {
-            nextTaskId = 1;
-        }
-        return nextTaskId++;
+        return nextTaskId.incrementAndGet();
     }
 
 
-    public synchronized boolean startTask(BpmTask task) throws CoreException {
+    public boolean startTask(BpmTask task) throws CoreException {
         try {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
-            tasks.put(task.getTaskId(), task);
+            synchronized (this) {
+                tasks.put(task.getTaskId(), task);
+            }
             log.debug("Notifying new task added {}.", task.getTaskId());
             notifyNewTaskAdded(task);
 
@@ -151,8 +151,11 @@ public class BpmManager {
                 log.warn("Failed to create new process instance.");
                 return false;
             }
-            task.setProcessInstanceId(processInstance.getId());
-            task.setProcessName(processInstance.getProcessId());
+
+            synchronized (this) {
+                task.setProcessInstanceId(processInstance.getId());
+                task.setProcessName(processInstance.getProcessId());
+            }
             log.debug("Created new process linked to task: {}", task);
             return true;
 
