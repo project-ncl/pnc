@@ -137,14 +137,6 @@ public class BpmManager {
 
     public boolean startTask(BpmTask task) throws CoreException {
         try {
-            task.setTaskId(getNextTaskId());
-            task.setBpmConfig(bpmConfig);
-            synchronized (this) {
-                tasks.put(task.getTaskId(), task);
-            }
-            log.debug("Notifying new task added {}.", task.getTaskId());
-            notifyNewTaskAdded(task);
-
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
             if (processInstance == null) {
@@ -153,9 +145,16 @@ public class BpmManager {
             }
 
             synchronized (this) {
+                task.setTaskId(getNextTaskId());
+                task.setBpmConfig(bpmConfig);
                 task.setProcessInstanceId(processInstance.getId());
                 task.setProcessName(processInstance.getProcessId());
+                tasks.put(task.getTaskId(), task);
             }
+
+            log.debug("Notifying new task added {}.", task.getTaskId());
+            notifyNewTaskAdded(task);
+            
             log.debug("Created new process linked to task: {}", task);
             return true;
 
