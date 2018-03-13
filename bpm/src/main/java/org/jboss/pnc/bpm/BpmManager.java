@@ -138,6 +138,9 @@ public class BpmManager {
 
     public boolean startTask(BpmTask task) throws CoreException {
         try {
+            task.setTaskId(getNextTaskId());
+            task.setBpmConfig(bpmConfig);
+
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
             if (processInstance == null) {
@@ -145,8 +148,6 @@ public class BpmManager {
                 return false;
             }
 
-            task.setTaskId(getNextTaskId());
-            task.setBpmConfig(bpmConfig);
             task.setProcessInstanceId(processInstance.getId());
             task.setProcessName(processInstance.getProcessId());
             tasks.put(task.getTaskId(), task);
