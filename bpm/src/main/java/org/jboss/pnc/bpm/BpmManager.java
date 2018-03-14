@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -77,8 +79,8 @@ public class BpmManager {
 
     private Configuration configuration;
     private BpmModuleConfig bpmConfig;
-    private int nextTaskId = 1;
-    private Map<Integer, BpmTask> tasks = new HashMap<>();
+    private AtomicInteger nextTaskId = new AtomicInteger(1);
+    private Map<Integer, BpmTask> tasks = new ConcurrentHashMap<>();
     private KieSession session;
 
     private static final String SIGNAL_CANCEL = "CANCELLED";
@@ -130,20 +132,14 @@ public class BpmManager {
 
 
     private int getNextTaskId() {
-        if (nextTaskId == MAX_VALUE) {
-            nextTaskId = 1;
-        }
-        return nextTaskId++;
+        return nextTaskId.getAndIncrement();
     }
 
 
-    public synchronized boolean startTask(BpmTask task) throws CoreException {
+    public boolean startTask(BpmTask task) throws CoreException {
         try {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
-            tasks.put(task.getTaskId(), task);
-            log.debug("Notifying new task added {}.", task.getTaskId());
-            notifyNewTaskAdded(task);
 
             ProcessInstance processInstance = session.startProcess(task.getProcessId(),
                     task.getExtendedProcessParameters());
@@ -151,8 +147,14 @@ public class BpmManager {
                 log.warn("Failed to create new process instance.");
                 return false;
             }
+
             task.setProcessInstanceId(processInstance.getId());
             task.setProcessName(processInstance.getProcessId());
+            tasks.put(task.getTaskId(), task);
+
+            log.debug("Notifying new task added {}.", task.getTaskId());
+            notifyNewTaskAdded(task);
+
             log.debug("Created new process linked to task: {}", task);
             return true;
 
@@ -239,10 +241,7 @@ public class BpmManager {
             log.error("Kie session not available.");
         }
 
-        Map<Integer, BpmTask> clonedTaskMap;
-        synchronized(this) {
-            clonedTaskMap = new HashMap<>(this.tasks);
-        }
+        Map<Integer, BpmTask> clonedTaskMap = new HashMap<>(this.tasks);
 
         Set<Integer> toBeRemoved = clonedTaskMap.values().stream()
                 .filter(bpmTask -> {
@@ -262,13 +261,11 @@ public class BpmManager {
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
         toBeRemoved.forEach(id -> {
-            synchronized (this) {
-                BpmTask removed = tasks.remove(id);
-                if (removed != null) {
-                    log.debug("Removed bpmTask.id: {}.", removed.getTaskId());
-                } else {
-                    log.warn("Unable to remove bpmTask.id: {}.", id);
-                }
+            BpmTask removed = tasks.remove(id);
+            if (removed != null) {
+                log.debug("Removed bpmTask.id: {}.", removed.getTaskId());
+            } else {
+                log.warn("Unable to remove bpmTask.id: {}.", id);
             }
         });
 
@@ -280,7 +277,7 @@ public class BpmManager {
      * It will be removed soon.
      */
     @Deprecated
-    public synchronized Integer getTaskIdByBuildId(int buildId) {
+    public Integer getTaskIdByBuildId(int buildId) {
         List<Integer> result = tasks.values().stream()
                 .filter(t -> t instanceof BpmBuildTask)
                 .filter(t -> ((BpmBuildTask) t).getBuildTask().getId() == buildId)
@@ -291,11 +288,11 @@ public class BpmManager {
         return result.size() == 1 ? result.get(0) : null;
     }
 
-    public synchronized Collection<BpmTask> getActiveTasks() {
+    public Collection<BpmTask> getActiveTasks() {
         return Collections.unmodifiableCollection(new HashSet<>(tasks.values()));
     }
 
-    public synchronized Optional<BpmTask> getTaskById(int taskId) {
+    public Optional<BpmTask> getTaskById(int taskId) {
         return Optional.ofNullable(tasks.get(taskId));
     }
 }
