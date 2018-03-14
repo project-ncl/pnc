@@ -250,7 +250,8 @@ public class DefaultNotifier implements Notifier {
 
     public void collectBuildRecordPushResultRestEvent(@Observes BuildRecordPushResultRest buildRecordPushResultRest) {
         logger.trace("Observed new BuildRecordPushResultRest event {}.", buildRecordPushResultRest);
-        sendToSubscribers(buildRecordPushResultRest, "causeway-push", buildRecordPushResultRest.getBuildRecordId().toString());
+        BuildRecordPushResultRestEvent buildRecordPushResultRestEvent = new BuildRecordPushResultRestEvent(buildRecordPushResultRest);
+        sendToSubscribers(buildRecordPushResultRestEvent, "causeway-push", buildRecordPushResultRest.getBuildRecordId().toString());
         logger.trace("BuildRecordPushResultRest event processed {}.", buildRecordPushResultRest);
     }
 
