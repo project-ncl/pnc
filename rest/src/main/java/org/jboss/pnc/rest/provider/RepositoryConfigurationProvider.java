@@ -37,6 +37,8 @@ import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepositor
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -60,6 +62,8 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     private ProductVersionRepository productVersionRepository;
 
     private ScmModuleConfig moduleConfig;
+
+    private static Logger logger = LoggerFactory.getLogger(RepositoryConfigurationProvider.class);
 
     @Inject
     public RepositoryConfigurationProvider(
@@ -102,6 +106,7 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         if (!isInternalRepository(internalScmAuthority, internalRepoUrl)) {
+            logger.warn("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException("Internal repository url has to start with: git+ssh://" + internalScmAuthority + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
         }
 
