@@ -153,9 +153,9 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
                 ", processException=" + processException +
                 ", processLog='" + StringUtils.trim(processLog, 100) + '\'' +
                 ", buildExecutionConfiguration=" + buildExecutionConfiguration +
-                ", buildDriverResult=" + buildDriverResult == null ? null : buildDriverResult.toStringLimited() +
-                ", repositoryManagerResult=" + repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited() +
-                ", environmentDriverResult=" + environmentDriverResult == null ? null : environmentDriverResult.toStringLimited() +
+                ", buildDriverResult=" + buildDriverResult.toStringLimited() +
+                ", repositoryManagerResult=" + repositoryManagerResult.toStringLimited() +
+                ", environmentDriverResult=" + environmentDriverResult.toStringLimited() +
                 ", repourResult=" + repourResult.toStringLimited() +
                 '}';
     }
