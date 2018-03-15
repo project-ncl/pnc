@@ -26,7 +26,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.jboss.pnc.auth.AuthenticationProviderFactory;
+import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -35,8 +35,6 @@ import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -53,7 +51,7 @@ import java.util.List;
 @ApplicationScoped
 public class BpmNotifier {
 
-    private static final Logger log = LoggerFactory.getLogger(BpmNotifier.class);
+    private final Logger log = Logger.getLogger(BpmNotifier.class);
     private BpmModuleConfig bpmConfig;
 
     @Deprecated
@@ -66,15 +64,15 @@ public class BpmNotifier {
     }
 
     public void sendBuildExecutionCompleted(String uri, BuildResult buildResult) {
-        log.debug("Preparing to send build result to BPM {}.", buildResult);
+        log.debug("Preparing to send build result to BPM " + buildResult + ".");
         BuildResultRest buildResultRest = null;
         String errMessage = "";
         try {
             buildResultRest = new BuildResultRest(buildResult);
             if (log.isTraceEnabled()) {
-                log.trace("Sending build result to BPM {}.", buildResultRest.toFullLogString());
+                log.trace("Sending build result to BPM " + buildResultRest.toString() + ".");
             } else {
-                log.debug("Sending build result to BPM {}.", buildResultRest);
+                log.debug("Sending build result to BPM " + buildResultRest.toLogString(100) + ".");
             }
         } catch (Throwable e) {
             log.error("Cannot construct rest result.", e);
@@ -114,7 +112,7 @@ public class BpmNotifier {
 
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                log.info(response.getStatusLine().toString());
+                log.info(response.getStatusLine());
                 try {
                     if (response.getStatusLine().getStatusCode() != 200) {
                         InputStream content = response.getEntity().getContent();
@@ -143,7 +141,7 @@ public class BpmNotifier {
 
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                log.info(response.getStatusLine().toString());
+                log.info(response.getStatusLine());
             }
         } catch (IOException e) {
             log.error("Error occurred executing the callback.", e);
