@@ -84,9 +84,10 @@ public class BpmSchedulerSmokeTest {
     }
 
     @Test
-    public void notificationTest() throws CoreException {
+    public void notificationTest() throws CoreException, InterruptedException {
         successNotification = false;
         errorNotification = false;
+
         BpmTask task = new BpmTask() {
             @Override
             protected String getProcessId() {
@@ -110,11 +111,14 @@ public class BpmSchedulerSmokeTest {
 
         // notify
         assertEquals(new Integer(1), task.getTaskId());
+
         BpmStringMapNotificationRest notification = mock(BpmStringMapNotificationRest.class);
+
         when(notification.getEventType()).thenReturn(RC_CREATION_SUCCESS.name());
         Map<String, String> data = new HashMap<>();
         data.put("color", "green");
         when(notification.getData()).thenReturn(data);
+
         bpmManager.notify(1, notification);
 
         assertTrue(successNotification);
