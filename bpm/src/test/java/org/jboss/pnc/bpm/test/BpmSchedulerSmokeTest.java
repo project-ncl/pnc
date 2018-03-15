@@ -110,6 +110,7 @@ public class BpmSchedulerSmokeTest {
         bpmManager.startTask(task);
 
         // notify
+        Thread.sleep(500L);
         assertEquals(new Integer(1), task.getTaskId());
 
         BpmStringMapNotificationRest notification = mock(BpmStringMapNotificationRest.class);
