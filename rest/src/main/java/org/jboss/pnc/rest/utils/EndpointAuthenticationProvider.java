@@ -56,9 +56,9 @@ public class EndpointAuthenticationProvider {
     }
 
     public User getCurrentUser(HttpServletRequest httpServletRequest) {
-        logger.debug("Getting current user using authenticationProvider: {}.", authenticationProvider.getId());
+        logger.trace("Getting current user using authenticationProvider: {}.", authenticationProvider.getId());
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        logger.debug("LoggedInUser: {}.", loginInUser);
+        logger.trace("LoggedInUser: {}.", loginInUser);
         String loggedUser = loginInUser.getUserName();
         User currentUser = null;
         if(StringUtils.isNotEmpty(loggedUser)) {
@@ -67,7 +67,7 @@ public class EndpointAuthenticationProvider {
                 currentUser.setLoginToken(loginInUser.getTokenString());
             }
         }
-        logger.debug("Returning user: {}.", currentUser);
+        logger.trace("Returning user: {}.", currentUser);
         return currentUser;
     }
 }
