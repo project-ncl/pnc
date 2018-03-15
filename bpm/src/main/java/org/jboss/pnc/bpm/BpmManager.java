@@ -132,7 +132,7 @@ public class BpmManager {
 
 
     private int getNextTaskId() {
-        return nextTaskId.getAndIncrement();
+        return nextTaskId.incrementAndGet();
     }
 
 
