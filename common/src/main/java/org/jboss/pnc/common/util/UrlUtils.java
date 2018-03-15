@@ -18,6 +18,7 @@
 package org.jboss.pnc.common.util;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,5 +91,33 @@ public final class UrlUtils {
             map.put(name, value);
         }
         return map;
+    }
+
+    public static String getHostAndPathOnly(String url) {
+        URI uri = URI.create(url);
+        String host = uri.getHost();
+        String path = uri.getPath();
+        return (host == null ? "" : host) + (path == null ? "" : path);
+    }
+
+    public static String getWithoutProtocolAndPort(String url) {
+        URI uri = URI.create(url);
+
+        String host = uri.getHost();
+        String path = uri.getPath();
+
+        String query = uri.getQuery();
+        String queryAppend = "";
+        if (query != null) {
+            queryAppend = "?" + query;
+        }
+
+        String fragment = uri.getFragment();
+        String fragmentAppend = "";
+        if (fragment != null) {
+            fragmentAppend = "#" + fragment;
+        }
+
+        return (host == null ? "" : host) + (path == null ? "" : path) + queryAppend + fragmentAppend;
     }
 }

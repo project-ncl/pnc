@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -36,7 +37,7 @@ public class RepositoryConfigurationPredicates {
      * Queries against normalized version with stripped protocol and .git extension
      */
     public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
-        String urlStripped = StringUtils.stripSuffix(StringUtils.stripProtocol(internalUrl), ".git");
+        String urlStripped = StringUtils.stripSuffix(UrlUtils.getHostAndPathOnly(internalUrl), ".git");
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrlNormalized), urlStripped);
     }
 
@@ -44,12 +45,12 @@ public class RepositoryConfigurationPredicates {
      * Queries against normalized version with stripped protocol and .git extension
      */
     public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(String externalScmRepoUrl) {
-        String urlStripped = StringUtils.stripSuffix(StringUtils.stripProtocol(externalScmRepoUrl), ".git");
+        String urlStripped = StringUtils.stripSuffix(UrlUtils.getHostAndPathOnly(externalScmRepoUrl), ".git");
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.externalUrlNormalized), urlStripped);
     }
 
     public static Predicate<RepositoryConfiguration> searchByScmUrl(String scmUrl) {
-        String urlStripped = StringUtils.stripProtocol(scmUrl);
+        String urlStripped = UrlUtils.getHostAndPathOnly(scmUrl);
         urlStripped = StringUtils.stripSuffix(urlStripped, ".git");
 
         String pattern = "%" + urlStripped + "%";
@@ -61,7 +62,7 @@ public class RepositoryConfigurationPredicates {
     }
 
     public static Predicate<RepositoryConfiguration> matchByScmUrl(String scmUrl) {
-        final String urlStripped = StringUtils.stripSuffix(StringUtils.stripProtocol(scmUrl), ".git");
+        final String urlStripped = StringUtils.stripSuffix(UrlUtils.getHostAndPathOnly(scmUrl), ".git");
 
         logger.trace("Searching for pattern: {}.", urlStripped);
 
