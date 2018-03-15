@@ -148,21 +148,83 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
 
     @Override
     public String toString() {
-        return "BuildResultRest{" +
-                "completionStatus=" + completionStatus +
-                ", processException=" + processException +
-                ", processLog='" + StringUtils.trim(processLog, 100) + '\'' +
-                ", buildExecutionConfiguration=" + buildExecutionConfiguration +
-                ", buildDriverResult=" + buildDriverResult == null ? null : buildDriverResult.toStringLimited() +
-                ", repositoryManagerResult=" + repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited() +
-                ", environmentDriverResult=" + environmentDriverResult == null ? null : environmentDriverResult.toStringLimited() +
-                ", repourResult=" + repourResult.toStringLimited() +
-                '}';
-    }
-
-    public String toFullLogString() {
         return JsonOutputConverterMapper.apply(this);
-
     }
 
+    /**
+     * @param maxStringLength
+     * @return serailized object with long strings trimmed to maxStringLength
+     */
+    public String toLogString(int maxStringLength) {
+        BuildDriverResult buildDriverResult = null;
+        if (BuildResultRest.this.buildDriverResult != null) {
+            buildDriverResult = new BuildDriverResult() {
+                @Override
+                public String getBuildLog() {
+                    return StringUtils.trim(BuildResultRest.this.buildDriverResult.getBuildLog(), maxStringLength);
+                }
+
+                @Override
+                public BuildStatus getBuildStatus() {
+                    return BuildResultRest.this.buildDriverResult.getBuildStatus();
+                }
+            };
+        }
+
+        RepositoryManagerResult repositoryManagerResult = null;
+        if (BuildResultRest.this.repositoryManagerResult != null) {
+            repositoryManagerResult = new RepositoryManagerResultImpl(
+                    BuildResultRest.this.repositoryManagerResult.toRepositoryManagerResult(),
+                    maxStringLength);
+        }
+
+        BuildResult buildResult = new BuildResult(
+                this.completionStatus,
+                Optional.ofNullable(this.processException),
+                StringUtils.trim(this.processLog, maxStringLength),
+                Optional.ofNullable(this.buildExecutionConfiguration),
+                Optional.ofNullable(buildDriverResult),
+                Optional.ofNullable(repositoryManagerResult),
+                Optional.ofNullable(this.environmentDriverResult),
+                Optional.ofNullable(this.repourResult)
+        );
+        return JsonOutputConverterMapper.apply(new BuildResultRest(buildResult));
+    }
+
+    class RepositoryManagerResultImpl implements RepositoryManagerResult {
+
+        private RepositoryManagerResult repositoryManagerResult;
+
+        private int maxStringLength;
+
+        public RepositoryManagerResultImpl(RepositoryManagerResult repositoryManagerResult, int maxStringLength) {
+            this.repositoryManagerResult = repositoryManagerResult;
+            this.maxStringLength = maxStringLength;
+        }
+
+        @Override
+        public List<Artifact> getBuiltArtifacts() {
+            return repositoryManagerResult.getBuiltArtifacts();
+        }
+
+        @Override
+        public List<Artifact> getDependencies() {
+            return repositoryManagerResult.getDependencies();
+        }
+
+        @Override
+        public String getBuildContentId() {
+            return repositoryManagerResult.getBuildContentId();
+        }
+
+        @Override
+        public String getLog() {
+            return StringUtils.trim(repositoryManagerResult.getLog(), maxStringLength);
+        }
+
+        @Override
+        public CompletionStatus getCompletionStatus() {
+            return repositoryManagerResult.getCompletionStatus();
+        }
+    }
 }

@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 
@@ -56,19 +55,5 @@ public class BuildDriverResultRest implements BuildDriverResult {
 
     public void setBuildLog(String buildLog) {
         this.buildLog = buildLog;
-    }
-
-    @Override
-    public String toString() {
-        return "BuildDriverResultRest{" +
-                "buildLog='" + buildLog + '\'' +
-                ", buildStatus=" + buildStatus +
-                '}';
-    }
-
-    public String toStringLimited() {
-        return "BuildDriverResultRest{" +
-                ", buildStatus=" + buildStatus +
-                '}';
     }
 }
