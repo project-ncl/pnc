@@ -59,5 +59,8 @@ public class UrlUtilsTest {
 
         url = "project-ncl";
         Assert.assertEquals("project-ncl", UrlUtils.getHostAndPathOnly(url));
+
+        url = "gitserver.host.com:80/productization/github.com/jboss-modules.git";
+        Assert.assertEquals("gitserver.host.com/productization/github.com/jboss-modules.git", UrlUtils.getHostAndPathOnly(url));
     }
 }
