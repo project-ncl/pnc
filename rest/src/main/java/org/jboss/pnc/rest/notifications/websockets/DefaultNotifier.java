@@ -47,12 +47,15 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +68,7 @@ public class DefaultNotifier implements Notifier {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private Set<AttachedClient> attachedClients = Collections.synchronizedSet(new HashSet<>());
+    private List<AttachedClient> attachedClients = new CopyOnWriteArrayList<>();
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -119,20 +122,12 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void attachClient(AttachedClient attachedClient) {
-        synchronized (attachedClients) {
-            attachedClients.add(attachedClient);
-        }
+        attachedClients.add(attachedClient);
     }
 
     @Override
     public void detachClient(AttachedClient attachedClient) {
-        try {
-            synchronized (attachedClients) {
-                attachedClients.remove(attachedClient);
-            }
-        } catch (ConcurrentModificationException cme) {
-            logger.error("Error while removing attached client: ", cme);
-        }
+        attachedClients.remove(attachedClient);
     }
 
     @Override
@@ -154,11 +149,23 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void sendMessage(Object message) {
-        try {
-            for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
-                    .hasNext();) {
-                AttachedClient client = attachedClientIterator.next();
-                if (client.isEnabled()) {
+        for (AttachedClient client : attachedClients ) {
+            if (client.isEnabled()) {
+                try {
+                    client.sendMessage(message, messageCallback);
+                } catch (Exception e) {
+                    logger.error("Unable to send message, detaching client.", e);
+                    detachClient(client);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void sendToSubscribers(Object message, String topic, String qualifier) {
+        for (AttachedClient client : attachedClients ) {
+            if (client.isEnabled()) {
+                if (client.isSubscribed(topic, qualifier)) {
                     try {
                         client.sendMessage(message, messageCallback);
                     } catch (Exception e) {
@@ -167,29 +174,6 @@ public class DefaultNotifier implements Notifier {
                     }
                 }
             }
-        } catch (ConcurrentModificationException cme) {
-            logger.warn("Error while removing attached client: ", cme);
-        }
-    }
-
-    @Override
-    public void sendToSubscribers(Object message, String topic, String qualifier) {
-        try {
-            for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
-                    .hasNext();) {
-                AttachedClient client = attachedClientIterator.next();
-                if (client.isEnabled()) {
-                    if (client.isSubscribed(topic, qualifier))
-                        try {
-                            client.sendMessage(message, messageCallback);
-                        } catch (Exception e) {
-                            logger.error("Unable to send message, detaching client.", e);
-                            detachClient(client);
-                        }
-                }
-            }
-        } catch (ConcurrentModificationException cme) {
-            logger.warn("Error while removing attached client: ", cme);
         }
     }
 
@@ -219,13 +203,9 @@ public class DefaultNotifier implements Notifier {
     }
 
     public void cleanUp() {
-        synchronized (attachedClients) {
-            for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
-                    .hasNext();) {
-                AttachedClient client = attachedClientIterator.next();
-                if (!client.isEnabled()) {
-                    attachedClientIterator.remove();
-                }
+        for (AttachedClient client : attachedClients ) {
+            if (!client.isEnabled()) {
+                detachClient(client);
             }
         }
     }
