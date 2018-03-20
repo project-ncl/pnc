@@ -149,9 +149,7 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void sendMessage(Object message) {
-        for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
-                .hasNext();) {
-            AttachedClient client = attachedClientIterator.next();
+        for (AttachedClient client : attachedClients ) {
             if (client.isEnabled()) {
                 try {
                     client.sendMessage(message, messageCallback);
@@ -165,9 +163,7 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void sendToSubscribers(Object message, String topic, String qualifier) {
-        for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
-                .hasNext();) {
-            AttachedClient client = attachedClientIterator.next();
+        for (AttachedClient client : attachedClients ) {
             if (client.isEnabled()) {
                 if (client.isSubscribed(topic, qualifier)) {
                     try {
@@ -207,9 +203,7 @@ public class DefaultNotifier implements Notifier {
     }
 
     public void cleanUp() {
-        for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
-                .hasNext();) {
-            AttachedClient client = attachedClientIterator.next();
+        for (AttachedClient client : attachedClients ) {
             if (!client.isEnabled()) {
                 detachClient(client);
             }
