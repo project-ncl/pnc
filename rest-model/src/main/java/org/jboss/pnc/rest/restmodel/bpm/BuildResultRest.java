@@ -36,6 +36,8 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
@@ -51,6 +53,8 @@ import static java.util.Optional.ofNullable;
 @XmlRootElement(name = "buildResult")
 @NoArgsConstructor(onConstructor = @__({@Deprecated}))
 public class BuildResultRest extends BpmNotificationRest implements Serializable {
+
+    private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);
 
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
@@ -153,10 +157,10 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
                 ", processException=" + processException +
                 ", processLog='" + StringUtils.trim(processLog, 100) + '\'' +
                 ", buildExecutionConfiguration=" + buildExecutionConfiguration +
-                ", buildDriverResult=" + buildDriverResult == null ? null : buildDriverResult.toStringLimited() +
-                ", repositoryManagerResult=" + repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited() +
-                ", environmentDriverResult=" + environmentDriverResult == null ? null : environmentDriverResult.toStringLimited() +
-                ", repourResult=" + repourResult == null ? null : repourResult.toStringLimited() +
+                ", buildDriverResult=" + (buildDriverResult == null ? null : buildDriverResult.toStringLimited()) +
+                ", repositoryManagerResult=" + (repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited()) +
+                ", environmentDriverResult=" + (environmentDriverResult == null ? null : environmentDriverResult.toStringLimited()) +
+                ", repourResult=" + (repourResult == null ? null : repourResult.toStringLimited()) +
                 '}';
     }
 
