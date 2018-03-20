@@ -103,6 +103,9 @@
       if ($ctrl.wizardData.repoConfig.useExistingRepoConfig) {
         bc.repositoryConfiguration = { id: $ctrl.wizardData.repoConfig.repoConfig.id };
         bc.$save()
+          .then(function (result) {
+            $ctrl.createdBuildConfigId = result.id;
+          })
           .catch(function (error) {
             $ctrl.createStatusMessages.push(error.status + ': ' + error.statusText);
             $ctrl.createError = true;
