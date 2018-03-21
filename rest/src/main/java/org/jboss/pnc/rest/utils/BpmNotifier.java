@@ -84,7 +84,7 @@ public class BpmNotifier {
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toString() : "{\"error\", \"" + errMessage + "\"}"));
+        parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toFullLogString() : "{\"error\", \"" + errMessage + "\"}"));
 
         UrlEncodedFormEntity entity = null;
         try {
