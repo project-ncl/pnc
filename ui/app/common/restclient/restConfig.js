@@ -30,7 +30,6 @@
     var pncUrl = '/pnc-rest/rest';
     var pncNotificationsUrl = 'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications';
     var daUrl;
-    var daImportUrl;
 
     this.setPncUrl = function (url) {
       pncUrl = url;
@@ -43,11 +42,6 @@
     this.setDaUrl = function (url) {
       daUrl = url;
     };
-
-    this.setDaImportUrl = function (url) {
-      daImportUrl = url;
-    };
-
 
     this.$get = function () {
       var restConfig = {};
@@ -62,10 +56,6 @@
 
       restConfig.getDaUrl = function () {
         return daUrl;
-      };
-
-      restConfig.getDaImportUrl = function () {
-        return daImportUrl;
       };
 
       return restConfig;

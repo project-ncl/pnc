@@ -26,19 +26,9 @@
   module.provider('daConfig', function() {
 
     var daUrl;
-    var daImportUrl;
-    var daImportRpcUrl;
 
     this.setDaUrl = function (url) {
       daUrl = url;
-    };
-
-    this.setDaImportUrl = function (url) {
-      daImportUrl = url;
-    };
-
-    this.setDaImportRpcUrl = function (url) {
-      daImportRpcUrl = url;
     };
 
     this.$get = function () {
@@ -46,14 +36,6 @@
 
       daConfig.getDaUrl = function () {
         return daUrl;
-      };
-
-      daConfig.getDaImportUrl = function () {
-        return daImportUrl;
-      };
-
-      daConfig.getDaImportRpcUrl = function () {
-        return daImportRpcUrl;
       };
 
       return daConfig;
