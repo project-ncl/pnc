@@ -38,6 +38,7 @@ import org.jboss.pnc.rest.endpoint.ProjectEndpoint;
 import org.jboss.pnc.rest.endpoint.RepositoryConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.RunningBuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.UserEndpoint;
+import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -51,8 +52,16 @@ import java.util.Set;
 @ApplicationPath("/rest")
 public class JaxRsActivator extends Application {
 
+    private Set<Object> singletons = new HashSet<Object>();
+
     public JaxRsActivator() throws IOException {
         configureSwagger();
+        configureCors();
+    }
+
+    @Override
+    public Set<Object> getSingletons() {
+        return singletons;
     }
 
     @Override
@@ -61,6 +70,13 @@ public class JaxRsActivator extends Application {
         addSwaggerResources(resources);
         addProjectResources(resources);
         return resources;
+    }
+
+    private void configureCors () {
+        CorsFilter corsFilter = new CorsFilter();
+        corsFilter.getAllowedOrigins().add("*");
+        corsFilter.setAllowedMethods("OPTIONS, GET, POST, DELETE, PUT, PATCH");
+        singletons.add(corsFilter);
     }
 
     private final void configureSwagger() throws IOException {
