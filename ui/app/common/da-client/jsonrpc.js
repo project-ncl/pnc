@@ -30,6 +30,9 @@
 
 
   /**
+   * This provider was required only by Product Import feature which was removed,
+   * but it should be also required by Reports feature soon (see NCL-2247).
+   * 
    * This provider can be enhanced with interceptors:
    *
    * module.config([
