@@ -18,81 +18,48 @@
 
 package org.jboss.pnc.environment.openshift;
 
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.util.IoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public enum Configurations {
-
-    PNC_BUILDER_POD("pnc-builder-pod.json"),
-    PNC_BUILDER_SERVICE("pnc-builder-service.json"),
-    PNC_BUILDER_ROUTE("pnc-builder-route.json"),
-    PNC_BUILDER_SSH_SERVICE("pnc-builder-ssh-service.json");
+public class Configurations {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    private static final String CONFIGURATIONS_FOLDER = "openshift.configurations/";
-
-    private final String filePath;
-
-    Configurations(String fileName) {
-        this.filePath = CONFIGURATIONS_FOLDER + fileName;
-    }
-
-    public String getContentAsString(Configuration configuration) {
-
-        String content = getContentFromConfigFile(configuration);
-
+    public static String getContentAsString(Resource resource, OpenshiftBuildAgentConfig openshiftBuildAgentConfig) {
+        String content = null;
+        if (openshiftBuildAgentConfig != null) {
+            content = getContentFromConfigFile(resource, openshiftBuildAgentConfig);
+        }
         // if no configuration in pnc-config
         if (content == null) {
-            try {
-                content = IoUtils.readResource(filePath, Configurations.class.getClassLoader());
-            } catch(IOException e){
-                logger.error("Cannot read configuration file " + filePath, e);
-                throw new RuntimeException("Could not read configuration file " + filePath + ": " + e.getMessage());
-            }
+            content = resource.getDefaultConfiguration();
         }
         return content;
     }
 
-    private String getContentFromConfigFile(Configuration configuration) {
-
-        OpenshiftBuildAgentConfig config = null;
-
-        try {
-            config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftBuildAgentConfig.class));
-        } catch (ConfigurationParseException e) {
-            logger.warn("Could not parse openshift-build-agent config");
-            logger.warn("Either the config is absent, or there's a mistake in the config file");
-        }
-
+    private static String getContentFromConfigFile(Resource resource, OpenshiftBuildAgentConfig openshiftBuildAgentConfig) {
         String content = null;
-        // read from pnc-config file
-        if (config != null) {
-            switch (this) {
-                case PNC_BUILDER_POD:
-                    content = config.getBuilderPod();
-                    break;
-                case PNC_BUILDER_SERVICE:
-                    content = config.getPncBuilderService();
-                    break;
-                case PNC_BUILDER_ROUTE:
-                    content = config.getPncBuilderRoute();
-                    break;
-                case PNC_BUILDER_SSH_SERVICE:
-                    content = config.getPncBuilderSshRoute();
-                    break;
-            }
+        switch (resource) {
+            case PNC_BUILDER_POD:
+                content = openshiftBuildAgentConfig.getBuilderPod();
+                break;
+            case PNC_BUILDER_SERVICE:
+                content = openshiftBuildAgentConfig.getPncBuilderService();
+                break;
+            case PNC_BUILDER_ROUTE:
+                content = openshiftBuildAgentConfig.getPncBuilderRoute();
+                break;
+            case PNC_BUILDER_SSH_SERVICE:
+                content = openshiftBuildAgentConfig.getPncBuilderSshRoute();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported resource type: " + resource.toString());
         }
         return content;
     }

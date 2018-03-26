@@ -20,6 +20,7 @@ package org.jboss.pnc.environment.openshift;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
@@ -56,8 +57,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     //TODO configurable:
     private ExecutorService executor;
 
-    private OpenshiftEnvironmentDriverModuleConfig config;
-    private Configuration configuration;
+    private OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig;
+    private OpenshiftBuildAgentConfig openshiftBuildAgentConfig;
     private PullingMonitor pullingMonitor;
 
     @Deprecated //CDI workaround
@@ -70,9 +71,14 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         int executorThreadPoolSize = DEFAULT_EXECUTOR_THREAD_POOL_SIZE;
         this.pullingMonitor = pullingMonitor;
 
-        config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
-        this.configuration = configuration;
-        String executorThreadPoolSizeStr = config.getExecutorThreadPoolSize();
+        openshiftEnvironmentDriverModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+        try {
+            this.openshiftBuildAgentConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftBuildAgentConfig.class));;
+        } catch (ConfigurationParseException e) {
+            logger.warn("OpenshiftBuildAgentConfig is not provided or is broken. Using the default built-in config.");
+        }
+
+        String executorThreadPoolSizeStr = openshiftEnvironmentDriverModuleConfig.getExecutorThreadPoolSize();
 
         if (executorThreadPoolSizeStr != null) {
             executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
@@ -80,7 +86,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         executor = Executors.newFixedThreadPool(executorThreadPoolSize,
                 new NamedThreadFactory("openshift-environment-driver"));
 
-        logger.info("Is OpenShift environment driver disabled: {}", config.isDisabled());
+        logger.info("Is OpenShift environment driver disabled: {}", openshiftEnvironmentDriverModuleConfig.isDisabled());
     }
 
     @Override
@@ -95,13 +101,21 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
         String buildImageId = StringUtils.addEndingSlash(systemImageRepositoryUrl) + StringUtils.stripTrailingSlash(systemImageId);
-        return new OpenshiftStartedEnvironment(executor, configuration, config, pullingMonitor, repositorySession, buildImageId, debugData, accessToken);
+        return new OpenshiftStartedEnvironment(
+                executor,
+                openshiftBuildAgentConfig,
+                openshiftEnvironmentDriverModuleConfig,
+                pullingMonitor,
+                repositorySession,
+                buildImageId,
+                debugData,
+                accessToken);
     }
 
     @Override
     public boolean canRunImageType(SystemImageType systemImageType) {
-        if (config.isDisabled()) {
-            logger.info("Skipping driver as it is disabled by config.");
+        if (openshiftEnvironmentDriverModuleConfig.isDisabled()) {
+            logger.info("Skipping driver as it is disabled by openshiftEnvironmentDriverModuleConfig.");
             return false;
         }
         return compatibleImageTypes.contains(systemImageType);
