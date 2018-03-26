@@ -34,7 +34,6 @@
     'pnc.milestone',
     'pnc.release',
     'pnc.configuration-set-record',
-    'pnc.import',
     'pnc.report',
     'pnc.properties',
   ]);
@@ -100,11 +99,8 @@
       restConfigProvider.setPncUrl(pncProperties.pncUrl);
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
       restConfigProvider.setDaUrl(pncProperties.daUrl);
-      restConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
 
       daConfigProvider.setDaUrl(pncProperties.daUrl);
-      daConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
-      daConfigProvider.setDaImportRpcUrl(pncProperties.daImportRpcUrl);
     }
   ]);
 
