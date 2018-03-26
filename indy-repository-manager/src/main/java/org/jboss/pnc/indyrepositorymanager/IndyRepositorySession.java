@@ -24,6 +24,7 @@ import org.commonjava.indy.client.core.module.IndyContentClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
+import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
@@ -79,6 +80,8 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.UNTEST
  * group, to expose them for use in successive builds in the chain.
  */
 public class IndyRepositorySession implements RepositorySession {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** PackageType-specific ignored suffixes. */
     private IgnoredPathSuffixes ignoredPathSuffixes;
@@ -511,7 +514,7 @@ public class IndyRepositorySession implements RepositorySession {
 
     /**
      * Promote the build output to the correct build group (using group promotion, where the build repo is added to the
-     * group's membership).
+     * group's membership) and marks the build output as readonly.
      */
     public void promoteToBuildContentSet() throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
@@ -525,7 +528,26 @@ public class IndyRepositorySession implements RepositorySession {
         GroupPromoteRequest request = new GroupPromoteRequest(hostedKey, buildPromotionGroup);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
-            if (!result.succeeded()) {
+            if (result.succeeded()) {
+                if (isTempBuild) {
+                    HostedRepository hosted = indy.stores().load(hostedKey, HostedRepository.class);
+                    hosted.setReadonly(true);
+                    try {
+                        indy.stores().update(hosted, "Setting readonly after successful build and promotion.");
+                    } catch (IndyClientException ex) {
+                        try {
+                            promoter.rollbackGroupPromote(request);
+                        } catch (IndyClientException ex2) {
+                            logger.error("Failed to set readonly flag on repo: %s. Reason given was: %s.", ex, hostedKey, ex.getMessage());
+                            throw new RepositoryManagerException(
+                                    "Subsequently also failed to rollback the promotion of repo: %s to group: %s. Reason given was: %s",
+                                    ex2, request.getSource(), request.getTargetGroup(), ex2.getMessage());
+                        }
+                        throw new RepositoryManagerException("Failed to set readonly flag on repo: %s. Reason given was: %s",
+                                ex, hostedKey, ex.getMessage());
+                    }
+                }
+            } else {
                 String reason = result.getError();
                 if (reason == null) {
                     ValidationResult validations = result.getValidations();
@@ -541,7 +563,8 @@ public class IndyRepositorySession implements RepositorySession {
                     }
                 }
 
-                throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s", request.getSource(), request.getTargetGroup(), reason);
+                throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s",
+                        request.getSource(), request.getTargetGroup(), reason);
             }
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
