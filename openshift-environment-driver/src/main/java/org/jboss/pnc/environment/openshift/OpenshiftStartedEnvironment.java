@@ -201,7 +201,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
         String definition = replaceConfigurationVariables(resourceDefinition, runtimeProperties);
-        logger.info("Node definition: " + definition);
+        logger.debug("Node definition: " + definition);
         return ModelNode.fromJSONString(definition);
     }
 
