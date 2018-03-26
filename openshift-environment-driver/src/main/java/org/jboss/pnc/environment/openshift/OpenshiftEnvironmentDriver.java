@@ -72,7 +72,12 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         this.pullingMonitor = pullingMonitor;
 
         openshiftEnvironmentDriverModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
-        this.openshiftBuildAgentConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftBuildAgentConfig.class));;
+        try {
+            this.openshiftBuildAgentConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftBuildAgentConfig.class));;
+        } catch (ConfigurationParseException e) {
+            logger.warn("OpenshiftBuildAgentConfig is not provided or is broken. Using the default built-in config.");
+        }
+
         String executorThreadPoolSizeStr = openshiftEnvironmentDriverModuleConfig.getExecutorThreadPoolSize();
 
         if (executorThreadPoolSizeStr != null) {

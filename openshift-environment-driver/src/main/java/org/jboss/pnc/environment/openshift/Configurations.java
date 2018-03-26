@@ -32,9 +32,10 @@ public class Configurations {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     public static String getContentAsString(Resource resource, OpenshiftBuildAgentConfig openshiftBuildAgentConfig) {
-
-        String content = getContentFromConfigFile(resource, openshiftBuildAgentConfig);
-
+        String content = null;
+        if (openshiftBuildAgentConfig != null) {
+            content = getContentFromConfigFile(resource, openshiftBuildAgentConfig);
+        }
         // if no configuration in pnc-config
         if (content == null) {
             content = resource.getDefaultConfiguration();
@@ -43,24 +44,22 @@ public class Configurations {
     }
 
     private static String getContentFromConfigFile(Resource resource, OpenshiftBuildAgentConfig openshiftBuildAgentConfig) {
-
         String content = null;
-        // read from pnc-config file
-        if (openshiftBuildAgentConfig != null) {
-            switch (resource) {
-                case PNC_BUILDER_POD:
-                    content = openshiftBuildAgentConfig.getBuilderPod();
-                    break;
-                case PNC_BUILDER_SERVICE:
-                    content = openshiftBuildAgentConfig.getPncBuilderService();
-                    break;
-                case PNC_BUILDER_ROUTE:
-                    content = openshiftBuildAgentConfig.getPncBuilderRoute();
-                    break;
-                case PNC_BUILDER_SSH_SERVICE:
-                    content = openshiftBuildAgentConfig.getPncBuilderSshRoute();
-                    break;
-            }
+        switch (resource) {
+            case PNC_BUILDER_POD:
+                content = openshiftBuildAgentConfig.getBuilderPod();
+                break;
+            case PNC_BUILDER_SERVICE:
+                content = openshiftBuildAgentConfig.getPncBuilderService();
+                break;
+            case PNC_BUILDER_ROUTE:
+                content = openshiftBuildAgentConfig.getPncBuilderRoute();
+                break;
+            case PNC_BUILDER_SSH_SERVICE:
+                content = openshiftBuildAgentConfig.getPncBuilderSshRoute();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported resource type: " + resource.toString());
         }
         return content;
     }
