@@ -34,8 +34,6 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String pncUrl;
     private final String pncNotificationsUrl;
     private final String daUrl;
-    private final String daImportUrl;
-    private final String daImportRpcUrl;
     private final String userGuideUrl;
     private final KeycloakConfig keycloak;
 
@@ -43,15 +41,11 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("pncUrl") String pncUrl,
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
             @JsonProperty("daUrl") String daUrl,
-            @JsonProperty("daImportUrl") String daImportUrl,
-            @JsonProperty("daImportRpcUrl") String daImportRpcUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
             @JsonProperty("keycloak") KeycloakConfig keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
-        this.daImportUrl = daImportUrl;
-        this.daImportRpcUrl = daImportRpcUrl;
         this.userGuideUrl = userGuideUrl;
         this.keycloak = keycloak;
     }
@@ -81,22 +75,6 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
-     * @return String representation of the Dependency Analyzer Import API base URL.
-     */
-    @JsonProperty("daImportUrl")
-    public String getDaImportUrl() {
-        return daImportUrl;
-    }
-
-    /**
-     * @return String representation of the Dependency Analyzer Import RPC WebSocket URL.
-     */
-    @JsonProperty("daImportRpcUrl")
-    public String getDaImportRpcUrl() {
-        return daImportRpcUrl;
-    }
-
-    /**
      * @return String representation of the PNC user guide URL
      */
     public String getUserGuideUrl() {
@@ -117,8 +95,6 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 "pncUrl='" + pncUrl + '\'' +
                 ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' +
                 ", daUrl='" + daUrl + '\'' +
-                ", daImportUrl='" + daImportUrl + '\'' +
-                ", daImportRpcUrl='" + daImportRpcUrl + '\'' +
                 ", userGuideUrl='" + userGuideUrl + '\'' +
                 ", keycloak=" + keycloak +
                 '}';
