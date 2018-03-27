@@ -77,8 +77,6 @@
                     "pncUrl": "${env.PNC_UI_PNC_URL}",
                     "pncNotificationsUrl": "${env.PNC_UI_PNC_NOTIFICATIONS_URL}",
                     "daUrl": "${env.PNC_UI_DA_URL}",
-                    "daImportUrl": "${env.PNC_UI_DA_IMPORT_URL}",
-                    "daImportRpcUrl": "${env.PNC_UI_DA_IMPORT_RPC_URL}",
                     "keycloak":
                     {
                         "url": "${env.PNC_UI_KEYCLOAK_URL}",
