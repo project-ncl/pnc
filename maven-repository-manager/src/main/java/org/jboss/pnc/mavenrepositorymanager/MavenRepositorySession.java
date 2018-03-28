@@ -504,7 +504,7 @@ public class MavenRepositorySession implements RepositorySession {
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
             if (result.succeeded()) {
-                if (isTempBuild) {
+                if (!isTempBuild) {
                     HostedRepository hosted = indy.stores().load(hostedKey, HostedRepository.class);
                     hosted.setReadonly(true);
                     try {
