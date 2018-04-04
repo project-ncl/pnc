@@ -239,7 +239,7 @@
       // Deleting a build configuration set
       self.delete = function() {
         self.set.$delete().then(function() {
-          // Attempt to fo to previous state
+          // Attempt to go to previous state
           $state.go(previousState.Name, previousState.Params);
         });
       };
