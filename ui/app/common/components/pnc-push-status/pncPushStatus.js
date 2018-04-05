@@ -35,10 +35,17 @@
   function Controller(BuildRecord) {
     var $ctrl = this;
 
+    // -- Controller API --
+
     $ctrl.pushStatus = {};
+    $ctrl.loading = true;
+
+    // --------------------
+
 
     $ctrl.$onInit = function () {
       BuildRecord.getLatestPushStatus($ctrl.buildRecord.id).then(function (pushStatus) {
+        $ctrl.loading = false;
         $ctrl.pushStatus = pushStatus;
       });
     };
