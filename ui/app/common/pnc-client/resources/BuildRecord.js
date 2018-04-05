@@ -66,6 +66,26 @@
         'BUILDING'
       ];
 
+      function isCompleted(status) {
+        return FINAL_STATUSES.includes(status);
+      }
+
+      function isSuccess(status) {
+        return status === 'DONE';
+      }
+
+      function hasFailed(status) {
+        return isCompleted(status) && !isSuccess(status);
+      }
+
+      function isCancelable(status) {
+        return CANCELABLE_STATUSES.includes(status);
+      }
+
+      function canonicalName(buildRecord) {
+        return buildRecord.buildConfigurationName + '#' + buildRecord.id;
+      }
+
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
@@ -205,6 +225,10 @@
         return isCompleted(this.status);
       };
 
+      resource.prototype.$isSuccess = function () {
+        return isSuccess(this.status);
+      };
+
       resource.prototype.$hasFailed = function () {
         return hasFailed(this.status);
       };
@@ -213,17 +237,9 @@
         return isCancelable(this.status);
       };
 
-      function isCompleted(status) {
-        return FINAL_STATUSES.includes(status);
-      }
-
-      function hasFailed(status) {
-        return isCompleted(status) && status !== 'DONE';
-      }
-
-      function isCancelable(status) {
-        return CANCELABLE_STATUSES.includes(status);
-      }
+      resource.prototype.$canonicalName = function () {
+        return canonicalName(this);
+      };
 
       return resource;
     }

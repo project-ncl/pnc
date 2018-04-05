@@ -212,6 +212,15 @@
 .panel .pnc-build-records-list {
   margin-bottom: 0;
 }
+
+.pnc-build-records-list td {
+  vertical-align: middle !important;
+}
+
+.pnc-build-records-list .push-status, th {
+  text-align: center;
+}
+
 .combobox-container .dropdown-menu {
   max-height: 300px;
   overflow-y: auto;
@@ -249,7 +258,7 @@
   min-width: 190px;
   padding: 5px 15px;
   margin-bottom: 15px;
-  
+
   display: block;
 }
 .pnc-build-start .dropdown-menu hr {

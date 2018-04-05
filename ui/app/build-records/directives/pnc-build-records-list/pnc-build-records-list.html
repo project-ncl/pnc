@@ -20,16 +20,17 @@
 <table class="table table-bordered table-striped table-hover pnc-build-records-list" ng-show="$ctrl.showTable()">
   <thead ng-hide="::$ctrl.hideHead">
     <th ng-if="::$ctrl.showColumn('status')">Status</th>
-    <th ng-if="::$ctrl.showColumn('id')">ID</th>
-    <th ng-if="::$ctrl.showColumn('configurationName')">Configuration Name</th>
+    <th ng-if="::$ctrl.showColumn('id')">Id</th>
+    <th ng-if="::$ctrl.showColumn('configurationName')">Build Config</th>
     <th ng-if="::$ctrl.showColumn('startTime')">Start Time</th>
     <th ng-if="::$ctrl.showColumn('endTime')">End Time</th>
-    <th ng-if="::$ctrl.showColumn('username')">Started by User</th>
+    <th ng-if="::$ctrl.showColumn('username')">User</th>
+    <th ng-if="::$ctrl.showColumn('pushStatus')">Brew Push Status</th>
   </thead>
   <tbody>
     <tr ng-repeat="item in $ctrl.items">
       <td ng-if="::$ctrl.showColumn('status')">
-        <pnc-build-status-icon build-record="item"></pnc-build-status-icon> 
+        <pnc-build-status-icon build-record="item"></pnc-build-status-icon>
         {{ item.status }}
       </td>
       <td ng-if="::$ctrl.showColumn('id')">
@@ -43,6 +44,7 @@
       <td ng-if="::$ctrl.showColumn('startTime')">{{ item.startTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('endTime')">{{ item.endTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('username')">{{ item.username }}</td>
+      <td ng-if="::$ctrl.showColumn('pushStatus')" class="push-status"><pnc-push-status build-record="item"></pnc-push-status></td>
     </tr>
   </tbody>
 </table>
