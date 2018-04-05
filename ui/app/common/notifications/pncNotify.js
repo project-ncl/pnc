@@ -28,7 +28,7 @@
        var persistent = false;
 
        // second parameter is header, fourth parameter is closeCallback
-       func(message, undefined, persistent, undefined, actionTitle, actionCallback, menuActions);
+       func(message, '', persistent, undefined, actionTitle, actionCallback, menuActions);
 
        var lastItemIndex = Notifications.data.length - 1;
        var latestNotification = Notifications.data[lastItemIndex];

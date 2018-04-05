@@ -289,3 +289,8 @@ label.required::before {
   padding-left: 10px;
   min-width: 150px;
 }
+
+.label a {
+  color: #fff;
+  text-decoration: none;
+}

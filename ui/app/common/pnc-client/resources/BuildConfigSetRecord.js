@@ -37,6 +37,14 @@
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PATH;
       var PUSH_ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PUSH_PATH;
 
+      function canonicalName(buildConfigSetRecord) {
+        return buildConfigSetRecord.buildConfigurationSetName + '#' + buildConfigSetRecord.id;
+      }
+
+      function isSuccess(buildConfigSetRecord) {
+        return buildConfigSetRecord.status === 'SUCCESS';
+      }
+
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
@@ -61,6 +69,18 @@
           tagPrefix: tagPrefix
         });
       };
+
+      resource.prototype.$canonicalName = function () {
+        return canonicalName(this);
+      };
+
+      resource.canonicalName = canonicalName;
+
+      resource.prototype.$isSuccess = function () {
+        return isSuccess(this);
+      };
+
+      resource.isSuccess = isSuccess;
 
       return resource;
     }
