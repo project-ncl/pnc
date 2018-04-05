@@ -40,8 +40,9 @@
 
           scope.page = BuildRecordDAO.getPagedByBCSetRecord({bcSetRecordId: scope.bcSetRecordId});
 
-          var update = function (event, payload) {
-            /* jshint unused: false */
+          scope.columns = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username', 'pushStatus'];
+
+          var update = function () {
             scope.page.reload();
           };
 
