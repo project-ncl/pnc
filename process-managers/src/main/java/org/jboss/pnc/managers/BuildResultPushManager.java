@@ -47,10 +47,8 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -105,50 +103,51 @@ public class BuildResultPushManager {
      * @return
      * @throws ProcessException
      */
-    public Map<Integer, Boolean> push(
+    public Set<Result> push(
             Set<Integer> buildRecordIds,
             String authToken,
             String callBackUrlTemplate, String tagPrefix) throws ProcessException {
 
-        Map<Integer, Boolean> result = new HashMap<>();
+        Set<Result> result = new HashSet<>();
         for (Integer buildRecordId : buildRecordIds) {
-            boolean success = pushToCauseway(
+            Result pushResult = pushToCauseway(
                     authToken,
                     buildRecordId,
                     String.format(callBackUrlTemplate, buildRecordId),
                     tagPrefix);
-            result.put(buildRecordId, success);
+            result.add(pushResult);
         }
         return result;
     }
 
-    private boolean pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix) throws ProcessException {
+    private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix) throws ProcessException {
         logger.info("Pushing to causeway BR.id: {}", buildRecordId);
 
         if (!inProgress.add(buildRecordId, tagPrefix)) {
             logger.warn("Push for BR.id {} already running.", buildRecordId);
-            return false;
+            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "A push for this buildRecord is already running.");
         }
 
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
         if (buildRecord == null) {
             logger.warn("Did not find build record by id: " + buildRecordId);
-            //TODO response with failure description
-            return false;
+            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Did not find build record by given id.");
         }
 
         if (!buildRecord.getStatus().completedSuccessfully()) {
             logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
-            //TODO response with failure description
-            return false;
+            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Cannot push failed build.");
         }
 
         BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken);
         boolean successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
         if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
+            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Failed to push to Causeway.");
+        } else {
+            return new Result(buildRecordId.toString(), Result.Status.ACCEPTED);
         }
-        return successfullyPushed;
+
     }
 
     private BuildImportRequest createCausewayPushRequest(
