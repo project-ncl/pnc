@@ -17,12 +17,50 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
-import org.jboss.pnc.model.BuildRecord;
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface RemoteBuildsCleaner {
+@Getter
+public final class Result {
 
-    Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken);
+    private final String id;
+
+    private final Status status;
+
+    private final String message;
+
+    public Result(String id, Status status) {
+        this.id = id;
+        this.status = status;
+        this.message = "";
+    }
+
+    public Result(String id, Status status, String message) {
+        this.id = id;
+        this.status = status;
+        this.message = message;
+    }
+
+    public boolean isSuccess() {
+        return status.isSuccess();
+    }
+
+    public enum  Status {
+        SUCCESS(true),
+        FAILED(false),
+        SYSTEM_ERROR(false);
+
+        private boolean success;
+
+        Status(boolean success) {
+            this.success = success;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+    }
+
 }

@@ -22,7 +22,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
+import org.jboss.pnc.coordinator.maintenance.Result;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
@@ -37,6 +38,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.spi.exception.ValidationException;
+import org.jboss.pnc.spi.notifications.Notifier;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +55,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.util.function.Consumer;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -85,11 +88,14 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     private ArtifactProvider artifactProvider;
     private EndpointAuthenticationProvider authProvider;
 
-    private TemporaryBuildsCleaner temporaryBuildsCleaner;
+    private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
+
+    private Notifier notifier;
 
     @Context
     private HttpServletRequest httpServletRequest;
 
+    @Deprecated //CDI workaround
     public BuildRecordEndpoint() {
     }
 
@@ -98,12 +104,14 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             BuildRecordProvider buildRecordProvider,
             ArtifactProvider artifactProvider,
             EndpointAuthenticationProvider authProvider,
-            TemporaryBuildsCleaner temporaryBuildsCleaner) {
+            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
+            Notifier notifier) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.artifactProvider = artifactProvider;
         this.authProvider = authProvider;
-        this.temporaryBuildsCleaner = temporaryBuildsCleaner;
+        this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
+        this.notifier = notifier;
     }
 
     @ApiOperation(value = "Gets all Build Records")
@@ -136,7 +144,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Delete specific Build Record (it must be from a temporary build).")
+    @ApiOperation(value = "Delete specific Build Record (it must be from a temporary build). Operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
@@ -148,9 +156,13 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     public Response delete(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id)
             throws RepositoryViolationException {
 
+        Consumer<Result> onComplete = (result) -> {
+            notifier.sendToSubscribers(result.isSuccess(), "build-records#delete", result.getId().toString());
+        };
+
         User currentUser = authProvider.getCurrentUser(httpServletRequest);
         try {
-            temporaryBuildsCleaner.deleteTemporaryBuild(id, currentUser.getLoginToken());
+            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), onComplete);
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }

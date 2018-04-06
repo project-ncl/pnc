@@ -22,7 +22,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
+import org.jboss.pnc.coordinator.maintenance.Result;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
@@ -35,6 +36,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.spi.exception.ValidationException;
+import org.jboss.pnc.spi.notifications.Notifier;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +52,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.function.Consumer;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -80,12 +84,16 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     private BuildRecordProvider buildRecordProvider;
 
-    private TemporaryBuildsCleaner temporaryBuildsCleaner;
+    private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     private EndpointAuthenticationProvider authenticationProvider;
+
     @Context
     private HttpServletRequest httpServletRequest;
 
+    private Notifier notifier;
+
+    @Deprecated //CDI workaround
     public BuildConfigSetRecordEndpoint() {
     }
 
@@ -93,12 +101,13 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
     public BuildConfigSetRecordEndpoint(
             BuildConfigSetRecordProvider buildConfigSetRecordProvider,
             BuildRecordProvider buildRecordProvider,
-            TemporaryBuildsCleaner temporaryBuildsCleaner,
-            EndpointAuthenticationProvider authenticationProvider) {
+            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
+            EndpointAuthenticationProvider authenticationProvider, Notifier notifier) {
         super(buildConfigSetRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
-        this.temporaryBuildsCleaner = temporaryBuildsCleaner;
+        this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
         this.authenticationProvider = authenticationProvider;
+        this.notifier = notifier;
     }
 
     @ApiOperation(value = "Gets all build config set execution records")
@@ -130,7 +139,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Delete specific Build Config Set Record (it must be from a temporary build).")
+    @ApiOperation(value = "Delete specific Build Config Set Record (it must be from a temporary build). Operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
@@ -143,8 +152,12 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             throws RepositoryViolationException {
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
 
+        Consumer<Result> onComplete = (result) -> {
+            notifier.sendToSubscribers(result.isSuccess(), "build-config-set-records#delete", result.getId().toString());
+        };
+
         try {
-            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken());
+            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(), onComplete);
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
