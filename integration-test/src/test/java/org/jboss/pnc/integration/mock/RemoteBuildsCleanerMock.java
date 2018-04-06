@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration.mock;
 
 import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
+import org.jboss.pnc.coordinator.maintenance.Result;
 import org.jboss.pnc.model.BuildRecord;
 
 import javax.enterprise.context.Dependent;
@@ -29,7 +30,7 @@ import javax.enterprise.context.Dependent;
 public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
 
     @Override
-    public boolean deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        return true;
+    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
+        return new Result(buildRecord.getId().toString(), Result.Status.SUCCESS);
     }
 }
