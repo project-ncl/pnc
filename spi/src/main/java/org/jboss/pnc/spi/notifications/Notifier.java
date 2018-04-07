@@ -46,5 +46,20 @@ public interface Notifier {
      */
     void sendToSubscribers(Object message, String topic, String qualifier);
 
-    void onClientSubscribe(AttachedClient client, String messagesId);
+    void onBpmProcessClientSubscribe(AttachedClient client, String messagesId);
+
+    enum Topic {
+        COMPONENT_BUILD("component-build"),
+        CAUSEWAY_PUSH("causeway-push");
+
+        Topic(String id) {
+            this.id = id;
+        };
+
+        private String id;
+
+        public String getId() {
+            return id;
+        }
+    }
 }
