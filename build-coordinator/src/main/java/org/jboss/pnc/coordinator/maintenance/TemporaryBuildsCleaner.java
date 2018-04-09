@@ -90,15 +90,28 @@ public class TemporaryBuildsCleaner {
         /** Delete relation between BuildRecord and Artifact */
         Set<Artifact> artifactsToBeDeleted = new HashSet<>();
 
-        removeDependencyRelationBuildRecordArtifact(buildRecord, artifactsToBeDeleted);
+        removeRelationBuildRecordArtifact(buildRecord, artifactsToBeDeleted);
 
         /**
          * Delete artifacts, if the artifacts are not used in other builds
          */
         deleteArtifacts(artifactsToBeDeleted);
 
+        deleteDependencies(buildRecord);
+
         buildRecordRepository.delete(buildRecord.getId());
         return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
+    }
+
+    private void deleteDependencies(BuildRecord buildRecord) {
+        for(Artifact artifact : buildRecord.getDependencies()) {
+            //check if the BR in which this artifact was produced has been already deleted
+            if(Artifact.Quality.DELETED.equals(artifact.getArtifactQuality())) {
+                if (artifact.getDependantBuildRecords().size() == 0) {
+                    artifactRepository.delete(artifact.getId());
+                }
+            }
+        }
     }
 
     private void deleteArtifacts(Set<Artifact> artifactsToBeDeleted) {
@@ -140,7 +153,7 @@ public class TemporaryBuildsCleaner {
         return new Result(buildConfigSetRecordId.toString(), Result.Status.SUCCESS);
     }
 
-    private void removeDependencyRelationBuildRecordArtifact(
+    private void removeRelationBuildRecordArtifact(
             BuildRecord buildRecord,
             Set<Artifact> artifactsToBeDeleted) {
         Set<Artifact> artifacts;
