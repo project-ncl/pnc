@@ -157,7 +157,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             throws RepositoryViolationException {
 
         Consumer<Result> onComplete = (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), "build-records#delete", result.getId().toString());
+            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_RECORDS_DELETE.getId(), result.getId().toString());
         };
 
         User currentUser = authProvider.getCurrentUser(httpServletRequest);

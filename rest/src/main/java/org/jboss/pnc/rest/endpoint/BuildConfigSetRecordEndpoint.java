@@ -153,7 +153,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
 
         Consumer<Result> onComplete = (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), "build-config-set-records#delete", result.getId().toString());
+            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_CONFIG_SET_RECORDS_DELETE.getId(), result.getId().toString());
         };
 
         try {
