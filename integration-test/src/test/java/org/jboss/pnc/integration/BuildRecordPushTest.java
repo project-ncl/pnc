@@ -28,6 +28,7 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.CausewayClientMock;
 import org.jboss.pnc.integration.websockets.WsUpdatesClient;
+import org.jboss.pnc.managers.Result;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
@@ -36,6 +37,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -47,7 +49,6 @@ import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -91,18 +92,22 @@ public class BuildRecordPushTest extends AbstractTest {
 
         //when push BR
         BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId);
-        RestResponse<Map> restResponse = pushRestClient.push(pushRequest);
+        RestResponse<Result[]> restResponse = pushRestClient.push(pushRequest);
 
         //then make sure the request has been accepted
-        Map<String, Boolean> responseValue = restResponse.getValue();
-        Assertions.assertThat(responseValue.get(buildRecordId.toString())).isTrue();
+        Result[] responseValue = restResponse.getValue();
+        Result result = getById(responseValue, buildRecordId.toString());
+        Assert.assertTrue(result.getStatus().isSuccess());
+        Assertions.assertThat(result.getStatus()).isEqualTo(Result.Status.ACCEPTED);
 
         //when the same BuildRecord pushed again
-        RestResponse<Map> secondResponse = pushRestClient.push(pushRequest);
+        RestResponse<Result[]> secondResponse = pushRestClient.push(pushRequest);
 
         //then it should be rejected
-        Map<String, Boolean> secondValue = secondResponse.getValue();
-        Assertions.assertThat(secondValue.get(buildRecordId.toString())).isFalse();
+        Result[] secondValue = secondResponse.getValue();
+        Result secondResult = getById(secondValue, buildRecordId.toString());
+        Assert.assertFalse(secondResult.getStatus().isSuccess());
+        Assertions.assertThat(secondResult.getStatus()).isEqualTo(Result.Status.REJECTED);
 
         //when completed
         mockCompletedFromCauseway(pushRestClient, buildRecordId);
@@ -112,16 +117,26 @@ public class BuildRecordPushTest extends AbstractTest {
         Assertions.assertThat(results.get(0).getLog()).isEqualTo(PUSH_LOG);
 
         //test DB entry
-        BuildRecordPushResultRest result = pushRestClient.getStatus(buildRecordId);
-        Assertions.assertThat(result.getLog()).isEqualTo(PUSH_LOG);
+        BuildRecordPushResultRest status = pushRestClient.getStatus(buildRecordId);
+        Assertions.assertThat(status.getLog()).isEqualTo(PUSH_LOG);
 
         //when the same BuildRecord pushed again
-        RestResponse<Map> thirdResponse = pushRestClient.push(pushRequest);
+        RestResponse<Result[]> thirdResponse = pushRestClient.push(pushRequest);
 
         //then it should be accepted again
-        Map<String, Boolean> thirdValue = thirdResponse.getValue();
-        Assertions.assertThat(thirdValue.get(buildRecordId.toString())).isTrue();
+        Result[] thirdValue = thirdResponse.getValue();
+        Result thirdResult = getById(responseValue, buildRecordId.toString());
+        Assert.assertTrue(thirdResult.isSuccess());
 
+    }
+
+    private Result getById(Result[] results, String id) {
+        for (Result result : results) {
+            if (result.getId().equals(id)) {
+                return result;
+            }
+        }
+        return null;
     }
 
     private void mockCompletedFromCauseway(BuildRecordPushRestClient pushRestClient, Integer buildRecordId) {
