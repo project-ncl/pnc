@@ -30,6 +30,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.managers.BuildResultPushManager;
+import org.jboss.pnc.managers.Result;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.provider.BuildRecordPushResultProvider;
@@ -137,7 +138,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         Set<Integer> buildRecordIds = new HashSet<>();
         buildRecordIds.add(buildRecordId);
 
-        Map<Integer, Boolean> pushed = buildResultPushManager.push(
+        Set<Result> pushed = buildResultPushManager.push(
                 buildRecordIds,
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),
@@ -169,7 +170,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 .map(BuildRecord::getId)
                 .collect(Collectors.toSet());
 
-        Map<Integer, Boolean> pushed = buildResultPushManager.push(
+        Set<Result> pushed = buildResultPushManager.push(
                 buildRecordIds,
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),

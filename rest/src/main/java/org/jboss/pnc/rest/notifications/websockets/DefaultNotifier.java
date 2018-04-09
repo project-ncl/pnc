@@ -172,7 +172,7 @@ public class DefaultNotifier implements Notifier {
     }
 
     @Override
-    public void onClientSubscribe(AttachedClient client, String messagesId) {
+    public void onBpmProcessClientSubscribe(AttachedClient client, String messagesId) {
         if (bpmManager.isPresent()) {
             Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), Integer.valueOf(messagesId));
             if (maybeTask.isPresent()) {
@@ -219,13 +219,13 @@ public class DefaultNotifier implements Notifier {
 
     private void notifySubscribers(String buildTaskId, ProcessProgressUpdate processProgressUpdate) {
         logger.trace("Sending update for buildTaskId: {}. processProgressUpdate: {}.", buildTaskId, processProgressUpdate.toString());
-        sendToSubscribers(processProgressUpdate, "component-build", buildTaskId);
+        sendToSubscribers(processProgressUpdate, Topic.COMPONENT_BUILD.getId(), buildTaskId);
     }
 
     public void collectBuildRecordPushResultRestEvent(@Observes BuildRecordPushResultRest buildRecordPushResultRest) {
         logger.trace("Observed new BuildRecordPushResultRest event {}.", buildRecordPushResultRest);
         BuildRecordPushResultRestEvent buildRecordPushResultRestEvent = new BuildRecordPushResultRestEvent(buildRecordPushResultRest);
-        sendToSubscribers(buildRecordPushResultRestEvent, "causeway-push", buildRecordPushResultRest.getBuildRecordId().toString());
+        sendToSubscribers(buildRecordPushResultRestEvent, Topic.CAUSEWAY_PUSH.getId(), buildRecordPushResultRest.getBuildRecordId().toString());
         logger.trace("BuildRecordPushResultRest event processed {}.", buildRecordPushResultRest);
     }
 
