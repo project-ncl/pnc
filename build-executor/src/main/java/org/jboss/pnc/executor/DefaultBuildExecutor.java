@@ -28,8 +28,8 @@ import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -45,6 +45,7 @@ import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
+import org.jboss.pnc.spi.executor.exceptions.AlreadyRunningException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -58,10 +59,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.URI;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -79,7 +80,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
-    private final Map<Integer, DefaultBuildExecutionSession> runningExecutions = new HashMap<>();
+    private final ConcurrentMap<Integer, DefaultBuildExecutionSession> runningExecutions = new ConcurrentHashMap<>();
 
     @Deprecated
     public DefaultBuildExecutor() {} //CDI workaround for constructor injection
@@ -116,7 +117,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
             String accessToken) throws ExecutorException {
 
         DefaultBuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
-        runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
+
+        int executionConfigurationId = buildExecutionConfiguration.getId();
+        DefaultBuildExecutionSession existing = runningExecutions.putIfAbsent(executionConfigurationId, buildExecutionSession);
+        if (existing != null) {
+            throw new AlreadyRunningException("Build execution with id: " + executionConfigurationId + " is already running.");
+        }
 
         buildExecutionSession.setStartTime(new Date());
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
@@ -368,7 +374,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         } else {
             buildExecutionSession.setEndTime(new Date());
         }
-        
+
         String accessToken = buildExecutionSession.getAccessToken();
         log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
         try {
@@ -413,8 +419,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
 
         try {
-            if (destroyableEnvironment != null)
+            if (destroyableEnvironment != null) {
                 destroyableEnvironment.destroyEnvironment();
+            }
 
         } catch (EnvironmentDriverException envE) {
             log.warn("Running environment" + destroyableEnvironment + " couldn't be destroyed!", envE);
