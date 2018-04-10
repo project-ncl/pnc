@@ -40,7 +40,7 @@ import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.jboss.pnc.spi.executor.exceptions.AlreadyRunningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,10 +158,14 @@ public class BuildTaskEndpoint {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
             logger.info("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
-            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
-                    buildExecutionConfiguration.toBuildExecutionConfiguration(),
-                    callbackUrl,
-                    loginInUser.getTokenString());
+            try {
+                buildExecutorTriggerer.executeBuild(
+                        buildExecutionConfiguration.toBuildExecutionConfiguration(),
+                        callbackUrl,
+                        loginInUser.getTokenString());
+            } catch (AlreadyRunningException e) {
+                return Response.status(Response.Status.CONFLICT).entity(new Singleton<String>(e.getMessage())).build();
+            }
 
             UIModuleConfig uiModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
             UriBuilder uriBuilder = UriBuilder.fromUri(uiModuleConfig.getPncUrl()).path("/ws/executor/notifications");
