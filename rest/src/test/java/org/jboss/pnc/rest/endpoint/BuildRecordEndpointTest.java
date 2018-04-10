@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.notifications.websockets.DefaultNotifier;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -70,7 +71,7 @@ public class BuildRecordEndpointTest {
     @Mock
     private EndpointAuthenticationProvider authProvider;
     @Mock
-    private TemporaryBuildsCleaner temporaryBuildsCleaner;
+    private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
@@ -87,7 +88,12 @@ public class BuildRecordEndpointTest {
                 BUILD_RECORD_NOT_VALID_ID)).thenReturn(new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0,
                         Collections.emptyList()));
 
-        endpoint = new BuildRecordEndpoint(buildRecordProvider, artifactProvider, authProvider, temporaryBuildsCleaner);
+        endpoint = new BuildRecordEndpoint(
+                buildRecordProvider,
+                artifactProvider,
+                authProvider,
+                temporaryBuildsCleanerAsyncInvoker,
+                new DefaultNotifier());
 
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);

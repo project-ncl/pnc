@@ -50,7 +50,9 @@ public interface Notifier {
 
     enum Topic {
         COMPONENT_BUILD("component-build"),
-        CAUSEWAY_PUSH("causeway-push");
+        CAUSEWAY_PUSH("causeway-push"),
+        BUILD_RECORDS_DELETE("build-records#delete"),
+        BUILD_CONFIG_SET_RECORDS_DELETE("build-config-set-records#delete");
 
         Topic(String id) {
             this.id = id;
