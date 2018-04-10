@@ -190,6 +190,12 @@ public class Artifact implements GenericEntity<Integer> {
         BLACKLISTED,
 
         /**
+         * Artifact with DELETED quality is used to show BuildRecord dependencies although the artifact itself was deleted.
+         * DELETED can be set only from TEMPORARY
+         */
+        DELETED,
+
+        /**
          * The artifact is from a snapshot or a Pull Request build
          */
         TEMPORARY
@@ -284,6 +290,11 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public void setArtifactQuality(Artifact.Quality artifactQuality) {
+        if (Quality.DELETED.equals(artifactQuality)) {
+            if (!Quality.TEMPORARY.equals(this.artifactQuality)) {
+                throw new PersistenceException("Deleted quality can be set only to temporary artifacts.");
+            }
+        }
         this.artifactQuality = artifactQuality;
     }
 
@@ -417,7 +428,7 @@ public class Artifact implements GenericEntity<Integer> {
         return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality
                 + ", targetRepository=[id: " + targetRepository.getId() + ", identifier: " + targetRepository.getIdentifier()
                 + ", repositoryPath: " + targetRepository.getRepositoryPath()  + ", repositoryType: " + targetRepository.getRepositoryType()
-                + ", temporaryTepo: " + targetRepository.getTemporaryRepo() + "]]";
+                + ", temporaryRepo: " + targetRepository.getTemporaryRepo() + "]]";
     }
 
     public String getDescriptiveString() {

@@ -68,31 +68,35 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     @Override
-    public boolean deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        if (!deleteBuildsFromIndy(buildRecord.getBuildContentId(), authToken)) {
-            return false;
+    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
+        Result result = deleteBuildsFromIndy(buildRecord.getBuildContentId(), authToken);
+        if (!result.isSuccess()) {
+            return result;
         }
-        if (!requestDeleteViaCauseway(buildRecord)) {
-            return false;
+        result = requestDeleteViaCauseway(buildRecord);
+        if (!result.isSuccess()) {
+            return result;
         }
-        return true;
+        return new Result(buildRecord.getId().toString(), Result.Status.SUCCESS);
     }
 
-    private boolean requestDeleteViaCauseway(BuildRecord buildRecord) {
-        List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository.getAllSuccessfulForBuildRecord(buildRecord.getId());
+    private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
+        Integer buildRecordId = buildRecord.getId();
+        List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository.getAllSuccessfulForBuildRecord(buildRecordId);
 
         for (BuildRecordPushResult pushResult : toRemove) {
             boolean success = causewayUntag(pushResult.getTagPrefix(), pushResult.getBrewBuildId());
             if (!success) {
                 logger.error("Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
-                        buildRecord.getId(), pushResult.getBrewBuildId(), pushResult.getTagPrefix());
-                return false;
+                        buildRecordId, pushResult.getBrewBuildId(), pushResult.getTagPrefix());
+                return new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to un-tag pushed build record.");
             }
         }
-        return true;
+        return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
     }
 
-    private boolean deleteBuildsFromIndy(String buildContentId, String authToken) {
+    private Result deleteBuildsFromIndy(String buildContentId, String authToken) {
+        Result result;
         Indy indy = indyFactory.get(authToken);
         try {
             //delete the content
@@ -102,12 +106,15 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             //delete the tracking record
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
             foloAdmin.clearTrackingRecord(buildContentId);
+            result = new Result(buildContentId, Result.Status.SUCCESS);
         } catch (IndyClientException e) {
-            logger.error("Failed to delete temporary hosted repository identified by buildContentId {}." + buildContentId, e);
+            String description = "Failed to delete temporary hosted repository identified by buildContentId {}." + buildContentId;
+            logger.error(description, e);
+            result = new Result(buildContentId, Result.Status.FAILED, description);
         } finally {
             IOUtils.closeQuietly(indy);
         }
-        return true;
+        return result;
     }
 
     private boolean causewayUntag(String tagPrefix, int brewBuildId) {
@@ -121,4 +128,5 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         TaggedBuild taggedBuild = new TaggedBuild(tagPrefix, brewBuildId);
         return new UntagRequest(taggedBuild, null);
     }
+
 }

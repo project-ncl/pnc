@@ -235,8 +235,8 @@ public class TemporaryBuildsCleanerTest {
         assertNull(buildRecordRepository.queryById(tempBr.getId()));
         assertNull(artifactRepository.queryById(artifact1.getId()));
         assertNull(artifactRepository.queryById(artifact2.getId()));
-        assertNull(artifactRepository.queryById(artifact3.getId()));
-        assertNull(artifactRepository.queryById(artifact4.getId()));
+        assertNotNull(artifactRepository.queryById(artifact3.getId()));
+        assertNotNull(artifactRepository.queryById(artifact4.getId()));
     }
 
     @Test

@@ -71,8 +71,9 @@ public class TemporaryBuildsCleaner {
      *
      * @param buildRecordId BuildRecord to be deleted
      * @param authToken
+     * @return true if success
      */
-    public void deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
+    public Result deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
@@ -80,35 +81,58 @@ public class TemporaryBuildsCleaner {
         log.info("Starting deletion of a temporary build " + buildRecord + "; Built artifacts: " + buildRecord.getBuiltArtifacts()
                 + "; Dependencies: " + buildRecord.getDependencies());
 
-        if (!remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken)) {
+        Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken);
+        if (!result.isSuccess()) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
-            return;
+            return new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to delete remote temporary builds.");
         }
 
         /** Delete relation between BuildRecord and Artifact */
         Set<Artifact> artifactsToBeDeleted = new HashSet<>();
 
-        removeDependencyRelationBuildRecordArtifact(buildRecord, artifactsToBeDeleted, true);
-        removeDependencyRelationBuildRecordArtifact(buildRecord, artifactsToBeDeleted, false);
+        removeRelationBuildRecordArtifact(buildRecord, artifactsToBeDeleted);
 
         /**
          * Delete artifacts, if the artifacts are not used in other builds
          */
-        for(Artifact artifact : artifactsToBeDeleted) {
-            log.info("Deleting temporary artifact: " + artifact.getDescriptiveString());
-            artifactRepository.delete(artifact.getId());
-        }
+        deleteArtifacts(artifactsToBeDeleted);
+
+        deleteDependencies(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
+        return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
+    }
+
+    private void deleteDependencies(BuildRecord buildRecord) {
+        for(Artifact artifact : buildRecord.getDependencies()) {
+            //check if the BR in which this artifact was produced has been already deleted
+            if(Artifact.Quality.DELETED.equals(artifact.getArtifactQuality())) {
+                if (artifact.getDependantBuildRecords().size() == 0) {
+                    artifactRepository.delete(artifact.getId());
+                }
+            }
+        }
+    }
+
+    private void deleteArtifacts(Set<Artifact> artifactsToBeDeleted) {
+        for(Artifact artifact : artifactsToBeDeleted) {
+            if (artifact.getDependantBuildRecords().size() > 0) {
+                log.info("Marking temporary artifact as DELETED: " + artifact.getDescriptiveString());
+                artifact.setArtifactQuality(Artifact.Quality.DELETED);
+                artifactRepository.save(artifact);
+            } else {
+                log.info("Deleting temporary artifact: " + artifact.getDescriptiveString());
+                artifactRepository.delete(artifact.getId());
+            }
+        }
     }
 
     /**
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
-     *
-     * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
+     *  @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
      * @param authToken
      */
-    public void deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken)
+    public Result deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken)
             throws ValidationException {
 
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
@@ -118,27 +142,29 @@ public class TemporaryBuildsCleaner {
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
         for (BuildRecord br : buildConfigSetRecord.getBuildRecords()) {
-            deleteTemporaryBuild(br.getId(), authToken);
+            Result result = deleteTemporaryBuild(br.getId(), authToken);
+            if (!result.isSuccess()) {
+                return result;
+            }
         }
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 
         log.info("Deletion of a temporary build record set finished: " + buildConfigSetRecord);
+        return new Result(buildConfigSetRecordId.toString(), Result.Status.SUCCESS);
     }
 
-    private void removeDependencyRelationBuildRecordArtifact(
+    private void removeRelationBuildRecordArtifact(
             BuildRecord buildRecord,
-            Set<Artifact> artifactsToBeDeleted,
-            boolean applyToBuiltArtifacts) {
+            Set<Artifact> artifactsToBeDeleted) {
         Set<Artifact> artifacts;
-        if (applyToBuiltArtifacts){
-            artifacts = buildRecord.getBuiltArtifacts();
-        } else {
-            artifacts = buildRecord.getDependencies();
-        }
+
+        artifacts = buildRecord.getBuiltArtifacts();
 
         for (Artifact artifact : artifacts) {
-            log.info(String.format("Deleting relation BR-Artifact. BuiltArtifacts? %s, BR=%s, artifact=%s", applyToBuiltArtifacts,
-                    buildRecord, artifact.getDescriptiveString()));
+            log.debug(String.format(
+                    "Deleting relation BR-Artifact. BR=%s, artifact=%s",
+                    buildRecord,
+                    artifact.getDescriptiveString()));
 
             if (artifact.getDistributedInProductMilestones().size() != 0) {
                 log.error("Temporary artifact was distributed in milestone! Artifact: "
@@ -146,21 +172,12 @@ public class TemporaryBuildsCleaner {
                 continue;
             }
 
-            if (applyToBuiltArtifacts) {
-                artifact.getBuildRecords().remove(buildRecord);
-            } else {
-                artifact.getDependantBuildRecords().remove(buildRecord);
-            }
-
+            artifact.getBuildRecords().remove(buildRecord);
             artifactRepository.save(artifact);
             artifactsToBeDeleted.add(artifact);
         }
 
-        if (applyToBuiltArtifacts) {
-            buildRecord.setBuiltArtifacts(Collections.emptySet());
-        } else {
-            buildRecord.setDependencies(Collections.emptySet());
-        }
+        buildRecord.setBuiltArtifacts(Collections.emptySet());
         buildRecordRepository.save(buildRecord);
     }
 }

@@ -229,7 +229,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
 
         if (createRoute) {
-            pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, this::isRouteRunning);
+            pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.ROUTE), onError, this::isRouteRunning);
             logger.info("Route [{}].", route.getName());
         }
 
@@ -261,7 +261,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
             logger.info("Environment successfully initialized. Pod [{}]; Service [{}].", pod.getName(), service.getName());
             if (createRoute) {
-                logger.info("Route [{}].", route.getName());
+                logger.info("Route initialized [{}].", route.getName());
             }
 
             RunningEnvironment runningEnvironment = RunningEnvironment.createInstance(
