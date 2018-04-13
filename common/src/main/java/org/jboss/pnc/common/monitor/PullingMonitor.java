@@ -99,14 +99,21 @@ public class PullingMonitor {
      * @param timeUnit Unit used for checkInterval and timeout
      */
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition, int checkInterval, int timeout, TimeUnit timeUnit) {
-        AtomicInteger timeWaiting = new AtomicInteger(0);
 
         ObjectWrapper<RunningTask> runningTaskReference = new ObjectWrapper<>();
         Runnable monitor = () -> {
             RunningTask runningTask = runningTaskReference.get();
-            try {
-                int waiting = timeWaiting.addAndGet(checkInterval);
 
+            if (runningTask == null) {
+                /* There might be a situation where this runnable is called before runningTaskReference is set with the
+                 * running task since this runnable is scheduled to run before runningTaskReference is set. In that
+                 * case, we just skip this runnable and re-run on the next scheduled interval with the assumption that
+                 * runningTaskReference will be set before the next re-run
+                 */
+                log.debug("runningTask not set yet inside the 'monitor' runnable! Skipping!");
+                return;
+            }
+            try {
                 // Check if given condition is satisfied
                 if (condition.get()) {
                     runningTasks.remove(runningTask);
@@ -114,6 +121,7 @@ public class PullingMonitor {
                     onMonitorComplete.run();
                 }
             } catch (Exception e) {
+                log.error("Exception in monitor runnable", e);
                 runningTasks.remove(runningTask);
                 runningTask.cancel();
                 onMonitorError.accept(e);
