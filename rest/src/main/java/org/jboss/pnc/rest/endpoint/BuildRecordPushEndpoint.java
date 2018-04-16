@@ -37,10 +37,12 @@ import org.jboss.pnc.rest.provider.BuildRecordPushResultProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
+import org.jboss.pnc.rest.restmodel.response.ResultRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
@@ -89,6 +91,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private String pncRestBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private BuildRecordRepository buildRecordRepository;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
 
     @Context
@@ -105,12 +108,14 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             AuthenticationProviderFactory authenticationProviderFactory,
             Configuration configuration,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
-            BuildRecordRepository buildRecordRepository) {
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigurationRepository buildConfigurationRepository) {
         super(buildRecordPushResultProvider);
         this.buildResultPushManager = buildResultPushManager;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.buildRecordRepository = buildRecordRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
         try {
             String pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
             pncRestBaseUrl = StringUtils.stripEndingSlash(pncBaseUrl);
@@ -144,7 +149,9 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 getCompleteCallbackUrl(),
                 buildRecordPushRequestRest.getTagPrefix());
 
-        return Response.ok().entity(JsonOutputConverterMapper.apply(pushed)).build();
+        Set<ResultRest> pushedResponse = toResultRests(pushed);
+
+        return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
     }
 
     @ApiOperation(value = "Push build config set record to Brew.")
@@ -176,7 +183,27 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 getCompleteCallbackUrl(),
                 buildConfigSetRecordPushRequestRest.getTagPrefix());
 
-        return Response.ok().entity(JsonOutputConverterMapper.apply(pushed)).build();
+        Set<ResultRest> pushedResponse = toResultRests(pushed);
+
+        return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
+    }
+
+    private Set<ResultRest> toResultRests(Set<Result> pushed) {
+        return pushed.stream()
+                    .map(r -> createResultRest(r))
+                    .collect(Collectors.toSet());
+    }
+
+    private ResultRest createResultRest(Result result) {
+        return new ResultRest(
+                result.getId(),
+                getBuildConfigurationName(Integer.parseInt(result.getId())),
+                ResultRest.Status.valueOf(result.getStatus().name()),
+                result.getMessage());
+    }
+
+    private String getBuildConfigurationName(Integer buildConfigurationId) {
+        return buildConfigurationRepository.queryById(buildConfigurationId).getName();
     }
 
     @ApiOperation(value = "Get Build Record Push Result by Id..")
