@@ -22,10 +22,7 @@
   angular.module('pnc.build-records').component('pncBuildRecordPushButton', {
     bindings: {
       buildRecord: '<?',
-      buildGroupRecord: '<?',
-      size: '@?',
-      buttonText: '@?',
-      buttonIconClass: '@?'
+      buildGroupRecord: '<?'
     },
     templateUrl: 'build-records/directives/pnc-build-record-push-button/pnc-build-record-push-button.html',
     controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'BuildConfigSetRecord', 'messageBus', Controller]
@@ -77,26 +74,67 @@
       });
     }
 
-    function subscribe(ids) {
-      Object.keys(ids).forEach(function (id) {
+    function subscribe(statuses) {
+      statuses.forEach(function (status) {
         unsubscribes.push(messageBus.subscribe({
           topic: 'causeway-push',
-          id: id
+          id: status.id
         }));
       });
     }
 
+    function notify(statusObj) {
+      switch (statusObj.status) {
+        case 'ACCEPTED':
+          pncNotify.info('Brew push initiated for build: ' + statusObj.name + '#' + statusObj.id);
+          break;
+        case 'FAILED':
+        case 'SYSTEM_ERROR':
+        case 'REJECTED':
+          pncNotify.error('Brew push failed for build: ' + statusObj.name + '#' + statusObj.id);
+          break;
+        case 'CANCELED':
+          pncNotify.info('Brew push canceled for build: ' + statusObj.name + '#' + statusObj.id);
+          break;
+      }
+    }
+
+    function filterAccepted(statuses) {
+      return statuses.filter(function(status) {
+        return status === 'ACCEPTED';
+      });
+    }
+
+    function filterRejected(statuses) {
+      return statuses.filter(function (status) {
+        return status !== 'ACCEPTED';
+      });
+    }
+
     function doPushBuildRecord(modalValues) {
-      BuildRecord.push($ctrl.buildRecord.id, modalValues.tagName).then(function (result) {
-        subscribe(result.data);
-        pncNotify.info('Brew push process started for: ' + $ctrl.buildRecord.$canonicalName());
+      BuildRecord.push($ctrl.buildRecord.id, modalValues.tagName).then(function (response) {
+        subscribe(response.data);
+        notify(response.data[0]);
       });
     }
 
     function doPushBuildGroupRecord(modalValues) {
-      BuildConfigSetRecord.push($ctrl.buildGroupRecord.id, modalValues.tagName).then(function (result) {
-        subscribe(result.data);
-        pncNotify.info('Brew push process started for group: ' + BuildConfigSetRecord.canonicalName($ctrl.buildGroupRecord));
+      BuildConfigSetRecord.push($ctrl.buildGroupRecord.id, modalValues.tagName).then(function (response) {
+        var accepted = filterAccepted(response.data),
+            rejected = filterRejected(response.data);
+
+        if (accepted.length > 0) {
+          subscribe(accepted);
+        }
+
+        if (rejected.length === 0) {
+          pncNotify.info('Brew push initiated for group build: ' + BuildConfigSetRecord.canonicalName($ctrl.buildGroupRecord));
+        } else {
+          pncNotify.warn('Some Build Records were rejected for brew push of group build: ' + BuildConfigSetRecord.canonicalName($ctrl.buildGroupRecord));
+          rejected.forEach(function (reject) {
+            notify(reject);
+          });
+        }
       });
     }
   }
