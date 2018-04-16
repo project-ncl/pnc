@@ -28,11 +28,11 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.CausewayClientMock;
 import org.jboss.pnc.integration.websockets.WsUpdatesClient;
-import org.jboss.pnc.managers.Result;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.response.ResultRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -92,22 +92,22 @@ public class BuildRecordPushTest extends AbstractTest {
 
         //when push BR
         BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId);
-        RestResponse<Result[]> restResponse = pushRestClient.push(pushRequest);
+        RestResponse<ResultRest[]> restResponse = pushRestClient.push(pushRequest);
 
         //then make sure the request has been accepted
-        Result[] responseValue = restResponse.getValue();
-        Result result = getById(responseValue, buildRecordId.toString());
+        ResultRest[] responseValue = restResponse.getValue();
+        ResultRest result = getById(responseValue, buildRecordId.toString());
         Assert.assertTrue(result.getStatus().isSuccess());
-        Assertions.assertThat(result.getStatus()).isEqualTo(Result.Status.ACCEPTED);
+        Assertions.assertThat(result.getStatus()).isEqualTo(ResultRest.Status.ACCEPTED);
 
         //when the same BuildRecord pushed again
-        RestResponse<Result[]> secondResponse = pushRestClient.push(pushRequest);
+        RestResponse<ResultRest[]> secondResponse = pushRestClient.push(pushRequest);
 
         //then it should be rejected
-        Result[] secondValue = secondResponse.getValue();
-        Result secondResult = getById(secondValue, buildRecordId.toString());
+        ResultRest[] secondValue = secondResponse.getValue();
+        ResultRest secondResult = getById(secondValue, buildRecordId.toString());
         Assert.assertFalse(secondResult.getStatus().isSuccess());
-        Assertions.assertThat(secondResult.getStatus()).isEqualTo(Result.Status.REJECTED);
+        Assertions.assertThat(secondResult.getStatus()).isEqualTo(ResultRest.Status.REJECTED);
 
         //when completed
         mockCompletedFromCauseway(pushRestClient, buildRecordId);
@@ -121,17 +121,17 @@ public class BuildRecordPushTest extends AbstractTest {
         Assertions.assertThat(status.getLog()).isEqualTo(PUSH_LOG);
 
         //when the same BuildRecord pushed again
-        RestResponse<Result[]> thirdResponse = pushRestClient.push(pushRequest);
+        RestResponse<ResultRest[]> thirdResponse = pushRestClient.push(pushRequest);
 
         //then it should be accepted again
-        Result[] thirdValue = thirdResponse.getValue();
-        Result thirdResult = getById(responseValue, buildRecordId.toString());
+        ResultRest[] thirdValue = thirdResponse.getValue();
+        ResultRest thirdResult = getById(responseValue, buildRecordId.toString());
         Assert.assertTrue(thirdResult.isSuccess());
 
     }
 
-    private Result getById(Result[] results, String id) {
-        for (Result result : results) {
+    private ResultRest getById(ResultRest[] results, String id) {
+        for (ResultRest result : results) {
             if (result.getId().equals(id)) {
                 return result;
             }

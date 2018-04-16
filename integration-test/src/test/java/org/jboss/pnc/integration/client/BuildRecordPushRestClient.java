@@ -19,23 +19,23 @@ package org.jboss.pnc.integration.client;
 
 import com.jayway.restassured.response.Response;
 import org.jboss.pnc.integration.client.util.RestResponse;
-import org.jboss.pnc.managers.Result;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
+import org.jboss.pnc.rest.restmodel.response.ResultRest;
 
-public class BuildRecordPushRestClient extends AbstractRestClient<Result[]> {
+public class BuildRecordPushRestClient extends AbstractRestClient<ResultRest[]> {
 
     public static final String BUILD_RECORD_PUSH_REST_ENDPOINT = "/pnc-rest/rest/build-record-push/";
 
     public BuildRecordPushRestClient() {
-        super(BUILD_RECORD_PUSH_REST_ENDPOINT, Result[].class);
+        super(BUILD_RECORD_PUSH_REST_ENDPOINT, ResultRest[].class);
     }
 
-    public RestResponse<Result[]> push(BuildRecordPushRequestRest buildRecordPushRequestRest) {
+    public RestResponse<ResultRest[]> push(BuildRecordPushRequestRest buildRecordPushRequestRest) {
         return post(BUILD_RECORD_PUSH_REST_ENDPOINT, buildRecordPushRequestRest, true);
     }
 
-    public RestResponse<Result[]> complete(BuildRecordPushResultRest pushResultRest) {
+    public RestResponse<ResultRest[]> complete(BuildRecordPushResultRest pushResultRest) {
         return post(BUILD_RECORD_PUSH_REST_ENDPOINT + pushResultRest.getBuildRecordId() + "/complete/", pushResultRest, false);
     }
 
