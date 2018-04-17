@@ -327,7 +327,6 @@ public class BpmEndpoint extends AbstractEndpoint {
                 .validateAnnotations();
 
         RepositoryConfigurationRest.RepositoryConfigurationRestBuilder repositoryConfigurationBuilder = RepositoryConfigurationRest.builder();
-        repositoryConfigurationBuilder.preBuildSyncEnabled(repositoryCreationUrlAutoRest.isPreBuildSyncEnabled());
 
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         String scmUrl = repositoryCreationUrlAutoRest.getScmUrl();
@@ -348,9 +347,19 @@ public class BpmEndpoint extends AbstractEndpoint {
             if (message != null) {
                 return message;
             }
+            //when creating new SCM config with external Url, enable preBuildSync if it is not specified
+            if (repositoryCreationUrlAutoRest.getPreBuildSyncEnabled() != null) {
+                repositoryConfigurationBuilder.preBuildSyncEnabled(repositoryCreationUrlAutoRest.getPreBuildSyncEnabled());
+            } else {
+                repositoryConfigurationBuilder.preBuildSyncEnabled(true);
+            }
             repositoryConfigurationBuilder.externalUrl(scmUrl);
         }
-        RepositoryCreationTask task = startRCreationTask(repositoryConfigurationBuilder.build(), buildConfigurationRest, httpServletRequest);
+
+        RepositoryConfigurationRest repositoryConfigurationRest = repositoryConfigurationBuilder.build();
+        repositoryConfigurationRest.validate();
+
+        RepositoryCreationTask task = startRCreationTask(repositoryConfigurationRest, buildConfigurationRest, httpServletRequest);
         return Response.ok(task.getTaskId()).build();
     }
 
