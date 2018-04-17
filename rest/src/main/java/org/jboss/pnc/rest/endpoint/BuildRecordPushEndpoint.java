@@ -31,8 +31,10 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.managers.BuildResultPushManager;
 import org.jboss.pnc.managers.Result;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.rest.provider.BuildRecordPushResultProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
@@ -42,7 +44,7 @@ import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
@@ -60,7 +62,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,7 +93,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private String pncRestBaseUrl;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private BuildRecordRepository buildRecordRepository;
-    private BuildConfigurationRepository buildConfigurationRepository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
 
     @Context
@@ -109,13 +111,13 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             Configuration configuration,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             BuildRecordRepository buildRecordRepository,
-            BuildConfigurationRepository buildConfigurationRepository) {
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
         super(buildRecordPushResultProvider);
         this.buildResultPushManager = buildResultPushManager;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.buildRecordRepository = buildRecordRepository;
-        this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         try {
             String pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
             pncRestBaseUrl = StringUtils.stripEndingSlash(pncBaseUrl);
@@ -140,16 +142,21 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
         Integer buildRecordId = buildRecordPushRequestRest.getBuildRecordId();
-        Set<Integer> buildRecordIds = new HashSet<>();
-        buildRecordIds.add(buildRecordId);
+        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        if (buildRecord == null) {
+            return Response.noContent().entity("Cannot find a BuildRecord with given id.").build();
+        }
+
+        Map<Integer, IdRev> buildRecordsIds = new HashMap<>();
+        buildRecordsIds.put(buildRecordId, buildRecord.getBuildConfigurationAuditedIdRev());
 
         Set<Result> pushed = buildResultPushManager.push(
-                buildRecordIds,
+                buildRecordsIds.keySet(),
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),
                 buildRecordPushRequestRest.getTagPrefix());
 
-        Set<ResultRest> pushedResponse = toResultRests(pushed);
+        Set<ResultRest> pushedResponse = toResultRests(pushed, buildRecordsIds);
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
     }
@@ -173,37 +180,45 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
                 BuildRecordPredicates.withBuildConfigSetRecordId(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId()));
 
-        Set<Integer> buildRecordIds = buildRecords.stream()
-                .map(BuildRecord::getId)
-                .collect(Collectors.toSet());
+        Map<Integer, IdRev> buildRecordsIds = buildRecords.stream()
+                .collect(Collectors.toMap(
+                        BuildRecord::getId,
+                        BuildRecord::getBuildConfigurationAuditedIdRev
+                ));
 
         Set<Result> pushed = buildResultPushManager.push(
-                buildRecordIds,
+                buildRecordsIds.keySet(),
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),
                 buildConfigSetRecordPushRequestRest.getTagPrefix());
 
-        Set<ResultRest> pushedResponse = toResultRests(pushed);
+        Set<ResultRest> pushedResponse = toResultRests(pushed, buildRecordsIds);
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
     }
 
-    private Set<ResultRest> toResultRests(Set<Result> pushed) {
+    private Set<ResultRest> toResultRests(Set<Result> pushed, Map<Integer, IdRev> buildRecordsIds) {
         return pushed.stream()
-                    .map(r -> createResultRest(r))
+                    .map(r -> createResultRest(r, buildRecordsIds.get(Integer.parseInt(r.getId()))))
                     .collect(Collectors.toSet());
     }
 
-    private ResultRest createResultRest(Result result) {
+    private ResultRest createResultRest(Result result, IdRev configurationIdRev) {
         return new ResultRest(
                 result.getId(),
-                getBuildConfigurationName(Integer.parseInt(result.getId())),
+                getBuildConfigurationName(configurationIdRev),
                 ResultRest.Status.valueOf(result.getStatus().name()),
                 result.getMessage());
     }
 
-    private String getBuildConfigurationName(Integer buildConfigurationId) {
-        return buildConfigurationRepository.queryById(buildConfigurationId).getName();
+    private String getBuildConfigurationName(IdRev idRev) {
+        BuildConfigurationAudited buildConfiguration = buildConfigurationAuditedRepository.queryById(idRev);
+        if (buildConfiguration != null) {
+            return buildConfiguration.getName();
+        } else {
+            logger.warn("Did not find buildConfiguration audited by idRev: {}.", idRev);
+            return null;
+        }
     }
 
     @ApiOperation(value = "Get Build Record Push Result by Id..")
