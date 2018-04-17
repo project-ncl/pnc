@@ -24,7 +24,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.rest.validation.validators.ScmUrl;
@@ -62,7 +64,7 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
 
     @Getter
     @Setter
-    private boolean preBuildSyncEnabled = true;
+    private Boolean preBuildSyncEnabled;
 
     public RepositoryConfigurationRest() {
     }
@@ -99,7 +101,17 @@ public class RepositoryConfigurationRest implements GenericRestEntity<Integer> {
                 .id(id)
                 .internalUrl(internalUrl)
                 .externalUrl(externalUrl)
-                .preBuildSyncEnabled(preBuildSyncEnabled);
+                .preBuildSyncEnabled(Boolean.TRUE.equals(preBuildSyncEnabled));
         return builder;
     }
+
+    public void validate() throws InvalidEntityException {
+        if (StringUtils.isEmpty(getExternalUrl())) {
+            if (Boolean.TRUE.equals(getPreBuildSyncEnabled())) {
+                throw new InvalidEntityException("Pre-build sync cannot be enabled without external repository url.");
+            }
+        }
+    }
+
+
 }
