@@ -86,6 +86,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
 
     @Override
     public BuildConfigurationAudited queryById(IdRev idRev) {
+        logger.trace("Querying for BuildConfigurationAudited.idRev: {}.", idRev);
         BuildConfiguration buildConfiguration = AuditReaderFactory.get(entityManager)
                 .find(BuildConfiguration.class, idRev.getId(), idRev.getRev());
 

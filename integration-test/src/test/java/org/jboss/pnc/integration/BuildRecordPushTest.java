@@ -84,6 +84,7 @@ public class BuildRecordPushTest extends AbstractTest {
 
         BuildRecordRestClient buildRecordRestClient = new BuildRecordRestClient();
         BuildRecordRest buildRecordRest = buildRecordRestClient.firstNotNull().getValue();
+        logger.info("Using BuildRecord {}.", buildRecordRest);
         Integer buildRecordId = buildRecordRest.getId();
 
         connectToWsNotifications(buildRecordId, onMessage);
