@@ -19,6 +19,7 @@ package org.jboss.pnc.managers;
 
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -47,8 +48,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -71,10 +74,9 @@ public class ProductMilestoneReleaseManager {
     private ArtifactRepository artifactRepository;
     private ProductVersionRepository productVersionRepository;
     private BuildRecordRepository buildRecordRepository;
-    private ProductMilestoneReleaseRepository releaseRepository;
+    private ProductMilestoneReleaseRepository productMilestoneReleaseRepository;
     private ProductMilestoneRepository milestoneRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
-
 
     @Deprecated // for ejb
     public ProductMilestoneReleaseManager() {
@@ -82,13 +84,14 @@ public class ProductMilestoneReleaseManager {
 
     @Inject
     public ProductMilestoneReleaseManager(
-            ProductMilestoneReleaseRepository releaseRepository,
+            ProductMilestoneReleaseRepository productMilestoneReleaseRepository,
             BpmManager bpmManager,
             ArtifactRepository artifactRepository,
             ProductVersionRepository productVersionRepository,
             BuildRecordRepository buildRecordRepository,
-            ProductMilestoneRepository milestoneRepository, BuildRecordPushResultRepository buildRecordPushResultRepository) {
-        this.releaseRepository = releaseRepository;
+            ProductMilestoneRepository milestoneRepository,
+            BuildRecordPushResultRepository buildRecordPushResultRepository) {
+        this.productMilestoneReleaseRepository = productMilestoneReleaseRepository;
         this.bpmManager = bpmManager;
         this.artifactRepository = artifactRepository;
         this.productVersionRepository = productVersionRepository;
@@ -105,11 +108,27 @@ public class ProductMilestoneReleaseManager {
      */
     public void startRelease(ProductMilestone milestone, String accessToken) {
         ProductMilestoneRelease release = triggerRelease(milestone, accessToken);
-        releaseRepository.save(release);
+        productMilestoneReleaseRepository.save(release);
+    }
+
+    public void cancel(ProductMilestone milestoneInDb) {
+        Collection<BpmTask> activeTasks = bpmManager.getActiveTasks();
+        Optional<MilestoneReleaseTask> milestoneReleaseTask = activeTasks.stream()
+                .map(task -> (MilestoneReleaseTask) task)
+                .filter(task -> task.getMilestone().getId().equals(milestoneInDb.getId()))
+                .findAny();
+
+        if (milestoneReleaseTask.isPresent()) {
+            bpmManager.cancelTask(milestoneReleaseTask.get());
+        }
+
+        ProductMilestoneRelease milestoneRelease = productMilestoneReleaseRepository.findLatestByMilestone(milestoneInDb);
+        milestoneRelease.setStatus(MilestoneReleaseStatus.CANCELED);
+        productMilestoneReleaseRepository.save(milestoneRelease);
     }
 
     public boolean noReleaseInProgress(ProductMilestone milestone) {
-        ProductMilestoneRelease latestRelease = releaseRepository.findLatestByMilestone(milestone);
+        ProductMilestoneRelease latestRelease = productMilestoneReleaseRepository.findLatestByMilestone(milestone);
 
         return latestRelease == null || latestRelease.getStatus() != MilestoneReleaseStatus.IN_PROGRESS;
     }
@@ -221,7 +240,7 @@ public class ProductMilestoneReleaseManager {
     }
 
     private void updateRelease(ProductMilestone milestone, String message, MilestoneReleaseStatus status) {
-        ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(milestone);
+        ProductMilestoneRelease release = productMilestoneReleaseRepository.findLatestByMilestone(milestone);
         if (release == null) {
             log.error("No milestone release found for milestone {}", milestone.getId());
             return;
@@ -231,7 +250,7 @@ public class ProductMilestoneReleaseManager {
         }
         release.setStatus(status);
         release.setLog(release.getLog() + message);
-        releaseRepository.save(release);
+        productMilestoneReleaseRepository.save(release);
     }
 
     private String describeCompletedPush(MilestoneReleaseResultRest result) {
@@ -307,4 +326,5 @@ public class ProductMilestoneReleaseManager {
     private static <T, R> R orNull(T value, Function<T, R> f) {
         return value == null ? null : f.apply(value);
     }
+
 }
