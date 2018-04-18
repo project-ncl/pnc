@@ -227,6 +227,23 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
         return Response.ok().build();
     }
 
+    @ApiOperation(value = "Cancel Product Milestone Release process.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/{id}/close-milestone-cancel")
+    public Response cancelMilestoneClose(
+            @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
+            @Context HttpServletRequest httpServletRequest) throws RestValidationException {
+
+        productMilestoneProvider.cancelMilestoneCloseProcess(id);
+        return Response.ok().build();
+    }
+
     @ApiOperation(value = "Get the artifacts distributed in this milestone")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),
