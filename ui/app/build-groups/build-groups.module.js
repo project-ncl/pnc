@@ -120,6 +120,17 @@
         }
       });
 
+      $stateProvider.state('build-groups.detail.build-history', {
+        url: '/build-history',
+        component: 'pncBuildGroupBuildHistory',
+        resolve: {
+          buildGroupRecords: ['$stateParams', 'BuildConfigurationSet', function ($stateParams, BuildConfigurationSet) {
+            var buildGroupRecords = BuildConfigurationSet.queryBuildConfigSetRecords({ id: $stateParams.configurationSetId });
+            return buildGroupRecords.$promise.then(function () { return buildGroupRecords; });
+          }]
+        }
+      });
+
       $stateProvider.state('build-groups.create', {
         url: '/create/:productId/:versionId',
         templateUrl: 'build-groups/views/build-groups.create.html',
