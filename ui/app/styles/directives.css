@@ -271,3 +271,15 @@
   pointer-events: none;
   opacity: 0.5;
 }
+
+/*
+ * NCL-3605 - Fixes broken kebab button alignment in pnc-header directive,
+ * overrides some new CSS styles in patternfly that caused the break.
+ */
+.page-header .dropdown-kebab-pf.btn-group > .btn:first-child {
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 14px;
+  line-height: 1.3333333;
+}
+
