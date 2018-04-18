@@ -15,17 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model;
+package org.jboss.pnc.rest.validation.exceptions;
+
+import java.util.Optional;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 1:16 PM
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public enum MilestoneReleaseStatus {
-    IN_PROGRESS,
-    FAILED,
-    SUCCEEDED,
-    CANCELED,
-    SYSTEM_ERROR
+public class EntityNotFoundException extends RestValidationException {
+
+    public EntityNotFoundException(String message) {
+        super(message);
+    }
+
+    @Override
+    public Optional<Object> getRestModelForException() {
+        return Optional.empty();
+    }
 }

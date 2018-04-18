@@ -25,6 +25,7 @@ import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.EntityNotFoundException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
@@ -178,6 +179,25 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
             if(releaseManager.noReleaseInProgress(milestoneInDb)) {
                 log.debug("Milestone end date set and no release in progress, will start release");
                 releaseManager.startRelease(milestoneInDb, accessToken);
+            }
+        }
+    }
+
+    public void cancelMilestoneCloseProcess(Integer milestoneId)
+            throws RepositoryViolationException, EntityNotFoundException {
+        ProductMilestone milestoneInDb = repository.queryById(milestoneId);
+
+        // If we want to close a milestone, make sure it's not already released (by checking end date)
+        // and there are no release in progress
+        if (milestoneInDb.getEndDate() != null) {
+            log.info("Milestone is already closed.");
+            throw new RepositoryViolationException("Milestone is already closed!");
+        } else {
+            if(releaseManager.noReleaseInProgress(milestoneInDb)) {
+                log.debug("Milestone end date set and no release in progress, will start release");
+                throw new EntityNotFoundException("No running cancel process for given id.");
+            } else {
+                releaseManager.cancel(milestoneInDb);
             }
         }
     }

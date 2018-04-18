@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.bpm.task;
 
+import lombok.Getter;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.model.ProductMilestone;
@@ -32,6 +33,7 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 public class MilestoneReleaseTask extends BpmTask {
 
+    @Getter
     private final ProductMilestone milestone;
 
     public MilestoneReleaseTask(ProductMilestone milestone, String accessToken) {
