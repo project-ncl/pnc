@@ -123,6 +123,7 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
     @POST
     public Response createNew(RepositoryConfigurationRest repositoryConfigurationRest, @Context UriInfo uriInfo)
             throws RestValidationException {
+        repositoryConfigurationRest.validate();
         return super.createNew(repositoryConfigurationRest, uriInfo);
     }
 
@@ -151,6 +152,7 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
     @Path("/{id}")
     public Response update(@ApiParam(value = "Repository Configuration id", required = true) @PathParam("id") Integer id,
                            RepositoryConfigurationRest repositoryConfigurationRest) throws RestValidationException {
+        repositoryConfigurationRest.validate();
         return super.update(id, repositoryConfigurationRest);
     }
 
