@@ -205,7 +205,7 @@
         },
         resolve: {
           artifacts: function (recordDetail) {
-            return recordDetail.$getBuiltArtifacts();
+            return recordDetail.$getBuiltArtifacts({ pageSize: 10 });
           }
         }
       });
@@ -220,7 +220,7 @@
           },
           resolve: {
             artifacts: function (recordDetail) {
-              return recordDetail.$getDependencies();
+              return recordDetail.$getDependencies({ pageSize: 10 });
             }
           }
         });
