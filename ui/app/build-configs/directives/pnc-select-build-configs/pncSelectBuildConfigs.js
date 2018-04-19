@@ -23,8 +23,7 @@
     bindings: {
       onAdd: '&',
       onRemove: '&',
-      onChange: '&',
-      initialValues: '<'
+      onChange: '&'
     },
     require: {
       ngModel: '?ngModel'
@@ -68,10 +67,6 @@
 
 
     $ctrl.$onInit = function () {
-      if (angular.isDefined($ctrl.initialValues)) {
-        $ctrl.buildConfigs = angular.copy($ctrl.initialValues);
-      }
-
       if ($ctrl.ngModel) {
         $ctrl.ngModel.$render = function () {
           $ctrl.buildConfigs = $ctrl.ngModel.$viewValue;
@@ -82,7 +77,7 @@
     $ctrl.$doCheck = function () {
       var hashCode = utils.hashCode($ctrl.buildConfigs);
 
-      if (hashCode !== lastHashCode) {
+      if (hashCode !== lastHashCode && $ctrl.buildConfigs.length) {
         onChange();
         lastHashCode = hashCode;
       }
