@@ -62,7 +62,9 @@ public class DefaultCausewayClient implements CausewayClient {
         HttpResponse response;
         try {
             logger.info("Making POST request to {}.", url);
-            logger.debug("Request body {}.", jsonMessage);
+            if(logger.isDebugEnabled())
+                logger.debug("Request body {}.", secureBodyLog(jsonMessage));
+
             response = Request.Post(url)
                     .addHeader(authHeader)
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
@@ -96,6 +98,16 @@ public class DefaultCausewayClient implements CausewayClient {
     public boolean untagBuild(UntagRequest untagRequest, String authToken) {
         String jsonMessage = JsonOutputConverterMapper.apply(untagRequest);
         return post(untagEndpoint, jsonMessage, authToken);
+    }
+
+    /**
+     * Makes the request body secure - removes any tokens
+     *
+     * @param jsonMessage Original body message
+     * @return JSON string without token information
+     */
+    String secureBodyLog(String jsonMessage) {
+        return jsonMessage.replaceAll("Bearer \\p{Print}+?\"", "Bearer ***\"");
     }
 
 
