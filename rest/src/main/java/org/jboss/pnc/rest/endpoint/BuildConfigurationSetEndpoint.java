@@ -292,7 +292,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @ApiOperation(value = "Builds the Configurations for the Specified Set")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSetSingleton.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
