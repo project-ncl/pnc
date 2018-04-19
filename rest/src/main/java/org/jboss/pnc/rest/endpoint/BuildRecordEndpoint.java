@@ -215,30 +215,6 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         }
     }
 
-    /**
-     * @deprecated
-     * Use /build-records/{id}/built-artifacts/
-     * or
-     * /build-records/{id}/dependency-artifacts/
-     */
-    @Deprecated
-    @ApiOperation(value = "Gets artifacts for specific Build Record")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = ArtifactPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
-    @GET
-    @Path("/{id}/artifacts")
-    public Response getArtifacts(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return fromCollection(artifactProvider.getAllForBuildRecord(pageIndex, pageSize, sort, q, id));
-    }
-
     @ApiOperation(value = "Gets artifacts built for specific Build Record")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),
