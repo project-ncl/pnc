@@ -60,8 +60,22 @@
     }
 
     function edit() {
+      var buildConfigs;
+
+      if ($ctrl.page.getPageCount() === 1) {
+        buildConfigs = $ctrl.page.data;
+      } else {
+        buildConfigs = BuildConfigurationSet.queryBuildConfigurations({
+          id: $ctrl.buildGroup.id
+        }, {
+          pageSize: $ctrl.page.getPageCount() * $ctrl.page.getPageSize()
+        }).$promise.then(function (response) {
+          return response.data;
+        });
+      }
+
       modalEditService
-        .editBuildGroupBuildConfigs($ctrl.buildGroup, $ctrl.page.data)
+        .editBuildGroupBuildConfigs($ctrl.buildGroup, buildConfigs)
         .then(function () {
           $ctrl.page.reload();
         });
