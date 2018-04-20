@@ -21,17 +21,20 @@
   angular.module('pnc.common.select-modals').service('modalEditService', [
     'modalSelectService',
     'BuildConfigurationSet',
-    function (modalSelectService, BuildConfigurationSet) {
+    '$q',
+    function (modalSelectService, BuildConfigurationSet, $q) {
 
      /**
       *
       */
       this.editBuildGroupBuildConfigs = function (buildGroup, buildConfigs) {
-        return modalSelectService.openForBuildConfigs({
-          title: 'Add / Remove Build Configs from ' + buildGroup.name,
-          buildConfigs: buildConfigs
-        }).result.then(function (result) {
-          return BuildConfigurationSet.updateBuildConfigurations({ id: buildGroup.id }, result).$promise;
+        $q.when(buildConfigs).then(function (buildConfigs) {
+          return modalSelectService.openForBuildConfigs({
+            title: 'Add / Remove Build Configs from ' + buildGroup.name,
+            buildConfigs: buildConfigs
+          }).result.then(function (result) {
+            return BuildConfigurationSet.updateBuildConfigurations({ id: buildGroup.id }, result).$promise;
+          });
         });
       };
     }
