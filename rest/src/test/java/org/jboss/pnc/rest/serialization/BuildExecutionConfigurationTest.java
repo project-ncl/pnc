@@ -65,6 +65,7 @@ public class BuildExecutionConfigurationTest {
         Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageType(), buildExecutionConfigurationFromJson.getSystemImageType());
         Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
         Assert.assertEquals(message, buildExecutionConfiguration.getGenericParameters(), buildExecutionConfigurationFromJson.getGenericParameters());
+        Assert.assertEquals(message, buildExecutionConfiguration.getBuildType(), buildExecutionConfigurationFromJson.getBuildType());
     }
 
     private BuildExecutionConfiguration getBuildExecutionConfigurationMock() {

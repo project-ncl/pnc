@@ -19,18 +19,15 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.SystemImageType;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +67,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     public BuildExecutionConfigurationRest() {}
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = mapper.readValue(serialized, BuildExecutionConfigurationRest.class);
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper.readValue(serialized, BuildExecutionConfigurationRest.class);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
 
         init(buildExecutionConfiguration);
@@ -236,11 +232,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.user = user;
     }
 
-    /**
-     * This is no longer used so it does nothing, for more info see NCL-1778
-     */
-    @Deprecated
-    public void setBuildType(String buildType) {
+    public void setBuildType(BuildType buildType) {
+        this.buildType = buildType;
     }
 
     @Override
