@@ -43,15 +43,20 @@
 
 
     $ctrl.$onInit = function () {
-      $ctrl.userData.preBuildSyncEnabled = true;
       $ctrl.ngModel.$render = function () {
-        $ctrl.userData = $ctrl.ngModel.$viewValue;
+        $ctrl.userData = $ctrl.ngModel.$modelValue;
+
+        // set default only if there is no initial value coming from ngModel
+        if (typeof $ctrl.userData.preBuildSyncEnabled === 'undefined') {
+          $ctrl.userData.preBuildSyncEnabled = true;
+        }
       };
     };
 
     $ctrl.$doCheck = function () {
       var latestDigest = digest();
-      if (previousDigest !== latestDigest) {
+
+      if (previousDigest !== latestDigest && !angular.equals({}, $ctrl.userData)) {
         $ctrl.ngModel.$setViewValue(parseViewData());
         previousDigest = latestDigest;
       }

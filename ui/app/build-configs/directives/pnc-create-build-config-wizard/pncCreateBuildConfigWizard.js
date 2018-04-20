@@ -20,21 +20,21 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigWizard', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-wizard/pnc-create-build-config-wizard.html',
-    controller: ['$log', '$scope', '$timeout', 'eventTypes', 'RepositoryConfiguration', 'BuildConfiguration', Controller],
+    controller: ['$log', '$uibModal', '$scope', '$timeout', 'eventTypes', 'RepositoryConfiguration', 'BuildConfiguration', Controller],
     bindings: {
-      initialValues: '<',
+      modalInstance: '<',
       project: '<',
       resolve: '<',
       onClose: '&close'
     }
   });
 
-  function Controller($log, $scope, $timeout, eventTypes, RepositoryConfiguration, BuildConfiguration) {
+  function Controller($log, $uibModal, $scope, $timeout, eventTypes, RepositoryConfiguration, BuildConfiguration) {
     var $ctrl = this,
         emptyWizardData = {
           general: {},
           buildParameters: {},
-          dependencies: {},
+          dependencies: [],
           repoConfig: {}
         };
 
@@ -54,10 +54,12 @@
     $ctrl.onShowReviewSummary = onShowReviewSummary;
     $ctrl.create = create;
 
+    $ctrl.closePreviousWizardModal = closePreviousWizardModal;
+
     // --------------------
 
     $ctrl.$onInit = function () {
-      $ctrl.wizardData = angular.extend({}, emptyWizardData, $ctrl.initialValues);
+      $ctrl.wizardData = angular.extend({}, emptyWizardData, $ctrl.resolve.initialValues);
       $ctrl.wizardData.project = $ctrl.resolve.project;
     };
 
@@ -73,6 +75,10 @@
           $ctrl.nextButtonTitle = 'Next >';
           break;
       } 
+    }
+
+    function closePreviousWizardModal() {
+      $ctrl.modalInstance.close();
     }
 
     function onShowReviewSummary() {
