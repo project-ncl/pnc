@@ -22,11 +22,11 @@
     function () {
       return [
         {
-          id: 'mvn',
+          id: 'MVN',
           name: 'Maven'
         },
         {
-          id: 'npm',
+          id: 'NPM',
           name: 'Node Package Manager (NPM)'
         }
       ];

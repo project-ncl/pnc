@@ -39,7 +39,7 @@
         };
 
     // -- Controller API --
-    
+
     $ctrl.generalForm = {};
     $ctrl.repoForm = {};
 
@@ -74,7 +74,7 @@
         default:
           $ctrl.nextButtonTitle = 'Next >';
           break;
-      } 
+      }
     }
 
     function closePreviousWizardModal() {
@@ -90,6 +90,7 @@
 
     function parseBuildConfig(wizardData) {
       var bc = angular.copy(wizardData.general);
+      bc.buildType = wizardData.general.buildType.id;
       bc.genericParameters = angular.copy(wizardData.buildParameters);
       bc.dependencyIds = wizardData.dependencies.map(function (d) { return d.id; });
       bc.scmRevision = wizardData.repoConfig.revision;
@@ -99,7 +100,7 @@
       if ($ctrl.wizardData.productVersion) {
         bc.productVersionId = $ctrl.wizardData.productVersion.id;
       }
-      
+
       return bc;
     }
 
@@ -144,7 +145,7 @@
             case 'RC_CREATION_SUCCESS':
               $ctrl.createStatusMessages.push('Build Config successfully created.');
               $ctrl.createdBuildConfigId = payload.buildConfigurationId;
-              $ctrl.createdRepoConfigId = payload.repositoryId;              
+              $ctrl.createdRepoConfigId = payload.repositoryId;
               $ctrl.wizardDone = true;
               break;
             case 'RC_CREATION_ERROR':
