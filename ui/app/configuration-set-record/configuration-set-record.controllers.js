@@ -39,22 +39,6 @@
   ]);
 
 
-  module.controller('CsRecordResultController', [
-    'recordsLog',
-    function (recordsLog) {
-      this.recordsLog = recordsLog;
-    }
-  ]);
-
-
-  module.controller('CsRecordOutputController', [
-    'recordsArtifacts',
-    function (recordsArtifacts) {
-      this.recordsArtifacts = recordsArtifacts;
-    }
-  ]);
-
-
   module.controller('CsRecordListController', [
     _.noop
   ]);

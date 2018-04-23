@@ -77,26 +77,6 @@
                     return csRecord;
                   });
               });
-          },
-          // only records that belong to the current csRecord
-          records: function ($q, csRecordDetail, BuildConfigSetRecord) {
-            return BuildConfigSetRecord.getBuildRecords({
-              id: csRecordDetail.id,
-              pageSize: 100
-            }).$promise.then(function (page) {
-              // load other pages when they exist
-              // some type of pagination should be considered in the future
-              if (page.total > 1) {
-                return BuildConfigSetRecord.getBuildRecords({
-                  id: csRecordDetail.id,
-                  pageSize: page.total * page.size
-                }).$promise.then(function (page) {
-                  return page.data;
-                });
-              } else {
-                return page.data;
-              }
-            });
           }
         }
       });
@@ -110,59 +90,6 @@
         },
         controller: 'CsRecordInfoController',
         controllerAs: 'ctrl'
-      });
-
-
-      $stateProvider.state('configuration-set-record.detail.result', {
-        url: '/result',
-        controller: 'CsRecordResultController',
-        controllerAs: 'ctrl',
-        templateUrl: 'configuration-set-record/views/record.detail.result.html',
-        data: {
-          displayName: 'Build Group Result'
-        },
-        resolve: {
-          // load log for each record
-          recordsLog: function ($q, BuildRecordDAO, records) {
-            var promises = _(records).map(function (record) {
-              return BuildRecordDAO.getLog({recordId: record.id}).$promise
-                .then(function (log) {
-                  var recordCopy = _.clone(record);
-                  recordCopy.log = log;
-                  return recordCopy;
-                });
-            });
-            return $q.all(promises);
-          }
-        }
-      });
-
-
-      $stateProvider.state('configuration-set-record.detail.output', {
-        url: '/output',
-        controller: 'CsRecordOutputController',
-        controllerAs: 'ctrl',
-        templateUrl: 'configuration-set-record/views/record.detail.output.html',
-        data: {
-          displayName: 'Build Group Output'
-        },
-        resolve: {
-          // load artifacts for each record
-          recordsArtifacts: function ($q, BuildRecordDAO, records) {
-            var promises = _(records).map(function (record) {
-              return BuildRecordDAO.getArtifacts({recordId: record.id})
-                .then(function (artifacts) {
-                  var recordCopy = _.clone(record);
-                  recordCopy.artifacts = artifacts;
-                  return recordCopy;
-                });
-            });
-            return $q.all(promises).then(function(result) {
-              // skip when not available
-              return _(result).filter(function(e) { return e.artifacts.length; });
-            });
-          }
-        }
       });
 
 
