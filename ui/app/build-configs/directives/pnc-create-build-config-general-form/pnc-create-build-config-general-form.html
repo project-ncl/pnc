@@ -39,7 +39,7 @@
 
   <div class="form-group" ng-class="{ 'has-error' : form.buildType.$invalid && form.buildType.$touched, 'has-success': form.buildType.$valid && form.buildType.$touched }">
     <label class="control-label required" for="build-config-build-type">Build Type</label>
-    <px-combobox name="buildType" px-expression="buildType as buildType.name for buildType in $ctrl.buildTypes | filter:$viewValue" ng-model="$ctrl.data.buildType" required></px-combobox>
+    <pnc-build-type-combobox name="buildType" ng-model="$ctrl.data.buildType" required></pnc-build-type-combobox>
     <p ng-show="form.buildType.$invalid && form.buildType.$touched" class="help-block">Build Type is a required field.</p>
   </div>
 
