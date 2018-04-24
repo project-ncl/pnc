@@ -52,7 +52,7 @@
         }
 
         if (angular.isDefined($ctrl.userData.scmUrl)) {
-          $ctrl.checkForRepo($ctrl.userData.scmUrl)
+          $ctrl.checkForRepo($ctrl.userData.scmUrl);
         }
       };
     };
