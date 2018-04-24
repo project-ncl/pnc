@@ -23,11 +23,17 @@
     require: {
       ngModel: 'ngModel'
     },
-    controller: [Controller]
+    controller: ['buildTypes', Controller]
   });
 
-  function Controller() {
+  function Controller(buildTypes) {
     var $ctrl = this;
+
+    // -- Controller API --
+
+    $ctrl.buildTypes = buildTypes;
+
+    // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.ngModel.$render = function () {

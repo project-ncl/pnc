@@ -27,9 +27,13 @@
     <span class="wizard-pf-review-item-value">{{ $ctrl.wizardData.general.description }}</span>
   </div>
   <div class="wizard-pf-review-item">
-    <span class="wizard-pf-review-item-label">Environment:</span>
-    <span class="wizard-pf-review-item-value">{{ $ctrl.wizardData.general.environment.name }}</span>
-  </div>
+      <span class="wizard-pf-review-item-label">Environment:</span>
+      <span class="wizard-pf-review-item-value">{{ $ctrl.wizardData.general.environment.name }}</span>
+    </div>
+  <div class="wizard-pf-review-item">
+      <span class="wizard-pf-review-item-label">Build Type:</span>
+      <span class="wizard-pf-review-item-value">{{ $ctrl.wizardData.general.buildType.name }}</span>
+    </div>
   <div class="wizard-pf-review-item">
     <span class="wizard-pf-review-item-label">Build Script:</span><br>
     <span class="wizard-pf-review-item-value"><pre>{{ $ctrl.wizardData.general.buildScript }}</pre></span>

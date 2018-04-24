@@ -37,6 +37,12 @@
     <p ng-show="form.environment.$invalid && form.environment.$touched" class="help-block">Environment is a required field.</p>
   </div>
 
+  <div class="form-group" ng-class="{ 'has-error' : form.buildType.$invalid && form.buildType.$touched, 'has-success': form.buildType.$valid && form.buildType.$touched }">
+    <label class="control-label required" for="build-config-build-type">Build Type</label>
+    <pnc-build-type-combobox name="buildType" ng-model="$ctrl.data.buildType" required></pnc-build-type-combobox>
+    <p ng-show="form.buildType.$invalid && form.buildType.$touched" class="help-block">Build Type is a required field.</p>
+  </div>
+
   <div class="form-group" ng-class="{ 'has-error' : form.buildScript.$invalid && form.buildScript.$touched, 'has-success': form.buildScript.$valid && form.buildScript.$touched }">
     <label class="control-label required" for="build-config-build-script">Build Script</label>
     <textarea id="build-config-build-script" name="buildScript" class="form-control" spellcheck=false ng-model="$ctrl.data.buildScript"  pnc-build-script-validator required></textarea>
