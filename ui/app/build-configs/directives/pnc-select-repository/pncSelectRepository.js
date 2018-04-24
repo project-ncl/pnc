@@ -33,7 +33,7 @@
 
 
     // -- Controller API --
-    
+
     $ctrl.userData = {};
     $ctrl.checkForRepo = checkForRepo;
     $ctrl.isLoading = isLoading;
@@ -49,6 +49,10 @@
         // set default only if there is no initial value coming from ngModel
         if (typeof $ctrl.userData.preBuildSyncEnabled === 'undefined') {
           $ctrl.userData.preBuildSyncEnabled = true;
+        }
+
+        if (angular.isDefined($ctrl.userData.scmUrl)) {
+          $ctrl.checkForRepo($ctrl.userData.scmUrl);
         }
       };
     };
