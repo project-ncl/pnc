@@ -128,7 +128,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
     @ApiOperation(value = "Push build record results to Brew.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", response = Map.class),
+            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", responseContainer = "Set", response = ResultRest.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
@@ -163,7 +163,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
     @ApiOperation(value = "Push build config set record to Brew.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", response = Map.class),
+            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", responseContainer = "Set", response = ResultRest.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
