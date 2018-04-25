@@ -240,7 +240,10 @@
       self.delete = function() {
         self.set.$delete().then(function() {
           // Attempt to go to previous state
-          $state.go(previousState.Name, previousState.Params);
+          $state.go(previousState.Name, previousState.Params).catch(function() {
+            // Otherwise go to the list page
+            $state.go('build-groups.list');
+          });
         });
       };
 
