@@ -41,11 +41,19 @@ public class CheckSum {
         }
 
         byte[] digest = md.digest();
-        return format(digest, md.getDigestLength());
+        return format(digest);
     }
 
-    static String format(byte[] digest, int length) {
-        return String.format("%0" + length + "x", new java.math.BigInteger(1, digest));
+    static String format(byte[] digest) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i=0;i<digest.length;i++) {
+            String hex=Integer.toHexString(0xFF & digest[i]);
+            if(hex.length()==1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
 }
