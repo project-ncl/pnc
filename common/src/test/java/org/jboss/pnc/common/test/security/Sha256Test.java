@@ -40,6 +40,17 @@ public class Sha256Test {
     }
 
     @Test
+    public void testWithLeadingZeroInTheSum() throws IOException, NoSuchAlgorithmException {
+        String encoded = Sha256.digest("886");
+        String expected = "000f21ac06aceb9cdd0575e82d0d85fc39bed0a7a1d71970ba1641666a44f530";
+        Assert.assertEquals(expected, encoded);
+
+        encoded = Sha256.digest("96952");
+        expected = "00064ea7e7d6798cc16d9e7723150ee9a170416f05a61b7d45edd2c28ecd69f6";
+        Assert.assertEquals(expected, encoded);
+    }
+
+    @Test
     public void addingToSha256() throws UnsupportedEncodingException, NoSuchAlgorithmException {
         String expected = "ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c";
 

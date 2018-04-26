@@ -40,6 +40,17 @@ public class Md5Test {
     }
 
     @Test
+    public void testWithLeadingZeroInTheSum() throws IOException, NoSuchAlgorithmException {
+        String encoded = Md5.digest("363");
+        String expected = "00411460f7c92d2124a67ea0f4cb5f85";
+        Assert.assertEquals(expected, encoded);
+
+        encoded = Md5.digest("a");
+        expected = "0cc175b9c0f1b6a831c399e269772661";
+        Assert.assertEquals(expected, encoded);
+    }
+
+    @Test
     public void addingToMd5() throws UnsupportedEncodingException, NoSuchAlgorithmException {
         String expected = "e4d909c290d0fb1ca068ffaddf22cbd0";
 
