@@ -44,7 +44,7 @@ public class Md5 {
 
     public String digest() {
         byte[] digest = md.digest();
-        return CheckSum.format(digest, 32);
+        return CheckSum.format(digest);
     }
 
 
