@@ -39,12 +39,6 @@
 
     // --------------------
 
-    $ctrl.$onDestroy = function () {
-      unsubscribes.forEach(function (unsubscribe) {
-        unsubscribe();
-      });
-    };
-
     function isBuildRecord() {
       return angular.isDefined($ctrl.buildRecord);
     }
@@ -100,7 +94,7 @@
     }
 
     function filterAccepted(statuses) {
-      return statuses.filter(function(status) {
+      return statuses.filter(function (status) {
         return status === 'ACCEPTED';
       });
     }

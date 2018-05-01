@@ -43,6 +43,16 @@
         }
       });
 
+      $scope.$on(eventTypes.BREW_PUSH_RESULT, function (event, payload) {
+        if (payload.BuildRecordId === recordDetail.id) {
+          BuildRecord.getLatestPushStatus(recordDetail.id).then(function (response) {
+            $scope.$applyAsync(function () {
+              this.buildRecordPushResult = response;
+            });
+          });
+        }
+      });
+
       var unsubscribe = messageBus.subscribe({
         topic: 'component-build',
         id: recordDetail.id
