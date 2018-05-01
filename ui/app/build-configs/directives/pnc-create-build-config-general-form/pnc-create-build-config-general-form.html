@@ -20,7 +20,7 @@
 <ng-form name="form" novalidate>
   <div class="form-group" ng-class="{ 'has-error' : form.name.$invalid && form.name.$touched, 'has-success': form.name.$valid && form.name.$touched }">
     <label class="required control-label" for="build-config-name">Name</label>
-    <input id="build-config-name" name="name" class="form-control" ng-model="$ctrl.data.name" type="text" ng-maxlength="255" ng-pattern="/^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$/" required>
+    <input id="build-config-name" name="name" class="form-control" ng-model="$ctrl.data.name" type="text" ng-maxlength="255" ng-pattern="/^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$/" spellcheck="false" required>
     <p ng-show="form.name.$invalid && form.name.$touched" class="help-block">Name is a required field.</p>
     <p ng-show="form.name.$error.pattern && form.name.$touched" class="help-block">Name can contain only alpha-numeric characters, hyphens, underscores and periods and cannot start with a hyphen.</p>
     <p ng-show="form.name.$error.maxlength && form.name.$touched" class="help-block">The maximum lengh of a name is 255 characters.</p>
@@ -45,7 +45,7 @@
 
   <div class="form-group" ng-class="{ 'has-error' : form.buildScript.$invalid && form.buildScript.$touched, 'has-success': form.buildScript.$valid && form.buildScript.$touched }">
     <label class="control-label required" for="build-config-build-script">Build Script</label>
-    <textarea id="build-config-build-script" name="buildScript" class="form-control" spellcheck=false ng-model="$ctrl.data.buildScript"  pnc-build-script-validator required></textarea>
+    <textarea id="build-config-build-script" name="buildScript" class="form-control" spellcheck=false ng-model="$ctrl.data.buildScript" spellcheck="false" pnc-build-script-validator required></textarea>
     <p ng-show="form.buildScript.$invalid && form.buildScript.$touched" class="help-block">Build Script is a required field.</p>
     <p class="help-block" ng-show="form.buildScript.$error.invalidBuildScript && form.buildScript.$touched">The 'deploy' lifecycle is required for maven builds in order to prevent artifact promotion issues.</p>
   </div>
