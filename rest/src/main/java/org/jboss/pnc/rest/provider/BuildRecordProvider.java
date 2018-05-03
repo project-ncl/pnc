@@ -82,6 +82,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
@@ -295,6 +296,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql,
+            String rsql, Integer buildConfigurationSetId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql, withBuildConfigSetRecordId(buildConfigurationSetId));
+    }
+
+    public CollectionInfo<BuildRecordRest> getAllForBuildConfigSet(int pageIndex, int pageSize, String sortingRsql,
             String rsql, Integer buildConfigurationSetId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql, withBuildConfigSetId(buildConfigurationSetId));
     }
