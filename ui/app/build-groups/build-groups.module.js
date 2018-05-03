@@ -91,10 +91,6 @@
             return BuildConfigurationSetDAO.getConfigurations({
               configurationSetId: $stateParams.configurationSetId });
           },
-          records: function(BuildConfigurationSetDAO, $stateParams) {
-            return BuildConfigurationSetDAO.getRecords({
-              configurationSetId: $stateParams.configurationSetId});
-          },
           previousState: ['$state', '$q', function ($state, $q) {
             var currentStateData = {
               Name: $state.current.name,
