@@ -154,55 +154,16 @@
     'ProductVersion',
     'configurationSetDetail',
     'configurations',
-    'records',
     'productVersion',
     'previousState',
     'modalSelectService',
     function($log, $state, $scope, BuildRecordDAO, ProductVersionDAO, ProductVersion,
-        configurationSetDetail, configurations, records, productVersion, previousState, modalSelectService) {
+        configurationSetDetail, configurations, productVersion, previousState, modalSelectService) {
 
       var self = this;
       self.set = configurationSetDetail;
       self.configurations = configurations;
-      self.records = records;
       self.productVersion = productVersion;
-
-      // Build a wrapper object that contains all is needed (to avoid 'ng-repeat' in the pages)
-      self.buildRecordArtifactsWO = [];
-
-      // Retrieve all the artifacts of all the build records of the build configurations set
-      angular.forEach(records, function(record) {
-
-        BuildRecordDAO.getArtifacts({
-          recordId: record.id
-        }).then(
-          function(results) {
-
-            var buildRecordArtifactWO = {};
-            var artifacts = [];
-
-            // For each artifact found, add it to a temp list
-            angular.forEach(results, function(result) {
-              artifacts.push(result);
-            });
-
-            // Add the artifacts temp list to the WO
-            buildRecordArtifactWO.artifacts = artifacts;
-
-            // Add the build record to the WO
-            buildRecordArtifactWO.buildRecord = record;
-
-            angular.forEach(configurations, function(configuration) {
-              if (configuration.id === record.buildConfigurationId) {
-                // Add the build configuration to the WO
-                buildRecordArtifactWO.buildConfiguration = configuration;
-              }
-            });
-
-            self.buildRecordArtifactsWO.push(buildRecordArtifactWO);
-          }
-        );
-      });
 
       // Update a build configuration set after editing
       self.update = function() {
