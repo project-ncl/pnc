@@ -20,6 +20,9 @@ package org.jboss.pnc.spi.datastore.predicates;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfigSetRecord_;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.BuildStatus;
@@ -70,12 +73,15 @@ public class BuildRecordPredicates {
     }
 
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
-        return (root, query, cb) -> {
-            Join<BuildRecord, BuildConfigSetRecord> joinedConfiguSet = root.join(BuildRecord_.buildConfigSetRecord);
-            return cb.equal(joinedConfiguSet.get(org.jboss.pnc.model.BuildConfigSetRecord_.id), buildConfigSetId);
-        };
-    }
+    return (root, query, cb) -> {
 
+        Join<BuildRecord, BuildConfigSetRecord> builtConfigSetRecord = root.join(BuildRecord_.buildConfigSetRecord);
+
+        Join<BuildConfigSetRecord, BuildConfigurationSet> buildConfigSet = builtConfigSetRecord.join(BuildConfigSetRecord_.buildConfigurationSet);
+
+        return cb.equal(buildConfigSet.get(BuildConfigurationSet_.id), buildConfigSetId);
+    };
+}
     public static Predicate<BuildRecord> withBuildConfigurationIdInSet(Collection<Integer> buildConfigurationIds) {
         if (buildConfigurationIds.isEmpty()) {
             // return an always false predicate if there are no build config ids
@@ -83,6 +89,13 @@ public class BuildRecordPredicates {
         } else {
             return (root, query, cb) -> root.get(BuildRecord_.buildConfigurationId).in(buildConfigurationIds);
         }
+    }
+
+    public static Predicate<BuildRecord> withBuildConfigSetRecordId(Integer buildConfigSetRecordId) {
+        return (root, query, cb) -> {
+            Join<BuildRecord, BuildConfigSetRecord> joinedConfiguSet = root.join(BuildRecord_.buildConfigSetRecord);
+            return cb.equal(joinedConfiguSet.get(org.jboss.pnc.model.BuildConfigSetRecord_.id), buildConfigSetRecordId);
+        };
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationIdRev(List<IdRev> buildConfigurationsWithIdRevs) {
