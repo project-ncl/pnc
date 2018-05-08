@@ -22,7 +22,15 @@ import org.jboss.pnc.common.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
@@ -101,5 +109,50 @@ public class StringUtilsTest {
 
         url = "git+ssh://host.com/path.git";
         Assert.assertEquals("host.com/path.git", StringUtils.stripProtocol(url));
+    }
+
+    @Test
+    public void readStreamShouldNotDropAny() throws IOException {
+        String message = "0123456789\n1123456789";
+        InputStream is = new ByteArrayInputStream(message.getBytes());
+        ArrayDeque<String> lines = new ArrayDeque<>();
+        List<String> dropped = new ArrayList<>();
+        Consumer<String> droppedLines = (line) -> {
+            dropped.add(line);
+        };
+        StringUtils.readStream(is, Charset.defaultCharset(), lines, 29, droppedLines);
+
+        Assert.assertEquals(0, dropped.size());
+    }
+
+    @Test
+    public void readStreamShouldDropFistLine() throws IOException {
+        String message = "0-12345678\n1-12345678\n2-12345678";
+        InputStream is = new ByteArrayInputStream(message.getBytes());
+        ArrayDeque<String> lines = new ArrayDeque<>();
+        List<String> dropped = new ArrayList<>();
+        Consumer<String> droppedLines = (line) -> {
+            dropped.add(line);
+        };
+        StringUtils.readStream(is, Charset.defaultCharset(), lines, 29, droppedLines);
+
+        Assert.assertEquals(1, dropped.size());
+        Assert.assertEquals("0-12345678", dropped.get(0));
+    }
+
+    @Test
+    public void readStreamShouldDropFistTwoLine() throws IOException {
+        String message = "0-12345678\n1-12345678\n2-12345678-a-bit-more";
+        InputStream is = new ByteArrayInputStream(message.getBytes());
+        ArrayDeque<String> lines = new ArrayDeque<>();
+        List<String> dropped = new ArrayList<>();
+        Consumer<String> droppedLines = (line) -> {
+            dropped.add(line);
+        };
+        StringUtils.readStream(is, Charset.defaultCharset(), lines, 29, droppedLines);
+
+        Assert.assertEquals(2, dropped.size());
+        Assert.assertEquals("0-12345678", dropped.get(0));
+        Assert.assertEquals("1-12345678", dropped.get(1));
     }
 }
