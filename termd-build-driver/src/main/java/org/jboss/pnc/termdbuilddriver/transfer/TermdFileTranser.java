@@ -17,18 +17,21 @@
  */
 package org.jboss.pnc.termdbuilddriver.transfer;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.Charsets;
+import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.function.Consumer;
 
 public class TermdFileTranser {
 
@@ -39,37 +42,61 @@ public class TermdFileTranser {
 
     private final URI baseServerUri;
 
-    public TermdFileTranser(URI baseServerUri) {
+    private boolean fullyDownloaded = true;
+
+    private int maxLogSize;
+
+    public TermdFileTranser(URI baseServerUri, int maxLogSize) {
         this.baseServerUri = baseServerUri;
+        this.maxLogSize = maxLogSize;
     }
 
     public TermdFileTranser() {
         this.baseServerUri = null;
+        this.maxLogSize = -1;
     }
 
     public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
         try {
             logger.debug("Downloading file to String Buffer from {}", uri);
 
-            StringWriter writer = new StringWriter();
+            ArrayDeque<String> logLines = new ArrayDeque<>();
+
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
 
             connection.setDoOutput(true);
             connection.setDoInput(true);
 
+            Consumer<String> removedLines = (removedLine) -> {
+                fullyDownloaded = false;
+                logger.debug("Dropped log line from URI {}: {}.", uri, removedLine);
+            };
+
             try (InputStream inputStream = connection.getInputStream()) {
-                IOUtils.copy(inputStream, writer, ENCODING);
+                Charset charset = Charsets.toCharset(ENCODING);
+                StringUtils.readStream(inputStream, charset, logLines, maxLogSize, removedLines);
             }
 
             logsAggregate.append("==== ").append(uri.toString()).append(" ====\n");
-            logsAggregate.append(writer.getBuffer());
-
-            logger.trace("Downloaded {}", writer.getBuffer().toString());
+            while (true) {
+                String line = logLines.pollFirst();
+                if (line == null) {
+                    break;
+                }
+                logsAggregate.append(line);
+            }
+            if (logLines.size() > 0) {
+                logger.warn("Log buffer was not fully drained for URI: {}", uri);
+            }
             return logsAggregate;
         } catch (IOException e) {
             throw new TransferException("Could not obtain log file: " + uri.toString(), e);
         }
+    }
+
+    public boolean isFullyDownloaded() {
+        return fullyDownloaded;
     }
 
     public void uploadScript(String script, Path remoteFilePath) throws TransferException {
