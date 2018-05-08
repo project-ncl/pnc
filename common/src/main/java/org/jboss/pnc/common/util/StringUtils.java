@@ -19,10 +19,17 @@ package org.jboss.pnc.common.util;
 
 import org.jboss.util.StringPropertyReplacer;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
@@ -155,6 +162,29 @@ public class StringUtils {
             return url.substring(protocolDividerIndex + protocolDivider.length());
         } else {
             return url;
+        }
+    }
+
+    public static void readStream(InputStream inputStream, Charset charset, ArrayDeque<String> lines, int maxMessageSize, Consumer<String> droppedLinesConsumer) throws
+            IOException {
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, charset);
+        BufferedReader reader=new BufferedReader(inputStreamReader);
+
+        int messageSize = 0;
+        while (true) {
+            String line = reader.readLine();
+            if (line == null) {
+                break;
+            }
+            if (maxMessageSize > -1) {
+                messageSize += line.length();
+                while (messageSize > maxMessageSize) {
+                    String removedLine = lines.removeFirst();
+                    messageSize -= removedLine.length();
+                    droppedLinesConsumer.accept(removedLine);
+                }
+            }
+            lines.add(line);
         }
     }
 }
