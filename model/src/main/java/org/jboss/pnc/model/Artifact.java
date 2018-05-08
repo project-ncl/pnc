@@ -75,7 +75,7 @@ public class Artifact implements GenericEntity<Integer> {
      * The format of the identifier string is determined by the repoType
      */
     @NotNull
-    @Size(max=255)
+    @Size(max=1024)
     @Column(updatable=false)
     private String identifier;
 
