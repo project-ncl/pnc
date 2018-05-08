@@ -63,6 +63,7 @@ import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
 public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     public static final String DRIVER_ID = "termd-build-driver";
+    private static final int MAX_LOG_SIZE = 90 * 1024 * 1024; //90MB
 
     private static final Logger logger = LoggerFactory.getLogger(TermdBuildDriver.class);
 
@@ -145,7 +146,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), command);
 
                 try {
-                    new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild))).uploadScript(command,
+                    new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)), MAX_LOG_SIZE).uploadScript(command,
                             Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(),
                                     "run.sh"));
                 } catch (TransferException e) {
@@ -297,8 +298,19 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 future.completeExceptionally(new BuildDriverException("Cannot transfer file.", e));
             }
 
+            String prependMessage = "";
+            BuildStatus buildStatus = getBuildStatus(completionStatus);
+
+            if (!transfer.isFullyDownloaded()) {
+                prependMessage = "----- build log was cut, storing only last part -----\n";
+                if (buildStatus.completedSuccessfully()) {
+                    prependMessage = "----- build has completed successfully but it is marked as failed due to log overflow. Max log size is " + MAX_LOG_SIZE + " -----\n";
+                    buildStatus = BuildStatus.FAILED;
+                }
+            }
+
             CompletedBuild completedBuild = new DefaultCompletedBuild(
-                    termdRunningBuild.getRunningEnvironment(), getBuildStatus(completionStatus), stringBuffer.toString());
+                    termdRunningBuild.getRunningEnvironment(), buildStatus, prependMessage + stringBuffer.toString());
 
             future.complete(completedBuild);
         }, executor);
