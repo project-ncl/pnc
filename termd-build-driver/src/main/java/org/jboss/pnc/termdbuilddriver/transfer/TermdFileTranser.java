@@ -44,16 +44,16 @@ public class TermdFileTranser {
 
     private boolean fullyDownloaded = true;
 
-    private int maxLogSize;
+    private int maxDownloadSize;
 
-    public TermdFileTranser(URI baseServerUri, int maxLogSize) {
+    public TermdFileTranser(URI baseServerUri, int maxDownloadSize) {
         this.baseServerUri = baseServerUri;
-        this.maxLogSize = maxLogSize;
+        this.maxDownloadSize = maxDownloadSize;
     }
 
-    public TermdFileTranser() {
+    public TermdFileTranser(int maxDownloadSize) {
+        this.maxDownloadSize = maxDownloadSize;
         this.baseServerUri = null;
-        this.maxLogSize = -1;
     }
 
     public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
@@ -75,7 +75,7 @@ public class TermdFileTranser {
 
             try (InputStream inputStream = connection.getInputStream()) {
                 Charset charset = Charsets.toCharset(ENCODING);
-                StringUtils.readStream(inputStream, charset, logLines, maxLogSize, removedLines);
+                StringUtils.readStream(inputStream, charset, logLines, maxDownloadSize, removedLines);
             }
 
             logsAggregate.append("==== ").append(uri.toString()).append(" ====\n");
@@ -84,7 +84,7 @@ public class TermdFileTranser {
                 if (line == null) {
                     break;
                 }
-                logsAggregate.append(line);
+                logsAggregate.append(line + "\n");
             }
             if (logLines.size() > 0) {
                 logger.warn("Log buffer was not fully drained for URI: {}", uri);
