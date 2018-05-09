@@ -30,8 +30,11 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
@@ -40,7 +43,7 @@ import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.exceptions.AlreadyRunningException;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +89,9 @@ public class BuildTaskEndpoint {
     @Inject
     Configuration configuration;
 
+    @Inject
+    SystemConfig systemConfig;
+
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
 
     @Deprecated
@@ -102,6 +108,9 @@ public class BuildTaskEndpoint {
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer buildId,
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
         logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
+        BuildExecutionConfigurationRest buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration();
+        MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
+        logger.info("Received build task completed notification.");
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
         if(taskId == null) {
@@ -151,21 +160,18 @@ public class BuildTaskEndpoint {
             @Context HttpServletRequest request) {
 
         try {
-
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
+            MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
+            logger.info("Build execution requested.");
+            logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
 
             AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
-            logger.info("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
-            try {
-                buildExecutorTriggerer.executeBuild(
-                        buildExecutionConfiguration.toBuildExecutionConfiguration(),
-                        callbackUrl,
-                        loginInUser.getTokenString());
-            } catch (AlreadyRunningException e) {
-                return Response.status(Response.Status.CONFLICT).entity(new Singleton<String>(e.getMessage())).build();
-            }
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
+                    buildExecutionConfiguration.toBuildExecutionConfiguration(),
+                    callbackUrl,
+                    loginInUser.getTokenString());
 
             UIModuleConfig uiModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
             UriBuilder uriBuilder = UriBuilder.fromUri(uiModuleConfig.getPncUrl()).path("/ws/executor/notifications");
@@ -197,9 +203,14 @@ public class BuildTaskEndpoint {
             Integer buildExecutionConfigurationId,
             @Context UriInfo uriInfo,
             @Context HttpServletRequest request) {
-
+        logger.debug("Endpoint /cancel-build requested for buildTaskId [{}], from [{}]", buildExecutionConfigurationId, request.getRemoteAddr());
         try {
-            logger.debug("Endpoint /cancel-build requested for buildTaskId [{}], from [{}]", buildExecutionConfigurationId, request.getRemoteAddr());
+            Optional<MDCMeta> mdcMeta = buildExecutorTriggerer.getMdcMeta(buildExecutionConfigurationId);
+            if (mdcMeta.isPresent()) {
+                MDCUtils.setMDC(mdcMeta.get());
+            } else {
+                logger.warn("Unable to retrieve MDC meta. There is no running build for buildExecutionConfigurationId: {}.", buildExecutionConfigurationId);
+            }
 
             logger.info("Cancelling build execution for configuration.id: {}.", buildExecutionConfigurationId);
             buildExecutorTriggerer.cancelBuild(buildExecutionConfigurationId);

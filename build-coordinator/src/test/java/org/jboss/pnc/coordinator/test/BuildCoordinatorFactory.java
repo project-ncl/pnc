@@ -52,13 +52,13 @@ public class BuildCoordinatorFactory {
     @Inject
     BuildSchedulerFactory buildSchedulerFactory;
 
-    public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) {
+    public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) throws ConfigurationParseException {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         Configuration configuration = createConfiguration();
         BuildQueue queue = new BuildQueue(configuration);
         BuildCoordinator coordinator = new DefaultBuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
-                buildSchedulerFactory, queue, configuration);
+                buildSchedulerFactory, queue, configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)));
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);

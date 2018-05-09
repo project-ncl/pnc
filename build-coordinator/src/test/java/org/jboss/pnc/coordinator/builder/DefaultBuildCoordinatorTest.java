@@ -18,7 +18,7 @@
 package org.jboss.pnc.coordinator.builder;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.repour.RepourResultMock;
@@ -83,7 +83,7 @@ public class DefaultBuildCoordinatorTest {
     @Mock
     private BuildQueue buildQueue;
     @Mock
-    private Configuration configuration;
+    private SystemConfig systemConfig;
     @Mock
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
@@ -102,7 +102,7 @@ public class DefaultBuildCoordinatorTest {
                 buildSetStatusChangedEventNotifier,
                 buildSchedulerFactory,
                 buildQueue,
-                configuration);
+                systemConfig);
     }
 
     @Test
@@ -183,7 +183,8 @@ public class DefaultBuildCoordinatorTest {
                 1,
                 null,
                 new Date(),
-                null
+                null,
+                "context-id"
         );
 
         buildTask.setStatus(BuildCoordinationStatus.DONE);

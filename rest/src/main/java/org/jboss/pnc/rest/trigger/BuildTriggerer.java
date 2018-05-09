@@ -19,6 +19,8 @@ package org.jboss.pnc.rest.trigger;
 
 import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
@@ -66,6 +68,8 @@ public class BuildTriggerer {
 
     private SortInfoProducer sortInfoProducer;
 
+    private SystemConfig systemConfig;
+
     @Deprecated //not meant for usage its only to make CDI happy
     public BuildTriggerer() {
     }
@@ -78,7 +82,8 @@ public class BuildTriggerer {
                           BuildStatusNotifications buildStatusNotifications,
                           BpmNotifier bpmNotifier,
                           HibernateLazyInitializer hibernateLazyInitializer,
-                          SortInfoProducer sortInfoProducer) {
+                          SortInfoProducer sortInfoProducer,
+                          SystemConfig systemConfig) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
@@ -87,6 +92,7 @@ public class BuildTriggerer {
         this.bpmNotifier = bpmNotifier;
         this.hibernateLazyInitializer = hibernateLazyInitializer;
         this.sortInfoProducer = sortInfoProducer;
+        this.systemConfig = systemConfig;
     }
 
     public int triggerBuild(final Integer buildConfigurationId,
@@ -133,7 +139,7 @@ public class BuildTriggerer {
         buildConfiguration.getIndirectDependencies();
 
         BuildSetTask buildSetTask = buildCoordinator.build(
-                buildConfiguration,
+                hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 currentUser,
                 buildOptions);
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
@@ -175,4 +181,15 @@ public class BuildTriggerer {
 
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
+
+    public Optional<MDCMeta> getMdcMeta(Integer buildTaskId) {
+        return buildCoordinator.getSubmittedBuildTasks().stream().
+                filter(buildTask -> buildTaskId.equals(buildTask.getId()))
+                .map(buildTask -> new MDCMeta(
+                        buildTask.getContentId(),
+                        buildTask.getBuildOptions().isTemporaryBuild(),
+                        systemConfig.getTemporalBuildExpireDate()))
+                .findAny();
+    }
+
 }

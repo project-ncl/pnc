@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -50,7 +51,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +64,7 @@ public class DefaultNotifier implements Notifier {
 
     private Set<AttachedClient> attachedClients = new CopyOnWriteArraySet<>();
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = MDCExecutors.newScheduledThreadPool(1);
 
     private final MessageCallback messageCallback = new MessageCallback() {
 

@@ -29,7 +29,6 @@ import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverWithFailedContainer
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerMock;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -112,9 +111,7 @@ public class BuildExecutorDeployments {
                 .addPackages(true, BuildDriverFactory.class.getPackage())
                 .addClass(BuildDriverResultMock.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("simplelogger.properties");
-
-        ShrinkwrapDeployerUtils.addPomLibs(jar, "org.slf4j:slf4j-simple");
+                .addAsResource("logback.xml");
 
         return jar;
     }

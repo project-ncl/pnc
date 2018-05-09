@@ -17,12 +17,10 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
-import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -62,7 +60,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -78,8 +75,9 @@ import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private final Logger log = LoggerFactory.getLogger(DefaultBuildCoordinator.class);
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-process-status-update");
 
-    private Configuration configuration;
+    private SystemConfig systemConfig;
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
@@ -98,17 +96,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-                                   Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
-                                   BuildQueue buildQueue,
-                                   Configuration configuration) {
+    public DefaultBuildCoordinator(
+            DatastoreAdapter datastoreAdapter,
+            Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
+            BuildSchedulerFactory buildSchedulerFactory,
+            BuildQueue buildQueue,
+            SystemConfig systemConfig) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
         this.buildScheduler = buildSchedulerFactory.getBuildScheduler();
-        this.configuration = configuration;
+        this.systemConfig = systemConfig;
         this.buildQueue = buildQueue;
-        this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
+        this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, systemConfig.getTemporalBuildExpireDate());
     }
 
     /**
@@ -357,6 +358,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             task.setStatus(status);
             task.setStatusDescription(statusDescription);
         }
+
+        userLog.info("Build status updated to {}; previous: {}", status, oldStatus);
+
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
@@ -617,14 +621,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void startThreads() {
-        int threadPoolSize = 1;
-        try {
-            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-            threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
-        } catch (ConfigurationParseException e) {
-            log.error("Error parsing configuration. Will set BuildCoordinator.threadPoolSize to {}", threadPoolSize, e);
-        }
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator"));
+        int threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
+        ExecutorService executorService = MDCExecutors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator"));
         for (int i = 0; i < threadPoolSize; i++) {
             executorService.execute(this::takeAndProcessTask);
         }

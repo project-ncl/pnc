@@ -48,6 +48,9 @@ public class BuildTask {
 
     private final User user;
     private final Date submitTime;
+
+    private final String contentId;
+
     private Date startTime;
     private Date endTime;
 
@@ -81,7 +84,8 @@ public class BuildTask {
                       BuildSetTask buildSetTask,
                       int id,
                       Integer buildConfigSetRecordId,
-                      ProductMilestone productMilestone) {
+                      ProductMilestone productMilestone,
+                      String contentId) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -93,6 +97,8 @@ public class BuildTask {
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.productMilestone = productMilestone;
+        this.contentId = contentId;
+
     }
 
     public void setStatus(BuildCoordinationStatus status) {
@@ -251,7 +257,8 @@ public class BuildTask {
                                   int buildTaskId,
                                   BuildSetTask buildSetTask,
                                   Date submitTime,
-                                  ProductMilestone productMilestone) {
+                                  ProductMilestone productMilestone,
+                                  String contentId) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null) {
@@ -268,7 +275,8 @@ public class BuildTask {
                 buildSetTask,
                 buildTaskId,
                 buildConfigSetRecordId,
-                productMilestone);
+                productMilestone,
+                contentId);
     }
 
 
@@ -276,4 +284,7 @@ public class BuildTask {
         return buildConfigSetRecordId;
     }
 
+    public String getContentId() {
+        return contentId;
+    }
 }

@@ -26,8 +26,11 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
+import org.jboss.pnc.common.json.PNCModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
 import org.junit.After;
@@ -44,7 +47,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import org.jboss.pnc.common.json.PNCModuleGroup;
 import static org.junit.Assert.assertThat;
 
 public class AbstractRepositoryManagerDriverTest {
@@ -77,8 +79,21 @@ public class AbstractRepositoryManagerDriverTest {
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = new MavenRepoDriverModuleConfig(fixture.getUrl());
         mavenRepoDriverModuleConfig.setInternalRepoPatterns(getInternalRepoPatterns());
+        SystemConfig systemConfig = new SystemConfig(
+                "",
+                "",
+                "JAAS",
+                "4",
+                "4",
+                "4",
+                "",
+                "5",
+                null,
+                "14"
+        );
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(mavenRepoDriverModuleConfig);
+        pncGroup.addConfig(systemConfig);
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();

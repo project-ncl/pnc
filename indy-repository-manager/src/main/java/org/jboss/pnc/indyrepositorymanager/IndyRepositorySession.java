@@ -82,6 +82,7 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.UNTEST
 public class IndyRepositorySession implements RepositorySession {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
     /** PackageType-specific ignored suffixes. */
     private IgnoredPathSuffixes ignoredPathSuffixes;
@@ -186,6 +187,7 @@ public class IndyRepositorySession implements RepositorySession {
             status = CompletionStatus.FAILED;
             log = rme.getMessage();
             logger.error("Promotion validation error(s): \n" + log);
+            userLog.error("Artifact promotion failed. Promotion validation error(s): {}", log);
         }
 
         return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);

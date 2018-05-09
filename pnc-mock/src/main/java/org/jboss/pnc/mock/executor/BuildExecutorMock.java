@@ -18,7 +18,8 @@
 
 package org.jboss.pnc.mock.executor;
 
-import org.jboss.pnc.common.util.NamedThreadFactory;
+import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
@@ -39,7 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
@@ -52,7 +52,7 @@ public class BuildExecutorMock implements BuildExecutor {
 
     private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
+    private final ExecutorService executor = MDCExecutors.newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
 
 //    @Deprecated //CDI workaround
 //    public BuildExecutorMock() {
