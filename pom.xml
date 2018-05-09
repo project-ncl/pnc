@@ -92,6 +92,7 @@
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
     <module>bpm</module>
     <module>process-managers</module>
+    <module>metrics</module>
   </modules>
 
   <properties>
@@ -246,6 +247,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>causeway-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>metrics</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -925,7 +932,25 @@
         <artifactId>commons-validator</artifactId>
         <version>1.5.0</version>
       </dependency>
-      
+
+      <!-- metrics gathering -->
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>4.0.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>4.0.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-graphite</artifactId>
+        <version>4.0.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
