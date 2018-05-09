@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.common.monitor;
 
+import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.util.collection.ConcurrentSet;
@@ -26,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +78,7 @@ public class PullingMonitor {
 
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
-        executorService = Executors.newScheduledThreadPool(threadSize);
+        executorService = MDCExecutors.newScheduledThreadPool(threadSize);
     }
 
     public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
@@ -144,7 +144,7 @@ public class PullingMonitor {
             runningTasks.parallelStream()
                     .forEach(runningTask -> runningTask.terminateIfTimedOut());
         };
-        timeOutVerifierService = Executors.newScheduledThreadPool(1);
+        timeOutVerifierService = MDCExecutors.newScheduledThreadPool(1);
         timeOutVerifierService.scheduleWithFixedDelay(terminateTimedOutTasks, 0L, 250, TimeUnit.MILLISECONDS);
     }
 

@@ -186,7 +186,8 @@ public class DatastoreAdapterTest {
                 123,
                 null,
                 new Date(),
-                null
+                null,
+                "context-id"
         );
 
         buildTask.setStatus(BuildCoordinationStatus.DONE);

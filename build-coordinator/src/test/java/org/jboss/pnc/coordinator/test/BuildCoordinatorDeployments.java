@@ -20,6 +20,8 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
@@ -41,7 +43,6 @@ import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.Filter;
@@ -125,15 +126,14 @@ public class BuildCoordinatorDeployments {
                         BuildExecutorMock.class.getPackage(),
                         DefaultBuildExecutionSession.class.getPackage(),
                         BpmManager.class.getPackage(),
-                        MessageSender.class.getPackage())
+                        MessageSender.class.getPackage(),
+                        SystemConfig.class.getPackage(),
+                        ModuleConfigFactory.class.getPackage())
                 //TODO remove, no need to use default beans.xml
                 .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()), "beans.xml")
-                .addAsResource("simplelogger.properties");
+                .addAsResource("logback.xml");
 
         log.info("Deployment content: {}", jar.toString(true));
-
-        ShrinkwrapDeployerUtils.addPomLibs(jar, "org.slf4j:slf4j-simple");
-
         return jar;
     }
 

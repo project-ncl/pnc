@@ -57,7 +57,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -165,7 +168,10 @@ public class StatusUpdatesTest {
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(
+                datastoreAdapter,
+                Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+        );
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();

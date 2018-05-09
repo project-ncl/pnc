@@ -79,6 +79,7 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTE
 public class MavenRepositorySession implements RepositorySession {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
     private Set<String> ignoredPathSuffixes;
 
@@ -190,6 +191,7 @@ public class MavenRepositorySession implements RepositorySession {
             status = CompletionStatus.FAILED;
             log = rme.getMessage();
             logger.error("Promotion validation error(s): \n" + log);
+            userLog.error("Artifact promotion failed. Promotion validation error(s): {}", log);
         }
 
         return new MavenRepositoryManagerResult(uploads, downloads, buildContentId, log, status);

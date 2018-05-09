@@ -24,6 +24,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
@@ -56,7 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -261,7 +261,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     @Test
     @InSequence(5)
     public void testConcurrentGet() {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = MDCExecutors.newFixedThreadPool(2);
 
         Map<Integer, Response> responseMap = new HashMap<>();
 

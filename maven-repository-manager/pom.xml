@@ -52,10 +52,6 @@
       <artifactId>spi</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>common</artifactId>
       <exclusions>
@@ -111,6 +107,10 @@
         <exclusion>
           <groupId>joda-time</groupId>
           <artifactId>joda-time</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -196,12 +196,6 @@
         <groupId>org.infinispan</groupId>
         <artifactId>infinispan-core</artifactId>
         <version>8.2.4.Final</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging</artifactId>
-        <version>3.3.0.Final</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

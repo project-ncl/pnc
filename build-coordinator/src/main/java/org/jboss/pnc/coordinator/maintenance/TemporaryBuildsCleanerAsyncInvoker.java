@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
-import org.jboss.pnc.common.util.NamedThreadFactory;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;

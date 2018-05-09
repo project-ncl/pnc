@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder;
 
+import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -25,6 +26,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -49,8 +51,11 @@ public class BuildTasksInitializer {
 
     private DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
 
-    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
+    private Date temporaryBuildExpireDate;
+
+    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, Date temporaryBuildExpireDate) {
         this.datastoreAdapter = datastoreAdapter;
+        this.temporaryBuildExpireDate = temporaryBuildExpireDate;
     }
 
     public BuildSetTask createBuildSetTask(BuildConfiguration configuration, User user, BuildOptions buildOptions,
@@ -65,7 +70,14 @@ public class BuildTasksInitializer {
         Set<BuildConfiguration> toBuild = new HashSet<>();
         collectBuildTasks(configuration, buildOptions, toBuild);
         log.debug("Collected build tasks for configuration: {}. Collected: {}.", configuration, toBuild.stream().map(BuildConfiguration::toString).collect(Collectors.joining(", ")));
-        fillBuildTaskSet(buildSetTask, user, buildTaskIdProvider, configuration.getCurrentProductMilestone(), toBuild, submittedBuildTasks);
+        fillBuildTaskSet(
+                buildSetTask,
+                user,
+                buildTaskIdProvider,
+                configuration.getCurrentProductMilestone(),
+                toBuild,
+                submittedBuildTasks,
+                buildOptions);
         return buildSetTask;
     }
 
@@ -136,7 +148,8 @@ public class BuildTasksInitializer {
                 buildTaskIdProvider,
                 buildConfigurationSet.getCurrentProductMilestone(),
                 buildConfigurations,
-                submittedBuildTasks);
+                submittedBuildTasks,
+                buildOptions);
         return buildSetTask;
     }
 
@@ -146,15 +159,20 @@ public class BuildTasksInitializer {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      *                     initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    private void fillBuildTaskSet(BuildSetTask buildSetTask,
-                                  User user,
-                                  Supplier<Integer> buildTaskIdProvider,
-                                  ProductMilestone productMilestone,
-                                  Set<BuildConfiguration> toBuild,
-                                  Set<BuildTask> alreadySubmittedBuildTasks) { //TODO toBuild should be a set of BuildConfigurationAudited entities
+    private void fillBuildTaskSet(
+            BuildSetTask buildSetTask,
+            User user,
+            Supplier<Integer> buildTaskIdProvider,
+            ProductMilestone productMilestone,
+            Set<BuildConfiguration> toBuild,
+            Set<BuildTask> alreadySubmittedBuildTasks,
+            BuildOptions buildOptions) { //TODO toBuild should be a set of BuildConfigurationAudited entities
         for (BuildConfiguration buildConfig : toBuild) {
             BuildConfigurationAudited buildConfigAudited =
                     datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
+
+            String buildContentId = ContentIdentityManager.getBuildContentId(buildConfigAudited.getName());
+            MDCUtils.setMDC(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
 
             Optional<BuildTask> taskOptional = alreadySubmittedBuildTasks.stream()
                     .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
@@ -172,7 +190,9 @@ public class BuildTasksInitializer {
                         user,
                         buildTaskIdProvider.get(),
                         buildSetTask,
-                        buildSetTask.getStartTime(), productMilestone);
+                        buildSetTask.getStartTime(),
+                        productMilestone,
+                        buildContentId);
                 log.debug("Created new buildTask {} for BuildConfigurationAudited {}.", buildTask, buildConfigAudited);
             }
 
@@ -201,5 +221,4 @@ public class BuildTasksInitializer {
     private BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
         return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
-
 }
