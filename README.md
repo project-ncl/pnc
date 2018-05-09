@@ -320,3 +320,12 @@ You can override the pod definitions used to configure the build-agent pod via p
   ]
 ```
 You only need to define the key for which you want to modify its definition. There is no need to define all the keys.
+
+
+## Metrics support
+
+PNC tracks metrics of JVM and its internals via Dropwizard Metrics. The metrics can currently be reported to a Graphite server by specifying as system property or environment variables those three properties:
+- metrics\_graphite\_server
+- metrics\_graphite\_port
+- metrics\_graphite\_prefix
+
