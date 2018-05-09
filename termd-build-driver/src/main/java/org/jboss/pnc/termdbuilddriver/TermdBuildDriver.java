@@ -284,7 +284,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 //cancel has been requested
             }
 
-            TermdFileTranser transfer = new TermdFileTranser();
+            TermdFileTranser transfer = new TermdFileTranser(MAX_LOG_SIZE);
             StringBuffer stringBuffer = new StringBuffer();
 
             String logsDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toString();
