@@ -218,8 +218,7 @@
 
       self.linkWithProductVersion = function () {
         var modal = modalSelectService.openForProductVersion({
-          title: 'Link ' + self.set.name + ' with a product version',
-          selected: self.set.productVersion
+          title: 'Link ' + self.set.name + ' with a product version'
         });
 
         modal.result.then(function (result) {
