@@ -129,6 +129,10 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>causeway-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>metrics</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -254,6 +258,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>causeway-client</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>metrics</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
