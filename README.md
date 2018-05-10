@@ -324,7 +324,12 @@ You only need to define the key for which you want to modify its definition. The
 
 ## Metrics support
 
-PNC tracks metrics of JVM and its internals via Dropwizard Metrics. The metrics can currently be reported to a Graphite server by specifying as system property or environment variables those three properties:
-- metrics\_graphite\_server
-- metrics\_graphite\_port
-- metrics\_graphite\_prefix
+PNC tracks metrics of JVM and its internals via Dropwizard Metrics. The metrics can currently be reported to a Graphite server by specifying as system property or environment variables those properties:
+- metrics\_graphite\_server (mandatory)
+- metrics\_graphite\_port (mandatory)
+- metrics\_graphite\_prefix (mandatory)
+- metrics\_graphite\_interval (optional)
+
+If the `metrics_graphite_interval` variable (interval specified in seconds) is not specified, we'll use the default value of 60 seconds to report data to Graphite.
+
+The graphite reporter is configured to report rates per second and durations in terms of milliseconds.
