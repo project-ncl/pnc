@@ -37,7 +37,7 @@
                                   uib-typeahead="product as product.name for product in ctrl.fetchProducts($viewValue)"
                                   typeahead-on-select="ctrl.onSelectProduct($item, $model, $label)"
                                   typeahead-wait-ms="300"
-                                  typeahead-loading="ctrl.isLoading">
+                                  typeahead-loading="ctrl.isLoading">                      
               <button type="button" class="clear" aria-hidden="true"><span ng-show="ctrl.isLoading" class="spinner spinner-xs spinner-inline"></span></button>
             </div>
           </div>
@@ -53,10 +53,9 @@
         <pf-list-view class="list-group list-view-pf list-view-pf-view cursor-pointer"
                           id="build-group-list"
                           config="ctrl.config"
-                          items="ctrl.selectedProduct.productVersions"
+                          items="ctrl.selectedProduct.productVersionRefs"
                           action-buttons="ctrl.actionButtons"
-                          ng-show="ctrl.selectedProduct.productVersions">
-
+                          ng-if="ctrl.selectedProduct.productVersionRefs">
             <div class="list-view-pf-description">
               <div class="list-group-item-heading">
                 {{ item.productName }}: {{ item.version }}
