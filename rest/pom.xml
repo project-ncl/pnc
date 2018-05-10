@@ -90,6 +90,11 @@
       <artifactId>messaging</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>metrics</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Remote dependencies -->
     <dependency>
