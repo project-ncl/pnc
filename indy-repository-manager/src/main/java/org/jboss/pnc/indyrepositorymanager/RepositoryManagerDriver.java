@@ -336,7 +336,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
                 if (remoteKey == null) {
                     // this is basically an implied repo, so using the same prefix "i-"
-                    String remoteName = "i-" + repository.getId();
+                    String remoteName = "i-" + convertIllegalCharacters(repository.getId());
 
                     // find a free repository ID for the newly created repo
                     remoteKey = new StoreKey(pakageType, StoreType.remote, remoteName);
@@ -359,6 +359,25 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildGroup.addConstituent(remoteKey);
             }
         }
+    }
+
+    /**
+     * Converts characters in a given string considered as illegal by Indy to underscores.
+     *
+     * @param name repository name
+     * @return string with converted characters
+     */
+    private String convertIllegalCharacters(String name) {
+        char[] result = new char[name.length()];
+        for (int i = 0; i < name.length(); i++) {
+            char checkedChar = name.charAt(i);
+            if (Character.isLetterOrDigit(checkedChar) || checkedChar == '+' || checkedChar == '-' || checkedChar == '.') {
+                result[i] = checkedChar;
+            } else {
+                result[i] = '_';
+            }
+        }
+        return String.valueOf(result);
     }
 
     /**
