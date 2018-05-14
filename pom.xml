@@ -554,6 +554,7 @@
         <groupId>io.undertow</groupId>
         <artifactId>undertow-websockets-jsr</artifactId>
         <version>${version.undertow-websockets-jsr}</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
