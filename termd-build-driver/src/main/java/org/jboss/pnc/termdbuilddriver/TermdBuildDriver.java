@@ -273,17 +273,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         CompletableFuture.runAsync(() -> {
             logger.info("Collecting results ...");
 
-            if (termdRunningBuild.getBuildAgentClient().isPresent()) {
-                BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
-                try { //TODO move to #complete to make sure it's closed every-time
-                    buildAgentClient.close();
-                } catch (IOException e) {
-                    future.completeExceptionally(new BuildDriverException("Cannot close build agent connections.", e));
-                }
-            } else {
-                //cancel has been requested
-            }
-
             TermdFileTranser transfer = new TermdFileTranser(MAX_LOG_SIZE);
             StringBuffer stringBuffer = new StringBuffer();
 
@@ -329,6 +318,18 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     private Void complete(TermdRunningBuild termdRunningBuild, CompletedBuild completedBuild, Throwable throwable) {
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
+
+        if (termdRunningBuild.getBuildAgentClient().isPresent()) {
+            BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
+            try {
+                buildAgentClient.close();
+            } catch (IOException e) {
+                logger.error("Cannot close build agent connections.", e);
+            }
+        } else {
+            //cancel has been requested
+        }
+
         if(throwable != null) {
             logger.warn("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
             termdRunningBuild.setBuildError((Exception) throwable);
