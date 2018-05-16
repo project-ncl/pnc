@@ -23,8 +23,8 @@ import org.hibernate.envers.query.AuditEntity;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,8 +71,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 
-        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
-                BuildRecordPredicates.withBuildConfigurationId(buildConfigurationId));
+        List<BuildRecord> buildRecords = getBuildRecords(buildConfigurationId);
 
         return result.stream().map(o -> createAudited(o[0], o[1], buildRecords)).collect(Collectors.toList());
     }
@@ -90,8 +92,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         BuildConfiguration buildConfiguration = AuditReaderFactory.get(entityManager)
                 .find(BuildConfiguration.class, idRev.getId(), idRev.getRev());
 
-        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
-                BuildRecordPredicates.withBuildConfigurationIdRev(idRev));
+        List<BuildRecord> buildRecords = getBuildRecords(idRev);
 
         //preload generic parameters
         buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
@@ -101,6 +102,41 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 idRev.getRev(),
                 buildRecords
         );
+    }
+
+    /**
+     * @param idRev
+     * @return List of BuildRecords where only id is fetched
+     */
+    private List<BuildRecord> getBuildRecords(IdRev idRev) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+        Root<BuildRecord> root = query.from(BuildRecord.class);
+        query.select(root.get(BuildRecord_.id));
+        query.where(
+            cb.and( cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                    cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev()))
+        );
+        List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
+        return buildRecordIds.stream()
+                .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * @param buildConfigurationId
+     * @return List of BuildRecords where only id is fetched
+     */
+    private List<BuildRecord> getBuildRecords(Integer buildConfigurationId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+        Root<BuildRecord> root = query.from(BuildRecord.class);
+        query.select(root.get(BuildRecord_.id));
+        query.where(cb.equal(root.get(BuildRecord_.buildConfigurationId), buildConfigurationId));
+        List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
+        return buildRecordIds.stream()
+                .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
+                .collect(Collectors.toList());
     }
 
     @Override
