@@ -22,6 +22,8 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.spi.BuildOptions;
 
+import java.util.List;
+
 public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfigurationRest> {
 
     private static final String BUILD_CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
@@ -30,14 +32,18 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
         super(BUILD_CONFIGURATION_REST_ENDPOINT, BuildConfigurationRest.class);
     }
 
+    public BuildConfigurationRestClient(ConnectionInfo connectionInfo) {
+        super(BUILD_CONFIGURATION_REST_ENDPOINT, BuildConfigurationRest.class, connectionInfo);
+    }
+
     public RestResponse<BuildConfigurationRest> trigger(int id, BuildOptions options) {
-        Response response = request().when()
+        Response response = getRestClient().request().when()
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
                 .queryParam("buildDependencies", options.isBuildDependencies())
                 .queryParam("keepPodOnFailure", options.isKeepPodOnFailure())
                 .queryParam("timestampAlignment", options.isTimestampAlignment())
-                .post(collectionUrl + id + "/build");
+                .post(getRestClient().addHost(collectionUrl + id + "/build") );
 
         response.then().statusCode(200);
 
@@ -46,6 +52,18 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
         } catch (Exception e) {
             throw new AssertionError("JSON unmarshalling error", e);
         }
+    }
+
+    public RestResponse<BuildConfigurationRest> getByName(String name) {
+        RestResponse<List<BuildConfigurationRest>> response = all(false, 0, 1, "name==" + name, null);
+        List<BuildConfigurationRest> value = response.getValue();
+        BuildConfigurationRest object = null;
+        if (value != null) {
+            if (value.size() > 0) {
+                object = value.get(0);
+            }
+        }
+        return new RestResponse<BuildConfigurationRest>(response.getRestCallResponse(), object);
     }
 
 }
