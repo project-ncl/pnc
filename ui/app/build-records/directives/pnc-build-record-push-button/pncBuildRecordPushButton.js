@@ -95,13 +95,13 @@
 
     function filterAccepted(statuses) {
       return statuses.filter(function (status) {
-        return status === 'ACCEPTED';
+        return status.status === 'ACCEPTED';
       });
     }
 
     function filterRejected(statuses) {
       return statuses.filter(function (status) {
-        return status !== 'ACCEPTED';
+        return status.status !== 'ACCEPTED';
       });
     }
 
