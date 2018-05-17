@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -94,8 +91,6 @@ public class Artifact implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String sha256;
 
-    @Getter
-    @Setter
     @Column(updatable = false)
     private Long size;
 
@@ -108,8 +103,6 @@ public class Artifact implements GenericEntity<Integer> {
      * the format of the identifier string.
      */
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
-    @Getter
-    @Setter
     @NotNull
     @ManyToOne
     private TargetRepository targetRepository;
@@ -421,6 +414,22 @@ public class Artifact implements GenericEntity<Integer> {
 
     public boolean addDistributedInProductMilestone(ProductMilestone productMilestone) {
         return this.distributedInProductMilestones.add(productMilestone);
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
+
+    public TargetRepository getTargetRepository() {
+        return targetRepository;
+    }
+
+    public void setTargetRepository(TargetRepository targetRepository) {
+        this.targetRepository = targetRepository;
     }
 
     @Override

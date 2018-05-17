@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -114,8 +112,6 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
 
     @NotNull
-    @Getter
-    @Setter
     private boolean temporaryBuild;
 
     /**
@@ -269,6 +265,22 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
         this.productVersion = productVersion;
     }
 
+    public boolean isTemporaryBuild() {
+        return temporaryBuild;
+    }
+
+    public void setTemporaryBuild(boolean temporaryBuild) {
+        this.temporaryBuild = temporaryBuild;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
     @Override
     public String toString() {
         return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName() + ", status=" + status + "]";
@@ -370,9 +382,6 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             this.temporaryBuild = temporaryBuild;
             return this;
         }
-
-
-
     }
 
 }

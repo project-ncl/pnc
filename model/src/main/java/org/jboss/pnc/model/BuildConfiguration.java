@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -97,8 +95,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Type(type = "org.hibernate.type.TextType")
     private String buildScript;
 
-    @Getter
-    @Setter
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @Index(name="idx_buildconfiguration_repositoryconfiguration")
@@ -185,8 +181,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildConfiguration> dependants;
 
-    @Getter
-    @Setter
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "build_configuration_parameters")
     @MapKeyColumn(length = 50, name = "key", nullable = false)
@@ -521,6 +515,30 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         return getProductVersion().getCurrentProductMilestone();
     }
 
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
+    }
+
+    public void setRepositoryConfiguration(RepositoryConfiguration repositoryConfiguration) {
+        this.repositoryConfiguration = repositoryConfiguration;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Map<String, String> getGenericParameters() {
+        return genericParameters;
+    }
+
+    public void setGenericParameters(Map<String, String> genericParameters) {
+        this.genericParameters = genericParameters;
+    }
+
     @Override
     public String toString() {
         return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active=" + active + "]";
@@ -555,20 +573,24 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     @Override
     public BuildConfiguration clone() {
-        try {
-            BuildConfiguration clone = (BuildConfiguration) super.clone();
-            Date now = Date.from(Instant.now());
-            clone.name = retrieveCloneName(name, now);
-            clone.creationTime = now;
-            clone.id = null;
-            clone.genericParameters = new HashMap<>(genericParameters);
-            clone.buildConfigurationSets = new HashSet<>(buildConfigurationSets);
-            clone.dependants = new HashSet<>(dependants);
-            clone.dependencies = new HashSet<>(dependencies);
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Cloning error" + e);
-        }
+        BuildConfiguration clone = new BuildConfiguration();
+        clone.id = null;
+        Date now = Date.from(Instant.now());
+        clone.active = true;
+        clone.buildConfigurationSets = new HashSet<>(buildConfigurationSets);
+        clone.buildEnvironment = buildEnvironment;
+        clone.buildScript = buildScript;
+        clone.creationTime = now;
+        clone.dependants = new HashSet<>(dependants);
+        clone.dependencies = new HashSet<>(dependencies);
+        clone.description = description;
+        clone.genericParameters = new HashMap<>(genericParameters);
+        clone.name = retrieveCloneName(name, now);
+        clone.productVersion = productVersion;
+        clone.project = project;
+        clone.repositoryConfiguration = repositoryConfiguration;
+        clone.scmRevision = scmRevision;
+        return clone;
     }
 
     /**

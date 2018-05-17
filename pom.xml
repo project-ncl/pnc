@@ -123,6 +123,7 @@
     <version.buildagent>0.3</version.buildagent>
     <version.jackson.core>2.5.4.redhat-1</version.jackson.core>
     <version.org.jboss.resteasy>3.0.24.Final-redhat-1</version.org.jboss.resteasy>
+    <version.hibenate>5.1.13.Final</version.hibenate>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -443,6 +444,11 @@
         <artifactId>jboss-ejb-api_3.2_spec</artifactId>
         <version>1.0.0.Final-redhat-1</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm.tooling</groupId>
+        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+        <version>${version.hibenate}</version>
       </dependency>
 
       <dependency>

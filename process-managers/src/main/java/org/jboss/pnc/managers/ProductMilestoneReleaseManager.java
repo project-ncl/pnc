@@ -216,7 +216,7 @@ public class ProductMilestoneReleaseManager {
             throw new RuntimeException("Cannot convert status.", e);
         }
 
-        BuildRecordPushResult buildRecordPush = BuildRecordPushResult.builder()
+        BuildRecordPushResult buildRecordPush = BuildRecordPushResult.newBuilder()
                 .buildRecord(record)
                 .status(status)
                 .log(combinedLog)

@@ -45,6 +45,8 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -64,6 +66,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 
 @Stateless
 public class BuildConfigurationProvider extends AbstractProvider<BuildConfiguration, BuildConfigurationRest> {
+
+    private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProvider.class);
 
     private static final Pattern REPOSITORY_NAME_PATTERN = Pattern.compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
 
@@ -219,14 +223,11 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     public Integer clone(Integer buildConfigurationId) throws RestValidationException {
-        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repository, buildConfigurationId,
-                true);
-
+        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repository, buildConfigurationId, true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
-
         BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
-
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
+        logger.debug("Cloned saved BuildConfiguration: {}", clonedBuildConfiguration);
         return clonedBuildConfiguration.getId();
     }
 

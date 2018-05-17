@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.jboss.util.StringPropertyReplacer;
@@ -104,8 +102,6 @@ public class ProductVersion implements GenericEntity<Integer> {
     @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id"))
     @MapKeyColumn(name="key")
     @Column(name="value")
-    @Getter
-    @Setter
     private Map<String, String> attributes = new HashMap<>();
     
     public ProductVersion() {
@@ -207,6 +203,14 @@ public class ProductVersion implements GenericEntity<Integer> {
         else {
             this.buildConfigurations = buildConfigurations;
         }
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

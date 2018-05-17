@@ -69,7 +69,6 @@ public class ProductMilestoneReleaseRepositoryImplTest {
         ProductMilestone milestone1 = createMilestone();
         ProductMilestone milestone2 = createMilestone();
 
-        milestoneRepository.save(milestone1);
         ProductMilestoneRelease r1 = new ProductMilestoneRelease();
         r1.setMilestone(milestone1);
         r1.setStatus(MilestoneReleaseStatus.FAILED);
