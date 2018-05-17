@@ -26,6 +26,7 @@ import org.jboss.pnc.coordinator.maintenance.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
@@ -118,6 +119,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
+    @TimedMetric
     public Response getAll(
             @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
