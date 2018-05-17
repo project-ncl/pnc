@@ -158,7 +158,7 @@ public class BasicModelTest extends AbstractModelTest {
     }
 
     private TargetRepository getTargetRepository(String path) {
-        return TargetRepository.builder()
+        return TargetRepository.newBuilder()
                     .temporaryRepo(false)
                     .identifier("indy-maven")
                     .repositoryPath(path)

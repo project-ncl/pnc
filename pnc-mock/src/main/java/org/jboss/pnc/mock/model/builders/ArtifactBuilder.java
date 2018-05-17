@@ -62,7 +62,7 @@ public class ArtifactBuilder {
     }
 
     public static TargetRepository mockTargetRepository(String path) {
-        return TargetRepository.builder()
+        return TargetRepository.newBuilder()
                 .identifier("indy-maven")
                 .repositoryPath(path)
                 .repositoryType(TargetRepository.Type.MAVEN)

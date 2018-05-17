@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +30,6 @@ import java.util.stream.Collectors;
  * Keep in mind that it is not managed by JPA and needs to be filled manually.
  *
  */
-@Getter
-@Setter(AccessLevel.PRIVATE)
 public class BuildConfigurationAudited {
 
     private static final long serialVersionUID = 0L;
@@ -68,7 +62,6 @@ public class BuildConfigurationAudited {
 
     private Set<BuildRecord> buildRecords;
 
-    @Getter
     private BuildConfiguration buildConfiguration;
 
     /**
@@ -76,6 +69,8 @@ public class BuildConfigurationAudited {
      */
     public BuildConfigurationAudited() {
     }
+
+    private Map<String, String> genericParameters = new HashMap<>();
 
     public IdRev getIdRev() {
         return idRev;
@@ -85,7 +80,101 @@ public class BuildConfigurationAudited {
         this.idRev = idRev;
     }
 
-    private Map<String, String> genericParameters = new HashMap<>();
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getRev() {
+        return rev;
+    }
+
+    public void setRev(Integer rev) {
+        this.rev = rev;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getBuildScript() {
+        return buildScript;
+    }
+
+    public void setBuildScript(String buildScript) {
+        this.buildScript = buildScript;
+    }
+
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
+    }
+
+    public void setRepositoryConfiguration(RepositoryConfiguration repositoryConfiguration) {
+        this.repositoryConfiguration = repositoryConfiguration;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
+    }
+
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public BuildEnvironment getBuildEnvironment() {
+        return buildEnvironment;
+    }
+
+    public void setBuildEnvironment(BuildEnvironment buildEnvironment) {
+        this.buildEnvironment = buildEnvironment;
+    }
+
+    public Set<BuildRecord> getBuildRecords() {
+        return buildRecords;
+    }
+
+    public void setBuildRecords(Set<BuildRecord> buildRecords) {
+        this.buildRecords = buildRecords;
+    }
+
+    public BuildConfiguration getBuildConfiguration() {
+        return buildConfiguration;
+    }
+
+    public void setBuildConfiguration(BuildConfiguration buildConfiguration) {
+        this.buildConfiguration = buildConfiguration;
+    }
+
+    public Map<String, String> getGenericParameters() {
+        return genericParameters;
+    }
+
+    public void setGenericParameters(Map<String, String> genericParameters) {
+        this.genericParameters = genericParameters;
+    }
 
     @Override
     public String toString() {

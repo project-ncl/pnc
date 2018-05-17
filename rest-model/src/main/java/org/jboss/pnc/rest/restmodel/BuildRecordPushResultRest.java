@@ -96,9 +96,9 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
         return JsonOutputConverterMapper.apply(this);
     }
 
-    public BuildRecordPushResult.BuildRecordPushResultBuilder toDBEntityBuilder() {
+    public BuildRecordPushResult.Builder toDBEntityBuilder() {
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildRecordId).build();
-        BuildRecordPushResult.BuildRecordPushResultBuilder builder = BuildRecordPushResult.builder()
+        BuildRecordPushResult.Builder builder = BuildRecordPushResult.newBuilder()
                 .id(id)
                 .status(status)
                 .log(combineLog())

@@ -17,19 +17,27 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.ToString;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@ToString
 public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 2596901834161647987L;
@@ -179,6 +187,17 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "BuildConfigurationSet{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", productVersion=" + productVersion +
+                ", buildConfigurations=" + buildConfigurations +
+                ", buildConfigSetRecords=" + buildConfigSetRecords +
+                '}';
     }
 
     public static class Builder {

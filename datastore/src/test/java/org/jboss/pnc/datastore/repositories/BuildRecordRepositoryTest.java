@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -101,13 +102,18 @@ public class BuildRecordRepositoryTest {
 
     private BuildRecord.Builder initBuildRecordBuilder() {
         if(user == null) {
-            user = userRepository.save(User.Builder.newBuilder()
-                    .id(1)
-                    .username("demo-user")
-                    .firstName("Demo First Name")
-                    .lastName("Demo Last Name")
-                    .email("demo-user@pnc.com")
-                    .build());
+            List<User> users = userRepository.queryWithPredicates(UserPredicates.withUserName("demo-user"));
+            if (users.size() > 0) {
+                user = users.get(0);
+            }
+            if(user == null) {
+                this.user = userRepository.save(User.Builder.newBuilder()
+                        .username("demo-user")
+                        .firstName("Demo First Name")
+                        .lastName("Demo Last Name")
+                        .email("demo-user@pnc.com")
+                        .build());
+            }
         }
 
         return BuildRecord.Builder.newBuilder()

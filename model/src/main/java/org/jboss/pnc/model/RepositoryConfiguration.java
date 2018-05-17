@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.jboss.pnc.common.util.StringUtils;
 
 import javax.persistence.Column;
@@ -41,7 +38,6 @@ import java.util.Set;
  * @author Jakub Bartecek
  */
 @Entity
-@ToString
 public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 4248038054068607536L;
@@ -74,8 +70,6 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      */
     @Size(max = 255)
     @Column(unique = true, nullable = false, updatable = false)
-    @Getter
-    @Setter
     private String internalUrl;
 
     /**
@@ -83,16 +77,12 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      */
     @Size(max = 255)
     @Column(unique = true, updatable = false)
-    @Getter
-    @Setter
     private String internalUrlNormalized;
 
     /**
      * URL to the upstream SCM repository.
      */
     @Size(max = 255)
-    @Getter
-    @Setter
     @Column(unique = true)
     private String externalUrl;
 
@@ -100,21 +90,15 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      * Normalized version of scm url to query against. Normalized version is without the protocol and .git extension.
      */
     @Size(max = 255)
-    @Getter
-    @Setter
     @Column(unique = true)
     private String externalUrlNormalized;
 
     /**
      * Declares whether the pre-build repository synchronization should happen or not.
      */
-    @Getter
-    @Setter
     private boolean preBuildSyncEnabled = true;
 
     @OneToMany(mappedBy = "repositoryConfiguration")
-    @Getter
-    @Setter
     private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
     @Override
@@ -125,6 +109,54 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Override
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getInternalUrl() {
+        return internalUrl;
+    }
+
+    public void setInternalUrl(String internalUrl) {
+        this.internalUrl = internalUrl;
+    }
+
+    public String getInternalUrlNormalized() {
+        return internalUrlNormalized;
+    }
+
+    public void setInternalUrlNormalized(String internalUrlNormalized) {
+        this.internalUrlNormalized = internalUrlNormalized;
+    }
+
+    public String getExternalUrl() {
+        return externalUrl;
+    }
+
+    public void setExternalUrl(String externalUrl) {
+        this.externalUrl = externalUrl;
+    }
+
+    public String getExternalUrlNormalized() {
+        return externalUrlNormalized;
+    }
+
+    public void setExternalUrlNormalized(String externalUrlNormalized) {
+        this.externalUrlNormalized = externalUrlNormalized;
+    }
+
+    public boolean isPreBuildSyncEnabled() {
+        return preBuildSyncEnabled;
+    }
+
+    public void setPreBuildSyncEnabled(boolean preBuildSyncEnabled) {
+        this.preBuildSyncEnabled = preBuildSyncEnabled;
+    }
+
+    public Set<BuildConfiguration> getBuildConfigurations() {
+        return buildConfigurations;
+    }
+
+    public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+        this.buildConfigurations = buildConfigurations;
     }
 
     @Override
@@ -140,6 +172,19 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     @Override
     public int hashCode() {
         return getId() != null ? getId().hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "RepositoryConfiguration{" +
+                "id=" + id +
+                ", internalUrl='" + internalUrl + '\'' +
+                ", internalUrlNormalized='" + internalUrlNormalized + '\'' +
+                ", externalUrl='" + externalUrl + '\'' +
+                ", externalUrlNormalized='" + externalUrlNormalized + '\'' +
+                ", preBuildSyncEnabled=" + preBuildSyncEnabled +
+                ", buildConfigurations=" + buildConfigurations +
+                '}';
     }
 
     public static class Builder {
