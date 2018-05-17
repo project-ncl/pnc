@@ -18,6 +18,9 @@
 package org.jboss.pnc.rest.configuration;
 
 import io.swagger.jaxrs.config.BeanConfig;
+import org.jboss.pnc.rest.configuration.metrics.GeneralRestMetricsFilter;
+import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
+import org.jboss.pnc.rest.configuration.metrics.TimedMetricFilter;
 import org.jboss.pnc.rest.debug.TestEndpoint;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
@@ -69,6 +72,7 @@ public class JaxRsActivator extends Application {
         Set<Class<?>> resources = new HashSet<>();
         addSwaggerResources(resources);
         addProjectResources(resources);
+        addMetricsResources(resources);
         return resources;
     }
 
@@ -126,6 +130,12 @@ public class JaxRsActivator extends Application {
     private void addSwaggerResources(Set<Class<?>> resources) {
         resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
         resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+    }
+
+    private void addMetricsResources(Set<Class<?>> resources) {
+        resources.add(GeneralRestMetricsFilter.class);
+        resources.add(TimedMetric.class);
+        resources.add(TimedMetricFilter.class);
     }
 
     private String getRestBasePath() throws IOException {

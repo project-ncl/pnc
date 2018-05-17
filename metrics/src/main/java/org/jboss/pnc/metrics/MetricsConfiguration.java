@@ -23,7 +23,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.jvm.ClassLoadingGaugeSet;
-import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
@@ -52,6 +51,10 @@ public class MetricsConfiguration {
     private static final String  GRAPHITE_SERVER_KEY = "metrics_graphite_server";
     private static final String  GRAPHITE_PORT_KEY = "metrics_graphite_port";
     private static final String  GRAPHITE_PREFIX_KEY = "metrics_graphite_prefix";
+
+    // The interval is in seconds
+    private static final String  GRAPHITE_INTERVAL_KEY = "metrics_graphite_interval";
+    private static final int DEFAULT_GRAPHITE_INTERVAL = 60;
 
     @Getter
     private MetricRegistry metricRegistry;
@@ -119,13 +122,30 @@ public class MetricsConfiguration {
      *
      */
     private void setupGraphiteReporter() {
+
+        int graphiteInterval = DEFAULT_GRAPHITE_INTERVAL;
+
+        try {
+
+            graphiteInterval = Integer.parseInt(
+                    getValueFromProperty(GRAPHITE_INTERVAL_KEY, "Graphite Interval reporting"));
+
+        } catch (NumberFormatException e) {
+
+            // thrown because we couldn't parse the interval as a number
+            logger.warn("Could not parse Graphite interval! Using default value of {} seconds instead", DEFAULT_GRAPHITE_INTERVAL);
+
+        } catch(NoPropertyException e) {
+            // If we're here that property is not specified. Just continue using the default
+        }
+
         try {
 
             String graphiteServer = getValueFromProperty(GRAPHITE_SERVER_KEY, "Graphite Server URL");
             int graphitePort = Integer.parseInt(getValueFromProperty(GRAPHITE_PORT_KEY, "Graphite Port"));
             String graphitePrefix = getValueFromProperty(GRAPHITE_PREFIX_KEY, "Graphite Prefix");
 
-            startGraphiteReporter(graphiteServer, graphitePort, graphitePrefix);
+            startGraphiteReporter(graphiteServer, graphitePort, graphitePrefix, graphiteInterval);
 
         } catch (NumberFormatException e) {
 
@@ -145,8 +165,9 @@ public class MetricsConfiguration {
      * @param host   Graphite server
      * @param port   Graphite port (usually 2003)
      * @param prefix Prefix to use as a namespace for our logs
+     * @param interval interval at which to report metrics to Graphite in seconds
      */
-    private void startGraphiteReporter(String host, int port, String prefix) {
+    private void startGraphiteReporter(String host, int port, String prefix, int interval) {
 
         logger.info("Setting up Graphite reporter");
 
@@ -159,6 +180,6 @@ public class MetricsConfiguration {
                 .filter(MetricFilter.ALL)
                 .build(graphite);
 
-        reporter.start(1, TimeUnit.MINUTES);
+        reporter.start(interval, TimeUnit.SECONDS);
     }
 }
