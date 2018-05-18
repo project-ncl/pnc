@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.notifications.websockets.DefaultNotifier;
@@ -29,7 +29,7 @@ import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
@@ -64,7 +64,7 @@ public class BuildRecordEndpointTest {
     @Mock
     private BuildExecutor buildExecutor;
     @Mock
-    private BuildRecordRepository buildRecordRepository;
+    private BuildRecordAllRepository buildRecordRepository;
     @Mock
     private Datastore datastore;
     @Mock
@@ -134,10 +134,10 @@ public class BuildRecordEndpointTest {
 
     private void endpointReturnsLog(int logId, String logContent) {
         configureBuildExecutorMock(5684);
-        BuildRecord buildRecord = mock(BuildRecord.class);
+        BuildRecordAll buildRecord = mock(BuildRecordAll.class);
 
         when(buildRecord.getBuildLog()).thenReturn(logContent);
-        when(buildRecordRepository.findByIdFetchAllProperties(logId)).thenReturn(buildRecord);
+        when(buildRecordRepository.queryById(logId)).thenReturn(buildRecord);
     }
 
     private void configureBuildExecutorMock(int buildExecutionTaskId) {

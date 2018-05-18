@@ -22,6 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -83,7 +84,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         BuildTask buildTask = buildProject(configurationBuilder.buildConfigurationToCancel(1, "c1-java"), coordinator, onStatusUpdate);
 
         //expect
-        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        List<BuildRecordAll> buildRecords = datastoreMock.getBuildRecords();
 
         Assert.assertEquals("Too many build records in datastore: " + buildRecords, 1, buildRecords.size());
 

@@ -24,7 +24,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.BuildOptions;
@@ -105,7 +105,7 @@ public class DatastoreAdapter {
         try {
             BuildStatus buildRecordStatus = UNKNOWN;
 
-            BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+            BuildRecordAll.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
 
             if (buildResult.getRepourResult().isPresent()) {
                 RepourResult repourResult = buildResult.getRepourResult().get();
@@ -201,7 +201,7 @@ public class DatastoreAdapter {
      * @throws DatastoreException on failure to store data
      */
     public void storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e) throws DatastoreException {
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+        BuildRecordAll.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(SYSTEM_ERROR);
 
         StringBuilder errorLog = new StringBuilder();
@@ -254,7 +254,7 @@ public class DatastoreAdapter {
     }
 
     public void storeRejected(BuildTask buildTask) throws DatastoreException {
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+        BuildRecordAll.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(REJECTED);
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
 
@@ -270,9 +270,9 @@ public class DatastoreAdapter {
      *
      * @return The initialized build record builder
      */
-    private BuildRecord.Builder initBuildRecordBuilder(BuildTask buildTask) {
+    private BuildRecordAll.Builder initBuildRecordBuilder(BuildTask buildTask) {
         BuildOptions buildOptions = buildTask.getBuildOptions();
-        BuildRecord.Builder builder = BuildRecord.Builder.newBuilder().id(buildTask.getId())
+        BuildRecordAll.Builder builder = BuildRecordAll.Builder.newBuilder().id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())

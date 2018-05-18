@@ -23,6 +23,7 @@ import org.hibernate.envers.query.AuditEntity;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -119,7 +120,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         );
         List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
-                .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
+                .map(id -> BuildRecordAll.Builder.newBuilder().id(id).build())
                 .collect(Collectors.toList());
     }
 
@@ -135,7 +136,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         query.where(cb.equal(root.get(BuildRecord_.buildConfigurationId), buildConfigurationId));
         List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
-                .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
+                .map(id -> BuildRecordAll.Builder.newBuilder().id(id).build())
                 .collect(Collectors.toList());
     }
 

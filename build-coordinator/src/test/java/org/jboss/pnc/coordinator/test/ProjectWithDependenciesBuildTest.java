@@ -24,7 +24,7 @@ import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.util.Wait;
@@ -83,13 +83,13 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         buildProjects(configurationBuilder.buildConfigurationSet(BUILD_SET_ID), coordinator.coordinator);
 
         //expect
-        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        List<BuildRecordAll> buildRecords = datastoreMock.getBuildRecords();
         log.trace("Found build records: {}", buildRecords.stream()
                 .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
                 .collect(Collectors.joining("; ")));
         Assert.assertEquals("Wrong datastore results count.", 5, buildRecords.size());
 
-        BuildRecord buildRecord = buildRecords.get(0);
+        BuildRecordAll buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
 

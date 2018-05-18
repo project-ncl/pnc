@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
@@ -39,6 +40,7 @@ import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
@@ -107,6 +109,9 @@ public class DatastoreTest {
 
     @Inject
     BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    BuildRecordAllRepository buildRecordAllRepository;
 
     @Inject
     ProductRepository productRepository;
@@ -219,7 +224,7 @@ public class DatastoreTest {
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
 
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
+        BuildRecordAll buildRecord = BuildRecordAll.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -236,7 +241,7 @@ public class DatastoreTest {
         Assert.assertNotNull(builtArtifact1.getId());
         Assert.assertNotNull(importedArtifact2.getId());
 
-        buildRecord = buildRecordRepository.save(buildRecord);
+        buildRecord = buildRecordAllRepository.save(buildRecord);
 
     }
 
@@ -306,7 +311,7 @@ public class DatastoreTest {
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
 
-        BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder()
+        BuildRecordAll.Builder buildRecordBuilder = BuildRecordAll.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))

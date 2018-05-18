@@ -20,9 +20,10 @@ package org.jboss.pnc.coordinator.maintenance;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ import java.util.Set;
 public class TemporaryBuildsCleaner {
     private final Logger log = LoggerFactory.getLogger(TemporaryBuildsCleaner.class);
 
-    private BuildRecordRepository buildRecordRepository;
+    private BuildRecordAllRepository buildRecordAllRepository;
 
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
@@ -56,11 +57,11 @@ public class TemporaryBuildsCleaner {
 
     @Inject
     public TemporaryBuildsCleaner(
-            BuildRecordRepository buildRecordRepository,
+            BuildRecordAllRepository buildRecordAllRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             ArtifactRepository artifactRepository,
             RemoteBuildsCleaner remoteBuildsCleaner) {
-        this.buildRecordRepository = buildRecordRepository;
+        this.buildRecordAllRepository = buildRecordAllRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.artifactRepository = artifactRepository;
         this.remoteBuildsCleaner = remoteBuildsCleaner;
@@ -74,7 +75,7 @@ public class TemporaryBuildsCleaner {
      * @return true if success
      */
     public Result deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
-        BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
+        BuildRecordAll buildRecord = buildRecordAllRepository.queryById(buildRecordId);
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
@@ -99,7 +100,7 @@ public class TemporaryBuildsCleaner {
 
         deleteDependencies(buildRecord);
 
-        buildRecordRepository.delete(buildRecord.getId());
+        buildRecordAllRepository.delete(buildRecord.getId());
         return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
     }
 
@@ -154,7 +155,7 @@ public class TemporaryBuildsCleaner {
     }
 
     private void removeRelationBuildRecordArtifact(
-            BuildRecord buildRecord,
+            BuildRecordAll buildRecord,
             Set<Artifact> artifactsToBeDeleted) {
         Set<Artifact> artifacts;
 
@@ -181,6 +182,6 @@ public class TemporaryBuildsCleaner {
         }
 
         buildRecord.setBuiltArtifacts(Collections.emptySet());
-        buildRecordRepository.save(buildRecord);
+        buildRecordAllRepository.save(buildRecord);
     }
 }
