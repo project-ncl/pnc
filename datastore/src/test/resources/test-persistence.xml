@@ -35,8 +35,6 @@
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
       <property name="hibernate.show_sql" value="false"/>
       <property name="hibernate.format_sql" value="true"/>
-      <!-- thrown an exception when trying to update immutable entity -->
-      <property name="hibernate.query.immutable_entity_update_query_handling_mode" value="exception" />
     </properties>
   </persistence-unit>
 </persistence>

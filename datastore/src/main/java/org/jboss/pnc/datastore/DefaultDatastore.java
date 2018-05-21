@@ -18,14 +18,13 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -37,7 +36,6 @@ import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
@@ -73,8 +71,6 @@ public class DefaultDatastore implements Datastore {
 
     private BuildRecordRepository buildRecordRepository;
 
-    private BuildRecordAllRepository buildRecordAllRepository;
-
     private BuildConfigurationRepository buildConfigurationRepository;
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -93,7 +89,6 @@ public class DefaultDatastore implements Datastore {
     @Inject
     public DefaultDatastore(ArtifactRepository artifactRepository,
                             BuildRecordRepository buildRecordRepository,
-                            BuildRecordAllRepository buildRecordAllRepository,
                             BuildConfigurationRepository buildConfigurationRepository,
                             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
                             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
@@ -102,7 +97,6 @@ public class DefaultDatastore implements Datastore {
                             TargetRepositoryRepository targetRepositoryRepository) {
         this.artifactRepository = artifactRepository;
         this.buildRecordRepository = buildRecordRepository;
-        this.buildRecordAllRepository = buildRecordAllRepository;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
@@ -134,15 +128,15 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeCompletedBuild(BuildRecordAll.Builder buildRecordBuilder) {
-        BuildRecordAll buildRecord = buildRecordBuilder.build();
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
+        BuildRecord buildRecord = buildRecordBuilder.build();
         logger.debug("Storing completed build {}.", buildRecord);
 
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
 
         logger.trace("Saving build record {}.", buildRecord);
-        buildRecord = buildRecordAllRepository.save(buildRecord);
+        buildRecord = buildRecordRepository.save(buildRecord);
         logger.debug("Build record {} saved.", buildRecord.getId());
 
         return buildRecord;

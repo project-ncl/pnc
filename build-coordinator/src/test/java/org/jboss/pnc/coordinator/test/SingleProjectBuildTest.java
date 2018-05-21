@@ -22,7 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.BuildRecordAll;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -62,10 +62,10 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add);
 
         //expect
-        List<BuildRecordAll> buildRecords = datastoreMock.getBuildRecords();
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
 
-        BuildRecordAll buildRecord = buildRecords.get(0);
+        BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
         Assert.assertTrue("Invalid build log.", buildLog.contains(BuildDriverResultMock.BUILD_LOG));
 
@@ -93,7 +93,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add);
 
         //then
-        List<BuildRecordAll> buildRecords = datastoreMock.getBuildRecords();
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
         Assert.assertEquals(new BuildOptions(), buildTask.getBuildOptions());
     }
@@ -111,7 +111,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add, originalBuildOptions);
 
         //then
-        List<BuildRecordAll> buildRecords = datastoreMock.getBuildRecords();
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
         Assert.assertEquals(originalBuildOptions, buildTask.getBuildOptions());
     }

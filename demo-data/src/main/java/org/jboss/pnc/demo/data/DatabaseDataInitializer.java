@@ -20,13 +20,13 @@ package org.jboss.pnc.demo.data;
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
@@ -37,7 +37,6 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.SystemImageType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -46,7 +45,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
@@ -139,9 +137,6 @@ public class DatabaseDataInitializer {
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
-
-    @Inject
-    private BuildRecordAllRepository buildRecordAllRepository;
 
     @Inject
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
@@ -496,7 +491,7 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecordAll buildRecord1 = BuildRecordAll.Builder.newBuilder().id(nextId)
+            BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
                     .buildConfigurationAudited(buildConfigAudited1)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
@@ -517,7 +512,7 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
-            buildRecordAllRepository.save(buildRecord1);
+            buildRecordRepository.save(buildRecord1);
             buildRecords.add(buildRecord1);
 
         }
@@ -558,7 +553,7 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecordAll buildRecord2 = BuildRecordAll.Builder.newBuilder().id(nextId)
+            BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().id(nextId)
                     .buildConfigurationAudited(buildConfigAudited2)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
@@ -576,7 +571,7 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
-            buildRecordAllRepository.save(buildRecord2);
+            buildRecordRepository.save(buildRecord2);
             buildRecords.add(buildRecord2);
         }
 

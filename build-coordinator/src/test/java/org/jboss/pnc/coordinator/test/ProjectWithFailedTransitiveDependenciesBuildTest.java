@@ -22,7 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecordAll;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -61,7 +61,7 @@ public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBui
     @Test
     @InSequence(20)
     public void checkDatabaseForResult() {
-        List<BuildRecordAll> buildRecords = datastore.getBuildRecords();
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
 
         Assert.assertEquals("Wrong datastore results count. Got records: " + buildRecords, 3, buildRecords.size());
         Assert.assertEquals(BuildStatus.FAILED, buildRecords.get(0).getStatus());

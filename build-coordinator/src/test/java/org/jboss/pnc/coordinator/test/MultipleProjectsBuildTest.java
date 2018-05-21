@@ -21,7 +21,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -96,10 +95,10 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
     @Test
     @InSequence(20)
     public void checkDatabaseForResult() {
-        List<BuildRecordAll> buildRecords = datastore.getBuildRecords();
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", N_PROJECTS, buildRecords.size());
 
-        BuildRecordAll buildRecord = buildRecords.get(0);
+        BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
         Assert.assertTrue("Invalid build log: " + buildLog, buildLog.contains("Finished: SUCCESS"));
 

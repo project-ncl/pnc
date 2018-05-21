@@ -42,11 +42,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     private BuildRecordSpringRepository repository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
-    @Override
-    public BuildRecord save(BuildRecord entity) {
-        throw new UnsupportedOperationException("BuildRecordAllRepository must be used to store the artifact.");
-    }
-
     /**
      * @deprecated Created for CDI.
      */

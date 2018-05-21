@@ -31,7 +31,6 @@ import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
-import org.jboss.pnc.mock.repository.BuildRecordAllRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.mock.repository.TargetRepositoryRepositoryMock;
@@ -41,7 +40,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
@@ -106,7 +104,6 @@ public abstract class AbstractDependentBuildTest {
 
     protected BuildCoordinator coordinator;
     protected BuildRecordRepositoryMock buildRecordRepository;
-    protected BuildRecordAllRepositoryMock buildRecordAllRepository;
     protected BuildSchedulerFactory buildSchedulerFactory;
 
     @Before
@@ -129,14 +126,12 @@ public abstract class AbstractDependentBuildTest {
         }
 
         buildRecordRepository = new BuildRecordRepositoryMock();
-        buildRecordAllRepository = new BuildRecordAllRepositoryMock(buildRecordRepository);
         buildConfigurationAuditedRepository = new BuildConfigurationAuditedRepositoryMock();
         TargetRepositoryRepository targetRepositoryRepository = new TargetRepositoryRepositoryMock();
 
         DefaultDatastore datastore = new DefaultDatastore(
                 new ArtifactRepositoryMock(),
                 buildRecordRepository,
-                buildRecordAllRepository,
                 buildConfigurationRepository,
                 buildConfigurationAuditedRepository,
                 new BuildConfigSetRecordRepositoryMock(),
@@ -168,7 +163,7 @@ public abstract class AbstractDependentBuildTest {
     protected BuildRecord buildRecord(BuildConfiguration config) {
         BuildConfigurationAudited configurationAudited =
                 buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(config.getId()).iterator().next();
-        return BuildRecordAll.Builder.newBuilder()
+        return BuildRecord.Builder.newBuilder()
                 .id(buildRecordIdSequence.getAndIncrement())
                 .status(BuildStatus.SUCCESS)
                 .buildConfigurationAudited(configurationAudited)

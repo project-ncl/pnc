@@ -19,10 +19,13 @@ package org.jboss.pnc.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.common.security.Md5;
+import org.jboss.pnc.common.security.Sha256;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -35,20 +38,24 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.PersistenceException;
 import javax.persistence.PreRemove;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,7 +74,6 @@ import java.util.Set;
         @Index(name="idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
         @Index(name="idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id")
 })
-@Immutable
 public class BuildRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -5472083609387609797L;
@@ -152,6 +158,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Size(max=255)
     @Column(updatable = false)
     private String scmRevision;
+
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Basic(fetch = FetchType.LAZY)
+    @Column(updatable = false)
+    private String buildLog;
 
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
@@ -293,6 +305,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Basic(fetch = FetchType.LAZY)
+    @Column(updatable = false)
+    private String repourLog;
+
     @Getter
     @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
@@ -421,6 +439,40 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public String getRepourLog() {
+        return repourLog;
+    }
+
+    /**
+     *
+     * @deprecated use builder instead
+     */
+    @Deprecated
+    public void setRepourLog(String repourLog) {
+        this.repourLog = repourLog;
+    }
+
+    /**
+     * Gets the builds the log.
+     *
+     * @return the builds the log
+     */
+    public String getBuildLog() {
+        return buildLog;
+    }
+
+    /**
+     * Sets the builds the log.
+     *
+     * @param buildLog the new builds the log
+     *
+     * @deprecated use builder instead
+     */
+    @Deprecated
+    public void setBuildLog(String buildLog) {
+        this.buildLog = buildLog;
     }
 
     /**
@@ -598,7 +650,7 @@ public class BuildRecord implements GenericEntity<Integer> {
         attributes.remove(key);
     }
 
-    protected static void setBuildConfigurationAuditedIfValid(
+    private static void setBuildConfigurationAuditedIfValid(
             BuildRecord buildRecord,
             Integer buildConfigurationAuditedId,
             Integer buildConfigurationAuditedRev,
@@ -618,4 +670,283 @@ public class BuildRecord implements GenericEntity<Integer> {
             }
         }
     }
+
+    public static class Builder {
+
+        private Integer id;
+
+        private String buildContentId;
+
+        private Boolean temporaryBuild;
+
+        private Date submitTime;
+
+        private Date startTime;
+
+        private Date endTime;
+
+        private BuildConfigurationAudited buildConfigurationAudited;
+
+        private Integer buildConfigurationAuditedId;
+
+        private Integer buildConfigurationAuditedRev;
+
+        private User user;
+
+        private String scmRepoURL;
+
+        private String scmRevision;
+
+        private String repourLog = "";
+
+        private String buildLog = "";
+
+        private BuildStatus status;
+
+        private Set<Artifact> builtArtifacts;
+
+        private Set<Artifact> dependencies;
+
+        private BuildEnvironment buildEnvironment;
+
+        private ProductMilestone productMilestone;
+
+        private BuildConfigSetRecord buildConfigSetRecord;
+
+        private String sshCommand;
+
+        private String sshPassword;
+
+        private String executionRootName;
+
+        private String executionRootVersion;
+
+        private Map<String, String> attributes = new HashMap<>();
+
+        public Builder() {
+            builtArtifacts = new HashSet<>();
+            dependencies = new HashSet<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public BuildRecord build() {
+            BuildRecord buildRecord = new BuildRecord();
+            buildRecord.setId(id);
+            buildRecord.setBuildContentId(buildContentId);
+            buildRecord.setSubmitTime(submitTime);
+            buildRecord.setStartTime(startTime);
+            buildRecord.setEndTime(endTime);
+            buildRecord.setUser(user);
+            buildRecord.setScmRepoURL(scmRepoURL);
+            buildRecord.setScmRevision(scmRevision);
+            buildRecord.setStatus(status);
+            buildRecord.setBuildEnvironment(buildEnvironment);
+            buildRecord.setProductMilestone(productMilestone);
+            buildRecord.setAttributes(attributes);
+            buildRecord.setSshCommand(sshCommand);
+            buildRecord.setSshPassword(sshPassword);
+            buildRecord.setExecutionRootName(executionRootName);
+            buildRecord.setExecutionRootVersion(executionRootVersion);
+            buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
+            buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
+
+            buildRecord.setRepourLog(repourLog);
+            buildRecord.setRepourLogSize(repourLog.length());
+            buildRecord.setBuildLog(buildLog);
+            buildRecord.setBuildLogSize(buildLog.length());
+
+            if (temporaryBuild == null) {
+                temporaryBuild = true;
+            }
+            buildRecord.setTemporaryBuild(temporaryBuild);
+
+            try {
+                buildRecord.setBuildLogMd5(Md5.digest(buildLog));
+                buildRecord.setBuildLogSha256(Sha256.digest(buildLog));
+
+                buildRecord.setRepourLogMd5(Md5.digest(repourLog));
+                buildRecord.setRepourLogSha256(Sha256.digest(repourLog));
+
+            } catch (NoSuchAlgorithmException | IOException e) {
+                logger.error("Cannot compute log checksum.", e);
+                throw new RuntimeException("Cannot compute log checksum.", e);
+            }
+
+            if (buildConfigurationAudited != null) {
+                setBuildConfigurationAuditedIfValid(buildRecord,
+                        buildConfigurationAuditedId,
+                        buildConfigurationAuditedRev,
+                        buildConfigurationAudited);
+            }
+
+            if (buildConfigSetRecord != null) {
+                buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
+            }
+
+            buildRecord.setBuiltArtifacts(builtArtifacts);
+            buildRecord.setDependencies(dependencies);
+
+            return buildRecord;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder buildContentId(String buildContentId) {
+            this.buildContentId = buildContentId;
+            return this;
+        }
+
+        public Builder temporaryBuild(boolean temporaryBuild) {
+            this.temporaryBuild = temporaryBuild;
+            return this;
+        }
+
+        public Builder submitTime(Date submitTime) {
+            this.submitTime = submitTime;
+            return this;
+        }
+
+        public Builder startTime(Date startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public Builder endTime(Date endTime) {
+            this.endTime = endTime;
+            return this;
+        }
+
+        public Builder buildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
+            this.buildConfigurationAudited = buildConfigurationAudited;
+            return this;
+        }
+
+        public Builder buildConfigurationAuditedId(Integer buildConfigurationAuditedId) {
+            this.buildConfigurationAuditedId = buildConfigurationAuditedId;
+            return this;
+        }
+
+        public Builder buildConfigurationAuditedRev(Integer buildConfigurationAuditedRev) {
+            this.buildConfigurationAuditedRev = buildConfigurationAuditedRev;
+            return this;
+        }
+
+        public Builder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder scmRepoURL(String scmRepoURL) {
+            this.scmRepoURL = scmRepoURL;
+            return this;
+        }
+
+        public Builder scmRevision(String scmRevision) {
+            this.scmRevision = scmRevision;
+            return this;
+        }
+
+        public Builder buildLog(String buildLog) {
+            this.buildLog = buildLog;
+            return this;
+        }
+
+        public Builder appendLog(String buildLog) {
+            this.buildLog += buildLog;
+            return this;
+        }
+
+        public Builder status(BuildStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder builtArtifact(Artifact builtArtifact) {
+            this.builtArtifacts.add(builtArtifact);
+            return this;
+        }
+
+        public Builder builtArtifacts(Set<Artifact> builtArtifacts) {
+            this.builtArtifacts = builtArtifacts;
+            return this;
+        }
+
+        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
+            this.builtArtifacts.addAll(builtArtifacts);
+            return this;
+        }
+
+        public Builder dependency(Artifact artifact) {
+            this.dependencies.add(artifact);
+            return this;
+        }
+
+        public Builder dependencies(Set<Artifact> dependencies) {
+            this.dependencies = dependencies;
+            return this;
+        }
+
+        public Builder dependencies(List<Artifact> dependencies) {
+            this.dependencies.addAll(dependencies);
+            return this;
+        }
+
+        @Deprecated
+        public Builder buildEnvironment(BuildEnvironment buildEnvironment) {
+            this.buildEnvironment = buildEnvironment;
+            return this;
+        }
+
+        public Builder productMilestone(ProductMilestone productMilestone) {
+            this.productMilestone = productMilestone;
+            return this;
+        }
+
+        public Builder buildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+            this.buildConfigSetRecord = buildConfigSetRecord;
+            return this;
+        }
+
+        public BuildRecord.Builder attributes(Map<String, String> attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public BuildRecord.Builder sshCommand(String sshCommand) {
+            this.sshCommand = sshCommand;
+            return this;
+        }
+
+        public BuildRecord.Builder sshPassword(String sshPassword) {
+            this.sshPassword = sshPassword;
+            return this;
+        }
+
+        public BuildRecord.Builder executionRootName(String executionRootName) {
+            this.executionRootName = executionRootName;
+            return this;
+        }
+
+        public BuildRecord.Builder executionRootVersion(String executionRootVersion) {
+            this.executionRootVersion = executionRootVersion;
+            return this;
+        }
+
+        public BuildRecord.Builder attribute(String key, String value) {
+            this.attributes.put(key, value);
+            return this;
+        }
+
+        public BuildRecord.Builder repourLog(String log) {
+            this.repourLog = log;
+            return this;
+        }
+    }
+
 }

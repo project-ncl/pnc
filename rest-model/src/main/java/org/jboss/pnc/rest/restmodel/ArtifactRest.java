@@ -23,7 +23,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -241,10 +240,10 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
                 .filename(this.getFilename());
 
         nullableStreamOf(this.getBuildRecordIds()).forEach(buildRecordId -> {
-            builder.buildRecord(BuildRecordAll.Builder.newBuilder().id(buildRecordId).build());
+            builder.buildRecord(BuildRecord.Builder.newBuilder().id(buildRecordId).build());
         });
         nullableStreamOf(this.getDependantBuildRecordIds()).forEach(depBuildRecordId -> {
-            builder.dependantBuildRecord(BuildRecordAll.Builder.newBuilder().id(depBuildRecordId).build());
+            builder.dependantBuildRecord(BuildRecord.Builder.newBuilder().id(depBuildRecordId).build());
         });
 
         return builder;

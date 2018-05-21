@@ -35,7 +35,6 @@
     <class>org.jboss.pnc.model.BuildConfigurationSet</class>
     <class>org.jboss.pnc.model.BuildEnvironment</class>
     <class>org.jboss.pnc.model.BuildRecord</class>
-    <class>org.jboss.pnc.model.BuildRecordAll</class>
     <class>org.jboss.pnc.model.BuildRecordPushResult</class>
     <class>org.jboss.pnc.model.License</class>
     <class>org.jboss.pnc.model.Product</class>
@@ -56,8 +55,6 @@
       <property name="hibernate.show_sql" value="false"/>
       <property name="hibernate.format_sql" value="true"/>
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
-      <!-- thrown an exception when trying to update immutable entity -->
-      <property name="hibernate.query.immutable_entity_update_query_handling_mode" value="exception" />
     </properties>
 
   </persistence-unit>

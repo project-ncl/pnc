@@ -29,7 +29,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
@@ -39,7 +38,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
@@ -89,9 +87,6 @@ public class TemporaryBuildsCleanerTest {
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
-
-    @Inject
-    private BuildRecordAllRepository buildRecordAllRepository;
 
     @Inject
     private UserRepository userRepository;
@@ -172,10 +167,10 @@ public class TemporaryBuildsCleanerTest {
     @Test(expected = ValidationException.class)
     public void shouldNotDeleteNonTemporaryBuildTest() throws ValidationException {
         // given
-        BuildRecordAll nonTempBr = initBuildRecordBuilder()
+        BuildRecord nonTempBr = initBuildRecordBuilder()
                 .temporaryBuild(false)
                 .build();
-        buildRecordAllRepository.save(nonTempBr);
+        buildRecordRepository.save(nonTempBr);
 
         // when - then
         temporaryBuildsCleaner.deleteTemporaryBuild(nonTempBr.getId(), "");
@@ -186,10 +181,10 @@ public class TemporaryBuildsCleanerTest {
     @Test
     public void shouldDeleteTemporaryBuildWithoutArtifactsTest() throws ValidationException {
         // given
-        BuildRecordAll tempBr = initBuildRecordBuilder()
+        BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
                 .build();
-        buildRecordAllRepository.save(tempBr);
+        buildRecordRepository.save(tempBr);
         System.out.println("shouldDeleteTemporaryBuildWithoutArtifactsTest#Inserted BR: " + tempBr.getId());
 
         List<BuildRecord> givenBuilds = buildRecordRepository.queryAll();
@@ -221,13 +216,13 @@ public class TemporaryBuildsCleanerTest {
         dependencies.add(artifact3);
         dependencies.add(artifact4);
 
-        BuildRecordAll tempBr = initBuildRecordBuilder()
+        BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
                 .build();
 
         tempBr.setBuiltArtifacts(builtArtifacts);
         tempBr.setDependencies(dependencies);
-        buildRecordAllRepository.save(tempBr);
+        buildRecordRepository.save(tempBr);
 
         List<BuildRecord> givenBuilds = buildRecordRepository.queryAll();
         int numberOfBuilds = givenBuilds.size();
@@ -255,11 +250,11 @@ public class TemporaryBuildsCleanerTest {
         Set<Artifact> builtArtifacts = new HashSet<>();
         builtArtifacts.add(artifact);
 
-        BuildRecordAll tempBr = initBuildRecordBuilder()
+        BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
                 .build();
         tempBr.setBuiltArtifacts(builtArtifacts);
-        buildRecordAllRepository.save(tempBr);
+        buildRecordRepository.save(tempBr);
 
         // when - then
         try {
@@ -277,10 +272,10 @@ public class TemporaryBuildsCleanerTest {
     @Test(expected = ValidationException.class)
     public void shouldNotDeleteNonTemporaryBuildSetTest() throws ValidationException {
         // given
-        BuildRecordAll tempBr = initBuildRecordBuilder()
+        BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
                 .build();
-        buildRecordAllRepository.save(tempBr);
+        buildRecordRepository.save(tempBr);
 
         Set<BuildRecord> buildRecords = new HashSet<>();
         buildRecords.add(tempBr);
@@ -305,11 +300,11 @@ public class TemporaryBuildsCleanerTest {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord);
 
-        BuildRecordAll tempBr = initBuildRecordBuilder()
+        BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
                 .buildConfigSetRecord(buildConfigSetRecord)
                 .build();
-        buildRecordAllRepository.save(tempBr);
+        buildRecordRepository.save(tempBr);
 
         // when
         temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecord.getId(), "");
@@ -338,8 +333,8 @@ public class TemporaryBuildsCleanerTest {
 
     }
 
-    private BuildRecordAll.Builder initBuildRecordBuilder() {
-        return BuildRecordAll.Builder.newBuilder()
+    private BuildRecord.Builder initBuildRecordBuilder() {
+        return BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(this.buildConfigurationAudited)
                 .submitTime(new Date())
