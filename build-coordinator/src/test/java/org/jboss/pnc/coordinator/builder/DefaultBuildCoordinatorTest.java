@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
@@ -118,13 +119,13 @@ public class DefaultBuildCoordinatorTest {
 
         when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
 
-        ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
-        when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class))).thenAnswer(answer);
+        ArgumentGrabbingAnswer<BuildRecordAll.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecordAll.Builder.class);
+        when(datastore.storeCompletedBuild(any(BuildRecordAll.Builder.class))).thenAnswer(answer);
 
         coordinator.completeBuild(buildTask, buildResult);
 
         assertThat(answer.arguments).hasSize(1);
-        BuildRecord.Builder builder = answer.arguments.iterator().next();
+        BuildRecordAll.Builder builder = answer.arguments.iterator().next();
         BuildRecord record = builder.build();
         assertThat(record.getSshCommand()).isEqualTo(sshCredentials.getCommand());
         assertThat(record.getSshPassword()).isEqualTo(sshCredentials.getPassword());

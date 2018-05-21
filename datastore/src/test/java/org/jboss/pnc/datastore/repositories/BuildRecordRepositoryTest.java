@@ -22,9 +22,11 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.datastore.DeploymentFactory;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -55,6 +57,9 @@ public class BuildRecordRepositoryTest {
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
+    private BuildRecordAllRepository buildRecordAllRepository;
+
+    @Inject
     private Datastore datastore;
 
     @Deployment
@@ -67,11 +72,11 @@ public class BuildRecordRepositoryTest {
     public void shouldFindNoneExpiredTemporaryBuilds() {
         // given
         Date now = new Date();
-        BuildRecord givenBr = initBuildRecordBuilder()
+        BuildRecordAll givenBr = initBuildRecordBuilder()
                 .endTime(now)
                 .temporaryBuild(true)
                 .build();
-        buildRecordRepository.save(givenBr);
+        buildRecordAllRepository.save(givenBr);
 
         // when
         List<BuildRecord> found = buildRecordRepository.findTemporaryBuildsOlderThan(new Date(now.getTime() - 1000));
@@ -84,11 +89,11 @@ public class BuildRecordRepositoryTest {
     @Test
     public void shouldFindExpiredTemporaryBuilds() {
         // given
-        BuildRecord givenBr = initBuildRecordBuilder()
+        BuildRecordAll givenBr = initBuildRecordBuilder()
                 .endTime(new Date(0))
                 .temporaryBuild(true)
                 .build();
-        givenBr = buildRecordRepository.save(givenBr);
+        givenBr = buildRecordAllRepository.save(givenBr);
 
         // when
         List<BuildRecord> found = buildRecordRepository.findTemporaryBuildsOlderThan(new Date(1000));
@@ -99,7 +104,7 @@ public class BuildRecordRepositoryTest {
     }
 
 
-    private BuildRecord.Builder initBuildRecordBuilder() {
+    private BuildRecordAll.Builder initBuildRecordBuilder() {
         if(user == null) {
             user = userRepository.save(User.Builder.newBuilder()
                     .id(1)
@@ -110,7 +115,7 @@ public class BuildRecordRepositoryTest {
                     .build());
         }
 
-        return BuildRecord.Builder.newBuilder()
+        return BuildRecordAll.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAuditedId(1)
                 .buildConfigurationAuditedRev(1)

@@ -25,6 +25,7 @@ import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
@@ -41,6 +42,7 @@ import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.ProjectPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
@@ -96,6 +98,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private static final String QUERY_BY_BUILD_CONFIGURATION_ID = "buildConfigurationId==%d";
 
     private BuildExecutor buildExecutor;
+
+    private BuildRecordAllRepository buildRecordAllRepository;
+
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     ProjectRepository projectRepository;
@@ -109,6 +114,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     @Inject
     public BuildRecordProvider(
             BuildRecordRepository buildRecordRepository,
+            BuildRecordAllRepository buildRecordAllRepository,
             BuildCoordinator buildCoordinator,
             PageInfoProducer pageInfoProducer,
             RSQLPredicateProducer rsqlPredicateProducer,
@@ -118,6 +124,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             ProjectRepository projectRepository,
             EntityManager entityManager) {
         super(buildRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
+        this.buildRecordAllRepository = buildRecordAllRepository;
         this.buildCoordinator = buildCoordinator;
         this.buildExecutor = buildExecutor;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -328,7 +335,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public String getBuildRecordLog(Integer id) {
-        BuildRecord buildRecord = ((BuildRecordRepository) repository).findByIdFetchAllProperties(id);
+        BuildRecordAll buildRecord = buildRecordAllRepository.queryById(id);
         if (buildRecord != null)
             return buildRecord.getBuildLog();
         else
@@ -336,7 +343,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public String getBuildRecordRepourLog(Integer id) {
-        BuildRecord buildRecord = ((BuildRecordRepository) repository).findByIdFetchAllProperties(id);
+        BuildRecordAll buildRecord = buildRecordAllRepository.queryById(id);
         if (buildRecord != null) {
             return buildRecord.getRepourLog();
         } else {

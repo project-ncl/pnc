@@ -35,6 +35,8 @@
           <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
           <!-- required by: BuildConfigurationRepositoryImpl.save to increment revision of parent entity when child is updated -->
           <property name="org.hibernate.envers.do_not_audit_optimistic_locking_field" value="false"/>
+          <!-- thrown an exception when trying to update immutable entity -->
+          <property name="hibernate.query.immutable_entity_update_query_handling_mode" value="exception" />
       </properties>
    </persistence-unit>
 </persistence>

@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 
@@ -51,7 +52,7 @@ public interface Datastore {
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
-    BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) throws DatastoreException;
+    BuildRecord storeCompletedBuild(BuildRecordAll.Builder buildRecordBuilder) throws DatastoreException;
 
     /**
      * Returns User upon its username.

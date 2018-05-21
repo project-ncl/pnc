@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -97,7 +98,7 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
     }
 
     public BuildRecordPushResult.BuildRecordPushResultBuilder toDBEntityBuilder() {
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildRecordId).build();
+        BuildRecord buildRecord = BuildRecordAll.Builder.newBuilder().id(buildRecordId).build();
         BuildRecordPushResult.BuildRecordPushResultBuilder builder = BuildRecordPushResult.builder()
                 .id(id)
                 .status(status)

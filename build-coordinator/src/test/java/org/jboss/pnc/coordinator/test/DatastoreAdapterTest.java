@@ -27,7 +27,7 @@ import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -71,9 +71,9 @@ public class DatastoreAdapterTest {
         storeResult(datastoreAdapter, buildStatus, completionStatus);
 
         //then
-        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        List<BuildRecordAll> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
-        BuildRecord buildRecord = buildRecords.get(0);
+        BuildRecordAll buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
         Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
@@ -93,9 +93,9 @@ public class DatastoreAdapterTest {
         storeResult(datastoreAdapter, buildStatus, completionStatus);
 
         //then
-        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        List<BuildRecordAll> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
-        BuildRecord buildRecord = buildRecords.get(0);
+        BuildRecordAll buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(BuildStatus.FAILED, buildRecord.getStatus());
         Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
@@ -135,9 +135,9 @@ public class DatastoreAdapterTest {
         datastoreAdapter.storeResult(buildTask, buildResult);
 
         //then
-        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        List<BuildRecordAll> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
-        BuildRecord buildRecord = buildRecords.get(0);
+        BuildRecordAll buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
         Assert.assertEquals(repourResult.getExecutionRootName(), buildRecord.getExecutionRootName());

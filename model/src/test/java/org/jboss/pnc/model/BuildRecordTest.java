@@ -77,7 +77,7 @@ public class BuildRecordTest extends AbstractModelTest {
     public void shouldProhibitDeletionOfNonTemporaryBuild() {
         // given
         int brId = 666;
-        BuildRecord br = prepareBuildRecordBuilder()
+        BuildRecordAll br = prepareBuildRecordBuilder()
                 .id(brId)
                 .temporaryBuild(false)
                 .build();
@@ -105,7 +105,7 @@ public class BuildRecordTest extends AbstractModelTest {
     public void shouldAllowDeletionOfTemporaryBuild() {
         // given
         int brId = 666;
-        BuildRecord br = prepareBuildRecordBuilder()
+        BuildRecordAll br = prepareBuildRecordBuilder()
                 .id(brId)
                 .temporaryBuild(true)
                 .build();
@@ -123,8 +123,8 @@ public class BuildRecordTest extends AbstractModelTest {
         assertTrue(em.find(BuildRecord.class, brId) == null);
     }
 
-    private BuildRecord.Builder prepareBuildRecordBuilder() {
-        return BuildRecord.Builder.newBuilder()
+    private BuildRecordAll.Builder prepareBuildRecordBuilder() {
+        return BuildRecordAll.Builder.newBuilder()
                 .buildConfigurationAuditedId(1)
                 .buildConfigurationAuditedRev(1)
                 .submitTime(new Date())

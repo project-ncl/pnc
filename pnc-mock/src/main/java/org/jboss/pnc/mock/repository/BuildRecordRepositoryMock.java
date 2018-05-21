@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  * Time: 12:04 PM
  */
 public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
+
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
         return queryById(id);

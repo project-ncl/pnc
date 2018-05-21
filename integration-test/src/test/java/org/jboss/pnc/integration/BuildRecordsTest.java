@@ -27,7 +27,7 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.TargetRepository;
@@ -41,6 +41,7 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordAllRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
@@ -100,6 +101,9 @@ public class BuildRecordsTest {
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    private BuildRecordAllRepository buildRecordAllRepository;
 
     @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
@@ -189,7 +193,7 @@ public class BuildRecordsTest {
         assertThat(users.size() > 0).isTrue();
         User user = users.get(0);
 
-        BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
+        BuildRecordAll buildRecord1 = BuildRecordAll.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildLog("test build complete")
                 .repourLog("alignment done")
@@ -205,13 +209,13 @@ public class BuildRecordsTest {
                 .temporaryBuild(false)
                 .build();
                 
-        buildRecord1 = buildRecordRepository.save(buildRecord1);
+        buildRecord1 = buildRecordAllRepository.save(buildRecord1);
         buildRecord1Id = buildRecord1.getId();
 
         Artifact builtArtifact1FromDb = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
 
-        BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
+        BuildRecordAll buildRecord2 = BuildRecordAll.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildLog("test build complete")
                 .repourLog("alignment done")
@@ -229,11 +233,11 @@ public class BuildRecordsTest {
                 .temporaryBuild(false)
                 .build();
 
-        buildRecord2 = buildRecordRepository.save(buildRecord2);
+        buildRecord2 = buildRecordAllRepository.save(buildRecord2);
 
         buildRecord2Id = buildRecord2.getId();
 
-        BuildRecord buildRecordWithArtifacts = BuildRecord.Builder.newBuilder()
+        BuildRecordAll buildRecordWithArtifacts = BuildRecordAll.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildLog("test build completed and has some artifacts")
                 .repourLog("alignment done")
@@ -252,7 +256,7 @@ public class BuildRecordsTest {
                 .temporaryBuild(false)
                 .build();
 
-        buildRecordWithArtifacts = buildRecordRepository.save(buildRecordWithArtifacts);
+        buildRecordWithArtifacts = buildRecordAllRepository.save(buildRecordWithArtifacts);
 
         buildRecordWithArtifactsId = buildRecordWithArtifacts.getId();
 

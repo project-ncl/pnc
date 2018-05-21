@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAll;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -48,7 +49,7 @@ public class DatastoreMock implements Datastore {
 
     private Logger log = LoggerFactory.getLogger(DatastoreMock.class.getName());
 
-    private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<>());
+    private List<BuildRecordAll> buildRecords = Collections.synchronizedList(new ArrayList<>());
 
     private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<>());
     
@@ -64,8 +65,8 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
-        BuildRecord buildRecord = buildRecordBuilder.build();
+    public BuildRecord storeCompletedBuild(BuildRecordAll.Builder buildRecordBuilder) {
+        BuildRecordAll buildRecord = buildRecordBuilder.build();
         BuildConfiguration buildConfiguration = buildRecord.getBuildConfigurationAudited().getBuildConfiguration();
         log.info("Storing build " + buildConfiguration);
         synchronized (this) {
@@ -85,7 +86,7 @@ public class DatastoreMock implements Datastore {
         return user;
     }
 
-    public List<BuildRecord> getBuildRecords() {
+    public List<BuildRecordAll> getBuildRecords() {
         return new ArrayList<>(buildRecords); //avoid concurrent modification exception
     }
 
