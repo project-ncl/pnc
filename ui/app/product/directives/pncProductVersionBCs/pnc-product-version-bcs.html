@@ -26,19 +26,19 @@
 
 <table class="table table-bordered table-striped">
   <thead>
-  <th>Name</th>
+  <th>Project Name</th>
+  <th>Config</th>
   <th>Description</th>
-  <th>Project</th>
   <th>Last Executed Build</th>
   <th>Action</th>
   </thead>
   <tbody>
-  <tr ng-repeat="configuration in page.data">
+  <tr ng-repeat="configuration in page.data | orderBy:'project.name'">
+    <td>{{ configuration.project.name }}</td>
     <td>
       <a ui-sref="build-configs.detail({configurationId: configuration.id})" href>{{ configuration.name }}</a>
     </td>
     <td>{{ configuration.description }}</td>
-    <td>{{ configuration.project.name }}</td>
     <td>
       <pnc-latest-build build-config="configuration"></pnc-latest-build>
     </td>
