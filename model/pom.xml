@@ -76,11 +76,6 @@
       <artifactId>hibernate-jpa-2.1-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <scope>provided</scope>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -104,46 +99,24 @@
 
   <build>
     <plugins>
-      <!--plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
+      <plugin>
+        <groupId>org.hibernate.orm.tooling</groupId>
+        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+        <version>${version.hibenate}</version>
         <executions>
           <execution>
-            <id>Instrument domain classes</id>
             <configuration>
-              <tasks>
-                <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
-                  <classpath>
-                    <path refid="maven.dependency.classpath" />
-                    <path refid="maven.plugin.classpath" />
-                  </classpath>
-                </taskdef>
-                <instrument>
-                  <fileset dir="${project.build.outputDirectory}">
-                    <include name="org/jboss/pnc/model/**/*.class" />
-                  </fileset>
-                </instrument>
-              </tasks>
+              <failOnError>true</failOnError>
+              <enableLazyInitialization>true</enableLazyInitialization>
+              <enableDirtyTracking>false</enableDirtyTracking>
+              <enableAssociationManagement>false</enableAssociationManagement>
             </configuration>
-            <phase>process-classes</phase>
             <goals>
-                <goal>run</goal>
+              <goal>enhance</goal>
             </goals>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>4.2.0.Final</version>
-          </dependency>
-          <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.20.0-GA</version>
-          </dependency>
-        </dependencies>
-      </plugin-->
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

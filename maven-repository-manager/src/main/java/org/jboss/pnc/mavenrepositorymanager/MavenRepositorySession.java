@@ -309,14 +309,14 @@ public class MavenRepositorySession implements RepositorySession {
     private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
         TargetRepository targetRepository;
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
-            targetRepository = TargetRepository.builder()
+            targetRepository = TargetRepository.newBuilder()
                     .identifier("indy-maven")
                     .repositoryType(repoType)
                     .repositoryPath("/api/content/maven/hosted/shared-imports/")
                     .temporaryRepo(false)
                     .build();
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
-            targetRepository = TargetRepository.builder()
+            targetRepository = TargetRepository.newBuilder()
                     .identifier("indy-http")
                     .repositoryType(repoType)
                     .repositoryPath("/not-available/") //TODO set the path for http cache
@@ -337,7 +337,7 @@ public class MavenRepositorySession implements RepositorySession {
             } else {
                 groupName = UNTESTED_BUILDS_GROUP;
             }
-            targetRepository = TargetRepository.builder()
+            targetRepository = TargetRepository.newBuilder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
                     .repositoryPath("/api/content/maven/group/" + groupName)

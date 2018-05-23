@@ -39,6 +39,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
@@ -54,12 +55,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.HashSet;
@@ -98,6 +101,9 @@ public class TemporaryBuildsCleanerTest {
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
+    private ProductVersionRepository productVersionRepository;
+
+    @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
@@ -111,6 +117,12 @@ public class TemporaryBuildsCleanerTest {
 
     @Inject
     private Datastore datastore;
+
+    @Inject
+    private EntityManager entityManager;
+
+    @Inject
+    private UserTransaction transaction;
 
     private AtomicInteger nextBuildRecordId = new AtomicInteger(33444);
 
@@ -140,7 +152,8 @@ public class TemporaryBuildsCleanerTest {
     }
 
     @Before
-    public void init() {
+    public void init() throws Exception,
+            RollbackException {
         if(this.user == null)  {
             this.user = userRepository.queryAll().get(0);
             assertNotNull(this.user);
@@ -158,8 +171,12 @@ public class TemporaryBuildsCleanerTest {
         }
 
         if(this.buildConfigurationSet == null) {
+            transaction.begin(); //required to lazy load the productVersion
+            entityManager.joinTransaction();
             this.buildConfigurationSet = buildConfigurationSetRepository.queryAll().get(0);
             assertNotNull(this.buildConfigurationSet);
+            buildConfigurationSet.getProductVersion();
+            transaction.commit();
         }
     }
 
@@ -260,7 +277,7 @@ public class TemporaryBuildsCleanerTest {
         try {
             temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
         } catch (Exception ex) {
-            logger.error("Received exception.", ex);
+            logger.info("Received exception:", ex);
             if(ex.getCause().getClass().equals(PersistenceException.class)) {
                 return;
             }
@@ -317,6 +334,7 @@ public class TemporaryBuildsCleanerTest {
 
     private Artifact storeAndGetArtifact() {
         Artifact artifact = initArtifactBuilder()
+                .artifactQuality(Artifact.Quality.TEMPORARY)
                 .build();
         return artifactRepository.save(artifact);
 
@@ -325,7 +343,6 @@ public class TemporaryBuildsCleanerTest {
     private Artifact.Builder initArtifactBuilder() {
         return Artifact.Builder.newBuilder()
                         .identifier("g:a:v" + UUID.randomUUID().toString())
-                        .artifactQuality(Artifact.Quality.TEMPORARY)
                         .targetRepository(this.targetRepository)
                         .md5("md5")
                         .sha1("sha1")

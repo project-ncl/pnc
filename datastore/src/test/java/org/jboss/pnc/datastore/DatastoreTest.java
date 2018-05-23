@@ -188,7 +188,7 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
-        TargetRepository targetRepository = TargetRepository.builder()
+        TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
@@ -258,7 +258,7 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
-        TargetRepository targetRepository = TargetRepository.builder()
+        TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
@@ -266,7 +266,7 @@ public class DatastoreTest {
                 .build();
 
         String now = Instant.now().toString();
-        TargetRepository targetRepositoryTmp = TargetRepository.builder()
+        TargetRepository targetRepositoryTmp = TargetRepository.newBuilder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("temp-" + now)
                 .identifier("indy-maven")

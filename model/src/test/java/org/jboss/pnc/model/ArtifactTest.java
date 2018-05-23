@@ -102,7 +102,7 @@ public class ArtifactTest extends AbstractModelTest {
     }
 
     private void insertBasicTargetRepository() {
-        this.targetRepository = TargetRepository.builder()
+        this.targetRepository = TargetRepository.newBuilder()
                 .identifier("Indy")
                 .repositoryPath("/api")
                 .repositoryType(TargetRepository.Type.MAVEN)

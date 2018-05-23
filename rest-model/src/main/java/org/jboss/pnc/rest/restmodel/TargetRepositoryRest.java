@@ -86,8 +86,8 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
         temporaryRepo = targetRepository.getTemporaryRepo();
     }
 
-    public TargetRepository.TargetRepositoryBuilder toDBEntityBuilder() {
-        return TargetRepository.builder()
+    public TargetRepository.Builder toDBEntityBuilder() {
+        return TargetRepository.newBuilder()
                 .id(id)
                 .temporaryRepo(temporaryRepo)
                 .identifier(identifier)
