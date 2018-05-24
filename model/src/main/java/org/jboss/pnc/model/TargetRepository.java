@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -42,10 +35,6 @@ import java.util.Set;
 /**
  * Contains information related to a repository of build artifacts (i.e. Maven, NPM, etc)
  */
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "repositoryPath" }) )
 public class TargetRepository implements GenericEntity<Integer> {
@@ -55,8 +44,6 @@ public class TargetRepository implements GenericEntity<Integer> {
     public static final String SEQUENCE_NAME = "target_repository_repo_id_seq";
 
     @Id
-    @Getter
-    @Setter
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
@@ -64,8 +51,6 @@ public class TargetRepository implements GenericEntity<Integer> {
     /**
      * Flag that the repository is temporary.
      */
-    @Getter
-    @Setter
     @NotNull
     @Column(updatable=false)
     private Boolean temporaryRepo;
@@ -73,8 +58,6 @@ public class TargetRepository implements GenericEntity<Integer> {
     /**
      * Identifier to link repository configurations (eg. hostname)
      */
-    @Getter
-    @Setter
     @NotNull
     @Size(max=255)
     @Column(updatable=false)
@@ -86,8 +69,6 @@ public class TargetRepository implements GenericEntity<Integer> {
      * or "maven2" for https://repo1.maven.org/maven2/
      * or "" (empty string) when the repository content starts at root
      */
-    @Getter
-    @Setter
     @NotNull
     @Size(max=255)
     @Column(updatable=false)
@@ -98,15 +79,91 @@ public class TargetRepository implements GenericEntity<Integer> {
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
      * the format of the identifier string.
      */
-    @Getter
-    @Setter
     @NotNull
     @Column(updatable=false)
     @Enumerated(EnumType.STRING)
-    private TargetRepository.Type repositoryType;
+    private Type repositoryType;
 
     @OneToMany(mappedBy = "targetRepository")
     private Set<Artifact> artifacts;
+
+    public TargetRepository() {
+    }
+
+    private TargetRepository(Builder builder) {
+        setId(builder.id);
+        setTemporaryRepo(builder.temporaryRepo);
+        setIdentifier(builder.identifier);
+        setRepositoryPath(builder.repositoryPath);
+        setRepositoryType(builder.repositoryType);
+        setArtifacts(builder.artifacts);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Boolean getTemporaryRepo() {
+        return temporaryRepo;
+    }
+
+    public void setTemporaryRepo(Boolean temporaryRepo) {
+        this.temporaryRepo = temporaryRepo;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getRepositoryPath() {
+        return repositoryPath;
+    }
+
+    public void setRepositoryPath(String repositoryPath) {
+        this.repositoryPath = repositoryPath;
+    }
+
+    public Type getRepositoryType() {
+        return repositoryType;
+    }
+
+    public void setRepositoryType(Type repositoryType) {
+        this.repositoryType = repositoryType;
+    }
+
+    public Set<Artifact> getArtifacts() {
+        return artifacts;
+    }
+
+    public void setArtifacts(Set<Artifact> artifacts) {
+        this.artifacts = artifacts;
+    }
+
+    @Override
+    public String toString() {
+        return "TargetRepository{" +
+                "id=" + id +
+                ", temporaryRepo=" + temporaryRepo +
+                ", identifier='" + identifier + '\'' +
+                ", repositoryPath='" + repositoryPath + '\'' +
+                ", repositoryType=" + repositoryType +
+                ", artifacts=" + artifacts +
+                '}';
+    }
 
     /**
      * Types of artifact repositories
@@ -167,4 +224,55 @@ public class TargetRepository implements GenericEntity<Integer> {
         return false;
     }
 
+    public static final class Builder {
+
+        private Integer id;
+
+        private Boolean temporaryRepo;
+
+        private String identifier;
+
+        private String repositoryPath;
+
+        private Type repositoryType;
+
+        private Set<Artifact> artifacts;
+
+        private Builder() {
+        }
+
+        public Builder id(Integer val) {
+            id = val;
+            return this;
+        }
+
+        public Builder temporaryRepo(Boolean val) {
+            temporaryRepo = val;
+            return this;
+        }
+
+        public Builder identifier(String val) {
+            identifier = val;
+            return this;
+        }
+
+        public Builder repositoryPath(String val) {
+            repositoryPath = val;
+            return this;
+        }
+
+        public Builder repositoryType(Type val) {
+            repositoryType = val;
+            return this;
+        }
+
+        public Builder artifacts(Set<Artifact> val) {
+            artifacts = val;
+            return this;
+        }
+
+        public TargetRepository build() {
+            return new TargetRepository(this);
+        }
+    }
 }

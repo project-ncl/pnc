@@ -17,12 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
@@ -42,10 +36,6 @@ import javax.persistence.Table;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(indexes = {@Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id")})
 public class BuildRecordPushResult implements GenericEntity<Integer> {
@@ -55,23 +45,15 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     @Id
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
-    @Getter
-    @Setter
     private Integer id;
 
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecordpushresult_buildrecord"))
     @ManyToOne
-    @Getter
-    @Setter
     private BuildRecord buildRecord;
 
-    @Getter
-    @Setter
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Getter
-    @Setter
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String log;
@@ -79,22 +61,163 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     /**
      * build id assigned by brew
      */
-    @Getter
-    @Setter
     private Integer brewBuildId;
 
     /**
      * link to brew
      */
-    @Getter
-    @Setter
     private String brewBuildUrl;
 
-    @Getter
-    @Setter
     private String tagPrefix;
+
+    public BuildRecordPushResult() {
+    }
+
+    private BuildRecordPushResult(Builder builder) {
+        setId(builder.id);
+        setBuildRecord(builder.buildRecord);
+        setStatus(builder.status);
+        setLog(builder.log);
+        setBrewBuildId(builder.brewBuildId);
+        setBrewBuildUrl(builder.brewBuildUrl);
+        setTagPrefix(builder.tagPrefix);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
 
     public enum Status {
         SUCCESS, FAILED, SYSTEM_ERROR, CANCELED;
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public BuildRecord getBuildRecord() {
+        return buildRecord;
+    }
+
+    public void setBuildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getLog() {
+        return log;
+    }
+
+    public void setLog(String log) {
+        this.log = log;
+    }
+
+    public Integer getBrewBuildId() {
+        return brewBuildId;
+    }
+
+    public void setBrewBuildId(Integer brewBuildId) {
+        this.brewBuildId = brewBuildId;
+    }
+
+    public String getBrewBuildUrl() {
+        return brewBuildUrl;
+    }
+
+    public void setBrewBuildUrl(String brewBuildUrl) {
+        this.brewBuildUrl = brewBuildUrl;
+    }
+
+    public String getTagPrefix() {
+        return tagPrefix;
+    }
+
+    public void setTagPrefix(String tagPrefix) {
+        this.tagPrefix = tagPrefix;
+    }
+
+    @Override
+    public String toString() {
+        return "BuildRecordPushResult{" +
+                "id=" + id +
+                ", buildRecord=" + buildRecord +
+                ", status=" + status +
+                ", log='" + log + '\'' +
+                ", brewBuildId=" + brewBuildId +
+                ", brewBuildUrl='" + brewBuildUrl + '\'' +
+                ", tagPrefix='" + tagPrefix + '\'' +
+                '}';
+    }
+
+    public static final class Builder {
+
+        private Integer id;
+
+        private BuildRecord buildRecord;
+
+        private Status status;
+
+        private String log;
+
+        private Integer brewBuildId;
+
+        private String brewBuildUrl;
+
+        private String tagPrefix;
+
+        private Builder() {
+        }
+
+        public Builder id(Integer val) {
+            id = val;
+            return this;
+        }
+
+        public Builder buildRecord(BuildRecord val) {
+            buildRecord = val;
+            return this;
+        }
+
+        public Builder status(Status val) {
+            status = val;
+            return this;
+        }
+
+        public Builder log(String val) {
+            log = val;
+            return this;
+        }
+
+        public Builder brewBuildId(Integer val) {
+            brewBuildId = val;
+            return this;
+        }
+
+        public Builder brewBuildUrl(String val) {
+            brewBuildUrl = val;
+            return this;
+        }
+
+        public Builder tagPrefix(String val) {
+            tagPrefix = val;
+            return this;
+        }
+
+        public BuildRecordPushResult build() {
+            return new BuildRecordPushResult(this);
+        }
     }
 }

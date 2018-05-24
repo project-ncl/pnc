@@ -17,17 +17,22 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.ToString;
 import org.hibernate.validator.constraints.Email;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The Class User maps the user that triggered the builds, and are linked to the BuildRecord
@@ -74,7 +79,7 @@ public class User implements GenericEntity<Integer> {
     private String username;
 
     @OneToMany(mappedBy = "user")
-    private List<BuildRecord> buildRecords;
+    private Set<BuildRecord> buildRecords;
 
     /**
      * Instantiates a new user.
@@ -179,7 +184,7 @@ public class User implements GenericEntity<Integer> {
      *
      * @return the project build record
      */
-    public List<BuildRecord> getBuildRecords() {
+    public Set<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
 
@@ -188,7 +193,7 @@ public class User implements GenericEntity<Integer> {
      *
      * @param buildRecords the new project build record
      */
-    public void setBuildRecords(List<BuildRecord> buildRecords) {
+    public void setBuildRecords(Set<BuildRecord> buildRecords) {
         this.buildRecords = buildRecords;
     }
 
@@ -277,10 +282,10 @@ public class User implements GenericEntity<Integer> {
 
         private String username;
 
-        private List<BuildRecord> buildRecords;
+        private Set<BuildRecord> buildRecords;
 
         private Builder() {
-            buildRecords = new ArrayList<>();
+            buildRecords = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -335,7 +340,7 @@ public class User implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildRecords(List<BuildRecord> buildRecords) {
+        public Builder buildRecords(Set<BuildRecord> buildRecords) {
             this.buildRecords = buildRecords;
             return this;
         }

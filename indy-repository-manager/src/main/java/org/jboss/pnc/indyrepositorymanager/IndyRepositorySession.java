@@ -320,7 +320,7 @@ public class IndyRepositorySession implements RepositorySession {
                     + " is not supported by Indy repo manager driver.");
         }
 
-        return TargetRepository.builder()
+        return TargetRepository.newBuilder()
                 .identifier(identifier)
                 .repositoryType(repoType)
                 .repositoryPath(repoPath)
@@ -345,7 +345,7 @@ public class IndyRepositorySession implements RepositorySession {
         }
 
         String repoPath = content.contentPath(storeKey);
-        return TargetRepository.builder()
+        return TargetRepository.newBuilder()
                 .identifier(identifier)
                 .repositoryType(repoType)
                 .repositoryPath(repoPath)

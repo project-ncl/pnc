@@ -430,7 +430,7 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
 
-        TargetRepository targetRepository = TargetRepository.builder()
+        TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(TargetRepository.Type.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")

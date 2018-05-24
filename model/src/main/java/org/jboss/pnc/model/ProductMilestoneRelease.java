@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
@@ -41,8 +39,6 @@ import java.util.Date;
  * Date: 8/30/16
  * Time: 12:57 PM
  */
-@Getter
-@Setter
 @Entity
 public class ProductMilestoneRelease implements GenericEntity<Integer> {
     public static final String SEQUENCE_NAME = "product_milestone_release_id_seq";
@@ -68,4 +64,54 @@ public class ProductMilestoneRelease implements GenericEntity<Integer> {
     private Date startingDate;
 
     private Date endDate;
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public ProductMilestone getMilestone() {
+        return milestone;
+    }
+
+    public void setMilestone(ProductMilestone milestone) {
+        this.milestone = milestone;
+    }
+
+    public MilestoneReleaseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MilestoneReleaseStatus status) {
+        this.status = status;
+    }
+
+    public String getLog() {
+        return log;
+    }
+
+    public void setLog(String log) {
+        this.log = log;
+    }
+
+    public Date getStartingDate() {
+        return startingDate;
+    }
+
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 }

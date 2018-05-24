@@ -17,8 +17,7 @@
  */
 package org.jboss.pnc.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
@@ -43,9 +42,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.PersistenceException;
 import javax.persistence.PreRemove;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -94,12 +93,10 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Transient
     private BuildConfigurationAudited buildConfigurationAudited;
 
-    @Getter
     @NotNull
     @Column(name = "buildconfiguration_id", updatable = false)
     private Integer buildConfigurationId;
 
-    @Getter
     @NotNull
     @Column(name = "buildconfiguration_rev", updatable = false)
     private Integer buildConfigurationRev;
@@ -108,8 +105,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(updatable = false)
     private String buildContentId;
 
-    @Getter
-    @Setter
     @NotNull
     @Column(updatable = false)
     private boolean temporaryBuild;
@@ -162,21 +157,16 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Basic(fetch = FetchType.LAZY)
+    @LazyGroup("buildLog")
     @Column(updatable = false)
     private String buildLog;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
     private String buildLogMd5;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
     private String buildLogSha256;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
     private Integer buildLogSize;
 
@@ -184,14 +174,10 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(updatable = false)
     private BuildStatus status;
 
-    @Getter
-    @Setter
     @Size(max=150)
     @Column(updatable = false)
     private String sshCommand;
 
-    @Getter
-    @Setter
     @Size(max=64)
     @Column(updatable = false)
     private String sshPassword;
@@ -202,8 +188,6 @@ public class BuildRecord implements GenericEntity<Integer> {
      * This information comes from Repour/PME and has to be stored in the build record
      * to be used in the release process.
      */
-    @Getter
-    @Setter
     @Size(max=255)
     @Column(updatable = false)
     private String executionRootName;
@@ -212,8 +196,6 @@ public class BuildRecord implements GenericEntity<Integer> {
      * See {@link BuildRecord#executionRootName}.
      * Contains corresponding version.
      */
-    @Getter
-    @Setter
     @Size(max=100)
     @Column(updatable = false)
     private String executionRootVersion;
@@ -308,27 +290,20 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Basic(fetch = FetchType.LAZY)
+    @LazyGroup("repourLog")
     @Column(updatable = false)
     private String repourLog;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
     private String repourLogMd5;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
     private String repourLogSha256;
 
-    @Getter
-    @Setter(onMethod=@__({@Deprecated})) //for internal use only
     @Column(updatable = false)
     private Integer repourLogSize;
 
     @OneToMany(mappedBy = "buildRecord")
-    @Getter
-    @Setter
     private Set<BuildRecordPushResult> buildRecordPushResults;
 
     /**
@@ -648,6 +623,110 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void removeAttribute(String key) {
         attributes.remove(key);
+    }
+
+    public Integer getBuildConfigurationId() {
+        return buildConfigurationId;
+    }
+
+    public Integer getBuildConfigurationRev() {
+        return buildConfigurationRev;
+    }
+
+    public boolean isTemporaryBuild() {
+        return temporaryBuild;
+    }
+
+    public void setTemporaryBuild(boolean temporaryBuild) {
+        this.temporaryBuild = temporaryBuild;
+    }
+
+    public String getBuildLogMd5() {
+        return buildLogMd5;
+    }
+
+    public void setBuildLogMd5(String buildLogMd5) {
+        this.buildLogMd5 = buildLogMd5;
+    }
+
+    public String getBuildLogSha256() {
+        return buildLogSha256;
+    }
+
+    public void setBuildLogSha256(String buildLogSha256) {
+        this.buildLogSha256 = buildLogSha256;
+    }
+
+    public Integer getBuildLogSize() {
+        return buildLogSize;
+    }
+
+    public void setBuildLogSize(Integer buildLogSize) {
+        this.buildLogSize = buildLogSize;
+    }
+
+    public String getSshCommand() {
+        return sshCommand;
+    }
+
+    public void setSshCommand(String sshCommand) {
+        this.sshCommand = sshCommand;
+    }
+
+    public String getSshPassword() {
+        return sshPassword;
+    }
+
+    public void setSshPassword(String sshPassword) {
+        this.sshPassword = sshPassword;
+    }
+
+    public String getExecutionRootName() {
+        return executionRootName;
+    }
+
+    public void setExecutionRootName(String executionRootName) {
+        this.executionRootName = executionRootName;
+    }
+
+    public String getExecutionRootVersion() {
+        return executionRootVersion;
+    }
+
+    public void setExecutionRootVersion(String executionRootVersion) {
+        this.executionRootVersion = executionRootVersion;
+    }
+
+    public String getRepourLogMd5() {
+        return repourLogMd5;
+    }
+
+    public void setRepourLogMd5(String repourLogMd5) {
+        this.repourLogMd5 = repourLogMd5;
+    }
+
+    public String getRepourLogSha256() {
+        return repourLogSha256;
+    }
+
+    public void setRepourLogSha256(String repourLogSha256) {
+        this.repourLogSha256 = repourLogSha256;
+    }
+
+    public Integer getRepourLogSize() {
+        return repourLogSize;
+    }
+
+    public void setRepourLogSize(Integer repourLogSize) {
+        this.repourLogSize = repourLogSize;
+    }
+
+    public Set<BuildRecordPushResult> getBuildRecordPushResults() {
+        return buildRecordPushResults;
+    }
+
+    public void setBuildRecordPushResults(Set<BuildRecordPushResult> buildRecordPushResults) {
+        this.buildRecordPushResults = buildRecordPushResults;
     }
 
     private static void setBuildConfigurationAuditedIfValid(
