@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class TermdRunningBuild implements RunningBuild {
@@ -36,7 +34,6 @@ public class TermdRunningBuild implements RunningBuild {
     private final RunningEnvironment runningEnvironment;
     private final BuildExecutionConfiguration buildExecutionConfiguration;
 
-    private BuildAgentClient buildAgentClient;
     private Consumer<CompletedBuild> onComplete;
     private Consumer<Throwable> onError;
 
@@ -92,14 +89,6 @@ public class TermdRunningBuild implements RunningBuild {
 
     public String getScmRevision() {
         return buildExecutionConfiguration.getScmRevision();
-    }
-
-    public void setBuildAgentClient(BuildAgentClient buildAgentClient) {
-        this.buildAgentClient = buildAgentClient;
-    }
-
-    public Optional<BuildAgentClient> getBuildAgentClient() {
-        return Optional.ofNullable(buildAgentClient);
     }
 
     public synchronized void setCancelHook(Runnable cancelHook) {

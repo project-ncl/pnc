@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+
 public class Notification {
 
     private final String exceptionMessage;
@@ -29,6 +34,22 @@ public class Notification {
         this.exceptionMessage = exceptionMessage;
         this.payload = payload;
         this.eventType = eventType;
+    }
+
+    public Notification(String serialized) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree(serialized);
+        String eventTypeString = node.get("eventType").asText();
+        EventType eventType = EventType.valueOf(eventTypeString);
+
+        BuildChangedPayload buildStatusUpdate = null;
+        if (EventType.BUILD_STATUS_CHANGED.equals(eventType)) {
+            buildStatusUpdate = objectMapper.convertValue(node.get("payload"), BuildChangedPayload.class);
+        }
+
+        this.exceptionMessage = null;
+        this.eventType = eventType;
+        this.payload = buildStatusUpdate;
     }
 
     public String getExceptionMessage() {
