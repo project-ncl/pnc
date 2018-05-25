@@ -73,10 +73,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     private Set<Consumer<StatusUpdateEvent>> statusUpdateConsumers = new HashSet<>();
 
-    private Consumer<StatusUpdateEvent> onStatusUpdate = (status) -> {
-        statusUpdateConsumers.forEach(consumer -> consumer.accept(status));
-    };
-
     @Deprecated
     public TermdBuildDriver() {
     }
@@ -162,7 +158,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
             completedFuture.handle((status, exception) -> {
                 termdRunningBuild.setCancelHook(null);
-                return complete(termdRunningBuild, remoteInvocation.buildAgentClient, status, exception);
+                closeBuildAgentClient(remoteInvocation);
+                return complete(termdRunningBuild, status, exception);
             });
 
 
@@ -179,6 +176,21 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             logger.debug("Skipping script uploading (cancel flag) ...");
         }
         return termdRunningBuild;
+    }
+
+    private void closeBuildAgentClient(RemoteInvocation remoteInvocation) {
+        BuildAgentClient buildAgentClient = remoteInvocation.buildAgentClient;
+        if (buildAgentClient != null) {
+            try {
+                logger.debug("Closing build agent client.");
+                buildAgentClient.close();
+                remoteInvocation.buildAgentClient = null; //make sure there is no reference left
+            } catch (IOException e) {
+                logger.error("Cannot close build agent connections.", e);
+            }
+        } else {
+            //cancel has been requested
+        }
     }
 
     private Supplier<String> uploadTask(RunningEnvironment runningEnvironment, String command) {
@@ -332,17 +344,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private Void complete(TermdRunningBuild termdRunningBuild, BuildAgentClient buildAgentClient, Status status, Throwable throwable) {
-        if (buildAgentClient != null) {
-            try {
-                buildAgentClient.close();
-            } catch (IOException e) {
-                logger.error("Cannot close build agent connections.", e);
-            }
-        } else {
-            //cancel has been requested
-        }
-
+    private Void complete(TermdRunningBuild termdRunningBuild, Status status, Throwable throwable) {
         boolean isCancelled = false;
         if(throwable != null) {
             isCancelled = CancellationException.class.equals(throwable.getCause().getClass());
