@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.api.ResponseMode;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
@@ -50,7 +51,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -227,7 +227,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 logger.info("Invoking remote command {}.", command);
                 buildAgentClient.executeCommand(command);
                 logger.debug("Remote command invoked.");
-            } catch (TimeoutException | BuildAgentClientException e) {
+            } catch (BuildAgentClientException e) {
                 throw new RuntimeException("Cannot execute remote command.", e);
             }
         }
@@ -235,7 +235,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         void cancel(String buildName) {
             try {
                 logger.info("Canceling running build {}.", buildName);
-                buildAgentClient.executeNow('C' - 64); //send ctrl+C
+                buildAgentClient.execute('C' - 64); //send ctrl+C
             } catch (BuildAgentClientException e) {
                 completionNotifier.completeExceptionally(new BuildDriverException("Cannot cancel remote script.", e));
             }
@@ -276,7 +276,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             BuildAgentClient client = maybeClient.get();
             try {
                 client.executeCommand("/usr/local/bin/startSshd.sh");
-            } catch (TimeoutException | BuildAgentClientException e) {
+            } catch (BuildAgentClientException e) {
                 logger.error("Failed to enable ssh access", e);
             }
         } else {
@@ -292,10 +292,13 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         try {
             BuildAgentClient buildAgentClient = null;
             String terminalUrl = getBuildAgentUrl(runningEnvironment);
-            buildAgentClient = new BuildAgentClient(terminalUrl.replace("http://", "ws://"),
+            buildAgentClient = new BuildAgentClient(
+                    terminalUrl.replace("http://", "ws://"),
                     Optional.empty(),
                     onStatusUpdate,
-                    "");
+                    "",
+                    ResponseMode.SILENT,
+                    false);
             remoteInvocation.setScriptPath(scriptPath);
             remoteInvocation.setBuildAgentClient(buildAgentClient);
             return null;
