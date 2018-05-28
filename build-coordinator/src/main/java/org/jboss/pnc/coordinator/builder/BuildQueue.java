@@ -194,11 +194,9 @@ public class BuildQueue {
      * @return list of all build tasks in the queue
      */
     public synchronized List<BuildTask> getSubmittedBuildTasks() {
-        ArrayList<BuildTask> result = new ArrayList<>();
-        result.addAll(waitingTasksWithCallbacks.keySet());
-        result.addAll(readyTasks);
-        result.addAll(tasksInProgress);
-        return result;
+
+        return new ArrayList<>(unfinishedTasks);
+
     }
 
     public BuildTask take() throws InterruptedException {
