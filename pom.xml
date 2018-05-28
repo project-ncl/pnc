@@ -1396,6 +1396,17 @@
       </snapshots>
     </repository>
 
+    <repository>
+      <id>jboss-snapshots</id>
+      <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+
   </repositories>
 
   <profiles>
