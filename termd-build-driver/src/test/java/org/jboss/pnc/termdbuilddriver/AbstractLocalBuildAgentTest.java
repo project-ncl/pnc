@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.server.BuildAgent;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.junit.AfterClass;
@@ -37,7 +36,8 @@ import static org.mockito.Mockito.when;
 
 public class AbstractLocalBuildAgentTest {
 
-    protected static BuildAgent localBuildAgent;
+    private static final String BIND_HOST = "127.0.0.1";
+
     private static Path workingDirectory;
     protected RunningEnvironment localEnvironmentPointer;
 
@@ -51,8 +51,7 @@ public class AbstractLocalBuildAgentTest {
     public static void beforeClass() throws Exception {
         workingDirectory = Files.createTempDirectory("termd-build-agent");
         workingDirectory.toFile().deleteOnExit();
-
-        localBuildAgent = TermdServer.startServer("127.0.0.1", 0, "", Optional.of(workingDirectory));
+        TermdServer.startServer(BIND_HOST, 0, "", Optional.of(workingDirectory));
     }
 
     @AfterClass
@@ -62,11 +61,11 @@ public class AbstractLocalBuildAgentTest {
 
     @Before
     public void beforeAbstract() throws Exception {
-        baseBuildAgentUri = new URI("http://" + localBuildAgent.getHost() + ":" + localBuildAgent.getPort() + "/");
+        baseBuildAgentUri = new URI("http://" + BIND_HOST + ":" + TermdServer.getPort() + "/");
 
         localEnvironmentPointer = mock(RunningEnvironment.class);
         when(localEnvironmentPointer.getId()).thenReturn("test");
-        when(localEnvironmentPointer.getBuildAgentPort()).thenReturn(localBuildAgent.getPort());
+        when(localEnvironmentPointer.getBuildAgentPort()).thenReturn(TermdServer.getPort());
         when(localEnvironmentPointer.getBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getInternalBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getWorkingDirectory()).thenReturn(workingDirectory);
