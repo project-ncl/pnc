@@ -90,6 +90,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private BuildTasksInitializer buildTasksInitializer;
 
+    // Lock so that only one build method is active at any time
+    private final Object buildMethodLock = new Object();
+
 
     @Deprecated
     public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -123,27 +126,31 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildSetTask build(BuildConfiguration buildConfiguration,
                            User user, BuildOptions buildOptions) throws BuildConflictException, CoreException {
 
-        if (buildQueue.getUnfinishedTask(buildConfiguration).isPresent()) {
-            throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
+        synchronized (buildMethodLock) {
+
+            if (buildQueue.getUnfinishedTask(buildConfiguration).isPresent()) {
+                throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
+            }
+
+            BuildSetTask buildSetTask =
+                    buildTasksInitializer.createBuildSetTask(
+                            buildConfiguration,
+                            user,
+                            buildOptions,
+                            this::buildRecordIdSupplier,
+                            buildQueue.getUnfinishedTasks());
+
+            buildQueue.enqueueTaskSet(buildSetTask);
+            List<BuildTask> readyTasks = buildSetTask.getBuildTasks().stream().filter(BuildTask::readyToBuild).collect(Collectors.toList());
+            List<BuildTask> waitingTasks = new ArrayList<>(buildSetTask.getBuildTasks());
+            waitingTasks.removeAll(readyTasks);
+
+            waitingTasks.forEach(this::addTaskToBuildQueue);
+            readyTasks.forEach(this::addTaskToBuildQueue);
+
+            return buildSetTask;
+
         }
-
-        BuildSetTask buildSetTask =
-                buildTasksInitializer.createBuildSetTask(
-                        buildConfiguration,
-                        user,
-                        buildOptions,
-                        this::buildRecordIdSupplier,
-                        buildQueue.getUnfinishedTasks());
-
-        buildQueue.enqueueTaskSet(buildSetTask);
-        List<BuildTask> readyTasks = buildSetTask.getBuildTasks().stream().filter(BuildTask::readyToBuild).collect(Collectors.toList());
-        List<BuildTask> waitingTasks = new ArrayList<>(buildSetTask.getBuildTasks());
-        waitingTasks.removeAll(readyTasks);
-
-        waitingTasks.forEach(this::addTaskToBuildQueue);
-        readyTasks.forEach(this::addTaskToBuildQueue);
-
-        return buildSetTask;
     }
 
     private Integer buildRecordIdSupplier() {
@@ -202,11 +209,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void build(BuildSetTask buildSetTask) {
-        if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
-            buildQueue.enqueueTaskSet(buildSetTask);
-            buildSetTask.getBuildTasks().stream()
-                    .filter(this::rejectAlreadySubmitted)
-                    .forEach(this::addTaskToBuildQueue);
+
+        synchronized (buildMethodLock) {
+
+            if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
+                buildQueue.enqueueTaskSet(buildSetTask);
+                buildSetTask.getBuildTasks().stream()
+                        .filter(this::rejectAlreadySubmitted)
+                        .forEach(this::addTaskToBuildQueue);
+            }
+
         }
     }
 
