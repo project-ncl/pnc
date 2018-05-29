@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.server.BuildAgent;
 import org.jboss.pnc.buildagent.server.BuildAgentException;
+import org.jboss.pnc.buildagent.server.BuildAgentServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -38,6 +39,8 @@ public class TermdServer {
     private static Thread serverThread;
 
     private static final Logger log = LoggerFactory.getLogger(TermdServer.class);
+
+    private final static AtomicReference<Integer> runningPort = new AtomicReference<>();
 
     public static int getNextPort() {
         return port_pool.getAndIncrement();
@@ -52,17 +55,19 @@ public class TermdServer {
      * @param port
      * @param bindPath
      */
-    public static BuildAgent startServer(String host, int port, String bindPath, Optional<Path> logFolder) throws InterruptedException {
+    public static void startServer(String host, int port, String bindPath, Optional<Path> logFolder)
+            throws InterruptedException, BuildAgentException {
         Semaphore mutex = new Semaphore(1);
         Runnable onStart = () ->  {
             log.info("Server started.");
             mutex.release();
         };
         mutex.acquire();
-        BuildAgent buildAgent = new BuildAgent();
+
         serverThread = new Thread(() -> {
             try {
-                buildAgent.start(host, port, bindPath, logFolder, onStart);
+                BuildAgentServer buildAgent = new BuildAgentServer("127.0.0.1", 0, "", logFolder, onStart);
+                runningPort.set(buildAgent.getPort());
             } catch (BuildAgentException e) {
                 throw new RuntimeException("Cannot start build agent.", e);
             }
@@ -70,7 +75,14 @@ public class TermdServer {
         serverThread.start();
 
         mutex.acquire(); //wait to start the server
-        return buildAgent;
+    }
+
+    public static AtomicInteger getPort_pool() {
+        return port_pool;
+    }
+
+    public static Integer getPort() {
+        return runningPort.get();
     }
 
     public static void stopServer() {

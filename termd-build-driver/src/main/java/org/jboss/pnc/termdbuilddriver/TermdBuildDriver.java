@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.api.ResponseMode;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
@@ -35,25 +36,22 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.termdbuilddriver.transfer.TermdFileTranser;
-import org.jboss.pnc.termdbuilddriver.transfer.TransferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
 import static org.jboss.pnc.buildagent.api.Status.FAILED;
@@ -73,10 +71,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     private ExecutorService executor;
 
     private Set<Consumer<StatusUpdateEvent>> statusUpdateConsumers = new HashSet<>();
-
-    private Consumer<StatusUpdateEvent> onStatusUpdate = (status) -> {
-        statusUpdateConsumers.forEach(consumer -> consumer.accept(status));
-    };
 
     @Deprecated
     public TermdBuildDriver() {
@@ -111,7 +105,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             Consumer<Throwable> onError)
             throws BuildDriverException {
 
-        logger.info("[{}] Starting build for Build Execution Session {}", runningEnvironment.getId(), buildExecutionSession.getId());
+        logger.info("[{}] Starting build for Build Execution Session {}",
+                runningEnvironment.getId(),
+                buildExecutionSession.getId());
+
+        String runningName = buildExecutionSession.getBuildExecutionConfiguration().getName();
 
         TermdRunningBuild termdRunningBuild = new TermdRunningBuild(
                 runningEnvironment,
@@ -122,117 +120,86 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         DebugData debugData = runningEnvironment.getDebugData();
         String buildScript = prepareBuildScript(termdRunningBuild, debugData);
 
-        uploadScript(termdRunningBuild, buildScript)
-                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, debugData), executor)
-                //no cancellation after this point ... collecting partial results
-                .thenComposeAsync(status -> collectResults(termdRunningBuild, status), executor)
-                .handle((completedBuild, exception) -> complete(termdRunningBuild, completedBuild, exception));
+        if (!termdRunningBuild.isCanceled()) {
 
+            final RemoteInvocation remoteInvocation = new RemoteInvocation();
+
+            Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
+                final org.jboss.pnc.buildagent.api.Status newStatus;
+                if (remoteInvocation.isCanceled() && event.getNewStatus().equals(FAILED)) {
+                    newStatus = INTERRUPTED; //TODO fix returned status and remove this workaround
+                } else {
+                    newStatus = event.getNewStatus();
+                }
+                logger.debug("Driver received new status update {}.", newStatus);
+                statusUpdateConsumers.forEach(consumer -> consumer.accept(new StatusUpdateEvent(newStatus)));
+                if (newStatus.isFinal()) {
+                    logger.debug("Script completionNotifier completed with status {}.", newStatus);
+                    if (newStatus == org.jboss.pnc.buildagent.api.Status.FAILED && debugData.isEnableDebugOnFailure()) {
+                        debugData.setDebugEnabled(true);
+                        enableSsh(Optional.ofNullable(remoteInvocation.getBuildAgentClient()));
+                    }
+                    remoteInvocation.notifyCompleted(newStatus);
+                }
+            };
+
+            CompletableFuture<String> uploadFuture = CompletableFuture.supplyAsync(uploadTask(termdRunningBuild.getRunningEnvironment(),
+                    buildScript), executor);
+            CompletableFuture<Void> setClientFuture = uploadFuture.thenApplyAsync(scriptPath ->
+                    createBuildAgentClient(remoteInvocation,
+                            termdRunningBuild.getRunningEnvironment(),
+                            scriptPath,
+                            onStatusUpdate), executor);
+            CompletableFuture<Void> invokeFuture = setClientFuture
+                    .thenApplyAsync(nul -> invokeRemoteScript(remoteInvocation), executor);
+
+            CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
+
+            buildCompletedFuture.handleAsync((status, exception) -> {
+                termdRunningBuild.setCancelHook(null);
+                remoteInvocation.close();
+                return complete(termdRunningBuild, status, exception);
+            }, executor);
+
+
+            termdRunningBuild.setCancelHook(() -> {
+                uploadFuture.cancel(true);
+                setClientFuture.cancel(true);
+                if (remoteInvocation.getBuildAgentClient() != null) {
+                    remoteInvocation.cancel(runningName);
+                }
+                invokeFuture.cancel(false);
+            });
+
+        } else {
+            logger.debug("Skipping script uploading (cancel flag) ...");
+        }
         return termdRunningBuild;
     }
 
-    private CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, String command) {
-        CompletableFuture<String> result = new CompletableFuture<>();
-
-        Runnable task = () -> {
+    private Supplier<String> uploadTask(RunningEnvironment runningEnvironment, String command) {
+        return () -> {
             try {
-                if (termdRunningBuild.isCanceled()) {
-                    logger.debug("Skipping script uploading (cancel flag) ...");
-                    result.complete("");
-                    return;
-                }
+                logger.debug("[{}] Uploading script ...", runningEnvironment.getId());
+                logger.debug("[{}] Full script:\n {}", runningEnvironment.getId(), command);
 
-                logger.debug("[{}] Uploading script ...", termdRunningBuild.getRunningEnvironment().getId());
-                logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), command);
-
-                try {
-                    new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)), MAX_LOG_SIZE).uploadScript(command,
-                            Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(),
-                                    "run.sh"));
-                } catch (TransferException e) {
-                    result.completeExceptionally(e);
-                }
+                new TermdFileTranser(URI.create(getBuildAgentUrl(runningEnvironment)), MAX_LOG_SIZE).uploadScript(command,
+                        Paths.get(runningEnvironment.getWorkingDirectory().toAbsolutePath().toString(),
+                                "run.sh"));
 
                 String scriptPath =
-                        termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
-                result.complete(scriptPath);
+                        runningEnvironment.getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
+                return scriptPath;
             } catch (Throwable e ) {
                 logger.warn("Caught unhandled exception.", e);
+                throw new RuntimeException("Unable to upload script.", e);
             }
         };
-
-        Future<?> taskFuture = executor.submit(task);
-        Runnable cancel = () -> {
-            logger.info("Cancelling script upload ...");
-            logger.debug("taskFuture.isDone: {}.", taskFuture.isDone());
-            boolean canceled = taskFuture.cancel(true);
-            if (canceled) { //if not canceled, it should be completed
-                result.complete("");
-            }
-            logger.debug("taskFuture.isDone: {}; taskFuture.isCanceled: {}.", taskFuture.isDone(), taskFuture.isCancelled());
-        };
-
-        termdRunningBuild.setCancelHook(cancel);
-
-        return result;
     }
 
-    private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(
-            TermdRunningBuild termdRunningBuild,
-            String scriptPath,
-            DebugData debugData) {
-
-        CompletableFuture<org.jboss.pnc.buildagent.api.Status> invocation = new CompletableFuture<>();
-
-        if (termdRunningBuild.isCanceled()) {
-            logger.debug("Skipping remote script invocation (cancel flag) ...");
-            invocation.complete(INTERRUPTED);
-            return invocation;
-        }
-        logger.debug("Invoking remote script ...");
-
-        Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
-            final org.jboss.pnc.buildagent.api.Status newStatus;
-            if (termdRunningBuild.isCanceled() && event.getNewStatus().equals(FAILED) ) {
-                newStatus = INTERRUPTED; //TODO fix returned status and remove this workaround
-            } else {
-                newStatus = event.getNewStatus();
-            }
-            logger.debug("Driver received new status update {}.", newStatus);
-            statusUpdateConsumers.forEach(consumer -> consumer.accept(new StatusUpdateEvent(termdRunningBuild, newStatus)));
-            if (newStatus.isFinal()) {
-                logger.debug("Script invocation completed with status {}.", newStatus);
-                if (newStatus == org.jboss.pnc.buildagent.api.Status.FAILED && debugData.isEnableDebugOnFailure()) {
-                    debugData.setDebugEnabled(true);
-                    enableSsh(termdRunningBuild);
-                }
-                invocation.complete(newStatus);
-            }
-        };
-
-        BuildAgentClient buildAgentClient = createBuildAgentClient(termdRunningBuild, invocation, onStatusUpdate);
-
-        termdRunningBuild.setBuildAgentClient(buildAgentClient);
-
-        try {
-            String command = "sh " + scriptPath;
-            logger.info("Invoking remote command {}.", command);
-            buildAgentClient.executeCommand(command);
-            logger.debug("Remote command invoked.");
-        } catch (TimeoutException | BuildAgentClientException e) {
-            invocation.completeExceptionally(new BuildDriverException("Cannot execute remote script.", e));
-        }
-
-        termdRunningBuild.setCancelHook(() -> {
-            try {
-                logger.info("Canceling running build {}.", termdRunningBuild.getName());
-                buildAgentClient.executeNow('C' - 64); //send ctrl+C
-            } catch (BuildAgentClientException e) {
-                invocation.completeExceptionally(new BuildDriverException("Cannot cancel remote script.", e));
-            }
-        });
-
-        return invocation;
+    private Void invokeRemoteScript(RemoteInvocation remoteInvocation) {
+        remoteInvocation.invoke();
+        return null;
     }
 
     public boolean addStatusUpdateConsumer(Consumer<StatusUpdateEvent> consumer) {
@@ -243,13 +210,12 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return statusUpdateConsumers.remove(consumer);
     }
 
-    private void enableSsh(TermdRunningBuild termd) {
-        Optional<BuildAgentClient> maybeClient = termd.getBuildAgentClient();
+    private void enableSsh(Optional<BuildAgentClient> maybeClient) {
         if (maybeClient.isPresent()) {
             BuildAgentClient client = maybeClient.get();
             try {
                 client.executeCommand("/usr/local/bin/startSshd.sh");
-            } catch (TimeoutException | BuildAgentClientException e) {
+            } catch (BuildAgentClientException e) {
                 logger.error("Failed to enable ssh access", e);
             }
         } else {
@@ -257,35 +223,40 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private BuildAgentClient createBuildAgentClient(TermdRunningBuild termdRunningBuild, CompletableFuture<Status> invocation, Consumer<TaskStatusUpdateEvent> onStatusUpdate) {
-        BuildAgentClient buildAgentClient = null;
+    private Void createBuildAgentClient(
+            RemoteInvocation remoteInvocation,
+            RunningEnvironment runningEnvironment,
+            String scriptPath,
+            Consumer<TaskStatusUpdateEvent> onStatusUpdate) {
         try {
-            String terminalUrl = getBuildAgentUrl(termdRunningBuild);
-            buildAgentClient = new BuildAgentClient(terminalUrl.replace("http://", "ws://"), Optional.empty(), onStatusUpdate, "");
+            BuildAgentClient buildAgentClient = null;
+            String terminalUrl = getBuildAgentUrl(runningEnvironment);
+            buildAgentClient = new BuildAgentClient(
+                    terminalUrl.replace("http://", "ws://"),
+                    Optional.empty(),
+                    onStatusUpdate,
+                    "",
+                    ResponseMode.SILENT,
+                    false);
+            remoteInvocation.setScriptPath(scriptPath);
+            remoteInvocation.setBuildAgentClient(buildAgentClient);
+            return null;
         } catch (Exception e) {
-            invocation.completeExceptionally(new BuildDriverException("Cannot connect build agent client.", e));
+            throw new RuntimeException("Unable to create BuildAgentClient.", e);
         }
-        return buildAgentClient;
     }
 
-    private CompletableFuture<CompletedBuild> collectResults(TermdRunningBuild termdRunningBuild, org.jboss.pnc.buildagent.api.Status completionStatus) {
-        CompletableFuture<CompletedBuild> future = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> {
-            logger.info("Collecting results ...");
-
+    private CompletedBuild collectResults(RunningEnvironment runningEnvironment, org.jboss.pnc.buildagent.api.Status completionStatus) {
+        logger.info("Collecting results ...");
+        try {
             TermdFileTranser transfer = new TermdFileTranser(MAX_LOG_SIZE);
             StringBuffer stringBuffer = new StringBuffer();
 
-            String logsDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toString();
+            String logsDirectory = runningEnvironment.getWorkingDirectory().toString();
 
-            try {
-                URI logsUri = new URI(getBuildAgentUrl(termdRunningBuild)).resolve("servlet/download" + logsDirectory + "/console.log");
-                transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
-            } catch (URISyntaxException e) {
-                future.completeExceptionally(new BuildDriverException("Cannot construct logs uri.", e));
-            } catch (TransferException e) {
-                future.completeExceptionally(new BuildDriverException("Cannot transfer file.", e));
-            }
+            URI logsUri = new URI(getBuildAgentUrl(runningEnvironment)).resolve(
+                    "servlet/download" + logsDirectory + "/console.log");
+            transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
 
             String prependMessage = "";
             BuildStatus buildStatus = getBuildStatus(completionStatus);
@@ -298,12 +269,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 }
             }
 
-            CompletedBuild completedBuild = new DefaultCompletedBuild(
-                    termdRunningBuild.getRunningEnvironment(), buildStatus, prependMessage + stringBuffer.toString());
-
-            future.complete(completedBuild);
-        }, executor);
-        return future;
+            return new DefaultCompletedBuild(
+                    runningEnvironment, buildStatus, prependMessage + stringBuffer.toString());
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot collect results.", e);
+        }
     }
 
     private BuildStatus getBuildStatus(Status completionStatus) {
@@ -316,22 +286,22 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private Void complete(TermdRunningBuild termdRunningBuild, CompletedBuild completedBuild, Throwable throwable) {
-        logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
-
-        if (termdRunningBuild.getBuildAgentClient().isPresent()) {
-            BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
-            try {
-                buildAgentClient.close();
-            } catch (IOException e) {
-                logger.error("Cannot close build agent connections.", e);
+    private Void complete(TermdRunningBuild termdRunningBuild, Status status, Throwable throwable) {
+        boolean isCancelled = false;
+        if(throwable != null) {
+            isCancelled = CancellationException.class.equals(throwable.getCause().getClass());
+            if (isCancelled) {
+                status = INTERRUPTED;
             }
-        } else {
-            //cancel has been requested
         }
 
-        if(throwable != null) {
-            logger.warn("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
+        CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), status);
+        logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
+
+
+
+        if(throwable != null && !isCancelled) {
+            logger.warn("[{}] Completed with exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
             termdRunningBuild.setBuildError((Exception) throwable);
         } else if(completedBuild == null ) {
             termdRunningBuild.setBuildError(new BuildDriverException("Completed build should not be null."));
@@ -364,8 +334,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return buildScript.toString();
     }
 
-    private String getBuildAgentUrl(TermdRunningBuild termdRunningBuild) {
-        RunningEnvironment runningEnvironment = termdRunningBuild.getRunningEnvironment();
+    private String getBuildAgentUrl(RunningEnvironment runningEnvironment) {
         if (useInternalNetwork) {
             return runningEnvironment.getInternalBuildAgentUrl();
         } else {

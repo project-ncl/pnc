@@ -17,9 +17,17 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+
 import java.util.Date;
 
+@JsonDeserialize(builder = BuildChangedPayload.BuildChangedPayloadBuilder.class)
+@AllArgsConstructor
+@Builder
 public class BuildChangedPayload implements NotificationPayload {
 
     private final Integer id;
@@ -40,7 +48,6 @@ public class BuildChangedPayload implements NotificationPayload {
         this.buildStartTime = buildStartTime;
         this.buildEndTime = buildEndTime;
     }
-
 
     public BuildCoordinationStatus getBuildCoordinationStatus() {
         return buildCoordinationStatus;
@@ -71,4 +78,9 @@ public class BuildChangedPayload implements NotificationPayload {
     public Date getBuildEndTime() {
         return buildEndTime;
     }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class BuildChangedPayloadBuilder {
+    }
+
 }

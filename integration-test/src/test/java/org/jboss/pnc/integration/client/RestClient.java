@@ -22,12 +22,17 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RestClient {
+
+    private final ConnectionInfo connectionInfo;
+
+    public RestClient(ConnectionInfo connectionInfo) {
+        this.connectionInfo = connectionInfo;
+    }
 
     public Response get(String path, AbstractRestClient.QueryParam... queryParams) {
         RequestSpecification specification = request().when();
@@ -38,35 +43,51 @@ public class RestClient {
                 }
             }
         }
-
-        return specification.get(path);
+        return specification.get(addHost(path));
     }
 
     public Response post(String path) {
-        return request().when().post(path);
+        return request().when().post(addHost(path));
     }
 
     public Response post(String path, Object body) {
-        return request().when().body(body).post(path);
+        return request().when().body(body).post(addHost(path));
     }
 
     public Response put(String path, Object body) {
-        return request().when().body(body).put(path);
+        return request().when().body(body).put(addHost(path));
     }
 
     public Response delete(String path) {
-        return request().when().delete(path);
+        return request().when().delete(addHost(path));
+    }
+
+    public String addHost(String path) {
+        if (connectionInfo.getHost() != null) {
+            return "http://" + connectionInfo.getHost() + path;
+        } else {
+            return path;
+        }
     }
 
     public RequestSpecification request() {
-        return given()
-                .auth().basic("admin", "user.1234")
-                .log().all()
+        RequestSpecification requestSpec = given()
                 .header("Accept", "application/json")
                 .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .expect().log().all()
-                .request();
-    }
+                .port(connectionInfo.getPort());
+        ConnectionInfo.BasicAuth basicAuth = connectionInfo.getBasicAuth();
+        if (basicAuth != null) {
+            requestSpec.auth().basic(basicAuth.getUsername(), basicAuth.getPassword());
+        }
+        String bearerToken = connectionInfo.getBearerToken();
+        if (bearerToken != null) {
+            requestSpec.header("Authorization", "Bearer " + bearerToken);
+        }
 
+        requestSpec
+            .log().all()
+            .expect().log().all();
+
+        return requestSpec.request();
+    }
 }

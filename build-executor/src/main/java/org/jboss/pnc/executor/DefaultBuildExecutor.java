@@ -136,10 +136,16 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
                 .thenComposeAsync(runningBuild -> runTheBuild(buildExecutionSession), executor)
                 //no cancellation after this point
-                .thenApplyAsync(completedBuild -> optionallyEnableSsh(buildExecutionSession, completedBuild), executor)
+                .thenApplyAsync(completedBuild -> {
+                    buildExecutionSession.setCancelHook(null);
+                    return optionallyEnableSsh(buildExecutionSession, completedBuild);
+                }, executor)
                 .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildExecutionSession, completedBuild), executor)
                 .thenApplyAsync(nul -> retrieveRepositoryManagerResults(buildExecutionSession), executor)
-                .handleAsync((nul, e) -> completeExecution(buildExecutionSession, e), executor);
+                .handleAsync((nul, e) -> {
+                    buildExecutionSession.setCancelHook(null); //make sure there are no references left
+                    return completeExecution(buildExecutionSession, e);
+                }, executor);
 
         //TODO re-connect running instances in case of crash
         return buildExecutionSession;

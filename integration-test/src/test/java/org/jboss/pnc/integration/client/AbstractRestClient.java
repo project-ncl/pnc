@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
 public abstract class AbstractRestClient<T> {
 
     static class QueryParam {
@@ -58,8 +60,12 @@ public abstract class AbstractRestClient<T> {
     }
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
+        this(collectionUrl, entityClass, ConnectionInfo.builder().port(getHttpPort()).basicAuth(new ConnectionInfo.BasicAuth("admin", "user.1234")).build());
+    }
+
+    protected AbstractRestClient(String collectionUrl, Class<T> entityClass, ConnectionInfo connectionInfo) {
         this.entityClass = entityClass;
-        restClient = new RestClient();
+        restClient = new RestClient(connectionInfo);
 
         if(collectionUrl.endsWith("/")) {
             this.collectionUrl = collectionUrl;
@@ -273,5 +279,4 @@ public abstract class AbstractRestClient<T> {
 
         return new RestResponse<>(response, object);
     }
-
 }

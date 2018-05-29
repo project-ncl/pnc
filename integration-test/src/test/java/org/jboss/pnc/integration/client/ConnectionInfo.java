@@ -15,23 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.termdbuilddriver;
+package org.jboss.pnc.integration.client;
 
-import org.jboss.pnc.buildagent.api.Status;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class StatusUpdateEvent {
+@Builder
+@Getter
+public class ConnectionInfo {
 
-    private final Status newStatus;
+    String host;
+    Integer port;
 
-    public StatusUpdateEvent(Status newStatus) {
-        this.newStatus = newStatus;
-    }
+    BasicAuth basicAuth;
 
-    public Status getNewStatus() {
-        return newStatus;
+    String bearerToken;
+
+    @Getter
+    public static class BasicAuth {
+        String username;
+        String password;
+
+        public BasicAuth(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
     }
 
 }
