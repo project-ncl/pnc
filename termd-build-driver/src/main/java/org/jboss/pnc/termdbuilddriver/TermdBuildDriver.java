@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -123,22 +122,22 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         if (!termdRunningBuild.isCanceled()) {
 
-            RemoteInvocation remoteInvocation = new RemoteInvocation();
+            final RemoteInvocation remoteInvocation = new RemoteInvocation();
 
             Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
                 final org.jboss.pnc.buildagent.api.Status newStatus;
-                if (termdRunningBuild.isCanceled() && event.getNewStatus().equals(FAILED)) {
+                if (remoteInvocation.isCanceled() && event.getNewStatus().equals(FAILED)) {
                     newStatus = INTERRUPTED; //TODO fix returned status and remove this workaround
                 } else {
                     newStatus = event.getNewStatus();
                 }
                 logger.debug("Driver received new status update {}.", newStatus);
-                statusUpdateConsumers.forEach(consumer -> consumer.accept(new StatusUpdateEvent(termdRunningBuild, newStatus)));
+                statusUpdateConsumers.forEach(consumer -> consumer.accept(new StatusUpdateEvent(newStatus)));
                 if (newStatus.isFinal()) {
                     logger.debug("Script completionNotifier completed with status {}.", newStatus);
                     if (newStatus == org.jboss.pnc.buildagent.api.Status.FAILED && debugData.isEnableDebugOnFailure()) {
                         debugData.setDebugEnabled(true);
-                        enableSsh(Optional.ofNullable(remoteInvocation.buildAgentClient));
+                        enableSsh(Optional.ofNullable(remoteInvocation.getBuildAgentClient()));
                     }
                     remoteInvocation.notifyCompleted(newStatus);
                 }
@@ -150,23 +149,23 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                     createBuildAgentClient(remoteInvocation,
                             termdRunningBuild.getRunningEnvironment(),
                             scriptPath,
-                            onStatusUpdate));
+                            onStatusUpdate), executor);
             CompletableFuture<Void> invokeFuture = setClientFuture
                     .thenApplyAsync(nul -> invokeRemoteScript(remoteInvocation), executor);
 
-            CompletableFuture<org.jboss.pnc.buildagent.api.Status> completedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier());
+            CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
-            completedFuture.handle((status, exception) -> {
+            buildCompletedFuture.handleAsync((status, exception) -> {
                 termdRunningBuild.setCancelHook(null);
-                closeBuildAgentClient(remoteInvocation);
+                remoteInvocation.close();
                 return complete(termdRunningBuild, status, exception);
-            });
+            }, executor);
 
 
             termdRunningBuild.setCancelHook(() -> {
                 uploadFuture.cancel(true);
                 setClientFuture.cancel(true);
-                if (remoteInvocation.buildAgentClient != null) {
+                if (remoteInvocation.getBuildAgentClient() != null) {
                     remoteInvocation.cancel(runningName);
                 }
                 invokeFuture.cancel(false);
@@ -176,21 +175,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             logger.debug("Skipping script uploading (cancel flag) ...");
         }
         return termdRunningBuild;
-    }
-
-    private void closeBuildAgentClient(RemoteInvocation remoteInvocation) {
-        BuildAgentClient buildAgentClient = remoteInvocation.buildAgentClient;
-        if (buildAgentClient != null) {
-            try {
-                logger.debug("Closing build agent client.");
-                buildAgentClient.close();
-                remoteInvocation.buildAgentClient = null; //make sure there is no reference left
-            } catch (IOException e) {
-                logger.error("Cannot close build agent connections.", e);
-            }
-        } else {
-            //cancel has been requested
-        }
     }
 
     private Supplier<String> uploadTask(RunningEnvironment runningEnvironment, String command) {
@@ -211,51 +195,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 throw new RuntimeException("Unable to upload script.", e);
             }
         };
-    }
-
-    private class RemoteInvocation {
-
-        private BuildAgentClient buildAgentClient;
-
-        private String scriptPath;
-
-        private final CompletableFuture<org.jboss.pnc.buildagent.api.Status> completionNotifier = new CompletableFuture<>();
-
-        void invoke() {
-            try {
-                String command = "sh " + scriptPath;
-                logger.info("Invoking remote command {}.", command);
-                buildAgentClient.executeCommand(command);
-                logger.debug("Remote command invoked.");
-            } catch (BuildAgentClientException e) {
-                throw new RuntimeException("Cannot execute remote command.", e);
-            }
-        }
-
-        void cancel(String buildName) {
-            try {
-                logger.info("Canceling running build {}.", buildName);
-                buildAgentClient.execute('C' - 64); //send ctrl+C
-            } catch (BuildAgentClientException e) {
-                completionNotifier.completeExceptionally(new BuildDriverException("Cannot cancel remote script.", e));
-            }
-        }
-
-        public void setBuildAgentClient(BuildAgentClient buildAgentClient) {
-            this.buildAgentClient = buildAgentClient;
-        }
-
-        public void setScriptPath(String scriptPath) {
-            this.scriptPath = scriptPath;
-        }
-
-        public void notifyCompleted(org.jboss.pnc.buildagent.api.Status status) {
-            completionNotifier.complete(status);
-        }
-
-        public CompletableFuture<org.jboss.pnc.buildagent.api.Status> getCompletionNotifier() {
-            return completionNotifier;
-        }
     }
 
     private Void invokeRemoteScript(RemoteInvocation remoteInvocation) {
