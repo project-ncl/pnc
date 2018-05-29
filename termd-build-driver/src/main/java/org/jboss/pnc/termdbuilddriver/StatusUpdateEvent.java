@@ -24,17 +24,10 @@ import org.jboss.pnc.buildagent.api.Status;
  */
 public class StatusUpdateEvent {
 
-    private final TermdRunningBuild runningBuild;
-
     private final Status newStatus;
 
-    public StatusUpdateEvent(TermdRunningBuild runningBuild, Status newStatus) {
-        this.runningBuild = runningBuild;
+    public StatusUpdateEvent(Status newStatus) {
         this.newStatus = newStatus;
-    }
-
-    public TermdRunningBuild getRunningBuild() {
-        return runningBuild;
     }
 
     public Status getNewStatus() {

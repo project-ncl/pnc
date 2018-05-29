@@ -137,6 +137,9 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         String logStart = "Running the command...";
         String logEnd = "Command completed.";
 
+        CountDownLatch latchCompleted = new CountDownLatch(1);
+        CountDownLatch latchRunning = new CountDownLatch(1);
+
         TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
         Consumer<StatusUpdateEvent> cancelOnBuildStart = (statusUpdateEvent) -> {
             try {
@@ -145,7 +148,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
                 logger.error("Sleep interrupted.", e);
             }
             if (Status.RUNNING.equals(statusUpdateEvent.getNewStatus())) {
-                statusUpdateEvent.getRunningBuild().cancel();
+                latchRunning.countDown();
             }
         };
         driver.addStatusUpdateConsumer(cancelOnBuildStart);
@@ -158,10 +161,9 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
         //when
-        CountDownLatch latch = new CountDownLatch(1);
         Consumer<CompletedBuild> onComplete = (completedBuild) -> {
             buildResult.set(completedBuild);
-            latch.countDown();
+            latchCompleted.countDown();
         };
         Consumer<Throwable> onError = (throwable) -> {
             logger.error("Error received: ", throwable);
@@ -169,7 +171,10 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
 
-        latch.await();
+        latchRunning.await();
+        runningBuild.cancel();
+
+        latchCompleted.await();
 
         //then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
