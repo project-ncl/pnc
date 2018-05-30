@@ -19,21 +19,20 @@
 -->
 <div>
   <div ng-repeat="(key, value) in $ctrl.currentParams">
-    <div class="row">
-      <p>
-        <div class="btn-group pull-right" role="group" aria-label="...">
-          <button class="btn btn-sm btn-link" ng-click="$ctrl.toggleEdit(key)">Edit</button>
-          <button class="btn btn-sm btn-link" ng-click="$ctrl.remove(key)">Remove</button>
-        </div>
-        <span>{{ key }}</span>
-      </p>
 
-      <!-- Detail Mode -->
-      <div ng-hide="$ctrl.isEditOn(key)">
-        <pre>{{ value }}</pre>
+    <p>
+      <div class="btn-group pull-right" role="group" aria-label="...">
+        <button class="btn btn-sm btn-link" ng-click="$ctrl.toggleEdit(key)">Edit</button>
+        <button class="btn btn-sm btn-link" ng-click="$ctrl.remove(key)">Remove</button>
       </div>
-      <!-- /Detail Mode -->
+      <label>{{ key }}</label>
+    </p>
+
+    <!-- Detail Mode -->
+    <div ng-hide="$ctrl.isEditOn(key)">
+      <pre>{{ value }}</pre>
     </div>
+    <!-- /Detail Mode -->
 
     <!-- Edit Mode -->
     <div ng-show="$ctrl.isEditOn(key)" class="clearfix">
@@ -46,5 +45,6 @@
       </div>
     </div>
     <!-- /Edit Mode -->
+
   </div>
 </div>

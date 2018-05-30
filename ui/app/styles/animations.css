@@ -42,3 +42,32 @@
    -o-animation: flickerAnimation 3s infinite;
     animation: flickerAnimation 3s infinite;
 }
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes disappear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.edit-container {
+  opacity: 1;
+}
+
+.edit-container .ng-enter {
+  animation: 1s appear;
+}
+
+.edit-container .ng-leave-active {
+  display: none;
+}
