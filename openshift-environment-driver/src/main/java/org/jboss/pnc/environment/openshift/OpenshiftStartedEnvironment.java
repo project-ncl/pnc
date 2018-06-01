@@ -56,6 +56,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 
 /**
@@ -68,6 +69,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String POD_USERNAME = "worker";
     private static final String POD_USER_PASSWD = "workerUserPassword";
     private static final String OSE_API_VERSION = "v1";
+    private static final Pattern SECURE_LOG_PATTERN = Pattern.compile("\"name\":\\s*\"accessToken\",\\s*\"value\":\\s*\"\\p{Print}+\"");
+
 
     private boolean serviceCreated = false;
     private boolean podCreated = false;
@@ -186,6 +189,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         }
     }
 
+    static String secureLog(String message) {
+        return SECURE_LOG_PATTERN
+                .matcher(message)
+                .replaceAll("\"name\": \"accessToken\",\n" +
+                        "            \"value\": \"***\"");
+    }
+
     private void initDebug() {
         if (debugData.isEnableDebugOnFailure()) {
             String password = RandomStringUtils.randomAlphanumeric(10);
@@ -201,7 +211,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
         String definition = replaceConfigurationVariables(resourceDefinition, runtimeProperties);
-        logger.debug("Node definition: " + definition);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Node definition: " + secureLog(definition));
+        }
+
         return ModelNode.fromJSONString(definition);
     }
 
