@@ -57,7 +57,8 @@
 
     function onAdd(buildConfig) {
       if (getBcIndex(buildConfig) < 0) {
-        $ctrl.buildConfigs.push(buildConfig);
+        // force pf-list-view to be updated
+        $ctrl.buildConfigs = angular.copy($ctrl.buildConfigs.concat(buildConfig));
       }
     }
 
