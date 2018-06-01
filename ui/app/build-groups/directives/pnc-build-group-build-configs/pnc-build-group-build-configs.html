@@ -25,7 +25,7 @@
 </script>
 
 <!-- Normal State -->
-<div ng-show="$ctrl.showTable()">
+<div ng-show="$ctrl.showTable">
   <div>
     <div class="toolbar-search-right pull-right">
       <pnc-search-field page="$ctrl.page" text="build configs"></pnc-search-field>
@@ -53,7 +53,7 @@
 </div>
 
 <!-- Empty State -->
-<div ng-hide="$ctrl.showTable()">
+<div ng-hide="$ctrl.showTable">
   <div class="blank-slate-pf">
     <div class="blank-slate-pf-icon">
       <span class="pficon pficon pficon-add-circle-o"></span>

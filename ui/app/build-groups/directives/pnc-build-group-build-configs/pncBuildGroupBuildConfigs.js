@@ -25,16 +25,15 @@
       buildGroup: '<'
     },
     templateUrl: 'build-groups/directives/pnc-build-group-build-configs/pnc-build-group-build-configs.html',
-    controller: ['$scope', 'modalEditService', 'BuildConfigurationSet', Controller]
+    controller: ['$scope', 'modalEditService', 'BuildConfigurationSet', '$q', Controller]
   });
 
 
-  function Controller($scope, modalEditService, BuildConfigurationSet) {
+  function Controller($scope, modalEditService, BuildConfigurationSet, $q) {
     var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.showTable = showTable;
     $ctrl.edit = edit;
     $ctrl.remove = remove;
     $ctrl.displayFields = ['name', 'project', 'buildStatus'];
@@ -51,9 +50,16 @@
     var unregister = $scope.$watch('$ctrl.page.data', function () {
       if ($ctrl.page.data && $ctrl.page.data.length > 0) {
         doNotShowEmptyState = true;
+        $ctrl.showTable = true;
         unregister();
       }
     });
+
+    function tableReload() {
+      $ctrl.page.reload().then(function (result) {
+        $ctrl.showTable = !!result.data.length;
+      });
+    }
 
     function showTable() {
       return doNotShowEmptyState || $ctrl.page && $ctrl.page.data && $ctrl.page.data.length > 0;
@@ -74,21 +80,26 @@
         });
       }
 
-      modalEditService
-        .editBuildGroupBuildConfigs($ctrl.buildGroup, buildConfigs)
-        .then(function () {
-          $ctrl.page.reload();
-        });
+      $q.when(buildConfigs).then(function (buildConfigs) {
+        modalEditService
+          .editBuildGroupBuildConfigs($ctrl.buildGroup, buildConfigs)
+          .then(function () {
+            tableReload();
+          });
+      });
     }
 
     function remove(buildConfig) {
-      BuildConfigurationSet
-          .removeBuildConfiguration({ id: $ctrl.buildGroup.id, configId: buildConfig.id })
-          .$promise
-          .then(function () {
-            $ctrl.page.reload();
-          });
+      BuildConfigurationSet.removeBuildConfiguration({ id: $ctrl.buildGroup.id, configId: buildConfig.id })
+        .$promise
+        .then(function () {
+          tableReload();
+        });
     }
+
+    $ctrl.$onInit = function () {
+      $ctrl.showTable = showTable();
+    };
   }
 
 })();
