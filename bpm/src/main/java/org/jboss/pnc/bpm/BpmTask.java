@@ -50,7 +50,6 @@ import static java.util.Objects.requireNonNull;
  * @author Jakub Senko
  */
 @EqualsAndHashCode(of = "taskId")
-@ToString
 public abstract class BpmTask implements Comparable<BpmTask> {
 
     private static final Logger log = LoggerFactory.getLogger(BpmTask.class);
@@ -185,5 +184,18 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         if (other.getTaskId() == null)
             return 1;
         return taskId.compareTo(other.getTaskId());
+    }
+
+    @Override
+    public String toString() {
+        return "BpmTask{" +
+                "taskId=" + taskId +
+                ", processInstanceId=" + processInstanceId +
+                ", events=" + events +
+                ", processName='" + processName + '\'' +
+                ", config=" + config +
+                ", listeners=" + listeners +
+                ", accessToken='***'" +
+                '}';
     }
 }
