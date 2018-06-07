@@ -156,6 +156,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
             buildCompletedFuture.handleAsync((status, exception) -> {
+                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
                 termdRunningBuild.setCancelHook(null);
                 remoteInvocation.close();
                 return complete(termdRunningBuild, status, exception);
@@ -165,10 +166,10 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             termdRunningBuild.setCancelHook(() -> {
                 uploadFuture.cancel(true);
                 setClientFuture.cancel(true);
+                invokeFuture.cancel(false);
                 if (remoteInvocation.getBuildAgentClient() != null) {
                     remoteInvocation.cancel(runningName);
                 }
-                invokeFuture.cancel(false);
             });
 
         } else {
@@ -297,8 +298,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), status);
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
-
-
 
         if(throwable != null && !isCancelled) {
             logger.warn("[{}] Completed with exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
