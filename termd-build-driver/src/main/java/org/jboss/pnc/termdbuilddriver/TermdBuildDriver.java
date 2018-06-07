@@ -151,7 +151,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                             scriptPath,
                             onStatusUpdate), executor);
             CompletableFuture<Void> invokeFuture = setClientFuture
-                    .thenApplyAsync(nul -> invokeRemoteScript(remoteInvocation), executor);
+                    .thenRunAsync(() -> invokeRemoteScript(remoteInvocation), executor);
 
             CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
