@@ -34,4 +34,6 @@ public interface BuildExecutionStatusChangedEvent {
      * @return Returns non-empty only for completed states.
      */
     Optional<BuildResult> getBuildResult();
+
+    boolean isFinal();
 }

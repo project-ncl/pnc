@@ -32,18 +32,22 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
     private final Integer buildConfigurationId;
     private final Optional<BuildResult> buildResult;
 
+    private boolean isFinal;
+
     public DefaultBuildExecutorStatusChangedEvent(
             BuildExecutionStatus oldStatus,
             BuildExecutionStatus newStatus,
             Integer buildTaskId,
             Integer buildConfigurationId,
-            Optional<BuildResult> buildResult) {
+            Optional<BuildResult> buildResult,
+            boolean isFinal) {
 
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
         this.buildConfigurationId = buildConfigurationId;
         this.buildResult = buildResult;
+        this.isFinal = isFinal;
     }
 
     @Override
@@ -72,6 +76,11 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
     }
 
     @Override
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    @Override
     public String toString() {
         return "DefaultBuildExecutionStatusChangedEvent{" +
                 "oldStatus=" + oldStatus +
@@ -79,6 +88,7 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
                 ", buildTaskId=" + buildTaskId +
                 ", buildConfigurationId=" + buildConfigurationId +
                 ", buildResult=" + buildResult +
+                ", isFinal=" + isFinal +
                 '}';
     }
 }

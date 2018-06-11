@@ -391,11 +391,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         //check if any of previous statuses indicated "failed" state
         if (buildExecutionSession.isCanceled()) {
-            buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED);
+            buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED, true);
         } else if (buildExecutionSession.hasFailed()) {
-            buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS);
+            buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS, true);
         } else {
-            buildExecutionSession.setStatus(BuildExecutionStatus.DONE);
+            buildExecutionSession.setStatus(BuildExecutionStatus.DONE, true);
         }
 
         log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] from list of running tasks.");

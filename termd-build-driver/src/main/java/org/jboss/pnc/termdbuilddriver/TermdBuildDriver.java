@@ -151,7 +151,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                             scriptPath,
                             onStatusUpdate), executor);
             CompletableFuture<Void> invokeFuture = setClientFuture
-                    .thenApplyAsync(nul -> invokeRemoteScript(remoteInvocation), executor);
+                    .thenRunAsync(() -> invokeRemoteScript(remoteInvocation), executor);
 
             CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
@@ -288,9 +288,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     private Void complete(TermdRunningBuild termdRunningBuild, Status status, Throwable throwable) {
-        boolean isCancelled = false;
+        boolean isCancelled = INTERRUPTED.equals(status); //canceled while build is running
         if(throwable != null) {
-            isCancelled = CancellationException.class.equals(throwable.getCause().getClass());
+            isCancelled = CancellationException.class.equals(throwable.getCause().getClass()); //canceled in non build operation (completableFuture cancel)
             if (isCancelled) {
                 status = INTERRUPTED;
             }
