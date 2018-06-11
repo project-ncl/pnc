@@ -101,6 +101,10 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public void setStatus(BuildExecutionStatus status) {
+        setStatus(status, false);
+    }
+
+    public void setStatus(BuildExecutionStatus status, boolean isFinal) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS) && executorException == null) {
                 setException(new ExecutorException("FailedReasonStatus or executorException must be set before final DONE_WITH_ERRORS."));
@@ -120,7 +124,8 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                 status,
                 getId(),
                 buildExecutionConfiguration.getId(),
-                buildResult);
+                buildResult,
+                isFinal);
 
         log.debug("Updating build execution task {} status to {}.", getId(), statusChanged);
         this.status = status;

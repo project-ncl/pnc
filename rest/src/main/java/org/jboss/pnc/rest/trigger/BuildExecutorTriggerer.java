@@ -97,7 +97,7 @@ public class BuildExecutorTriggerer {
                 }
 
             }
-            if (callbackUrl != null && !callbackUrl.isEmpty()) {
+            if (statusChangedEvent.isFinal() && callbackUrl != null && !callbackUrl.isEmpty()) {
                 statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
                     bpmNotifier.sendBuildExecutionCompleted(callbackUrl.toString(), buildResult);
                 });
