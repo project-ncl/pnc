@@ -62,6 +62,11 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
     }
 
     @Override
+    public boolean isFinal() {
+        return false;
+    }
+
+    @Override
     public BuildExecutionStatus getOldStatus() {
         return oldStatus;
     }

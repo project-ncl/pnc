@@ -71,7 +71,7 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public void subscribe(String topic, String messagesId) {
         subscriptions.add(new Subscription(topic, messagesId));
-        if (topic.equals(Notifier.Topic.COMPONENT_BUILD)) {
+        if (topic.equals(Notifier.Topic.COMPONENT_BUILD.getId())) {
             notifier.onBpmProcessClientSubscribe(this, messagesId);
         }
     }

@@ -151,11 +151,12 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                             scriptPath,
                             onStatusUpdate), executor);
             CompletableFuture<Void> invokeFuture = setClientFuture
-                    .thenApplyAsync(nul -> invokeRemoteScript(remoteInvocation), executor);
+                    .thenRunAsync(() -> invokeRemoteScript(remoteInvocation), executor);
 
             CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
             buildCompletedFuture.handleAsync((status, exception) -> {
+                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
                 termdRunningBuild.setCancelHook(null);
                 remoteInvocation.close();
                 return complete(termdRunningBuild, status, exception);
@@ -165,10 +166,10 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             termdRunningBuild.setCancelHook(() -> {
                 uploadFuture.cancel(true);
                 setClientFuture.cancel(true);
+                invokeFuture.cancel(false);
                 if (remoteInvocation.getBuildAgentClient() != null) {
                     remoteInvocation.cancel(runningName);
                 }
-                invokeFuture.cancel(false);
             });
 
         } else {
@@ -287,9 +288,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     private Void complete(TermdRunningBuild termdRunningBuild, Status status, Throwable throwable) {
-        boolean isCancelled = false;
+        boolean isCancelled = INTERRUPTED.equals(status); //canceled while build is running
         if(throwable != null) {
-            isCancelled = CancellationException.class.equals(throwable.getCause().getClass());
+            isCancelled = CancellationException.class.equals(throwable.getCause().getClass()); //canceled in non build operation (completableFuture cancel)
             if (isCancelled) {
                 status = INTERRUPTED;
             }
@@ -297,8 +298,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), status);
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
-
-
 
         if(throwable != null && !isCancelled) {
             logger.warn("[{}] Completed with exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
