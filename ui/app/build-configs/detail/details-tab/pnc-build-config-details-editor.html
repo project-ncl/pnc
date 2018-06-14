@@ -32,6 +32,12 @@
             <span class="help-block" ng-show="editBuildConfigForm.repositoryConfiguration.$invalid && editBuildConfigForm.repositoryConfiguration.$touched">Required field.</span>
           </div>
 
+          <div class="form-group" ng-class="{ 'has-error' : editBuildConfigForm.scmRevision.$invalid && editBuildConfigForm.scmRevision.$touched, 'has-success': editBuildConfigForm.scmRevision.$valid && editBuildConfigForm.scmRevision.$touched }">
+            <label for="scm-revision" class="control-label required">SCM Revision</label>
+            <input type="text" id="scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="$ctrl.formData.general.scmRevision" required>
+            <span class="help-block" ng-show="editBuildConfigForm.scmRevision.$invalid && editBuildConfigForm.scmRevision.$touched">Required field.</span>
+          </div>
+
         </div>
       </div>
 
@@ -39,9 +45,22 @@
         <div class="col-md-12">
           <label class="text-divider">Build Parameters</label>
           <pnc-select-build-parameters ng-model="$ctrl.formData.buildParameters"></pnc-select-build-parameters>
+          <hr class="m-t-20" ng-if="$ctrl.numberOfBuildParameters() > 0">
         </div>
       </div>
 
+      <div class="row">
+        <div class="col-md-12">
+            <pf-form-buttons pf-on-cancel="$ctrl.cancel()" pf-on-save="$ctrl.submit($ctrl.formData)" pf-working="$ctrl.working"></pf-form-buttons>
+        </div>
+      </div>
+
+      <dl class="dl-horizontal">
+        <dt>editBuildConfigForm.invalid</dt>
+        <dd>{{ editBuildConfigForm.$invalid }}</dd>
+        <dt>$ctrl.working</dt>
+        <dd>{{ $ctrl.working }}</dd>
+      </dl>
     </div>
   </div>
 </form>
