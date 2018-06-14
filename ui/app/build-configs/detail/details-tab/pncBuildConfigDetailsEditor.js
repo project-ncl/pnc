@@ -21,8 +21,19 @@
 
   angular.module('pnc.build-configs').component('pncBuildConfigDetailsEditor', {
     bindings: {
+      /**
+       * Object: The buildConfig object to be edited
+       */
       buildConfig: '<',
-      onSubmit: '&',
+      /**
+       * Function: Callback function when the buildConfig is successfully
+       * updated. The function is passed the updated buildConfig.
+       */
+      onSuccess: '&',
+      /**
+       * Function: Callback function executed when the user clicks the
+       * cancel button.
+       */
       onCancel: '&'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-details-editor.html',
@@ -35,22 +46,41 @@
 
     // -- Controller API --
 
+    $ctrl.working = false;
+
     $ctrl.submit = submit;
     $ctrl.cancel = cancel;
+    $ctrl.numberOfBuildParameters = numberOfBuildParameters;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
+      // Ensure this components copy of the BC can't be updated from outside.
+      $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
       $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
     };
 
-    function submit(data) {
-      $ctrl.onSubmit(data);
+    function submit(formData) {
+      console.log('SUBMIT!!! formData = %O', formData);
+      $ctrl.working = true;
+      var buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
+
+      console.log('buildConfig = %O', $ctrl.buildConfig);
+      buildConfig.$update().then(function (response) {
+        console.log('updated bc === %O', response);
+        $ctrl.onSuccess({ buildConfig: response });
+      })
+        .finally(function () { $ctrl.working = false; });
     }
 
     function cancel() {
+      console.log('CANCEL!');
       $ctrl.onCancel();
+    }
+
+    function numberOfBuildParameters() {
+      return Object.keys($ctrl.formData.buildParameters).length;
     }
 
     function fromBuildConfig(buildConfig) {
@@ -65,6 +95,7 @@
       formData.general.environment = buildConfig.environment;
       formData.general.buildType = buildConfig.buildType;
       formData.general.buildScript = buildConfig.buildScript;
+      formData.general.scmRevision = buildConfig.scmRevision;
 
       formData.repositoryConfiguration = buildConfig.repositoryConfiguration;
       formData.buildParameters = buildConfig.genericParameters;
@@ -72,10 +103,19 @@
       return formData;
     }
 
-    function toBuildConfig(formData) {
+    function toBuildConfig(formData, buildConfig) {
+      var newBc = angular.extend(angular.copy(buildConfig), formData.general);
 
+      newBc.buildType =  formData.general.buildType.id;
+
+      newBc.repositoryConfiguration = formData.repositoryConfiguration;
+      newBc.genericParameters = formData.buildParameters;
+
+      return newBc;
     }
 
   }
 
 })();
+
+//
