@@ -113,7 +113,7 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
         return fromCollection(repositoryConfigurationProvider.getAll(pageIndex, pageSize, sort, q));
     }
 
-    @ApiOperation(value = "Creates a new Repository Configuration.")
+    @ApiOperation(value = "Creates a new Repository Configuration. NOTE: it does not create the repository in the scm server, it only creates an entry in PNC database. Useful when you already have internal and external scm repositories created.")
     @ApiResponses(value = {
             @ApiResponse(code = ENTITY_CREATED_CODE, message = ENTITY_CREATED_DESCRIPTION, response = RepositoryConfigurationSingleton.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
