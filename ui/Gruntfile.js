@@ -147,7 +147,7 @@ module.exports = function (grunt) {
       },
       jsTest: {
         files: ['test/spec/{,*/}*.js'],
-        tasks: ['newer:jshint:test', 'karma']
+        tasks: ['newer:jshint:test']
       },
       html: {
         files: ['<%= yeoman.app %>/**/*.html'],
@@ -530,14 +530,6 @@ module.exports = function (grunt) {
       dist: []
     },
 
-    // Test settings
-    karma: {
-      unit: {
-        configFile: 'test/karma.conf.js',
-        singleRun: true
-      }
-    },
-
     bower: {
       install: {
         options: {
@@ -577,8 +569,7 @@ module.exports = function (grunt) {
     'clean:server',
     'concurrent:test',
     'autoprefixer',
-    'connect:test'/*,
-    'karma'*/
+    'connect:test'
   ]);
 
   grunt.registerTask('build', [
