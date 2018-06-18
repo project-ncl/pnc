@@ -43,7 +43,8 @@ public class KeycloakServiceClient {
                 keycloakServiceAccountConfig.getAuthServerUrl(),
                 keycloakServiceAccountConfig.getRealm(),
                 keycloakServiceAccountConfig.getResource(),
-                keycloakServiceAccountConfig.getSecret());
+                keycloakServiceAccountConfig.getSecret(),
+                keycloakServiceAccountConfig.getSslRequired());
         return keycloakToken.getToken();
     }
 }
