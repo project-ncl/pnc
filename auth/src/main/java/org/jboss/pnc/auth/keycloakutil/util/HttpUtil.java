@@ -70,7 +70,7 @@ public class HttpUtil {
 
     private static HttpClient httpClient;
     private static SSLConnectionSocketFactory sslsf;
-    private static boolean sslVerify;
+    private static boolean sslRequired;
 
     public static InputStream doGet(String url, String acceptType, String authorization) {
         try {
@@ -241,7 +241,7 @@ public class HttpUtil {
             if (sslsf != null) {
                 httpClient = clientBuilder.setSSLSocketFactory(sslsf).build();
             }
-            if (!sslVerify) {
+            if (!sslRequired) {
                 httpClient = clientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
             }
             httpClient = clientBuilder.build();
@@ -265,8 +265,8 @@ public class HttpUtil {
      * @param sslRequired the desired value
      */
     public static void setSslRequired(boolean sslRequired) {
-        if (HttpUtil.sslVerify != sslRequired) {
-            HttpUtil.sslVerify = sslRequired;
+        if (HttpUtil.sslRequired != sslRequired) {
+            HttpUtil.sslRequired = sslRequired;
             HttpUtil.httpClient = null;
         }
     }
