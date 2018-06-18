@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.APPLICATION_FORM_URL_ENCODED;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.doPost;
+import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.setSslRequired;
 import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
 
 /**
@@ -35,11 +36,11 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
  */
 class KeycloakClient {
 
-    static AccessTokenResponse getAuthTokensBySecret(String server, String realm, String clientId, String secret) {
-        return getAuthTokensBySecret(server, realm, null, null, clientId, secret);
+    static AccessTokenResponse getAuthTokensBySecret(String server, String realm, String clientId, String secret, boolean sslRequired) {
+        return getAuthTokensBySecret(server, realm, null, null, clientId, secret, sslRequired);
     }
 
-    static AccessTokenResponse getAuthTokensBySecret(String server, String realm, String user, String password, String clientId, String secret) {
+    static AccessTokenResponse getAuthTokensBySecret(String server, String realm, String user, String password, String clientId, String secret, boolean sslRequired) {
         StringBuilder body = new StringBuilder();
         try {
             if (user != null) {
@@ -55,6 +56,7 @@ class KeycloakClient {
                 body.append("grant_type=client_credentials");
             }
 
+            setSslRequired(sslRequired);
             InputStream result = doPost(server + "/realms/" + realm + "/protocol/openid-connect/token",
                     APPLICATION_FORM_URL_ENCODED, APPLICATION_JSON, body.toString(), BasicAuthHelper.createHeader(clientId, secret));
             return JsonSerialization.readValue(result, AccessTokenResponse.class);
