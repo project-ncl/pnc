@@ -30,6 +30,7 @@ import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
@@ -69,6 +70,7 @@ public class HttpUtil {
 
     private static HttpClient httpClient;
     private static SSLConnectionSocketFactory sslsf;
+    private static boolean sslVerify;
 
     public static InputStream doGet(String url, String acceptType, String authorization) {
         try {
@@ -235,11 +237,14 @@ public class HttpUtil {
 
     public static HttpClient getHttpClient() {
         if (httpClient == null) {
+            HttpClientBuilder clientBuilder = HttpClientBuilder.create().useSystemProperties();
             if (sslsf != null) {
-                httpClient = HttpClientBuilder.create().useSystemProperties().setSSLSocketFactory(sslsf).build();
-            } else {
-                httpClient = HttpClientBuilder.create().useSystemProperties().build();
+                httpClient = clientBuilder.setSSLSocketFactory(sslsf).build();
             }
+            if (!sslVerify) {
+                httpClient = clientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
+            }
+            httpClient = clientBuilder.build();
         }
         return httpClient;
     }
@@ -249,6 +254,20 @@ public class HttpUtil {
             return URLEncoder.encode(value, UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to urlencode", e);
+        }
+    }
+
+    /**
+     * Sets flag telling if SSL hostname validation should be done which also clears the cached httpClient. This method
+     * is not thread-safe and could cause race conditions if the class is used with different settings at the same
+     * time, but that is not expected.
+     *
+     * @param sslRequired the desired value
+     */
+    public static void setSslRequired(boolean sslRequired) {
+        if (HttpUtil.sslVerify != sslRequired) {
+            HttpUtil.sslVerify = sslRequired;
+            HttpUtil.httpClient = null;
         }
     }
 

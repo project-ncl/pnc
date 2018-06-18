@@ -33,7 +33,7 @@ public class KeycloakClientConfig {
     private final String realm;
     private final String realmPublicKey;
     private final String authServerUrl;
-    private final String sslRequired;
+    private final Boolean sslRequired;
     private final String resource;
     private final Map<String, String> credentials;
 
@@ -42,7 +42,7 @@ public class KeycloakClientConfig {
             @JsonProperty("realm") String realm,
             @JsonProperty("realm-public-key") String realmPublicKey,
             @JsonProperty("auth-server-url") String authServerUrl,
-            @JsonProperty("ssl-required") @DefaultValue("none") String sslRequired,
+            @JsonProperty("ssl-required") Boolean sslRequired,
             @JsonProperty("resource") String resource,
             @JsonProperty("credentials") @DefaultValue("{}") Map<String, String> credentials) {
         this.realm = realm;
