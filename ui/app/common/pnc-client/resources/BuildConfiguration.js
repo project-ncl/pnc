@@ -42,7 +42,8 @@
           isPaged: true,
         },
         update: {
-          method: 'PUT'
+          method: 'PUT',
+          successNotification: 'Update Successful'
         }
       });
 
