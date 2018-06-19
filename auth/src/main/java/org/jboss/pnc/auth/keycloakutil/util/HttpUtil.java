@@ -36,12 +36,16 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.jboss.pnc.auth.AuthenticationException;
 import org.jboss.pnc.auth.keycloakutil.httpcomponents.HttpDelete;
 import org.jboss.pnc.auth.keycloakutil.operations.LocalSearch;
 import org.jboss.pnc.auth.keycloakutil.operations.RoleOperations;
 import org.keycloak.util.JsonSerialization;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +55,9 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -238,11 +244,38 @@ public class HttpUtil {
     public static HttpClient getHttpClient() {
         if (httpClient == null) {
             HttpClientBuilder clientBuilder = HttpClientBuilder.create().useSystemProperties();
-            if (sslsf != null) {
-                httpClient = clientBuilder.setSSLSocketFactory(sslsf).build();
-            }
-            if (!sslRequired) {
-                httpClient = clientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
+            if (sslRequired) {
+                if (sslsf != null) {
+                    clientBuilder.setSSLSocketFactory(sslsf);
+                }
+            } else {
+                SSLContext sslContext;
+                try {
+                    sslContext = SSLContext.getInstance("SSL");
+
+                    // set up a TrustManager that trusts everything
+                    sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+                    } }, new SecureRandom());
+                } catch (NoSuchAlgorithmException ex) {
+                    throw new AuthenticationException("Cannot get SSLContext instance for \"SSL\" protocol.", ex);
+                } catch (KeyManagementException ex) {
+                    throw new AuthenticationException("SSLContext initialization failed.", ex);
+                }
+
+                clientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).setSSLContext(sslContext);
             }
             httpClient = clientBuilder.build();
         }
