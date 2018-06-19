@@ -39,7 +39,8 @@
 
   <div class="form-group" ng-class="{ 'has-error' : form.buildType.$invalid && form.buildType.$touched, 'has-success': form.buildType.$valid && form.buildType.$touched }">
     <label class="control-label required" for="build-config-build-type">Build Type</label>
-    <pnc-build-type-combobox name="buildType" ng-model="$ctrl.data.buildType" required></pnc-build-type-combobox>
+    <br>
+    <select name="buildType" pf-bootstrap-select="{ noneSelectedText: 'Select Build Type' }" ng-model="$ctrl.data.buildType" id="build-config-build-type" ng-options="buildType.id as buildType.name for buildType in $ctrl.buildTypes" required></select>
     <p ng-show="form.buildType.$invalid && form.buildType.$touched" class="help-block">Build Type is a required field.</p>
   </div>
 

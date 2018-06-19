@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.components').factory('buildTypes', [
+  angular.module('pnc.build-configs').factory('buildTypes', [
     function () {
       return [
         {
