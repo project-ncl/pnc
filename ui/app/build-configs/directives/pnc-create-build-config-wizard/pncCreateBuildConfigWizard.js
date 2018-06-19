@@ -90,7 +90,6 @@
 
     function parseBuildConfig(wizardData) {
       var bc = angular.copy(wizardData.general);
-      bc.buildType = wizardData.general.buildType.id;
       bc.genericParameters = angular.copy(wizardData.buildParameters);
       bc.dependencyIds = wizardData.dependencies.map(function (d) { return d.id; });
       bc.scmRevision = wizardData.repoConfig.revision;
