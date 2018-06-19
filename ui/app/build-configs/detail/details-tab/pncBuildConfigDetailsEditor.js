@@ -61,21 +61,20 @@
       $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
     };
 
-    function submit(formData) {
-      console.log('SUBMIT!!! formData = %O', formData);
+    function submit() {
       $ctrl.working = true;
       var buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
 
-      console.log('buildConfig = %O', $ctrl.buildConfig);
-      buildConfig.$update().then(function (response) {
-        console.log('updated bc === %O', response);
-        $ctrl.onSuccess({ buildConfig: response });
-      })
-        .finally(function () { $ctrl.working = false; });
+      buildConfig.$update()
+                 .then(function (response) {
+                      $ctrl.onSuccess({ buildConfig: response });
+                  })
+                 .finally(function () {
+                      $ctrl.working = false;
+                  });
     }
 
     function cancel() {
-      console.log('CANCEL!');
       $ctrl.onCancel();
     }
 
@@ -105,8 +104,6 @@
 
     function toBuildConfig(formData, buildConfig) {
       var newBc = angular.extend(angular.copy(buildConfig), formData.general);
-
-      newBc.buildType =  formData.general.buildType.id;
 
       newBc.repositoryConfiguration = formData.repositoryConfiguration;
       newBc.genericParameters = formData.buildParameters;

@@ -18,5 +18,13 @@
 
 -->
 <div>
-  pnc-build-config-properties
+  <dl class="dl-horizontal">
+    <dt>Description</dt>
+    <dd>{{ $ctrl.buildConfig.description }}</dd>
+    <dt>Environment</dt>
+    <dd>{{ $ctrl.buildConfig.environment.name }}</dd>
+    <dt>Build Type</dt>
+    <dd>{{ $ctrl.buildConfig.buildType }}</dd>
+
+  </dl>
 </div>
