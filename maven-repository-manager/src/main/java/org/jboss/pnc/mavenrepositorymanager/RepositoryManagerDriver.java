@@ -64,11 +64,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMPORARY_BUILDS_GROUP;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a> instance to
@@ -365,17 +363,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * </ol>
      */
     private void addGlobalConstituents(Group group, boolean tempBuild) {
-        // 1. global builds artifacts
-        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, UNTESTED_BUILDS_GROUP));
         if (tempBuild) {
             group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, TEMPORARY_BUILDS_GROUP));
         }
-
-        // 2. global shared-imports artifacts
-        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID));
-
-        // 3. public group, containing remote proxies to the outside world
-        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID));
+        group.addConstituent(new StoreKey(MAVEN_PKG_KEY, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
     }
 
     /**

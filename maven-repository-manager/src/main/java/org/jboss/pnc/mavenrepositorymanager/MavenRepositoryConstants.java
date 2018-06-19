@@ -31,6 +31,9 @@ public class MavenRepositoryConstants {
     /** Name of group used to access all previous, marginally validated, build outputs. */
     public static final String UNTESTED_BUILDS_GROUP = "builds-untested";
 
+    /** Name of group that contains common builds groups' constituents. */
+    public static final String COMMON_BUILD_GROUP_CONSTITUENTS_GROUP = "builds-untested+shared-imports+public";
+
     /** Name of group used to access all previous temporary build outputs. */
     public static final String TEMPORARY_BUILDS_GROUP = "temporary-builds";
 
