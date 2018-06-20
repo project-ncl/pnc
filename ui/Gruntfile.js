@@ -200,7 +200,7 @@ module.exports = function (grunt) {
                 connect.static('./bower_components')
               ),
               connect.static(appConfig.app),
-              require('grunt-connect-proxy/lib/utils').proxyRequest
+              require('grunt-connect-proxy-updated/lib/utils').proxyRequest
             ];
           }
         }
@@ -218,7 +218,7 @@ module.exports = function (grunt) {
               connect.static('./<%= yeoman.lib %>')
             ));
             middlewares.push(connect.static(appConfig.app));
-            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+            middlewares.push(require('grunt-connect-proxy-updated/lib/utils').proxyRequest);
 
             return middlewares;
           }
@@ -230,7 +230,7 @@ module.exports = function (grunt) {
           port: 9000,
           middleware: function (connect) {
             return [
-              require('grunt-connect-proxy/lib/utils').proxyRequest,
+              require('grunt-connect-proxy-updated/lib/utils').proxyRequest,
               connect.static(appConfig.dist)
             ];
           }

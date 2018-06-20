@@ -10,7 +10,7 @@
     "grunt-bower-task": "0.5.0",
     "grunt-cli": "0.1.13",
     "grunt-concurrent": "^0.5.0",
-    "grunt-connect-proxy": "~0.1.11",
+    "grunt-connect-proxy-updated": "0.2.1",
     "grunt-contrib-clean": "^0.5.0",
     "grunt-contrib-concat": "^0.4.0",
     "grunt-contrib-connect": "^0.7.1",
