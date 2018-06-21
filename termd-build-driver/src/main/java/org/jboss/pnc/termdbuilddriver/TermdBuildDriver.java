@@ -50,6 +50,10 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -69,6 +73,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     private boolean useInternalNetwork = true; //TODO configurable
 
     private ExecutorService executor;
+
+    private ScheduledExecutorService scheduledExecutorService;
 
     private Set<Consumer<StatusUpdateEvent>> statusUpdateConsumers = new HashSet<>();
 
@@ -90,6 +96,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
 
         executor = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("termd-build-driver-cancel"));
+
     }
 
     @Override
@@ -155,14 +163,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
             CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
-            buildCompletedFuture.handleAsync((status, exception) -> {
-                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
-                termdRunningBuild.setCancelHook(null);
-                remoteInvocation.close();
-                return complete(termdRunningBuild, status, exception);
-            }, executor);
-
-
+            AtomicReference<ScheduledFuture> forceCancel = new AtomicReference<>();
             termdRunningBuild.setCancelHook(() -> {
                 uploadFuture.cancel(true);
                 setClientFuture.cancel(true);
@@ -170,7 +171,25 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 if (remoteInvocation.getBuildAgentClient() != null) {
                     remoteInvocation.cancel(runningName);
                 }
+
+                ScheduledFuture<?> forceCancel_ = scheduledExecutorService.schedule(
+                        () -> {
+                            logger.debug("Forcing cancel ...");
+                            remoteInvocation.notifyCompleted(Status.INTERRUPTED);
+                        }, 10, TimeUnit.SECONDS);
+                forceCancel.set(forceCancel_);
             });
+
+            buildCompletedFuture.handleAsync((status, exception) -> {
+                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
+                ScheduledFuture forceCancel_ = forceCancel.get();
+                if (forceCancel_ != null) {
+                    forceCancel_.cancel(true);
+                }
+                termdRunningBuild.setCancelHook(null);
+                remoteInvocation.close();
+                return complete(termdRunningBuild, status, exception);
+            }, executor);
 
         } else {
             logger.debug("Skipping script uploading (cancel flag) ...");
