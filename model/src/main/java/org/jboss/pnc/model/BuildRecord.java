@@ -24,29 +24,7 @@ import org.jboss.pnc.common.security.Sha256;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.PersistenceException;
-import javax.persistence.PreRemove;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
@@ -303,7 +281,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(updatable = false)
     private Integer repourLogSize;
 
-    @OneToMany(mappedBy = "buildRecord")
+    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.REMOVE)
     private Set<BuildRecordPushResult> buildRecordPushResults;
 
     /**
