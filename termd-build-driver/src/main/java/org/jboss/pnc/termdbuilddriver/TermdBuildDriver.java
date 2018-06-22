@@ -22,10 +22,8 @@ import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -72,6 +70,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     //connect to build agent on internal or on public address
     private boolean useInternalNetwork = true; //TODO configurable
 
+    private Integer internalCancelTimeoutMillis;
+
     private ExecutorService executor;
 
     private ScheduledExecutorService scheduledExecutorService;
@@ -83,21 +83,16 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Inject
-    public TermdBuildDriver(Configuration configuration) {
+    public TermdBuildDriver(SystemConfig systemConfig, TermdBuildDriverModuleConfig termdBuildDriverModuleConfig) {
         int threadPoolSize = 12; //TODO configurable
-        try {
-            String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
-                    .getBuilderThreadPoolSize();
-            if (executorThreadPoolSizeStr != null) {
-                threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
-            }
-        } catch (ConfigurationParseException e) {
-            logger.warn("Unable parse config. Using defaults.");
+        String executorThreadPoolSizeStr = systemConfig.getBuilderThreadPoolSize();
+        if (executorThreadPoolSizeStr != null) {
+            threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
+        internalCancelTimeoutMillis = termdBuildDriverModuleConfig.getInternalCancelTimeoutMillis();
 
         executor = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("termd-build-driver-cancel"));
-
     }
 
     @Override
@@ -176,7 +171,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                         () -> {
                             logger.debug("Forcing cancel ...");
                             remoteInvocation.notifyCompleted(Status.INTERRUPTED);
-                        }, 10, TimeUnit.SECONDS);
+                        }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
                 forceCancel.set(forceCancel_);
             });
 

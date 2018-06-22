@@ -18,9 +18,9 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.api.Status;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -41,13 +41,15 @@ import java.util.function.Consumer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.model.BuildStatus.CANCELLED;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    SystemConfig systemConfig = mock(SystemConfig.class);
+    TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
 
     @Test(timeout = 15_000)
     public void shouldFetchFromGitAndBuild() throws Exception {
@@ -57,7 +59,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         ZipUtils.unzipToDir(tmpRepo, "/repo.zip");
         String dirName = "test-repo-cloned";
 
-        TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig);
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn(repoPath).when(buildExecutionConfiguration).getScmRepoURL();
@@ -100,7 +102,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         String logStart = "Running the command...";
         String logEnd = "Command completed.";
 
-        TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig);
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
@@ -140,7 +142,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         CountDownLatch latchCompleted = new CountDownLatch(1);
         CountDownLatch latchRunning = new CountDownLatch(1);
 
-        TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig);
         Consumer<StatusUpdateEvent> cancelOnBuildStart = (statusUpdateEvent) -> {
             try {
                 Thread.sleep(200);
@@ -182,12 +184,4 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
         assertThat(buildResult.get().getBuildResult().getBuildStatus()).isEqualTo(CANCELLED);
     }
-
-    private Configuration getConfiguration() throws ConfigurationParseException {
-        SystemConfig systemConfig = mock(SystemConfig.class);
-        Configuration configuration = mock(Configuration.class);
-        doReturn(systemConfig).when(configuration).getModuleConfig(any());
-        return configuration;
-    }
-
 }
