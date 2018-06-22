@@ -120,7 +120,7 @@
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
-    <version.buildagent>0.4-SNAPSHOT</version.buildagent>
+    <version.buildagent>0.4.0</version.buildagent>
     <version.jackson.core>2.5.4.redhat-1</version.jackson.core>
     <version.org.jboss.resteasy>3.0.24.Final-redhat-1</version.org.jboss.resteasy>
     <version.hibenate>5.1.13.Final</version.hibenate>
