@@ -16,10 +16,20 @@
 -- limitations under the License.
 --
 
--- TargetRepository
+--------------------------------------------------------------------------------
+-- BuildEnvironment
+--------------------------------------------------------------------------------
+alter table buildenvironment add column deprecated boolean;
+-- by default all existing buildenvironment are not deprecated
+update buildenvironment set deprecated = false;
+alter table buildenvironment alter column deprecated set not null;
 
+--------------------------------------------------------------------------------
+-- TargetRepository
+--------------------------------------------------------------------------------
 create sequence target_repository_repo_id_seq;
--- ## Updates required by new artifact repository relations
+
+-- Updates required by new artifact repository relations
 create table TargetRepository (
     id integer default nextval('target_repository_repo_id_seq') not null,
     temporaryRepo boolean not null,
@@ -41,7 +51,9 @@ insert into TargetRepository (id, temporaryRepo, identifier, repositoryPath, rep
 -- https://www.postgresql.org/docs/8.1/static/functions-sequence.html
 alter sequence target_repository_repo_id_seq restart with 5;
 
+--------------------------------------------------------------------------------
 -- Artifact
+--------------------------------------------------------------------------------
 alter table Artifact add targetRepository_id integer;
 
 alter table Artifact
@@ -58,17 +70,42 @@ update Artifact set targetRepository_id = 4 where repotype = 3;
 alter table Artifact alter column targetRepository_id set not null;
 alter table Artifact drop column repotype;
 
--- temporary build flags
-alter table buildrecord add temporarybuild boolean;
-update buildrecord set temporarybuild = false;
-alter table buildrecord alter column temporarybuild set not null;
+-- Old uniqueness constraint (identifier, sha256)
+alter table artifact
+    drop CONSTRAINT uk_fh8aer1o1771nyq8atrp57iql;
 
+-- New uniqueness constraint (identifier, sha256, targetrepository_id)
+alter table Artifact
+    add constraint uk_qlrbh99iffsgof0v4mxlh95vl unique (identifier, sha256, targetRepository_id);
+
+--------------------------------------------------------------------------------
+-- buildconfigsetrecord
+--------------------------------------------------------------------------------
 alter table buildconfigsetrecord add temporarybuild boolean;
 update buildconfigsetrecord set temporarybuild = false;
 alter table buildconfigsetrecord alter column temporarybuild set not null;
 
+--------------------------------------------------------------------------------
+-- BuildRecord
+--
+-- NCL-3531
+-- TODO: do we need to compute the values?
+--------------------------------------------------------------------------------
+alter table buildrecord add temporarybuild boolean;
+update buildrecord set temporarybuild = false;
+alter table buildrecord alter column temporarybuild set not null;
 
+alter table buildrecord
+    add column buildlogmd5 varchar(255),
+    add column buildlogsha256 varchar(255),
+    add column buildlogsize int4,
+    add column repourlogmd5 varchar(255),
+    add column repourlogsha256 varchar(255),
+    add column repourlogsize int4;
+
+--------------------------------------------------------------------------------
 -- BuildRecordPushResult
+--------------------------------------------------------------------------------
 create sequence build_record_push_result_id_seq;
 
 create table BuildRecordPushResult (
@@ -98,7 +135,9 @@ left join
 WHERE
     brID.key = 'brewId';
 
+--------------------------------------------------------------------------------
 -- build_config_set_record_attributes collection table
+--------------------------------------------------------------------------------
 create table build_config_set_record_attributes (
     build_config_set_record_id int4 not null,
     value varchar(255),
@@ -110,3 +149,18 @@ alter table build_config_set_record_attributes
     add constraint fk_build_config_set_record_attributes_build_config_set_record
     foreign key (build_config_set_record_id)
     references BuildConfigSetRecord;
+
+--------------------------------------------------------------------------------
+-- Indexes
+--------------------------------------------------------------------------------
+
+-- Defined on Artifact.java
+create index idx_artifact_targetrepository ON artifact (targetRepository_id);
+
+-- Defined on BuildRecordPushResult.java
+create index idx_buildrecordpushresult_buildrecord ON buildrecordpushresult (buildRecord_id);
+
+-- BuildRecord index on join tables
+create index idx_build_record_artifact_dependencies_map ON build_record_artifact_dependencies_map (dependency_artifact_id);
+create index idx_build_record_built_artifact_map ON build_record_built_artifact_map (built_artifact_id);
+
