@@ -176,7 +176,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                         () -> {
                             logger.debug("Forcing cancel ...");
                             remoteInvocation.notifyCompleted(Status.INTERRUPTED);
-                        }, 10, TimeUnit.SECONDS);
+                        }, 5, TimeUnit.SECONDS);
                 forceCancel.set(forceCancel_);
             });
 
