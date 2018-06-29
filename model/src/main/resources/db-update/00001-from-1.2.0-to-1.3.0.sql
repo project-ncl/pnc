@@ -112,6 +112,7 @@ create table BuildRecordPushResult (
     id int4 not null,
     brewBuildId int4,
     brewBuildUrl varchar(255),
+    tagPrefix varchar(255),
     log text,
     status varchar(255),
     buildRecord_id int4,
