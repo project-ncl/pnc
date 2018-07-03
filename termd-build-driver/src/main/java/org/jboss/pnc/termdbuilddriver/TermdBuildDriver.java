@@ -22,10 +22,8 @@ import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -50,6 +48,10 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -68,7 +70,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     //connect to build agent on internal or on public address
     private boolean useInternalNetwork = true; //TODO configurable
 
+    private Integer internalCancelTimeoutMillis;
+
     private ExecutorService executor;
+
+    private ScheduledExecutorService scheduledExecutorService;
 
     private Set<Consumer<StatusUpdateEvent>> statusUpdateConsumers = new HashSet<>();
 
@@ -77,19 +83,16 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Inject
-    public TermdBuildDriver(Configuration configuration) {
+    public TermdBuildDriver(SystemConfig systemConfig, TermdBuildDriverModuleConfig termdBuildDriverModuleConfig) {
         int threadPoolSize = 12; //TODO configurable
-        try {
-            String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
-                    .getBuilderThreadPoolSize();
-            if (executorThreadPoolSizeStr != null) {
-                threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
-            }
-        } catch (ConfigurationParseException e) {
-            logger.warn("Unable parse config. Using defaults.");
+        String executorThreadPoolSizeStr = systemConfig.getBuilderThreadPoolSize();
+        if (executorThreadPoolSizeStr != null) {
+            threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
+        internalCancelTimeoutMillis = termdBuildDriverModuleConfig.getInternalCancelTimeoutMillis();
 
         executor = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("termd-build-driver-cancel"));
     }
 
     @Override
@@ -155,14 +158,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
             CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
 
-            buildCompletedFuture.handleAsync((status, exception) -> {
-                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
-                termdRunningBuild.setCancelHook(null);
-                remoteInvocation.close();
-                return complete(termdRunningBuild, status, exception);
-            }, executor);
-
-
+            AtomicReference<ScheduledFuture> forceCancel = new AtomicReference<>();
             termdRunningBuild.setCancelHook(() -> {
                 uploadFuture.cancel(true);
                 setClientFuture.cancel(true);
@@ -170,7 +166,25 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 if (remoteInvocation.getBuildAgentClient() != null) {
                     remoteInvocation.cancel(runningName);
                 }
+
+                ScheduledFuture<?> forceCancel_ = scheduledExecutorService.schedule(
+                        () -> {
+                            logger.debug("Forcing cancel ...");
+                            remoteInvocation.notifyCompleted(Status.INTERRUPTED);
+                        }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
+                forceCancel.set(forceCancel_);
             });
+
+            buildCompletedFuture.handleAsync((status, exception) -> {
+                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
+                ScheduledFuture forceCancel_ = forceCancel.get();
+                if (forceCancel_ != null) {
+                    forceCancel_.cancel(true);
+                }
+                termdRunningBuild.setCancelHook(null);
+                remoteInvocation.close();
+                return complete(termdRunningBuild, status, exception);
+            }, executor);
 
         } else {
             logger.debug("Skipping script uploading (cancel flag) ...");

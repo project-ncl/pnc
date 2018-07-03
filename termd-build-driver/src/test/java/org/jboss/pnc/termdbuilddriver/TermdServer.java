@@ -20,6 +20,7 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.server.BuildAgentException;
 import org.jboss.pnc.buildagent.server.BuildAgentServer;
+import org.jboss.pnc.buildagent.server.IoLoggerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,10 +65,13 @@ public class TermdServer {
         };
         mutex.acquire();
 
+        AtomicReference<BuildAgentServer> buildAgentServerReference = new AtomicReference<>();
+
         serverThread = new Thread(() -> {
             try {
-                BuildAgentServer buildAgent = new BuildAgentServer("127.0.0.1", 0, "", logFolder, onStart);
-                runningPort.set(buildAgent.getPort());
+                IoLoggerName[] primaryLoggers = {IoLoggerName.FILE};
+                BuildAgentServer buildAgent = new BuildAgentServer("127.0.0.1", 0, "", logFolder, Optional.empty(), primaryLoggers, onStart);
+                buildAgentServerReference.set(buildAgent);
             } catch (BuildAgentException e) {
                 throw new RuntimeException("Cannot start build agent.", e);
             }
@@ -75,6 +79,7 @@ public class TermdServer {
         serverThread.start();
 
         mutex.acquire(); //wait to start the server
+        runningPort.set(buildAgentServerReference.get().getPort());
     }
 
     public static AtomicInteger getPort_pool() {
