@@ -17,19 +17,21 @@
  */
 package org.jboss.pnc.coordinator;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import java.io.IOException;
 
 /**
- * Not in use
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
  */
 @Dependent
 public class Lifecycle {
 
-    private static final Logger log = Logger.getLogger(Lifecycle.class);
+    private static final Logger log = LoggerFactory.getLogger(Lifecycle.class);
 
     public Lifecycle() {
     }

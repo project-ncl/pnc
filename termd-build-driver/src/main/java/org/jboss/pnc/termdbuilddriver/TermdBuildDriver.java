@@ -22,9 +22,10 @@ import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
+import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
-import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -47,7 +48,6 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -84,15 +84,15 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     @Inject
     public TermdBuildDriver(SystemConfig systemConfig, TermdBuildDriverModuleConfig termdBuildDriverModuleConfig) {
-        int threadPoolSize = 12; //TODO configurable
+        int threadPoolSize = 12;
         String executorThreadPoolSizeStr = systemConfig.getBuilderThreadPoolSize();
         if (executorThreadPoolSizeStr != null) {
             threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
         internalCancelTimeoutMillis = termdBuildDriverModuleConfig.getInternalCancelTimeoutMillis();
 
-        executor = Executors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("termd-build-driver-cancel"));
+        executor = MDCExecutors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
+        scheduledExecutorService = MDCExecutors.newScheduledThreadPool(1, new NamedThreadFactory("termd-build-driver-cancel"));
     }
 
     @Override

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.coordinator.builder.datastore;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -38,6 +37,8 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -64,7 +65,8 @@ public class DatastoreAdapter {
 
     private Datastore datastore;
 
-    private static final Logger log = Logger.getLogger(DatastoreAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(DatastoreAdapter.class);
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-result");
 
     // needed for EJB/CDI
     @Deprecated
@@ -113,6 +115,7 @@ public class DatastoreAdapter {
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
             } else {
+                userLog.warn("Missing Repour Result!");
                 log.warn("[BuildTask:" + buildTask.getId() + "] Missing RepourResult.");
             }
 
@@ -170,6 +173,7 @@ public class DatastoreAdapter {
                 } else if (buildResult.getCompletionStatus().equals(CompletionStatus.TIMED_OUT)) {
                     buildRecordStatus = SYSTEM_ERROR;
                     buildRecordBuilder.appendLog("-- Operation TIMED-OUT --");
+                    userLog.warn("Operation TIMED-OUT.");
                 }
             }
 
@@ -185,8 +189,9 @@ public class DatastoreAdapter {
                 return;
             }
 
-            log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
+            log.debug("Storing results of buildTask [{}] to datastore.", buildTask.getId());
             datastore.storeCompletedBuild(buildRecordBuilder);
+            userLog.info("Successfully completed.");
         } catch (Exception e) {
             storeResult(buildTask, Optional.of(buildResult), e);
         }
@@ -241,7 +246,8 @@ public class DatastoreAdapter {
         errorLog.append(stackTraceWriter.getBuffer());
         buildRecordBuilder.buildLog(errorLog.toString());
 
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorLog, e);
+        userLog.error("Build status: {}.", getBuildStatus(buildResult));
+        log.debug("Storing ERROR result of buildTask.getBuildConfigurationAudited().getName() to datastore.",  e);
         datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
@@ -258,7 +264,9 @@ public class DatastoreAdapter {
         buildRecordBuilder.status(REJECTED);
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
 
-        log.debugf("Storing REJECTED build of %s to datastore. Reason: %s", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
+        userLog.warn(buildTask.getStatusDescription());
+
+        log.debug("Storing REJECTED build of {} to datastore. Reason: {}", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
         datastore.storeCompletedBuild(buildRecordBuilder);
     }
 

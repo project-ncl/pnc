@@ -17,10 +17,15 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 public class SystemConfig extends AbstractModuleConfig {
 
@@ -122,6 +127,14 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getTemporaryBuildsLifeSpan() {
         return temporaryBuildsLifeSpan;
+    }
+
+    /**
+     * @return expiration date. Date is calculated now + temporaryBuildsLifeSpan days.
+     */
+    @JsonIgnore
+    public Date getTemporalBuildExpireDate() {
+        return Date.from(Instant.now().plus(temporaryBuildsLifeSpan, ChronoUnit.DAYS));
     }
 
     public KeycloakClientConfig getKeycloakServiceAccountConfig() {

@@ -1,9 +1,0 @@
-{
-"@class":"ModuleConfigJson","name":"pnc-config",
-        "configs":[
-          {
-            "@module-config":"maven-repo-driver",
-            "baseUrl":"${env.PNC_APROX_URL}"
-          }
-        ]
-}
