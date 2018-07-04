@@ -64,12 +64,24 @@ public class BuildStatusMQNotifications {
         Status newStatus = toMqStatus(event.getNewStatus());
         if (newStatus != null) {
             Message message = new BuildStatusChanged(
-                    toStringStatus(toMqStatus(event.getOldStatus())),
+                    toStringStatus(getOldStatus(event.getOldStatus())),
                     toStringStatus(newStatus),
                     event.getBuildTaskId().toString()
             );
             ms.sendToTopic(message, prepareHeaders(event));
         }
+    }
+
+    private Status getOldStatus(BuildCoordinationStatus oldStatus) {
+        Status mqOldStatus;
+        if (BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.equals(oldStatus)) {
+            mqOldStatus = Status.ACCEPTED;
+        } else if (BuildCoordinationStatus.BUILD_COMPLETED.equals(oldStatus)) {
+            mqOldStatus = Status.BUILDING;
+        } else {
+            mqOldStatus = toMqStatus(oldStatus);
+        }
+        return mqOldStatus;
     }
 
     private Map<String, String> prepareHeaders(BuildCoordinationStatusChangedEvent event) {
@@ -79,7 +91,7 @@ public class BuildStatusMQNotifications {
         headers.put("name", event.getBuildConfigurationName());
         headers.put("configurationId", event.getBuildConfigurationId().toString());
         headers.put("configurationRevision", event.getBuildConfigurationRevision().toString());
-        headers.put("oldStatus", toStringStatus(toMqStatus(event.getOldStatus())));
+        headers.put("oldStatus", toStringStatus(getOldStatus(event.getOldStatus())));
         headers.put("newStatus", toStringStatus(toMqStatus(event.getNewStatus())));
         return headers;
     }
