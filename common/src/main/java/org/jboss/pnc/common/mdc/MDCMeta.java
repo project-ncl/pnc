@@ -15,34 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator;
+package org.jboss.pnc.common.mdc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.io.IOException;
+import java.util.Date;
 
 /**
- *
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Dependent
-public class Lifecycle {
+@AllArgsConstructor
+@Getter
+public class MDCMeta {
 
-    private static final Logger log = LoggerFactory.getLogger(Lifecycle.class);
+    private final String buildContentId;
 
-    public Lifecycle() {
-    }
+    private final boolean temporaryBuild;
 
-    public void start() {
-        log.info("Core started.");
-    }
-
-    public void stop() {
-        log.info("Core stopped.");
-    }
-
-
+    private final Date temporaryBuildExpireDate;
 }

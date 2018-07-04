@@ -4,7 +4,14 @@
           {
             "@module-config":"system-config",
             "buildDriverId":"not me",
-            "buildSchedulerId":"not me"
+            "buildSchedulerId":"not me",
+            "authenticationProviderId": "JAAS",
+            "executorThreadPoolSize": "1",
+            "builderThreadPoolSize": "1",
+            "coordinatorThreadPoolSize": "1",
+            "coordinatorMaxConcurrentBuilds": "10",
+            "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
+            "temporaryBuildsLifeSpan" : "14"
           }
         ]
 }

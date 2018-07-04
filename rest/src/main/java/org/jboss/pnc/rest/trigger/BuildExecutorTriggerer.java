@@ -22,6 +22,8 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.rest.executor.notifications.NotificationSender;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
@@ -56,6 +58,8 @@ public class BuildExecutorTriggerer {
     @Deprecated
     BpmManager bpmManager;
 
+    private SystemConfig systemConfig;
+
     private NotificationSender notificationSender;
 
     @Deprecated //CDI workaround
@@ -66,11 +70,13 @@ public class BuildExecutorTriggerer {
             BuildExecutor buildExecutor,
             BpmNotifier bpmNotifier,
             NotificationSender notificationSender,
-            BpmManager bpmManager) {
+            BpmManager bpmManager,
+            SystemConfig systemConfig) {
         this.buildExecutor = buildExecutor;
         this.bpmNotifier = bpmNotifier;
         this.notificationSender = notificationSender;
         this.bpmManager = bpmManager;
+        this.systemConfig = systemConfig;
     }
 
     public BuildExecutionSession executeBuild(
@@ -165,4 +171,17 @@ public class BuildExecutorTriggerer {
         buildExecutor.cancel(buildExecutionConfigId);
     }
 
+    public Optional<MDCMeta> getMdcMeta(Integer buildExecutionConfigId) {
+        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildExecutionConfigId);
+        if (runningExecution != null) {
+            BuildExecutionConfiguration buildExecutionConfiguration = runningExecution.getBuildExecutionConfiguration();
+            return Optional.of(new MDCMeta(
+                    buildExecutionConfiguration.getBuildContentId(),
+                    buildExecutionConfiguration.isTempBuild(),
+                    systemConfig.getTemporalBuildExpireDate()
+            ));
+        } else {
+            return Optional.empty();
+        }
+    }
 }

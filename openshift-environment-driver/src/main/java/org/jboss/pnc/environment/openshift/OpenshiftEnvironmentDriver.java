@@ -19,12 +19,13 @@
 package org.jboss.pnc.environment.openshift;
 
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
-import org.jboss.pnc.common.util.NamedThreadFactory;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;
@@ -41,7 +42,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -83,8 +83,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         if (executorThreadPoolSizeStr != null) {
             executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
-        executor = Executors.newFixedThreadPool(executorThreadPoolSize,
-                new NamedThreadFactory("openshift-environment-driver"));
+        executor = MDCExecutors.newFixedThreadPool(executorThreadPoolSize, new NamedThreadFactory("openshift-environment-driver"));
 
         logger.info("Is OpenShift environment driver disabled: {}", openshiftEnvironmentDriverModuleConfig.isDisabled());
     }

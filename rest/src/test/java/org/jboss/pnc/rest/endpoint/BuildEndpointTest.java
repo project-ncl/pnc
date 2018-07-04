@@ -24,7 +24,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.spi.BuildOptions;
@@ -43,7 +42,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -150,7 +148,7 @@ public class BuildEndpointTest {
         buildConfigurationAudited.setIdRev(idRev);
         when(buildConfigurationAuditedRepository.queryById(idRev)).thenReturn(buildConfigurationAudited);
 
-        buildTasks.add( BuildTask.build(null, buildConfigurationAudited, buildOptions, user, buildId, buildSetTask, null, null));
+        buildTasks.add( BuildTask.build(null, buildConfigurationAudited, buildOptions, user, buildId, buildSetTask, null, null, "context-id"));
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(buildTasks);
 
         // when

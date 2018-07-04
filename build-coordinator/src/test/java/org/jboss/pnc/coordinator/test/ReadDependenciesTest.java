@@ -22,7 +22,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
@@ -38,6 +37,9 @@ import org.junit.runner.RunWith;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -77,7 +79,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();

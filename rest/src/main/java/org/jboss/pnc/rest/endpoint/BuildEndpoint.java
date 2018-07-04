@@ -23,6 +23,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
@@ -53,6 +55,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -177,7 +180,13 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     public Response cancel(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer buildTaskId) {
         boolean success = false;
         try {
-            logger.info("Received cancel request for buildTaskId: {}.", buildTaskId);
+            logger.debug("Received cancel request for buildTaskId: {}.", buildTaskId);
+            Optional<MDCMeta> mdcMeta = buildTriggerer.getMdcMeta(buildTaskId);
+            if (mdcMeta.isPresent()) {
+                MDCUtils.setMDC(mdcMeta.get());
+            } else {
+                logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildTaskId);
+            }
             success = buildTriggerer.cancelBuild(buildTaskId);
         } catch (BuildConflictException | CoreException e) {
             logger.error("Unable to cancel the build [" + buildTaskId + "].", e);
