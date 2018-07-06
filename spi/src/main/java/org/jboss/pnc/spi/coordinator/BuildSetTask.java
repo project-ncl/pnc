@@ -183,6 +183,13 @@ public class BuildSetTask {
         }
     }
 
+    public boolean isFinished() {
+        return this
+                .getBuildTasks()
+                .stream()
+                .allMatch(t -> t.getStatus().isCompleted());
+    }
+
     @Override
     public String toString() {
         return "BuildSetTask{" +
