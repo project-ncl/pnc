@@ -142,12 +142,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                             buildQueue.getUnfinishedTasks());
 
             buildQueue.enqueueTaskSet(buildSetTask);
-            List<BuildTask> readyTasks = buildSetTask.getBuildTasks().stream().filter(BuildTask::readyToBuild).collect(Collectors.toList());
-            List<BuildTask> waitingTasks = new ArrayList<>(buildSetTask.getBuildTasks());
-            waitingTasks.removeAll(readyTasks);
 
-            waitingTasks.forEach(this::addTaskToBuildQueue);
-            readyTasks.forEach(this::addTaskToBuildQueue);
+            buildSetTask.getBuildTasks().forEach(this::addTaskToBuildQueue);
 
             return buildSetTask;
 
@@ -544,16 +540,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
 
         BuildSetTask buildSetTask = task.getBuildSetTask();
-        if (buildSetTask != null && isFinished(buildSetTask)) {
+        if (buildSetTask != null && buildSetTask.isFinished()) {
             completeBuildSetTask(buildSetTask);
         }
-    }
-
-    private boolean isFinished(BuildSetTask buildSetTask) {
-        return buildSetTask
-                .getBuildTasks()
-                .stream()
-                .allMatch(t -> t.getStatus().isCompleted());
     }
 
     private void handleErroneousFinish(BuildTask failedTask) {
