@@ -16,6 +16,12 @@
 -- limitations under the License.
 --
 
+
+--------------------------------------------------------------------------------
+-- Start transaction
+--------------------------------------------------------------------------------
+BEGIN transaction;
+
 --------------------------------------------------------------------------------
 -- BuildEnvironment
 --------------------------------------------------------------------------------
@@ -104,6 +110,36 @@ alter table buildrecord
     add column repourlogsize int4;
 
 --------------------------------------------------------------------------------
+-- Populate the new fields added to buildrecord with data
+--------------------------------------------------------------------------------
+
+-- Enable pgrcrypto extension for sha256 calculation
+create extension pgcrypto;
+
+-- buildlogmd5, buildlogsha256, buildlogsize
+update
+    buildrecord
+set
+    buildlogmd5 = md5(buildlog),
+    buildlogsha256 = encode(digest(buildlog, 'sha256'), 'hex'),
+    buildlogsize = length(buildlog)
+where
+    buildlog is not null;
+
+-- repourlogmd5, repourlogsha256, repourlogsize
+update
+    buildrecord
+set
+    repourlogmd5 = md5(repourlog),
+    repourlogsha256 = encode(digest(repourlog, 'sha256'), 'hex'),
+    repourlogsize = length(repourlog)
+where
+    repourlog is not null;
+
+-- Stop using pgrcypto extenstion
+drop extension pgcrypto;
+
+--------------------------------------------------------------------------------
 -- BuildRecordPushResult
 --------------------------------------------------------------------------------
 create sequence build_record_push_result_id_seq;
@@ -165,3 +201,8 @@ create index idx_buildrecordpushresult_buildrecord ON buildrecordpushresult (bui
 create index idx_build_record_artifact_dependencies_map ON build_record_artifact_dependencies_map (dependency_artifact_id);
 create index idx_build_record_built_artifact_map ON build_record_built_artifact_map (built_artifact_id);
 
+
+--------------------------------------------------------------------------------
+-- Commit changes
+--------------------------------------------------------------------------------
+COMMIT;
