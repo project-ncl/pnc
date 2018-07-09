@@ -16,6 +16,12 @@
 -- limitations under the License.
 --
 
+
+--------------------------------------------------------------------------------
+-- Start transaction
+--------------------------------------------------------------------------------
+BEGIN transaction;
+
 --------------------------------------------------------------------------------
 -- BuildEnvironment
 --------------------------------------------------------------------------------
@@ -196,3 +202,7 @@ create index idx_build_record_artifact_dependencies_map ON build_record_artifact
 create index idx_build_record_built_artifact_map ON build_record_built_artifact_map (built_artifact_id);
 
 
+--------------------------------------------------------------------------------
+-- Commit changes
+--------------------------------------------------------------------------------
+COMMIT;
