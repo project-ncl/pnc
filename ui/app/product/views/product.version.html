@@ -31,9 +31,9 @@
   </pnc-header>
 
   <form editable-form class="form-horizontal" name="productVersionForm" onbeforesave="versionCtrl.update(productVersionForm)" novalidate>
+
     <div class="form-group" ng-class="{ 'has-error': productVersionForm.version.$invalid && !productVersionForm.version.$pristine, 'has-success': productVersionForm.version.$valid && productVersionForm.version.$touched }">
       <label for="input-version" class="col-sm-1 control-label" ng-class="{ 'required': productVersionForm.$visible }">Version</label>
-
       <div class="col-sm-11">
         <p id="input-version" e-pattern="^[0-9]+\.[0-9]+$" e-class="form-control" editable-text="versionCtrl.version.version" e-name="version" e-maxlength="255" e-required>{{ versionCtrl.version.version || 'Empty' }} </p>
         <span class="help-block" ng-show="productVersionForm.version.$error.required && !productVersionForm.version.$pristine">Required field.</span>
@@ -57,16 +57,17 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="static-brew-tag" class="col-sm-1 control-label">Brew Tag Prefix</label>
+    <div class="form-group" ng-class="{ 'has-error': productVersionForm.brewTagPrefix.$invalid && !productVersionForm.brewTagPrefix.$pristine, 'has-success': productVersionForm.brewTagPrefix.$valid && productVersionForm.brewTagPrefix.$touched }">
+      <label for="brewTagPrefix" class="col-sm-1 control-label" ng-class="{ 'required': productVersionForm.$visible }">Brew Tag Prefix</label>
       <div class="col-sm-11">
-        <p id="static-brew-tag" class="form-control-static">{{ versionCtrl.version.attributes.BREW_TAG_PREFIX || 'Empty' }}</p>
+        <p id="brewTagPrefix" e-class="form-control" editable-text="versionCtrl.version.attributes.BREW_TAG_PREFIX" e-name="brewTagPrefix" e-maxlength="255" e-required>{{ versionCtrl.version.attributes.BREW_TAG_PREFIX || 'Empty' }}</p>
+        <span class="help-block" ng-show="productVersionForm.brewTagPrefix.$error.required && !productVersionForm.brewTagPrefix.$pristine">Required field.</span>
       </div>
     </div>
 
     <div class="form-group" ng-show="productVersionForm.$visible">
       <div class="col-sm-offset-1 col-sm-11">
-        <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting || productVersionForm.version.$invalid">
+        <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting || productVersionForm.$invalid">
           Save
         </button>
         <button type="button" class="btn btn-default" ng-disabled="productVersionForm.$waiting" ng-click="productVersionForm.$cancel(); productVersionForm.$setPristine(); productVersionForm.$setUntouched();">
