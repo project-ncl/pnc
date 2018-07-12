@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.RemoteRepository;
@@ -33,10 +34,14 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.junit.Assert.assertThat;
@@ -62,29 +67,34 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
         StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID);
         StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PNC_BUILDS_GROUP);
         StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
+        StoreKey commonConstituentsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP);
         StoreKey remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, STORE);
 
-        Group publicGroup = indy.stores().load(publicKey, Group.class);
-        if (publicGroup == null) {
-            publicGroup = new Group(MAVEN_PKG_KEY, PUBLIC_GROUP_ID, remoteKey);
-            indy.stores().create(publicGroup, "creating public group", Group.class);
+        createOrUpdateGroup(pncBuildsKey);
+        createHostedIfMissing(sharedImportsKey, false, true);
+        createOrUpdateGroup(publicKey, remoteKey);
+        createOrUpdateGroup(commonConstituentsKey, pncBuildsKey, sharedImportsKey, publicKey);
+    }
+
+    private void createHostedIfMissing(StoreKey hostedKey, boolean allowSnapshots, boolean allowReleases) throws IndyClientException {
+        if (!indy.stores().exists(hostedKey)) {
+            HostedRepository hosted = new HostedRepository(hostedKey.getPackageType(), hostedKey.getName());
+            hosted.setAllowSnapshots(allowSnapshots);
+            hosted.setAllowReleases(allowReleases);
+
+            indy.stores().create(hosted, "Creating repository " + hostedKey.getName(), HostedRepository.class);
+        }
+    }
+
+    private void createOrUpdateGroup(StoreKey groupKey, StoreKey... constituents) throws IndyClientException {
+        Group group = indy.stores().load(groupKey, Group.class);
+        if (group == null) {
+            group = new Group(groupKey.getPackageType(), groupKey.getName(), constituents);
+            indy.stores().create(group, "Creating " + groupKey.getName() + " group", Group.class);
         } else {
-            publicGroup.setConstituents(Collections.singletonList(remoteKey));
-            indy.stores().update(publicGroup, "adding test remote to public group");
-        }
-
-        if (!indy.stores().exists(pncBuildsKey)) {
-            Group buildsUntested = new Group(MAVEN_PKG_KEY, PNC_BUILDS_GROUP);
-            indy.stores().create(buildsUntested, "Creating global shared-builds repository group.", Group.class);
-        }
-
-        if (!indy.stores().exists(sharedImportsKey)) {
-            HostedRepository sharedImports = new HostedRepository(MAVEN_PKG_KEY, SHARED_IMPORTS_ID);
-            sharedImports.setAllowSnapshots(false);
-            sharedImports.setAllowReleases(true);
-
-            indy.stores().create(sharedImports, "Creating global repository for hosting external imports used in builds.",
-                    HostedRepository.class);
+            List<StoreKey> constituentsList = Arrays.asList(constituents);
+            group.setConstituents(constituentsList);
+            indy.stores().update(group, "Setting constituents of " + groupKey.getName() + " group");
         }
     }
 
