@@ -21,6 +21,13 @@
 
   <div class="pull-left">
 
+    <a class="btn btn-default btn-sm" href="{{resultCtrl.logUrl}}" target="_blank" title="View the log as a plain text">
+      View <span class="pficon pficon-arrow"></span>
+    </a>
+    <a class="btn btn-default btn-sm" href="{{resultCtrl.logUrl}}" target="_blank" title="Download the log as a plain text" download="{{resultCtrl.logFileName}}">
+      Download <span class="fa fa-arrow-circle-o-down"></span>
+    </a>
+
     <!-- popover template -->
     <script type="text/ng-template" id="popoverTemplate.html">
       <table class="nowrap">
@@ -41,7 +48,7 @@
       uib-popover-template="'popoverTemplate.html'"
       popover-title="SSH credentials"
       type="button"
-      class="btn btn-default btn-sm popover-no-max w-min-130"
+      class="btn btn-primary btn-sm popover-no-max w-min-130"
       popover-placement="right"
       ng-if="resultCtrl.sshCredentials.command"
       ng-click="resultCtrl.sshCredentialsBtn.clicked = !resultCtrl.sshCredentialsBtn.clicked"
@@ -52,14 +59,6 @@
     </button>
   </div>
 
-  <div class="text-right">
-    <a class="btn btn-default btn-xs" href="{{resultCtrl.logUrl}}" target="_blank" title="View log as a plain text">View</a>
-    <a class="btn btn-primary btn-xs" href="{{resultCtrl.logUrl}}" target="_blank" title="Download log as a plain text" download="{{resultCtrl.logFileName}}">Download</a>
-  </div>
-
-  <br>
-
-  <pre>
-    {{ resultCtrl.log || 'Log not available.' }}
-  </pre>
+  <pnc-static-log log="resultCtrl.log"></pnc-static-log>
+  
 </div>
