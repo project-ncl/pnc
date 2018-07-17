@@ -33,8 +33,10 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
+import org.jboss.pnc.rest.utils.RestGraphBuilder;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -52,6 +54,9 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
+import org.jboss.util.graph.Edge;
+import org.jboss.util.graph.Graph;
+import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,6 +170,27 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
+    }
+
+    public GraphRest<BuildRecordRest> getDependencyGraph(Integer buildId) {
+        BuildTask buildTask = getSubmittedBuild(buildId);
+        Graph<BuildTask> dependencyGraph = buildTask.getDependencyGraph();
+        Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
+        for (Vertex<BuildTask> buildTaskVertex : dependencyGraph.getVerticies()) {
+            BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
+            Vertex<BuildRecordRest> buildRecordVertex = new Vertex<>(recordRest.getBuildContentId(), recordRest);
+            buildRecordGraph.addVertex(buildRecordVertex);
+
+            for (Object o : buildTaskVertex.getOutgoingEdges()) {
+                Edge<BuildTask> edge = (Edge<BuildTask>)o;
+                buildRecordGraph.addEdge(
+                        buildRecordGraph.findVertexByName(edge.getFrom().getName()),
+                        buildRecordGraph.findVertexByName(edge.getTo().getName()),
+                        1);
+            }
+        }
+
+        return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
     }
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask buildTask) {
