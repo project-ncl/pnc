@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.coordinator;
 
 import lombok.Getter;
+import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -269,7 +270,7 @@ public class BuildTask {
     }
 
     private Vertex<BuildTask> buildDependencyGraph(Graph<BuildTask> graph, BuildTask current) {
-        Vertex<BuildTask> currentVertex = new Vertex<>(Integer.toString(current.getId()), current);
+        Vertex<BuildTask> currentVertex = new NameUniqueVertex<>(Integer.toString(current.getId()), current);
         graph.addVertex(currentVertex);
 
         for (BuildTask dependency : current.getDependencies()) {
@@ -281,7 +282,7 @@ public class BuildTask {
     }
 
     private Vertex<BuildTask> buildDependantsGraph(Graph<BuildTask> graph, BuildTask current) {
-        Vertex<BuildTask> currentVertex = new Vertex<>(current.getContentId(), current);
+        Vertex<BuildTask> currentVertex = new NameUniqueVertex<>(current.getContentId(), current);
         graph.addVertex(currentVertex);
 
         for (BuildTask dependant : current.getDependants()) {
