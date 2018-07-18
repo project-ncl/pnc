@@ -17,11 +17,13 @@
     limitations under the License.
 
 -->
-<div class="text-right">
-  <a class="btn btn-default btn-xs" href="{{repourResultCtrl.logUrl}}" target="_blank" title="View log as a plain text">View</a>
-  <a class="btn btn-primary btn-xs" href="{{repourResultCtrl.logUrl}}" target="_blank" title="Download log as a plain text" download="{{repourResultCtrl.logFileName}}">Download</a>
+<div class="pull-left">
+  <a class="btn btn-default btn-sm" href="{{repourResultCtrl.logUrl}}" target="_blank" title="View the log as a plain text">
+    View <span class="pficon pficon-arrow"></span>
+  </a>
+  <a class="btn btn-default btn-sm" href="{{repourResultCtrl.logUrl}}" target="_blank" title="Download the log as a plain text" download="{{repourResultCtrl.logFileName}}">
+    Download <span class="fa fa-arrow-circle-o-down"></span>
+  </a>
 </div>
 
-<div class="push-down">
-  <pre>{{ repourResultCtrl.log || 'Log not available.' }}</pre>
-</div>
+<pnc-static-log log="repourResultCtrl.log"></pnc-static-log>
