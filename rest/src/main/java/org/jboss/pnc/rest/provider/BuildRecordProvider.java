@@ -21,6 +21,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.criteria.AuditDisjunction;
+import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -174,22 +175,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     public GraphRest<BuildRecordRest> getDependencyGraph(Integer buildId) {
         BuildTask buildTask = getSubmittedBuild(buildId);
-        Graph<BuildTask> dependencyGraph = buildTask.getDependencyGraph();
         Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
-        for (Vertex<BuildTask> buildTaskVertex : dependencyGraph.getVerticies()) {
-            BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
-            Vertex<BuildRecordRest> buildRecordVertex = new Vertex<>(recordRest.getBuildContentId(), recordRest);
-            buildRecordGraph.addVertex(buildRecordVertex);
-
-            for (Object o : buildTaskVertex.getOutgoingEdges()) {
-                Edge<BuildTask> edge = (Edge<BuildTask>)o;
-                buildRecordGraph.addEdge(
-                        buildRecordGraph.findVertexByName(edge.getFrom().getName()),
-                        buildRecordGraph.findVertexByName(edge.getTo().getName()),
-                        1);
-            }
-        }
-
+        fillBuildRecordRestGraph(buildRecordGraph, buildTask);
         return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
     }
 
@@ -239,6 +226,45 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
+    public GraphRest<BuildRecordRest> getGraphAllRunningForBCSetRecord(Integer bcSetRecordId) {
+        //get all build tasks that are in the group
+        List<BuildTask> buildTasks = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .filter(t -> t != null)
+                .filter(t -> t.getBuildSetTask() != null
+                        && bcSetRecordId.equals(t.getBuildSetTask().getId()))
+                .sorted((t1, t2) -> t1.getId() - t2.getId())
+                .collect(Collectors.toList());
+
+        Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
+        for (BuildTask buildTask : buildTasks) {
+            fillBuildRecordRestGraph(buildRecordGraph, buildTask);
+        }
+
+        return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
+    }
+
+    /**
+     * Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
+     */
+    private void fillBuildRecordRestGraph(Graph<BuildRecordRest> buildRecordGraph, BuildTask buildTask) {
+        Graph<BuildTask> dependencyGraph = buildTask.getDependencyGraph();
+
+        for (Vertex<BuildTask> buildTaskVertex : dependencyGraph.getVerticies()) {
+            BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
+            Vertex<BuildRecordRest> buildRecordVertex = new NameUniqueVertex<>(recordRest.getBuildContentId(), recordRest);
+            boolean added = buildRecordGraph.addVertex(buildRecordVertex);
+
+            if (added) {
+                for (Object o : buildTaskVertex.getOutgoingEdges()) {
+                    Edge<BuildTask> edge = (Edge<BuildTask>) o;
+                    buildRecordGraph.addEdge(
+                            buildRecordGraph.findVertexByName(edge.getFrom().getName()),
+                            buildRecordGraph.findVertexByName(edge.getTo().getName()),
+                            1);
+                }
+            }
+        }
+    }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
             String query, Integer configurationId) {
