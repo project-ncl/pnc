@@ -23,9 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
-    
-    public static String MODULE_NAME = "jenkins-build-driver";
-    
+
+    public static final String MODULE_NAME = "jenkins-build-driver";
+
     private String username;
     private String password;
 
@@ -34,7 +34,7 @@ public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
         this.username = username;
         this.password = password;
     }
-    
+
     public String getUsername() {
         return username;
     }

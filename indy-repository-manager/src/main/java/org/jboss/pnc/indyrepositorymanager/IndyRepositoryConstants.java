@@ -23,7 +23,7 @@ package org.jboss.pnc.indyrepositorymanager;
 public class IndyRepositoryConstants {
 
     /** ID used to distinguish this repository driver from other types to the rest of the PNC system. */
-    public static final String DRIVER_ID = "maven-repo-driver";
+    public static final String DRIVER_ID = "indy-repo-driver";
 
     /** Name of group used to manage external artifact sources. */
     public static final String PUBLIC_GROUP_ID = "public";

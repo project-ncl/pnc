@@ -39,9 +39,9 @@ import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.IgnoredPathSuffixes;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
@@ -109,10 +109,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     @Inject
     public RepositoryManagerDriver(Configuration configuration) {
-        MavenRepoDriverModuleConfig config;
+        IndyRepoDriverModuleConfig config;
         try {
             config = configuration
-                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }

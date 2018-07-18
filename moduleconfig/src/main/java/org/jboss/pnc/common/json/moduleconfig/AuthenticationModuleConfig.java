@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 public class AuthenticationModuleConfig extends AbstractModuleConfig{
-    
-    public static String MODULE_NAME = "authentication-config";
+
+    public static final String MODULE_NAME = "authentication-config";
 
     /**
      * Username to be able to authenticate against pnc authentication service provider
@@ -39,14 +39,14 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
      */
     private String baseAuthUrl;
 
-    public AuthenticationModuleConfig(@JsonProperty("username") String username, 
+    public AuthenticationModuleConfig(@JsonProperty("username") String username,
             @JsonProperty("password")String password, @JsonProperty("baseAuthUrl")String baseAuthUrl) {
         super();
         this.username = username;
         this.password = password;
         this.baseAuthUrl = baseAuthUrl;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -67,7 +67,7 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
     public void setBaseAuthUrl(String baseAuthUrl) {
         this.baseAuthUrl = baseAuthUrl;
     }
-    
+
     @Override
     public String toString() {
         return "AuthenticationModuleConfig [username=" + username + ", password=HIDDEN, baseAuthUrl=" + baseAuthUrl +"]";

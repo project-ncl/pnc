@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.model.Artifact;
@@ -63,7 +63,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
      */
     @Deprecated
     private BuildRecordRepository buildRecordRepository;
-    private MavenRepoDriverModuleConfig moduleConfig;
+    private IndyRepoDriverModuleConfig moduleConfig;
 
     public ArtifactProvider() {
     }
@@ -76,7 +76,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         this.buildRecordRepository = buildRecordRepository;
 
         try {
-            moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+            moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
         } catch (ConfigurationParseException e) {
             logger.error("Cannot read configuration", e);
         }

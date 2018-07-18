@@ -33,12 +33,12 @@ import java.util.Collections;
 import java.util.List;
 
 @ToString
-public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
+public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
-    public static String MODULE_NAME = "maven-repo-driver";
+    public static final String MODULE_NAME = "indy-repo-driver";
 
     /**
-     * Base url to maven repository manager (Indy)
+     * Base url to Indy repository manager
      */
     private String baseUrl;
 
@@ -113,7 +113,7 @@ public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     @JsonProperty(required = false)
     private String tempBuildPromotionGroup = "temporary-builds";
 
-    public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
+    public IndyRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
         this.baseUrl = baseUrl;
     }
 

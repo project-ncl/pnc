@@ -24,7 +24,7 @@
                     "password": "pass"
                 },
                 {
-                    "@module-config": "maven-repo-driver",
+                    "@module-config": "indy-repo-driver",
                     "baseUrl": "1.1.1.1",
                     "defaultRequestTimeout": 100,
                     "buildRepositoryAllowSnapshots": true,

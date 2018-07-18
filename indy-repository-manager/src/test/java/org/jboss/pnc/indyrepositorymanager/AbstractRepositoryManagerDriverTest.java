@@ -27,9 +27,8 @@ import org.commonjava.indy.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.PNCModuleGroup;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.InternalRepoPatterns;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
@@ -43,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -77,7 +75,7 @@ public class AbstractRepositoryManagerDriverTest {
         url = fixture.getUrl();
         File configFile = temp.newFile("pnc-config.json");
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
-        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = new MavenRepoDriverModuleConfig(fixture.getUrl());
+        IndyRepoDriverModuleConfig mavenRepoDriverModuleConfig = new IndyRepoDriverModuleConfig(fixture.getUrl());
         mavenRepoDriverModuleConfig.setInternalRepoPatterns(getInternalRepoPatterns());
         SystemConfig systemConfig = new SystemConfig(
                 "",
@@ -97,8 +95,8 @@ public class AbstractRepositoryManagerDriverTest {
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider =
-                new PncConfigProvider<>(MavenRepoDriverModuleConfig.class);
+        PncConfigProvider<IndyRepoDriverModuleConfig> pncProvider =
+                new PncConfigProvider<>(IndyRepoDriverModuleConfig.class);
         pncProvider.registerProvider(mapper);
         mapper.writeValue(configFile, moduleConfigJson);
 
