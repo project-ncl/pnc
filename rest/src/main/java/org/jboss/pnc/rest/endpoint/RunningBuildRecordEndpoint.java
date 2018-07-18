@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.graph.GraphRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
@@ -108,7 +109,21 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
         return fromSingleton(buildRecordProvider.getSpecificRunning(id));
     }
 
+    @ApiOperation(value = "Gets dependency graph for a specific Build Configuration.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = Singleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = Singleton.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/dependency-graph")
+    public Response getDependencyGraph(@ApiParam(value = "Build id.", required = true) @PathParam("id") Integer bcId) {
 
+        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getDependencyGraph(bcId);
+
+        return fromSingleton(dependencyGraph);
+    }
 
     @ApiOperation(value = "Gets running Build Records for a specific Build Configuration.")
     @ApiResponses(value = {
@@ -125,22 +140,6 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
             @ApiParam(value = SEARCH_DESCRIPTION) @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search,
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer bcId) {
         return fromCollection(buildRecordProvider.getAllRunningForBuildConfiguration(pageIndex, pageSize, search, "", bcId));
-    }
-
-    @ApiOperation(value = "Gets dependency graph for a specific Build Configuration.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
-    @GET
-    @Path("/build-configurations/{id}/dependency-graph")
-    public Response getDependencyGraph(@ApiParam(value = "Build id.", required = true) @PathParam("id") Integer bcId) {
-
-        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getDependencyGraph(bcId);
-
-        return fromSingleton(dependencyGraph);
     }
 
     @ApiOperation(value = "Gets running Build Records for a specific Build Configuration Set Record.")
