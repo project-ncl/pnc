@@ -67,6 +67,7 @@ import java.util.Set;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
+import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.DRIVER_ID;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
@@ -392,16 +393,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     private void addGlobalConstituents(String pakageType, Group group, boolean tempBuild) {
         // 1. global builds artifacts
-        group.addConstituent(new StoreKey(pakageType, StoreType.group, UNTESTED_BUILDS_GROUP));
         if (tempBuild) {
             group.addConstituent(new StoreKey(pakageType, StoreType.group, TEMPORARY_BUILDS_GROUP));
         }
-
-        // 2. global shared-imports artifacts
-        group.addConstituent(new StoreKey(pakageType, StoreType.hosted, SHARED_IMPORTS_ID));
-
-        // 3. public group, containing remote proxies to the outside world
-        group.addConstituent(new StoreKey(pakageType, StoreType.group, PUBLIC_GROUP_ID));
+        group.addConstituent(new StoreKey(pakageType, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
     }
 
     /**

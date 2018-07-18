@@ -62,9 +62,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
         assertGroupConstituents(buildGroup,
                 new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, execution.getBuildContentId()),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.group, IndyRepositoryConstants.UNTESTED_BUILDS_GROUP),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.group, IndyRepositoryConstants.PUBLIC_GROUP_ID));
+                new StoreKey(MAVEN_PKG_KEY, StoreType.group, IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
     }
 
 }
