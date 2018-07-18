@@ -175,6 +175,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     public GraphRest<BuildRecordRest> getDependencyGraph(Integer buildId) {
         BuildTask buildTask = getSubmittedBuild(buildId);
+        if (buildTask == null) {
+            logger.warn("Cannot find build {}", buildId);
+            return null;
+        }
         Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
         fillBuildRecordRestGraph(buildRecordGraph, buildTask);
         return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
@@ -251,7 +255,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
         for (Vertex<BuildTask> buildTaskVertex : dependencyGraph.getVerticies()) {
             BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
-            Vertex<BuildRecordRest> buildRecordVertex = new NameUniqueVertex<>(recordRest.getBuildContentId(), recordRest);
+            Vertex<BuildRecordRest> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(recordRest.getId()), recordRest);
             boolean added = buildRecordGraph.addVertex(buildRecordVertex);
 
             if (added) {

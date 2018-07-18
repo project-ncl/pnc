@@ -282,7 +282,7 @@ public class BuildTask {
     }
 
     private Vertex<BuildTask> buildDependantsGraph(Graph<BuildTask> graph, BuildTask current) {
-        Vertex<BuildTask> currentVertex = new NameUniqueVertex<>(current.getContentId(), current);
+        Vertex<BuildTask> currentVertex = new NameUniqueVertex<>(Integer.toString(current.getId()), current);
         graph.addVertex(currentVertex);
 
         for (BuildTask dependant : current.getDependants()) {
