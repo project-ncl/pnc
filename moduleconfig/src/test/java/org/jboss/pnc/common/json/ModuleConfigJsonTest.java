@@ -21,8 +21,8 @@ import static org.junit.Assert.*;
 
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
 import org.junit.Test;
@@ -45,20 +45,20 @@ public class ModuleConfigJsonTest {
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig =
                 new JenkinsBuildDriverModuleConfig("user", "pass");
-        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig =
-                new MavenRepoDriverModuleConfig("http://something/base");
-        mavenRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
-        mavenRepoDriverModuleConfig.setDefaultRequestTimeout(100);
+        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig =
+                new IndyRepoDriverModuleConfig("http://something/base");
+        indyRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
+        indyRepoDriverModuleConfig.setDefaultRequestTimeout(100);
         IgnoredPathSuffixes ignoredSuffixes = new IgnoredPathSuffixes();
         List<String> ignoredSuffixesMaven = new ArrayList<>(2);
         ignoredSuffixes.setMaven(ignoredSuffixesMaven);
         ignoredSuffixesMaven.add("/maven-metadata.xml");
         ignoredSuffixesMaven.add(".sha1");
-        mavenRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);
+        indyRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);
 
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(jenkinsBuildDriverModuleConfig);
-        pncGroup.addConfig(mavenRepoDriverModuleConfig);
+        pncGroup.addConfig(indyRepoDriverModuleConfig);
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();

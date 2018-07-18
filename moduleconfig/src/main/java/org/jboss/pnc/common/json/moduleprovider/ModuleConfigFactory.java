@@ -20,7 +20,7 @@ package org.jboss.pnc.common.json.moduleprovider;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 
@@ -55,8 +55,8 @@ public class ModuleConfigFactory {
 
     @Produces
     @Dependent
-    MavenRepoDriverModuleConfig createMavenRepoDriverModuleConfig() throws ConfigurationParseException {
-        return configuration.getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+    IndyRepoDriverModuleConfig createMavenRepoDriverModuleConfig() throws ConfigurationParseException {
+        return configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
     }
 
     @Produces

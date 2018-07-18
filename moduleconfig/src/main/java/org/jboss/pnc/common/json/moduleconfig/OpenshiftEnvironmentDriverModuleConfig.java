@@ -34,7 +34,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
 
     private static final Logger log = LoggerFactory.getLogger(OpenshiftEnvironmentDriverModuleConfig.class);
 
-    public static String MODULE_NAME = "openshift-environment-driver";
+    public static final String MODULE_NAME = "openshift-environment-driver";
 
     private String restEndpointUrl;
     private String buildAgentHost;

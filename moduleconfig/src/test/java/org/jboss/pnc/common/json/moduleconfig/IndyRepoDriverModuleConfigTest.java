@@ -31,14 +31,14 @@ import java.util.List;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
-public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
+public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
 
     @Test
-    public void loadMavenRepoDriverConfigTest() throws ConfigurationParseException {
+    public void loadIndyRepoDriverConfigTest() throws ConfigurationParseException {
             Configuration configuration = new Configuration();
 
-            MavenRepoDriverModuleConfig mavenConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+            IndyRepoDriverModuleConfig mavenConfig = configuration
+                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
 
             assertNotNull(mavenConfig);
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
@@ -58,8 +58,8 @@ public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
             System.setProperty("pnc-config-file", "testConfigWithoutDefaults.json");
 
             Configuration configuration = new Configuration();
-            MavenRepoDriverModuleConfig mavenConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+            IndyRepoDriverModuleConfig mavenConfig = configuration
+                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
 
             if (backupConfigPath != null) {
                 System.setProperty("pnc-config-file", backupConfigPath);

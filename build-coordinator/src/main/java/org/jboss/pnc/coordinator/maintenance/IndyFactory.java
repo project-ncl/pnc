@@ -29,7 +29,7 @@ import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -48,7 +48,7 @@ public class IndyFactory {
     }
 
     @Inject
-    public IndyFactory(MavenRepoDriverModuleConfig config) {
+    public IndyFactory(IndyRepoDriverModuleConfig config) {
         this.defaultRequestTimeout = config.getDefaultRequestTimeout();
 
         String baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
