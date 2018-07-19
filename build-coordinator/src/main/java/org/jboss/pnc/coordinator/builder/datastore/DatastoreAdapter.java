@@ -325,4 +325,8 @@ public class DatastoreAdapter {
     public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {
         return datastore.getBuildConfigurations(buildConfigurationSet);
     }
+
+    public BuildConfigSetRecord getBuildCongigSetRecordById(Integer buildConfigSetRecordId) {
+        return datastore.getBuildConfigSetRecordById(buildConfigSetRecordId);
+    }
 }
