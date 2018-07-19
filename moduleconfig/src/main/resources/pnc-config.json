@@ -31,8 +31,7 @@
                 },
                 {
                     "@module-config": "termd-build-driver",
-                    "username": "test",
-                    "password": "test"
+                    "internalCancelTimeoutMillis": "3000"
                 },
                 {
                     "@module-config": "indy-repo-driver",
