@@ -33,7 +33,7 @@
                     "password": "test"
                 },
                 {
-                    "@module-config": "maven-repo-driver",
+                    "@module-config": "indy-repo-driver",
                     "baseUrl": "${env.PNC_APROX_URL}",
                     "internalRepositoryMvnPath": "${env.INTERNAL_REPOSITORY_MVN_PATH}",
                     "externalRepositoryMvnPath": "${env.EXTERNAL_REPOSITORY_MVN_PATH}"
