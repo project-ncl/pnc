@@ -19,9 +19,7 @@
                     "password": "pass"
                 },
                 {
-                    "@module-config": "termd-build-driver",
-                    "username": "user",
-                    "password": "pass"
+                    "@module-config": "termd-build-driver"
                 },
                 {
                     "@module-config": "indy-repo-driver",
