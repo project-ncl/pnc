@@ -137,13 +137,26 @@ public class ProjectBuilder {
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
+        int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
+        buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifySuccessfulBuild);
+    }
+
+    BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate) throws InterruptedException, CoreException, DatastoreException {
+        int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
+        return buildProjects(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate);
+    }
+
+    BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate, int skippedUpdates) throws InterruptedException, CoreException, DatastoreException {
+        int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet) - skippedUpdates;
+        return buildProjects(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate);
+    }
+
+    private int getNumberOfStatusUpdates(BuildConfigurationSet buildConfigurationSet) {
         Set<BuildConfiguration> configs = buildConfigurationSet.getBuildConfigurations();
         int numCompletedBuilds = configs.size();
         int numBuildsWithDependencies = (int) configs.stream().filter(c -> c.dependsOnAny(configs)).count();
-        int nStatusUpdates =
-                N_STATUS_UPDATES_PER_TASK * (numCompletedBuilds - numBuildsWithDependencies)
-                        + numBuildsWithDependencies * N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES;
-        buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifySuccessfulBuild);
+        return N_STATUS_UPDATES_PER_TASK * (numCompletedBuilds - numBuildsWithDependencies)
+                + numBuildsWithDependencies * N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES;
     }
 
     private void verifySuccessfulBuild(List<BuildCoordinationStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask) {
@@ -170,17 +183,17 @@ public class ProjectBuilder {
     }
 
     int i=0;
-    private void buildProjectsAndVerifyResult(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Verifier verifier) throws InterruptedException, CoreException {
-        log.info("Building configuration set {}", buildConfigurationSet.getName());
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
-        List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
-
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
-            System.out.println("\n\n\nreceived status change event [" + (i++) + "]: " + statusUpdate);
+    private BuildSetTask buildProjectsAndWaitForUpdates(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates,
+            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate,
+            List<BuildCoordinationStatusChangedEvent> receivedStatuses, List<BuildSetStatusChangedEvent> receivedSetStatuses)
+            throws InterruptedException, CoreException {
+        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
+            log.debug("Received status change event [" + (i++) + "]: " + statusUpdate);
             receivedStatuses.add(statusUpdate);
+            onStatusUpdate.accept(statusUpdate);
         };
 
-        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdate, nStatusUpdates);
+        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(onStatusUpdateInternal, nStatusUpdates);
         final Semaphore buildSetSemaphore = registerBuildSetListeners(receivedSetStatuses, BUILD_SET_STATUS_UPDATES);
 
         BuildOptions buildOptions = new BuildOptions();
@@ -196,6 +209,23 @@ public class ProjectBuilder {
         log.info("Waiting to receive all {} build set status updates...", BUILD_SET_STATUS_UPDATES);
         waitForStatusUpdates(BUILD_SET_STATUS_UPDATES, buildSetSemaphore, "build set task: " + buildSetTask);
         log.debug("All status updates should be received. Semaphore has {} free entries.", semaphore.availablePermits());
+        return buildSetTask;
+    }
+
+    private BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate)
+            throws InterruptedException, CoreException {
+        log.info("Building configuration set {}", buildConfigurationSet.getName());
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
+
+        return buildProjectsAndWaitForUpdates(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate, receivedStatuses, receivedSetStatuses);
+    }
+
+    private void buildProjectsAndVerifyResult(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Verifier verifier) throws InterruptedException, CoreException {
+        log.info("Building configuration set {}", buildConfigurationSet.getName());
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
+        BuildSetTask buildSetTask = buildProjectsAndWaitForUpdates(buildConfigurationSet, buildCoordinator, nStatusUpdates, x ->{}, receivedStatuses, receivedSetStatuses);
 
         log.info("Checking if received all status updates...");
         verifier.verify(receivedStatuses, buildSetTask);

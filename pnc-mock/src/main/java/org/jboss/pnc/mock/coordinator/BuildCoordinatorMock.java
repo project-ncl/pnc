@@ -96,6 +96,11 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
+    public boolean cancelSet(int buildTaskSetId) {
+        return false;
+    }
+
+    @Override
     public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
     }
 

@@ -42,6 +42,8 @@ public interface BuildCoordinator {
 
     boolean cancel(int buildTaskId) throws CoreException;
 
+    boolean cancelSet(int buildSetTaskId) throws CoreException;
+
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
     void start();
