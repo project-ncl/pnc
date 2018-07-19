@@ -26,17 +26,11 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 @Setter
 public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
 
-    private String username;
-    private String password;
     private Integer internalCancelTimeoutMillis = 5000;
 
     public TermdBuildDriverModuleConfig(
-            @JsonProperty("username") String username,
-            @JsonProperty("password") String password,
             @JsonProperty("internalCancelTimeoutMillis") Integer internalCancelTimeoutMillis
             ) {
-        this.username = username;
-        this.password = password;
 
         if (internalCancelTimeoutMillis != null) {
             this.internalCancelTimeoutMillis = internalCancelTimeoutMillis;
@@ -45,10 +39,8 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "TermdBuildDriverModuleConfig{" +
-                "username='" + username + "'" +
-                ", password='******'" +
-                ", internalCancelTimeoutMillis=" + internalCancelTimeoutMillis +
+        return "TermdBuildDriverModuleConfig {" +
+                "internalCancelTimeoutMillis=" + internalCancelTimeoutMillis +
                 "}";
     }
 }
