@@ -104,6 +104,18 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration1;
     }
 
+    public BuildConfiguration buildConfigurationForCancelling(BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration1 = build(1, "with-dependency-1-on-2", buildConfigurationSet);
+        BuildConfiguration buildConfiguration2 = build(2, "with-dependency-2-on-3", buildConfigurationSet);
+        BuildConfiguration buildConfiguration3 = build(3, "not-dependent", buildConfigurationSet);
+        //CANCEL script means, that the build waits for 1 sec and then completes itself, gives time to cancel
+        buildConfiguration2.setBuildScript(CANCEL);
+
+        buildConfiguration1.addDependency(buildConfiguration2);
+        buildConfiguration2.addDependency(buildConfiguration3);
+        return buildConfiguration1;
+    }
+
     public BuildConfiguration build(int id, String name) {
         return build(id, name, null);
     }
@@ -163,6 +175,14 @@ public class TestProjectConfigurationBuilder {
         buildConfigurationSet.setId(configurationSetId);
         buildConfigurationWithDependencies(buildConfigurationSet);
 
+        return buildConfigurationSet;
+    }
+
+    public BuildConfigurationSet buildConfigurationSetForCancel(Integer configurationSetId) {
+        BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.setName("test-build-cancel-configuration");
+        buildConfigurationSet.setId(configurationSetId);
+        buildConfigurationForCancelling(buildConfigurationSet);
         return buildConfigurationSet;
     }
 

@@ -54,6 +54,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -266,6 +267,36 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             log.warn("Cannot find task {} to cancel.", buildTaskId);
             return false;
         }
+    }
+
+    @Override
+    public boolean cancelSet(int buildSetTaskId) {
+        BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildSetTaskId);
+        if (record == null) {
+            log.error("Could not find buildConfigSetRecord with id : {}", buildSetTaskId);
+            return false;
+        }
+        log.debug("Cancelling Build Configuration Set: {}",buildSetTaskId);
+        getSubmittedBuildTasks().stream()
+                .filter(t -> t != null)
+                .filter(t -> t.getBuildSetTask() != null
+                        && t.getBuildSetTask().getId().equals(buildSetTaskId))
+                .forEach(buildTask -> {
+                    try {
+                        log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
+                        cancel(buildTask.getId());
+                    } catch (CoreException e){
+                        log.error("Unable to cancel the build [" + buildTask.getId() + "].",e);
+                    }
+                });
+        record.setStatus(BuildStatus.CANCELLED);
+        record.setEndTime(Date.from(Instant.now()));
+        try {
+            datastoreAdapter.saveBuildConfigSetRecord(record);
+        } catch (DatastoreException e) {
+            log.error("Failed to update BuildConfigSetRecord (id: {} ) with status CANCELLED",record.getId(),e);
+        }
+        return true;
     }
 
     private void monitorCancellation(BuildTask buildTask) {
