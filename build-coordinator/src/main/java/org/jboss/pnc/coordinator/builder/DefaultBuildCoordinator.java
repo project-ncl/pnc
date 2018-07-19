@@ -592,8 +592,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void finishDueToFailedDependency(BuildTask failedTask, BuildTask dependentTask) {
         log.debug("Finishing task {} due ta failed dependency.", dependentTask);
         buildQueue.removeTask(dependentTask);
-        updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
-                "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
+        if (failedTask.getStatus() == BuildCoordinationStatus.CANCELLED) {
+            updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.CANCELLED,
+                    "Dependent build " + failedTask.getBuildConfiguration().getName() + " was cancelled");
+        }
+        else {
+            updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
+                    "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
+        }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);
     }
