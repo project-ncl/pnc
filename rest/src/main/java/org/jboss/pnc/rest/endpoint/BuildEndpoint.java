@@ -170,10 +170,9 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
 
     @ApiOperation(value = "Cancel running build.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION)
     })
     @POST
     @Path("/{id}/cancel")
@@ -190,11 +189,12 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
             success = buildTriggerer.cancelBuild(buildTaskId);
         } catch (BuildConflictException | CoreException e) {
             logger.error("Unable to cancel the build [" + buildTaskId + "].", e);
+            return Response.serverError().build();
         }
         if (success) {
             return Response.ok().build();
         } else {
-            return Response.serverError().build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 }
