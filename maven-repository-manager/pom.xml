@@ -32,6 +32,11 @@
 
   <description>Logic to operate with remote Indy repository manager (Implementation of spi:org.jboss.pnc.spi.repositorymanager).</description>
 
+  <properties>
+    <version.hibernate-search>5.6.0.Beta1</version.hibernate-search>
+    <version.weld>2.4.6.Final</version.weld>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -102,17 +107,18 @@
     <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-client-core-java</artifactId>
+      <exclusions>
+        <!-- exclude weft to prevent initialization errors in integration tests -->
+        <exclusion>
+          <groupId>org.commonjava.cdi.util</groupId>
+          <artifactId>weft</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy.embed</groupId>
-      <artifactId>indy-embedder-savant</artifactId>
+      <artifactId>indy-embedder</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>
@@ -161,7 +167,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -189,7 +195,7 @@
       <dependency>
         <groupId>org.jboss.weld.se</groupId>
         <artifactId>weld-se</artifactId>
-        <version>2.1.2.Final</version>
+        <version>${version.weld}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -202,6 +208,24 @@
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
         <version>3.3.0.Final</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-search-engine</artifactId>
+        <version>${version.hibernate-search}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-search-orm</artifactId>
+        <version>${version.hibernate-search}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-search-serialization-avro</artifactId>
+        <version>${version.hibernate-search}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
