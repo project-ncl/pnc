@@ -23,20 +23,19 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -62,6 +61,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+
 @Api(value = "/running-build-records", description = "Build Records for running builds")
 @Path("/running-build-records")
 @Produces(MediaType.APPLICATION_JSON)
@@ -69,14 +69,21 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest> {
 
     private BuildRecordProvider buildRecordProvider;
+    private BuildCoordinator buildCoordinator;
+    private static final Logger logger = LoggerFactory.getLogger(RunningBuildRecordEndpoint.class);
+    private BuildConfigSetRecordProvider buildConfigSetRecordProvider;
 
     public RunningBuildRecordEndpoint() {
     }
 
     @Inject
-    public RunningBuildRecordEndpoint(BuildRecordProvider buildRecordProvider) {
+    public RunningBuildRecordEndpoint(BuildRecordProvider buildRecordProvider,
+                                      BuildCoordinator buildCoordinator,
+                                      BuildConfigSetRecordProvider buildConfigSetRecordProvider) {
         super(buildRecordProvider);
+        this.buildConfigSetRecordProvider = buildConfigSetRecordProvider;
         this.buildRecordProvider = buildRecordProvider;
+        this.buildCoordinator = buildCoordinator;
     }
 
     @ApiOperation(value = "Gets all running Build Records")
@@ -139,5 +146,33 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
             @ApiParam(value = SEARCH_DESCRIPTION) @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search,
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer bcSetRecordId) {
         return fromCollection(buildRecordProvider.getAllRunningForBCSetRecord(pageIndex, pageSize, search, bcSetRecordId));
+    }
+
+    @ApiOperation(value = "Cancel all builds running in the build group")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SEARCH_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
+    @POST
+    @Path("/build-config-set-records/{id}/cancel")
+    public Response cancelAllBuildsInGroup(
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer bcSetRecordId) {
+        // TODO MDC
+        logger.debug("Received cancel request fot Build Configuration Set: {}.", bcSetRecordId);
+        if (buildConfigSetRecordProvider.getSpecific(bcSetRecordId) == null) {
+            logger.error("Unable to find Build Configuration Set: {}.", bcSetRecordId);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        try {
+            buildCoordinator.cancelSet(bcSetRecordId.intValue());
+        } catch (CoreException e) {
+            logger.error("Error when canceling buildConfigSetRecord with id: {}",bcSetRecordId,e);
+            return Response.serverError().build();
+        }
+
+
+        return Response.ok().build();
+
     }
 }
