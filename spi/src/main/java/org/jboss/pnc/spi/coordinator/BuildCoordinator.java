@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -27,6 +28,7 @@ import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BuildCoordinator {
 
@@ -47,5 +49,7 @@ public interface BuildCoordinator {
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
     void start();
+
+    Optional<MDCMeta> getMDCMeta(Integer buildTaskId);
 
 }

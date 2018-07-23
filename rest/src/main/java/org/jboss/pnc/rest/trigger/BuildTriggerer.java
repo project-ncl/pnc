@@ -183,13 +183,7 @@ public class BuildTriggerer {
     }
 
     public Optional<MDCMeta> getMdcMeta(Integer buildTaskId) {
-        return buildCoordinator.getSubmittedBuildTasks().stream().
-                filter(buildTask -> buildTaskId.equals(buildTask.getId()))
-                .map(buildTask -> new MDCMeta(
-                        buildTask.getContentId(),
-                        buildTask.getBuildOptions().isTemporaryBuild(),
-                        systemConfig.getTemporalBuildExpireDate()))
-                .findAny();
+        return buildCoordinator.getMDCMeta(buildTaskId);
     }
 
 }

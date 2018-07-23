@@ -20,6 +20,8 @@ package org.jboss.pnc.coordinator.builder;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -269,6 +271,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
+    @Override public Optional<MDCMeta> getMDCMeta(Integer buildTaskId) {
+        return getSubmittedBuildTasks().stream().
+                filter(buildTask -> buildTaskId.equals(buildTask.getId()))
+                .map(this::getMDCMeta)
+                .findAny();
+    }
+
+    private MDCMeta getMDCMeta(BuildTask buildTask) {
+        return new MDCMeta(
+                buildTask.getContentId(),
+                buildTask.getBuildOptions().isTemporaryBuild(),
+                systemConfig.getTemporalBuildExpireDate());
+    }
+
     @Override
     public boolean cancelSet(int buildSetTaskId) {
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildSetTaskId);
@@ -284,6 +300,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .forEach(buildTask -> {
                     try {
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
+                        MDCUtils.setMDC(getMDCMeta(buildTask));
                         cancel(buildTask.getId());
                     } catch (CoreException e){
                         log.error("Unable to cancel the build [" + buildTask.getId() + "].",e);
@@ -666,4 +683,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
         }
     }
+
+
 }

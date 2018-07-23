@@ -35,6 +35,7 @@
  */
 package org.jboss.pnc.mock.coordinator;
 
+import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -55,6 +56,7 @@ import javax.enterprise.inject.Alternative;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 @Alternative
@@ -115,5 +117,9 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     @Override
     public void start() {
         logger.info("Called start threads");
+    }
+
+    @Override public Optional<MDCMeta> getMDCMeta(Integer buildTaskId) {
+        return Optional.empty();
     }
 }
