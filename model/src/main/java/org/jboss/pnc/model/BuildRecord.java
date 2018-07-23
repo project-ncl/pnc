@@ -21,10 +21,34 @@ import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
+import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.PersistenceException;
+import javax.persistence.PreRemove;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
@@ -283,6 +307,18 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.REMOVE)
     private Set<BuildRecordPushResult> buildRecordPushResults;
+
+    /**
+     * A collection of buildRecords that depends on this at time this is stored.
+     * Dependents are defined based on scheduled state.
+     */
+    private String dependentBuildRecordIds;
+
+    /**
+     * A collection of buildRecords that this depends on at time this is stored.
+     * Dependencies are defined based on scheduled state.
+     */
+    private String dependencyBuildRecordIds;
 
     /**
      * Instantiates a new project build result.
@@ -707,6 +743,30 @@ public class BuildRecord implements GenericEntity<Integer> {
         this.buildRecordPushResults = buildRecordPushResults;
     }
 
+    public void setDependentBuildRecordIds(Integer[] dependentBuildRecordIds) {
+        if (dependentBuildRecordIds != null) {
+            this.dependentBuildRecordIds = StringUtils.serializeInt(dependentBuildRecordIds);
+        } else {
+            this.dependentBuildRecordIds = "";
+        }
+    }
+
+    public Integer[] getDependentBuildRecordIds() {
+        return StringUtils.deserializeInt(dependentBuildRecordIds);
+    }
+
+    public Integer[] getDependencyBuildRecordIds() {
+        return StringUtils.deserializeInt(dependencyBuildRecordIds);
+    }
+
+    public void setDependencyBuildRecordIds(Integer[] dependencyBuildRecordIds) {
+        if (dependencyBuildRecordIds != null) {
+            this.dependencyBuildRecordIds = StringUtils.serializeInt(dependencyBuildRecordIds);
+        } else {
+            this.dependencyBuildRecordIds = "";
+        }
+    }
+
     private static void setBuildConfigurationAuditedIfValid(
             BuildRecord buildRecord,
             Integer buildConfigurationAuditedId,
@@ -780,6 +840,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private Map<String, String> attributes = new HashMap<>();
 
+        private Integer[] dependentBuildRecordIds;
+
+        private Integer[] dependencyBuildRecordIds;
+
         public Builder() {
             builtArtifacts = new HashSet<>();
             dependencies = new HashSet<>();
@@ -845,6 +909,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
             buildRecord.setBuiltArtifacts(builtArtifacts);
             buildRecord.setDependencies(dependencies);
+
+            buildRecord.setDependentBuildRecordIds(dependentBuildRecordIds);
+            buildRecord.setDependencyBuildRecordIds(dependencyBuildRecordIds);
 
             return buildRecord;
         }
@@ -1002,6 +1069,16 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public BuildRecord.Builder repourLog(String log) {
             this.repourLog = log;
+            return this;
+        }
+
+        public BuildRecord.Builder dependencyBuildRecordIds(Integer[] dependencyBuildRecordIds) {
+            this.dependencyBuildRecordIds = dependencyBuildRecordIds;
+            return this;
+        }
+
+        public BuildRecord.Builder dependentBuildRecordIds(Integer[] dependentBuildRecordIds) {
+            this.dependentBuildRecordIds = dependentBuildRecordIds;
             return this;
         }
     }

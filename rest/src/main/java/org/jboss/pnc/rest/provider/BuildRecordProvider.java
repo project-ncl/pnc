@@ -21,8 +21,10 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.criteria.AuditDisjunction;
+import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -43,6 +45,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.ProjectPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -101,10 +104,13 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private static final String QUERY_BY_USER = "user.id==%d";
     private static final String QUERY_BY_BUILD_CONFIGURATION_ID = "buildConfigurationId==%d";
 
+    protected BuildRecordRepository repository;
+
     private BuildExecutor buildExecutor;
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     ProjectRepository projectRepository;
+    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     EntityManager entityManager;
 
@@ -120,15 +126,19 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer,
             BuildExecutor buildExecutor,
+            BuildRecordRepository repository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             ProjectRepository projectRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             EntityManager entityManager) {
         super(buildRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildCoordinator = buildCoordinator;
         this.buildExecutor = buildExecutor;
+        this.repository = repository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.projectRepository = projectRepository;
         this.entityManager = entityManager;
+        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
     }
 
     public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search, String sort) {
@@ -173,18 +183,73 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
-    public GraphRest<BuildRecordRest> getDependencyGraph(Integer buildId) {
-        BuildTask buildTask = getSubmittedBuild(buildId);
-        if (buildTask == null) {
-            logger.warn("Cannot find build {}", buildId);
-            return null;
-        }
-        Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
-        fillBuildRecordRestGraph(buildRecordGraph, buildTask);
+    public GraphRest<BuildRecordRest> getDependencyGraphRest(Integer buildId) {
+        Graph<BuildRecordRest> buildRecordGraph = getDependencyGraph(buildId);
         return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
     }
 
-    private BuildRecordRest createNewBuildRecordRest(BuildTask buildTask) {
+    Graph<BuildRecordRest> getDependencyGraph(Integer buildId) {
+        BuildTask buildTask = getSubmittedBuild(buildId);
+
+        Graph<BuildRecordRest> buildRecordGraph;
+        if (buildTask == null) {
+            BuildRecord buildRecord = repository.queryById(buildId);
+            if (buildRecord == null) {
+                logger.warn("Cannot find build {}", buildId);
+                return null;
+            } else {
+                Graph<BuildRecord> dependencyGraph = repository.getDependencyGraph(buildId);
+                buildRecordGraph = convertBuildRecordToRest(dependencyGraph);
+            }
+        } else {
+            buildRecordGraph = convertBuildTaskToRecordRest(buildTask.getDependencyGraph());
+        }
+        return buildRecordGraph;
+    }
+
+    private Graph<BuildRecordRest> convertBuildTaskToRecordRest(Graph<BuildTask> taskGraph) {
+        Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
+
+        for (Vertex<BuildTask> buildTaskVertex : taskGraph.getVerticies()) {
+            BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
+            Vertex<BuildRecordRest> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(recordRest.getId()), recordRest);
+            buildRecordGraph.addVertex(buildRecordVertex);
+        }
+        //create edges
+        for (Vertex<BuildTask> vertex: taskGraph.getVerticies()) {
+            for (Object o : vertex.getOutgoingEdges()) {
+                Edge<BuildTask> edge = (Edge<BuildTask>) o;
+                buildRecordGraph.addEdge(
+                        buildRecordGraph.findVertexByName(edge.getFrom().getName()),
+                        buildRecordGraph.findVertexByName(edge.getTo().getName()),
+                        edge.getCost());
+            }
+        }
+        return buildRecordGraph;
+    }
+
+    private Graph<BuildRecordRest> convertBuildRecordToRest(Graph<BuildRecord> recordGraph) {
+        Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
+
+        for (Vertex<BuildRecord> buildRecordVertex : recordGraph.getVerticies()) {
+            BuildRecordRest recordRest = new BuildRecordRest(buildRecordVertex.getData());
+            Vertex<BuildRecordRest> buildRecordRestVertex = new NameUniqueVertex<>(Integer.toString(recordRest.getId()), recordRest);
+            buildRecordGraph.addVertex(buildRecordRestVertex);
+        }
+        //create edges
+        for (Vertex<BuildRecord> vertex: recordGraph.getVerticies()) {
+            for (Object o : vertex.getOutgoingEdges()) {
+                Edge<BuildRecord> edge = (Edge<BuildRecord>) o;
+                buildRecordGraph.addEdge(
+                        buildRecordGraph.findVertexByName(edge.getFrom().getName()),
+                        buildRecordGraph.findVertexByName(edge.getTo().getName()),
+                        edge.getCost());
+            }
+        }
+        return buildRecordGraph;
+    }
+
+    BuildRecordRest createNewBuildRecordRest(BuildTask buildTask) {
         //TODO do not mix executor and coordinator data in the same endpoint
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildTask.getId());
         UserRest user = new UserRest(buildTask.getUser());
@@ -230,7 +295,17 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
-    public GraphRest<BuildRecordRest> getGraphAllRunningForBCSetRecord(Integer bcSetRecordId) {
+    public GraphRest<BuildRecordRest> getBCSetRecordRestGraph(Integer bcSetRecordId) {
+        Graph<BuildTask> runningBuildGraph = getRunningBCSetRecordGraph(bcSetRecordId);
+        Graph<BuildRecordRest> runningBuildRecordGraph = convertBuildTaskToRecordRest(runningBuildGraph);
+
+        Graph<BuildRecordRest> buildConfigSetRecordGraph = getBuildConfigSetRecordGraph(bcSetRecordId);
+
+        GraphUtils.merge(buildConfigSetRecordGraph, runningBuildRecordGraph);
+        return RestGraphBuilder.from(runningBuildRecordGraph, BuildRecordRest.class);
+    }
+
+    Graph<BuildTask> getRunningBCSetRecordGraph(Integer bcSetRecordId) {
         //get all build tasks that are in the group
         List<BuildTask> buildTasks = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
                 .filter(t -> t != null)
@@ -239,35 +314,24 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .sorted((t1, t2) -> t1.getId() - t2.getId())
                 .collect(Collectors.toList());
 
-        Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
+        Graph<BuildTask> buildGraph = new Graph<>();
         for (BuildTask buildTask : buildTasks) {
-            fillBuildRecordRestGraph(buildRecordGraph, buildTask);
+            //Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
+            Graph<BuildTask> dependencyGraph = buildTask.getDependencyGraph();
+            GraphUtils.merge(buildGraph, dependencyGraph);
         }
-
-        return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
+        return buildGraph;
     }
 
-    /**
-     * Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
-     */
-    private void fillBuildRecordRestGraph(Graph<BuildRecordRest> buildRecordGraph, BuildTask buildTask) {
-        Graph<BuildTask> dependencyGraph = buildTask.getDependencyGraph();
+    Graph<BuildRecordRest> getBuildConfigSetRecordGraph(Integer bcSetRecordId) {
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(bcSetRecordId);
+        Graph<BuildRecordRest> buildGraph = new Graph<>();
 
-        for (Vertex<BuildTask> buildTaskVertex : dependencyGraph.getVerticies()) {
-            BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
-            Vertex<BuildRecordRest> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(recordRest.getId()), recordRest);
-            boolean added = buildRecordGraph.addVertex(buildRecordVertex);
-
-            if (added) {
-                for (Object o : buildTaskVertex.getOutgoingEdges()) {
-                    Edge<BuildTask> edge = (Edge<BuildTask>) o;
-                    buildRecordGraph.addEdge(
-                            buildRecordGraph.findVertexByName(edge.getFrom().getName()),
-                            buildRecordGraph.findVertexByName(edge.getTo().getName()),
-                            1);
-                }
-            }
+        for (BuildRecord buildRecord : buildConfigSetRecord.getBuildRecords()) {
+            Graph<BuildRecordRest> buildRecordRestGraph = getDependencyGraph(buildRecord.getId());
+            GraphUtils.merge(buildGraph, buildRecordRestGraph);
         }
+        return buildGraph;
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
