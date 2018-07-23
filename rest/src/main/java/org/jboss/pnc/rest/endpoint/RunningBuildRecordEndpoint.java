@@ -119,9 +119,7 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     @GET
     @Path("/{id}/dependency-graph")
     public Response getDependencyGraph(@ApiParam(value = "Build id.", required = true) @PathParam("id") Integer bcId) {
-
-        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getDependencyGraph(bcId);
-
+        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getDependencyGraphRest(bcId);
         return fromSingleton(dependencyGraph);
     }
 
@@ -169,7 +167,7 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     @GET
     @Path("/build-config-set-records/{id}/dependency-graph")
     public Response getDependencyGraphForSet(@ApiParam(value = "Build record set id.", required = true) @PathParam("id") Integer bcSetRecordId) {
-        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getGraphAllRunningForBCSetRecord(bcSetRecordId);
+        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getBCSetRecordRestGraph(bcSetRecordId);
         return fromSingleton(dependencyGraph);
     }
 }

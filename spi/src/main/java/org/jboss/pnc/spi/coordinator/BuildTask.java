@@ -260,7 +260,7 @@ public class BuildTask {
         Graph<BuildTask> graph = new Graph<>();
 
         Vertex<BuildTask> currentVertex = buildDependencyGraph(graph, this);
-        //external loop to avoid again current buildTask
+        //external(out of recursion) loop to avoid again current buildTask
         for (BuildTask dependant : this.getDependants()) {
             Vertex<BuildTask> dependantsVertex = buildDependantsGraph(graph, dependant);
             graph.addEdge(dependantsVertex, currentVertex, 1);

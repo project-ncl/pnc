@@ -25,11 +25,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
@@ -186,5 +188,13 @@ public class StringUtils {
             }
             lines.add(line);
         }
+    }
+
+    public static Integer[] deserializeInt(String string) {
+        return Arrays.stream(string.split(",")).map(Integer::parseInt).toArray(Integer[]::new);
+    }
+
+    public static String serializeInt(Integer[] integers) {
+        return Arrays.stream(integers).map(i -> Integer.toString(i)).collect(Collectors.joining(","));
     }
 }
