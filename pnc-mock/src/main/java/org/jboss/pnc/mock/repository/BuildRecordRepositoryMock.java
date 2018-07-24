@@ -23,6 +23,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.util.graph.Graph;
 
 import java.util.Date;
 import java.util.List;
@@ -73,6 +74,11 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     @Override
     public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
         return null;
+    }
+
+    @Override
+    public Graph<BuildRecord> getDependencyGraph(Integer buildRecordId) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

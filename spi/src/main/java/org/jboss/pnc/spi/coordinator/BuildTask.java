@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.coordinator;
 
 import lombok.Getter;
+import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -25,6 +26,8 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.util.graph.Graph;
+import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,6 +122,10 @@ public class BuildTask {
             dependencies.add(buildTask);
             buildTask.addDependant(this);
         }
+    }
+
+    public Set<BuildTask> getDependants() {
+        return dependants;
     }
 
     /**
@@ -244,6 +251,45 @@ public class BuildTask {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns dependency graph containing all dependencies and dependants (children and parents)
+     */
+    public Graph<BuildTask> getDependencyGraph() {
+        Graph<BuildTask> graph = new Graph<>();
+
+        Vertex<BuildTask> currentVertex = buildDependencyGraph(graph, this);
+        //external(out of recursion) loop to avoid again current buildTask
+        for (BuildTask dependant : this.getDependants()) {
+            Vertex<BuildTask> dependantsVertex = buildDependantsGraph(graph, dependant);
+            graph.addEdge(dependantsVertex, currentVertex, 1);
+        }
+
+        return graph;
+    }
+
+    private Vertex<BuildTask> buildDependencyGraph(Graph<BuildTask> graph, BuildTask current) {
+        Vertex<BuildTask> currentVertex = new NameUniqueVertex<>(Integer.toString(current.getId()), current);
+        graph.addVertex(currentVertex);
+
+        for (BuildTask dependency : current.getDependencies()) {
+            Vertex<BuildTask> dependencyVertex = buildDependencyGraph(graph, dependency);
+            graph.addEdge(currentVertex, dependencyVertex, 1);
+        }
+
+        return currentVertex;
+    }
+
+    private Vertex<BuildTask> buildDependantsGraph(Graph<BuildTask> graph, BuildTask current) {
+        Vertex<BuildTask> currentVertex = new NameUniqueVertex<>(Integer.toString(current.getId()), current);
+        graph.addVertex(currentVertex);
+
+        for (BuildTask dependant : current.getDependants()) {
+            Vertex<BuildTask> dependantVertex = buildDependantsGraph(graph, dependant);
+            graph.addEdge(dependantVertex, currentVertex, 1);
+        }
+        return currentVertex;
     }
 
     @Override

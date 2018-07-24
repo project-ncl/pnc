@@ -38,6 +38,19 @@ import java.util.function.Consumer;
 public class StringUtilsTest {
 
     @Test
+    public void deserializeInt() throws Exception {
+        Integer[] integers = StringUtils.deserializeInt("");
+        Assert.assertEquals(0, integers.length);
+    }
+
+    @Test
+    public void serializeInt() throws Exception {
+        Integer[] integers = new Integer[0];
+        String string = StringUtils.serializeInt(integers);
+        Assert.assertEquals(0, string.length());
+    }
+
+    @Test
     public void replaceEnvironmentVariableTestCase() {
         String envVariable = getEnvVariable();
         String src = "JAVA_HOME:${env." + envVariable + "}";
