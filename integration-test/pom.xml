@@ -43,6 +43,12 @@
       <artifactId>ear-package</artifactId>
       <scope>test</scope>
       <type>ear</type>
+      <exclusions>
+        <exclusion>
+          <groupId>org.commonjava.cdi.util</groupId>
+          <artifactId>weft</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -54,6 +60,10 @@
         <exclusion>
           <groupId>org.jboss.pnc</groupId>
           <artifactId>datastore</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.commonjava.cdi.util</groupId>
+          <artifactId>weft</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
