@@ -47,9 +47,11 @@ import java.io.StringWriter;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.model.BuildStatus.CANCELLED;
 import static org.jboss.pnc.model.BuildStatus.FAILED;
@@ -298,6 +300,12 @@ public class DatastoreAdapter {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
             builder.buildConfigSetRecord(buildConfigSetRecord);
         }
+
+        List<Integer> dependencies = buildTask.getDependencies().stream().map(t -> t.getId()).collect(Collectors.toList());
+        builder.dependencyBuildRecordIds(dependencies.toArray(new Integer[dependencies.size()]));
+
+        List<Integer> dependants = buildTask.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
+        builder.dependentBuildRecordIds(dependants.toArray(new Integer[dependants.size()]));
 
         return builder;
     }

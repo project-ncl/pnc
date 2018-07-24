@@ -191,10 +191,13 @@ public class StringUtils {
     }
 
     public static Integer[] deserializeInt(String string) {
-        return Arrays.stream(string.split(",")).map(Integer::parseInt).toArray(Integer[]::new);
+        return Arrays.stream(string.split(","))
+                .filter(s -> !s.equals(""))
+                .map(Integer::parseInt).toArray(Integer[]::new);
     }
 
     public static String serializeInt(Integer[] integers) {
-        return Arrays.stream(integers).map(i -> Integer.toString(i)).collect(Collectors.joining(","));
+        return Arrays.stream(integers)
+                .map(i -> Integer.toString(i)).collect(Collectors.joining(","));
     }
 }
