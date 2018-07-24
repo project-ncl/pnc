@@ -302,7 +302,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         Graph<BuildRecordRest> buildConfigSetRecordGraph = getBuildConfigSetRecordGraph(bcSetRecordId);
 
         GraphUtils.merge(buildConfigSetRecordGraph, runningBuildRecordGraph);
-        return RestGraphBuilder.from(runningBuildRecordGraph, BuildRecordRest.class);
+        return RestGraphBuilder.from(buildConfigSetRecordGraph, BuildRecordRest.class);
     }
 
     Graph<BuildTask> getRunningBCSetRecordGraph(Integer bcSetRecordId) {

@@ -116,7 +116,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
         BuildRecord buildRecord = repository.findOne(buildRecordId);
         for (Integer dependentBuildRecordId : buildRecord.getDependentBuildRecordIds()) {
-            Vertex<BuildRecord> dependentRecord = buildDependentGraph(graph, buildRecordId);
+            Vertex<BuildRecord> dependentRecord = buildDependentGraph(graph, dependentBuildRecordId);
             graph.addEdge(dependentRecord, current, 1);
         }
         return graph;
@@ -126,8 +126,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         BuildRecord buildRecord = repository.findOne(buildRecordId);
         Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
         graph.addVertex(buildRecordVertex);
-        Integer[] dependencyBuildRecordIds = buildRecord.getDependencyBuildRecordIds();
-        for (Integer dependencyBuildRecordId : dependencyBuildRecordIds) {
+        for (Integer dependencyBuildRecordId : buildRecord.getDependencyBuildRecordIds()) {
             Vertex<BuildRecord> dependency = buildDependencyGraph(graph, dependencyBuildRecordId);
             graph.addEdge(buildRecordVertex, dependency, 1);
         }
@@ -138,9 +137,8 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         BuildRecord buildRecord = repository.findOne(buildRecordId);
         Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
         graph.addVertex(buildRecordVertex);
-        Integer[] dependencyBuildRecordIds = buildRecord.getDependencyBuildRecordIds();
-        for (Integer dependencyBuildRecordId : dependencyBuildRecordIds) {
-            Vertex<BuildRecord> dependent = buildDependentGraph(graph, dependencyBuildRecordId);
+        for (Integer dependentBuildRecordId : buildRecord.getDependentBuildRecordIds()) {
+            Vertex<BuildRecord> dependent = buildDependentGraph(graph, dependentBuildRecordId);
             graph.addEdge(buildRecordVertex, dependent, 1);
         }
         return buildRecordVertex;
