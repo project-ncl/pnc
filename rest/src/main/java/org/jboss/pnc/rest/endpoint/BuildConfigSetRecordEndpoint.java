@@ -30,6 +30,8 @@ import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
@@ -183,4 +185,17 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         return fromCollection(buildRecordProvider.getAllForBuildConfigSetRecord(pageIndex, pageSize, sort, q, id));
     }
 
+    @ApiOperation(value = "Gets dependency graph for a Build Group Record (running and completed).")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/dependency-graph")
+    public Response getDependencyGraphForSet(@ApiParam(value = "Build record set id.", required = true) @PathParam("id") Integer bcSetRecordId) {
+        GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getBCSetRecordRestGraph(bcSetRecordId);
+        return fromSingleton(dependencyGraph);
+    }
 }
