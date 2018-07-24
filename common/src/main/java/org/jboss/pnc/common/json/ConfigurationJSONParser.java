@@ -56,8 +56,7 @@ public class ConfigurationJSONParser {
                     return (T) config;
                 }
             }
-
-            throw new ConfigurationParseException("Config could not be parsed");
+            throw new ConfigurationParseException("Did not find config for provider " + provider.getType().getSimpleName() + ".");
         } catch (IOException | RuntimeException e) {
             log.error(e.getMessage());
             throw new ConfigurationParseException("Config could not be parsed", e);

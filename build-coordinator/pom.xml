@@ -210,7 +210,6 @@
           <artifactId>jboss-logging-spi</artifactId>
         </exclusion>
       </exclusions>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

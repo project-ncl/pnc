@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
@@ -30,6 +31,8 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.util.graph.Graph;
+import org.jboss.util.graph.Vertex;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -106,4 +109,38 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
                 BuildRecordPredicates.buildFinishedBefore(date));
     }
 
+    @Override
+    public Graph<BuildRecord> getDependencyGraph(Integer buildRecordId) {
+        Graph<BuildRecord> graph = new Graph<>();
+        Vertex<BuildRecord> current = buildDependencyGraph(graph, buildRecordId);
+
+        BuildRecord buildRecord = repository.findOne(buildRecordId);
+        for (Integer dependentBuildRecordId : buildRecord.getDependentBuildRecordIds()) {
+            Vertex<BuildRecord> dependentRecord = buildDependentGraph(graph, dependentBuildRecordId);
+            graph.addEdge(dependentRecord, current, 1);
+        }
+        return graph;
+    }
+
+    Vertex<BuildRecord> buildDependencyGraph(Graph<BuildRecord> graph, Integer buildRecordId) {
+        BuildRecord buildRecord = repository.findOne(buildRecordId);
+        Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
+        graph.addVertex(buildRecordVertex);
+        for (Integer dependencyBuildRecordId : buildRecord.getDependencyBuildRecordIds()) {
+            Vertex<BuildRecord> dependency = buildDependencyGraph(graph, dependencyBuildRecordId);
+            graph.addEdge(buildRecordVertex, dependency, 1);
+        }
+        return buildRecordVertex;
+    }
+
+    private Vertex<BuildRecord> buildDependentGraph(Graph<BuildRecord> graph, Integer buildRecordId) {
+        BuildRecord buildRecord = repository.findOne(buildRecordId);
+        Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
+        graph.addVertex(buildRecordVertex);
+        for (Integer dependentBuildRecordId : buildRecord.getDependentBuildRecordIds()) {
+            Vertex<BuildRecord> dependent = buildDependentGraph(graph, dependentBuildRecordId);
+            graph.addEdge(buildRecordVertex, dependent, 1);
+        }
+        return buildRecordVertex;
+    }
 }
