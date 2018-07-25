@@ -40,8 +40,21 @@
           method: 'GET',
           isPaged: true,
         },
+        /**
+         * Get Repository Configuration by id.
+         */
+        get: {
+          method: 'GET'
+        },
         update: {
-          method: 'PUT'
+          method: 'PUT',
+          transformRequest: function(data) {
+            // convert empty string value to null, see NCL-3992
+            if (data.externalUrl === '') {
+              data.externalUrl = null;
+            }
+            return angular.toJson(data);
+          }
         },
         search: {
           method: 'GET',
