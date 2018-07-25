@@ -37,7 +37,7 @@ public class RepositoryConfigurationPredicates {
      * Queries against normalized version with stripped protocol and .git extension
      */
     public static Predicate<RepositoryConfiguration> withInternalScmRepoUrl(String internalUrl) {
-        String urlStripped = StringUtils.stripSuffix(UrlUtils.getHostAndPathOnly(internalUrl), ".git");
+        String urlStripped = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(internalUrl), ".git");
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.internalUrlNormalized), urlStripped);
     }
 
@@ -45,12 +45,12 @@ public class RepositoryConfigurationPredicates {
      * Queries against normalized version with stripped protocol and .git extension
      */
     public static Predicate<RepositoryConfiguration> withExternalScmRepoUrl(String externalScmRepoUrl) {
-        String urlStripped = StringUtils.stripSuffix(UrlUtils.getHostAndPathOnly(externalScmRepoUrl), ".git");
+        String urlStripped = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(externalScmRepoUrl), ".git");
         return (root, query, cb) -> cb.equal(root.get(RepositoryConfiguration_.externalUrlNormalized), urlStripped);
     }
 
     public static Predicate<RepositoryConfiguration> searchByScmUrl(String scmUrl) {
-        String urlStripped = UrlUtils.getHostAndPathOnly(scmUrl);
+        String urlStripped = UrlUtils.keepHostAndPathOnly(scmUrl);
         urlStripped = StringUtils.stripSuffix(urlStripped, ".git");
 
         String pattern = "%" + urlStripped + "%";
@@ -62,7 +62,7 @@ public class RepositoryConfigurationPredicates {
     }
 
     public static Predicate<RepositoryConfiguration> matchByScmUrl(String scmUrl) {
-        final String urlStripped = StringUtils.stripSuffix(UrlUtils.getHostAndPathOnly(scmUrl), ".git");
+        final String urlStripped = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(scmUrl), ".git");
 
         logger.trace("Searching for pattern: {}.", urlStripped);
 
