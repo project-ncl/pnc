@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -69,13 +70,15 @@ public class CancelledBuildTest extends ProjectBuilder {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
             if (event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
-                try {
-                    Thread.sleep(250); //wait a bit for build execution to start
-                    coordinator.cancel(event.getBuildTaskId());
-                } catch (CoreException | InterruptedException e) {
-                    log.error("Unable to cancel the build.", e);
-                    Assert.fail("Unable to cancel the build.");
-                }
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        Thread.sleep(250); //wait a bit for build execution to start
+                        coordinator.cancel(event.getBuildTaskId());
+                    } catch (CoreException | InterruptedException e) {
+                        log.error("Unable to cancel the build.", e);
+                        Assert.fail("Unable to cancel the build.");
+                    }
+                });
             }
         };
 
