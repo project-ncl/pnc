@@ -31,36 +31,36 @@ public class UrlUtilsTest {
     @Test
     public void shouldGetHostAndPathOnly() throws MalformedURLException {
         String url = "https://github.com/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "https://github.com:80/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "https://github.com:85/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "ssh://git@github.com/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "git+ssh://git@github.com/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "git+ssh://git@github.com:22/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "git+ssh://github.com/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "ssh://github.com/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "git://github.com/project-ncl/pnc.git";
-        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("github.com/project-ncl/pnc.git", UrlUtils.keepHostAndPathOnly(url));
 
         url = "project-ncl";
-        Assert.assertEquals("project-ncl", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("project-ncl", UrlUtils.keepHostAndPathOnly(url));
 
         url = "gitserver.host.com:80/productization/github.com/jboss-modules.git";
-        Assert.assertEquals("gitserver.host.com/productization/github.com/jboss-modules.git", UrlUtils.getHostAndPathOnly(url));
+        Assert.assertEquals("gitserver.host.com/productization/github.com/jboss-modules.git", UrlUtils.keepHostAndPathOnly(url));
     }
 }
