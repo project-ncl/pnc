@@ -19,6 +19,7 @@ package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -33,11 +34,7 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     public ScmModuleConfig(@JsonProperty("internalScmAuthority") String internalScmAuthority) {
         super();
-        setInternalScmAuthority(internalScmAuthority);
-    }
-
-    public void setInternalScmAuthority(String value) {
-        this.internalScmAuthority = value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
+        this.internalScmAuthority = StringUtils.stripEndingSlash(internalScmAuthority);
     }
 
     public String getInternalScmAuthority() {
