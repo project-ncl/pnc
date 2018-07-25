@@ -36,6 +36,7 @@
     'pnc.configuration-set-record',
     'pnc.report',
     'pnc.properties',
+    'pnc.repository-configurations'
   ]);
 
   app.config([
