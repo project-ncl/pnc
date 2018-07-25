@@ -54,6 +54,7 @@ public class BuildExecutorMock implements BuildExecutor {
 
     private final ExecutorService executor = MDCExecutors.newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
 
+    private final Map<Integer, CompletableFuture<Integer>> runningFutures = new HashMap<>();
 //    @Deprecated //CDI workaround
 //    public BuildExecutorMock() {
 //    }
@@ -82,8 +83,9 @@ public class BuildExecutorMock implements BuildExecutor {
             buildExecutionSession.setStatus(buildStatus);
         };
 
-        CompletableFuture.supplyAsync(() -> mockBuild(buildExecutionSession), executor)
-                .handleAsync((buildPassed, e) ->  complete(buildPassed, e, onCompleteInternal), executor);
+        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> mockBuild(buildExecutionSession), executor)
+                                .handleAsync((buildPassed, e) -> complete(buildPassed, e, onCompleteInternal), executor);
+        runningFutures.put(buildExecutionConfiguration.getId(), future);
         return buildExecutionSession;
     }
 
@@ -157,9 +159,9 @@ public class BuildExecutorMock implements BuildExecutor {
         if (buildExecutionSession == null) {
             log.error("Unable to cancel build {}. The build is not running.", executionConfigurationId);
             return;
-        } else {
-            log.info("Cancelling build {}.", executionConfigurationId);
         }
+        log.info("Cancelling build {}.", executionConfigurationId);
+        runningFutures.get(executionConfigurationId).cancel(true);
         BuildDriverResult driverResult = BuildDriverResultMock.mockResult(BuildStatus.CANCELLED);
         buildExecutionSession.setBuildDriverResult(driverResult);
     }
