@@ -93,7 +93,7 @@ public final class UrlUtils {
         return map;
     }
 
-    public static String getHostAndPathOnly(String url) {
+    public static String keepHostAndPathOnly(String url) {
         //workaround to properly parse url. Without schema and available port, URI.create fails to parse
         if (!url.contains("://")) {
             url = "http://" + url;
@@ -105,7 +105,7 @@ public final class UrlUtils {
         return (host == null ? "" : host) + (path == null ? "" : path);
     }
 
-    public static String getWithoutProtocolAndPort(String url) {
+    public static String stripProtocolAndPort(String url) {
         //workaround to properly parse url. Without schema and available port, URI.create fails to parse
         if (!url.contains("://")) {
             url = "http://" + url;
