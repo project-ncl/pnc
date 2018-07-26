@@ -133,11 +133,6 @@ public class BuildTriggerer {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
-        // Initialize BuildConfiguration and load lazy loaded dependencies for processing in CDI beans as DefaultBuildCoordinator
-        BuildConfiguration buildConfiguration = hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration);
-        buildConfiguration.getDependencies();
-        buildConfiguration.getIndirectDependencies();
-
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 currentUser,
