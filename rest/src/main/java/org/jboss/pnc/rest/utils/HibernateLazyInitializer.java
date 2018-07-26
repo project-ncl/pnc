@@ -39,14 +39,18 @@ public class HibernateLazyInitializer {
     private static final Logger log = LoggerFactory.getLogger(HibernateLazyInitializer.class);
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration bc) {
-        log.trace("Initializing BC {}.", bc.getId());
-        ProductVersion productVersion = bc.getProductVersion();
+    public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration buildConfiguration) {
+        log.trace("Initializing BC {}.", buildConfiguration.getId());
+
+        buildConfiguration.getDependencies();
+        buildConfiguration.getIndirectDependencies();
+
+        ProductVersion productVersion = buildConfiguration.getProductVersion();
         if (productVersion != null) {
             productVersion.getProduct();
             productVersion.getCurrentProductMilestone();
         }
-        return bc;
+        return buildConfiguration;
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
