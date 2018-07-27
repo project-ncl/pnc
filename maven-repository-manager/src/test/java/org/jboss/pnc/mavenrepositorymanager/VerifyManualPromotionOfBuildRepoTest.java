@@ -56,7 +56,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
 
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken);
 
         // simulate a build deploying a file.
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);

@@ -70,7 +70,7 @@ public class IndyPromotionValidationTest {
 
         try {
             RepositoryManager driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
-            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null);
+            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null);
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();
 

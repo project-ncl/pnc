@@ -39,7 +39,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken);
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();

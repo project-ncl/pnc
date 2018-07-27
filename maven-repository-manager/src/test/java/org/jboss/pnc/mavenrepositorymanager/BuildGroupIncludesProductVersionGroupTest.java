@@ -42,7 +42,7 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
         BuildExecution execution = new TestBuildExecution("build_myproject_12345");
         Indy indy = driver.getIndy(accessToken);
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken);
         String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));

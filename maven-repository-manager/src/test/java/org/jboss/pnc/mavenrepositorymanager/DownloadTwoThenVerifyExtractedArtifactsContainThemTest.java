@@ -66,7 +66,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();
