@@ -188,9 +188,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *                                    (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
-            throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
+            String serviceAccountToken) throws RepositoryManagerException {
         Indy indy = init(accessToken);
+        Indy serviceAccountIndy = init(serviceAccountToken);
 
         String buildId = buildExecution.getBuildContentId();
         try {
@@ -222,7 +223,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_GROUP;
-        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
+        return new MavenRepositorySession(indy, serviceAccountIndy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
     }
 

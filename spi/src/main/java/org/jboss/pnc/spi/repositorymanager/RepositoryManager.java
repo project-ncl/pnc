@@ -34,11 +34,12 @@ public interface RepositoryManager {
      *
      * @param buildExecution The build execution currently running
      * @param accessToken The access token to use
+     * @param serviceAccountToken The access token for service account to use for repo creation, promotion and cleanup
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken)
-            throws RepositoryManagerException;
+    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
+            String serviceAccountToken) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the

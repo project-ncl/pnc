@@ -86,6 +86,7 @@ public class MavenRepositorySession implements RepositorySession {
     private boolean isTempBuild;
 
     private Indy indy;
+    private Indy serviceAccountIndy;
     private final String buildContentId;
     private List<String> internalRepoPatterns;
 
@@ -107,10 +108,11 @@ public class MavenRepositorySession implements RepositorySession {
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, String buildContentId, MavenRepositoryConnectionInfo info,
-            List<String> internalRepoPatterns, Set<String> ignoredPathSuffixes, String buildPromotionGroup,
-            boolean isTempBuild) {
+    public MavenRepositorySession(Indy indy, Indy serviceAccountIndy, String buildContentId, 
+            MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns,
+            Set<String> ignoredPathSuffixes, String buildPromotionGroup, boolean isTempBuild) {
         this.indy = indy;
+        this.serviceAccountIndy = serviceAccountIndy;
         this.buildContentId = buildContentId;
         this.internalRepoPatterns = internalRepoPatterns;
         this.ignoredPathSuffixes = ignoredPathSuffixes;
@@ -174,7 +176,7 @@ public class MavenRepositorySession implements RepositorySession {
 
         try {
             StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
-            indy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
+            serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
         }
@@ -460,7 +462,7 @@ public class MavenRepositorySession implements RepositorySession {
     private void doPromoteByPath(PathsPromoteRequest req) throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
         try {
-            promoter = indy.module(IndyPromoteClientModule.class);
+            promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
@@ -496,7 +498,7 @@ public class MavenRepositorySession implements RepositorySession {
     public void promoteToBuildContentSet() throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
         try {
-            promoter = indy.module(IndyPromoteClientModule.class);
+            promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
@@ -507,10 +509,10 @@ public class MavenRepositorySession implements RepositorySession {
             GroupPromoteResult result = promoter.promoteToGroup(request);
             if (result.succeeded()) {
                 if (!isTempBuild) {
-                    HostedRepository hosted = indy.stores().load(hostedKey, HostedRepository.class);
+                    HostedRepository hosted = serviceAccountIndy.stores().load(hostedKey, HostedRepository.class);
                     hosted.setReadonly(true);
                     try {
-                        indy.stores().update(hosted, "Setting readonly after successful build and promotion.");
+                        serviceAccountIndy.stores().update(hosted, "Setting readonly after successful build and promotion.");
                     } catch (IndyClientException ex) {
                         try {
                             promoter.rollbackGroupPromote(request);

@@ -84,7 +84,8 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
                 repositoryManagerFactory,
                 buildDriverFactory,
                 environmentDriverFactory,
-                new Configuration()
+                new Configuration(),
+                null
         );
 
         Consumer<BuildExecutionStatusChangedEvent> cancel = (e) -> {

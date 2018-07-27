@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
@@ -82,6 +83,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
     private final ConcurrentMap<Integer, DefaultBuildExecutionSession> runningExecutions = new ConcurrentHashMap<>();
+    private KeycloakServiceClient serviceClient;
 
     private SystemConfig systemConfig;
 
@@ -93,11 +95,13 @@ public class DefaultBuildExecutor implements BuildExecutor {
             RepositoryManagerFactory repositoryManagerFactory,
             BuildDriverFactory buildDriverFactory,
             EnvironmentDriverFactory environmentDriverFactory,
-            Configuration configuration) {
+            Configuration configuration,
+            KeycloakServiceClient serviceClient) {
 
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.buildDriverFactory = buildDriverFactory;
         this.environmentDriverFactory = environmentDriverFactory;
+        this.serviceClient = serviceClient;
 
         int executorThreadPoolSize = 12;
         try {
@@ -193,7 +197,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         try {
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
-            return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken());
+            String serviceAccountToken = (serviceClient == null ? null : serviceClient.getAuthToken());
+            return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken(),
+                    serviceAccountToken);
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
