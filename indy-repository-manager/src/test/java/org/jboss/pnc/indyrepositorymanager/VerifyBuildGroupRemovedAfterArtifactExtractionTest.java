@@ -50,7 +50,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
 
         // create a dummy composed (chained) build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, TargetRepository.Type.MAVEN);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, TargetRepository.Type.MAVEN);
 
         // simulate a build deploying a file.
         driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
