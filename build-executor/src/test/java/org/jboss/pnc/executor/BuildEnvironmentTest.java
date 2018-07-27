@@ -129,7 +129,8 @@ public class BuildEnvironmentTest {
                     repositoryManagerFactory,
                     buildDriverFactory,
                     environmentDriverFactory,
-                    new Configuration()
+                    new Configuration(),
+                    null
             );
         } catch (ConfigurationParseException e) {
             log.error(e.toString());

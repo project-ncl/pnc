@@ -73,7 +73,7 @@ public class IndyPromotionValidationTest {
         RepositoryManager driver = null;
         try {
             driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
-            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null,
+            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null,
                     TargetRepository.Type.MAVEN);
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();

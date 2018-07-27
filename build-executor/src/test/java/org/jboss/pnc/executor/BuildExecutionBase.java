@@ -118,7 +118,8 @@ class BuildExecutionBase {
                 repositoryManagerFactory,
                 buildDriverFactory,
                 environmentDriverFactory,
-                configuration
+                configuration,
+                null
         );
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, (e) -> {}, executor);

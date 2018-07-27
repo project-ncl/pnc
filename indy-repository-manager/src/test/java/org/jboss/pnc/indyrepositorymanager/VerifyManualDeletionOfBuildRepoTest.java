@@ -53,7 +53,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
 
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, TargetRepository.Type.MAVEN);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, TargetRepository.Type.MAVEN);
 
         String pkgType = MAVEN_PKG_KEY;
 

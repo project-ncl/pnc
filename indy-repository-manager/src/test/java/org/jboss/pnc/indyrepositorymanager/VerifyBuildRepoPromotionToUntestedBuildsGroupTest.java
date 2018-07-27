@@ -51,7 +51,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
 
         // create a dummy build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, TargetRepository.Type.MAVEN);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, TargetRepository.Type.MAVEN);
 
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
 

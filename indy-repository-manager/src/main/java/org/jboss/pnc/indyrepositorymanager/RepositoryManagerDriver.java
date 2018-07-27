@@ -199,8 +199,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     @Override
     public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            TargetRepository.Type repositoryType) throws RepositoryManagerException {
+            String serviceAccountToken, TargetRepository.Type repositoryType) throws RepositoryManagerException {
         Indy indy = init(accessToken);
+        Indy serviceAccountIndy = init(serviceAccountToken);
 
         String pakageType = getIndyPackageTypeKey(repositoryType);
 
@@ -234,7 +235,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_GROUP;
-        return new IndyRepositorySession(indy, buildId, pakageType, new IndyRepositoryConnectionInfo(url, deployUrl),
+        return new IndyRepositorySession(indy, serviceAccountIndy, buildId, pakageType,
+                new IndyRepositoryConnectionInfo(url, deployUrl),
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
     }
 
