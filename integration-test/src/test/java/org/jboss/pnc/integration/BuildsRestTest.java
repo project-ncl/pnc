@@ -117,6 +117,8 @@ public class BuildsRestTest  {
         assertThat(buildCoordinatorMock).isNotNull();
 
         buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
+
+        logger.info("Loaded buildConfigurationAudited: {}.", buildConfigurationAudited);
     }
 
     @Test
@@ -275,7 +277,7 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, null, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, null, null, "termd")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -306,7 +308,7 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "termd")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -318,10 +320,10 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByBuildConfigurationNameFromDatabase() throws Exception {
         // given
-        //1 BC with name jboss-modules-1.5.0 is in database inserted with demo-data
+        //1 BC with name termd is in database inserted with demo-data
 
         // when
-        List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, null, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, null, null, "termd")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -338,7 +340,7 @@ public class BuildsRestTest  {
         //1 BC with name jboss-modules-1.5.0 is in database inserted with demo-data, 1 build task started as test-username is mocked
 
         // when
-        List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, rsql, null, "termd")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -354,7 +356,7 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "jboss-modules-1.5.0")
+        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "termd")
                 .getValue().stream().map(value -> value.getId())
                 .collect(Collectors.toList());
 

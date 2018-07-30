@@ -42,9 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_EXTERNAL_REPO;
@@ -62,7 +60,7 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String VALID_INTERNAL_REPO_2 = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/project-ncl/pnc-cli.git";
+    public static final String VALID_INTERNAL_REPO_2 = "ssh://git@github.com:22/project-ncl/pnc-cli.git";
 
     public static final String VALID_EXTERNAL_REPO_2 = "https://github.com/project-ncl/pnc-cli.git";
 
