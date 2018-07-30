@@ -158,7 +158,6 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     @Path("/build-config-set-records/{id}/cancel")
     public Response cancelAllBuildsInGroup(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer bcSetRecordId) {
-        // TODO MDC
         logger.debug("Received cancel request fot Build Configuration Set: {}.", bcSetRecordId);
         if (buildConfigSetRecordProvider.getSpecific(bcSetRecordId) == null) {
             logger.error("Unable to find Build Configuration Set: {}.", bcSetRecordId);
