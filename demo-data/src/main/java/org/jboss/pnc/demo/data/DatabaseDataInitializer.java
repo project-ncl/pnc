@@ -304,27 +304,31 @@ public class DatabaseDataInitializer {
         productVersion1 = productVersionRepository.save(productVersion1);
 
         // Example projects
-        Project project1 = Project.Builder.newBuilder().name(PNC_PROJECT_1_NAME)
+        Project project1 = Project.Builder.newBuilder()
+                .name(PNC_PROJECT_1_NAME)
                 .description("Example Project for Newcastle Demo")
-                .projectUrl("https://github.com/project-ncl/pnc").build();
-        Project project2 = Project.Builder.newBuilder().name("JBoss Modules")
-                .description("JBoss Modules Project")
-                .projectUrl("https://github.com/jboss-modules/jboss-modules")
-                .issueTrackerUrl("https://issues.jboss.org/browse/MODULES").build();
-        Project project3 = Project.Builder.newBuilder().name("JBoss JavaEE Servlet Spec API")
-                .description("JavaEE Servlet Spec API")
-                .projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
-                .issueTrackerUrl("https://issues.jboss.org/browse/JBEE").build();
-        Project project4 = Project.Builder
-                .newBuilder()
-                .name("Fabric8")
-                .description(
-                        "Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
-                .projectUrl("https://github.com/fabric8io/fabric8")
-                .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
-        Project project5 = Project.Builder.newBuilder().name("Maven Plugin Test")
-                .description("Sample Maven Project with plugins and external downloads")
-                .projectUrl("https://github.com/rnc/mvn-plugin-test").build();
+                .projectUrl("https://github.com/project-ncl/pnc")
+                .build();
+        Project project2 = Project.Builder.newBuilder()
+                .name("Causeway")
+                .description("Causeway - Koji integration")
+                .projectUrl("https://github.com/project-ncl/causeway")
+                .build();
+        Project project3 = Project.Builder.newBuilder()
+                .name("Pnc Build Agent")
+                .description("Pnc Build Agent - remote client to execute commands.")
+                .projectUrl("https://github.com/project-ncl/pnc-build-agent")
+                .build();
+        Project project4 = Project.Builder.newBuilder()
+                .name("Dependency Analysis")
+                .description("Dependency Analysis - Analise project dependencies.")
+                .projectUrl("https://github.com/project-ncl/dependency-analysis")
+                .build();
+        Project project5 = Project.Builder.newBuilder()
+                .name("termd")
+                .description("Remote shell.")
+                .projectUrl("https://github.com/project-ncl/termd")
+                .build();
 
         projectRepository.save(project1);
         projectRepository.save(project2);
@@ -332,11 +336,11 @@ public class DatabaseDataInitializer {
         projectRepository.save(project4);
         projectRepository.save(project5);
 
-        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration("https://github.com/project-ncl/pnc.git");
-        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration("https://github.com/jboss-modules/jboss-modules.git");
-        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration("https://github.com/jboss/jboss-servlet-api_spec.git");
-        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration("https://github.com/fabric8io/fabric8.git");
-        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration("https://github.com/rnc/mvn-plugin-test.git");
+        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/pnc.git");
+        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/termd.git");
+        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/pnc-build-agent.git");
+        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/dependency-analysis.git");
+        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/causeway.git");
 
         repositoryConfigurationRepository.save(repositoryConfiguration1);
         repositoryConfigurationRepository.save(repositoryConfiguration2);
@@ -348,50 +352,60 @@ public class DatabaseDataInitializer {
         Map<String, String> genericParameters = new HashMap<>();
         genericParameters.put("KEY", "VALUE");
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
-                .name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
+                .name(PNC_PROJECT_BUILD_CFG_ID)
+                .project(project1)
                 .description("Test build config for project newcastle")
                 .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true")
+                .buildScript("mvn deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration1)
-                .productVersion(productVersion1).scmRevision("*/v0.2")
+                .productVersion(productVersion1)
+                .scmRevision("*/v0.2")
                 .genericParameters(genericParameters)
                 .build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
-        buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0")
+        buildConfiguration2 = BuildConfiguration.Builder.newBuilder()
+                .name("termd")
                 .project(project2)
-                .description("Test config for JBoss modules build master branch.")
                 .buildType(BuildType.MVN)
+                .description("Test configueration for Termd.")
                 .buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion1)
+                .buildScript("mvn deploy -DskipTests=true")
+                .productVersion(productVersion1)
                 .repositoryConfiguration(repositoryConfiguration2)
-                .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
+                .scmRevision("master")
+                .build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
         BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
-                .name("jboss-servlet-spec-api-1.0.1")
-                .project(project3).description("Test build for jboss java servlet api")
+                .name("pnc-build-agent-0.4")
+                .project(project3)
+                .description("Test config for Pnc Build Agent.")
                 .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion2)
+                .buildScript("mvn deploy -DskipTests=true")
+                .productVersion(productVersion2)
                 .repositoryConfiguration(repositoryConfiguration3)
-                .dependency(buildConfiguration2).build();
+                .dependency(buildConfiguration2)
+                .build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
         BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
-                .name("io-fabric8-2.2-SNAPSHOT")
-                .project(project4).description("Test build for Fabric8")
+                .name("dependency-analysis-1.3")
+                .project(project4)
+                .description("Test config for Dependency Analysis.")
                 .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true")
+                .buildScript("mvn deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration4)
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder()
                 .name("maven-plugin-test")
-                .project(project5).description("Test build for Plugins with external downloads")
+                .project(project5)
+                .description("Test build for Plugins with external downloads")
                 .buildType(BuildType.MVN)
                 .buildEnvironment(environment1)
                 .buildScript("mvn clean deploy")
