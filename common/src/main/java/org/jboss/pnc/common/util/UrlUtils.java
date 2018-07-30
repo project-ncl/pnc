@@ -139,6 +139,8 @@ public final class UrlUtils {
 
         URI uri = URI.create(url);
 
+        String userInfo = uri.getUserInfo();
+
         String host = uri.getHost();
         int port = uri.getPort();
         String path = uri.getPath();
@@ -155,6 +157,6 @@ public final class UrlUtils {
             fragmentAppend = "#" + fragment;
         }
 
-        return (host == null ? "" : host) + (port == -1 ? "" : ":" + port) + (path == null ? "" : path) + queryAppend + fragmentAppend;
+        return (userInfo == null ? "" : userInfo + "@") + (host == null ? "" : host) + (port == -1 ? "" : ":" + port) + (path == null ? "" : path) + queryAppend + fragmentAppend;
     }
 }

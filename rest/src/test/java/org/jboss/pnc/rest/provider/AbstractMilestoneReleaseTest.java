@@ -114,7 +114,7 @@ public class AbstractMilestoneReleaseTest {
         milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
                 authenticationProviderFactory, productMilestoneRepository);
 
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git@github.com:22");
         when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class))).thenReturn(scmModuleConfig);
 
 

@@ -75,7 +75,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
     public static final String CLONE_PREFIX_DATE_FORMAT = "yyyyMMddHHmmss";
 
     public static final String VALID_EXTERNAL_REPO = "https://github.com/project-ncl/pnc.git";
-    public static final String VALID_INTERNAL_REPO = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/boo.git";
+    public static final String VALID_INTERNAL_REPO = "ssh://git@github.com:22/project-ncl/pnc-local.git";
 
     private static final String CONFIGURATION_DEPENDENCIES_REST_ENDPOINT = CONFIGURATION_REST_ENDPOINT +"%d/dependencies";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = CONFIGURATION_REST_ENDPOINT +"%d/clone";
