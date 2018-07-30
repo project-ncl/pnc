@@ -299,8 +299,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                         && t.getBuildSetTask().getId().equals(buildSetTaskId))
                 .forEach(buildTask -> {
                     try {
-                        log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         MDCUtils.setMDC(getMDCMeta(buildTask));
+                        log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e){
                         log.error("Unable to cancel the build [" + buildTask.getId() + "].",e);
