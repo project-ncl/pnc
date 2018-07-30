@@ -331,7 +331,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         String scmUrl = repositoryCreationUrlAutoRest.getScmUrl();
         if (!ScmUrlValidator.isValid(scmUrl)) {
-            throw new InvalidEntityException("Invalid scmUrl.");
+            throw new InvalidEntityException("Invalid scmUrl: " + scmUrl);
         }
         Boolean isUrlInternal = scmUrl.contains(internalScmAuthority);
 

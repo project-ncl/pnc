@@ -86,7 +86,7 @@
                 },
                 {
                     "@module-config": "scm-config",
-                    "internalScmAuthority": "git-repo-user@git-repo.devvm.devcloud.example.com:12839"
+                    "internalScmAuthority": "git@github.com:22"
                 }
             ]
         },

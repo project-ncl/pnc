@@ -30,6 +30,7 @@ import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -46,7 +47,6 @@ import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -57,9 +57,8 @@ import static org.mockito.Mockito.when;
  */
 public class BpmEndpointTest {
 
-    private static final String INTERNAL_SCM_URL_WO_NAME = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839";
+    private static final String INTERNAL_SCM_URL_WO_NAME = "ssh://git@github.com:22";
     private static final String VALID_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/rock-a-teens/woo-hoo.git";
-    private static final String VALID_EXTERNAL_SCM_URL = "git+ssh://github.com/project-ncl/pnc.git";
     private static final String EXISTING_INTERNAL_SCM_URL = INTERNAL_SCM_URL_WO_NAME + "/i-do/exist.git";
     private static final String EXISTING_EXTERNAL_SCM_URL = "https://github.com/i-do/exist.git";
     @Mock
@@ -89,7 +88,7 @@ public class BpmEndpointTest {
     public void setUp() throws ConfigurationParseException, InvalidEntityException {
         MockitoAnnotations.initMocks(this);
 
-        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git-repo-user@git-repo.devvm.devcloud.example.com:12839");
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git@github.com:22");
 
         RepositoryConfiguration existingInternalRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(EXISTING_INTERNAL_SCM_URL)

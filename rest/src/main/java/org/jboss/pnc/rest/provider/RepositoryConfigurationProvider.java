@@ -108,7 +108,7 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         if (!isInternalRepository(internalScmAuthority, internalRepoUrl)) {
             logger.warn("Invalid internal repo url: " + internalRepoUrl);
-            throw new InvalidEntityException("Internal repository url has to start with: git+ssh://" + internalScmAuthority + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
+            throw new InvalidEntityException("Internal repository url has to start with: <protocol>://" + internalScmAuthority + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
         }
 
     }
