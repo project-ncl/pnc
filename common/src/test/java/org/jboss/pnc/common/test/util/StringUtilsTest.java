@@ -119,6 +119,10 @@ public class StringUtilsTest {
         Assert.assertEquals("http://host.com/repo", StringUtils.stripSuffix("http://host.com/repo.git", ".git"));
 
         Assert.assertEquals("http://host.com/repo", StringUtils.stripSuffix("http://host.com/repo", ".git"));
+
+        Assert.assertEquals("", StringUtils.stripSuffix("", ".git"));
+
+        Assert.assertEquals(null, StringUtils.stripSuffix(null, ".git"));
     }
 
     @Test
@@ -134,6 +138,12 @@ public class StringUtilsTest {
 
         url = "git+ssh://host.com/path.git";
         Assert.assertEquals("host.com/path.git", StringUtils.stripProtocol(url));
+
+        url = "";
+        Assert.assertEquals("", StringUtils.stripProtocol(url));
+
+        url = null;
+        Assert.assertEquals(null, StringUtils.stripProtocol(url));
     }
 
     @Test
