@@ -136,7 +136,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> projectId = buildRecord.getBuildConfigurationAudited().getProject().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
-                () -> projectName = buildRecord.getBuildConfigurationAudited().getName());
+                () -> projectName = buildRecord.getBuildConfigurationAudited().getProject().getName());
 
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
