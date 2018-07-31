@@ -190,13 +190,27 @@ public class StringUtils {
         }
     }
 
+    /**
+     * Parse comma separated string to Integer array.
+     * @return An empty array when the string parameter is empty or null.
+     */
     public static Integer[] deserializeInt(String string) {
+        if (string == null) {
+            return new Integer[0];
+        }
         return Arrays.stream(string.split(","))
                 .filter(s -> !s.equals(""))
                 .map(Integer::parseInt).toArray(Integer[]::new);
     }
 
+    /**
+     * Serialize Integer array to comma separated string.
+     * @return An empty string when the Integer array parameter is empty or null.
+     */
     public static String serializeInt(Integer[] integers) {
+        if (integers == null) {
+            return "";
+        }
         return Arrays.stream(integers)
                 .map(i -> Integer.toString(i)).collect(Collectors.joining(","));
     }
