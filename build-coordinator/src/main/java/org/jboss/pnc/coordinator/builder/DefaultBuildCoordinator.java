@@ -271,7 +271,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    @Override public Optional<MDCMeta> getMDCMeta(Integer buildTaskId) {
+    @Override
+    public Optional<MDCMeta> getMDCMeta(Integer buildTaskId) {
         return getSubmittedBuildTasks().stream().
                 filter(buildTask -> buildTaskId.equals(buildTask.getId()))
                 .map(this::getMDCMeta)
