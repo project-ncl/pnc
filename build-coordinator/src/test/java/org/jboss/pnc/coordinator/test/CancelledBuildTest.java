@@ -110,13 +110,10 @@ public class CancelledBuildTest extends ProjectBuilder {
         //given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
-
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
-
         BuildConfigurationSet configurationSet = configurationBuilder.buildConfigurationSetForCancel(1);
 
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new ArrayList<>();
-
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
             if (event.getBuildConfigurationId().equals(2) && event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
@@ -124,13 +121,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
                         //we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class directly, so we need to dit it up from buildTaskId that event provides
-                        coordinator.cancelSet(coordinator
-                                .getSubmittedBuildTasks().stream()
-                                .filter(t -> event.getBuildTaskId().equals(t.getId()))
-                                .findAny() //got BuildTask
-                                .get()
-                                .getBuildSetTask() //got BuildConfigSet
-                                .getId());
+                        coordinator.cancelSet(getBuildConfigSetId(coordinator,event.getBuildTaskId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -167,10 +158,6 @@ public class CancelledBuildTest extends ProjectBuilder {
             Assert.assertNotNull(buildRecord.getEndTime());
         }
 
-
-
-
-
         // 3 is independent, 2 is dependent on 3, 1 is dependent on 2
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
             Integer buildTaskId = buildTask.getId();
@@ -198,6 +185,15 @@ public class CancelledBuildTest extends ProjectBuilder {
                     break;
             }
         }
+    }
 
+    private Integer getBuildConfigSetId(BuildCoordinator coordinator, Integer buildTaskId) {
+        return coordinator
+                .getSubmittedBuildTasks().stream()
+                .filter(t -> buildTaskId.equals(t.getId()))
+                .findAny() //got BuildTask
+                .get()
+                .getBuildSetTask() //got BuildConfigSet
+                .getId();
     }
 }
