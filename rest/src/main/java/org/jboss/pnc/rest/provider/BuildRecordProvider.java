@@ -679,6 +679,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return buildRecords.stream().map(BuildRecordRest::new).collect(Collectors.toList());
     }
 
+    public CollectionInfo<BuildRecordRest> getByAttribute(int pageIndex, int pageSize, String sortingRsql,
+            String rsql, String key, String value) {
+        return queryForCollection(pageIndex,pageSize,sortingRsql,rsql,withAttribute(key, value));
+    }
+
     public SshCredentials getSshCredentialsForUser(Integer id, User currentUser) {
         BuildRecord buildRecord = repository.queryById(id);
         if (buildRecord != null && currentUser != null) {
