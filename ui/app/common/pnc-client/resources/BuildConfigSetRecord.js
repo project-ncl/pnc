@@ -39,15 +39,6 @@
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PATH;
       var PUSH_ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PUSH_PATH;
       var RUNNING_ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_RUNNING_PATH;
-      var FINAL_STATUSES = [
-        'DONE',
-        'REJECTED',
-        'REJECTED_FAILED_DEPENDENCIES',
-        'REJECTED_ALREADY_BUILT',
-        'SYSTEM_ERROR',
-        'DONE_WITH_ERRORS',
-        'CANCELLED'
-      ];
 
       var CANCELABLE_STATUSES = [
         'NEW',
