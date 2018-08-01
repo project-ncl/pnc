@@ -31,6 +31,7 @@ import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.graph.GraphRest;
+import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ArtifactPage;
@@ -372,16 +373,21 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     @ApiOperation(value = "Get Build Records by attribute.")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordRest.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordRest.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordPage.class),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/get-by-attribute")
-    public Response queryByAttribute(@ApiParam(value = "Attribute key", required = true) @QueryParam("key") String key,
-                                     @ApiParam(value = "Attribute value", required = true) @QueryParam("value") String value) {
-        return fromSingleton(buildRecordProvider.getByAttribute(key, value));
+    public Response queryByAttribute(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Attribute key", required = true) @QueryParam("key") String key,
+            @ApiParam(value = "Attribute value", required = true) @QueryParam("value") String value) {
+        return fromCollection(buildRecordProvider.getByAttribute(pageIndex,pageSize,sort,q, key, value));
     }
 
     /**
