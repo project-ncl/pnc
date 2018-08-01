@@ -22,7 +22,7 @@
 
   module.value('BUILD_CONFIG_SET_RECORD_PATH', '/build-config-set-records/:id');
   module.value('BUILD_CONFIG_SET_RECORD_PUSH_PATH', '/build-record-push/record-set');
-
+  module.value('BUILD_CONFIG_SET_RECORD_RUNNING_PATH','/running-build-records/build-config-set-records/:id');
 
   /**
    * @author Martin Kelnar
@@ -33,10 +33,32 @@
     'restConfig',
     'BUILD_CONFIG_SET_RECORD_PATH',
     'BUILD_CONFIG_SET_RECORD_PUSH_PATH',
-    function($resource, $http, restConfig, BUILD_CONFIG_SET_RECORD_PATH, BUILD_CONFIG_SET_RECORD_PUSH_PATH) {
+    'BUILD_CONFIG_SET_RECORD_RUNNING_PATH',
+
+    function($resource, $http, restConfig, BUILD_CONFIG_SET_RECORD_PATH, BUILD_CONFIG_SET_RECORD_PUSH_PATH, BUILD_CONFIG_SET_RECORD_RUNNING_PATH) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PATH;
       var PUSH_ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_PUSH_PATH;
+      var RUNNING_ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIG_SET_RECORD_RUNNING_PATH;
+      var FINAL_STATUSES = [
+        'DONE',
+        'REJECTED',
+        'REJECTED_FAILED_DEPENDENCIES',
+        'REJECTED_ALREADY_BUILT',
+        'SYSTEM_ERROR',
+        'DONE_WITH_ERRORS',
+        'CANCELLED'
+      ];
 
+      var CANCELABLE_STATUSES = [
+        'NEW',
+        'ENQUEUED',
+        'WAITING_FOR_DEPENDENCIES',
+        'BUILDING'
+      ];
+
+      function isCancelable(status) {
+        return CANCELABLE_STATUSES.includes(status);
+      }
       function canonicalName(buildConfigSetRecord) {
         return buildConfigSetRecord.buildConfigurationSetName + '#' + buildConfigSetRecord.id;
       }
@@ -60,6 +82,11 @@
           method: 'GET',
           isPaged: true,
           url: ENDPOINT + '/?q=user.id==:userId',
+        },
+
+        cancel: {
+          method: 'POST',
+          url: RUNNING_ENDPOINT + '/cancel'
         }
       });
 
@@ -78,6 +105,9 @@
 
       resource.prototype.$isSuccess = function () {
         return isSuccess(this);
+      };
+      resource.prototype.$isCancelable = function () {
+        return isCancelable(this.status);
       };
 
       resource.isSuccess = isSuccess;
