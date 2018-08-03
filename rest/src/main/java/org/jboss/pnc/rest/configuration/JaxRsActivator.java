@@ -18,9 +18,9 @@
 package org.jboss.pnc.rest.configuration;
 
 import io.swagger.jaxrs.config.BeanConfig;
-import org.jboss.pnc.rest.configuration.metrics.GeneralRestMetricsFilter;
-import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
-import org.jboss.pnc.rest.configuration.metrics.TimedMetricFilter;
+import org.jboss.pnc.pncmetrics.rest.GeneralRestMetricsFilter;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
+import org.jboss.pnc.pncmetrics.rest.TimedMetricFilter;
 import org.jboss.pnc.rest.debug.TestEndpoint;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
