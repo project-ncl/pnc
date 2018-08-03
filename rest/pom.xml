@@ -91,8 +91,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>metrics</artifactId>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
       <scope>provided</scope>
     </dependency>
 

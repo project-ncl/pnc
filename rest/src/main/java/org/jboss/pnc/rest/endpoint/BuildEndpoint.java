@@ -27,7 +27,7 @@ import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;

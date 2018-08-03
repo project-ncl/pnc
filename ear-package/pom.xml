@@ -130,8 +130,8 @@
       <artifactId>causeway-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>metrics</artifactId>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
     </dependency>
   </dependencies>
 
@@ -262,8 +262,8 @@
               <bundleDir>/</bundleDir>
             </jarModule>
             <jarModule>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>metrics</artifactId>
+              <groupId>org.jboss.pnc.metrics</groupId>
+              <artifactId>pncmetrics</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
