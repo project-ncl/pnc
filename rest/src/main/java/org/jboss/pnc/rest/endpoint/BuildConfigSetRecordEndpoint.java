@@ -26,7 +26,7 @@ import org.jboss.pnc.coordinator.maintenance.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.configuration.metrics.TimedMetric;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;

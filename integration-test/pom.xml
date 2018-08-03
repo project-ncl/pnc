@@ -94,6 +94,13 @@
       <artifactId>pnc-mock</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
