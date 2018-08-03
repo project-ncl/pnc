@@ -92,7 +92,6 @@
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
     <module>bpm</module>
     <module>process-managers</module>
-    <module>metrics</module>
   </modules>
 
   <properties>
@@ -251,11 +250,6 @@
         <version>${project.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>metrics</artifactId>
-        <version>${project.version}</version>
-      </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
@@ -319,6 +313,12 @@
         <version>${project.version}</version>
         <scope>test</scope>
       </dependency>
+
+    <dependency>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
+      <version>1.0.1</version>
+    </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
@@ -950,24 +950,6 @@
         <version>1.5.0</version>
       </dependency>
 
-      <!-- metrics gathering -->
-      <dependency>
-        <groupId>io.dropwizard.metrics</groupId>
-        <artifactId>metrics-core</artifactId>
-        <version>4.0.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.dropwizard.metrics</groupId>
-        <artifactId>metrics-jvm</artifactId>
-        <version>4.0.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.dropwizard.metrics</groupId>
-        <artifactId>metrics-graphite</artifactId>
-        <version>4.0.2</version>
-      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
