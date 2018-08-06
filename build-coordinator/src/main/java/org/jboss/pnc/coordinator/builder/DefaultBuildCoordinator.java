@@ -29,6 +29,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -554,11 +555,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
             } else {
                 log.debug("[buildTaskId: {}] Storing success build result.", buildTaskId);
-                datastoreAdapter.storeResult(buildTask, buildResult);
-                coordinationStatus = BuildCoordinationStatus.DONE;
+                BuildRecord buildRecord = datastoreAdapter.storeResult(buildTask, buildResult);
+                if (buildRecord.getStatus().completedSuccessfully()) {
+                    coordinationStatus = BuildCoordinationStatus.DONE;
+                } else {
+                    log.warn("[buildTaskId: {}] Something went wrong while storing the success result. The status has changed to {}.", buildTaskId, buildRecord.getStatus());
+                    coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                }
             }
         } catch (Throwable e ) {
-            log.error("Cannot store results to datastore.", e);
+            log.error("[buildTaskId: "+buildTaskId+"] Cannot store results to datastore.", e);
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
             updateBuildTaskStatus(buildTask, coordinationStatus);
