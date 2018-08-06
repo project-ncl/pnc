@@ -19,12 +19,38 @@
 -->
 <div>
   <dl class="dl-horizontal">
+    <dt>Project</dt>
+    <dd> 
+      <a ui-sref="projects.detail({projectId: $ctrl.buildConfig.project.id})" ng-bind="$ctrl.buildConfig.project.name" href></a>
+    </dd>
+    <dt>Created</dt>
+    <dd>{{ $ctrl.buildConfig.creationTime | date : medium }}</dd>
+    <dt>Modified</dt>
+    <dd>{{ $ctrl.buildConfig.lastModificationTime | date : medium }}</dd>
     <dt>Description</dt>
     <dd>{{ $ctrl.buildConfig.description }}</dd>
-    <dt>Environment</dt>
-    <dd>{{ $ctrl.buildConfig.environment.name }}</dd>
     <dt>Build Type</dt>
     <dd>{{ $ctrl.buildConfig.buildType }}</dd>
-
+    <dt>Environment</dt>
+    <dd>{{ $ctrl.buildConfig.environment.name }}</dd>
+    <dt>Repository Config</dt>
+    <dd>
+      <pnc-repository-configuration-link repository-configuration="$ctrl.buildConfig.repositoryConfiguration"></pnc-repository-configuration-link>
+    </dd>
+    <dt>Revision</dt>
+    <dd>{{ $ctrl.buildConfig.scmRevision }}</dd>
+    <dt>Build Script</dt>
+    <dd>
+      <pre class="build-script" id="input-build-script">{{ $ctrl.buildConfig.buildScript || 'Empty' }}</pre>
+    </dd>
+    <dt>Parameters</dt>
+    <dd>
+      <div ng-repeat="(key, value) in $ctrl.buildConfig.genericParameters">
+        <span>{{ key }}</span><br>
+        <span class="text-monospace">
+          <pre class="build-script">{{ value }}</pre>
+        </span>
+      </div>
+    </dd>
   </dl>
 </div>

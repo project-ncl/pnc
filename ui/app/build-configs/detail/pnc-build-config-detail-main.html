@@ -21,7 +21,7 @@
 <div class="row">
   <div class="col-md-12">
     <pnc-header>
-      <pnc-header-title>{{ $ctrl.buildConfig.name }}</pnc-header-title>
+      <pnc-header-title class="border-none">{{ $ctrl.buildConfig.name }}</pnc-header-title>
       <pnc-header-buttons>
         <pnc-build-start build-config="$ctrl.buildConfig"></pnc-build-start>
         <button type="button" class="btn btn-lg btn-default" uib-tooltip="Clone Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.clone()" pnc-requires-auth><i class="fa fa-files-o"></i> Clone</button>

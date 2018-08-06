@@ -304,3 +304,17 @@
 .grafana-widget-body {
   margin: -15px;
 }
+
+.build-script {
+  display: block;
+}
+
+@media (min-width: 1200px) {
+  .build-script {
+    display: inline-block; 
+    min-width: 650px;
+  }
+}
+
+
+
