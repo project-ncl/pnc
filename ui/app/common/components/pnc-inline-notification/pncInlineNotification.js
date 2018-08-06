@@ -46,7 +46,7 @@
       type: null,
       message: null,
       header: null,
-      persistant: false,
+      persistent: false,
       remove: function () {
         $ctrl.notification.visible = false;
       }
@@ -59,13 +59,13 @@
       notifyInline.registerComponent($ctrl.name, notify);
     };
 
-    function notify(type, header, message, isPersistant) {
+    function notify(type, header, message, isPersistent) {
       $log.debug('Inline Notification: %O', arguments);
       $scope.$applyAsync(function () {
         $ctrl.notification.type = type;
         $ctrl.notification.header = header;
         $ctrl.notification.message = message;
-        $ctrl.notification.persistant = isPersistant;
+        $ctrl.notification.persistent = isPersistent;
         $ctrl.notification.visible = true;
       });
     }

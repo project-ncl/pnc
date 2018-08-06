@@ -19,7 +19,23 @@
   'use strict';
 
   /**
-
+   * Use with pnc-inline-notification component to easily post patternfly
+   * inline notifications.
+   *
+   * Example:
+   *
+   * -- HTML --
+   * <pnc-inline-notification name="createPage"></pnc-inline-notification>
+   *
+   * -- JS --
+   * var notify = notifyInline('createPage'); // Where createPage is the name param from above
+   *
+   * notify({
+   *   type: 'success',     // Valid options: success | info | warning | danger
+   *   header: 'Success',
+   *   message: 'Widget succesfully created',
+   *   persistent: true     // Is notification closeable by the user.
+   * });
    */
   angular.module('pnc.common.components').factory('notifyInline', [
     function () {
@@ -29,13 +45,13 @@
         components[name] = notifyFn;
       }
 
-      function notify(component, type, header, message, isPersistant) {
-        components[component](type, header, message, isPersistant);
+      function notify(component, type, header, message, isPersistent) {
+        components[component](type, header, message, isPersistent);
       }
 
       function createNotifier(name) {
         return function (args) {
-          notify(name, args.type, args.header, args.message, args.isPersistant);
+          notify(name, args.type, args.header, args.message, args.persistent);
         };
       }
 

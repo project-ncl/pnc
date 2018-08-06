@@ -62,7 +62,7 @@
       toggleEdit();
     }
 
-    function onSuccess(buildConfig) {
+    function onSuccess() {
       toggleEdit();
       notify({
         type: 'success',
