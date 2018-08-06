@@ -105,7 +105,7 @@ public class DatastoreAdapter {
         project.getBuildConfigurations().forEach(BuildConfiguration::getId);
     }
 
-    public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
+    public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
             BuildStatus buildRecordStatus = UNKNOWN;
 
@@ -126,8 +126,7 @@ public class DatastoreAdapter {
                 buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
                 buildRecordStatus = buildDriverResult.getBuildStatus(); //TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
-                storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
-                return;
+                return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
             }
 
             if (buildResult.getEnvironmentDriverResult().isPresent()) {
@@ -153,20 +152,17 @@ public class DatastoreAdapter {
                 Collection<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
                 Map<Artifact, String> builtConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
-                    storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + builtConflicts.toString()));
-                    return;
+                    return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + builtConflicts.toString()));
                 }
                 buildRecordBuilder.builtArtifacts(repositoryManagerResult.getBuiltArtifacts());
 
                 Map<Artifact, String> depConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
                 if (depConflicts.size() > 0) {
-                    storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + depConflicts.toString()));
-                    return;
+                    return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + depConflicts.toString()));
                 }
                 buildRecordBuilder.dependencies(repositoryManagerResult.getDependencies());
             } else if (!buildResult.hasFailed()) {
-                storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
-                return;
+                return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
             }
 
             if (UNKNOWN.equals(buildRecordStatus)) {
@@ -187,15 +183,14 @@ public class DatastoreAdapter {
                 buildRecordBuilder.scmRepoURL(buildExecutionConfig.getScmRepoURL());
                 buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
             } else if (!buildResult.hasFailed()) {
-                storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
-                return;
+                return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
             }
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTask.getId());
-            datastore.storeCompletedBuild(buildRecordBuilder);
             userLog.info("Successfully completed.");
+            return datastore.storeCompletedBuild(buildRecordBuilder);
         } catch (Exception e) {
-            storeResult(buildTask, Optional.of(buildResult), e);
+            return storeResult(buildTask, Optional.of(buildResult), e);
         }
     }
 
@@ -207,7 +202,7 @@ public class DatastoreAdapter {
      * @param e The error that occurred during the build process
      * @throws DatastoreException on failure to store data
      */
-    public void storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e) throws DatastoreException {
+    public BuildRecord storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(SYSTEM_ERROR);
 
@@ -250,7 +245,7 @@ public class DatastoreAdapter {
 
         userLog.error("Build status: {}.", getBuildStatus(buildResult));
         log.debug("Storing ERROR result of buildTask.getBuildConfigurationAudited().getName() to datastore.",  e);
-        datastore.storeCompletedBuild(buildRecordBuilder);
+        return datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
     private CompletionStatus getBuildStatus(Optional<BuildResult> buildResult) {
