@@ -19,6 +19,8 @@
 -->
 <div class="row m-t-20">
   <div class="col-md-12 edit-container">
+    <pnc-inline-notification name="edit-build-config"></pnc-inline-notification>
+
     <div ng-if="!$ctrl.isEditModeActive()">
       <pnc-build-config-properties build-config="$ctrl.buildConfig"></pnc-build-config-properties>
     </div>

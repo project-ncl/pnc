@@ -27,13 +27,14 @@
       mainCtrl: '^^pncBuildConfigDetailMain'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-details-tab.html',
-    controller: ['$log', Controller]
+    controller: ['notifyInline', Controller]
   });
 
 
-  function Controller($log) {
+  function Controller(notifyInline) {
     var $ctrl = this,
-        editMode = false;
+        editMode = false,
+        notify;
 
     // -- Controller API --
 
@@ -46,6 +47,7 @@
 
     $ctrl.$onInit = function () {
       $ctrl.mainCtrl.registerOnEdit(toggleEdit);
+      notify = notifyInline('edit-build-config');
     };
 
     function toggleEdit() {
@@ -61,8 +63,12 @@
     }
 
     function onSuccess(buildConfig) {
-      $log.debug('pncBuildConfigDetailsTab::onSuccess \nbuildConfig: %O', buildConfig);
       toggleEdit();
+      notify({
+        type: 'success',
+        message: 'Update Successful',
+        persistent: true
+      });
     }
   }
 

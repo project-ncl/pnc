@@ -43,7 +43,7 @@
         },
         update: {
           method: 'PUT',
-          successNotification: 'Update Successful'
+          successNotification: false
         }
       });
 
