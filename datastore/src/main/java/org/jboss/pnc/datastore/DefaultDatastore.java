@@ -132,8 +132,10 @@ public class DefaultDatastore implements Datastore {
         BuildRecord buildRecord = buildRecordBuilder.build();
         logger.debug("Storing completed build {}.", buildRecord);
 
-        buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
-        buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
+        Map<Integer, TargetRepository> repositoriesCache = new HashMap<>();
+
+        buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies(), repositoriesCache));
+        buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts(), repositoriesCache));
 
         logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
@@ -149,19 +151,23 @@ public class DefaultDatastore implements Datastore {
      * @param artifacts of in-memory artifacts to either insert to the database or find the matching record in the db
      * @return Set of up to date JPA artifact entities
      */
-    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
+    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts, Map<Integer, TargetRepository> repositoriesCache) {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
-            TargetRepository targetRepository = saveTargetRepository(artifact.getTargetRepository());
-            artifact.setTargetRepository(targetRepository);
+            TargetRepository targetRepository = artifact.getTargetRepository();
+
+            TargetRepository targetRepositoryFromDb =
+                    repositoriesCache.computeIfAbsent(targetRepository.getId(), id -> saveTargetRepository(targetRepository));
+
+            artifact.setTargetRepository(targetRepositoryFromDb);
 
             Artifact artifactFromDb;
-            if (TargetRepository.Type.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType())) {
-                artifactFromDb = saveHttpArtifacts(artifact);
+            if (TargetRepository.Type.GENERIC_PROXY.equals(targetRepository.getRepositoryType())) {
+                artifactFromDb = saveHttpArtifact(artifact);
             } else {
-                artifactFromDb = saveRepositoryArtifacts(artifact);
+                artifactFromDb = saveRepositoryArtifact(artifact);
             }
 
             savedArtifacts.add(artifactFromDb);
@@ -187,7 +193,7 @@ public class DefaultDatastore implements Datastore {
         return targetRepositoryFromDb;
     }
 
-    private Artifact saveRepositoryArtifacts(Artifact artifact) {
+    private Artifact saveRepositoryArtifact(Artifact artifact) {
         logger.trace("Saving repository artifact {}.", artifact);
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository
@@ -209,7 +215,7 @@ public class DefaultDatastore implements Datastore {
         return artifactFromDb;
     }
 
-    private Artifact saveHttpArtifacts(Artifact artifact) {
+    private Artifact saveHttpArtifact(Artifact artifact) {
         logger.trace("Saving http artifact {}.", artifact);
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository

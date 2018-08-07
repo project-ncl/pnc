@@ -52,8 +52,13 @@ import java.util.Set;
  * 
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256", "targetRepository_id"}),
-        indexes = {@Index(name="idx_artifact_targetRepository", columnList = "targetRepository_id")}
+@Table(
+    uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256", "targetRepository_id"}),
+    indexes = {
+        @Index(name="idx_artifact_targetRepository", columnList = "targetRepository_id"),
+        @Index(name="idx_artifact_identifier", columnList = "identifier"),
+        @Index(name="idx_artifact_sha256", columnList = "sha256")
+    }
 )
 public class Artifact implements GenericEntity<Integer> {
 
