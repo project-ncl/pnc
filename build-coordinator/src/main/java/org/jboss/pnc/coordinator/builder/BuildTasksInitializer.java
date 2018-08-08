@@ -202,7 +202,7 @@ public class BuildTasksInitializer {
         // Loop again to set dependencies
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
             for (BuildTask checkDepBuildTask : buildSetTask.getBuildTasks()) {
-                if (buildTask.hasConfigDependencyOn(checkDepBuildTask)) {
+                if (buildTask.hasDirectConfigDependencyOn(checkDepBuildTask)) {
                     buildTask.addDependency(checkDepBuildTask);
                 }
             }
