@@ -211,7 +211,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         Graph<BuildRecordRest> buildRecordGraph = new Graph<>();
 
         for (Vertex<BuildTask> buildTaskVertex : taskGraph.getVerticies()) {
-            BuildRecordRest recordRest = getBuildRecordForTask(buildTaskVertex.getData());
+            BuildRecordRest recordRest = createBuildRecordForTask(buildTaskVertex.getData());
             Vertex<BuildRecordRest> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(recordRest.getId()), recordRest);
             buildRecordGraph.addVertex(buildRecordVertex);
         }
@@ -259,9 +259,18 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
         BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(buildConfigurationAudited);
 
+        Integer[] dependencyIds = buildTask.getDependencies().stream().map(BuildTask::getId).toArray(Integer[]::new);
+        Integer[] dependentIds = buildTask.getDependants().stream().map(BuildTask::getId).toArray(Integer[]::new);
+
         BuildRecordRest buildRecRest;
         if (runningExecution != null) {
-            buildRecRest = new BuildRecordRest(runningExecution, buildTask.getSubmitTime(), user, buildConfigAuditedRest);
+            buildRecRest = new BuildRecordRest(
+                    runningExecution,
+                    buildTask.getSubmitTime(),
+                    user,
+                    buildConfigAuditedRest,
+                    dependencyIds,
+                    dependentIds);
         } else {
             buildRecRest = new BuildRecordRest(
                     buildTask.getId(),
@@ -271,7 +280,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     buildTask.getEndTime(),
                     user, 
                     buildConfigAuditedRest,
-                    buildTask.getBuildOptions().isTemporaryBuild());
+                    buildTask.getBuildOptions().isTemporaryBuild(),
+                    dependencyIds,
+                    dependentIds);
         }
         return buildRecRest;
     }
@@ -491,10 +502,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             return null;
         }
         BuildTask buildTask = getSubmittedBuild(id);
-        return getBuildRecordForTask(buildTask);
+        return createBuildRecordForTask(buildTask);
     }
 
-    public BuildRecordRest getBuildRecordForTask(BuildTask task) {
+    public BuildRecordRest createBuildRecordForTask(BuildTask task) {
         return task == null ? null : createNewBuildRecordRest(task);
     }
 
@@ -705,7 +716,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 result.getBuildTasks().size(),
                 1,
                 result.getBuildTasks().stream()
-                        .map(this::getBuildRecordForTask)
+                        .map(this::createBuildRecordForTask)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())));
 

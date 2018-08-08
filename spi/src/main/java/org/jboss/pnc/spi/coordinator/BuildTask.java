@@ -151,10 +151,11 @@ public class BuildTask {
     }
 
     /**
-     * Check if this build task has a build configuration dependency on the given build task
+     * Check if this build task has a build configuration dependency on the given build task.
+     * The search include transitive dependencies.
      *
      * @param buildTask The buildTask with the config to check
-     * @return true if this task's build config has a dependency on the build config of the given task, otherwise false
+     * @return true if this task's build config has a dependency (including transitive) on the build config of the given task, otherwise false
      */
     public boolean hasConfigDependencyOn(BuildTask buildTask) {
         if (buildTask == null || this.equals(buildTask)) {
@@ -164,6 +165,22 @@ public class BuildTask {
             return false;
         }
         return buildConfiguration.dependsOn(buildTask.getBuildConfiguration());
+    }
+
+    /**
+     * Check if this build task has a direct build configuration dependency on the given build task
+     *
+     * @param buildTask The buildTask with the config to check
+     * @return true if this task's build config has a direct dependency on the build config of the given task, otherwise false
+     */
+    public boolean hasDirectConfigDependencyOn(BuildTask buildTask) {
+        if (buildTask == null || this.equals(buildTask)) {
+            return false;
+        }
+        if (buildConfiguration == null || buildConfiguration.getDependencies() == null) {
+            return false;
+        }
+        return buildConfiguration.getDependencies().contains(buildTask.getBuildConfiguration());
     }
 
     public void addDependant(BuildTask buildTask) {
