@@ -240,7 +240,7 @@ public class IndyRepositorySession implements RepositorySession {
                             toPromote.put(storeKey, paths);
                         }
 
-                        paths.add(download.getPath());
+                        paths.add(path);
                     }
                 }
 
@@ -583,6 +583,9 @@ public class IndyRepositorySession implements RepositorySession {
                 break;
             case NPM_PKG_KEY:
                 suffixes = ignoredPathSuffixes.getNpmWithShared();
+                break;
+            case GENERIC_PKG_KEY:
+                suffixes = ignoredPathSuffixes.getShared();
                 break;
             default:
                 throw new IllegalArgumentException("Package type " + packageType
