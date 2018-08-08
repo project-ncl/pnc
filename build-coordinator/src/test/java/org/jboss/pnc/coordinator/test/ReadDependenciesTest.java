@@ -75,7 +75,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
 
         Assert.assertEquals("Missing build tasks in set.", 5, buildSetTask.getBuildTasks().size());
         BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildConfiguration().getId().equals(2)).findFirst().get();
-        Assert.assertEquals("Wrong number of dependencies.", 3, buildTask2.getDependencies().size());
+        Assert.assertEquals("Wrong number of dependencies.", 2, buildTask2.getDependencies().size());
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {

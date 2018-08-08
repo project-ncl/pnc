@@ -164,7 +164,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     public BuildRecordRest(
             BuildExecutionSession buildExecutionSession,
             Date submitTime, UserRest user,
-            BuildConfigurationAuditedRest buildConfigurationAudited) {
+            BuildConfigurationAuditedRest buildConfigurationAudited,
+            Integer[] dependencyBuildRecordIds,
+            Integer[] dependentBuildRecordIds) {
         this.id = buildExecutionSession.getId();
         this.submitTime = submitTime;
         this.startTime = buildExecutionSession.getStartTime();
@@ -193,6 +195,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());
 
         this.temporaryBuild = buildExecutionConfig.isTempBuild();
+
+        this.dependencyBuildRecordIds = dependencyBuildRecordIds;
+        this.dependentBuildRecordIds = dependentBuildRecordIds;
     }
 
     public BuildRecordRest(
@@ -203,7 +208,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             Date endTime,
             UserRest user,
             BuildConfigurationAuditedRest buildConfigurationAudited,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            Integer[] dependencyBuildRecordIds,
+            Integer[] dependentBuildRecordIds) {
         this.id = id;
         this.submitTime = submitTime;
         this.startTime = startTime;
@@ -224,6 +231,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildConfigurationAudited.getProject(),
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());
 
+        this.dependencyBuildRecordIds = dependencyBuildRecordIds;
+        this.dependentBuildRecordIds = dependentBuildRecordIds;
     }
 
     @Override

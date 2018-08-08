@@ -109,6 +109,11 @@ public class BuildTaskEndpoint {
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
         logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
         BuildExecutionConfigurationRest buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration();
+        if (buildExecutionConfiguration == null) {
+            logger.error("Missing buildExecutionConfiguration in buildResult for buildTaskId [{}].", buildId);
+            throw new CoreException("Missing buildExecutionConfiguration in buildResult for buildTaskId " + buildId);
+        }
+
         MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
         logger.info("Received build task completed notification.");
 
