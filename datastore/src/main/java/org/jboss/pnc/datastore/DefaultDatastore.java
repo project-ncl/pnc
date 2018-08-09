@@ -132,7 +132,7 @@ public class DefaultDatastore implements Datastore {
         BuildRecord buildRecord = buildRecordBuilder.build();
         logger.debug("Storing completed build {}.", buildRecord);
 
-        Map<Integer, TargetRepository> repositoriesCache = new HashMap<>();
+        Map<String, TargetRepository> repositoriesCache = new HashMap<>();
 
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies(), repositoriesCache));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts(), repositoriesCache));
@@ -151,15 +151,17 @@ public class DefaultDatastore implements Datastore {
      * @param artifacts of in-memory artifacts to either insert to the database or find the matching record in the db
      * @return Set of up to date JPA artifact entities
      */
-    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts, Map<Integer, TargetRepository> repositoriesCache) {
+    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts, Map<String, TargetRepository> repositoriesCache) {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = artifact.getTargetRepository();
 
+            String repositoriesCacheKey = targetRepository.getIdentifier() + "$$" + targetRepository.getRepositoryPath();
+
             TargetRepository targetRepositoryFromDb =
-                    repositoriesCache.computeIfAbsent(targetRepository.getId(), id -> saveTargetRepository(targetRepository));
+                    repositoriesCache.computeIfAbsent(repositoriesCacheKey, k -> getOrSaveTargetRepository(targetRepository));
 
             artifact.setTargetRepository(targetRepositoryFromDb);
 
@@ -177,7 +179,7 @@ public class DefaultDatastore implements Datastore {
         return savedArtifacts;
     }
 
-    private TargetRepository saveTargetRepository(TargetRepository targetRepository) {
+    private TargetRepository getOrSaveTargetRepository(TargetRepository targetRepository) {
         logger.trace("Saving target repository {}.", targetRepository);
         TargetRepository targetRepositoryFromDb = targetRepositoryRepository
                 .queryByIdentifierAndPath(targetRepository.getIdentifier(), targetRepository.getRepositoryPath());
@@ -185,9 +187,9 @@ public class DefaultDatastore implements Datastore {
         if (targetRepositoryFromDb == null) {
             logger.trace("Target repository is not in DB. Saving target repository {}.", targetRepository);
             targetRepositoryFromDb = targetRepositoryRepository.save(targetRepository);
-            logger.trace("Target repository saved {}.", targetRepositoryFromDb);
+            logger.debug("Target repository saved {}.", targetRepositoryFromDb);
         } else {
-            logger.trace("Target repository already present in DB {}.", targetRepositoryFromDb);
+            logger.debug("Target repository already present in DB {}.", targetRepositoryFromDb);
         }
 
         return targetRepositoryFromDb;
