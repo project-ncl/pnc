@@ -161,7 +161,6 @@ public class TargetRepository implements GenericEntity<Integer> {
                 ", identifier='" + identifier + '\'' +
                 ", repositoryPath='" + repositoryPath + '\'' +
                 ", repositoryType=" + repositoryType +
-                ", artifacts=" + artifacts +
                 '}';
     }
 
