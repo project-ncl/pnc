@@ -69,6 +69,12 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     @OneToMany(mappedBy = "buildConfigurationSet")
     private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
+    /**
+     * Normally set to true.
+     * If BuildConfigurationSet is no longer to be used (is archived) - this is set to **null**
+     */
+    private Boolean active;
+
     public BuildConfigurationSet() {
     }
 
@@ -171,6 +177,17 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
         return getProductVersion().getCurrentProductMilestone();
     }
 
+    /**
+     * @return true if this build config should no longer be used for builds
+     */
+    public boolean isArchived() {
+        return !Boolean.TRUE.equals(active);
+    }
+
+    public void setArchived(boolean archived) {
+        this.active = archived ? null : true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -197,7 +214,16 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
                 ", productVersion=" + productVersion +
                 ", buildConfigurations=" + buildConfigurations +
                 ", buildConfigSetRecords=" + buildConfigSetRecords +
+                ", active=" + active +
                 '}';
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public static class Builder {
@@ -212,6 +238,8 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
         private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
+        private boolean archived = false;
+
         private Builder() {
 
         }
@@ -222,6 +250,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
             buildConfigurationSet.setName(name);
             buildConfigurationSet.setProductVersion(productVersion);
             buildConfigurationSet.setBuildConfigurations(buildConfigurations);
+            buildConfigurationSet.setArchived(archived);
             for (BuildConfiguration buildConfiguration : buildConfigurations) {
                 buildConfiguration.addBuildConfigurationSet(buildConfigurationSet);
             }
@@ -259,6 +288,11 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
         public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
             this.buildConfigurations.add(buildConfiguration);
+            return this;
+        }
+
+        public Builder archived(boolean archived) {
+            this.archived = archived;
             return this;
         }
 

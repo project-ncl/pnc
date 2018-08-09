@@ -17,7 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildConfigurationSet_;
+import org.jboss.pnc.model.BuildConfiguration_;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
@@ -37,6 +42,10 @@ public class BuildConfigurationSetPredicates {
             Join<BuildConfigurationSet, ProductVersion> productVersionJoin = root.join(BuildConfigurationSet_.productVersion);
             return cb.equal(productVersionJoin.get(ProductVersion_.id), productVersionId);
         };
+    }
+
+    public static Predicate<BuildConfigurationSet> isNotArchived() {
+        return (root, query, cb) -> cb.isTrue(root.get(BuildConfigurationSet_.active));
     }
 
     public static Predicate<BuildConfigurationSet> withName(String name) {
