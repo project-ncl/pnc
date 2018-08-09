@@ -49,6 +49,8 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
 
     private List<Integer> buildConfigurationIds = new LinkedList<>();
 
+    private boolean archived;
+
     public BuildConfigurationSetRest() {
     }
 
@@ -56,8 +58,8 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
         this.id = buildConfigurationSet.getId();
         this.name = buildConfigurationSet.getName();
         performIfNotNull(buildConfigurationSet.getProductVersion(), () ->this.productVersionId = buildConfigurationSet.getProductVersion().getId());
-
         buildConfigurationSet.getBuildConfigurations().forEach(bc -> buildConfigurationIds.add(bc.getId()));
+        this.archived = buildConfigurationSet.isArchived();
     }
 
     @Override
@@ -76,6 +78,14 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 
     public Integer getProductVersionId() {
@@ -105,7 +115,8 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
     public BuildConfigurationSet.Builder toDBEntityBuilder() {
         BuildConfigurationSet.Builder builder = BuildConfigurationSet.Builder.newBuilder()
                 .id(id)
-                .name(name);
+                .name(name)
+                .archived(archived);
 
         performIfNotNull(productVersionId, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
