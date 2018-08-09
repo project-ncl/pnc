@@ -107,15 +107,17 @@ public class BuildTaskEndpoint {
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer buildId,
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
-        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
-        BuildExecutionConfigurationRest buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration();
-        if (buildExecutionConfiguration == null) {
-            logger.error("Missing buildExecutionConfiguration in buildResult for buildTaskId [{}].", buildId);
-            throw new CoreException("Missing buildExecutionConfiguration in buildResult for buildTaskId " + buildId);
-        }
 
-        MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
-        logger.info("Received build task completed notification.");
+//TODO set MDC from request headers instead of business data
+//        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
+//        BuildExecutionConfigurationRest buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration();
+//        buildResult.getRepositoryManagerResult().getBuildContentId();
+//        if (buildExecutionConfiguration == null) {
+//            logger.error("Missing buildExecutionConfiguration in buildResult for buildTaskId [{}].", buildId);
+//            throw new CoreException("Missing buildExecutionConfiguration in buildResult for buildTaskId " + buildId);
+//        }
+//        MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
+        logger.info("Received build task completed notification for id {}.", buildId);
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
         if(taskId == null) {
@@ -129,6 +131,8 @@ public class BuildTaskEndpoint {
         if (taskOptional.isPresent()) {
             BpmBuildTask bpmBuildTask = (BpmBuildTask) taskOptional.get();
             BuildTask buildTask = bpmBuildTask.getBuildTask();
+
+            MDCUtils.setMDC(buildTask.getContentId(), buildTask.getBuildOptions().isTemporaryBuild(), systemConfig.getTemporalBuildExpireDate());
             if (buildTask.getStatus().isCompleted()) {
                 logger.warn("Task with id: {} is already completed with status: {}", buildTask.getId(), buildTask.getStatus());
                 return Response.status(Response.Status.GONE).entity("Task with id: " + buildTask.getId() + " is already completed with status: " + buildTask.getStatus() + ".").build();
