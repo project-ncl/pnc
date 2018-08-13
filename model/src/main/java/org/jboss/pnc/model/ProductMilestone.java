@@ -66,7 +66,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
      * Contains the milestone version string.  This consists of a major, minor, and micro
      * numeric version followed by an alphanumeric qualifier.  For example "1.0.0.ER1".
      */
-    @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w]+$")
+    @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$")
     @NotNull
     @Size(max=50)
     private String version;
