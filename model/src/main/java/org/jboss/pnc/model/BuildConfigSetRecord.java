@@ -56,7 +56,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     public static final String SEQUENCE_NAME = "build_config_set_record_id_seq";
 
     @Id
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, initialValue = 100, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 

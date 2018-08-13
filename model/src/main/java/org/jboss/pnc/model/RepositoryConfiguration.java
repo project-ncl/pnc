@@ -60,7 +60,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     }
 
     @Id
-    @SequenceGenerator(name = SEQ_NAME, sequenceName = SEQ_NAME, allocationSize = 1)
+    @SequenceGenerator(name = SEQ_NAME, sequenceName = SEQ_NAME, initialValue = 100, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)
     private Integer id;
 
