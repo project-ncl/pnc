@@ -166,4 +166,20 @@ public class ProductMilestoneRestTest extends AbstractTest {
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
+    @Test
+    public void shouldFailToCreateMilestoneWithMalformedVersion() {
+        // given
+        ProductMilestoneRest productMilestoneRest = new ProductMilestoneRest();
+        productMilestoneRest.setVersion("1.0-ER1");
+        productMilestoneRest.setProductVersionId(1);
+
+        // when-then
+        Response response = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort())
+                .when().post(PRODUCT_MILESTONE_REST_ENDPOINT);
+        Assertions.assertThat(response.statusCode()).isEqualTo(400);
+        Assertions.assertThat(response.body().jsonPath().getString("details.field"))
+                .startsWith("Version doesn't match the required pattern");
+    }
+
 }
