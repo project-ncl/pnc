@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
 
 @Stateless
@@ -110,6 +111,21 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         };
     }
 
+    public void archive(Integer buildConfigurationSetId) {
+        BuildConfigurationSet buildConfigurationSet = repository.queryById(buildConfigurationSetId);
+        buildConfigurationSet.setArchived(true);
+
+        for (BuildConfiguration bc: buildConfigurationSet.getBuildConfigurations()) {
+            bc.removeBuildConfigurationSet(buildConfigurationSet);
+            buildConfigurationRepository.save(bc);
+        }
+    }
+
+    public CollectionInfo<BuildConfigurationSetRest> getAllNonArchived(Integer pageIndex, Integer pageSize, String sortingRsql,
+            String query) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, isNotArchived());
+    }
+
     public void addConfiguration(Integer configSetId, Integer configId) throws RestValidationException {
         BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
@@ -161,13 +177,13 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     public CollectionInfo<BuildConfigurationSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
             String rsql, Integer productVersionId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
-                BuildConfigurationSetPredicates.withProductVersionId(productVersionId));
+                BuildConfigurationSetPredicates.withProductVersionId(productVersionId),isNotArchived());
     }
 
     public CollectionInfo<BuildConfigurationSetRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
             String rsql, Integer buildConfigurationId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
-                BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId));
+                BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId),isNotArchived());
     }
 
     private List<BuildConfiguration> getBuildConfigurations(Integer id) {

@@ -155,7 +155,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return super.getAll(pageIndex, pageSize, sort, q);
+        return fromCollection(buildConfigurationSetProvider.getAllNonArchived(pageIndex, pageSize, sort, q));
     }
 
     @ApiOperation(value = "Creates a new Build Configuration Set")
@@ -210,7 +210,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id)
             throws RestValidationException {
-        return super.delete(id);
+        buildConfigurationSetProvider.archive(id);
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Gets the Configurations for the Specified Set")
