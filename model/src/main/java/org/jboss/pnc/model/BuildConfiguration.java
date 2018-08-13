@@ -322,6 +322,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
+     * @param buildConfigurationSet remove from the list of buildConfigurationSets
+     */
+    public void removeBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+        this.buildConfigurationSets.remove(buildConfigurationSet);
+    }
+
+
+    /**
      * @return the dependency build configs (only direct dependencies)
      */
     public Set<BuildConfiguration> getDependencies() {
