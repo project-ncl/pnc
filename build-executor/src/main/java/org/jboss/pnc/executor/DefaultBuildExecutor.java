@@ -377,62 +377,70 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void completeExecution(DefaultBuildExecutionSession buildExecutionSession, Throwable e) {
-        userLog.info("Finalizing build execution.");
-        if (e != null) {
-            log.debug("Finalizing FAILED execution. Exception: ", e);
-        } else {
-            log.debug("Finalizing SUCCESS execution.");
-        }
-
-        buildExecutionSession.setStatus(BuildExecutionStatus.FINALIZING_EXECUTION);
-
-        if (buildExecutionSession.getStartTime() == null) {
-            buildExecutionSession.setException(new ExecutorException("Missing start time."));
-        }
-        if (e != null) {
-            stopRunningEnvironment(e);
-        } else {
-            try {
-                destroyEnvironment(buildExecutionSession);
-            } catch (BuildProcessException destroyException) {
-                e = destroyException;
-            }
-        }
-
-        if (e != null) {
-            buildExecutionSession.setException(new ExecutorException(e));
-        }
-
-        if (buildExecutionSession.getEndTime() != null) {
-            buildExecutionSession.setException(new ExecutorException("End time already set."));
-        } else {
-            buildExecutionSession.setEndTime(new Date());
-        }
-
-        String accessToken = buildExecutionSession.getAccessToken();
-        log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
         try {
-            repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN).close(accessToken);
-        } catch (ExecutorException executionException) {
-            buildExecutionSession.setException(executionException);
+            userLog.info("Finalizing build execution.");
+            if (e != null) {
+                log.debug("Finalizing FAILED execution. Exception: ", e);
+            } else {
+                log.debug("Finalizing SUCCESS execution.");
+            }
+
+            buildExecutionSession.setStatus(BuildExecutionStatus.FINALIZING_EXECUTION);
+
+            if (buildExecutionSession.getStartTime() == null) {
+                buildExecutionSession.setException(new ExecutorException("Missing start time."));
+            }
+            if (e != null) {
+                stopRunningEnvironment(e);
+            } else {
+                try {
+                    destroyEnvironment(buildExecutionSession);
+                } catch (BuildProcessException destroyException) {
+                    e = destroyException;
+                }
+            }
+
+            if (e != null) {
+                buildExecutionSession.setException(new ExecutorException(e));
+            }
+
+            if (buildExecutionSession.getEndTime() != null) {
+                buildExecutionSession.setException(new ExecutorException("End time already set."));
+            } else {
+                buildExecutionSession.setEndTime(new Date());
+            }
+
+            String accessToken = buildExecutionSession.getAccessToken();
+            log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
+            try {
+                repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN).close(accessToken);
+            } catch (ExecutorException executionException) {
+                buildExecutionSession.setException(executionException);
+            }
+
+            //check if any of previous statuses indicated "failed" state
+            if (buildExecutionSession.isCanceled()) {
+                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED, true);
+                userLog.info("Build execution completed (canceled).");
+            } else if (buildExecutionSession.hasFailed()) {
+                buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS, true);
+                userLog.warn("Build execution completed with errors.");
+            } else {
+                buildExecutionSession.setStatus(BuildExecutionStatus.DONE, true);
+                userLog.info("Build execution completed successfully.");
+            }
+
+            log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] from list of running tasks.");
+            runningExecutions.remove(buildExecutionSession.getId());
+
+            userLog.info("Build execution completed.");
+        } catch (Throwable t) {
+            userLog.error("Unable to complete execution!", t);
+            buildExecutionSession.setException(new ExecutorException("Unable to recover, see system log for the details."));
+            buildExecutionSession.setEndTime(new Date());
+            buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR);
+            runningExecutions.remove(buildExecutionSession.getId());
         }
-
-        //check if any of previous statuses indicated "failed" state
-        if (buildExecutionSession.isCanceled()) {
-            buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED, true);
-            userLog.info("Build execution completed (canceled).");
-        } else if (buildExecutionSession.hasFailed()) {
-            buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS, true);
-            userLog.warn("Build execution completed with errors.");
-        } else {
-            buildExecutionSession.setStatus(BuildExecutionStatus.DONE, true);
-            userLog.info("Build execution completed successfully.");
-        }
-
-        log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] from list of running tasks.");
-        runningExecutions.remove(buildExecutionSession.getId());
-
-        userLog.info("Build execution completed.");
         return null;
     }
 
