@@ -102,6 +102,11 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
 
     @Override
     public void setStatus(BuildExecutionStatus status) {
+        setStatus(status, false);
+    }
+
+    @Override
+    public void setStatus(BuildExecutionStatus status, boolean isFinal) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS)) {
                 setException(new ExecutorException("Missing failedReasonStatus. Failed reason must be sat before final DONE_WITH_ERRORS."));
