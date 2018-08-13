@@ -438,7 +438,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             userLog.error("Unable to complete execution!", t);
             buildExecutionSession.setException(new ExecutorException("Unable to recover, see system log for the details."));
             buildExecutionSession.setEndTime(new Date());
-            buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR);
+            buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR, true);
             runningExecutions.remove(buildExecutionSession.getId());
         }
         return null;

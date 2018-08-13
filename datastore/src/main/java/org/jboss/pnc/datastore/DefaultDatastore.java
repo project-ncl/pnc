@@ -155,6 +155,7 @@ public class DefaultDatastore implements Datastore {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
+
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = artifact.getTargetRepository();
 
