@@ -58,28 +58,30 @@ public class TermdServer {
      */
     public static void startServer(String host, int port, String bindPath, Optional<Path> logFolder)
             throws InterruptedException, BuildAgentException {
-        Semaphore mutex = new Semaphore(1);
+        Semaphore mutex = new Semaphore(2);
         Runnable onStart = () ->  {
             log.info("Server started.");
             mutex.release();
         };
-        mutex.acquire();
+        mutex.acquire(2);
 
         AtomicReference<BuildAgentServer> buildAgentServerReference = new AtomicReference<>();
 
         serverThread = new Thread(() -> {
             try {
                 IoLoggerName[] primaryLoggers = {IoLoggerName.FILE};
-                BuildAgentServer buildAgent = new BuildAgentServer("127.0.0.1", 0, "", logFolder, Optional.empty(), primaryLoggers, onStart);
+                BuildAgentServer buildAgent = new BuildAgentServer(host, port, bindPath, logFolder, Optional.empty(), primaryLoggers, onStart);
                 buildAgentServerReference.set(buildAgent);
+                mutex.release();
             } catch (BuildAgentException e) {
                 throw new RuntimeException("Cannot start build agent.", e);
             }
         }, "termd-serverThread-thread");
         serverThread.start();
 
-        mutex.acquire(); //wait to start the server
-        runningPort.set(buildAgentServerReference.get().getPort());
+        mutex.acquire(2); //wait to start the server and object fully constructed
+        int assignedPort = buildAgentServerReference.get().getPort();
+        runningPort.set(assignedPort);
     }
 
     public static AtomicInteger getPort_pool() {
