@@ -111,10 +111,13 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         };
     }
 
-    public void archive(Integer buildConfigurationSetId) {
+    public void archive(Integer buildConfigurationSetId) throws RestValidationException{
+        ValidationBuilder.validateObject(WhenUpdating.class).validateAgainstRepository(repository, buildConfigurationSetId,
+            true);
         BuildConfigurationSet buildConfigurationSet = repository.queryById(buildConfigurationSetId);
         buildConfigurationSet.setArchived(true);
 
+        // if a build group is archived, unlink the build group from the build configurations is associated with
         for (BuildConfiguration bc: buildConfigurationSet.getBuildConfigurations()) {
             bc.removeBuildConfigurationSet(buildConfigurationSet);
             buildConfigurationRepository.save(bc);
