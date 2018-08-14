@@ -44,7 +44,7 @@
                   <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="milestoneCreateUpdateCtrl.version" pattern="^([0-9]+\.)?[\w]+$" version-unique product-version="{{milestoneCreateUpdateCtrl.productVersion.version}}" product-version-id="{{milestoneCreateUpdateCtrl.productVersion.id}}">
                 </div>
                 <span class="help-block" ng-show="milestoneForm.version.$error.required && !milestoneForm.version.$pristine">Required field.</span>
-                <span class="help-block" ng-show="milestoneForm.version.$error.pattern && !milestoneForm.version.$pristine">Version must start with a number, followed by a dot and then a qualifier (e.g ER1)</span>
+                <span class="help-block" ng-show="milestoneForm.version.$error.pattern && !milestoneForm.version.$pristine">Version must follow pattern ^([0-9]+.)?[\w]+$ (e.g. 1.ER1, CD1).</span>
                 <span class="help-block" ng-show ="milestoneForm.version.$error.unique">Version is already in use.</span>
               </div>
             </div>
