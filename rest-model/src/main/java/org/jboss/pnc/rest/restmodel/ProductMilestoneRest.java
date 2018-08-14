@@ -42,7 +42,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(regexp = "^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$", message = "Version doesn't match the required pattern ^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$")
+    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = "^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$", message = "Version doesn't match the required pattern ^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$")
     private String version;
 
     private Date endDate;
