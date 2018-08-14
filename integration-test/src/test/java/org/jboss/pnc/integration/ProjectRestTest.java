@@ -140,7 +140,7 @@ public class ProjectRestTest extends AbstractTest {
     @Test
     public void shouldGetBuildConfigurations() throws Exception {
         //when
-        RestResponse<List<BuildConfigurationRest>> response = projectRestClient.getBuildConfigurations(1, true);
+        RestResponse<List<BuildConfigurationRest>> response = projectRestClient.getBuildConfigurations(100, true);
 
         //then
         assertThat(response.getValue()).hasSize(1);
