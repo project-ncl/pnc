@@ -121,7 +121,7 @@ public class BuildRecordRepositoryTest {
                 .buildConfigurationAuditedId(1)
                 .buildConfigurationAuditedRev(1)
                 .submitTime(new Date())
-                .user(User.Builder.newBuilder().id(1).build())
+                .user(user)
                 .status(BuildStatus.SUCCESS);
     }
 
