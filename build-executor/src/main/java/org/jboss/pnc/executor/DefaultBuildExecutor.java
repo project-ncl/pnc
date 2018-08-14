@@ -195,12 +195,19 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
         userLog.info("Setting up repository...");
         buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
+
+        BuildType buildType = buildExecutionSession.getBuildExecutionConfiguration().getBuildType();
+        if (buildType == null) {
+            throw new BuildProcessException("Missing required value buildExecutionConfiguration.buildType");
+        }
+        TargetRepository.Type repositoryType = BuildTypeToRepositoryType.getRepositoryType(buildType);
+
         try {
-            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN);
+            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(repositoryType);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
             String serviceAccountToken = (serviceClient == null ? null : serviceClient.getAuthToken());
             return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken(),
-                    serviceAccountToken);
+                    serviceAccountToken, repositoryType);
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
@@ -471,7 +478,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
             if (destroyableEnvironment != null) {
                 destroyableEnvironment.destroyEnvironment();
             }
-
         } catch (EnvironmentDriverException envE) {
             log.warn("Running environment" + destroyableEnvironment + " couldn't be destroyed!", envE);
         }
