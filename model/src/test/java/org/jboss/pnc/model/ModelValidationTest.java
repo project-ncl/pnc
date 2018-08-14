@@ -71,11 +71,11 @@ public class ModelValidationTest extends AbstractModelTest {
         milestoneVersionViolations = validator.validate(milestone);
         Assert.assertTrue(milestoneVersionViolations.size() == 1);
 
-        milestone.setVersion("1.0.DR1");
+        milestone.setVersion("1.0-DR1");
         milestoneVersionViolations = validator.validate(milestone);
         Assert.assertTrue(milestoneVersionViolations.size() == 1);
 
-        milestone.setVersion("1.0.x");
+        milestone.setVersion("1.0-x");
         milestoneVersionViolations = validator.validate(milestone);
         Assert.assertTrue(milestoneVersionViolations.size() == 1);
 
@@ -88,11 +88,11 @@ public class ModelValidationTest extends AbstractModelTest {
         releaseVersionViolations = validator.validate(release);
         Assert.assertTrue(releaseVersionViolations.size() == 1);
 
-        release.setVersion("1.0.DR1");
+        release.setVersion("1.0-DR1");
         releaseVersionViolations = validator.validate(release);
         Assert.assertTrue(releaseVersionViolations.size() == 1);
 
-        release.setVersion("1.0.x");
+        release.setVersion("1.0-x");
         releaseVersionViolations = validator.validate(release);
         Assert.assertTrue(releaseVersionViolations.size() == 1);
 
