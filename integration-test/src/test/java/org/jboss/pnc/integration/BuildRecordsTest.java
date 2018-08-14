@@ -137,7 +137,7 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(100, 1));
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
         TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
@@ -454,7 +454,7 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldGetBuildsInDistributedRecordsetOfProductMilestone() {
-        CollectionInfo<BuildRecordRest> buildRecords = buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, 1);
+        CollectionInfo<BuildRecordRest> buildRecords = buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, 100);
 
         assertThat(buildRecords.getContent().iterator().next().getId()).isEqualTo(1);
     }
