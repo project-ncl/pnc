@@ -32,6 +32,7 @@ import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.JsonUtils;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -50,8 +51,8 @@ public class ProductMilestoneRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static int productId;
-    private static int productVersionId;
+    private static Integer productId = null;
+    private static Integer productVersionId = null;
     private static int productMilestoneId;
     private static int newProductMilestoneId;
 
@@ -62,16 +63,20 @@ public class ProductMilestoneRestTest extends AbstractTest {
         return enterpriseArchive;
     }
 
-    @Test
-    @InSequence(1)
+    @Before
     public void prepareProductIdAndProductVersionId() {
-        given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
-        given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productVersionId = Integer.valueOf(value)));
+        if (productId == null) {
+            given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
+        }
+
+        if (productVersionId == null) {
+            given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productVersionId = Integer.valueOf(value)));
+        }
     }
 
     @Test
@@ -167,19 +172,22 @@ public class ProductMilestoneRestTest extends AbstractTest {
     }
 
     @Test
-    public void shouldFailToCreateMilestoneWithMalformedVersion() {
+    public void shouldFailToCreateMilestoneWithMalformedVersion() throws IOException {
         // given
-        ProductMilestoneRest productMilestoneRest = new ProductMilestoneRest();
-        productMilestoneRest.setVersion("1.0-ER1");
-        productMilestoneRest.setProductVersionId(1);
+        JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder.fromResource("productMilestoneGeneric_template");
+        productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
+        productMilestoneTemplate.addValue("_milestoneVersion", String.valueOf("1.0-ER1"));
 
         // when-then
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort())
+        Response response1 = given().headers(testHeaders)
+                .body(productMilestoneTemplate.fillTemplate())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
                 .when().post(PRODUCT_MILESTONE_REST_ENDPOINT);
-        Assertions.assertThat(response.statusCode()).isEqualTo(400);
-        Assertions.assertThat(response.body().jsonPath().getString("details.field"))
-                .startsWith("Version doesn't match the required pattern");
+        Assertions.assertThat(response1.statusCode()).isEqualTo(400);
+        response1.body().print();
+        Assertions.assertThat(response1.body().jsonPath().getString("details.field"))
+                .isEqualTo("version");
     }
 
 }
