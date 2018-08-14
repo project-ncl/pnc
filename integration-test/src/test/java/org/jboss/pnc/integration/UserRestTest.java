@@ -123,7 +123,7 @@ public class UserRestTest {
 
         assertThat(buildCoordinatorMock).isNotNull();
         //load BCA with id=2 ... test back-compatibility
-        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(2, 1));
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(101, 1));
     }
 
 
@@ -134,8 +134,8 @@ public class UserRestTest {
     @Test
     public void shouldGetAllRunningAndCompletedBuildRecordsForUserId() throws Exception {
         // given
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
-        buildCoordinatorMock.addActiveTask(mockBuildTask(102, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(102, 100, "demo-user"));
 
         // when
         RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(1);
@@ -147,7 +147,7 @@ public class UserRestTest {
     @Test
     public void shouldOnlyGetBuildsForGivenUserId() throws Exception {
         // given
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
         buildCoordinatorMock.addActiveTask(mockBuildTask(103, 101, "little-bobby-tables"));
 
         // when
@@ -162,7 +162,7 @@ public class UserRestTest {
         //given
         String sort = "=desc=id";
 
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
         //when
         List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, null, sort).getValue().stream()
@@ -176,12 +176,12 @@ public class UserRestTest {
     @Test
     public void shouldSupportPagingWhenGettingUserBuilds() throws Exception {
         //given
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
         //when
-        List<BuildRecordRest> firstPage = userRestClient.allUserBuilds(1, true, 0, 1, null, null).getValue();
-        List<BuildRecordRest> secondPage = userRestClient.allUserBuilds(1, true, 1, 1, null, null).getValue();
-        List<BuildRecordRest> thirdPage = userRestClient.allUserBuilds(1, true, 2, 1, null, null).getValue();
+        List<BuildRecordRest> firstPage = userRestClient.allUserBuilds(100, true, 0, 1, null, null).getValue();
+        List<BuildRecordRest> secondPage = userRestClient.allUserBuilds(100, true, 1, 1, null, null).getValue();
+        List<BuildRecordRest> thirdPage = userRestClient.allUserBuilds(100, true, 2, 1, null, null).getValue();
 
 
         //then
@@ -225,10 +225,10 @@ public class UserRestTest {
         // given
         String rsql = "buildConfigurationId==1";
 
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
         // when
-        List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, rsql, null).getValue()
+        List<Integer> sorted = userRestClient.allUserBuilds(100, true, 0, 50, rsql, null).getValue()
                 .stream()
                 .map(BuildRecordRest::getId)
                 .collect(Collectors.toList());
@@ -243,7 +243,7 @@ public class UserRestTest {
         String rsql = "buildConfigurationId==9000";
 
         // when
-        List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, rsql, null).getValue()
+        List<Integer> sorted = userRestClient.allUserBuilds(100, true, 0, 50, rsql, null).getValue()
                 .stream()
                 .map(BuildRecordRest::getId)
                 .collect(Collectors.toList());

@@ -227,7 +227,7 @@ public class RSQLTest {
     @Test
     public void shouldFilterUsingInOperator() {
         // given
-        String rsqlQuery = "id=in=(1,2,1000,2000)";
+        String rsqlQuery = "id=in=(100,101,1000,2000)";
 
         // when
         List<User> results = selectUsers(rsqlQuery);
@@ -239,7 +239,7 @@ public class RSQLTest {
     @Test
     public void shouldFilterUsingOutOperator() {
         // given
-        String rsqlQuery = "id=out=(2,3,4,5,6,7,8,9,10)";
+        String rsqlQuery = "id=out=(101,102,103,104,105,106,107,108,109,110)";
 
         // when
         List<User> results = selectUsers(rsqlQuery);
