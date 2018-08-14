@@ -116,8 +116,7 @@ public class BuildsRestTest  {
 
         assertThat(buildCoordinatorMock).isNotNull();
 
-        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(1, 1));
-
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(100, 1));
         logger.info("Loaded buildConfigurationAudited: {}.", buildConfigurationAudited);
     }
 
@@ -225,7 +224,7 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByUserId() throws Exception {
         // given
-        String rsql = "user.id==1";
+        String rsql = "user.id==100";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
@@ -257,7 +256,7 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByBuildConfigurationId() throws Exception {
         // given
-        String rsql = "buildConfigurationId==1";
+        String rsql = "buildConfigurationId==100";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
