@@ -25,8 +25,10 @@
   module.controller('CsRecordDetailController', [
     '$state',
     'csRecordDetail',
-    function ($state, csRecordDetail) {
+    'buildGroupRecord',
+    function ($state, csRecordDetail, buildGroupRecord) {
       this.csRecordDetail = csRecordDetail;
+      this.buildGroupRecord = buildGroupRecord;
     }
   ]);
 

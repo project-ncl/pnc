@@ -77,6 +77,12 @@
                     return csRecord;
                   });
               });
+          },
+          // see NCL-4040
+          buildGroupRecord: function(BuildConfigSetRecord, $stateParams) {
+            return BuildConfigSetRecord.get({
+              id: $stateParams.recordId
+            }).$promise;
           }
         }
       });
