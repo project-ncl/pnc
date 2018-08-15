@@ -161,16 +161,16 @@
             </li>
             <li ng-controller="authenticationController as authCtrl" class="dropdown" ng-show="authCtrl.isAuthenticated()">
                   <a href class="dropdown-toggle" data-toggle="dropdown">
-                    <span class="pficon pficon-user"></span>{{ authCtrl.username }}<b class="caret"></b>
+                    <span class="pficon pficon-user"></span><span id="username">{{ authCtrl.username }}</span><b class="caret"></b>
                   </a>
                   <ul class="dropdown-menu">
                     <li>
-                      <a href ng-click="authCtrl.logout()">Logout</a>
+                      <a href id="logout-button" ng-click="authCtrl.logout()">Logout</a>
                     </li>
                   </ul>
             </li>
             <li ng-controller="authenticationController as authCtrl">
-              <a ng-hide="authCtrl.isAuthenticated()" href ng-click="authCtrl.login()"><span class="pficon pficon-user"></span>Login</a>
+              <a href id="login-button" ng-hide="authCtrl.isAuthenticated()"  ng-click="authCtrl.login()"><span class="pficon pficon-user"></span>Login</a>
             </li>
           </ul>
         <ul class="nav navbar-nav navbar-primary" ng-controller="menuController as ctr">
@@ -187,7 +187,7 @@
             <a href ui-sref="build-groups.list">Build Groups</a>
           </li>
           <li class="dropdown" ui-sref-active="active">
-            <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Builds<span class="caret"></span></a>
+            <a href id="builds-dropdown-button" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Builds<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
               <li ui-sref-active="active"><a href ui-sref="build-records.list">Builds</a></li>
               <li ui-sref-active="active"><a href ui-sref="configuration-set-record.list">Group Builds</a></li>
