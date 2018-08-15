@@ -116,13 +116,13 @@ public class UserRestTest {
     public void sanityTests() throws Exception {
 
         assertThat(buildRecordRepository.queryAll().stream()
-                .filter(record -> record.getUser().getId().equals(1) && record.getUser().getUsername().equals("demo-user"))
+                .filter(record -> record.getUser().getId().equals(100) && record.getUser().getUsername().equals("demo-user"))
                 .count())
                 .isEqualTo(2)
-                .overridingErrorMessage("2 BuildRecords in DB expected with user.id == 1 and user.username == \"demo-user\"");
+                .overridingErrorMessage("2 BuildRecords in DB expected with user.id == 100 and user.username == \"demo-user\"");
 
         assertThat(buildCoordinatorMock).isNotNull();
-        //load BCA with id=2 ... test back-compatibility
+        //load BCA with id=101 ... test back-compatibility
         buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(101, 1));
     }
 
@@ -138,7 +138,7 @@ public class UserRestTest {
         buildCoordinatorMock.addActiveTask(mockBuildTask(102, 100, "demo-user"));
 
         // when
-        RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(1);
+        RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(100);
 
         // then
         assertThat(all.getValue()).hasSize(4);
@@ -151,7 +151,7 @@ public class UserRestTest {
         buildCoordinatorMock.addActiveTask(mockBuildTask(103, 101, "little-bobby-tables"));
 
         // when
-        RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(1);
+        RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(100);
 
         // then
         assertThat(all.getValue()).hasSize(3);
@@ -165,7 +165,7 @@ public class UserRestTest {
         buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
         //when
-        List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, null, sort).getValue().stream()
+        List<Integer> sorted = userRestClient.allUserBuilds(100, true, 0, 50, null, sort).getValue().stream()
                 .map(BuildRecordRest::getId)
                 .collect(Collectors.toList());
 
@@ -195,7 +195,7 @@ public class UserRestTest {
         //given
         String sort = "=desc=id";
 
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
         //when
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
@@ -211,10 +211,10 @@ public class UserRestTest {
     @Test
     public void shouldReturnCorrectPageCountWhenGettingUserBuilds() throws Exception {
         // Given
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
         // When
-        int totalPages = userRestClient.allUserBuilds(1, true, 0, 1, null, null).getRestCallResponse().getBody().jsonPath().getInt("totalPages");
+        int totalPages = userRestClient.allUserBuilds(100, true, 0, 1, null, null).getRestCallResponse().getBody().jsonPath().getInt("totalPages");
 
         //then
         assertThat(totalPages).isEqualTo(3);
@@ -223,7 +223,7 @@ public class UserRestTest {
     @Test
     public void shouldSupportFilteringByBcIdWhenGettingUserBuilds() throws Exception {
         // given
-        String rsql = "buildConfigurationId==1";
+        String rsql = "buildConfigurationId==100";
 
         buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
 
