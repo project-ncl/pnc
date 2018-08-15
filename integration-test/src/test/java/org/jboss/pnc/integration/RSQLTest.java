@@ -92,7 +92,7 @@ public class RSQLTest {
             userRepository.save(User.Builder.newBuilder().username("Babacki").email("b@rh.com").build());
             userRepository.save(User.Builder.newBuilder().username("Cabacki").email("c@rh.com").build());
 
-            buildConfigurationSetRepository.save(BuildConfigurationSet.Builder.newBuilder().id(101).name("test-unassociated-build-group").build());
+            buildConfigurationSetRepository.save(BuildConfigurationSet.Builder.newBuilder().name("test-unassociated-build-group").build());
         }
     }
 
