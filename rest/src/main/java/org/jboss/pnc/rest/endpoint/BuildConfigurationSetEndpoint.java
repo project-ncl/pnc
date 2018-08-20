@@ -210,7 +210,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id)
             throws RestValidationException {
-        buildConfigurationSetProvider.archive(id);
+        buildConfigurationSetProvider.deleteOrArchive(id);
         return Response.ok().build();
     }
 

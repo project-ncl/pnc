@@ -17,8 +17,10 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -29,6 +31,7 @@ import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -40,10 +43,12 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
@@ -53,6 +58,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
 
     Logger logger = LoggerFactory.getLogger(BuildConfigurationSetProvider.class);
 
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
     private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
@@ -61,9 +68,11 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     @Inject
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
             BuildConfigurationRepository buildConfigurationRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
         super(buildConfigurationSetRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
     }
 
     @Override //better error logging
@@ -91,12 +100,36 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     protected Function<? super BuildConfigurationSet, ? extends BuildConfigurationSetRest> toRESTModel() {
         return buildConfigurationSet -> {
             try {
+                // if BCS is archived -> reconstruct BCs it had before
+                if (buildConfigurationSet.isArchived() && !buildConfigurationSet.getBuildConfigSetRecords().isEmpty()) {
+                    BuildConfigurationSetRest buildConfigurationSetRest = new BuildConfigurationSetRest(buildConfigurationSet);
+                    // get latest associated record
+                    BuildConfigSetRecord buildConfigSetRecord = buildConfigurationSet.getBuildConfigSetRecords()
+                            .stream()
+                            .max(Comparator.comparing(BuildConfigSetRecord::getId))
+                            .get();
+                    // extract BSs from BCSRecord and add them to the set
+                    Collection<BuildConfigurationRest> buildConfigurations = buildConfigSetRecord
+                            .getBuildRecords()
+                            .stream()
+                            .map(this::extractBuildConfiguration)
+                            .collect(Collectors.toSet());
+                    buildConfigurationSetRest.addBuildConfigurations(buildConfigurations);
+                    return buildConfigurationSetRest;
+                }
                 return new BuildConfigurationSetRest(buildConfigurationSet);
             } catch (Exception e) {
                 logger.error("Cannot create rset entity.", e);
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    private BuildConfigurationRest extractBuildConfiguration(BuildRecord buildRecord) {
+        return new BuildConfigurationRest(buildConfigurationAuditedRepository
+                .queryById(buildRecord
+                        .getBuildConfigurationAuditedIdRev())
+                .getBuildConfiguration());
     }
 
     @Override
@@ -109,6 +142,18 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    public void deleteOrArchive(Integer buildConfigurationSetId) throws RestValidationException{
+        if (hasLink(repository.queryById(buildConfigurationSetId))) {
+            archive(buildConfigurationSetId);
+        } else {
+            delete(buildConfigurationSetId);
+        }
+    }
+
+    private boolean hasLink(BuildConfigurationSet buildConfigurationSet) {
+        return !buildConfigurationSet.getBuildConfigSetRecords().isEmpty();
     }
 
     public void archive(Integer buildConfigurationSetId) throws RestValidationException{
