@@ -114,7 +114,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         Graph<BuildRecord> graph = new Graph<>();
         Vertex<BuildRecord> current = buildDependencyGraph(graph, buildRecordId);
 
-        BuildRecord buildRecord = repository.findOne(buildRecordId);
+        BuildRecord buildRecord = findByIdFetchProperties(buildRecordId);
         for (Integer dependentBuildRecordId : buildRecord.getDependentBuildRecordIds()) {
             Vertex<BuildRecord> dependentRecord = buildDependentGraph(graph, dependentBuildRecordId);
             graph.addEdge(dependentRecord, current, 1);
@@ -123,7 +123,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     Vertex<BuildRecord> buildDependencyGraph(Graph<BuildRecord> graph, Integer buildRecordId) {
-        BuildRecord buildRecord = repository.findOne(buildRecordId);
+        BuildRecord buildRecord = findByIdFetchProperties(buildRecordId);
         Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
         graph.addVertex(buildRecordVertex);
         for (Integer dependencyBuildRecordId : buildRecord.getDependencyBuildRecordIds()) {
@@ -134,7 +134,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     private Vertex<BuildRecord> buildDependentGraph(Graph<BuildRecord> graph, Integer buildRecordId) {
-        BuildRecord buildRecord = repository.findOne(buildRecordId);
+        BuildRecord buildRecord = findByIdFetchProperties(buildRecordId);
         Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
         graph.addVertex(buildRecordVertex);
         for (Integer dependentBuildRecordId : buildRecord.getDependentBuildRecordIds()) {
