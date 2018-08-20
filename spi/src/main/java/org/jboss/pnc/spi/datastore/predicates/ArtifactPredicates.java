@@ -26,6 +26,7 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import java.util.Set;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.Artifact} entity.
@@ -74,6 +75,10 @@ public class ArtifactPredicates {
     public static Predicate<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
         return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
                 cb.equal(root.get(Artifact_.sha256), sha256));
+    }
+
+    public static Predicate<Artifact> withSha256In(Set<String> sha256s) {
+        return (root, query, cb) -> root.get(Artifact_.sha256).in(sha256s);
     }
 
     public static Predicate<Artifact> withOriginUrl(String originUrl) {

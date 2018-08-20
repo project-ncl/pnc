@@ -18,13 +18,13 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -59,7 +59,6 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
 
 @Stateless
@@ -134,8 +133,11 @@ public class DefaultDatastore implements Datastore {
 
         Map<String, TargetRepository> repositoriesCache = new HashMap<>();
 
+        logger.debug("Saving dependencies ...");
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies(), repositoriesCache));
+        logger.debug("Saving built artifacts ...");
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts(), repositoriesCache));
+        logger.debug("Done saving artifacts.");
 
         logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
@@ -156,21 +158,34 @@ public class DefaultDatastore implements Datastore {
 
         Set<Artifact> savedArtifacts = new HashSet<>();
 
+        Set<Artifact.IdentifierSha256> artifactConstraints = new HashSet<>();
+
+        for (Artifact artifact : artifacts) {
+            artifactConstraints.add(new Artifact.IdentifierSha256(artifact.getIdentifier(), artifact.getSha256()));
+        }
+
+        Set<Artifact> artifactsInDb = null;
+        if (artifactConstraints.size() > 0) {
+            artifactsInDb = artifactRepository.withIdentifierAndSha256s(artifactConstraints);
+        }
+
+        Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
+        if (artifactsInDb != null) {
+            for (Artifact artifact : artifactsInDb) {
+                logger.trace("Found in DB, adding to cache. Artifact {}", artifact);
+                artifactCache.put(artifact.getIdentifierSha256(), artifact);
+            }
+        }
+
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = artifact.getTargetRepository();
-
-            String repositoriesCacheKey = targetRepository.getIdentifier() + "$$" + targetRepository.getRepositoryPath();
-
-            TargetRepository targetRepositoryFromDb =
-                    repositoriesCache.computeIfAbsent(repositoriesCacheKey, k -> getOrSaveTargetRepository(targetRepository));
-
-            artifact.setTargetRepository(targetRepositoryFromDb);
+            linkTargetRepository(repositoriesCache, artifact, targetRepository);
 
             Artifact artifactFromDb;
             if (TargetRepository.Type.GENERIC_PROXY.equals(targetRepository.getRepositoryType())) {
                 artifactFromDb = saveHttpArtifact(artifact);
             } else {
-                artifactFromDb = saveRepositoryArtifact(artifact);
+                artifactFromDb = getOrSaveRepositoryArtifact(artifact, artifactCache);
             }
 
             savedArtifacts.add(artifactFromDb);
@@ -178,6 +193,16 @@ public class DefaultDatastore implements Datastore {
 
         logger.debug("Artifacts saved: {}.", artifacts);
         return savedArtifacts;
+    }
+
+    private void linkTargetRepository(Map<String, TargetRepository> repositoriesCache,
+            Artifact artifact,
+            TargetRepository targetRepository) {
+        String repositoriesCacheKey = targetRepository.getIdentifier() + "$$" + targetRepository.getRepositoryPath();
+        TargetRepository targetRepositoryFromDb =
+                repositoriesCache.computeIfAbsent(repositoriesCacheKey, k -> getOrSaveTargetRepository(targetRepository));
+
+        artifact.setTargetRepository(targetRepositoryFromDb);
     }
 
     private TargetRepository getOrSaveTargetRepository(TargetRepository targetRepository) {
@@ -196,11 +221,9 @@ public class DefaultDatastore implements Datastore {
         return targetRepositoryFromDb;
     }
 
-    private Artifact saveRepositoryArtifact(Artifact artifact) {
+    private Artifact getOrSaveRepositoryArtifact(Artifact artifact, Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
         logger.trace("Saving repository artifact {}.", artifact);
-        Artifact artifactFromDb;
-        artifactFromDb = artifactRepository
-                .queryByPredicates(withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()));
+        Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256()); //TODO http artifacts
 
         if (artifactFromDb == null) {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
@@ -222,7 +245,7 @@ public class DefaultDatastore implements Datastore {
         logger.trace("Saving http artifact {}.", artifact);
         Artifact artifactFromDb;
         artifactFromDb = artifactRepository
-                .queryByPredicates(withOriginUrl(artifact.getOriginUrl()));
+                .queryByPredicates(withOriginUrl(artifact.getOriginUrl())); //TODO withOriginUrl and targetRepository
 
         if (artifactFromDb == null) {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
