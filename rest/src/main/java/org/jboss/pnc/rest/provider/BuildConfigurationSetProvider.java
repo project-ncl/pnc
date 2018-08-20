@@ -31,6 +31,7 @@ import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -43,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,18 +106,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
             try {
                 // if BCS is archived -> reconstruct BCs it had before
                 if (buildConfigurationSet.isArchived() && !buildConfigurationSet.getBuildConfigSetRecords().isEmpty()) {
-                    BuildConfigurationSetRest buildConfigurationSetRest = new BuildConfigurationSetRest(buildConfigurationSet);
-                    // get latest associated record
-                    BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.
-                            getNewestRecordForBuildConfigurationSet(buildConfigurationSet.getId());
-                    // extract BSs from BCSRecord and add them to the set
-                    Collection<BuildConfigurationRest> buildConfigurations = buildConfigSetRecord
-                            .getBuildRecords()
-                            .stream()
-                            .map(this::extractBuildConfiguration)
-                            .collect(Collectors.toSet());
-                    buildConfigurationSetRest.addBuildConfigurations(buildConfigurations);
-                    return buildConfigurationSetRest;
+                    return getReconstructedArchivedBCS(buildConfigurationSet);
                 }
                 return new BuildConfigurationSetRest(buildConfigurationSet);
             } catch (Exception e) {
@@ -125,6 +114,21 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    private BuildConfigurationSetRest getReconstructedArchivedBCS(BuildConfigurationSet buildConfigurationSet) {
+        BuildConfigurationSetRest buildConfigurationSetRest = new BuildConfigurationSetRest(buildConfigurationSet);
+        // get latest associated record
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.
+                getNewestRecordForBuildConfigurationSet(buildConfigurationSet.getId());
+        // extract BSs from BCSRecord and add them to the set
+        Collection<BuildConfigurationRest> buildConfigurations = buildConfigSetRecord
+                .getBuildRecords()
+                .stream()
+                .map(this::extractBuildConfiguration)
+                .collect(Collectors.toSet());
+        buildConfigurationSetRest.addBuildConfigurations(buildConfigurations);
+        return buildConfigurationSetRest;
     }
 
     private BuildConfigurationRest extractBuildConfiguration(BuildRecord buildRecord) {
