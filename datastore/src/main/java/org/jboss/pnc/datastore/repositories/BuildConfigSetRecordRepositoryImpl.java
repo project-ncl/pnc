@@ -26,6 +26,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
 public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Integer> implements
         BuildConfigSetRecordRepository {
 
+    EntityManager manager;
     /**
      * @deprecated Created for CDI.
      */
@@ -42,8 +44,9 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
     }
 
     @Inject
-    public BuildConfigSetRecordRepositoryImpl(BuildConfigSetRecordSpringRepository buildConfigSetRecordSpringRepository) {
+    public BuildConfigSetRecordRepositoryImpl(BuildConfigSetRecordSpringRepository buildConfigSetRecordSpringRepository, EntityManager manager) {
         super(buildConfigSetRecordSpringRepository, buildConfigSetRecordSpringRepository);
+        this.manager = manager;
     }
 
     @Override
@@ -52,5 +55,15 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
                 BuildConfigSetRecordPredicates.temporaryBuild(),
                 BuildConfigSetRecordPredicates.buildFinishedBefore(date)
         );
+    }
+
+    @Override
+    public BuildConfigSetRecord getNewestRecordForBuildConfigurationSet(Integer buildConfigSetId) {
+        return manager.createQuery(
+                "select bcsr from BuildConfigSetRecord bcsr "
+                        + "where bcsr.id = "
+                        +   "(select max(bcsr1.id) from BuildConfigSetRecord bcsr1 "
+                        +   "where bcsr1.buildConfigurationSet.id = :buildConfigSetId)", BuildConfigSetRecord.class)
+                .setParameter("buildConfigSetId",buildConfigSetId).getSingleResult();
     }
 }
