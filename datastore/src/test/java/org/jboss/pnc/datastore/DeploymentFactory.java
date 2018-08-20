@@ -40,7 +40,8 @@ public class DeploymentFactory {
     public static Archive<?> createDatastoreDeployment() {
         JavaArchive datastoreJar = ShrinkWrap.create(JavaArchive.class, "datastore.jar")
                 .addPackages(true, "org.jboss.pnc.datastore")
-                .addAsManifestResource("test-persistence.xml", "persistence.xml");
+                .addAsManifestResource("test-persistence.xml", "persistence.xml")
+                .addAsManifestResource("logback.xml");
 
         logger.info("Deployment datastoreJar: {}", datastoreJar.toString(true));
 

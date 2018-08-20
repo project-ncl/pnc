@@ -20,24 +20,39 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.ArtifactSpringRepository;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Stateless
 public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer> implements ArtifactRepository {
 
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
-    public ArtifactRepositoryImpl() {
-        super(null, null);
-    }
-
     @Inject
-    public ArtifactRepositoryImpl(ArtifactSpringRepository springArtifactRepository) {
+    public ArtifactRepositoryImpl(
+            ArtifactSpringRepository springArtifactRepository) {
         super(springArtifactRepository, springArtifactRepository);
     }
+
+    @Override
+    public Set<Artifact> withIdentifierAndSha256s(Set<Artifact.IdentifierSha256> identifierSha256s) {
+        Set<String> sha256s = identifierSha256s.stream()
+                .map(is -> is.getSha256())
+                .collect(Collectors.toSet());
+
+        List<Artifact> artifacts = queryWithPredicates(ArtifactPredicates.withSha256In(sha256s));
+
+        //make sure the identifier matches too
+        Set<Artifact> artifactsMatchingIdentifier = artifacts.stream()
+                .filter(a -> identifierSha256s.contains(new Artifact.IdentifierSha256(a.getIdentifier(), a.getSha256())))
+                .collect(Collectors.toSet());
+
+        return artifactsMatchingIdentifier;
+    }
+
+
 }
