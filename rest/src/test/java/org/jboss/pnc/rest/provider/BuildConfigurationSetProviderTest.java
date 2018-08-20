@@ -72,7 +72,7 @@ public class BuildConfigurationSetProviderTest {
         when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
         when(buildConfigurationRepository.queryById(2)).thenReturn(createBuildConfiguration(2));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null, null, null);
 
         //when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
@@ -96,7 +96,7 @@ public class BuildConfigurationSetProviderTest {
         when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
         when(buildConfigurationRepository.queryById(3)).thenReturn(createBuildConfiguration(3));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null, null, null);
 
         //when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));

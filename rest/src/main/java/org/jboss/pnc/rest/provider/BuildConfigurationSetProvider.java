@@ -60,6 +60,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
     private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
@@ -69,10 +71,12 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
             BuildConfigurationRepository buildConfigurationRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
         super(buildConfigurationSetRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
     }
 
     @Override //better error logging
@@ -104,10 +108,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 if (buildConfigurationSet.isArchived() && !buildConfigurationSet.getBuildConfigSetRecords().isEmpty()) {
                     BuildConfigurationSetRest buildConfigurationSetRest = new BuildConfigurationSetRest(buildConfigurationSet);
                     // get latest associated record
-                    BuildConfigSetRecord buildConfigSetRecord = buildConfigurationSet.getBuildConfigSetRecords()
-                            .stream()
-                            .max(Comparator.comparing(BuildConfigSetRecord::getId))
-                            .get();
+                    BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.
+                            getNewestRecordForBuildConfigurationSet(buildConfigurationSet.getId());
                     // extract BSs from BCSRecord and add them to the set
                     Collection<BuildConfigurationRest> buildConfigurations = buildConfigSetRecord
                             .getBuildRecords()
@@ -166,7 +168,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         for (BuildConfiguration bc: buildConfigurationSet.getBuildConfigurations()) {
             bc.removeBuildConfigurationSet(buildConfigurationSet);
             buildConfigurationRepository.save(bc);
+            buildConfigurationSet.removeBuildConfiguration(bc);
         }
+
+        repository.save(buildConfigurationSet);
     }
 
     public CollectionInfo<BuildConfigurationSetRest> getAllNonArchived(Integer pageIndex, Integer pageSize, String sortingRsql,
