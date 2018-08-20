@@ -33,6 +33,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -157,6 +158,11 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
+
+    @Transient
+    public IdentifierSha256 getIdentifierSha256() {
+        return new IdentifierSha256(identifier, sha256);
+    }
 
     public enum Quality {
 
@@ -625,5 +631,44 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
+    }
+
+    public static class IdentifierSha256 {
+        private String identifier;
+        private String sha256;
+
+        public IdentifierSha256(String identifier, String sha256) {
+            this.identifier = identifier;
+            this.sha256 = sha256;
+        }
+
+        public String getSha256() {
+            return sha256;
+        }
+
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (!(o instanceof IdentifierSha256))
+                return false;
+
+            IdentifierSha256 that = (IdentifierSha256) o;
+
+            if (!identifier.equals(that.identifier))
+                return false;
+            return sha256.equals(that.sha256);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = identifier.hashCode();
+            result = 31 * result + sha256.hashCode();
+            return result;
+        }
     }
 }
