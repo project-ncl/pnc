@@ -20,12 +20,10 @@
 
   angular.module('pnc.build-records').controller('RecordResultController', [
     'buildLog',
-    'REST_BASE_URL',
-    'BUILD_RECORD_ENDPOINT',
     'recordDetail',
     'sshCredentials',
-    function(buildLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail, sshCredentials) {
-      this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/log';
+    function(buildLog, recordDetail, sshCredentials) {
+      this.logUrl = recordDetail.$buildLogUrl();
       this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
       this.log = buildLog.payload;
 
