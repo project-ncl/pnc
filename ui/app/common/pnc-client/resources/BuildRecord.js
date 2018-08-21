@@ -86,6 +86,10 @@
         return buildRecord.buildConfigurationName + '#' + buildRecord.id;
       }
 
+      function buildLogUrl(buildRecord) {
+        return ENDPOINT.replace(':id', buildRecord.id) + '/log';
+      }
+
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
@@ -248,6 +252,10 @@
 
       resource.prototype.$canonicalName = function () {
         return canonicalName(this);
+      };
+
+      resource.prototype.$buildLogUrl = function () {
+        return buildLogUrl(this);
       };
 
       return resource;
