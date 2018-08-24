@@ -52,6 +52,7 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -117,7 +118,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     /**
      * Run a single build.  Uses the settings from the latest saved/audited build configuration.
      *
-     * @param buildConfiguration The build configuration which will be used.  The latest version of this
+     * @param buildConfiguration A build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
      * @param buildOptions Customization of a build specified by user
@@ -128,10 +129,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     @Override
     public BuildSetTask build(BuildConfiguration buildConfiguration,
                            User user, BuildOptions buildOptions) throws BuildConflictException, CoreException {
-
         synchronized (buildMethodLock) {
-
-            if (buildQueue.getUnfinishedTask(buildConfiguration).isPresent()) {
+            BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
+            if (buildQueue.getUnfinishedTask(buildConfigurationAudited).isPresent()) {
                 throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
             }
 
@@ -144,14 +144,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                             buildQueue.getUnfinishedTasks());
 
             buildQueue.enqueueTaskSet(buildSetTask);
-
             buildSetTask.getBuildTasks().forEach(this::addTaskToBuildQueue);
 
             return buildSetTask;
-
         }
     }
-
+    
     private Integer buildRecordIdSupplier() {
         return datastoreAdapter.getNextBuildRecordId();
     }
@@ -171,26 +169,24 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildSetTask build(
             BuildConfigurationSet buildConfigurationSet,
             User user, BuildOptions buildOptions) throws CoreException {
+        synchronized (buildMethodLock) {
+            BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
+                    buildConfigurationSet,
+                    user,
+                    buildOptions,
+                    this::buildRecordIdSupplier,
+                    buildQueue.getUnfinishedTasks());
+            updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
-        Set<BuildConfiguration> buildConfigurations = datastoreAdapter.getBuildConfigurations(buildConfigurationSet);
+            checkForEmptyBuildSetTask(buildSetTask);
+            if (!buildOptions.isForceRebuild()) {
+                checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet);
+            }
 
-        BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
-                buildConfigurationSet,
-                user,
-                buildOptions,
-                this::buildRecordIdSupplier,
-                buildConfigurations,
-                buildQueue.getUnfinishedTasks());
-        updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
-
-        checkForEmptyBuildSetTask(buildSetTask);
-        if (!buildOptions.isForceRebuild()) {
-            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet);
+            checkForCyclicDependencies(buildSetTask);
+            build(buildSetTask);
+            return buildSetTask;
         }
-
-        checkForCyclicDependencies(buildSetTask);
-        build(buildSetTask);
-        return buildSetTask;
     }
 
     private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask, BuildConfigurationSet buildConfigurationSet) {
@@ -367,7 +363,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private boolean rejectAlreadySubmitted(BuildTask buildTask) {
-        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getUnfinishedTask(buildTask.getBuildConfiguration());
+        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getUnfinishedTask(buildTask.getBuildConfigurationAudited());
         if (alreadyActiveBuildTask.isPresent()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED,
                     "The configuration is already in the build queue.");
@@ -649,11 +645,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         buildQueue.removeTask(dependentTask);
         if (failedTask.getStatus() == BuildCoordinationStatus.CANCELLED) {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.CANCELLED,
-                    "Dependent build " + failedTask.getBuildConfiguration().getName() + " was cancelled");
+                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " was cancelled");
         }
         else {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
-                    "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
+                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " failed.");
         }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);

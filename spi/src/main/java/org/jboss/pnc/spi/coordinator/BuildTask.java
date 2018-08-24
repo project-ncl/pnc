@@ -43,7 +43,6 @@ public class BuildTask {
     private static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
     private final Integer id;
-    private final BuildConfiguration buildConfiguration; //TODO decouple DB entity
     private final BuildConfigurationAudited buildConfigurationAudited; //TODO decouple DB entity
 
     @Getter
@@ -79,8 +78,7 @@ public class BuildTask {
     //called when all dependencies are built
     private final Integer buildConfigSetRecordId;
 
-    private BuildTask(BuildConfiguration buildConfiguration,
-                      BuildConfigurationAudited buildConfigurationAudited,
+    private BuildTask(BuildConfigurationAudited buildConfigurationAudited,
                       BuildOptions buildOptions,
                       User user,
                       Date submitTime,
@@ -91,7 +89,6 @@ public class BuildTask {
                       String contentId) {
 
         this.id = id;
-        this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
         this.buildOptions = buildOptions;
         this.user = user;
@@ -142,10 +139,6 @@ public class BuildTask {
         return statusDescription;
     }
 
-    public BuildConfiguration getBuildConfiguration() {
-        return buildConfiguration;
-    }
-
     public BuildConfigurationAudited getBuildConfigurationAudited() {
         return buildConfigurationAudited;
     }
@@ -161,10 +154,13 @@ public class BuildTask {
         if (buildTask == null || this.equals(buildTask)) {
             return false;
         }
+
+        BuildConfiguration buildConfiguration = buildConfigurationAudited.getBuildConfiguration();
         if (buildConfiguration == null || buildConfiguration.getAllDependencies() == null) {
             return false;
         }
-        return buildConfiguration.dependsOn(buildTask.getBuildConfiguration());
+
+        return buildConfiguration.dependsOn(buildTask.getBuildConfigurationAudited().getBuildConfiguration());
     }
 
     /**
@@ -177,10 +173,13 @@ public class BuildTask {
         if (buildTask == null || this.equals(buildTask)) {
             return false;
         }
+
+        BuildConfiguration buildConfiguration = buildConfigurationAudited.getBuildConfiguration();
         if (buildConfiguration == null || buildConfiguration.getDependencies() == null) {
             return false;
         }
-        return buildConfiguration.getDependencies().contains(buildTask.getBuildConfiguration());
+
+        return buildConfiguration.getDependencies().contains(buildTask.getBuildConfigurationAudited().getBuildConfiguration());
     }
 
     public void addDependant(BuildTask buildTask) {
@@ -314,8 +313,7 @@ public class BuildTask {
         return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", project name: " + buildConfigurationAudited.getProject().getName() + ", status: " + status;
     }
 
-    public static BuildTask build(BuildConfiguration buildConfiguration,
-                                  BuildConfigurationAudited buildConfigAudited,
+    public static BuildTask build(BuildConfigurationAudited buildConfigurationAudited,
                                   BuildOptions buildOptions, User user,
                                   int buildTaskId,
                                   BuildSetTask buildSetTask,
@@ -330,8 +328,7 @@ public class BuildTask {
         }
 
         return new BuildTask(
-                buildConfiguration,
-                buildConfigAudited,
+                buildConfigurationAudited,
                 buildOptions,
                 user,
                 submitTime,
