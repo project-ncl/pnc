@@ -216,10 +216,6 @@ public class BuildQueue {
         return unfinishedTasks.contains(buildTask);
     }
 
-    public synchronized Optional<BuildTask> getUnfinishedTask(BuildConfiguration buildConfiguration) {
-        return unfinishedTasks.stream().filter(buildTask -> buildTask.getBuildConfiguration().equals(buildConfiguration)).findFirst();
-    }
-
     public synchronized Optional<BuildTask> getUnfinishedTask(BuildConfigurationAudited buildConfigurationAudited) {
         return unfinishedTasks.stream().filter(buildTask -> buildTask.getBuildConfigurationAudited().equals(buildConfigurationAudited)).findFirst();
     }

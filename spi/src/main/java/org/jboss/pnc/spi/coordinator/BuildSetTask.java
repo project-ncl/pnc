@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.coordinator;
 import lombok.Getter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
@@ -135,11 +136,11 @@ public class BuildSetTask {
     /**
      * Get the build task which contains the given audited build configuration
      * 
-     * @param buildConfig
+     * @param buildConfigurationAudited A BuildConfigurationAudited entity
      * @return The build task with the matching configuration, or null if there is none
      */
-    public BuildTask getBuildTask(BuildConfiguration buildConfig) {
-        return buildTasks.stream().filter((bt) -> bt.getBuildConfiguration().equals(buildConfig)).findFirst().orElse(null);
+    public BuildTask getBuildTask(BuildConfigurationAudited buildConfigurationAudited) {
+        return buildTasks.stream().filter((bt) -> bt.getBuildConfigurationAudited().equals(buildConfigurationAudited)).findFirst().orElse(null);
     }
 
     public Integer getId() {
