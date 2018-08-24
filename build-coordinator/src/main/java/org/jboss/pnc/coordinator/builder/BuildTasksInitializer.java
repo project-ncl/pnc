@@ -66,10 +66,9 @@ public class BuildTasksInitializer {
                         .buildOptions(buildOptions)
                         .startTime(new Date()).build();
 
-
-        Set<BuildConfiguration> toBuild = new HashSet<>();
-        collectBuildTasks(configuration, buildOptions, toBuild);
-        log.debug("Collected build tasks for configuration: {}. Collected: {}.", configuration, toBuild.stream().map(BuildConfiguration::toString).collect(Collectors.joining(", ")));
+        Set<BuildConfigurationAudited> toBuild = new HashSet<>();
+        collectBuildTasks(datastoreAdapter.getLatestBuildConfigurationAudited(configuration.getId()), buildOptions, toBuild);
+        log.debug("Collected build tasks for configuration: {}. Collected: {}.", configuration, toBuild.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
         fillBuildTaskSet(
                 buildSetTask,
                 user,
@@ -81,23 +80,23 @@ public class BuildTasksInitializer {
         return buildSetTask;
     }
 
-    private void collectBuildTasks(BuildConfiguration configuration, BuildOptions buildOptions, Set<BuildConfiguration> toBuild) {
-        log.debug("will create build tasks for scope: {} and configuration: {}", buildOptions, configuration);
+    private void collectBuildTasks(BuildConfigurationAudited buildConfigurationAudited, BuildOptions buildOptions, Set<BuildConfigurationAudited> toBuild) {
+        log.debug("will create build tasks for scope: {} and configuration: {}", buildOptions, buildConfigurationAudited);
         Set<BuildConfiguration> visited = new HashSet<>();
-        if (toBuild.contains(configuration)) {
+        if (toBuild.contains(buildConfigurationAudited)) {
             return;
         }
-        toBuild.add(configuration);
+
+        toBuild.add(buildConfigurationAudited);
         if (buildOptions.isBuildDependencies()) {
-            configuration.getDependencies().forEach(c -> collectDependentConfigurations(c, toBuild, visited));
+            buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(c -> collectDependentConfigurations(c, toBuild, visited));
         }
     }
 
-    private boolean collectDependentConfigurations(BuildConfiguration configuration, Set<BuildConfiguration> toBuild, Set<BuildConfiguration> visited) {
+    private boolean collectDependentConfigurations(BuildConfiguration configuration, Set<BuildConfigurationAudited> toBuild, Set<BuildConfiguration> visited) {
         if (visited.contains(configuration)) {
             return toBuild.contains(configuration);
         }
-
         visited.add(configuration);
 
         boolean requiresRebuild = datastoreAdapter.requiresRebuild(configuration);
@@ -105,19 +104,29 @@ public class BuildTasksInitializer {
             requiresRebuild |= collectDependentConfigurations(dependency, toBuild, visited);
         }
         if (requiresRebuild) {
-            toBuild.add(configuration);
+            toBuild.add(datastoreAdapter.getLatestBuildConfigurationAudited(configuration.getId()));
         }
 
         return requiresRebuild;
     }
 
 
+    /**
+     * Create a BuildSetTask of latest revisions of BuildConfigurations contained in the BuildConfigurationSet
+     *
+     * @param buildConfigurationSet BuildConfigurationSet to be built
+     * @param user A user, who triggered the build
+     * @param buildOptions Build options
+     * @param buildTaskIdProvider Provider to get build task ID
+     * @param submittedBuildTasks Already submitted build tasks
+     * @return Prepared BuildSetTask
+     * @throws CoreException Thrown if the BuildConfigSetRecord cannot be stored
+     */
     public BuildSetTask createBuildSetTask(
             BuildConfigurationSet buildConfigurationSet,
             User user,
             BuildOptions buildOptions,
             Supplier<Integer> buildTaskIdProvider,
-            Set<BuildConfiguration> buildConfigurations,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
@@ -140,14 +149,20 @@ public class BuildTasksInitializer {
                         .buildConfigSetRecord(configSetRecord)
                         .buildOptions(buildOptions).build();
 
+        Set<BuildConfigurationAudited> buildConfigurationAuditeds = datastoreAdapter
+                .getBuildConfigurations(buildConfigurationSet)
+                .stream()
+                .map(buildConfiguration -> datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId()))
+                .collect(Collectors.toSet());
+
         // initializeBuildTasksInSet
-        log.debug("Initializing BuildTasks In Set for BCs: {}.", buildConfigurations.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
+        log.debug("Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.", buildConfigurationAuditeds.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
         fillBuildTaskSet(
                 buildSetTask,
                 user,
                 buildTaskIdProvider,
                 buildConfigurationSet.getCurrentProductMilestone(),
-                buildConfigurations,
+                buildConfigurationAuditeds,
                 submittedBuildTasks,
                 buildOptions);
         return buildSetTask;
@@ -164,13 +179,10 @@ public class BuildTasksInitializer {
             User user,
             Supplier<Integer> buildTaskIdProvider,
             ProductMilestone productMilestone,
-            Set<BuildConfiguration> toBuild,
+            Set<BuildConfigurationAudited> toBuild,
             Set<BuildTask> alreadySubmittedBuildTasks,
-            BuildOptions buildOptions) { //TODO toBuild should be a set of BuildConfigurationAudited entities
-        for (BuildConfiguration buildConfig : toBuild) {
-            BuildConfigurationAudited buildConfigAudited =
-                    datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
-
+            BuildOptions buildOptions) {
+        for (BuildConfigurationAudited buildConfigAudited : toBuild) {
             String buildContentId = ContentIdentityManager.getBuildContentId(buildConfigAudited.getName());
             MDCUtils.setMDC(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
 
@@ -184,7 +196,6 @@ public class BuildTasksInitializer {
                 log.debug("Linking BuildConfigurationAudited {} to existing task {}.", buildConfigAudited, buildTask);
             } else {
                 buildTask = BuildTask.build(
-                        buildConfig,
                         buildConfigAudited,
                         buildSetTask.getBuildOptions(),
                         user,
