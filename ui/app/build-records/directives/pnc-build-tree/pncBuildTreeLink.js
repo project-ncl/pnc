@@ -19,33 +19,24 @@
   'use strict';
 
   /**
-   * The dumb component representing Build Status displaying information like build status icon, 
-   * start / end time or started by user for given Build Record or Build Group Record.
+   * The dumb component representing Build Tree Link displaying information like build status icon, 
+   * build configuration link and build record link for given Build Record or Build Group Record.
    * 
    * @example 
-   * <pnc-build-status build-record="buildRecord" is-loaded="isLoaded"></pnc-build-status>
+   * <pnc-build-tree-link build-record="buildRecord"></pnc-build-tree-link>
    */
-  angular.module('pnc.common.components').component('pncBuildStatus', {
+  angular.module('pnc.build-records').component('pncBuildTreeLink', {
     bindings: {
       /**
-       * Object: The BuildRecord to display the status for.
+       * Object: The BuildRecord to display the link for.
        */
       buildRecord: '<?',
       /**
-       * Object: The BuildGroupRecord to display the status for.
+       * Object: The BuildGroupRecord to display the link for.
        */
-      buildGroupRecord: '<?',
-      /**
-       * Object: Truthy or falsy object indicating whether data request is finished or not.
-       */
-      isLoaded: '<',
-      /**
-       * Object: Truthy of falsy object indicating whether click should be propagated or not. 
-       * Sometimes propagated clicks can cause side effects that should be stopped.
-       */
-      stopPropagation: '<'
+      buildGroupRecord: '<?'
     },
-    templateUrl: 'common/components/pnc-build-status/pnc-build-status.html',
+    templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree-link.html',
     controller: [Controller]
   });
 
@@ -53,14 +44,14 @@
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
-      $ctrl.item = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+      $ctrl.buildItem = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
     };
 
     $ctrl.$onChanges = function(changedBindings) {
       if (changedBindings.buildRecord) {
-        $ctrl.item = $ctrl.buildRecord;
+        $ctrl.buildItem = $ctrl.buildRecord;
       } else if (changedBindings.buildGroupRecord) {
-        $ctrl.item = $ctrl.buildGroupRecord;
+        $ctrl.buildItem = $ctrl.buildGroupRecord;
       }
     };
     

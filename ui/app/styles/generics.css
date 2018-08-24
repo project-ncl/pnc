@@ -98,6 +98,9 @@
 .p-b-10 { padding-bottom:    10px; }
 .p-l-10 { padding-left:      10px; }
 
-.bg-white { background: white; }
+.bg-white     { background-color: white !important;   }
+.bg-lightblue { background-color: #bee1f4 !important; }
 .c-blue   { color:      #0088ce; }
 .c-info   { color:      #00659c; }
+
+.border-t-w-1 { border-top-width: 1px !important;}
