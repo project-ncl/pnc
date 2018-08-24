@@ -159,6 +159,13 @@
           url: ENDPOINT + '/dependency-artifacts'
         },
         /**
+         * Gets build dependency graph for a given BuildRecord
+         */
+        getDependencyGraph: {
+          method: 'GET',
+          url: ENDPOINT + '/dependency-graph'
+        },
+        /**
          * Get all artifacts produced by the build for a given BuildRecord.
          */
         getBuiltArtifacts: {

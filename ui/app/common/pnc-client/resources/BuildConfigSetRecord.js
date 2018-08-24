@@ -74,10 +74,16 @@
           isPaged: true,
           url: ENDPOINT + '/?q=user.id==:userId',
         },
-
         cancel: {
           method: 'POST',
           url: RUNNING_ENDPOINT + '/cancel'
+        },
+        /**
+         * Gets build dependency graph for a given BuildGroupRecord
+         */
+        getDependencyGraph: {
+          method: 'GET',
+          url: ENDPOINT + '/dependency-graph'
         }
       });
 
