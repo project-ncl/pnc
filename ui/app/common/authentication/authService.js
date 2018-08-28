@@ -19,12 +19,15 @@
   'use strict';
 
   angular.module('pnc.common.authentication').factory('authService', [
-    '$log',
-    '$window',
-    '$q',
+    '$log', 
+    '$window', 
+    '$q', 
+    '$http', 
+    '$httpParamSerializerJQLike', 
     'keycloak',
+    'authConfig', 
     'UserDAO',
-    function ($log, $window, $q, keycloak, UserDAO) {
+    function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, UserDAO) {
       var authService = {};
 
       authService.isAuthenticated = function () {
@@ -37,6 +40,12 @@
         }
 
         return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
+      };
+
+      authService.verifySsoTokenLifespan = function () {
+        if (keycloak.authenticated) {
+          return keycloak.refreshTokenParsed.exp < Date.now() + authConfig.getSsoTokenLifespan();
+        }
       };
 
       // returns user only if he is authenticated
@@ -78,6 +87,26 @@
         var redirectTo = redirectUri || $window.location.href;
         $log.info('Login requested with post-login redirect to: ' + redirectTo);
         keycloak.login(redirectTo);
+      };
+
+      authService.logoutAsync = function () {
+        var promise = $http({
+          url: keycloak.tokenParsed.iss + '/protocol/openid-connect/logout',
+          method: 'POST',
+          data: $httpParamSerializerJQLike({
+            'client_id': keycloak.clientId,
+            'client_secret': keycloak.clientSecret,
+            'refresh_token': keycloak.refreshToken
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          successNotification: false
+        });
+        
+        keycloak.clearToken();
+
+        return promise;
       };
 
       return authService;
