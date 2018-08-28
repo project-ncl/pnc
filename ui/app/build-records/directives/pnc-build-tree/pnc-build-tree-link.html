@@ -25,7 +25,7 @@
 
   <span class="fa fa-angle-double-right"></span>
 
-  <a ng-if="$ctrl.buildRecord" ui-sref="build-records.detail.default({ recordId: $ctrl.buildRecord.id })" ng-click="$event.stopPropagation()"># {{ $ctrl.buildRecord.id }}</a>
+  <a ng-if="$ctrl.buildRecord" ui-sref="projects.detail.build-configs.detail.build-records.detail.default({ projectId: $ctrl.buildRecord.buildConfigurationAudited.projectId, configurationId: $ctrl.buildRecord.buildConfigurationAudited.id, recordId: $ctrl.buildRecord.id })" ng-click="$event.stopPropagation()"># {{ $ctrl.buildRecord.id }}</a>
   <a ng-if="$ctrl.buildGroupRecord" ui-sref="configuration-set-record.detail.info({ recordId: $ctrl.buildGroupRecord.id })" ng-click="$event.stopPropagation()"># {{ $ctrl.buildGroupRecord.id }}</a>
 
 </div>
