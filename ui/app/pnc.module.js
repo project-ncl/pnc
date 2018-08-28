@@ -96,12 +96,15 @@
     'pncProperties',
     'restConfigProvider',
     'daConfigProvider',
-    function (pncProperties, restConfigProvider, daConfigProvider) {
+    'authConfigProvider',
+    function (pncProperties, restConfigProvider, daConfigProvider, authConfigProvider) {
       restConfigProvider.setPncUrl(pncProperties.pncUrl);
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
       restConfigProvider.setDaUrl(pncProperties.daUrl);
 
       daConfigProvider.setDaUrl(pncProperties.daUrl);
+
+      authConfigProvider.setSsoTokenLifespan(pncProperties.ssoTokenLifespan);
     }
   ]);
 
