@@ -21,9 +21,11 @@
   angular.module('pnc.common.authentication').factory('httpAuthenticationInterceptor', [
     '$q',
     '$log',
+    '$injector',
     'keycloak',
-    function ($q, $log, keycloak) {
+    function ($q, $log, $injector, keycloak) {
       var interceptor = {};
+
 
       function addAuthHeaders(config, token) {
         config.headers = config.headers || {};
@@ -31,31 +33,46 @@
       }
 
       interceptor.request = function (config) {
-        if (keycloak && keycloak.token) {
+        var authService;
 
-          // Prevents screen flicker by directly returning the config
-          // object if the keycloak token does not need to be refreshed.
-          if (!keycloak.isTokenExpired(3600 * 23)) { //token should be valid at least 23h
+        if (keycloak) {
+          authService = $injector.get('authService');
+          /*
+           * Verify that the token validity will not outlive the max SSO session time,
+           * Force logout of user if they do not have minimum SSO session time left.
+           */
+          if (keycloak.authenticated && !authService.verifySsoTokenLifespan()) {
+            $log.info('SSO token lifespace below threshold, terminating session');
+            authService.logoutAsync();
+            keycloak.clearToken();
+          }
 
-            addAuthHeaders(config, keycloak.token);
-            return config;
+          if (keycloak.token) {
+            // Prevents screen flicker by directly returning the config
+            // object if the keycloak token does not need to be refreshed.
+            if (!keycloak.isTokenExpired(3600 * 23)) { //token should be valid at least 23h
 
-          } else {
-
-            var deferred = $q.defer();
-
-            keycloak.updateToken(0).success(function () {
               addAuthHeaders(config, keycloak.token);
-              deferred.resolve(config);
-            }).error(function () {
-              $log.warn('Failed to refresh authentication token');
-              keycloak.clearToken();
-              deferred.resolve(config);
-            });
+              return config;
 
-            return deferred.promise;
+            } else {
+
+              var deferred = $q.defer();
+
+              keycloak.updateToken(0).success(function () {
+                addAuthHeaders(config, keycloak.token);
+                deferred.resolve(config);
+              }).error(function () {
+                $log.warn('Failed to refresh authentication token');
+                keycloak.clearToken();
+                deferred.resolve(config);
+              });
+
+              return deferred.promise;
+            }
           }
         }
+        
         return config;
       };
 

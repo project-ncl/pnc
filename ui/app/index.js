@@ -74,7 +74,7 @@
       var keycloak;
       var kcInitParams = {
         onLoad: 'check-sso',
-        responseMode: 'query'
+        responseMode: 'fragment'
       };
 
       // Instantiate Keycloak when enabled, otherwise provide mock
