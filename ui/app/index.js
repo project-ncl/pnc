@@ -15,8 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
- var pnc = pnc || {}; // jshint ignore: line
+if (angular.isUndefined(window.pnc)) {
+  window.pnc = {};
+}
 
 (function(pnc) {
   'use strict';
@@ -152,4 +153,4 @@
 
   loadServerKeycloak(bootstrap, pnc.config);
 
-})(pnc);
+})(window.pnc);
