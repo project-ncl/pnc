@@ -8,3 +8,5 @@ node
 rest-config.json
 proxy-profiles.json
 /target/
+.vscode
+*.code-workspace
