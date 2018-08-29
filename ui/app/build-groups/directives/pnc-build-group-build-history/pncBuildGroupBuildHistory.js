@@ -21,14 +21,15 @@
 
   angular.module('pnc.build-groups').component('pncBuildGroupBuildHistory', {
     bindings: {
+      buildGroup: '<',
       buildGroupRecords: '<'
     },
     templateUrl: 'build-groups/directives/pnc-build-group-build-history/pnc-build-group-build-history.html',
-    controller: ['paginator', Controller]
+    controller: ['$scope', 'eventTypes', 'paginator', Controller]
   });
 
 
-  function Controller(paginator) {
+  function Controller($scope, eventTypes, paginator) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -36,6 +37,20 @@
     $ctrl.page = paginator($ctrl.buildGroupRecords);
 
     // --------------------
+
+    
+    $ctrl.$onInit = function () {
+      $scope.$on(eventTypes.BUILD_SET_STARTED, handleEvent);
+      $scope.$on(eventTypes.BUILD_SET_FINISHED, handleEvent);
+    };
+
+    function handleEvent(event, payload) {
+      if (payload.buildSetConfigurationId === $ctrl.buildGroup.id) {
+        $scope.$applyAsync(function () {
+          $ctrl.page.refresh();
+        });
+      }
+    }
 
   }
 
