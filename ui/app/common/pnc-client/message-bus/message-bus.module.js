@@ -29,6 +29,7 @@
       messageBus.registerListener('bccListener');
       messageBus.registerListener('rcListener');
       messageBus.registerListener('brewPushListener');
+      messageBus.registerListener('buildSetStatusListener');
 
     }
   ]);

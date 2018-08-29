@@ -45,8 +45,6 @@
       // current logged in user.
 
       scope.$on(eventTypes.BUILD_STARTED, function(event, payload) {
-        //$log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
-        $log.debug('BUILD_STARTED_EVENT: payload=%O', JSON.stringify(payload));
 
         authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'NEW') {
@@ -69,7 +67,6 @@
       // (see events-services.js for the conversion
       // between server and client buildCoordinationStatus)
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
-        $log.debug('BUILD_FINISHED: payload=%O', JSON.stringify(payload));
 
         authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'REJECTED') {

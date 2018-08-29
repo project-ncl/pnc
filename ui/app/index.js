@@ -138,7 +138,7 @@
         config.keycloak = false;
         onload(config);
       };
-      var SERVER_KEYCLOAK_PATH = '/js/keycloak.js',
+      var SERVER_KEYCLOAK_PATH = '/js/keycloak.min.js',
           script = document.createElement('script');
 
       script.onload = function() { onload(config); };
