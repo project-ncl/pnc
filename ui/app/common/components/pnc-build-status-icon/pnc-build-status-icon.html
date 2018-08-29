@@ -28,13 +28,13 @@
     <img ng-switch-when="FAILED" uib-tooltip="Build Failed" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/red.svg">
     <img ng-switch-when="DONE_WITH_ERRORS" uib-tooltip="Build Failed" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/red.svg">
     <img ng-switch-when="REJECTED_ALREADY_BUILT" uib-tooltip="Build rejected: already built" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/red.svg">
-    <img ng-switch-when="REJECTED_FAILED_DEPENDENCIES" uib-tooltip="Build rejected: dependencies failed" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/red.svg">
+    <img ng-switch-when="REJECTED_FAILED_DEPENDENCIES" uib-tooltip="Build rejected: dependencies failed" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/orange.svg">
     <img ng-switch-when="REJECTED" uib-tooltip="Build rejected" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/red.svg">
     <img ng-switch-when="ABORTED" uib-tooltip="Build aborted" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/grey.svg">
     <img ng-switch-when="CANCELLED" uib-tooltip="Build cancelled" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/grey.svg">
     <img ng-switch-when="NEW" uib-tooltip="New" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/grey.svg">
     <img ng-switch-when="SYSTEM_ERROR" uib-tooltip="A system error occurred" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/error.svg">
-    <img ng-switch-default uib-tooltip="Unknown build status: {{ $ctrl.buildRecord.status }}" alt="{{ $ctrl.buildRecord.status }}" tooltip-popup-delay="1000" src="images/unknown_small.png">
+    <img ng-switch-default uib-tooltip="Unknown build status: {{ $ctrl.buildRecord.status }}" alt="{{ $ctrl.buildRecord.status }}" tooltip-popup-delay="1000" src="images/no-build.svg">
   </span>
   <span ng-if="::!$ctrl.noWarnings">
     <span ng-if="$ctrl.isCorrupted">
