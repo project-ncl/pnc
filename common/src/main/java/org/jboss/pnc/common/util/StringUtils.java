@@ -214,4 +214,15 @@ public class StringUtils {
         return Arrays.stream(integers)
                 .map(i -> Integer.toString(i)).collect(Collectors.joining(","));
     }
+
+    public static Integer parseInt(String s, int defaultValue) {
+        if (isEmpty(s)) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
 }
