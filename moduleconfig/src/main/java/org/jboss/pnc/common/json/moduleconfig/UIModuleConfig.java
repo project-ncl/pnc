@@ -20,6 +20,7 @@ package org.jboss.pnc.common.json.moduleconfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 
 /**
  * Runtime configuration parameters for the Web UI.
@@ -35,7 +36,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String pncNotificationsUrl;
     private final String daUrl;
     private final String userGuideUrl;
-    private final String ssoTokenLifespan;
+    private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
 
     public UIModuleConfig(
@@ -49,7 +50,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.userGuideUrl = userGuideUrl;
-        this.ssoTokenLifespan = ssoTokenLifespan;
+        this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); //default to 24h
         this.keycloak = keycloak;
     }
 
@@ -84,7 +85,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return userGuideUrl;
     }
 
-    public String getSsoTokenLifespan() {
+    public Integer getSsoTokenLifespan() {
         return ssoTokenLifespan;
     }
 
