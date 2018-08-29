@@ -35,6 +35,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String pncNotificationsUrl;
     private final String daUrl;
     private final String userGuideUrl;
+    private final String ssoTokenLifespan;
     private final KeycloakConfig keycloak;
 
     public UIModuleConfig(
@@ -42,11 +43,13 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
             @JsonProperty("daUrl") String daUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
+            @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.userGuideUrl = userGuideUrl;
+        this.ssoTokenLifespan = ssoTokenLifespan;
         this.keycloak = keycloak;
     }
 
@@ -79,6 +82,10 @@ public class UIModuleConfig extends AbstractModuleConfig {
      */
     public String getUserGuideUrl() {
         return userGuideUrl;
+    }
+
+    public String getSsoTokenLifespan() {
+        return ssoTokenLifespan;
     }
 
     /**
