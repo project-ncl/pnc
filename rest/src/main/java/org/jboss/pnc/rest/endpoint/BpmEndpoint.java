@@ -367,8 +367,13 @@ public class BpmEndpoint extends AbstractEndpoint {
             HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
+        String revision = null;
+        if (buildConfigurationRest != null) {
+            revision = buildConfigurationRest.getScmRevision();
+        }
+
         RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
-                repositoryConfigurationRest);
+                repositoryConfigurationRest, revision);
 
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
 
