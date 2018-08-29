@@ -34,14 +34,14 @@
     <img ng-switch-when="CANCELLED" uib-tooltip="Build cancelled" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/grey.svg">
     <img ng-switch-when="NEW" uib-tooltip="New" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/grey.svg">
     <img ng-switch-when="SYSTEM_ERROR" uib-tooltip="A system error occurred" tooltip-popup-delay="1000" alt="{{ $ctrl.buildRecord.status }}" width="28px" height="28px" src="images/error.svg">
-    <img ng-switch-default uib-tooltip="Unknown build status: {{ $ctrl.buildRecord.status }}" alt="{{ $ctrl.buildRecord.status }}" tooltip-popup-delay="1000" src="images/no-build.svg">
+    <img ng-switch-default uib-tooltip="Unknown build status: {{ $ctrl.buildRecord.status }}" alt="{{ $ctrl.buildRecord.status }}" tooltip-popup-delay="1000" src="images/no-builds.svg">
   </span>
   <span ng-if="::!$ctrl.noWarnings">
     <span ng-if="$ctrl.isCorrupted">
       <i class="pficon pficon-warning-triangle-o fa-lg" uib-tooltip="The build may have completed successfully but has since been corrupted by a system error" tooltip-popup-delay="1000" tooltip-placement="right"></i>
     </span>
     <span ng-if="$ctrl.isTemporary">
-      <i class="fa fa-clock-o fa-lg c-info" uib-tooltip="Test build, which cannot be used for product release and which will be garbage collected" tooltip-popup-delay="1000" tooltip-placement="right"></i>
+      <i class="fa fa-clock-o fa-lg c-info" uib-tooltip="Temporary build; this will be garbage collected" tooltip-popup-delay="1000" tooltip-placement="right"></i>
     </span>
   </span>
 </span>

@@ -124,6 +124,9 @@
             var buildGroupRecords = BuildConfigurationSet.queryBuildConfigSetRecords({ id: $stateParams.configurationSetId });
             return buildGroupRecords.$promise.then(function () { return buildGroupRecords; });
           }]
+        },
+        bindings: {
+          buildGroup: 'configurationSetDetail'
         }
       });
 

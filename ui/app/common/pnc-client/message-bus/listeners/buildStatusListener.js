@@ -24,9 +24,8 @@
     'pncEventAdaptor',
     function ($log, $rootScope, pncEventAdaptor) {
       return function (message) {
-        if (message.eventType === 'BUILD_STATUS_CHANGED' || message.eventType === 'BUILD_SET_STATUS_CHANGED') {
+        if (message.eventType === 'BUILD_STATUS_CHANGED') {
           var event = pncEventAdaptor.convert(message);
-          $log.debug('Following event is broadcasted: %O', event);
           $rootScope.$broadcast(event.eventType, event.payload);
         }
       };
