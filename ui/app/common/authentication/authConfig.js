@@ -20,7 +20,7 @@
   
   angular.module('pnc.common.authentication').provider('authConfig',
     function () {
-      var ssoTokenLifespan = 8640000; // Default: 24 Hours
+      var ssoTokenLifespan = 86400000; // Default: 24 Hours
   
       function getSsoTokenLifespan() {
         return ssoTokenLifespan;
