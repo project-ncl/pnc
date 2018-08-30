@@ -102,7 +102,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldNotTriggerTheSameBuildConfigurationWithNewRevision() throws Exception {
+    public void shouldTriggerTheSameBuildConfigurationWithNewRevision() throws Exception {
         coordinator.start();
         buildRecordRepository.clear();
         //given
@@ -123,9 +123,9 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         }
 
         //then
-        Assert.assertTrue("The task was not rejected.", rejected);
+        Assert.assertFalse("The task was rejected.", rejected);
         waitForEmptyBuildQueue();
-        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+        assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
     }
 
     @Test

@@ -161,7 +161,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         // 3 is independent, 2 is dependent on 3, 1 is dependent on 2
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
             Integer buildTaskId = buildTask.getId();
-            switch (buildTask.getBuildConfiguration().getId()) {
+            switch (buildTask.getBuildConfigurationAudited().getId()) {
                 case 1:
                     //Building status is skipped (cancelled before it can start building)
                     assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);

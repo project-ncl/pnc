@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder.local;
 
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildResult;
@@ -74,8 +75,8 @@ public class LocalBuildScheduler implements BuildScheduler {
             }
         };
 
-        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration().getName());
-        BuildConfiguration configuration = buildTask.getBuildConfiguration();
+        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getBuildConfigurationAudited().getName());
+        BuildConfigurationAudited configuration = buildTask.getBuildConfigurationAudited();
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
                 contentId,
