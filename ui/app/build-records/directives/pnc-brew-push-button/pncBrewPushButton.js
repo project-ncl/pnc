@@ -19,12 +19,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncBuildRecordPushButton', {
+  angular.module('pnc.build-records').component('pncBrewPushButton', {
     bindings: {
       buildRecord: '<?',
       buildGroupRecord: '<?'
     },
-    templateUrl: 'build-records/directives/pnc-build-record-push-button/pnc-build-record-push-button.html',
+    templateUrl: 'build-records/directives/pnc-brew-push-button/pnc-brew-push-button.html',
     controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'BuildConfigSetRecord', 'messageBus', Controller]
   });
 
