@@ -319,9 +319,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                                   boolean keepPodOnFailure,
                                   boolean timestampAlignment,
                                   UriInfo uriInfo) throws InvalidEntityException, BuildConflictException, CoreException, MalformedURLException {
-        logger.debug("Endpoint /build requested for buildConfigurationId [{}] temporaryBuild: {}, forceRebuild: {}, " +
+        logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, temporaryBuild: {}, forceRebuild: {}, " +
                         "buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
-                id, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
+                id, rev, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
 
         User currentUser = getCurrentUser();
 
@@ -331,10 +331,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         Integer runningBuildId = null;
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl != null && !callbackUrl.isEmpty()) {
-            logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
+            logger.debug("Triggering build for buildConfigurationId {}, rev {} with callback URL {}.", id, rev, callbackUrl);
             runningBuildId = buildTriggerer.triggerBuild(id, rev, currentUser, buildOptions, new URL(callbackUrl));
         } else {
-            logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
+            logger.debug("Triggering build for buildConfigurationId {}, rev {} without callback URL.", id, rev);
             runningBuildId = buildTriggerer.triggerBuild(id, rev, currentUser, buildOptions);
         }
 
