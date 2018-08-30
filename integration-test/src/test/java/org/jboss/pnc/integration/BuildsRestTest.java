@@ -387,7 +387,6 @@ public class BuildsRestTest  {
         BuildTask mockedTask = mock(BuildTask.class);
         doReturn(99).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
-        doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
         doReturn(buildConfigurationAudited).when(mockedTask).getBuildConfigurationAudited();
         when(mockedTask.getUser().getId()).thenReturn(99);
         when(mockedTask.getUser().getUsername()).thenReturn("test-username");

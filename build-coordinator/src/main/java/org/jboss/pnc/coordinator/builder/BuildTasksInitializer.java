@@ -58,25 +58,30 @@ public class BuildTasksInitializer {
         this.temporaryBuildExpireDate = temporaryBuildExpireDate;
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfiguration configuration, User user, BuildOptions buildOptions,
-            Supplier<Integer> buildTaskIdProvider, Set<BuildTask> submittedBuildTasks) throws CoreException {
-
-        BuildSetTask buildSetTask =
+    public BuildSetTask createBuildSetTask(BuildConfigurationAudited buildConfigurationAudited,
+                                           User user,
+                                           BuildOptions buildOptions,
+                                           Supplier<Integer> buildTaskIdProvider,
+                                           Set<BuildTask> submittedBuildTasks) {
+      BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildOptions(buildOptions)
                         .startTime(new Date()).build();
 
         Set<BuildConfigurationAudited> toBuild = new HashSet<>();
-        collectBuildTasks(datastoreAdapter.getLatestBuildConfigurationAudited(configuration.getId()), buildOptions, toBuild);
-        log.debug("Collected build tasks for configuration: {}. Collected: {}.", configuration, toBuild.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
+        collectBuildTasks(buildConfigurationAudited, buildOptions, toBuild);
+        log.debug("Collected build tasks for the BuildConfigurationAudited: {}. Collected: {}.",
+                buildConfigurationAudited, toBuild.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
+
         fillBuildTaskSet(
                 buildSetTask,
                 user,
                 buildTaskIdProvider,
-                configuration.getCurrentProductMilestone(),
+                buildConfigurationAudited.getBuildConfiguration().getCurrentProductMilestone(),
                 toBuild,
                 submittedBuildTasks,
                 buildOptions);
+
         return buildSetTask;
     }
 
@@ -89,27 +94,39 @@ public class BuildTasksInitializer {
 
         toBuild.add(buildConfigurationAudited);
         if (buildOptions.isBuildDependencies()) {
-            buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(c -> collectDependentConfigurations(c, toBuild, visited));
+            buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(c ->
+                    collectDependentConfigurations(c, datastoreAdapter.getLatestBuildConfigurationAudited(c.getId()), toBuild, visited));
         }
     }
 
-    private boolean collectDependentConfigurations(BuildConfiguration configuration, Set<BuildConfigurationAudited> toBuild, Set<BuildConfiguration> visited) {
-        if (visited.contains(configuration)) {
-            return toBuild.contains(configuration);
+    /**
+     * Collects all BuildConfigurationAudited entities, that needs to be built.
+     *
+     * @param buildConfiguration Current BuildConfiguration used to resolve dependencies.
+     * @param buildConfigurationAudited Specific revision of a BuildConfiguration (passed as first parameter) to be potentially built
+     * @param toBuild Set of BuildConfigurationAudited entities planned to be built
+     * @param visited Set of BuildConfigurations, which were already evaluated, if should be built
+     * @return Returns true, if the buildConfiguration should be rebuilt, otherwise returns false.
+     */
+    private boolean collectDependentConfigurations(BuildConfiguration buildConfiguration,
+                                                   BuildConfigurationAudited buildConfigurationAudited,
+                                                   Set<BuildConfigurationAudited> toBuild,
+                                                   Set<BuildConfiguration> visited) {
+        if (visited.contains(buildConfiguration)) {
+            return toBuild.contains(buildConfigurationAudited);
         }
-        visited.add(configuration);
+        visited.add(buildConfiguration);
 
-        boolean requiresRebuild = datastoreAdapter.requiresRebuild(configuration);
-        for (BuildConfiguration dependency : configuration.getDependencies()) {
-            requiresRebuild |= collectDependentConfigurations(dependency, toBuild, visited);
+        boolean requiresRebuild = datastoreAdapter.requiresRebuild(buildConfiguration);
+        for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
+            requiresRebuild |= collectDependentConfigurations(dependency, datastoreAdapter.getLatestBuildConfigurationAudited(dependency.getId()), toBuild, visited);
         }
         if (requiresRebuild) {
-            toBuild.add(datastoreAdapter.getLatestBuildConfigurationAudited(configuration.getId()));
+            toBuild.add(buildConfigurationAudited);
         }
 
         return requiresRebuild;
     }
-
 
     /**
      * Create a BuildSetTask of latest revisions of BuildConfigurations contained in the BuildConfigurationSet
@@ -152,7 +169,7 @@ public class BuildTasksInitializer {
         Set<BuildConfigurationAudited> buildConfigurationAuditeds = datastoreAdapter
                 .getBuildConfigurations(buildConfigurationSet)
                 .stream()
-                .map(buildConfiguration -> datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId()))
+                .map(buildConfiguration -> datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId()))
                 .collect(Collectors.toSet());
 
         // initializeBuildTasksInSet

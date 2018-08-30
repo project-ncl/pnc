@@ -73,6 +73,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -177,7 +178,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             throws RestValidationException {
         return super.createNew(buildConfigurationRest, uriInfo);
     }
-    
+
     @GET
     @Path("/supported-generic-parameters")
     @ApiOperation(value = "Gets the minimal set of supported genericParameters and their description for the BuildConfiguration. "
@@ -215,6 +216,20 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return super.update(id, buildConfigurationRest);
     }
 
+    @ApiOperation(value = "Updates an existing Build Configuration and returns BuildConfigurationAudited entity")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @PUT
+    @Path("/{id}/update-and-get-audited")
+    public Response updateAndGetAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+            BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
+        return null; //TODO
+    }
+
     @ApiOperation(value = "Removes a specific Build Configuration")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
@@ -245,7 +260,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return Response.created(uriBuilder.build(newId)).entity(new Singleton(buildConfigurationProvider.getSpecific(newId))).build();
     }
 
-    @ApiOperation(value = "Triggers the build of a specific Build Configuration")
+    @ApiOperation(value = "Triggers a build of a specific Build Configuration")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
@@ -262,6 +277,40 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
+        return triggerBuild(id, Optional.empty(), callbackUrl, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
+    }
+
+
+    @ApiOperation(value = "Triggers a build of a specific Build Configuration in a specific revision")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/{id}/build-a-revision")
+    public Response triggerAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+                            @ApiParam(value = "Revision of a Build Configuration", required = true) @PathParam("rev") Integer rev,
+                            @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
+                            @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+                            @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+                            @ApiParam(value = "Should we build also dependencies of this BuildConfiguration?") @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
+                            @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
+                            @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+                            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
+        return triggerBuild(id, Optional.of(rev), callbackUrl, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
+    }
+
+    private Response triggerBuild(Integer id,
+                                  Optional<Integer> rev,
+                                  String callbackUrl,
+                                  boolean temporaryBuild,
+                                  boolean forceRebuild,
+                                  boolean buildDependencies,
+                                  boolean keepPodOnFailure,
+                                  boolean timestampAlignment,
+                                  UriInfo uriInfo) throws InvalidEntityException, BuildConflictException, CoreException, MalformedURLException {
         logger.debug("Endpoint /build requested for buildConfigurationId [{}] temporaryBuild: {}, forceRebuild: {}, " +
                         "buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
                 id, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
@@ -275,10 +324,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl != null && !callbackUrl.isEmpty()) {
             logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, buildOptions, new URL(callbackUrl));
+            runningBuildId = buildTriggerer.triggerBuild(id, rev, currentUser, buildOptions, new URL(callbackUrl));
         } else {
             logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, buildOptions);
+            runningBuildId = buildTriggerer.triggerBuild(id, rev, currentUser, buildOptions);
         }
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");

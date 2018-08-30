@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.ComponentBuildParameters;
@@ -69,26 +70,26 @@ public class BpmBuildTask extends BpmTask {
 
     private BuildExecutionConfigurationRest getBuildExecutionConfiguration(BuildTask buildTask) {
 
-        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
-        String contentId = ContentIdentityManager.getBuildContentId(buildConfiguration.getName());
+        BuildConfigurationAudited buildConfigurationAudited = buildTask.getBuildConfigurationAudited();
+        String contentId = ContentIdentityManager.getBuildContentId(buildConfigurationAudited.getName());
 
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
                 contentId,
                 buildTask.getUser().getId(),
-                buildConfiguration.getBuildScript(),
-                buildConfiguration.getName(),
+                buildConfigurationAudited.getBuildScript(),
+                buildConfigurationAudited.getName(),
                 //TODO update to use also other parts or Repository Configuration
-                buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
-                buildConfiguration.getScmRevision(),
-                buildConfiguration.getRepositoryConfiguration().getExternalUrl(),
-                buildConfiguration.getRepositoryConfiguration().isPreBuildSyncEnabled(),
-                buildConfiguration.getBuildEnvironment().getSystemImageId(),
-                buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
-                buildConfiguration.getBuildEnvironment().getSystemImageType(),
-                buildConfiguration.getBuildType(),
+                buildConfigurationAudited.getRepositoryConfiguration().getInternalUrl(),
+                buildConfigurationAudited.getScmRevision(),
+                buildConfigurationAudited.getRepositoryConfiguration().getExternalUrl(),
+                buildConfigurationAudited.getRepositoryConfiguration().isPreBuildSyncEnabled(),
+                buildConfigurationAudited.getBuildEnvironment().getSystemImageId(),
+                buildConfigurationAudited.getBuildEnvironment().getSystemImageRepositoryUrl(),
+                buildConfigurationAudited.getBuildEnvironment().getSystemImageType(),
+                buildConfigurationAudited.getBuildConfiguration().getBuildType(),
                 buildTask.getBuildOptions().isKeepPodOnFailure(),
-                buildConfiguration.getGenericParameters(),
+                buildConfigurationAudited.getGenericParameters(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
                 TimeUtils.generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()));

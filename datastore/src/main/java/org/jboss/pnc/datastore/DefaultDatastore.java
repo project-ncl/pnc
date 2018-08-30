@@ -312,10 +312,21 @@ public class DefaultDatastore implements Datastore {
             logger.error("Did not find any BuildConfiguration revisions.");
             return null;
         }
+
         return buildConfigRevs.get(0);
     }
 
+
     @Override
+    public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId) {
+        BuildConfigurationAudited buildConfigurationAudited = getLatestBuildConfigurationAudited(buildConfigurationId);
+        buildConfigurationAudited.setBuildConfiguration(buildConfigurationRepository.queryById(buildConfigurationAudited.getBuildConfiguration().getId()));
+        buildConfigurationAudited.getBuildConfiguration().getIndirectDependencies();
+
+        return buildConfigurationAudited;
+    }
+
+        @Override
     public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
         return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
@@ -365,16 +376,17 @@ public class DefaultDatastore implements Datastore {
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
         BuildSetTask taskSet = task.getBuildSetTask();
-        final BuildConfiguration buildConfiguration = task.getBuildConfiguration();
-        BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(buildConfiguration.getId());
+        BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(task.getBuildConfigurationAudited().getId());
 
         if (requiresRebuild(refreshedConfig)) {
             return true;
         }
+
         if (taskSet != null) {
             List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
                     .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
-                    .map(BuildTask::getBuildConfiguration)
+                    .map(BuildTask::getBuildConfigurationAudited)
+                    .map(BuildConfigurationAudited::getBuildConfiguration)
                     .collect(Collectors.toList());
             boolean hasInGroupDependency = refreshedConfig.dependsOnAny(nonRejectedBuildsInGroup);
             if (hasInGroupDependency) {
