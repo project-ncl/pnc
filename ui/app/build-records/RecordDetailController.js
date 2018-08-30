@@ -30,11 +30,13 @@
     'messageBus',
     'utils',
     function($scope, $state, $log, $uibModal, eventTypes, BuildRecord, recordDetail, buildRecordPushResult, messageBus, utils) {
+      var hasPushResult = !utils.isEmpty(buildRecordPushResult);
+      
       this.record = recordDetail;
       this.buildRecordPushResult = buildRecordPushResult;
 
       this.hasPushResults = function () {
-        return !utils.isEmpty(buildRecordPushResult);
+        return hasPushResult;
       };
 
       $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
@@ -44,12 +46,8 @@
       });
 
       $scope.$on(eventTypes.BREW_PUSH_RESULT, function (event, payload) {
-        if (payload.BuildRecordId === recordDetail.id) {
-          BuildRecord.getLatestPushStatus(recordDetail.id).then(function (response) {
-            $scope.$applyAsync(function () {
-              this.buildRecordPushResult = response;
-            });
-          });
+        if (payload.buildRecordId === recordDetail.id) {
+          $scope.$applyAsync(function () { hasPushResult = true; });
         }
       });
 
