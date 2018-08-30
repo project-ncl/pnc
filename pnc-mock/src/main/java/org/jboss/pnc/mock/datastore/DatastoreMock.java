@@ -126,6 +126,18 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
+    public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId) {
+        BuildConfiguration buildConfig = buildConfigurations.get(buildConfigurationId);
+
+        int rev = buildConfigAuditedRevSequence.incrementAndGet();
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfig)
+                .rev(rev)
+                .build();
+
+        return buildConfigurationAudited;    }
+
+    @Override
     public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
         return buildConfigSetRecords.stream().filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId)).findFirst().orElse(null);
     }

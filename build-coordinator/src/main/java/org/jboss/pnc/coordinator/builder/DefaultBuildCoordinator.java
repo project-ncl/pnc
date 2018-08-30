@@ -128,16 +128,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      */
     @Override
     public BuildSetTask build(BuildConfiguration buildConfiguration,
-                           User user, BuildOptions buildOptions) throws BuildConflictException, CoreException {
+                           User user, BuildOptions buildOptions) throws BuildConflictException {
+        BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
         synchronized (buildMethodLock) {
-            BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
-            if (buildQueue.getUnfinishedTask(buildConfigurationAudited).isPresent()) {
-                throw new BuildConflictException("Active build task found using the same configuration BC.id:" + buildConfiguration.getId());
-            }
+            checkNotRunning(buildConfigurationAudited);
 
             BuildSetTask buildSetTask =
                     buildTasksInitializer.createBuildSetTask(
-                            buildConfiguration,
+                            buildConfigurationAudited,
                             user,
                             buildOptions,
                             this::buildRecordIdSupplier,
@@ -149,7 +147,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             return buildSetTask;
         }
     }
-    
+
+    private void checkNotRunning(BuildConfigurationAudited buildConfigurationAudited) throws BuildConflictException {
+        if (buildQueue.getUnfinishedTask(buildConfigurationAudited).isPresent()) {
+            throw new BuildConflictException("Active build task found using the same configuration BC [id=" + buildConfigurationAudited.getId() +", rev=]" + buildConfigurationAudited.getRev());
+        }
+    }
+
     private Integer buildRecordIdSupplier() {
         return datastoreAdapter.getNextBuildRecordId();
     }

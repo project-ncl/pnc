@@ -179,7 +179,6 @@ public class DatastoreAdapterTest {
 
         BuildOptions buildOptions = new BuildOptions(false, false, true, false, false);
         BuildTask buildTask = BuildTask.build(
-                buildConfiguration,
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,
                 MockUser.newTestUser(1),

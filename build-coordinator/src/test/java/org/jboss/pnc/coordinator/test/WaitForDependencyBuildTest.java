@@ -82,7 +82,7 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
         buildScheduler.completeBuild(dependencyBuildTask.getId());
 
         //check if parent has started
-        Wait.forCondition(() -> buildScheduler.isBuilding(parentBuildTask.getBuildConfiguration().getId()), 3, ChronoUnit.SECONDS);
+        Wait.forCondition(() -> buildScheduler.isBuilding(parentBuildTask.getBuildConfigurationAudited().getId()), 3, ChronoUnit.SECONDS);
 
         buildScheduler.completeBuild(parentBuildTask.getId());
 
@@ -93,7 +93,7 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
 
     private Optional<BuildTask> getSubmittedBuildTaskByConfigurationId(Integer buildConfigurationId) {
         return coordinator.getSubmittedBuildTasks().stream()
-                .filter(bt -> bt.getBuildConfiguration().getId().equals(buildConfigurationId))
+                .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(buildConfigurationId))
                 .findAny();
     }
 

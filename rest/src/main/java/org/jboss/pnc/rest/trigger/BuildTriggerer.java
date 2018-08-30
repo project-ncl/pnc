@@ -26,7 +26,9 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifi
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
@@ -36,6 +38,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -59,7 +62,7 @@ public class BuildTriggerer {
     private BuildCoordinator buildCoordinator;
 
     private BuildConfigurationRepository buildConfigurationRepository;
-
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
@@ -77,6 +80,7 @@ public class BuildTriggerer {
     @Inject
     public BuildTriggerer(final BuildCoordinator buildCoordinator,
                           final BuildConfigurationRepository buildConfigurationRepository,
+                          final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
                           final BuildConfigurationSetRepository buildConfigurationSetRepository,
                           BuildSetStatusNotifications buildSetStatusNotifications,
                           BuildStatusNotifications buildStatusNotifications,
@@ -86,6 +90,7 @@ public class BuildTriggerer {
                           SystemConfig systemConfig) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
@@ -96,6 +101,7 @@ public class BuildTriggerer {
     }
 
     public int triggerBuild(final Integer buildConfigurationId,
+                            Optional<Integer> buildConfigurationRevision, //TODO
                             User currentUser,
                             BuildOptions buildOptions,
                             URL callBackUrl)
@@ -107,36 +113,53 @@ public class BuildTriggerer {
             }
         };
 
-        BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, currentUser, buildOptions);
+        BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, buildConfigurationRevision, currentUser, buildOptions);
         result.getBuildTasks().forEach(t -> buildStatusNotifications.subscribe(new BuildCallBack(t.getId(), onStatusUpdate)));
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigurationId);
     }
 
     private int selectBuildRecordIdOf(Collection<BuildTask> buildTasks, Integer buildConfigurationId) throws CoreException {
         Optional<BuildTask> maybeTask = buildTasks.stream()
-                .filter(t -> t.getBuildConfiguration().getId().equals(buildConfigurationId))
+                .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigurationId)) // TODO VERIFY IT WORKS
                 .findAny();
         return maybeTask.map(BuildTask::getId)
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
 
-    public int triggerBuild(final Integer configurationId, User currentUser, BuildOptions buildOptions)
+    public int triggerBuild(final Integer configurationId,
+                            Optional<Integer> buildConfigurationRevision, //TODO
+                            User currentUser,
+                            BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
         BuildConfigurationSetTriggerResult result =
-                doTriggerBuild(configurationId, currentUser, buildOptions);
+                doTriggerBuild(configurationId, buildConfigurationRevision, currentUser, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), configurationId);
     }
 
-    private BuildConfigurationSetTriggerResult doTriggerBuild(final Integer configurationId, User currentUser,
+    private BuildConfigurationSetTriggerResult doTriggerBuild(final Integer buildConfigurationId,
+                                                              Optional<Integer> buildConfigurationRevision,
+                                                              User currentUser,
                                                               BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
-        final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
-        Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
+        BuildSetTask buildSetTask = null;
+        if(buildConfigurationRevision.isPresent()) {
+            final BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(buildConfigurationId, buildConfigurationRevision.get()));
+            Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + buildConfigurationId + ", rev=" + buildConfigurationRevision.get());
 
-        BuildSetTask buildSetTask = buildCoordinator.build(
-                hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
-                currentUser,
-                buildOptions);
+            buildSetTask = buildCoordinator.build(
+                    hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited),
+                    currentUser,
+                    buildOptions);
+        } else {
+            final BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
+            Preconditions.checkArgument(buildConfiguration != null, "Can't find Build Configuration with id=" + buildConfigurationId);
+
+            buildSetTask = buildCoordinator.build(
+                    hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(buildConfiguration),
+                    currentUser,
+                    buildOptions);
+        }
+
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
 

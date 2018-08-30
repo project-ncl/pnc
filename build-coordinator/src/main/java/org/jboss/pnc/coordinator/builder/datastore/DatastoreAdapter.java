@@ -87,11 +87,23 @@ public class DatastoreAdapter {
     /**
      * Get the latest audited revision for the given build configuration ID
      *
-     * @param buildConfigurationId
+     * @param buildConfigurationId Build Configuration ID
      * @return The latest revision of the given build configuration
      */
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
         BuildConfigurationAudited buildConfigAudited = datastore.getLatestBuildConfigurationAudited(buildConfigurationId);
+        loadBuildConfigurations(buildConfigAudited);
+        return buildConfigAudited;
+    }
+
+    /**
+     * Get the latest audited version of the given build configuration and fetch whole dependency tree of the related BC
+     *
+     * @param buildConfigurationId The id of the config to check
+     * @return The latest audited version of the build configuration with fetched dependency tree of the related BC
+     */
+    public BuildConfigurationAudited getLatestBuildConfigurationAuditedInitializeBCDependencies(Integer buildConfigurationId) {
+        BuildConfigurationAudited buildConfigAudited = datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(buildConfigurationId);
         loadBuildConfigurations(buildConfigAudited);
         return buildConfigAudited;
     }

@@ -181,7 +181,6 @@ public class StatusUpdatesTest {
                 user,
                 buildOptions,
                 () -> atomicInteger.getAndIncrement(),
-                buildConfigurationSet.getBuildConfigurations(),
                 buildQueue.getUnfinishedTasks()
                 );
     }
