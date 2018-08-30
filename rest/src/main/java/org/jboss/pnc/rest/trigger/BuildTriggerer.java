@@ -120,14 +120,14 @@ public class BuildTriggerer {
 
     private int selectBuildRecordIdOf(Collection<BuildTask> buildTasks, Integer buildConfigurationId) throws CoreException {
         Optional<BuildTask> maybeTask = buildTasks.stream()
-                .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigurationId)) // TODO VERIFY IT WORKS
+                .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigurationId))
                 .findAny();
         return maybeTask.map(BuildTask::getId)
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
 
     public int triggerBuild(final Integer configurationId,
-                            Optional<Integer> buildConfigurationRevision, //TODO
+                            Optional<Integer> buildConfigurationRevision,
                             User currentUser,
                             BuildOptions buildOptions)
             throws BuildConflictException, CoreException {

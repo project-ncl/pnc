@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -35,6 +36,8 @@ public interface BuildCoordinator {
     BuildSetTask build(BuildConfiguration buildConfiguration,
                        User user, BuildOptions buildOptions) throws BuildConflictException, CoreException;
 
+    BuildSetTask build(BuildConfigurationAudited buildConfiguration,
+                       User user, BuildOptions buildOptions) throws BuildConflictException, CoreException;
 
     BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) throws CoreException;
 
