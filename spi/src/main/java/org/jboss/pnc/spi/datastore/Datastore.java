@@ -92,6 +92,14 @@ public interface Datastore {
      */
     BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId);
 
+    /**
+     * Get the latest audited version of the given build configuration and fetch whole dependency tree of the related BC
+     *
+     * @param buildConfigurationId The id of the config to check
+     * @return The latest audited version of the build configuration with fetched dependency tree of the related BC
+     */
+    BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId);
+
     BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
 
     /**

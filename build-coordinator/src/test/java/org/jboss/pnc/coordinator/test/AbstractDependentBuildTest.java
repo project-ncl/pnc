@@ -185,7 +185,7 @@ public abstract class AbstractDependentBuildTest {
         int id = configIdSequence.getAndIncrement();
         Project project = Project.Builder.newBuilder()
                 .id(1)
-                .name("Mock project.")
+                .name("Mock project")
                 .build();
 
         BuildConfiguration config = BuildConfiguration.Builder.newBuilder()
@@ -263,13 +263,14 @@ public abstract class AbstractDependentBuildTest {
 
     protected Optional<BuildTask> getScheduledBuildTaskByConfigurationId(Integer configurationId) {
         return builtTasks.stream()
-                .filter(bt -> bt.getBuildConfiguration().getId().equals(configurationId))
+                .filter(bt -> bt.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(configurationId))
                 .findAny();
     }
 
     protected List<BuildConfiguration> getBuiltConfigs() {
         return builtTasks.stream()
-                .map(BuildTask::getBuildConfiguration)
+                .map(BuildTask::getBuildConfigurationAudited)
+                .map(BuildConfigurationAudited::getBuildConfiguration)
                 .collect(Collectors.toList());
     }
 

@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.utils;
 
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.slf4j.Logger;
@@ -51,6 +52,14 @@ public class HibernateLazyInitializer {
             productVersion.getCurrentProductMilestone();
         }
         return buildConfiguration;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public BuildConfigurationAudited initializeBuildConfigurationAuditedBeforeTriggeringIt(BuildConfigurationAudited buildConfigurationAudited) {
+        log.trace("Initializing BCA {}.", buildConfigurationAudited.getIdRev());
+        initializeBuildConfigurationBeforeTriggeringIt(buildConfigurationAudited.getBuildConfiguration());
+
+        return buildConfigurationAudited;
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
