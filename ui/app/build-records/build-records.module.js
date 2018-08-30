@@ -245,12 +245,12 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.brew-push', {
         url: '/brew-push',
-        component: 'pncBuildRecordTabBrewPush',
+        component: 'pncBrewPushTab',
         bindings: {
           buildRecord: 'recordDetail'
         },
         data: {
-          displayName: 'Push Results'
+          displayName: 'Brew Push Results'
         },
         resolve: {
           buildRecordPushResult: function (BuildRecord, $stateParams) {
