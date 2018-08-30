@@ -50,7 +50,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -286,6 +288,23 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             return null;
         }
         return new BuildConfigurationAuditedRest(auditedBuildConfig);
+    }
+
+    public Optional<BuildConfigurationAuditedRest> getLatestAuditedMatchingBCRest(BuildConfigurationRest buildConfigurationRest) {
+        return buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationRest.getId())
+                .stream()
+                .filter(bca -> equalValues(bca, buildConfigurationRest))
+                .findFirst()
+                .map(buildConfigurationAuditedToRestModel());
+    }
+
+    private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
+        return audited.getName().equals(rest.getName()) &&
+                audited.getBuildScript().equals(rest.getBuildScript()) &&
+                audited.getRepositoryConfiguration().equals(rest.getRepositoryConfiguration()) &&
+                audited.getScmRevision().equals(rest.getScmRevision()) &&
+                audited.getDescription().equals(rest.getDescription()) &&
+                audited.getBuildConfiguration().getGenericParameters().equals(rest.getGenericParameters());
     }
 
     private Function<BuildConfigurationAudited, BuildConfigurationAuditedRest> buildConfigurationAuditedToRestModel() {

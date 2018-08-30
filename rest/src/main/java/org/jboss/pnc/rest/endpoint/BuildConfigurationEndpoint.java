@@ -228,7 +228,14 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/update-and-get-audited")
     public Response updateAndGetAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
-        return null; //TODO
+        buildConfigurationProvider.update(id, buildConfigurationRest);
+        Optional<BuildConfigurationAuditedRest> buildConfigurationAuditedRestOptional = buildConfigurationProvider.getLatestAuditedMatchingBCRest(buildConfigurationRest);
+
+        if (buildConfigurationAuditedRestOptional.isPresent()) {
+            return Response.ok().entity(buildConfigurationAuditedRestOptional.get()).build();
+        } else {
+            throw new RuntimeException("Couldn't find updated BuildConfigurationAudited entity. BuildConfigurationRest to be stored: " + buildConfigurationRest);
+        }
     }
 
     @ApiOperation(value = "Removes a specific Build Configuration")
