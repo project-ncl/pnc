@@ -19,12 +19,12 @@
 (function () {
     'use strict';
 
-    angular.module('pnc.build-records').component('pncBuildRecordTabBrewPush', {
+    angular.module('pnc.build-records').component('pncBrewPushTab', {
       bindings: {
         buildRecord: '<',
         buildRecordPushResult: '<'
       },
-      templateUrl: 'build-records/directives/pnc-build-record-tab-brew-push/pnc-build-record-tab-brew-push.html',
+      templateUrl: 'build-records/directives/pnc-brew-push-tab/pnc-brew-push-tab.html',
       controller: [Controller]
     });
 
