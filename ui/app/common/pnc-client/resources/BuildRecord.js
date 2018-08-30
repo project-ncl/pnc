@@ -219,6 +219,8 @@
         return $http.post(BUILD_RECORD_PUSH_ENDPOINT, {
           buildRecordId: buildRecordId,
           tagPrefix: tagPrefix
+        }, { 
+          successNotification: false
         });
       };
 
