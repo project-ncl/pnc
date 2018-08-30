@@ -130,6 +130,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildSetTask build(BuildConfiguration buildConfiguration,
                            User user, BuildOptions buildOptions) throws BuildConflictException {
         BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
+        return build0(user, buildOptions, buildConfigurationAudited);
+    }
+
+    private BuildSetTask build0(User user, BuildOptions buildOptions, BuildConfigurationAudited buildConfigurationAudited) throws BuildConflictException {
         synchronized (buildMethodLock) {
             checkNotRunning(buildConfigurationAudited);
 
@@ -152,6 +156,24 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         if (buildQueue.getUnfinishedTask(buildConfigurationAudited).isPresent()) {
             throw new BuildConflictException("Active build task found using the same configuration BC [id=" + buildConfigurationAudited.getId() +", rev=]" + buildConfigurationAudited.getRev());
         }
+    }
+
+    /**
+     * Run a single build.  Uses the settings from the specific revision of a BuildConfiguration.
+     * The dependencies are resolved by the BuildConfiguration relations and are used in the latest revisions
+     *
+     * @param buildConfigurationAudited A revision of a BuildConfiguration which will be used.
+     * @param user The user who triggered the build.
+     * @param buildOptions Customization of a build specified by user
+     *
+     * @return The new build task
+     * @throws BuildConflictException If there is already a build running with the same build configuration Id and revision
+     */
+    @Override
+    public BuildSetTask build(BuildConfigurationAudited buildConfigurationAudited,
+                              User user,
+                              BuildOptions buildOptions) throws BuildConflictException {
+        return build0(user, buildOptions, buildConfigurationAudited);
     }
 
     private Integer buildRecordIdSupplier() {

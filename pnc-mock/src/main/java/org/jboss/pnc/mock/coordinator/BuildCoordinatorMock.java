@@ -16,27 +16,11 @@
  * limitations under the License.
  */
 
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jboss.pnc.mock.coordinator;
 
 import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -72,13 +56,18 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions) throws BuildConflictException {
+    public BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
 
     @Override
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) throws CoreException {
+    public BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions) {
+        logger.warn("Invoking unimplemented method build");
+        return Mockito.mock(BuildSetTask.class);    }
+
+    @Override
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)  {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
