@@ -140,7 +140,7 @@
         dependencyStructure.push(customBuild);
 
         (isBuildRecord ? build.dependencyBuildRecordIds : build.buildRecordIds).forEach(function(buildId) {
-          createDependencyStructure(dependencyGraph.verticies[buildId].data, customBuild);
+          createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild);
         });
 
         return dependencyStructure;
@@ -150,7 +150,7 @@
       return {
         dependentStructure: $ctrl.buildItem.dependentBuildRecordIds, // undefined when BuildGroupRecord is being processed
         dependencyStructure: createDependencyStructure($ctrl.buildItem, NO_PARENT_EXISTS),
-        nodes: dependencyGraph.verticies
+        nodes: dependencyGraph.vertices
       };
     }
 
