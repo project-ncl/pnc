@@ -30,7 +30,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class GraphRest<T> {
 
-    private final Map<String, VertexRest<T>> verticies;
+    private final Map<String, VertexRest<T>> vertices;
 
     private final List<EdgeRest<T>> edges;
 
