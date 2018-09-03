@@ -40,6 +40,7 @@ import javax.enterprise.inject.Alternative;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -68,6 +69,14 @@ public class BuildCoordinatorMock implements BuildCoordinator {
 
     @Override
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)  {
+        logger.warn("Invoking unimplemented method build");
+        return Mockito.mock(BuildSetTask.class);
+    }
+
+    @Override
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet,
+                              Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
+                              User user, BuildOptions buildOptions) throws CoreException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
