@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface BuildCoordinator {
@@ -40,6 +41,9 @@ public interface BuildCoordinator {
                        User user, BuildOptions buildOptions) throws BuildConflictException, CoreException;
 
     BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) throws CoreException;
+
+    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
+                       User user, BuildOptions buildOptions) throws CoreException;
 
     List<BuildTask> getSubmittedBuildTasks();
 

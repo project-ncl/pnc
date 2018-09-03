@@ -28,7 +28,9 @@ import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
@@ -71,6 +73,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -302,25 +305,69 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @Context UriInfo uriInfo)
-            throws InterruptedException, CoreException, DatastoreException, BuildDriverException, RepositoryManagerException,
-            MalformedURLException, InvalidEntityException {
-        logger.info("Executing build configuration set id: " + id );
+            throws CoreException, MalformedURLException, InvalidEntityException {
+        logger.info("Executing build configuration set: [id: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}]",
+                id, temporaryBuild, forceRebuild, timestampAlignment);
+        return triggerBuild(Optional.empty(), Optional.of(id), callbackUrl, temporaryBuild, forceRebuild, timestampAlignment, uriInfo);
+    }
+
+    @ApiOperation(value = "Builds the configurations for the Specified Set with an option to specify exact revision of a BC")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigSetRecordSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/{id}/build-versioned")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response buildVersioned(
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
+            @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+            @ApiParam(value = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+            BuildConfigurationSetAuditedRest buildConfigurationAuditedRest,
+            @Context UriInfo uriInfo)
+            throws CoreException, MalformedURLException, InvalidEntityException {
+        logger.info("Executing build configuration set with build configurations in specific values: " +
+                "[BuildConfigurationSetAuditedRest: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}]",
+                buildConfigurationAuditedRest, temporaryBuild, forceRebuild, timestampAlignment);
+        return triggerBuild(Optional.of(buildConfigurationAuditedRest), Optional.empty(), callbackUrl, temporaryBuild, forceRebuild, timestampAlignment, uriInfo);
+    }
+
+    private Response triggerBuild(
+            Optional<BuildConfigurationSetAuditedRest> buildConfigurationAuditedRest,
+            Optional<Integer> buildConfigurationSetId,
+            String callbackUrl,
+            boolean temporaryBuild,
+            boolean forceRebuild,
+            boolean timestampAlignment,
+            UriInfo uriInfo) throws InvalidEntityException, CoreException, MalformedURLException {
         User currentUser = getCurrentUser();
 
         BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, false, false, timestampAlignment);
         BuildConfigurationEndpoint.checkBuildOptionsValidity(buildOptions);
 
         BuildConfigurationSetTriggerResult result;
-        // if callbackUrl is provided trigger build accordingly
-        if (callbackUrl != null && !callbackUrl.isEmpty()) {
-            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, buildOptions, new URL(callbackUrl));
-        } else {
-            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, buildOptions);
+        if(buildConfigurationSetId.isPresent()) {
+            if (callbackUrl != null && !callbackUrl.isEmpty()) {
+                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationSetId.get(), currentUser, buildOptions, new URL(callbackUrl));
+            } else {
+                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationSetId.get(), currentUser, buildOptions);
+            }
         }
-        logger.info("Started build configuration set id: {}. Build Tasks: {}",
-                id,
+        else {
+            if (callbackUrl != null && !callbackUrl.isEmpty()) {
+                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationAuditedRest.get(), currentUser, buildOptions, new URL(callbackUrl));
+            } else {
+                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationAuditedRest.get(), currentUser, buildOptions);
+            }
+        }
+
+        logger.info("Started build BuildConfigurationSetAuditedRest: {}. Build Tasks: {}",
+                buildConfigurationAuditedRest,
                 result.getBuildTasks().stream().map(bt -> Integer.toString(bt.getId())).collect(
-                Collectors.joining()));
+                        Collectors.joining()));
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
         URI uri = uriBuilder.build(result.getBuildRecordSetId());
