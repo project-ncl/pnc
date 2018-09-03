@@ -30,14 +30,15 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetAuditedRest;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -46,13 +47,17 @@ import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Stateless
@@ -101,7 +106,7 @@ public class BuildTriggerer {
     }
 
     public int triggerBuild(final Integer buildConfigurationId,
-                            Optional<Integer> buildConfigurationRevision, //TODO
+                            Optional<Integer> buildConfigurationRevision,
                             User currentUser,
                             BuildOptions buildOptions,
                             URL callBackUrl)
@@ -172,22 +177,19 @@ public class BuildTriggerer {
             User currentUser,
             BuildOptions buildOptions,
             URL callBackUrl)
-            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
-        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            if (statusChangedEvent.getNewStatus().isCompleted()) {
-                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
-            }
-        };
+            throws CoreException {
+        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = getBuildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, buildOptions);
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
         return result;
     }
 
-    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
-            User currentUser, BuildOptions buildOptions)
-            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
+    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
+            final Integer buildConfigurationSetId,
+            User currentUser,
+            BuildOptions buildOptions)
+            throws CoreException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetId);
@@ -198,6 +200,65 @@ public class BuildTriggerer {
                 buildOptions);
 
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
+    }
+
+    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
+            BuildConfigurationSetAuditedRest buildConfigurationSetAuditedRest,
+            User currentUser,
+            BuildOptions buildOptions,
+            URL callBackUrl)
+            throws CoreException, InvalidEntityException {
+        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = getBuildSetStatusChangedEventConsumer(callBackUrl);
+
+        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetAuditedRest, currentUser, buildOptions);
+        buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
+        return result;
+    }
+
+    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
+            BuildConfigurationSetAuditedRest buildConfigurationSetAuditedRest,
+            User currentUser,
+            BuildOptions buildOptions)
+            throws CoreException, InvalidEntityException {
+        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetAuditedRest.getId());
+        Preconditions.checkArgument(buildConfigurationSet != null,
+                "Can't find configuration with given id=" + buildConfigurationSetAuditedRest.getId());
+
+        BuildSetTask buildSetTask = buildCoordinator.build(
+                hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
+                loadAuditedsFromDB(buildConfigurationSet, buildConfigurationSetAuditedRest.getBuildConfigurationAuditeds()),
+                currentUser,
+                buildOptions);
+
+        return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
+    }
+
+    private Consumer<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventConsumer(URL callBackUrl) {
+        return (statusChangedEvent) -> {
+            if (statusChangedEvent.getNewStatus().isCompleted()) {
+                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
+                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+            }
+        };
+    }
+
+    private Map<Integer, BuildConfigurationAudited> loadAuditedsFromDB(BuildConfigurationSet buildConfigurationSet,
+            List<BuildConfigurationAuditedRest> buildConfigurationAuditedRests) throws InvalidEntityException {
+        Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
+
+        for (BuildConfigurationAuditedRest  bc : buildConfigurationAuditedRests) {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), bc.getRev()));
+            Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());
+            buildConfigurationAudited = hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited);
+
+            if (! buildConfigurationSet.getBuildConfigurations().contains(buildConfigurationAudited.getBuildConfiguration())) {
+                throw new InvalidEntityException("BuildConfigurationSet " + buildConfigurationSet + " doesn't contain this BuildConfigurationAudited entity " + buildConfigurationAudited);
+            }
+
+            buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
+         }
+
+         return buildConfigurationAuditedsMap;
     }
 
     public Optional<MDCMeta> getMdcMeta(Integer buildTaskId) {
