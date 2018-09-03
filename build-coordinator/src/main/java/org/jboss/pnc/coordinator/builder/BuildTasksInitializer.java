@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -145,6 +146,77 @@ public class BuildTasksInitializer {
             BuildOptions buildOptions,
             Supplier<Integer> buildTaskIdProvider,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
+        BuildSetTask buildSetTask = initBuildSetTask(buildConfigurationSet, user, buildOptions);
+
+        Set<BuildConfigurationAudited> buildConfigurationAuditeds = datastoreAdapter
+                .getBuildConfigurations(buildConfigurationSet)
+                .stream()
+                .map(buildConfiguration -> datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId()))
+                .collect(Collectors.toSet());
+
+        // initializeBuildTasksInSet
+        log.debug("Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.",
+                buildConfigurationAuditeds.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
+        fillBuildTaskSet(
+                buildSetTask,
+                user,
+                buildTaskIdProvider,
+                buildConfigurationSet.getCurrentProductMilestone(),
+                buildConfigurationAuditeds,
+                submittedBuildTasks,
+                buildOptions);
+        return buildSetTask;
+    }
+
+    /**
+     * Create a BuildSetTask of BuildConfigurations contained in the BuildConfigurationSet.
+     *
+     * A specific revision of the BuildConfigurations contained in the set is used,
+     * if it's available in the buildConfigurationAuditedsMap parameter.
+     * If it's not available, latest revision of the BuildConfiguration is used.
+     *
+     * @param buildConfigurationSet BuildConfigurationSet to be built
+     * @param buildConfigurationAuditedsMap A map BuildConfiguration::id:BuildConfigurationAudited of specific revisions of BuildConfigurations contained in the buildConfigurationSet
+     * @param user A user, who triggered the build
+     * @param buildOptions Build options
+     * @param buildTaskIdProvider Provider to get build task ID
+     * @param submittedBuildTasks Already submitted build tasks
+     * @return Prepared BuildSetTask
+     * @throws CoreException Thrown if the BuildConfigSetRecord cannot be stored
+     */
+    public BuildSetTask createBuildSetTask(
+            BuildConfigurationSet buildConfigurationSet,
+            Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
+            User user,
+            BuildOptions buildOptions,
+            Supplier<Integer> buildTaskIdProvider,
+            Set<BuildTask> submittedBuildTasks) throws CoreException {
+        BuildSetTask buildSetTask = initBuildSetTask(buildConfigurationSet, user, buildOptions);
+
+        Set<BuildConfigurationAudited> buildConfigurationAuditeds = new HashSet<>();
+        for (BuildConfiguration buildConfiguration : datastoreAdapter.getBuildConfigurations(buildConfigurationSet)) {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap.get(buildConfiguration.getId());
+            if(buildConfigurationAudited == null) {
+                buildConfigurationAudited = datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
+            }
+            buildConfigurationAuditeds.add(buildConfigurationAudited);
+        }
+
+        // initializeBuildTasksInSet
+        log.debug("Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.",
+                buildConfigurationAuditeds.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
+        fillBuildTaskSet(
+                buildSetTask,
+                user,
+                buildTaskIdProvider,
+                buildConfigurationSet.getCurrentProductMilestone(),
+                buildConfigurationAuditeds,
+                submittedBuildTasks,
+                buildOptions);
+        return buildSetTask;
+    }
+
+    private BuildSetTask initBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -161,28 +233,9 @@ public class BuildTasksInitializer {
             throw new CoreException(e);
         }
 
-        BuildSetTask buildSetTask =
-                BuildSetTask.Builder.newBuilder()
-                        .buildConfigSetRecord(configSetRecord)
-                        .buildOptions(buildOptions).build();
-
-        Set<BuildConfigurationAudited> buildConfigurationAuditeds = datastoreAdapter
-                .getBuildConfigurations(buildConfigurationSet)
-                .stream()
-                .map(buildConfiguration -> datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId()))
-                .collect(Collectors.toSet());
-
-        // initializeBuildTasksInSet
-        log.debug("Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.", buildConfigurationAuditeds.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
-        fillBuildTaskSet(
-                buildSetTask,
-                user,
-                buildTaskIdProvider,
-                buildConfigurationSet.getCurrentProductMilestone(),
-                buildConfigurationAuditeds,
-                submittedBuildTasks,
-                buildOptions);
-        return buildSetTask;
+        return BuildSetTask.Builder.newBuilder()
+                .buildConfigSetRecord(configSetRecord)
+                .buildOptions(buildOptions).build();
     }
 
     /**

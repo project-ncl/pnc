@@ -61,6 +61,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -204,15 +205,54 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildQueue.getUnfinishedTasks());
             updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
-            checkForEmptyBuildSetTask(buildSetTask);
-            if (!buildOptions.isForceRebuild()) {
-                checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet);
-            }
-
-            checkForCyclicDependencies(buildSetTask);
-            build(buildSetTask);
+            validateBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
             return buildSetTask;
         }
+    }
+
+    /**
+     * Run a build of BuildConfigurationSet with BuildConfigurations in specific versions.
+     *
+     * The set of the BuildConfigurations to be executed is determined by the buildConfigurationSet entity.
+     * If there is a revision of a BuildConfiguration available in the buildConfigurationAuditedsMap parameter, then
+     * this revision is executed. If it's not available, latest revision of the BuildConfiguration will be executed.
+     *
+     * @param buildConfigurationSet The set of the configurations to be executed
+     * @param buildConfigurationAuditedsMap A map BuildConfiguration::id:BuildConfigurationAudited of specific revisions of BuildConfigurations contained in the buildConfigurationSet
+     * @param user The user who triggered the build.
+     * @param buildOptions Customization of a build specified by user
+     *
+     * @return The new build set task
+     * @throws CoreException Thrown if there is a problem initializing the build
+     */
+    @Override
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet,
+                              Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
+                              User user, BuildOptions buildOptions) throws CoreException {
+
+        synchronized (buildMethodLock) {
+            BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
+                    buildConfigurationSet,
+                    buildConfigurationAuditedsMap,
+                    user,
+                    buildOptions,
+                    this::buildRecordIdSupplier,
+                    buildQueue.getUnfinishedTasks());
+            updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
+
+            validateBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
+            return buildSetTask;
+        }
+    }
+
+    private void validateBuildConfigurationSetTasks(BuildConfigurationSet buildConfigurationSet, BuildOptions buildOptions, BuildSetTask buildSetTask) {
+        checkForEmptyBuildSetTask(buildSetTask);
+        if (!buildOptions.isForceRebuild()) {
+            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet);
+        }
+
+        checkForCyclicDependencies(buildSetTask);
+        build(buildSetTask);
     }
 
     private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask, BuildConfigurationSet buildConfigurationSet) {
