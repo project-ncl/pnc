@@ -228,11 +228,12 @@ public class IndyRepositorySession implements RepositorySession {
                     continue;
                 }
 
-                // If the entry is from a hosted repository, it shouldn't be auto-promoted.
-                // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
-                // New binary imports will be coming from a remote repository...
-                if (isExternalOrigin(storeKey) && StoreType.hosted != storeKey.getType()) {
-                    if (MAVEN_PKG_KEY.equals(packageType) || NPM_PKG_KEY.equals(packageType)) {
+                // We don't promote stuff coming through generic proxy, because the remote repos are configured per-build
+                // and the cached data never expire and also we don't want to share binaries with other builds
+                if (!GENERIC_PKG_KEY.equals(packageType)) {
+                    // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
+                    // New binary imports will be coming from a remote repository...
+                    if (isExternalOrigin(storeKey) && StoreType.hosted != storeKey.getType()) {
                         // this has not been captured, so promote it.
                         Set<String> paths = toPromote.get(storeKey);
                         if (paths == null) {
