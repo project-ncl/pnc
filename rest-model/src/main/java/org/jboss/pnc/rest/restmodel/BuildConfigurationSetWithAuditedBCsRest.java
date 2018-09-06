@@ -30,11 +30,9 @@ import java.util.List;
 @XmlRootElement(name = "BuildConfigurationSetAudited")
 @ToString
 @EqualsAndHashCode
-public class BuildConfigurationSetAuditedRest implements GenericRestEntity<Integer>  {
+public class BuildConfigurationSetWithAuditedBCsRest implements GenericRestEntity<Integer>  {
 
     @NotNull
-    @Getter
-    @Setter
     private Integer id;
 
     @Getter
