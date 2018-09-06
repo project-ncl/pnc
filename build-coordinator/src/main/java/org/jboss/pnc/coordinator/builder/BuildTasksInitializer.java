@@ -35,6 +35,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -146,26 +147,9 @@ public class BuildTasksInitializer {
             BuildOptions buildOptions,
             Supplier<Integer> buildTaskIdProvider,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
-        BuildSetTask buildSetTask = initBuildSetTask(buildConfigurationSet, user, buildOptions);
 
-        Set<BuildConfigurationAudited> buildConfigurationAuditeds = datastoreAdapter
-                .getBuildConfigurations(buildConfigurationSet)
-                .stream()
-                .map(buildConfiguration -> datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId()))
-                .collect(Collectors.toSet());
-
-        // initializeBuildTasksInSet
-        log.debug("Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.",
-                buildConfigurationAuditeds.stream().map(bc ->bc.toString()).collect(Collectors.joining("; ")));
-        fillBuildTaskSet(
-                buildSetTask,
-                user,
-                buildTaskIdProvider,
-                buildConfigurationSet.getCurrentProductMilestone(),
-                buildConfigurationAuditeds,
-                submittedBuildTasks,
-                buildOptions);
-        return buildSetTask;
+        return createBuildSetTask(buildConfigurationSet, Collections.emptyMap(), user, buildOptions,
+                buildTaskIdProvider, submittedBuildTasks);
     }
 
     /**
