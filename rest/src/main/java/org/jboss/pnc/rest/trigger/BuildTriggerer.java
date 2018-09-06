@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.trigger;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.mdc.MDCMeta;
@@ -50,13 +51,12 @@ import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -146,7 +146,7 @@ public class BuildTriggerer {
                                                               User currentUser,
                                                               BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
-        BuildSetTask buildSetTask = null;
+        BuildSetTask buildSetTask;
         if(buildConfigurationRevision.isPresent()) {
             final BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(buildConfigurationId, buildConfigurationRevision.get()));
             Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + buildConfigurationId + ", rev=" + buildConfigurationRevision.get());
@@ -178,7 +178,7 @@ public class BuildTriggerer {
             BuildOptions buildOptions,
             URL callBackUrl)
             throws CoreException {
-        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = getBuildSetStatusChangedEventConsumer(callBackUrl);
+        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, buildOptions);
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
@@ -208,7 +208,7 @@ public class BuildTriggerer {
             BuildOptions buildOptions,
             URL callBackUrl)
             throws CoreException, InvalidEntityException {
-        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = getBuildSetStatusChangedEventConsumer(callBackUrl);
+        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetAuditedRest, currentUser, buildOptions);
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
@@ -233,7 +233,7 @@ public class BuildTriggerer {
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
 
-    private Consumer<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventConsumer(URL callBackUrl) {
+    private Consumer<BuildSetStatusChangedEvent> buildSetStatusChangedEventConsumer(URL callBackUrl) {
         return (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
