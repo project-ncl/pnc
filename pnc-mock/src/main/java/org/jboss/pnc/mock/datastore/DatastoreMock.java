@@ -135,7 +135,8 @@ public class DatastoreMock implements Datastore {
                 .rev(rev)
                 .build();
 
-        return buildConfigurationAudited;    }
+        return buildConfigurationAudited;
+    }
 
     @Override
     public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
