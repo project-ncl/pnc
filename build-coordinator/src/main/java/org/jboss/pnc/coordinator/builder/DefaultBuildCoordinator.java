@@ -52,12 +52,12 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -119,7 +119,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     /**
      * Run a single build.  Uses the settings from the latest saved/audited build configuration.
      *
-     * @param buildConfiguration A build configuration which will be used.  The latest version of this
+     * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
      * @param buildOptions Customization of a build specified by user
