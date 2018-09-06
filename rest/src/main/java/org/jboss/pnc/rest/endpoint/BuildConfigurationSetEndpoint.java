@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
@@ -30,7 +31,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetAuditedRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
@@ -68,6 +69,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -326,7 +328,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
             @ApiParam(value = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
-            BuildConfigurationSetAuditedRest buildConfigurationAuditedRest,
+            BuildConfigurationSetWithAuditedBCsRest buildConfigurationAuditedRest,
             @Context UriInfo uriInfo)
             throws CoreException, MalformedURLException, InvalidEntityException {
         logger.info("Executing build configuration set with build configurations in specific values: " +
@@ -336,7 +338,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     }
 
     private Response triggerBuild(
-            Optional<BuildConfigurationSetAuditedRest> buildConfigurationAuditedRest,
+            Optional<BuildConfigurationSetWithAuditedBCsRest> buildConfigurationAuditedRest,
             Optional<Integer> buildConfigurationSetId,
             String callbackUrl,
             boolean temporaryBuild,
