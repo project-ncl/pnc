@@ -28,7 +28,6 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -57,6 +56,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -64,9 +64,17 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Map;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -74,6 +82,36 @@ import static org.mockito.Mockito.when;
  * Time: 2:33 PM
  */
 public class DefaultBuildCoordinatorTest {
+    private static final User USER = new User();
+    private static final BuildOptions BUILD_OPTIONS = new BuildOptions();
+    private static final Project PROJECT = Project.Builder.newBuilder().id(123).build();
+    private static final BuildConfiguration BC_3 = BuildConfiguration.Builder.newBuilder()
+            .id(3)
+            .project(PROJECT)
+            .name("build-config-3")
+            .build();
+    private static final BuildConfiguration BC_2 = BuildConfiguration.Builder.newBuilder()
+            .id(2)
+            .project(PROJECT)
+            .name("build-config-2")
+            .build();
+    private static final BuildConfiguration BC_1 = BuildConfiguration.Builder.newBuilder()
+            .id(1)
+            .project(PROJECT)
+            .name("build-config")
+            .dependency(BC_2)
+            .build();
+    private static final BuildConfigurationSet BCS = BuildConfigurationSet.Builder.newBuilder()
+            .id(88)
+            .buildConfiguration(BC_1)
+            .buildConfiguration(BC_3)
+            .build();
+    static{
+        PROJECT.addBuildConfiguration(BC_1);
+        PROJECT.addBuildConfiguration(BC_2);
+        PROJECT.addBuildConfiguration(BC_3);
+    }
+
     @Mock
     private Datastore datastore;
     @Mock
@@ -94,8 +132,12 @@ public class DefaultBuildCoordinatorTest {
 
 
     @Before
-    public void setUp() {
+    public void setUp() throws DatastoreException {
         MockitoAnnotations.initMocks(this);
+        when(systemConfig.getTemporalBuildExpireDate()).thenReturn(new Date(1));
+        when(datastore.requiresRebuild(any(BuildConfiguration.class))).thenReturn(true);
+        when(datastore.requiresRebuild(any(BuildTask.class))).thenReturn(true);
+        when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
         coordinator = new DefaultBuildCoordinator(
                 datastoreAdapter,
                 buildStatusChangedEventNotifier,
@@ -135,26 +177,110 @@ public class DefaultBuildCoordinatorTest {
         BuildConfigurationSet bcSet = BuildConfigurationSet.Builder.newBuilder()
                 .buildConfigurations(Collections.emptySet())
                 .name("BCSet").id(1).build();
-        User user = new User();
-        when(datastore.saveBuildConfigSetRecord(any())).thenReturn(BuildConfigSetRecord.Builder.newBuilder()
-                .id(1)
-                .buildConfigurationSet(bcSet)
-                .user(user)
-                .productVersion(ProductVersion.Builder.newBuilder()
-                        .buildConfigurationSet(bcSet)
-                        .id(1)
-                        .version("7.1")
-                        .build())
-                .temporaryBuild(false)
-                .build());
 
-        BuildOptions buildOptions = new BuildOptions();
-
-        BuildSetTask bsTask = coordinator.build(bcSet, user, buildOptions);
+        BuildSetTask bsTask = coordinator.build(bcSet, USER, BUILD_OPTIONS);
         assertThat(bsTask.getBuildConfigSetRecord().get().getStatus())
             .isEqualTo(BuildStatus.REJECTED);
     }
 
+    @Test
+    public void testBuildBuildConfiguration() throws BuildConflictException, CoreException {
+        assertTrue("Test assumes that we build with dependencies", BUILD_OPTIONS.isBuildDependencies());
+
+        BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
+        BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
+
+
+        BuildSetTask buildSetTask = coordinator.build(BC_1, USER, BUILD_OPTIONS);
+
+
+        assertEquals(2, buildSetTask.getBuildTasks().size());
+        assertNotNull(buildSetTask.getBuildTask(bca));
+        assertNotNull(buildSetTask.getBuildTask(bcaDep));
+        assertSame(BUILD_OPTIONS, buildSetTask.getBuildOptions());
+    }
+
+    @Test
+    public void testBuildBuildConfigurationAudited() throws BuildConflictException, CoreException {
+        assertTrue("Test assumes that we build with dependencies", BUILD_OPTIONS.isBuildDependencies());
+
+        BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
+        BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
+        BuildConfigurationAudited reqBCA = toBuildConfigurationAudited(BC_1, 4);
+        reqBCA.setName("build-config-changed");
+
+
+        BuildSetTask buildSetTask = coordinator.build(reqBCA, USER, BUILD_OPTIONS);
+
+
+        assertEquals(2, buildSetTask.getBuildTasks().size());
+        BuildTask buildTask = buildSetTask.getBuildTask(reqBCA);
+        assertNotNull(buildTask);
+        assertNotNull(buildSetTask.getBuildTask(bcaDep));
+        assertNull(buildSetTask.getBuildTask(bca));
+        assertEquals(4, buildTask.getBuildConfigurationAudited().getRev().intValue());
+        assertEquals("build-config-changed", buildTask.getBuildConfigurationAudited().getName());
+        assertSame(BUILD_OPTIONS, buildSetTask.getBuildOptions());
+    }
+
+    @Test
+    public void testBuildBuildConfigurationSet() throws BuildConflictException, CoreException, DatastoreException {
+        BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
+        BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
+        BuildConfigurationAudited bca3 = mockDatastoreWithBCAudited(BC_3, 9);
+
+        when(datastore.getBuildConfigurations(BCS)).thenReturn(BCS.getBuildConfigurations());
+
+        BuildSetTask buildSetTask = coordinator.build(BCS, USER, BUILD_OPTIONS);
+
+
+        assertEquals(2, buildSetTask.getBuildTasks().size());
+        assertNotNull(buildSetTask.getBuildTask(bca));
+        assertNull(buildSetTask.getBuildTask(bcaDep)); // Dependencies outside group are not build
+        assertNotNull(buildSetTask.getBuildTask(bca3));
+        assertSame(BUILD_OPTIONS, buildSetTask.getBuildOptions());
+    }
+
+    @Test
+    public void testBuildBuildConfigurationSetWithAudited() throws BuildConflictException, CoreException, DatastoreException {
+        BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
+        BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
+        BuildConfigurationAudited bca3 = mockDatastoreWithBCAudited(BC_3, 9);
+        BuildConfigurationAudited reqBCA = toBuildConfigurationAudited(BC_1, 4);
+        reqBCA.setName("build-config-changed");
+
+        when(datastore.getBuildConfigurations(BCS)).thenReturn(BCS.getBuildConfigurations());
+
+
+        Map<Integer,BuildConfigurationAudited> overrides = Collections.singletonMap(1, reqBCA);
+        BuildSetTask buildSetTask = coordinator.build(BCS, overrides, USER, BUILD_OPTIONS);
+
+
+        assertEquals(2, buildSetTask.getBuildTasks().size());
+        BuildTask buildTask = buildSetTask.getBuildTask(reqBCA);
+        assertNotNull(buildTask);
+        assertNull(buildSetTask.getBuildTask(bca));
+        assertNull(buildSetTask.getBuildTask(bcaDep)); // Dependencies outside group are not build
+        assertNotNull(buildSetTask.getBuildTask(bca3));
+        assertEquals(4, buildTask.getBuildConfigurationAudited().getRev().intValue());
+        assertEquals("build-config-changed", buildTask.getBuildConfigurationAudited().getName());
+        assertSame(BUILD_OPTIONS, buildSetTask.getBuildOptions());
+    }
+
+    private BuildConfigurationAudited mockDatastoreWithBCAudited(BuildConfiguration bc, int rev){
+        BuildConfigurationAudited bca = toBuildConfigurationAudited(bc, rev);
+
+        when(datastore.getLatestBuildConfigurationAudited(bc.getId())).thenReturn(bca);
+        when(datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(bc.getId()))
+                .thenReturn(bca);
+        return bca;
+    }
+
+    private BuildConfigurationAudited toBuildConfigurationAudited(BuildConfiguration bc, int rev) {
+        BuildConfigurationAudited bca = BuildConfigurationAudited.fromBuildConfiguration(bc, rev);
+        bca.setRev(rev);
+        return bca;
+    }
 
     private BuildResult mockBuildResult(boolean withSshCredentials) {
         BuildResult result = mock(BuildResult.class);
@@ -202,6 +328,19 @@ public class DefaultBuildCoordinatorTest {
         public T answer(InvocationOnMock invocation) throws Throwable {
             arguments.add(invocation.getArgument(0));
             return null;
+        }
+    }
+
+    private static class SaveBuildConfigSetRecordAnswer implements Answer<BuildConfigSetRecord> {
+        private static int id = 1;
+
+        @Override
+        public BuildConfigSetRecord answer(InvocationOnMock invocation) throws Throwable {
+            BuildConfigSetRecord arg = invocation.getArgument(0);
+            if (arg.getId() == null) {
+                arg.setId(id++);
+            }
+            return arg;
         }
     }
 
