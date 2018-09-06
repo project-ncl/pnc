@@ -24,12 +24,16 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.GenericRestEntity;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
@@ -51,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.swing.text.html.Option;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -301,10 +306,19 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
         return audited.getName().equals(rest.getName()) &&
                 audited.getBuildScript().equals(rest.getBuildScript()) &&
-                audited.getRepositoryConfiguration().equals(rest.getRepositoryConfiguration()) &&
+                equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
                 audited.getScmRevision().equals(rest.getScmRevision()) &&
                 audited.getDescription().equals(rest.getDescription()) &&
-                audited.getBuildConfiguration().getGenericParameters().equals(rest.getGenericParameters());
+                equalsId(audited.getProject(), rest.getProject()) &&
+                equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
+                audited.getGenericParameters().equals(rest.getGenericParameters());
+    }
+
+    private boolean equalsId(GenericEntity<Integer> dbEntity,  GenericRestEntity<Integer> restEntity) {
+        if(dbEntity == null || restEntity == null){
+            return dbEntity == restEntity;
+        }
+        return dbEntity.getId().equals(restEntity.getId());
     }
 
     private Function<BuildConfigurationAudited, BuildConfigurationAuditedRest> buildConfigurationAuditedToRestModel() {
