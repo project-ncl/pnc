@@ -31,7 +31,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetAuditedRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
@@ -203,7 +203,7 @@ public class BuildTriggerer {
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
-            BuildConfigurationSetAuditedRest buildConfigurationSetAuditedRest,
+            BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetAuditedRest,
             User currentUser,
             BuildOptions buildOptions,
             URL callBackUrl)
@@ -216,7 +216,7 @@ public class BuildTriggerer {
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
-            BuildConfigurationSetAuditedRest buildConfigurationSetAuditedRest,
+            BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetAuditedRest,
             User currentUser,
             BuildOptions buildOptions)
             throws CoreException, InvalidEntityException {
