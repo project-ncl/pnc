@@ -313,10 +313,10 @@ public class IndyRepositorySession implements RepositorySession {
         String repoPath;
         if (repoType == TargetRepository.Type.MAVEN) {
                 identifier = "indy-maven";
-                repoPath = content.contentPath(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+                repoPath = "/api/" + content.contentPath(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
         } else if (repoType == TargetRepository.Type.NPM) {
                 identifier = "indy-npm";
-                repoPath = content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+                repoPath = "/api/" + content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
         } else if (repoType == TargetRepository.Type.GENERIC_PROXY) {
                 identifier = "indy-http";
                 repoPath = "/not-available/"; //TODO set the path for http cache
@@ -349,7 +349,7 @@ public class IndyRepositorySession implements RepositorySession {
                     + " is not supported for uploads by Indy repo manager driver.");
         }
 
-        String repoPath = content.contentPath(storeKey);
+        String repoPath = "/api/" + content.contentPath(storeKey);
         return TargetRepository.newBuilder()
                 .identifier(identifier)
                 .repositoryType(repoType)
