@@ -303,7 +303,7 @@
                         <enabled>true</enabled>
                         <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
                         <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
-                        <driver-name>hsqldb-2.4.0-jdk8debug.jar</driver-name>
+                        <driver-name>hsqldb-2.4.1-jdk8debug.jar</driver-name>
                         <user-name>sa</user-name>
                         <password>sa</password>
                       </properties>
