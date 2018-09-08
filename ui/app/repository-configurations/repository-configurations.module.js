@@ -57,7 +57,7 @@
       url: '/{repositoryConfigurationId:int}',
       component: 'pncRepositoryConfigurationDetailPage',
       data: {
-        displayName: 'Repository Configuration # {{ repositoryConfiguration.id }}'
+        displayName: '{{ repositoryConfiguration.getName() }}'
       },
       resolve: {
         repositoryConfiguration: function(RepositoryConfiguration, $stateParams) {

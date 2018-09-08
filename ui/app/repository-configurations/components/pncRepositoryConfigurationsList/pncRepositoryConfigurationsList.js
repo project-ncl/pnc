@@ -41,7 +41,7 @@
 
   function Controller() {
     var $ctrl = this;
-    var DEFAULT_FIELDS = ['id', 'internalScmUrl', 'externalScmUrl', 'preBuildSync'];
+    var DEFAULT_FIELDS = ['name', 'internalScmUrl', 'externalScmUrl', 'preBuildSync'];
 
     // -- Controller API --
 

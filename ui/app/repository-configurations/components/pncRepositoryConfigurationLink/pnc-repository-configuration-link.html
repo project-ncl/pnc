@@ -17,6 +17,4 @@
     limitations under the License.
 
 -->
-<a href ui-sref="repository-configurations.detail({ repositoryConfigurationId: $ctrl.repositoryConfiguration.id })">
-  # {{ $ctrl.repositoryConfiguration.id }}
-</a>
+<a href ui-sref="repository-configurations.detail({ repositoryConfigurationId: $ctrl.repositoryConfiguration.id })" ng-bind="::$ctrl.repositoryConfiguration.getName()"></a>
