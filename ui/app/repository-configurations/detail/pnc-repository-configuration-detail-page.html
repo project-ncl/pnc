@@ -18,7 +18,7 @@
 
 -->
 <pnc-header>
-  <pnc-header-title>Repository Configuration # {{ $ctrl.repositoryConfiguration.id }}</pnc-header-title>
+  <pnc-header-title>{{ ::$ctrl.repositoryConfiguration.getName() }}</pnc-header-title>
   <pnc-header-buttons>
     <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Repository Configuration" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="repositoryConfigurationForm.$show()" ng-class="{ 'active': repositoryConfigurationForm.$visible }" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
   </pnc-header-buttons>
@@ -67,7 +67,7 @@
 </div>
 
 <pnc-header sub-header="true">
-  <pnc-header-title>Build Configs</pnc-header-title>
+  <pnc-header-title>Usages</pnc-header-title>
 </pnc-header>
 
 <div class="row">
