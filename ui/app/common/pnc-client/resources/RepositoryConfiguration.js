@@ -78,6 +78,10 @@
         return $http.post(restConfig.getPncUrl() + '/bpm/tasks/start-repository-configuration-creation-url-auto', dto);
       };
 
+      resource.prototype.getName = function () {
+        return this.internalUrl.split('/').splice(3).join('/');
+      };
+
       return resource;
     }
 
