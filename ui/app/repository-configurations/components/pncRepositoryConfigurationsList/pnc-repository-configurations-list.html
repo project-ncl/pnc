@@ -19,14 +19,14 @@
 -->
 <table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
   <thead ng-hide="::$ctrl.hideHead">
-    <th ng-if="::$ctrl.showColumn('id')">Id</th>
+    <th ng-if="::$ctrl.showColumn('name')">Name</th>
     <th ng-if="::$ctrl.showColumn('internalScmUrl')">Internal SCM URL</th>
     <th ng-if="::$ctrl.showColumn('externalScmUrl')">External SCM URL</th>
     <th ng-if="::$ctrl.showColumn('preBuildSync')">Pre-build Sync</th>
   </thead>
   <tbody>
     <tr ng-repeat="item in $ctrl.items">
-      <td ng-if="::$ctrl.showColumn('id')">
+      <td ng-if="::$ctrl.showColumn('name')">
         <pnc-repository-configuration-link repository-configuration="item"></pnc-repository-configuration-link>
       </td>
       <td ng-if="::$ctrl.showColumn('internalScmUrl')">

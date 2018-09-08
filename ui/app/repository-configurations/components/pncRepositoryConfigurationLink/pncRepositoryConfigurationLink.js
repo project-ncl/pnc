@@ -27,16 +27,23 @@
       repositoryConfiguration: '<'
     },
     templateUrl: 'repository-configurations/components/pncRepositoryConfigurationLink/pnc-repository-configuration-link.html',
-    controller: [Controller]
+    controller: ['RepositoryConfiguration', Controller]
   });
 
-  function Controller() {
-
+  function Controller(RepositoryConfiguration) {
+    var $ctrl = this;
+    
     // -- Controller API --
-
+    
 
     // --------------------
+  
 
+    $ctrl.$onInit = function () {
+      if (!angular.isFunction($ctrl.repositoryConfiguration.getName)) {
+        $ctrl.repositoryConfiguration = new RepositoryConfiguration($ctrl.repositoryConfiguration);
+      }
+    };
   }
 
 })();
