@@ -22,7 +22,7 @@
   <table class="table table-bordered table-hover table-treegrid">
     <thead>
       <tr>
-        <th>Dependency Tree # {{$ctrl.buildItem.id}}</th>
+        <th>Dependency Tree</th>
       </tr>
     </thead>
 
@@ -30,7 +30,7 @@
     <tbody ng-if="$ctrl.buildTree.dependentStructure" class="border-t-w-1">
       <tr class="bg-white">
         <td>
-          <strong>Directly Dependent Builds on # {{ $ctrl.buildItem.id }}</strong>
+          <strong>Direct Parents</strong>
         </td>
       </tr>
 
@@ -49,7 +49,7 @@
     <tbody ng-if="$ctrl.buildTree.dependencyStructure" class="border-t-w-1">
       <tr class="bg-white">
         <td>
-          <strong>Build Dependencies for # {{ $ctrl.buildItem.id }}</strong>
+          <strong>Dependencies</strong>
           <button class="btn btn-default btn-xs m-l-20" ng-click="$ctrl.expandAll()" title="Expand all nodes">Expand All</button>
         </td>
       </tr>
