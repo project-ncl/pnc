@@ -61,6 +61,7 @@
 
       buildItemPromise.then(function (dependencyGraph) {
         $ctrl.buildTree = convertGraphToTree(dependencyGraph);
+      }).finally(function () {
         $ctrl.isLoaded = true;
       });
       
@@ -76,7 +77,7 @@
     };
 
 
-    /**
+    /*
      * Expand All is not natively supported by Patternfly.
      */
     function expandAll() {
@@ -88,6 +89,27 @@
       $nodeAll.click();
     }
 
+    /**
+     * Returns an array of vertex ids for all root vertices in the graph,
+     * (i.e. those that have no parent vertex)
+     */
+    function getRootVertices(graph) {
+ 
+      var targets = graph.edges.map(function (edge) {
+        return edge.target;
+      });
+
+      // A vertex is a root if it is never the target of an edge (i.e. it has no parents)
+      return Object.keys(graph.vertices).filter(function (vertexName) {
+
+        var found = targets.find(function (target) {
+          return target === vertexName;
+        });
+
+        return angular.isUndefined(found);
+      });
+    }
+
 
     function convertGraphToTree(dependencyGraph) {
 
@@ -95,7 +117,6 @@
       var ID_SEPARATOR = '-';
 
       var dependencyStructure = [];
-
 
       /**
        * Creates dependency structure
@@ -135,6 +156,11 @@
           customBuild.isBuildRecord = true;
         } else {
           customBuild.isBuildGroupRecord = true;
+          
+          // The BuildGroupRecord's list of dependencies contains ALL BuildRecords in the tree,
+          // this needs to be filtered down to just the top level, otherwise we'll duplicate
+          // every branch in the tree back to the top level.
+          build.buildRecordIds = getRootVertices(dependencyGraph);
         }
 
         dependencyStructure.push(customBuild);
