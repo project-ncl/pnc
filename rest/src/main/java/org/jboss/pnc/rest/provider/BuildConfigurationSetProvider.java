@@ -83,7 +83,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     public BuildConfigurationSetRest getSpecific(Integer id) {
         BuildConfigurationSet dbEntity = repository.queryById(id);
         try {
-            return new BuildConfigurationSetRest(dbEntity);
+            return toRESTModel().apply(dbEntity);
         } catch (Exception e) {
             logger.error("Cannot create rest entity.", e);
             return null;
@@ -110,7 +110,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 }
                 return new BuildConfigurationSetRest(buildConfigurationSet);
             } catch (Exception e) {
-                logger.error("Cannot create rset entity.", e);
+                logger.error("Cannot create rest entity.", e);
                 throw new RuntimeException(e);
             }
         };
@@ -122,20 +122,13 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.
                 getNewestRecordForBuildConfigurationSet(buildConfigurationSet.getId());
         // extract BSs from BCSRecord and add them to the set
-        Collection<BuildConfigurationRest> buildConfigurations = buildConfigSetRecord
+        List<Integer> buildConfigurationsIds = buildConfigSetRecord
                 .getBuildRecords()
                 .stream()
-                .map(this::extractBuildConfiguration)
-                .collect(Collectors.toSet());
-        buildConfigurationSetRest.addBuildConfigurations(buildConfigurations);
+                .map(BuildRecord::getBuildConfigurationId)
+                .collect(Collectors.toList());
+        buildConfigurationSetRest.setBuildConfigurationIds(buildConfigurationsIds);
         return buildConfigurationSetRest;
-    }
-
-    private BuildConfigurationRest extractBuildConfiguration(BuildRecord buildRecord) {
-        return new BuildConfigurationRest(buildConfigurationAuditedRepository
-                .queryById(buildRecord
-                        .getBuildConfigurationAuditedIdRev())
-                .getBuildConfiguration());
     }
 
     @Override
@@ -144,7 +137,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
             try {
                 return buildConfigSetRest.toDBEntityBuilder().build();
             } catch (Exception e) {
-                logger.error("Cannot create rset entity.", e);
+                logger.error("Cannot create rest entity.", e);
                 throw new RuntimeException(e);
             }
         };
