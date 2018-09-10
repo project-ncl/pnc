@@ -26,20 +26,26 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.BuildConfigSetRecordRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
+import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
+import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
+import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -62,6 +68,7 @@ import java.util.stream.Collectors;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
@@ -86,10 +93,14 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
     private static int newBuildConfSetId;
 
     private static boolean setupComplete = false;
-    private static BuildConfigurationSetRest bcsetRest;
+    private static BuildConfigurationSetRest bcSetRest1;
+    private static BuildConfigurationSetRest bcSetRest2;
     private static BuildConfigurationRest bcRest1;
     private static BuildConfigurationRest bcRest2;
-    
+
+    private static UserRestClient userRestClient;
+    private static BuildConfigSetRecordRestClient buildConfigSetRecordRestClient;
+
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
 
     @Deployment(testable = false)
@@ -104,6 +115,13 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);
 
+        restWar.addAsWebInfResource("beans-use-mock-remote-clients.xml", "beans.xml");
+
+        JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
+        coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+        coordinatorJar.addClass(RemoteBuildsCleanerMock.class);
+
+        addBuildExecutorMock(enterpriseArchive);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -114,6 +132,15 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
             buildConfigurationSetRestClient = new BuildConfigurationSetRestClient();
         }
 
+        if(buildConfigSetRecordRestClient == null) {
+            buildConfigSetRecordRestClient = new BuildConfigSetRecordRestClient();
+        }
+
+        if(userRestClient == null) {
+            userRestClient = new UserRestClient();
+            userRestClient.createUser("admin");
+            userRestClient.createUser("user");
+        }
         // Setup data for build-configurations sub-endpoint tests
         if (!setupComplete) {
             setupComplete = true;
@@ -134,10 +161,15 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
             bcRest1 = bcs.get(0);
             bcRest2 = bcs.get(1);
 
-            bcsetRest = new BuildConfigurationSetRest();
-            bcsetRest.setName("BuildConfigurationSetRestTest-bcset-1");
-            bcsetRest.addBuildConfiguration(bcRest1);
-            bcsetRest = buildConfigurationSetRestClient.createNew(bcsetRest).getValue();
+            bcSetRest1 = new BuildConfigurationSetRest();
+            bcSetRest1.setName("BuildConfigurationSetRestTest-bcset-1");
+            bcSetRest1.addBuildConfiguration(bcRest1);
+            bcSetRest1 = buildConfigurationSetRestClient.createNew(bcSetRest1).getValue();
+
+            bcSetRest2 = new BuildConfigurationSetRest();
+            bcSetRest2.setName("BuildConfigurationSetRestTest-bcset-2");
+            bcSetRest2.addBuildConfiguration(bcRest2);
+            bcSetRest2 = buildConfigurationSetRestClient.createNew(bcSetRest2).getValue();
         }
     }
 
@@ -265,8 +297,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
 
         Map<Integer, Response> responseMap = new HashMap<>();
 
-        String endpointUrl = String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId)
-                + "/build-configurations";
+        String endpointUrl = String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId);
         executorService.execute(() -> {
                     logger.info("Making 1st request ...");
                     Response response = given().headers(testHeaders)
@@ -356,7 +387,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         buildConfigurationRestList.add(bcRest2);
 
         //when
-        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient.updateBuildConfigurations(bcsetRest.getId(), buildConfigurationRestList, true);
+        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient.updateBuildConfigurations(bcSetRest1.getId(), buildConfigurationRestList, true);
 
         //then
         assertThat(response.getValue().stream().map(BuildConfigurationRest::getId).collect(Collectors.toList())).containsOnly(bcRest2.getId());
@@ -368,11 +399,50 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         List<BuildConfigurationRest> buildConfigurationRestList = new LinkedList<>();
 
         //when
-        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient.updateBuildConfigurations(bcsetRest.getId(), buildConfigurationRestList, false);
+        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient.updateBuildConfigurations(bcSetRest1.getId(), buildConfigurationRestList, false);
 
         //then
         assertThat(response.getRestCallResponse().statusCode()).isEqualTo(200);
         assertThat(response.getValue()).isNullOrEmpty();
     }
 
+    @Test
+    @InSequence(1)
+    public void testIfBuildConfigSetIsArchived() throws Exception {
+        //when
+        userRestClient.getLoggedUser(); //initialize user
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        RestResponse<BuildConfigurationSetRest> buildResponse = buildConfigurationSetRestClient.trigger(bcSetRest2.getId(), buildOptions);
+        Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(buildResponse.getRestCallResponse());
+
+        assertThat(buildResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        assertThat(buildRecordSetId).isNotNull();
+
+        //wait until build is done
+        ResponseUtils.waitSynchronouslyFor(() -> buildConfigSetRecordRestClient.get(buildRecordSetId, false).hasValue(), 15, TimeUnit.SECONDS);
+        //deleting the Set should turn out in archival of it
+        buildConfigurationSetRestClient.delete(bcSetRest2.getId(), true);
+
+        //then
+        RestResponse<BuildConfigurationSetRest> archivedBCS = buildConfigurationSetRestClient.get(bcSetRest2.getId(),true);
+        assertThat(archivedBCS.hasValue()).isTrue();
+        assertThat(archivedBCS.getValue().isArchived()).isTrue();
+    }
+
+    @Test @InSequence(2) public void testIfLinksOfArchivedBuildConfigSetAreDeleted() throws Exception {
+        Response response = given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, bcSetRest2.getId()));
+
+        //204 = success but no content
+        ResponseAssertion.assertThat(response).hasStatus(204);
+    }
+
+    @Test @InSequence(3) public void testReconstructingOfArchivedBuildConfigSet() throws Exception {
+        RestResponse<BuildConfigurationSetRest> reconstructedBCS = buildConfigurationSetRestClient.get(bcSetRest2.getId(), true);
+
+        assertThat(reconstructedBCS.hasValue()).isTrue();
+        assertThat(reconstructedBCS.getValue().getBuildConfigurationIds()).contains(bcRest2.getId());
+    }
 }
