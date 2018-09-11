@@ -47,7 +47,8 @@
       url: '/',
       templateUrl: 'product/views/product.list.html',
       data: {
-        displayName: 'Products'
+        displayName: 'Products',
+        title: 'Products'
       },
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
