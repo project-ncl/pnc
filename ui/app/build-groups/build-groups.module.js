@@ -73,6 +73,7 @@
         templateUrl: 'build-groups/views/build-groups.detail.html',
         data: {
           displayName: '{{ configurationSetDetail.name }}',
+          title: '{{ configurationSetDetail.name }} | Build Group'
         },
         controller: 'ConfigurationSetDetailController',
         controllerAs: 'detailSetCtrl',
@@ -136,6 +137,7 @@
         templateUrl: 'build-groups/views/build-groups.create.html',
         data: {
           displayName: 'Create Build Group',
+          title: 'Create Build Group',
           requireAuth: true
         },
         controller: 'ConfigurationSetCreateController',
@@ -152,6 +154,7 @@
         templateUrl: 'build-groups/views/build-groups.add.configuration.html',
         data: {
           displayName: 'Add Build Config',
+          title: 'Add Build Config',
           requireAuth: true
         },
         controller: 'ConfigurationSetAddConfigurationController',
