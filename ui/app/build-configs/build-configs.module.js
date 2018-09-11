@@ -61,7 +61,7 @@
       $stateProvider.state('projects.detail.build-configs.detail', {
         url: '/{configurationId:int}',
         data: {
-           displayName: '{{ configurationDetail.name }}',
+           displayName: '{{ configurationDetail.name }}'
         },
         views: {
           '': {
@@ -130,7 +130,8 @@
         url: '',
         templateUrl: 'build-configs/views/build-configs.list.html',
         data: {
-          displayName: 'Build Configs'
+          displayName: 'Build Configs',
+          title: 'Build Configs'
         },
         controller: 'ConfigurationListController',
         controllerAs: 'listCtrl',

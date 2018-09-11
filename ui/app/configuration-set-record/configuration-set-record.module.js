@@ -47,7 +47,8 @@
         url: '',
         templateUrl: 'configuration-set-record/views/record.list.html',
         data: {
-          displayName: 'Group Builds'
+          displayName: 'Build Group Records',
+          title: 'Build Group Records'
         },
         controller: 'CsRecordListController',
         controllerAs: 'ctrl'
