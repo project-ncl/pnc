@@ -64,6 +64,7 @@
       templateUrl: 'product/views/product.detail.html',
       data: {
          displayName: '{{ productDetail.name }}',
+         title: '{{ productDetail.name }}'
       },
       controller: 'ProductDetailController',
       controllerAs: 'detailCtrl',
@@ -86,7 +87,8 @@
         }
       },
       data: {
-         displayName: '{{ versionDetail.version }}'
+         displayName: '{{ versionDetail.version }}',
+         title: '{{ versionDetail.version }} | {{ productDetail.name }}'
       },
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
@@ -106,6 +108,7 @@
       templateUrl: 'product/views/product.create.html',
       data: {
         displayName: 'Create Product',
+        title: 'Create Product',
         requireAuth: true
       },
       controller: 'ProductCreateController',
@@ -123,6 +126,7 @@
       },
       data: {
         displayName: 'Create Product Version',
+        title: '{{ productDetail.name }} | Create Product Version',
         requireAuth: true
       },
       resolve: {

@@ -33,6 +33,10 @@
             throw new Error('pnc-title-generator directive can only be attached to the <title> tag');
           }
 
+          function setTitle(title) {
+            elem[0].textContent = title;
+          }
+          
           function generateTitle(transition) {
             var titleTemplate = transition.to().data.title;
 
@@ -48,10 +52,6 @@
             });
 
             setTitle($interpolate(titleTemplate)(context) + TITLE_SUFFIX);
-          }
-
-          function setTitle(title) {
-            elem[0].textContent = title;
           }
 
           $transitions.onSuccess({}, generateTitle);

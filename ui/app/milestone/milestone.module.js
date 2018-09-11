@@ -40,7 +40,8 @@
           }
         },
         data: {
-          displayName: '{{ milestoneDetail.version }}'
+          displayName: '{{ milestoneDetail.version }}',
+          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Milestone'
         },
         resolve: {
           milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
@@ -74,7 +75,9 @@
           }
         },
         data: {
-          displayName: 'Workflow Log'
+          displayName: 'Workflow Log',
+          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Workflow Log'
+
         }
       })
       .state('product.detail.version.milestoneCreate', {
@@ -88,6 +91,7 @@
         },
         data: {
           displayName: 'Create Milestone',
+          title: '{{ versionDetail.version }} | {{ productDetail.name }} | Create Milestone',
           requireAuth: true
         },
         resolve: {
@@ -105,6 +109,7 @@
         },
         data: {
           displayName: 'Update Milestone',
+          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Update Milestone',
           requireAuth: true
         },
         resolve: {
@@ -125,6 +130,7 @@
         },
         data: {
           displayName: 'Close Milestone',
+          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Close Milestone',
           requireAuth: true
         },
         resolve: {
