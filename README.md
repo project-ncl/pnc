@@ -1,3 +1,5 @@
+:wq
+
 Project-ncl
 ===========
 A system for managing, executing, and tracking cross-platform builds.
