@@ -53,7 +53,8 @@
         url: '',
         templateUrl: 'projects/views/projects.list.html',
         data: {
-          displayName: 'Projects'
+          displayName: 'Projects',
+          title: 'Projects'
         },
         controller: 'ProjectListController',
         controllerAs: 'listCtrl',

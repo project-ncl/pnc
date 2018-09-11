@@ -55,7 +55,8 @@
         url: '',
         templateUrl: 'build-groups/views/build-groups.list.html',
         data: {
-          displayName: 'Build Groups'
+          displayName: 'Build Groups',
+          title: 'Build Groups'
         },
         controller: 'ConfigurationSetListController',
         controllerAs: 'setlistCtrl',

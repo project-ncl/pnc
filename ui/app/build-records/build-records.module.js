@@ -132,7 +132,8 @@
         url: '',
         templateUrl: 'build-records/views/build-records.list.html',
         data: {
-          displayName: 'Builds'
+          displayName: 'Build Records',
+          title: 'Build Records'
         },
         controller: 'RecordListController',
         controllerAs: 'ctrl'

@@ -44,7 +44,8 @@
       url: '',
       component: 'pncRepositoryConfigurationsListPage',
       data: {
-        displayName: 'Repository Configurations'
+        displayName: 'Repository Configurations',
+        title: 'Repository Configurations'
       },
       resolve: {
         repositoryConfigurations: function(RepositoryConfiguration) {
