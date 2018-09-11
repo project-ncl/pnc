@@ -22,8 +22,10 @@
   var DEFAULT_TILE = 'Project Newcastle';
 
   angular.module('pnc.common.components').directive('pncTitleGenerator', [
+    '$q',
     '$transitions',
-    function ($transitions) {
+    '$interpolate',
+    function ($q, $transitions, $interpolate) {
       return {
         restrict: 'A',
         link: function(scope, elem) {
@@ -32,14 +34,20 @@
           }
 
           function generateTitle(transition) {
-            var title = transition.to().data.title;
+            var titleTemplate = transition.to().data.title;
 
-            if (!angular.isString(title)) {
+            if (!angular.isString(titleTemplate)) {
               setTitle(DEFAULT_TILE);
               return;
             }
 
-            setTitle(title + TITLE_SUFFIX);
+            var context = {};
+
+            transition.getResolveTokens().forEach(function (token) {
+              context[token] = transition.injector().get(token);
+            });
+
+            setTitle($interpolate(titleTemplate)(context) + TITLE_SUFFIX);
           }
 
           function setTitle(title) {
