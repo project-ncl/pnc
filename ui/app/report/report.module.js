@@ -42,7 +42,8 @@
       url: '/product-shipped',
 	  templateUrl: 'report/views/product.shipped.artifacts.html',
 	  data: {
-	    displayName: 'Whitelisted artifacts of products'
+      displayName: 'Whitelisted artifacts of products',
+      title: 'Whitelisted artifacts of products | Report'
 	  },
 	  controller: 'ProductShippedReportController',
 	  controllerAs: 'productShippedReportCtrl',
@@ -57,7 +58,8 @@
       url: '/products-for-artifact',
       templateUrl: 'report/views/products.for.artifact.html',
       data: {
-        displayName: 'Products for whitelisted artifacts'
+        displayName: 'Products for whitelisted artifacts',
+        title: 'Products for whitelisted artifacts | Report'
       },
       controller: 'ProductsForArtifactReportController',
       controllerAs: 'productsForArtifactReportCtrl'
@@ -68,7 +70,8 @@
       url: '/blacklisted-artifacts-in-project',
       templateUrl: 'report/views/blacklisted.artifacts.in.project.html',
       data: {
-        displayName: 'Show blacklisted artifacts in a project'
+        displayName: 'Show blacklisted artifacts in a project',
+        title: 'Show blacklisted artifacts in a project | Report'
       },
       controller: 'BlacklistedArtifactsInProjectReportController',
       controllerAs: 'blacklistedArtifactsInProjectReportCtrl'
@@ -78,7 +81,8 @@
         url: '/different-artifacts-in-products',
         templateUrl: 'report/views/different.artifacts.in.products.html',
         data: {
-          displayName: 'Different artifacts between products'
+          displayName: 'Different artifacts between products',
+          title: 'Different artifacts between products| Report'
         },
         controller: 'DifferentArtifactsInProductsReportController',
         controllerAs: 'diffGAVInProdReportCtrl',
@@ -94,7 +98,8 @@
       url: '/built-artifacts-in-project',
       templateUrl: 'report/views/built.artifacts.in.project.html',
       data: {
-        displayName: 'Show built artifacts in a project'
+        displayName: 'Show built artifacts in a project',
+        title: 'Show built artifacts in a project | Report'
       },
       controller: 'BuiltArtifactsInProjectReportController',
       controllerAs: 'builtArtifactsInProjectReportCtrl'
@@ -105,7 +110,8 @@
       url: '/project-product-diff',
     	templateUrl: 'report/views/project.product.diff.html',
     	data: {
-    	  displayName: 'Diff a project against a product'
+        displayName: 'Diff a project against a product',
+        title: 'Diff a project against a product | Report'
     	},
     	controller: 'ProjectProductDiff',
     	controllerAs: 'ctr',
