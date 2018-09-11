@@ -36,7 +36,8 @@
         }
       },
       data: {
-        displayName: 'Dashboard'
+        displayName: 'Dashboard',
+        title: 'Dashboard'
       },
     });
   }]);
