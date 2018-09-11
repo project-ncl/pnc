@@ -41,6 +41,7 @@
       },
       data: {
         displayName: 'Create Release',
+        title: '{{ versionDetail.version }} | {{ productDetail.name }} | Create Release',
         requireAuth: true
       },
       resolve: {
@@ -58,6 +59,7 @@
       },
       data: {
         displayName: 'Update Release',
+        title: '{{ release.version }} | {{ productDetail.name }} | Update Release',
         requireAuth: true
       },
       resolve: {

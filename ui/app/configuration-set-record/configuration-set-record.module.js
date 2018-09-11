@@ -62,7 +62,8 @@
         url: '/{recordId:int}',
         templateUrl: 'configuration-set-record/views/record.detail.html',
         data: {
-          displayName: '# {{ csRecordDetail.id }} \u2014 {{ csRecordDetail.configurationSet.name }} '
+          displayName: '{{ csRecordDetail.configurationSet.name }}#{{ csRecordDetail.id }}',
+          title: '#{{ csRecordDetail.id }} {{ csRecordDetail.configurationSet.name }} | Build Group Record'
         },
         controller: 'CsRecordDetailController',
         controllerAs: 'ctrl',

@@ -154,7 +154,8 @@
         url: '/{recordId:int}',
         templateUrl: 'build-records/views/build-records.detail.html',
         data: {
-          proxy: 'projects.detail.build-configs.detail.build-records.detail.default'
+          proxy: 'projects.detail.build-configs.detail.build-records.detail.default',
+          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Record'
         },
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
@@ -182,7 +183,8 @@
         controllerAs: 'resultCtrl',
         templateUrl: 'build-records/views/build-records.detail.result.html',
         data: {
-          displayName: 'Log'
+          displayName: 'Build Log',
+          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Log'
         },
         resolve: {
           buildLog: function (BuildRecord, recordDetail) {
@@ -202,7 +204,8 @@
         controllerAs: 'artifactsCtrl',
         templateUrl: 'build-records/views/build-records.detail.artifacts.html',
         data: {
-          displayName: 'Built Artifacts',
+          displayName: 'Build Artifacts',
+          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Artifacts'
         },
         resolve: {
           artifacts: function (recordDetail) {
@@ -218,6 +221,7 @@
           templateUrl: 'build-records/views/build-records.detail.artifacts.html',
           data: {
             displayName: 'Dependencies',
+            title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Dependencies'
           },
           resolve: {
             artifacts: function (recordDetail) {
@@ -235,7 +239,8 @@
         controllerAs: 'repourResultCtrl',
         templateUrl: 'build-records/views/build-records.detail.repour-result.html',
         data: {
-          displayName: 'Alignment Log'
+          displayName: 'Alignment Log',
+          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Alignment Log'
         },
         resolve: {
           repourLog: function (BuildRecord, recordDetail) {
@@ -251,7 +256,8 @@
           buildRecord: 'recordDetail'
         },
         data: {
-          displayName: 'Brew Push Results'
+          displayName: 'Brew Push Results',
+          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Brew Push'
         },
         resolve: {
           buildRecordPushResult: function (BuildRecord, $stateParams) {
