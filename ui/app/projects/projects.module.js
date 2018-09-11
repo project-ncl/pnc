@@ -70,6 +70,7 @@
         templateUrl: 'projects/views/projects.detail.html',
         data: {
            displayName: '{{ projectDetail.name }}',
+           title: '{{ projectDetail.name }} | Project'
         },
         controller: 'ProjectDetailController',
         controllerAs: 'detailCtrl',
@@ -86,6 +87,7 @@
         templateUrl: 'projects/views/projects.detail.create-bc.html',
         data: {
             displayName: 'Create Build Config',
+            title: '{{ projectDetail.name }} | Create Build Config',
             requireAuth: true
           },
         controller: 'CreateBCController',
@@ -103,6 +105,7 @@
         templateUrl: 'projects/views/projects.create.html',
         data: {
           displayName: 'Create Project',
+          title: 'Create Project',
           requireAuth: true
         },
         controller: 'ProjectCreateController',

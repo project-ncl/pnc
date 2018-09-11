@@ -61,7 +61,8 @@
       $stateProvider.state('projects.detail.build-configs.detail', {
         url: '/{configurationId:int}',
         data: {
-           displayName: '{{ configurationDetail.name }}'
+           displayName: '{{ configurationDetail.name }}',
+           title: '{{ configurationDetail.name }} | Build Config'
         },
         views: {
           '': {
@@ -170,6 +171,7 @@
         templateUrl: 'build-configs/views/build-configs.create.html',
         data: {
           displayName: 'Create Build Config',
+          title: 'Create Build Config',
           requireAuth: true
         }
       });
