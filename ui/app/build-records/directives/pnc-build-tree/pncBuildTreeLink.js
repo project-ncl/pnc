@@ -37,23 +37,51 @@
       buildGroupRecord: '<?'
     },
     templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree-link.html',
-    controller: [Controller]
+    controller: ['$scope', 'eventTypes', Controller]
   });
 
-  function Controller() {
+  function Controller($scope, eventTypes) {
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
-      $ctrl.buildItem = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+      copyBuildItem($ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord);
+
+      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, callbackWrapper(function(event, payload) {
+        $ctrl.buildItem.status = payload.buildCoordinationStatus;
+        $ctrl.buildItem.startTime = payload.buildStartTime;
+        if (payload.buildEndTime) {
+          $ctrl.buildItem.endTime = payload.buildEndTime;
+        }
+      }));
+
+      $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, callbackWrapper(function(event, payload) {
+        $ctrl.buildItem.status = payload.buildStatus;
+        $ctrl.buildItem.startTime = payload.buildSetStartTime;
+        if (payload.buildSetStartTime) {
+          $ctrl.buildItem.endTime = payload.buildSetStartTime;
+        }
+      }));
     };
 
     $ctrl.$onChanges = function(changedBindings) {
       if (changedBindings.buildRecord) {
-        $ctrl.buildItem = $ctrl.buildRecord;
+        copyBuildItem($ctrl.buildRecord);
       } else if (changedBindings.buildGroupRecord) {
-        $ctrl.buildItem = $ctrl.buildGroupRecord;
+        copyBuildItem($ctrl.buildGroupRecord);
       }
     };
+
+    function copyBuildItem(buildItem) {
+      $ctrl.buildItem = angular.copy(buildItem);
+    }
+
+    function callbackWrapper(callback) {
+      return function(event, payload) {
+        if (payload.id === $ctrl.buildItem.id) {
+          $scope.$applyAsync(callback.bind(null, event, payload));
+        }
+      };
+    }
     
   }
 
