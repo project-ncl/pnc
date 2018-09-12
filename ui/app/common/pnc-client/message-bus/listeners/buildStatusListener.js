@@ -21,12 +21,14 @@
   angular.module('pnc.common.pnc-client.message-bus').factory('buildStatusListener', [
     '$log',
     '$rootScope',
+    'eventTypes',
     'pncEventAdaptor',
-    function ($log, $rootScope, pncEventAdaptor) {
+    function ($log, $rootScope, eventTypes, pncEventAdaptor) {
       return function (message) {
-        if (message.eventType === 'BUILD_STATUS_CHANGED') {
+        if (message.eventType === eventTypes.BUILD_STATUS_CHANGED) {
           var event = pncEventAdaptor.convert(message);
           $rootScope.$broadcast(event.eventType, event.payload);
+          $rootScope.$broadcast(eventTypes.BUILD_STATUS_CHANGED, event.payload);
         }
       };
     }
