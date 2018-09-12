@@ -22,15 +22,16 @@
     '$rootScope',
     'pncNotify',
     'authService',
+    'eventTypes',
     'pncEventAdaptor',
-    function ($rootScope, pncNotify, authService, pncEventAdaptor) {
+    function ($rootScope, pncNotify, authService, eventTypes, pncEventAdaptor) {
       return function (message) {
         if (message.eventType === 'BUILD_SET_STATUS_CHANGED') {
           var payload = message.payload,
               event = pncEventAdaptor.convert(message);
           
-          console.debug('event broadcast: %O', event);
           $rootScope.$broadcast(event.eventType, event.payload);
+          $rootScope.$broadcast(eventTypes.BUILD_SET_STATUS_CHANGED, message.payload);
 
           authService.forUserId(payload.userId).then(function () {
             switch(payload.buildStatus) {
