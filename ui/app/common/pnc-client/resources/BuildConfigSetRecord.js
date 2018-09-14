@@ -61,6 +61,11 @@
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
+        query: {
+          url: ENDPOINT,
+          method: 'GET',
+          isPaged: true
+        },
         getBuildRecords: {
           url: ENDPOINT + '/build-records',
           method: 'GET',

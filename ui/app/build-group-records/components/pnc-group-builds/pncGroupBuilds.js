@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
 
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.configuration-set-record');
+  var module = angular.module('pnc.build-group-records');
 
   /**
    * @ngdoc directive
@@ -42,7 +42,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'configuration-set-record/directives/pnc-group-builds/pnc-group-builds.html',
+        templateUrl: 'build-group-records/components/pnc-group-builds/pnc-group-builds.html',
         scope: {},
         controller: PncGroupBuildsCtrl
       };

@@ -1,4 +1,4 @@
-/*
+-/*
  * JBoss, Home of Professional Open Source.
  * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
@@ -18,17 +18,14 @@
 (function () {
   'use strict';
 
-  /**
-   * The component representing latest build for given Build Configuration or Build Group Configuration
-   */
-  angular.module('pnc.common.components').component('pncPushStatus', {
+  angular.module('pnc.common.components').component('pncBrewPushStatusLabel', {
     bindings: {
       /**
-       * Object: The BuildRecord to show the push status of
+       * Object: The BuildRecord to show the brew push status of
        */
       buildRecord: '<?'
     },
-    templateUrl: 'common/components/pnc-push-status/pnc-push-status.html',
+    templateUrl: 'common/components/pnc-brew-push-status-label/pnc-brew-push-status-label.html',
     controller: ['BuildRecord', Controller]
   });
 
@@ -44,11 +41,19 @@
 
 
     $ctrl.$onInit = function () {
-      BuildRecord.getLatestPushStatus($ctrl.buildRecord.id).then(function (pushStatus) {
+      if ($ctrl.buildRecord.$isSuccess()) {
+        BuildRecord.getLatestPushStatus($ctrl.buildRecord.id)
+          .then(function (pushStatus) {
+            $ctrl.pushStatus = pushStatus;
+          })
+          .finally(function () {
+            $ctrl.loading = false;
+          });
+      } else {
         $ctrl.loading = false;
-        $ctrl.pushStatus = pushStatus;
-      });
+      }
     };
 
   }
-})();
+
+})(); // jshint ignore:line

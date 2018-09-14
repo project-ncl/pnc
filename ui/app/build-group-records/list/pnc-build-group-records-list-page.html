@@ -17,11 +17,11 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default" ng-show="page.data.length">
-  <div class="panel-heading">
-    Running Builds
+<div>
+    <div class="page-header">
+      <h1>Build Group Records</h1>
+    </div>
+  
+    <pnc-group-builds></pnc-group-builds>
   </div>
-
-  <pnc-build-records-list build-records="page.data"></pnc-build-records-list>
-  <pnc-pager class="pull-right" page="page"></pnc-pager>
-</div>
+  
