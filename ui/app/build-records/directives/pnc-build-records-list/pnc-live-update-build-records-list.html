@@ -17,11 +17,7 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default" ng-show="page.data.length">
-  <div class="panel-heading">
-    Finished Builds
-  </div>
-
-  <pnc-build-records-list build-records="page.data" display-fields="columns" class="inside-panel"></pnc-build-records-list>
-  <pnc-pager class="pull-right" page="page"></pnc-pager>
-</div>
+<pnc-build-records-list build-records="$ctrl.buildRecords" 
+                        display-fields="$ctrl.displayFields" 
+                        hide-head="$ctrl.hideHead">
+</pnc-build-records-list>

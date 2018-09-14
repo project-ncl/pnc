@@ -46,21 +46,8 @@
     $ctrl.$onInit = function() {
       copyBuildItem($ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord);
 
-      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, callbackWrapper(function(event, payload) {
-        $ctrl.buildItem.status = payload.buildCoordinationStatus;
-        $ctrl.buildItem.startTime = payload.buildStartTime;
-        if (payload.buildEndTime) {
-          $ctrl.buildItem.endTime = payload.buildEndTime;
-        }
-      }));
-
-      $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, callbackWrapper(function(event, payload) {
-        $ctrl.buildItem.status = payload.buildStatus;
-        $ctrl.buildItem.startTime = payload.buildSetStartTime;
-        if (payload.buildSetStartTime) {
-          $ctrl.buildItem.endTime = payload.buildSetStartTime;
-        }
-      }));
+      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, onEvent);
+      $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, onEvent);
     };
 
     $ctrl.$onChanges = function(changedBindings) {
@@ -75,12 +62,12 @@
       $ctrl.buildItem = angular.copy(buildItem);
     }
 
-    function callbackWrapper(callback) {
-      return function(event, payload) {
-        if (payload.id === $ctrl.buildItem.id) {
-          $scope.$applyAsync(callback.bind(null, event, payload));
-        }
-      };
+    function onEvent(event, payload) {
+      if (payload.id === $ctrl.buildItem.id) {
+        $scope.$applyAsync(function () {
+          Object.assign($ctrl.buildItem, payload);
+        });
+      }
     }
     
   }

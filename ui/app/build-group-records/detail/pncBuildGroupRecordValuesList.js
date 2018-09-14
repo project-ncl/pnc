@@ -15,34 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
 
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.configuration-set-record');
-
-
-  module.controller('CsRecordDetailController', [
-    '$state',
-    'csRecordDetail',
-    'buildGroupRecord',
-    function ($state, csRecordDetail, buildGroupRecord) {
-      this.csRecordDetail = csRecordDetail;
-      this.buildGroupRecord = buildGroupRecord;
-    }
-  ]);
+  angular.module('pnc.build-group-records').component('pncBuildGroupRecordValuesList', {
+    bindings: {
+     buildGroupRecord: '<'
+    },
+    templateUrl: 'build-group-records/detail/pnc-build-group-record-values-list.html',
+    controller: [Controller]
+  });
 
 
-  module.controller('CsRecordInfoController', [
-    'csRecordDetail',
-    function (csRecordDetail) {
-      this.csRecordDetail = csRecordDetail;
-    }
-  ]);
+  function Controller() {
+    var $ctrl = this;
+
+    // -- Controller API --
 
 
-  module.controller('CsRecordListController', [
-    _.noop
-  ]);
+    // --------------------
+
+
+    $ctrl.$onInit = function () {
+    };
+
+  }
 
 })();

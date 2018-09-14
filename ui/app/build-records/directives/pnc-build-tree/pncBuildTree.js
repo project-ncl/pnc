@@ -28,13 +28,18 @@
       /**
        * object representing BuildGroupRecord
        */
-      buildGroupRecord: '<?'
+      buildGroupRecord: '<?',
+      /**
+       * object representing dependencyGraph, allows loading via resolve, if absent it will be
+       * pulled automatically
+       */
+      dependencyGraph: '<?'
     },
     templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree.html',
-    controller: ['BuildRecord', 'BuildConfigSetRecord', '$timeout', '$scope', '$log', Controller]
+    controller: ['BuildRecord', 'BuildConfigSetRecord', '$timeout', '$scope', '$log', '$q', Controller]
   });
 
-  function Controller(BuildRecord, BuildConfigSetRecord, $timeout, $scope, $log) {
+  function Controller(BuildRecord, BuildConfigSetRecord, $timeout, $scope, $log, $q) {
 
     var $ctrl = this;
     var buildItemPromise = null;
@@ -55,9 +60,13 @@
     $ctrl.$onInit = function() {
       $ctrl.buildItem = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
 
-      buildItemPromise = ($ctrl.buildRecord ? BuildRecord : BuildConfigSetRecord).getDependencyGraph({ 
-        id: $ctrl.buildItem.id
-      }).$promise;
+      if ($ctrl.dependencyGraph) {
+        buildItemPromise = $q.when($ctrl.dependencyGraph);
+      } else {
+        buildItemPromise = ($ctrl.buildRecord ? BuildRecord : BuildConfigSetRecord).getDependencyGraph({ 
+          id: $ctrl.buildItem.id
+        }).$promise;
+      }
 
       buildItemPromise.then(function (dependencyGraph) {
         $ctrl.buildTree = convertGraphToTree(dependencyGraph);

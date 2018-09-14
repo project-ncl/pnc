@@ -33,7 +33,7 @@
     'pnc.build-groups',
     'pnc.milestone',
     'pnc.release',
-    'pnc.configuration-set-record',
+    'pnc.build-group-records',
     'pnc.report',
     'pnc.properties',
     'pnc.repository-configurations'
@@ -46,8 +46,9 @@
     '$httpProvider',
     'NotificationsProvider',
     'cfpLoadingBarProvider',
+    '$animateProvider',
     function($stateProvider, $urlRouterProvider, $locationProvider,
-    $httpProvider, NotificationsProvider, cfpLoadingBarProvider) {
+      $httpProvider, NotificationsProvider, cfpLoadingBarProvider, $animateProvider) {
 
     $locationProvider.html5Mode(false);
 
@@ -86,6 +87,8 @@
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
     $httpProvider.interceptors.push('httpAuthenticationInterceptor');
+
+    $animateProvider.classNameFilter(/pnc-animate/);
   }]);
 
   /**

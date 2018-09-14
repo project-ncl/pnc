@@ -22,16 +22,30 @@
     '$rootScope',
     'pncNotify',
     'authService',
-    'eventTypes',
     'pncEventAdaptor',
-    function ($rootScope, pncNotify, authService, eventTypes, pncEventAdaptor) {
+    'eventTypes',
+    function ($rootScope, pncNotify, authService, pncEventAdaptor, eventTypes) {
       return function (message) {
         if (message.eventType === 'BUILD_SET_STATUS_CHANGED') {
           var payload = message.payload,
               event = pncEventAdaptor.convert(message);
-          
+                    
           $rootScope.$broadcast(event.eventType, event.payload);
-          $rootScope.$broadcast(eventTypes.BUILD_SET_STATUS_CHANGED, message.payload);
+
+          /*
+           * Broadcasts a more general event whenever a status is changed, this subscribing to 
+           * 2 events if you want to treat them the same.
+           * Normalizes the websocket payload to match BuildConfigSetRecordRest properties.
+           */
+          $rootScope.$broadcast(eventTypes.BUILD_SET_STATUS_CHANGED, {
+            id: message.payload.id,
+            status: message.payload.buildStatus,
+            userId: message.payload.userId,
+            buildConfigurationSetId: message.payload.buildSetConfigurationId,
+            buildConfigurationSetName: message.payload.buildSetConfigurationName,
+            startTime: message.payload.buildSetStartTime,
+            endTime: message.payload.buildSetEndTime
+          });
 
           authService.forUserId(payload.userId).then(function () {
             switch(payload.buildStatus) {

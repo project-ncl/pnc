@@ -28,7 +28,23 @@
         if (message.eventType === eventTypes.BUILD_STATUS_CHANGED) {
           var event = pncEventAdaptor.convert(message);
           $rootScope.$broadcast(event.eventType, event.payload);
-          $rootScope.$broadcast(eventTypes.BUILD_STATUS_CHANGED, event.payload);
+          
+
+          /*
+           * Provides a more general notification for components that don't care
+           * about the difference between STARTED and FINISHED events.
+           * 
+           * Normalizes the message payload with the BuildConfigurationRest entity. 
+           */
+          $rootScope.$broadcast(eventTypes.BUILD_STATUS_CHANGED, {
+            id: message.payload.id,
+            status: message.payload.buildCoordinationStatus,
+            userId: message.payload.userId,
+            buildConfigurationId: message.payload.buildConfigurationId,
+            buildConfigurationName: message.payload.buildConfigurationName,
+            startTime: message.payload.buildStartTime,
+            endTime: message.payload.buildEndTime 
+          });
         }
       };
     }
