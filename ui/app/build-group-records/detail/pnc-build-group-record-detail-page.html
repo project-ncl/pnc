@@ -42,22 +42,24 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <div class="page-header">
-        <h2 class="h4">Build Records</h2>
+  <div ng-if="::$ctrl.hasBuildRecords()">
+    <div class="row">
+        <div class="col-md-12">
+          <div class="page-header">
+            <h2 class="h4">Build Records</h2>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <pnc-live-update-build-records-list build-records="$ctrl.buildRecords" display-fields="$ctrl.buildRecordColumns"></pnc-live-update-build-records-list>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-        <pnc-build-tree build-group-record="$ctrl.buildGroupRecord" dependency-graph="$ctrl.dependencyGraph"></pnc-build-tree>
-    </div>
+    
+      <div class="row">
+        <div class="col-md-12">
+          <pnc-live-update-build-records-list build-records="$ctrl.buildRecords" display-fields="$ctrl.buildRecordColumns"></pnc-live-update-build-records-list>
+        </div>
+      </div>
+    
+      <div class="row">
+        <div class="col-md-12">
+            <pnc-build-tree build-group-record="$ctrl.buildGroupRecord" dependency-graph="$ctrl.dependencyGraph"></pnc-build-tree>
+        </div>
+      </div>
   </div>

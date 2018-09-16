@@ -36,6 +36,7 @@
     // -- Controller API --
 
      $ctrl.buildRecordColumns = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username', 'pushStatus'];
+     $ctrl.hasBuildRecords = hasBuildRecords;
 
     // --------------------
 
@@ -49,6 +50,10 @@
         }
       });
     };
+
+    function hasBuildRecords() {
+      return $ctrl.buildRecords && $ctrl.buildRecords.length > 0;
+    }
 
   }
 
