@@ -29,7 +29,7 @@
       </div>
       <h1>
         <pnc-build-status-icon build-record="$ctrl.buildGroupRecord" no-warnings="true"></pnc-build-status-icon>
-        Build Group Record #{{ $ctrl.buildGroupRecord.id }} <span class="fa fa-angle-double-right"></span> {{ $ctrl.buildGroupRecord.buildConfigurationSetName }}
+        {{ $ctrl.buildGroupRecord.buildConfigurationSetName }} <span class="fa fa-angle-double-right"></span> #{{ $ctrl.buildGroupRecord.id }}
         <pnc-temporary-build-record-label build-group-record="$ctrl.buildGroupRecord" class="label-sm"></pnc-temporary-build-record-label>
       </h1>
       </div>

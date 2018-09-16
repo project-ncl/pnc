@@ -60,7 +60,7 @@
         $stateProvider.state('build-group-records.detail', {
           url: '/{id:int}',
           data: {
-            displayName: '{{ buildGroupRecord.buildConfigurationSetName }}#{{ buildGroupRecord.id }}',
+            displayName: '{{ buildGroupRecord.buildConfigurationSetName }} » #{{ buildGroupRecord.id }}',
             title: '#{{ buildGroupRecord.id }} {{ buildGroupRecord.buildConfigurationSetName }} | Build Group Record'
           },
           component: 'pncBuildGroupRecordDetailPage',
