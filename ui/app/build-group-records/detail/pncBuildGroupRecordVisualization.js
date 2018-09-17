@@ -19,41 +19,37 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-group-records').component('pncBuildGroupRecordDetailPage', {
+  angular.module('pnc.build-group-records').component('pncBuildGroupRecordVisualization', {
     bindings: {
-     buildGroupRecord: '<',
-     dependencyGraph: '<',
-     buildRecords: '<'
+      buildGroupRecord: '<',
+      dependencyGraph: '<',
+      buildRecords: '<',
+      visualization: '<?'
     },
-    templateUrl: 'build-group-records/detail/pnc-build-group-record-detail-page.html',
-    controller: ['$scope', 'eventTypes', Controller]
+    templateUrl: 'build-group-records/detail/pnc-build-group-record-visualization.html',
+    controller: ['$scope', '$state', '$stateParams', Controller]
   });
 
 
-  function Controller($scope, eventTypes) {
+  function Controller($scope, $state, $stateParams) {
     var $ctrl = this;
 
     // -- Controller API --
 
-     $ctrl.hasBuildRecords = hasBuildRecords;
+    $ctrl.buildRecordColumns = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username', 'pushStatus'];
+    $ctrl.changeVisualization = changeVisualization;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
-      $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, function (event, payload) {
-        if (payload.id === $ctrl.buildGroupRecord.id) {
-          $scope.$applyAsync(function () {
-            Object.assign($ctrl.buildGroupRecord, payload);
-          });
-        }
-      });
+      $ctrl.visualization = $stateParams.visualization;
     };
 
-    function hasBuildRecords() {
-      return $ctrl.buildRecords && $ctrl.buildRecords.length > 0;
+    function changeVisualization(visualization) {
+      $ctrl.visualization = visualization;
+      $state.go('.', { visualization: visualization });
     }
-
   }
 
 })();

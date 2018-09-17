@@ -31,7 +31,7 @@
     <dd>{{ $ctrl.buildGroupRecord.username }}</dd>
     <dt>Started</dt>
     <dd>{{ $ctrl.buildGroupRecord.startTime | date: 'medium' }}</dd>
-    <dt>Finished</dt>
-    <dd>{{ $ctrl.buildGroupRecord.endTime | date: 'medium' }}</dd>
+    <dt ng-show="$ctrl.buildGroupRecord.endTime">Finished</dt>
+    <dd ng-show="$ctrl.buildGroupRecord.endTime">{{ $ctrl.buildGroupRecord.endTime | date: 'medium' }}</dd>
   </dl>
 </div>
