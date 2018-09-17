@@ -22,44 +22,39 @@
     <div class="page-header">
       <div class="btn-group pull-right" role="group" aria-label="Build Actions">
         <pnc-build-record-push-button build-group-record="$ctrl.buildGroupRecord"></pnc-build-record-push-button>
-        <button ng-if="$ctrl.buildGroupRecord.$isCancelable()" ng-click="$ctrl.buildGroupRecord.$cancel()" type="button" 
+        <button ng-if="$ctrl.buildGroupRecord.$isCancelable()" ng-click="$ctrl.buildGroupRecord.$cancel()" type="button"
                 class="btn btn-danger">
           <i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort
         </button>
       </div>
       <h1>
         <pnc-build-status-icon build-record="$ctrl.buildGroupRecord" no-warnings="true"></pnc-build-status-icon>
-        {{ $ctrl.buildGroupRecord.buildConfigurationSetName }} <span class="fa fa-angle-double-right"></span> #{{ $ctrl.buildGroupRecord.id }}
+        {{ $ctrl.buildGroupRecord.buildConfigurationSetName }} <span class="fa fa-angle-double-right"></span> #{{
+        $ctrl.buildGroupRecord.id }}
         <pnc-temporary-build-record-label build-group-record="$ctrl.buildGroupRecord" class="label-sm"></pnc-temporary-build-record-label>
       </h1>
-      </div>
     </div>
   </div>
-  
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <pnc-build-group-record-values-list build-group-record="$ctrl.buildGroupRecord"></pnc-build-group-record-values-list>
+  </div>
+</div>
+
+<div ng-if="::$ctrl.hasBuildRecords()">
   <div class="row">
     <div class="col-md-12">
-      <pnc-build-group-record-values-list build-group-record="$ctrl.buildGroupRecord"></pnc-build-group-record-values-list>
+      <div class="page-header">
+        <h2 class="h4">Build Records</h2>
+      </div>
     </div>
   </div>
-
-  <div ng-if="::$ctrl.hasBuildRecords()">
-    <div class="row">
-        <div class="col-md-12">
-          <div class="page-header">
-            <h2 class="h4">Build Records</h2>
-          </div>
-        </div>
-      </div>
-    
-      <div class="row">
-        <div class="col-md-12">
-          <pnc-live-update-build-records-list build-records="$ctrl.buildRecords" display-fields="$ctrl.buildRecordColumns"></pnc-live-update-build-records-list>
-        </div>
-      </div>
-    
-      <div class="row">
-        <div class="col-md-12">
-            <pnc-build-tree build-group-record="$ctrl.buildGroupRecord" dependency-graph="$ctrl.dependencyGraph"></pnc-build-tree>
-        </div>
-      </div>
+  <div class="row">
+    <div class="col-md-12">
+      <pnc-build-group-record-visualization build-group-record="$ctrl.buildGroupRecord" build-records="$ctrl.buildRecords"
+                                            dependency-graph="$ctrl.dependencyGraph"></pnc-build-group-record-visualization>
+    </div>
   </div>
+</div>
