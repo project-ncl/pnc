@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.client;
 import com.jayway.restassured.response.Response;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildOptions;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
         super(BUILD_CONFIGURATION_REST_ENDPOINT, BuildConfigurationRest.class, connectionInfo);
     }
 
-    public RestResponse<BuildConfigurationRest> trigger(int id, BuildOptions options) {
+    public RestResponse<BuildRecordRest> trigger(int id, BuildOptions options) {
         Response response = getRestClient().request().when()
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
@@ -48,7 +49,7 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
         response.then().statusCode(200);
 
         try {
-            return new RestResponse<>(response, null);
+            return new RestResponse<>(response, response.jsonPath().getObject("content", BuildRecordRest.class));
         } catch (Exception e) {
             throw new AssertionError("JSON unmarshalling error", e);
         }

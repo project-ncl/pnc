@@ -399,6 +399,7 @@ public class DatabaseDataInitializer {
                 .buildEnvironment(environment1)
                 .buildScript("mvn deploy -DskipTests=true")
                 .repositoryConfiguration(repositoryConfiguration4)
+                .dependency(buildConfiguration1)
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
