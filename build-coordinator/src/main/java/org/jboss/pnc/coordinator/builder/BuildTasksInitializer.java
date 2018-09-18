@@ -97,7 +97,7 @@ public class BuildTasksInitializer {
         toBuild.add(buildConfigurationAudited);
         if (buildOptions.isBuildDependencies()) {
             buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(c ->
-                    collectDependentConfigurations(c, datastoreAdapter.getLatestBuildConfigurationAudited(c.getId()), toBuild, visited));
+                    collectDependentConfigurations(c, datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(c.getId()), toBuild, visited));
         }
     }
 
@@ -121,7 +121,7 @@ public class BuildTasksInitializer {
 
         boolean requiresRebuild = datastoreAdapter.requiresRebuild(buildConfiguration);
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
-            requiresRebuild |= collectDependentConfigurations(dependency, datastoreAdapter.getLatestBuildConfigurationAudited(dependency.getId()), toBuild, visited);
+            requiresRebuild |= collectDependentConfigurations(dependency, datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()), toBuild, visited);
         }
         if (requiresRebuild) {
             toBuild.add(buildConfigurationAudited);
