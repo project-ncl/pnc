@@ -312,12 +312,16 @@ public class BuildRecord implements GenericEntity<Integer> {
      * A collection of buildRecords that depends on this at time this is stored.
      * Dependents are defined based on scheduled state.
      */
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String dependentBuildRecordIds;
 
     /**
      * A collection of buildRecords that this depends on at time this is stored.
      * Dependencies are defined based on scheduled state.
      */
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String dependencyBuildRecordIds;
 
     /**
