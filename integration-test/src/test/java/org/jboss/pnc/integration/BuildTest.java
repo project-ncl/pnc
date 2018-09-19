@@ -31,9 +31,14 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.utils.ResponseUtils;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.spi.BuildOptions;
@@ -49,6 +54,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -131,9 +138,7 @@ public class BuildTest {
         BuildConfigurationRest buildConfigurationParent = buildConfigurationRestClient.getByName("dependency-analysis-1.3").getValue();
 
         // Update dependency
-        BuildConfigurationRest buildConfigurationChild = buildConfigurationRestClient.getByName("pnc-1.0.0.DR1").getValue();
-        buildConfigurationChild.setDescription(buildConfigurationChild.getDescription() + ".");
-        buildConfigurationRestClient.update(buildConfigurationChild.getId(), buildConfigurationChild);
+        updateBC(buildConfigurationRestClient.getByName("pnc-1.0.0.DR1").getValue());
 
         //when
         RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfigurationParent, Optional.empty());
@@ -195,17 +200,54 @@ public class BuildTest {
         //when
         userRestClient.getLoggedUser(); //initialize user
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(false);
-        RestResponse<BuildConfigurationSetRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildOptions);
-        Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(response.getRestCallResponse());
+        buildOptions.setForceRebuild(true);
+
+        RestResponse<BuildConfigSetRecordRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildOptions);
+        Integer buildRecordSetId = response.getValue().getId();
 
         //then
+        verifyBuildSetResults(response, buildRecordSetId);
+    }
+
+    @Test
+    public void shouldTriggerBuildSetWithBCInRevisionAndFinishWithoutProblems() {
+        //given
+        BuildConfigurationSetRest buildConfigurationSet = buildConfigurationSetRestClient.firstNotNull().getValue();
+        assertThat(buildConfigurationSet.getBuildConfigurationIds().size()).isGreaterThan(0);
+
+        List<BuildConfigurationAuditedRest> buildConfigurationAuditedRestList = new ArrayList<>();
+        BuildConfigurationAuditedRest buildConfigurationAuditedRest = new BuildConfigurationAuditedRest();
+        buildConfigurationAuditedRest.setId(buildConfigurationSet.getBuildConfigurationIds().get(0));
+        buildConfigurationAuditedRest.setRev(1);
+        buildConfigurationAuditedRestList.add(buildConfigurationAuditedRest);
+
+        BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetWithAuditedBCsRest = new BuildConfigurationSetWithAuditedBCsRest();
+        buildConfigurationSetWithAuditedBCsRest.setId(buildConfigurationSet.getId());
+        buildConfigurationSetWithAuditedBCsRest.setBuildConfigurationAuditeds(buildConfigurationAuditedRestList);
+
+        //when
+        userRestClient.getLoggedUser(); //initialize user
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+
+        RestResponse<BuildConfigSetRecordRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildConfigurationSetWithAuditedBCsRest, buildOptions);
+        Integer buildRecordSetId = response.getValue().getId();
+
+        //then
+        verifyBuildSetResults(response, buildRecordSetId);
+    }
+
+    private void verifyBuildSetResults(RestResponse<BuildConfigSetRecordRest> response, Integer buildRecordSetId) {
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(200);
         assertThat(buildRecordSetId).isNotNull();
 
         ResponseUtils.waitSynchronouslyFor(() -> buildConfigSetRecordRestClient.get(buildRecordSetId, false).hasValue(), 15, TimeUnit.SECONDS);
-
         assertThat(buildConfigSetRecordRestClient.get(buildRecordSetId, false).getValue().getStatus())
                 .isNotEqualTo(BuildStatus.REJECTED);
+    }
+
+    private void updateBC(BuildConfigurationRest buildConfigurationChild) {
+        buildConfigurationChild.setDescription(buildConfigurationChild.getDescription() + ".");
+        buildConfigurationRestClient.update(buildConfigurationChild.getId(), buildConfigurationChild);
     }
 }

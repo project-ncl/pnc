@@ -21,13 +21,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.pnc.integration.client.util.RestResponse;
+import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
+import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
 import org.jboss.pnc.spi.BuildOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -40,17 +44,36 @@ public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildCon
         super(BUILD_CONFIGURATION_SET_REST_ENDPOINT, BuildConfigurationSetRest.class);
     }
 
-    public RestResponse<BuildConfigurationSetRest> trigger(int id, BuildOptions options) {
-        Response response = request().when()
+    public RestResponse<BuildConfigSetRecordRest> trigger(int id, BuildOptions options) {
+        return trigger0(id, Optional.empty(), options);
+    }
+
+    public RestResponse<BuildConfigSetRecordRest> trigger(int id,
+                                                           BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetWithAuditedBCsRest,
+                                                           BuildOptions options) {
+        return trigger0(id, Optional.of(buildConfigurationSetWithAuditedBCsRest), options);
+    }
+
+    private RestResponse<BuildConfigSetRecordRest> trigger0(int id,
+                                                            Optional<BuildConfigurationSetWithAuditedBCsRest> buildConfigurationSetWithAuditedBCsRestOptional,
+                                                            BuildOptions options) {
+         RequestSpecification request = request().when()
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
-                .queryParam("timestampAlignment", options.isTimestampAlignment())
-                .post(collectionUrl + id + "/build");
+                .queryParam("timestampAlignment", options.isTimestampAlignment());
 
+         Response response;
+         if (buildConfigurationSetWithAuditedBCsRestOptional.isPresent()) {
+             response = request
+                     .body(buildConfigurationSetWithAuditedBCsRestOptional.get())
+                     .post(collectionUrl + id + "/build-versioned");
+         } else {
+             response = request.post(collectionUrl + id + "/build");
+         }
         response.then().statusCode(200);
 
         try {
-            return new RestResponse<>(response, null);
+            return new RestResponse<>(response, response.jsonPath().getObject("content", BuildConfigSetRecordRest.class));
         } catch (Exception e) {
             throw new AssertionError("JSON unmarshalling error", e);
         }
