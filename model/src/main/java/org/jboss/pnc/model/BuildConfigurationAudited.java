@@ -58,6 +58,8 @@ public class BuildConfigurationAudited {
 
     private Project project;
 
+    private BuildType buildType;
+
     private BuildEnvironment buildEnvironment;
 
     private Set<BuildRecord> buildRecords;
@@ -144,6 +146,14 @@ public class BuildConfigurationAudited {
         this.project = project;
     }
 
+    public BuildType getBuildType() {
+        return buildType;
+    }
+
+    public void setBuildType(BuildType buildType) {
+        this.buildType = buildType;
+    }
+
     public BuildEnvironment getBuildEnvironment() {
         return buildEnvironment;
     }
@@ -221,6 +231,7 @@ public class BuildConfigurationAudited {
             configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
             configurationAudited.setGenericParameters(buildConfiguration.getGenericParameters());
             configurationAudited.setProject(buildConfiguration.getProject());
+            configurationAudited.setBuildType(buildConfiguration.getBuildType());
             configurationAudited.setRepositoryConfiguration(buildConfiguration.getRepositoryConfiguration());
             configurationAudited.setBuildRecords(buildRecords);
             configurationAudited.buildConfiguration = buildConfiguration;
