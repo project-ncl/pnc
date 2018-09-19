@@ -49,6 +49,7 @@ import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.resteasy.annotations.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -299,7 +300,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/build-a-revision")
     public Response triggerAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-                            @ApiParam(value = "Revision of a Build Configuration", required = true) @PathParam("rev") Integer rev,
+                            @ApiParam(value = "Revision of a Build Configuration", required = true) @QueryParam("rev") Integer rev,
                             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
                             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
                             @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,

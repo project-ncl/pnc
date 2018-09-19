@@ -22,12 +22,14 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 
 /**
  * A work around for Hibernate's lazy initialization errors
@@ -36,8 +38,18 @@ import javax.ejb.TransactionAttributeType;
  */
 @Stateless
 public class HibernateLazyInitializer {
-
     private static final Logger log = LoggerFactory.getLogger(HibernateLazyInitializer.class);
+
+    private BuildConfigurationRepository buildConfigurationRepository;
+
+    @Deprecated
+    public HibernateLazyInitializer() {
+    }
+
+    @Inject
+    public HibernateLazyInitializer(BuildConfigurationRepository buildConfigurationRepository) {
+        this.buildConfigurationRepository = buildConfigurationRepository;
+    }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration buildConfiguration) {
@@ -57,6 +69,7 @@ public class HibernateLazyInitializer {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfigurationAudited initializeBuildConfigurationAuditedBeforeTriggeringIt(BuildConfigurationAudited buildConfigurationAudited) {
         log.trace("Initializing BCA {}.", buildConfigurationAudited.getIdRev());
+        buildConfigurationAudited.setBuildConfiguration(buildConfigurationRepository.queryById(buildConfigurationAudited.getId()));
         initializeBuildConfigurationBeforeTriggeringIt(buildConfigurationAudited.getBuildConfiguration());
 
         return buildConfigurationAudited;
