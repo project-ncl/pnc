@@ -18,12 +18,14 @@
 package org.jboss.pnc.integration.client;
 
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildOptions;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfigurationRest> {
 
@@ -38,13 +40,30 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
     }
 
     public RestResponse<BuildRecordRest> trigger(int id, BuildOptions options) {
-        Response response = getRestClient().request().when()
+        return trigger0(id, Optional.empty(), options);
+    }
+
+    public RestResponse<BuildRecordRest> trigger(int id, int revision, BuildOptions options) {
+        return trigger0(id, Optional.of(revision), options);
+    }
+
+    public RestResponse<BuildRecordRest> trigger0(int id, Optional<Integer> revision, BuildOptions options) {
+        RequestSpecification request = getRestClient().request().when()
+                .queryParam("rev", revision)
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
                 .queryParam("buildDependencies", options.isBuildDependencies())
                 .queryParam("keepPodOnFailure", options.isKeepPodOnFailure())
-                .queryParam("timestampAlignment", options.isTimestampAlignment())
-                .post(getRestClient().addHost(collectionUrl + id + "/build") );
+                .queryParam("timestampAlignment", options.isTimestampAlignment());
+
+        Response response;
+        if(revision.isPresent()) {
+            response = request
+                    .queryParam("rev", revision.get())
+                    .post(getRestClient().addHost(collectionUrl + id + "/build-a-revision"));
+        } else {
+            response = request.post(getRestClient().addHost(collectionUrl + id + "/build"));
+        }
 
         response.then().statusCode(200);
 
