@@ -49,11 +49,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
+
+/**
+ * The tests are not running the actual builds it uses BuildExecutorMock
+ */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildTest {
@@ -109,26 +114,19 @@ public class BuildTest {
         }
     }
 
-
-    // The test is not running the actual build it uses BuildExecutorMock
     @Test
-    public void shouldTriggerBuildAndFinishWithoutProblems() throws Exception {
+    public void shouldTriggerBuildAndFinishWithoutProblems(){
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.firstNotNull().getValue();
 
         //when
-        RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfiguration);
+        RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfiguration, Optional.empty());
 
         //then
-        Integer buildRecordId = ResponseUtils.getIdFromLocationHeader(triggeredConfiguration.getRestCallResponse());
-        logger.info("New build record id: {}.", buildRecordId);
-        assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 15, TimeUnit.SECONDS);
+        verifySingleBuild(triggeredConfiguration);
     }
 
-    // The test is not running the actual build it uses BuildExecutorMock
     @Test
-    public void shouldTriggerBuildWithADependencyAndFinishWithoutProblems() throws Exception {
+    public void shouldTriggerBuildWithADependencyAndFinishWithoutProblems() {
         //given - A BC with a dependency on pnc-1.0.0.DR1
         BuildConfigurationRest buildConfigurationParent = buildConfigurationRestClient.getByName("dependency-analysis-1.3").getValue();
 
@@ -138,7 +136,7 @@ public class BuildTest {
         buildConfigurationRestClient.update(buildConfigurationChild.getId(), buildConfigurationChild);
 
         //when
-        RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfigurationParent);
+        RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfigurationParent, Optional.empty());
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
@@ -150,22 +148,47 @@ public class BuildTest {
         ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildResponse.getDependencyBuildRecordIds()[0], false).hasValue(), 15, TimeUnit.SECONDS);
     }
 
-    private RestResponse<BuildRecordRest> triggerBCBuild(BuildConfigurationRest buildConfiguration) {
-        RestResponse<UserRest> loggedUser = userRestClient.getLoggedUser();//initialize user
-        logger.debug("LoggedUser: {}", loggedUser.hasValue() ? loggedUser.getValue() : "-no-logged-user-");
+    private RestResponse<BuildRecordRest> triggerBCBuild(BuildConfigurationRest buildConfiguration, Optional<Integer> revision) {
+        RestResponse<UserRest> loggedUser = userRestClient.getLoggedUser();
 
+        logger.debug("LoggedUser: {}", loggedUser.hasValue() ? loggedUser.getValue() : "-no-logged-user-");
         logger.info("About to trigger build: {} with id: {}.", buildConfiguration.getName(), buildConfiguration.getId());
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setForceRebuild(true);
-        RestResponse<BuildRecordRest> triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), buildOptions);
+
+        RestResponse<BuildRecordRest> triggeredConfiguration;
+        if(revision.isPresent()) {
+            triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), revision.get(),  buildOptions);
+        } else {
+            triggeredConfiguration = buildConfigurationRestClient.trigger(buildConfiguration.getId(), buildOptions);
+        }
         logger.debug("Response from triggered build: {}.", triggeredConfiguration.hasValue() ? triggeredConfiguration.getValue() : "-response-not-available-");
+
         return triggeredConfiguration;
     }
 
-    // The test is not running the actual build it uses BuildExecutorMock
     @Test
-    public void shouldTriggerBuildSetAndFinishWithoutProblems() throws Exception {
+    public void shouldTriggerBuildWithRevisionAndFinishWithoutProblems() {
+        BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.firstNotNull().getValue();
+
+        //when
+        RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfiguration, Optional.of(1));
+
+        //then
+        verifySingleBuild(triggeredConfiguration);
+    }
+
+    private void verifySingleBuild(RestResponse<BuildRecordRest> triggeredConfiguration) {
+        Integer buildRecordId = ResponseUtils.getIdFromLocationHeader(triggeredConfiguration.getRestCallResponse());
+        logger.info("New build record id: {}.", buildRecordId);
+        assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
+
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 15, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldTriggerBuildSetAndFinishWithoutProblems() {
         //given
         BuildConfigurationSetRest buildConfigurationSet = buildConfigurationSetRestClient.firstNotNull().getValue();
 
