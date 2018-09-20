@@ -305,13 +305,21 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
         return audited.getName().equals(rest.getName()) &&
-                audited.getBuildScript().equals(rest.getBuildScript()) &&
+                equalsWithNull(audited.getBuildScript(), rest.getBuildScript()) &&
                 equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
-                audited.getScmRevision().equals(rest.getScmRevision()) &&
-                audited.getDescription().equals(rest.getDescription()) &&
+                equalsWithNull(audited.getScmRevision(), rest.getScmRevision()) &&
+                equalsWithNull(audited.getDescription(), rest.getDescription()) &&
                 equalsId(audited.getProject(), rest.getProject()) &&
                 equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
                 audited.getGenericParameters().equals(rest.getGenericParameters());
+    }
+
+    private boolean equalsWithNull(Object o1, Object o2) {
+        if(o1 == null) {
+            return o2 == null;
+        } else {
+            return o1.equals(o2);
+        }
     }
 
     private boolean equalsId(GenericEntity<Integer> dbEntity,  GenericRestEntity<Integer> restEntity) {

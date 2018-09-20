@@ -102,15 +102,15 @@ public class BuildConfigurationProviderTest {
     }
 
     @Test
-    public void testgetLatestAuditedMatchingBCRest(){
+    public void testGetLatestAuditedMatchingBCRest(){
         Map<String, String> params = new HashMap();
         params.put("Key", "Value");
 
         BuildConfigurationAudited matching1 = createBuildConfigurationAudited(1,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, null, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited matching2 = createBuildConfigurationAudited(2,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, null, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
 
         BuildConfigurationAudited mismatching3 = createBuildConfigurationAudited(3,
@@ -177,7 +177,7 @@ public class BuildConfigurationProviderTest {
         BuildConfigurationRest configuration = new BuildConfigurationRest();
         configuration.setProject(PROJECT);
         configuration.setName(CONFIG_NAME);
-        configuration.setDescription(DESCRIPTION);
+        configuration.setDescription(null);
         configuration.setScmRevision(SCM_REVISION);
         configuration.setRepositoryConfiguration(REPOSITORY);
         configuration.setBuildType(BuildType.MVN);
