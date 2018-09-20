@@ -31,6 +31,7 @@ import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -38,6 +39,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
@@ -49,6 +51,7 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +61,14 @@ import java.util.stream.Collectors;
 @Stateless
 public class BuildResultPushManager {
 
+    /** Generic parameter name for overriding the executionRootName value received from Repour. */
+    private static final String EXECUTION_ROOT_NAME_PARAM = "EXECUTION_ROOT_NAME";
+
+    private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
+    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
+    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/rest/build-records/%d/repour-log";
+
+    private BuildConfigurationRepository buildConfigurationRepository;
     private BuildRecordRepository buildRecordRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private ArtifactRepository artifactRepository;
@@ -70,22 +81,20 @@ public class BuildResultPushManager {
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
-    private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
-    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
-    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/rest/build-records/%d/repour-log";
-
     @Deprecated //required by EJB
     public BuildResultPushManager() {
     }
 
     @Inject
-    public BuildResultPushManager(BuildRecordRepository buildRecordRepository,
+    public BuildResultPushManager(BuildConfigurationRepository buildConfigurationRepository,
+            BuildRecordRepository buildRecordRepository,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             InProgress inProgress,
             Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent,
             ArtifactRepository artifactRepository,
             CausewayClient causewayClient
     ) {
+        this.buildConfigurationRepository =  buildConfigurationRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.inProgress = inProgress;
@@ -176,8 +185,20 @@ public class BuildResultPushManager {
         Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities);
 
         CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken);
+
+        String executionRootName = null;
+        // prefer execution root name from generic parameters
+        BuildConfiguration bc = buildConfigurationRepository.queryById(buildRecord.getBuildConfigurationId());
+        Map<String, String> genericParameters = bc.getGenericParameters();
+        if (genericParameters.containsKey(EXECUTION_ROOT_NAME_PARAM)) {
+            executionRootName = genericParameters.get(EXECUTION_ROOT_NAME_PARAM);
+        }
+        if (executionRootName == null) {
+            executionRootName = buildRecord.getExecutionRootName();
+        }
+
         ProjectVersionRef projectVersionRef = buildRootToGAV(
-                buildRecord.getExecutionRootName(),
+                executionRootName,
                 buildRecord.getExecutionRootVersion());
         Set<Logfile> logs = new HashSet<>();
 
@@ -187,7 +208,7 @@ public class BuildResultPushManager {
                 projectVersionRef.getGroupId(),
                 projectVersionRef.getArtifactId(),
                 projectVersionRef.getVersionString(),
-                buildRecord.getExecutionRootName(),
+                executionRootName,
                 buildRecord.getExecutionRootVersion(),
                 "PNC",
                 buildRecord.getId(),
@@ -230,8 +251,9 @@ public class BuildResultPushManager {
 
     private ProjectVersionRef buildRootToGAV(String executionRootName, String executionRootVersion) {
         String[] splittedName = executionRootName.split(":");
-        if(splittedName.length != 2)
+        if(splittedName.length != 2) {
             throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
+        }
 
         return new SimpleProjectVersionRef(
                 splittedName[0],
