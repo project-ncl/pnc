@@ -233,7 +233,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         Optional<BuildConfigurationAuditedRest> buildConfigurationAuditedRestOptional = buildConfigurationProvider.getLatestAuditedMatchingBCRest(buildConfigurationRest);
 
         if (buildConfigurationAuditedRestOptional.isPresent()) {
-            return Response.ok().entity(buildConfigurationAuditedRestOptional.get()).build();
+            return fromSingleton(buildConfigurationAuditedRestOptional.get());
         } else {
             throw new RuntimeException("Couldn't find updated BuildConfigurationAudited entity. BuildConfigurationRest to be stored: " + buildConfigurationRest);
         }
