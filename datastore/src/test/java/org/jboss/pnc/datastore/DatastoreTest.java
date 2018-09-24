@@ -59,7 +59,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -258,9 +260,16 @@ public class DatastoreTest {
         BuildConfigurationAudited buildConfigAud = buildConfigAudList.get(0);
         Assert.assertNotNull(buildConfigAud);
 
+        String buildsUntestedRepoPath = "builds-untested";
         TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(TargetRepository.Type.MAVEN)
-                .repositoryPath("builds-untested")
+                .repositoryPath(buildsUntestedRepoPath)
+                .identifier("indy-maven")
+                .temporaryRepo(false)
+                .build();
+        TargetRepository targetRepositorySharedImports = TargetRepository.newBuilder()
+                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryPath("shared-imports")
                 .identifier("indy-maven")
                 .temporaryRepo(false)
                 .build();
@@ -299,7 +308,26 @@ public class DatastoreTest {
                 .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepositoryTmp)
                 .build();
-
+        //two equal artifacts in different repository
+        String identifier = "the.same.artifact";
+        long size = 12L;
+        String checksum = "1234456ffsfjjdfddy";
+        Artifact builtDuplicateArtifact = Artifact.Builder.newBuilder()
+                .identifier(identifier)
+                .size(size)
+                .md5("md-fake-" + checksum)
+                .sha1("sha1-fake-" + checksum)
+                .sha256("sha256-fake-" + checksum)
+                .targetRepository(targetRepository)
+                .build();
+        Artifact importedDuplicateArtifact = Artifact.Builder.newBuilder()
+                .identifier(identifier)
+                .size(size)
+                .md5("md-fake-" + checksum)
+                .sha1("sha1-fake-" + checksum)
+                .sha256("sha256-fake-" + checksum)
+                .targetRepository(targetRepositorySharedImports)
+                .build();
 
         User user = User.Builder.newBuilder()
                 .username("pnc2").email("pnc2@redhat.com").build();
@@ -315,15 +343,22 @@ public class DatastoreTest {
                 .builtArtifact(builtArtifact1)
                 .dependency(importedArtifact2)
                 .builtArtifact(builtArtifact3)
+                .builtArtifact(builtDuplicateArtifact)
+                .dependency(importedDuplicateArtifact)
                 .user(user)
                 .temporaryBuild(false);
 
         BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder);
 
-        Assert.assertEquals(2, buildRecord.getBuiltArtifacts().size());
-        Assert.assertEquals(1, buildRecord.getDependencies().size());
-        Assert.assertEquals(3, artifactRepository.queryAll().size());
+        Assert.assertEquals(3, buildRecord.getBuiltArtifacts().size());
+        Assert.assertEquals(2, buildRecord.getDependencies().size());
+        Assert.assertEquals(4, artifactRepository.queryAll().size()); //!only 4 as importedDuplicateArtifact is the same as builtDuplicateArtifact only in different repository
 
+        Set<Artifact.IdentifierSha256> identifiersAndSha = new HashSet<>();
+        identifiersAndSha.add(new Artifact.IdentifierSha256(importedDuplicateArtifact.getIdentifier(), importedDuplicateArtifact.getSha256()));
+        Set<Artifact> artifactsFromDb = artifactRepository.withIdentifierAndSha256s(identifiersAndSha);
+        Assert.assertEquals(1, artifactsFromDb.size());
+        Assert.assertEquals(buildsUntestedRepoPath, artifactsFromDb.stream().findFirst().get().getTargetRepository().getRepositoryPath());
     }
 
     @Test
