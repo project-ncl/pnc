@@ -132,13 +132,19 @@ public class DefaultDatastore implements Datastore {
         logger.debug("Storing completed build {}.", buildRecord);
 
         Map<String, TargetRepository> repositoriesCache = new HashMap<>();
+        Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
+
+        /** Built artifacts must be saved before the dependencies.
+         *  In case an artifact is built and the dependency (re-downloaded),
+         *  it must be linked to built artifacts repository.
+         */
+        logger.debug("Saving built artifacts ...");
+        buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts(), repositoriesCache, artifactCache));
 
         logger.debug("Saving dependencies ...");
-        buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies(), repositoriesCache));
-        logger.debug("Saving built artifacts ...");
-        buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts(), repositoriesCache));
-        logger.debug("Done saving artifacts.");
+        buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies(), repositoriesCache, artifactCache));
 
+        logger.debug("Done saving artifacts.");
         logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
         logger.debug("Build record {} saved.", buildRecord.getId());
@@ -151,9 +157,12 @@ public class DefaultDatastore implements Datastore {
      * artifacts which have been saved to or loaded from the database.
      *
      * @param artifacts of in-memory artifacts to either insert to the database or find the matching record in the db
+     * @param artifactCache
      * @return Set of up to date JPA artifact entities
      */
-    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts, Map<String, TargetRepository> repositoriesCache) {
+    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts,
+            Map<String, TargetRepository> repositoriesCache,
+            Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
@@ -169,7 +178,6 @@ public class DefaultDatastore implements Datastore {
             artifactsInDb = artifactRepository.withIdentifierAndSha256s(artifactConstraints);
         }
 
-        Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
         if (artifactsInDb != null) {
             for (Artifact artifact : artifactsInDb) {
                 logger.trace("Found in DB, adding to cache. Artifact {}", artifact);
@@ -195,9 +203,11 @@ public class DefaultDatastore implements Datastore {
         return savedArtifacts;
     }
 
-    private void linkTargetRepository(Map<String, TargetRepository> repositoriesCache,
+    private void linkTargetRepository(
+            Map<String, TargetRepository> repositoriesCache,
             Artifact artifact,
             TargetRepository targetRepository) {
+
         String repositoriesCacheKey = targetRepository.getIdentifier() + "$$" + targetRepository.getRepositoryPath();
         TargetRepository targetRepositoryFromDb =
                 repositoriesCache.computeIfAbsent(repositoriesCacheKey, k -> getOrSaveTargetRepository(targetRepository));

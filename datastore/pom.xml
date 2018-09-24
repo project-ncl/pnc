@@ -302,12 +302,12 @@
                       <command>
                         /subsystem=logging/logger=org.jboss.pnc.datastore:add(level=TRACE)
                       </command>
-                      <command>
+                      <!--command>
                         /subsystem=logging/logger=org.hibernate:add(level=DEBUG)
                       </command>
                       <command>
                         /subsystem=logging/logger=org.hibernate.type:add(level=TRACE)
-                      </command>
+                      </command-->
                     </commands>
                   </execute-commands>
                 </configuration>
