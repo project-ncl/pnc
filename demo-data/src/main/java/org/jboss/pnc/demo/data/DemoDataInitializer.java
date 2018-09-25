@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import java.lang.invoke.MethodHandles;
  */
 @Singleton
 @Startup
+@DependsOn("CustomSequenceConfiguration")
 public class DemoDataInitializer {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
