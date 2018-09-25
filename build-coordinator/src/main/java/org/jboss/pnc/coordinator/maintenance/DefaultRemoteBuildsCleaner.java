@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -108,7 +109,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             foloAdmin.clearTrackingRecord(buildContentId);
             result = new Result(buildContentId, Result.Status.SUCCESS);
         } catch (IndyClientException e) {
-            String description = "Failed to delete temporary hosted repository identified by buildContentId {}." + buildContentId;
+            String description = MessageFormat.format("Failed to delete temporary hosted repository identified by buildContentId {}.", buildContentId);
             logger.error(description, e);
             result = new Result(buildContentId, Result.Status.FAILED, description);
         } finally {
