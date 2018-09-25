@@ -18,12 +18,16 @@
 
 -->
 <div>
+
+  <pnc-header>
+    <pnc-header-title>Product Milestone {{ milestoneDetailCtrl.milestone.version }}</pnc-header-title>
+    <pnc-header-buttons>
+      <pnc-milestone-actions milestone="milestoneDetailCtrl.milestone" product="milestoneDetailCtrl.product" product-version="milestoneDetailCtrl.productVersion"></pnc-milestone-actions>
+    </pnc-header-buttons>
+  </pnc-header>
+
   <div class="row">
     <div class="col-md-12">
-
-      <div class="page-header">
-        <h1>Product Milestone {{ milestoneDetailCtrl.data.version }}</h1>
-      </div>
 
       <dl class="dl-horizontal">
 

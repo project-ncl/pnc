@@ -25,40 +25,13 @@
    * @author Jakub Senko
    */
   module.directive('pncProductVersionMilestones', [
-    '$log',
-    '$state',
-    function ($log, $state) {
-
+    function () {
       return {
         restrict: 'E',
         templateUrl: 'product/directives/pncProductVersionMilestones/pnc-product-version-milestones.html',
         scope: {
           version: '=',
           product: '='
-        },
-        link: function (scope) {
-
-          var versionDetail = scope.version;
-          var productDetail = scope.product;
-
-          // Mark Milestone as current in Product Version
-          scope.markCurrentMilestone = function (milestone) {
-            $log.debug('Mark milestone as current: %O', milestone);
-
-            versionDetail.currentProductMilestoneId = milestone.id;
-
-            versionDetail.$update({
-              productId: productDetail.id,
-              versionId: versionDetail.id
-            }).then(function () {
-              $state.go('product.detail.version', {
-                productId: productDetail.id,
-                versionId: versionDetail.id
-              }, {
-                reload: true
-              });
-            });
-          };
         }
       };
     }
