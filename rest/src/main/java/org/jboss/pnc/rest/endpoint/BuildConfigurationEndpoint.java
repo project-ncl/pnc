@@ -225,7 +225,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
-    @PUT
+    @POST
     @Path("/{id}/update-and-get-audited")
     public Response updateAndGetAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
@@ -298,9 +298,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    @Path("/{id}/build-a-revision")
+    @Path("/{id}/revisions/{rev}/build")
     public Response triggerAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-                            @ApiParam(value = "Revision of a Build Configuration", required = true) @QueryParam("rev") Integer rev,
+                            @ApiParam(value = "Revision of a Build Configuration", required = true) @PathParam("rev") Integer rev,
                             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
                             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
                             @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
