@@ -16,6 +16,7 @@
 -- limitations under the License.
 --
 
--- insert new columns in build record
-alter table buildrecord add column dependencybuildrecordids text;
-alter table buildrecord add column dependentbuildrecordids text;
+-- insert npm repositories
+insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/group/builds-untested', 'NPM');
+insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (true, 'indy-npm', '/api/content/npm/group/temporary-builds', 'NPM');
+insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/hosted/shared-imports', 'NPM');
