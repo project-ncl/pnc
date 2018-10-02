@@ -20,7 +20,6 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigSetRecordSpringRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 
@@ -55,15 +54,5 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
                 BuildConfigSetRecordPredicates.temporaryBuild(),
                 BuildConfigSetRecordPredicates.buildFinishedBefore(date)
         );
-    }
-
-    @Override
-    public BuildConfigSetRecord getNewestRecordForBuildConfigurationSet(Integer buildConfigSetId) {
-        return manager.createQuery(
-                "select bcsr from BuildConfigSetRecord bcsr "
-                        + "where bcsr.id = "
-                        +   "(select max(bcsr1.id) from BuildConfigSetRecord bcsr1 "
-                        +   "where bcsr1.buildConfigurationSet.id = :buildConfigSetId)", BuildConfigSetRecord.class)
-                .setParameter("buildConfigSetId",buildConfigSetId).getSingleResult();
     }
 }

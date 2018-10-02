@@ -34,9 +34,4 @@ public class BuildConfigSetRecordRepositoryMock extends RepositoryMock<BuildConf
     public List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date) {
         return null;
     }
-
-    @Override
-    public BuildConfigSetRecord getNewestRecordForBuildConfigurationSet(Integer buildConfigSetId) {
-        return null;
-    }
 }
