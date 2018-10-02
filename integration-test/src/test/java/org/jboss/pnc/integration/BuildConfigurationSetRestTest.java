@@ -40,6 +40,7 @@ import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.spi.BuildOptions;
@@ -413,7 +414,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         userRestClient.getLoggedUser(); //initialize user
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setForceRebuild(true);
-        RestResponse<BuildConfigurationSetRest> buildResponse = buildConfigurationSetRestClient.trigger(bcSetRest2.getId(), buildOptions);
+        RestResponse<BuildConfigSetRecordRest> buildResponse = buildConfigurationSetRestClient.trigger(bcSetRest2.getId(), buildOptions);
         Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(buildResponse.getRestCallResponse());
 
         assertThat(buildResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
