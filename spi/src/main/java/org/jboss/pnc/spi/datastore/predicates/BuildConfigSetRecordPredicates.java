@@ -24,6 +24,8 @@ import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.util.Date;
 
 /**
@@ -46,5 +48,17 @@ public class BuildConfigSetRecordPredicates {
 
     public static Predicate<BuildConfigSetRecord> temporaryBuild() {
         return (root, query, cb) -> cb.isTrue(root.get(BuildConfigSetRecord_.temporaryBuild));
+    }
+
+    public static Predicate<BuildConfigSetRecord> newestWithBuildConfigSetID(Integer buildConfigSetId) {
+        return (root, query, cb) -> {
+            Subquery<Integer> subQuery = cb.createQuery(Integer.class).subquery(Integer.class);
+            Root<BuildConfigSetRecord> subRoot = subQuery.from(BuildConfigSetRecord.class);
+            javax.persistence.criteria.Predicate subSelect = cb.equal(
+                    subRoot.get(BuildConfigSetRecord_.buildConfigurationSet).get(BuildConfigurationSet_.id), buildConfigSetId);
+
+            subQuery.select(cb.max(subRoot.get(BuildConfigSetRecord_.id))).where(subSelect);
+            return cb.equal(root.get(BuildConfigSetRecord_.id), cb.any(subQuery));
+        };
     }
 }

@@ -29,6 +29,7 @@ import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -120,7 +121,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         BuildConfigurationSetRest buildConfigurationSetRest = new BuildConfigurationSetRest(buildConfigurationSet);
         // get latest associated record
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.
-                getNewestRecordForBuildConfigurationSet(buildConfigurationSet.getId());
+                queryByPredicates(BuildConfigSetRecordPredicates.newestWithBuildConfigSetID(buildConfigurationSet.getId()));
         // extract BSs from BCSRecord and add them to the set
         List<Integer> buildConfigurationsIds = buildConfigSetRecord
                 .getBuildRecords()
