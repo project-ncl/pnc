@@ -23,7 +23,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.util.graph.Graph;
 
 import java.util.Date;
 import java.util.List;
@@ -35,6 +34,9 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     BuildRecord findByIdFetchAllProperties(Integer id);
 
+    /**
+     * @return null if record is not found.
+     */
     BuildRecord findByIdFetchProperties(Integer id);
 
     List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates);
@@ -55,5 +57,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     List<BuildRecord> findTemporaryBuildsOlderThan(Date date);
 
-    Graph<BuildRecord> getDependencyGraph(Integer buildRecordId);
+    GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId);
+
 }

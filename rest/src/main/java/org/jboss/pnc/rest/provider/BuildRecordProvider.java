@@ -47,6 +47,7 @@ import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.ProjectPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
@@ -80,6 +81,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -184,25 +186,30 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public GraphRest<BuildRecordRest> getDependencyGraphRest(Integer buildId) {
-        Graph<BuildRecordRest> buildRecordGraph = getDependencyGraph(buildId);
-        return RestGraphBuilder.from(buildRecordGraph, BuildRecordRest.class);
+        GraphWithMetadata<BuildRecordRest, Integer> buildRecordGraph = getDependencyGraph(buildId);
+
+        Map<String, String> metadata = getGraphMetadata(buildRecordGraph.getMissingNodeIds());
+        RestGraphBuilder restGraphBuilder = new RestGraphBuilder(metadata);
+        return restGraphBuilder.from(buildRecordGraph.getGraph(), BuildRecordRest.class);
     }
 
-    Graph<BuildRecordRest> getDependencyGraph(Integer buildId) {
+    private GraphWithMetadata<BuildRecordRest, Integer> getDependencyGraph(Integer buildId) {
         BuildTask buildTask = getSubmittedBuild(buildId);
 
-        Graph<BuildRecordRest> buildRecordGraph;
+        GraphWithMetadata<BuildRecordRest, Integer> buildRecordGraph;
         if (buildTask == null) {
             BuildRecord buildRecord = repository.queryById(buildId);
             if (buildRecord == null) {
                 logger.warn("Cannot find build {}", buildId);
                 return null;
             } else {
-                Graph<BuildRecord> dependencyGraph = repository.getDependencyGraph(buildId);
-                buildRecordGraph = convertBuildRecordToRest(dependencyGraph);
+                GraphWithMetadata dependencyGraph = repository.getDependencyGraph(buildId);
+                Graph<BuildRecordRest> buildRecordRestGraph = convertBuildRecordToRest(dependencyGraph.getGraph());
+                buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, dependencyGraph.getMissingNodeIds());
             }
         } else {
-            buildRecordGraph = convertBuildTaskToRecordRest(buildTask.getDependencyGraph());
+            Graph<BuildRecordRest> buildRecordRestGraph = convertBuildTaskToRecordRest(buildTask.getDependencyGraph());
+            buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, new ArrayList<>());
         }
         return buildRecordGraph;
     }
@@ -310,10 +317,27 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         Graph<BuildTask> runningBuildGraph = getRunningBCSetRecordGraph(bcSetRecordId);
         Graph<BuildRecordRest> runningBuildRecordGraph = convertBuildTaskToRecordRest(runningBuildGraph);
 
-        Graph<BuildRecordRest> buildConfigSetRecordGraph = getBuildConfigSetRecordGraph(bcSetRecordId);
+        GraphWithMetadata<BuildRecordRest, Integer> buildConfigSetRecordGraph = getBuildConfigSetRecordGraph(bcSetRecordId);
+        Graph graph = buildConfigSetRecordGraph.getGraph();
 
-        GraphUtils.merge(buildConfigSetRecordGraph, runningBuildRecordGraph);
-        return RestGraphBuilder.from(buildConfigSetRecordGraph, BuildRecordRest.class);
+        GraphUtils.merge(graph, runningBuildRecordGraph);
+
+        Map<String, String> metadata = getGraphMetadata(buildConfigSetRecordGraph.getMissingNodeIds());
+        RestGraphBuilder graphBuilder = new RestGraphBuilder(metadata);
+
+        GraphRest<BuildRecordRest> graphRest = graphBuilder.from(graph, BuildRecordRest.class);
+        return graphRest;
+    }
+
+    private Map<String, String> getGraphMetadata(List<Integer> missingBuildRecordIds) {
+        Map<String, String> metadata = new HashMap<>();
+        if (missingBuildRecordIds.size() > 0) {
+            metadata.put("status", "INCOMPLETE");
+            for (Integer buildRecordId : missingBuildRecordIds) {
+                metadata.put("description", "Missing some Build Records: " + buildRecordId);
+            }
+        }
+        return metadata;
     }
 
     Graph<BuildTask> getRunningBCSetRecordGraph(Integer bcSetRecordId) {
@@ -334,15 +358,16 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return buildGraph;
     }
 
-    Graph<BuildRecordRest> getBuildConfigSetRecordGraph(Integer bcSetRecordId) {
+    private GraphWithMetadata<BuildRecordRest, Integer> getBuildConfigSetRecordGraph(Integer bcSetRecordId) {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(bcSetRecordId);
         Graph<BuildRecordRest> buildGraph = new Graph<>();
-
+        List<Integer> missingBuildRecordId = new ArrayList<>();
         for (BuildRecord buildRecord : buildConfigSetRecord.getBuildRecords()) {
-            Graph<BuildRecordRest> buildRecordRestGraph = getDependencyGraph(buildRecord.getId());
-            GraphUtils.merge(buildGraph, buildRecordRestGraph);
+            GraphWithMetadata<BuildRecordRest, Integer> dependencyGraph = getDependencyGraph(buildRecord.getId());
+            GraphUtils.merge(buildGraph, dependencyGraph.getGraph());
+            missingBuildRecordId.addAll(dependencyGraph.getMissingNodeIds());
         }
-        return buildGraph;
+        return new GraphWithMetadata<>(buildGraph, missingBuildRecordId);
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,

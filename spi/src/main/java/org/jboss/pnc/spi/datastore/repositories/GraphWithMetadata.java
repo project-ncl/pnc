@@ -15,25 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.graph;
+package org.jboss.pnc.spi.datastore.repositories;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.jboss.util.graph.Graph;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Getter
-@AllArgsConstructor
-public class GraphRest<T> {
+public class GraphWithMetadata<T, S> {
 
-    private final Map<String, VertexRest<T>> vertices;
+    Graph<T> graph;
 
-    private final List<EdgeRest<T>> edges;
+    List<S> missingNodeIds;
 
-    private final Map<String, String> metadata;
+    public GraphWithMetadata(Graph<T> graph, List<S> missingNodeIds) {
+        this.graph = graph;
+        this.missingNodeIds = missingNodeIds;
+    }
 
+    public Graph<T> getGraph() {
+        return graph;
+    }
+
+    public List<S> getMissingNodeIds() {
+        return missingNodeIds;
+    }
 }
