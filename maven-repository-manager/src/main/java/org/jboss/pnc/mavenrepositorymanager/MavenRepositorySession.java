@@ -108,7 +108,7 @@ public class MavenRepositorySession implements RepositorySession {
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, Indy serviceAccountIndy, String buildContentId, 
+    public MavenRepositorySession(Indy indy, Indy serviceAccountIndy, String buildContentId,
             MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns,
             Set<String> ignoredPathSuffixes, String buildPromotionGroup, boolean isTempBuild) {
         this.indy = indy;
@@ -283,7 +283,7 @@ public class MavenRepositorySession implements RepositorySession {
                 }
 
                 TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
-                TargetRepository targetRepository = getDownloadsTargetRepository(repoType);
+                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, sk);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -310,7 +310,7 @@ public class MavenRepositorySession implements RepositorySession {
         return deps;
     }
 
-    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
+    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, StoreKey sk) throws RepositoryManagerException {
         TargetRepository targetRepository;
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
             targetRepository = TargetRepository.newBuilder()
@@ -321,7 +321,7 @@ public class MavenRepositorySession implements RepositorySession {
                     .build();
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
             targetRepository = TargetRepository.newBuilder()
-                    .identifier("indy-http")
+                    .identifier("indy-http:" + sk.getName())
                     .repositoryType(repoType)
                     .repositoryPath("/not-available/") //TODO set the path for http cache
                     .temporaryRepo(false)
