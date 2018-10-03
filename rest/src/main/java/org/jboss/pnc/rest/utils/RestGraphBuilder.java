@@ -26,6 +26,7 @@ import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +34,19 @@ import java.util.Map;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class RestGraphBuilder {
+public class RestGraphBuilder<T> {
 
-    public static <T> GraphRest<T> from(Graph<T> graph, Class<T> dataType) {
+    private final Map<String, String> metadata;
+
+    public RestGraphBuilder() {
+        metadata = Collections.EMPTY_MAP;
+    }
+
+    public RestGraphBuilder(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
+
+    public GraphRest<T> from(Graph<T> graph, Class<T> dataType) {
         Map<String, VertexRest<T>> verticles = new LinkedHashMap<>();
         List<EdgeRest<T>> edges = new ArrayList<>();
 
@@ -52,7 +63,7 @@ public class RestGraphBuilder {
                 edges.add(edgeRest);
             }
         }
-        GraphRest<T> graphRest = new GraphRest<>(verticles, edges);
+        GraphRest<T> graphRest = new GraphRest<>(verticles, edges, metadata);
         return graphRest;
     }
 }
