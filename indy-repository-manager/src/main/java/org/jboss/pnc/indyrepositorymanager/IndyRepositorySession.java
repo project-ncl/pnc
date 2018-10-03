@@ -269,7 +269,7 @@ public class IndyRepositorySession implements RepositorySession {
                 }
 
                 TargetRepository.Type repoType = toRepoType(packageType);
-                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, content);
+                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, storeKey, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -307,7 +307,7 @@ public class IndyRepositorySession implements RepositorySession {
         return promotionTargets.get(packageType);
     }
 
-    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, IndyContentClientModule content)
+    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, StoreKey sk, IndyContentClientModule content)
             throws RepositoryManagerException {
         String identifier;
         String repoPath;
@@ -318,7 +318,7 @@ public class IndyRepositorySession implements RepositorySession {
                 identifier = "indy-npm";
                 repoPath = "/api/" + content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
         } else if (repoType == TargetRepository.Type.GENERIC_PROXY) {
-                identifier = "indy-http";
+                identifier = "indy-http:" + sk.getName();
                 repoPath = "/not-available/"; //TODO set the path for http cache
         } else {
             throw new RepositoryManagerException("Repository type " + repoType
