@@ -20,10 +20,10 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.util.graph.Graph;
 
 import java.util.Date;
 import java.util.List;
@@ -77,7 +77,7 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
-    public Graph<BuildRecord> getDependencyGraph(Integer buildRecordId) {
+    public GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId) {
         throw new UnsupportedOperationException();
     }
 
