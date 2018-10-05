@@ -43,14 +43,14 @@ import java.util.Set;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
- * 
+ *
  * Class that maps the artifacts created and/or used by the builds of the projects.
- * The "type" indicates the genesis of the artifact, whether it has been imported from 
+ * The "type" indicates the genesis of the artifact, whether it has been imported from
  * external repositories, or built internally.
- * 
+ *
  * The repoType indicated the type of repository which is used to distributed the artifact.
  * The repoType repo indicates the format for the identifier field.
- * 
+ *
  */
 @Entity
 @Table(
@@ -144,7 +144,7 @@ public class Artifact implements GenericEntity<Integer> {
      * The location from which this artifact was originally downloaded for import
      */
     @Size(max=500)
-    @Column(unique=true, updatable=false, length=500)
+    @Column(unique=false, updatable=false, length=500)
     private String originUrl;
 
     /**
@@ -230,6 +230,7 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
@@ -246,7 +247,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     /**
      * Gets the identifier.
-     * 
+     *
      * The identifier should contain different logic depending on the artifact type: i.e Maven should contain the GAV, NPM and
      * CocoaPOD should be identified differently
      *
@@ -379,7 +380,7 @@ public class Artifact implements GenericEntity<Integer> {
      * Add a build record which produced this artifact
      *
      * @param buildRecord the new project build record
-     * @return 
+     * @return
      */
     public boolean addBuildRecord(BuildRecord buildRecord) {
         return this.buildRecords.add(buildRecord);
@@ -652,15 +653,18 @@ public class Artifact implements GenericEntity<Integer> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (!(o instanceof IdentifierSha256))
+            }
+            if (!(o instanceof IdentifierSha256)) {
                 return false;
+            }
 
             IdentifierSha256 that = (IdentifierSha256) o;
 
-            if (!identifier.equals(that.identifier))
+            if (!identifier.equals(that.identifier)) {
                 return false;
+            }
             return sha256.equals(that.sha256);
         }
 
