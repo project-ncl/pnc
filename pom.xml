@@ -69,6 +69,7 @@
   <modules>
     <module>test-common</module>
     <module>common</module>
+    <module>constants</module>
     <module>causeway-client</module>
     <module>moduleconfig</module>
     <module>auth</module>
@@ -81,6 +82,11 @@
     <module>build-coordinator</module>
     <module>build-executor</module>
     <module>model</module>
+    <module>dto</module>
+    <module>facade</module>
+    <module>rest-api</module>
+    <module>rest-new</module>
+    <module>notifications</module>
     <module>rest</module>
     <module>rest-model</module>
     <module>spi</module>
@@ -119,6 +125,7 @@
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
+    <version.swagger2>2.0.5</version.swagger2>
     <version.buildagent>0.5.0-SNAPSHOT</version.buildagent>
     <version.jackson.core>2.5.4.redhat-1</version.jackson.core>
     <version.org.jboss.resteasy>3.0.24.Final-redhat-1</version.org.jboss.resteasy>
@@ -233,6 +240,12 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>constants</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>common</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -316,6 +329,36 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>dto</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>facade</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-new</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>notifications</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -497,6 +540,24 @@
         <groupId>io.swagger</groupId>
         <artifactId>swagger-annotations</artifactId>
         <version>1.5.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-jaxrs2</artifactId>
+	<version>${version.swagger2}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
+	<version>${version.swagger2}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-annotations</artifactId>
+	<version>${version.swagger2}</version>
       </dependency>
 
       <dependency> <!-- javax.el-api vs el-api ? -->
@@ -731,7 +792,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.16.18</version>
+        <version>1.18.2</version>
         <scope>provided</scope>
       </dependency>
 
