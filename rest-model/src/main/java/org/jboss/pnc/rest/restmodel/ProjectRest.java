@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -72,7 +71,6 @@ public class ProjectRest implements GenericRestEntity<Integer> {
         this.projectUrl = project.getProjectUrl();
         this.configurationIds = nullableStreamOf(project.getBuildConfigurations()).map(
                 buildConfiguration -> buildConfiguration.getId()).collect(Collectors.toList());
-        performIfNotNull(project.getLicense(), () -> this.licenseId = project.getLicense().getId());
     }
 
     /**
@@ -201,7 +199,6 @@ public class ProjectRest implements GenericRestEntity<Integer> {
                 .issueTrackerUrl(issueTrackerUrl)
                 .projectUrl(projectUrl);
 
-        performIfNotNull(this.licenseId, () -> builder.license(License.Builder.newBuilder().id(licenseId).build()));
 
         nullableStreamOf(configurationIds).forEach(configurationId ->
                 builder.buildConfiguration(BuildConfiguration.Builder.newBuilder().id(configurationId).build()));
