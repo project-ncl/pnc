@@ -38,13 +38,12 @@
   function Controller() {
     var $ctrl = this;
 
-    var buildRecord = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+    var buildRecord;
 
-    // -- Controller API --
-
-    $ctrl.isTemporary = isTemporary;
-
-    // --------------------
+    $ctrl.$onInit = function() {
+      buildRecord = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+      $ctrl.isTemporary = isTemporary;
+    };
 
     function isTemporary() {
       return buildRecord.temporaryBuild;
