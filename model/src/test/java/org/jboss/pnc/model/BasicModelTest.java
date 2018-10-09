@@ -279,8 +279,10 @@ public class BasicModelTest extends AbstractModelTest {
         EntityManager em = getEmFactory().createEntityManager();
         EntityTransaction tx = em.getTransaction();
 
-        Project project1 = Project.Builder.newBuilder().name("Project 1").description("Project 1 Description")
-                .license(License.Builder.newBuilder().id(100).build()).build();
+        Project project1 = Project.Builder.newBuilder()
+                .name("Project 1")
+                .description("Project 1 Description")
+                .build();
 
         try {
             tx.begin();

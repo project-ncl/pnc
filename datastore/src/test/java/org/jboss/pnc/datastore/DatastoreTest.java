@@ -27,7 +27,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.SystemImageType;
@@ -40,7 +39,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
@@ -117,9 +115,6 @@ public class DatastoreTest {
     ProjectRepository projectRepository;
 
     @Inject
-    LicenseRepository licenseRepository;
-
-    @Inject
     UserRepository userRepository;
 
     @Inject
@@ -138,7 +133,6 @@ public class DatastoreTest {
     @InSequence(1)
     @Transactional
     public void initBuildConfigData() {
-        License license = License.Builder.newBuilder().fullName("test license").fullContent("test license").build();
         Project project = Project.Builder.newBuilder().name("Test Project 1").description("Test").build();
         BuildEnvironment buildEnv = BuildEnvironment.Builder.newBuilder()
                 .name("test build env")
@@ -157,8 +151,6 @@ public class DatastoreTest {
                 .build();
         BuildConfiguration buildConfig = BuildConfiguration.Builder.newBuilder().name("test build config").buildScript("mvn deploy").build();
 
-        license = licenseRepository.save(license);
-        project.setLicense(license);
         project = projectRepository.save(project);
         buildEnv = buildEnvironmentRepository.save(buildEnv);
         buildEnvironmentRepository.save(buildEnvDeprecated);
