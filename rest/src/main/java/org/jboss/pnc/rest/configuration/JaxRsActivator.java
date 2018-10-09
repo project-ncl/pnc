@@ -33,7 +33,6 @@ import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordPushEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
 import org.jboss.pnc.rest.endpoint.DebugEndpoint;
-import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductReleaseEndpoint;
@@ -114,7 +113,6 @@ public class JaxRsActivator extends Application {
         resources.add(BuildRecordPushEndpoint.class);
         resources.add(RunningBuildRecordEndpoint.class);
         resources.add(UserEndpoint.class);
-        resources.add(LicenseEndpoint.class);
         resources.add(BuildEnvironmentEndpoint.class);
         resources.add(TestEndpoint.class);
         resources.add(BuildTaskEndpoint.class);

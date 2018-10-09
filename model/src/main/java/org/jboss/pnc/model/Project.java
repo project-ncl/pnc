@@ -71,11 +71,6 @@ public class Project implements GenericEntity<Integer> {
     @Size(max=255)
     private String projectUrl;
 
-    @ManyToOne
-    @ForeignKey(name = "fk_project_license")
-    @Index(name="idx_project_license")
-    private License license;
-
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     private Set<BuildConfiguration> buildConfigurations;
 
@@ -159,20 +154,6 @@ public class Project implements GenericEntity<Integer> {
     }
 
     /**
-     * @return the license
-     */
-    public License getLicense() {
-        return license;
-    }
-
-    /**
-     * @param license the license to set
-     */
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
-    /**
      * @return the buildConfigurations
      */
     public Set<BuildConfiguration> getBuildConfigurations() {
@@ -227,8 +208,6 @@ public class Project implements GenericEntity<Integer> {
 
         private String projectUrl;
 
-        private License license;
-
         private Set<BuildConfiguration> buildConfigurations;
 
         private Builder() {
@@ -247,7 +226,6 @@ public class Project implements GenericEntity<Integer> {
             project.setDescription(description);
             project.setIssueTrackerUrl(issueTrackerUrl);
             project.setProjectUrl(projectUrl);
-            project.setLicense(license);
 
             // Set the bi-directional mapping
             for (BuildConfiguration buildConfiguration : buildConfigurations) {
@@ -283,11 +261,6 @@ public class Project implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder license(License license) {
-            this.license = license;
-            return this;
-        }
-
         public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
             this.buildConfigurations.add(buildConfiguration);
             return this;
@@ -316,10 +289,6 @@ public class Project implements GenericEntity<Integer> {
 
         public String getProjectUrl() {
             return projectUrl;
-        }
-
-        public License getLicense() {
-            return license;
         }
 
         public Set<BuildConfiguration> getBuildConfigurations() {

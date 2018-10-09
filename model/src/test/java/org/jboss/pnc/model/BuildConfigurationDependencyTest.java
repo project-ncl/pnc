@@ -47,21 +47,11 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
                 .build();
     }
 
-    public License getLicense() {
-        return License.Builder.newBuilder()
-                .fullName("Sample License")
-                .shortName("SL")
-                .refUrl("http://license.org/license.txt")
-                .fullContent("Just a test")
-                .build();
-    }
-
     public Project getProject() {
         return Project.Builder.newBuilder()
                 .name("Test Project 1")
                 .description("Test Project 1 Description")
                 .issueTrackerUrl("http://isssues.jboss.org")
-                .license(getLicense())
                 .build();
     }
 
@@ -113,7 +103,6 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
     @Test(expected=PersistenceException.class)
     public void testBuildConfigurationDependenciesInDatabase() throws Exception {
 
-        License license = getLicense();
         Project project1 = getProject();
         BuildEnvironment buildEnvironment = getBuildEnvironment();
 
@@ -139,7 +128,6 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
 
         try {
             insertConfigTx.begin();
-            em.persist(license);
             em.persist(buildEnvironment);
             em.persist(project1);
             em.persist(buildConfig1);
@@ -214,10 +202,7 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
 
     @Test
     public void testBuildConfigurationCircularDependencies() throws Exception {
-
-        License license = getLicense();
         Project project1 = getProject();
-        project1.setLicense(license);
         BuildEnvironment buildEnvironmentDefault = getBuildEnvironment();
 
         // Set up sample build configurations, the id needs to be set manually
