@@ -30,10 +30,4 @@ public interface DTOEntity {
      */
     Integer getId();
 
-    /**
-     * Set entity ID
-     *
-     * @param id New Id
-     */
-    void setId(Integer id);
 }
