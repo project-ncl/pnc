@@ -47,15 +47,19 @@
     }
 
     function loadLatestBuild() {
+      var resultPromise;
       if ($ctrl.buildGroup) {
-        BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: $ctrl.buildGroup.id }).then(function (data) {
+        resultPromise = BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: $ctrl.buildGroup.id }).then(function (data) {
           setLatestBuild(_.isArray(data) ? data[0] : null);
         });
       } else {
-        BuildRecord.getLastByConfiguration({ id: $ctrl.buildConfig.id }).$promise.then(function (data) {
+        resultPromise = BuildRecord.getLastByConfiguration({ id: $ctrl.buildConfig.id }).$promise.then(function (data) {
           setLatestBuild(_.isArray(data.content) ? data.content[0] : null);
         });
       }
+      resultPromise.finally(function() {
+        $ctrl.isLoaded = true;
+      });
     }
 
     function updateLatestBuild(id, status, startTime, endTime, userId) {
