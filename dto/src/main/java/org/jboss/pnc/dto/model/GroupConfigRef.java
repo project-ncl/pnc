@@ -15,9 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto;
+package org.jboss.pnc.dto.model;
+
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -27,9 +34,13 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
-public class BuildEnvironmentRef {
+public class GroupConfigRef implements DTOEntity {
 
-    private final int id;
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    protected final Integer id;
+
+    protected final String name;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
