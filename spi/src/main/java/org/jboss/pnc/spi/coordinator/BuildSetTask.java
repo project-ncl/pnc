@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.slf4j.Logger;
@@ -77,7 +78,14 @@ public class BuildSetTask {
      */
     public void taskStatusUpdatedToFinalState() {
         // If any of the build tasks have failed or all are complete, then the build set is done
-        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().equals(BuildCoordinationStatus.CANCELLED))) {
+            log.debug("Marking build set as CANCELLED as one or more tasks were cancelled. BuildSetTask: {}", this);
+            if (log.isDebugEnabled()) {
+                logTasksStatus(buildTasks);
+            }
+            buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.CANCELLED));
+            finishBuildSetTask();
+        } else if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed. BuildSetTask: {}", this);
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
