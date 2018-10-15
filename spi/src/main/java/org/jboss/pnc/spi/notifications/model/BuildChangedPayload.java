@@ -19,9 +19,11 @@ package org.jboss.pnc.spi.notifications.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 
 import java.util.Date;
 

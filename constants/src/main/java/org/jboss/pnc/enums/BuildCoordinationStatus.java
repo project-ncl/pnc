@@ -95,7 +95,7 @@ public enum BuildCoordinationStatus {
      * do not mix statuses
      */
     @Deprecated
-    public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) { // TODO 
+    public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) { // TODO
 
         BuildStatus[] done = {BuildStatus.SUCCESS};
         BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.REJECTED};
@@ -112,6 +112,26 @@ public enum BuildCoordinationStatus {
             return CANCELLED;
         } else {
             return SYSTEM_ERROR;
+        }
+    }
+
+    /**
+     * do not mix statuses
+     */
+    @Deprecated
+    public static BuildCoordinationStatus fromBuildExecutionStatus(BuildExecutionStatus status) { // TODO
+        if (status.equals(BuildExecutionStatus.SYSTEM_ERROR)) {
+            return SYSTEM_ERROR;
+        }
+
+        if (status.isCompleted()) {
+            if (status.hasFailed()) {
+                return DONE_WITH_ERRORS;
+            } else {
+                return DONE;
+            }
+        } else {
+            return BUILDING;
         }
     }
 

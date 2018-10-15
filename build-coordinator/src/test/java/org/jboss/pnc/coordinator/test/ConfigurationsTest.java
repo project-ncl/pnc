@@ -23,7 +23,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -36,6 +36,7 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
+
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
