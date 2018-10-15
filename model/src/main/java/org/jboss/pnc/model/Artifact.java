@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.ArtifactQuality;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,6 +39,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -104,7 +107,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     @NotNull
     @Enumerated(EnumType.STRING) //TODO store as set, to keep history
-    private Artifact.Quality artifactQuality;
+    private ArtifactQuality artifactQuality;
 
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
@@ -166,47 +169,6 @@ public class Artifact implements GenericEntity<Integer> {
         return new IdentifierSha256(identifier, sha256);
     }
 
-    public enum Quality {
-
-        /**
-         * The artifact has not yet been verified or tested
-         */
-        NEW,
-
-        /**
-         * The artifact has been verified by an automated process, but has not yet been tested against
-         * a complete product or other large set of components.
-         */
-        VERIFIED,
-
-        /**
-         * The artifact has passed integration testing.
-         */
-        TESTED,
-
-        /**
-         * The artifact should no longer be used due to lack of support and/or a better alternative
-         * being available.
-         */
-        DEPRECATED,
-
-        /**
-         * The artifact contains a severe defect, possibly a functional or security issue.
-         */
-        BLACKLISTED,
-
-        /**
-         * Artifact with DELETED quality is used to show BuildRecord dependencies although the artifact itself was deleted.
-         * DELETED can be set only from TEMPORARY
-         */
-        DELETED,
-
-        /**
-         * The artifact is from a snapshot or a Pull Request build
-         */
-        TEMPORARY
-
-    }
 
     /**
      * Try to use the {@link Artifact.Builder} instead.
@@ -222,7 +184,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if(artifactQuality != Quality.TEMPORARY) {
+        if(artifactQuality != ArtifactQuality.TEMPORARY) {
             throw new PersistenceException("The non-temporary artifacts cannot be deleted! Only deletion of temporary artifacts is supported ");
         }
     }
@@ -292,13 +254,13 @@ public class Artifact implements GenericEntity<Integer> {
         this.sha256 = sha256;
     }
 
-    public Artifact.Quality getArtifactQuality() {
+    public ArtifactQuality getArtifactQuality() {
         return artifactQuality;
     }
 
-    public void setArtifactQuality(Artifact.Quality artifactQuality) {
-        if (Quality.DELETED.equals(artifactQuality)) {
-            if (!Quality.TEMPORARY.equals(this.artifactQuality)) {
+    public void setArtifactQuality(ArtifactQuality artifactQuality) {
+        if (ArtifactQuality.DELETED.equals(artifactQuality)) {
+            if (!ArtifactQuality.TEMPORARY.equals(this.artifactQuality)) {
                 throw new PersistenceException("Deleted quality can be set only to temporary artifacts.");
             }
         }
@@ -495,7 +457,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Long size;
 
-        private Quality artifactQuality;
+        private ArtifactQuality artifactQuality;
 
         private TargetRepository targetRepository;
 
@@ -532,7 +494,7 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setSha256(sha256);
             artifact.setSize(size);
             if (artifactQuality == null) {
-                artifactQuality = Quality.NEW;
+                artifactQuality = ArtifactQuality.NEW;
             }
             artifact.setArtifactQuality(artifactQuality);
             artifact.setTargetRepository(targetRepository);
@@ -579,7 +541,7 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder artifactQuality(Artifact.Quality artifactQuality) {
+        public Builder artifactQuality(ArtifactQuality artifactQuality) {
             this.artifactQuality = artifactQuality;
             return this;
         }

@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jboss.pnc.enums.ArtifactQuality;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
@@ -443,7 +444,7 @@ public class IndyRepositorySession implements RepositorySession {
                 TargetRepository.Type repoType = toRepoType(storeKey.getPackageType());
                 TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
 
-                Artifact.Quality artifactQuality = getArtifactQuality(isTempBuild);
+                ArtifactQuality artifactQuality = getArtifactQuality(isTempBuild);
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(upload.getMd5())
                         .sha1(upload.getSha1())
@@ -704,11 +705,11 @@ public class IndyRepositorySession implements RepositorySession {
         }
     }
 
-    private Artifact.Quality getArtifactQuality(boolean isTempBuild) {
+    private ArtifactQuality getArtifactQuality(boolean isTempBuild) {
         if (isTempBuild) {
-            return Artifact.Quality.TEMPORARY;
+            return ArtifactQuality.TEMPORARY;
         } else {
-            return Artifact.Quality.NEW;
+            return ArtifactQuality.NEW;
         }
     }
 
