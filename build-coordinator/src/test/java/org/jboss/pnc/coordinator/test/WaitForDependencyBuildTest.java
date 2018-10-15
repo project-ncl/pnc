@@ -21,7 +21,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;

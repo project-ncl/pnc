@@ -18,13 +18,14 @@
 package org.jboss.pnc.spi.coordinator;
 
 import lombok.Getter;
+
 import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;

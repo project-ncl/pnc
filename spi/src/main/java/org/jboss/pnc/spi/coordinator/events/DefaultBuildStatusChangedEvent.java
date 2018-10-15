@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator.events;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import java.util.Date;

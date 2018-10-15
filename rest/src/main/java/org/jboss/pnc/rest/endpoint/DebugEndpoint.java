@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.util.Date;
 
 /**

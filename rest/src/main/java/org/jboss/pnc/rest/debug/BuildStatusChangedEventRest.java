@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.rest.debug;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Date;
 
 @XmlRootElement
