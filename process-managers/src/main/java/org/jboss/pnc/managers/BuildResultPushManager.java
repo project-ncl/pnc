@@ -48,12 +48,15 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.jboss.pnc.enums.BuildPushStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -306,7 +309,7 @@ public class BuildResultPushManager {
 
     public boolean cancelInProgressPush(Integer buildRecordId) {
         BuildRecordPushResultRest buildRecordPushResultRest = BuildRecordPushResultRest.builder()
-                .status(BuildRecordPushResult.Status.CANCELED)
+                .status(BuildPushStatus.CANCELED)
                 .buildRecordId(buildRecordId)
                 .log("Canceled.")
                 .build();
