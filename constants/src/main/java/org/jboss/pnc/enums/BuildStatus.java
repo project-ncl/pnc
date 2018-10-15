@@ -35,6 +35,12 @@ public enum BuildStatus {
     FAILED,
 
     /**
+     * A build has been requested (possibly via dependencies) but no actual build happened as it was
+     * not required (no updates).
+     */
+    NO_REBUILD_REQUIRED (true),
+
+    /**
      * Build completed with test failures
      */
     UNSTABLE (true),

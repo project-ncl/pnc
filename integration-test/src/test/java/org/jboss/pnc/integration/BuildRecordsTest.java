@@ -28,7 +28,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
+
 import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.util.Collection;

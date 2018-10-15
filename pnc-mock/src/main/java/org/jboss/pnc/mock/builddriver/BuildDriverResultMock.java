@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mock.builddriver;
 
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 
 /**

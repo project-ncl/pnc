@@ -24,7 +24,7 @@ import org.jboss.pnc.mock.executor.BuildExecutionConfigurationMock;
 import org.jboss.pnc.mock.executor.BuildProcessExceptionMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.mock.repour.RepourResultMock;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;

@@ -19,7 +19,7 @@
 package org.jboss.pnc.restmodel.serialization;
 
 import org.jboss.pnc.mock.spi.BuildResultMock;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;

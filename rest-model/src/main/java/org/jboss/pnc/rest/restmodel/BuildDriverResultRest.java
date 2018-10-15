@@ -19,7 +19,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
