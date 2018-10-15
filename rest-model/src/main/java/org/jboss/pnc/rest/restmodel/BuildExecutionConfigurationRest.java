@@ -19,15 +19,18 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
