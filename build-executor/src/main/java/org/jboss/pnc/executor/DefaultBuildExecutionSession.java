@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.executor;
 
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.DebugData;
@@ -39,7 +39,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
+import static org.jboss.pnc.enums.BuildExecutionStatus.DONE_WITH_ERRORS;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

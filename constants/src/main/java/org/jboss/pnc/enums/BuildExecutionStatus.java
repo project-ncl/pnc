@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.spi;
+package org.jboss.pnc.enums;
 
 /**
  * Represents the status of the task in the execution "sub-process".

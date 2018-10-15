@@ -24,7 +24,7 @@ import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

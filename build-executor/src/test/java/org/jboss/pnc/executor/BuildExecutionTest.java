@@ -28,7 +28,7 @@ import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -43,15 +43,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_DESTROYED;
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_DESTROYING;
-import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_ENV_DESTROYED;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_ENV_DESTROYING;
+import static org.jboss.pnc.enums.BuildExecutionStatus.DONE_WITH_ERRORS;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

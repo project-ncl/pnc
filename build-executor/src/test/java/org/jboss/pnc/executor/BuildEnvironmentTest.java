@@ -29,7 +29,7 @@ import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,12 +52,12 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_SETTING_UP;
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS;
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR;
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_WAITING;
-import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_SETTING_UP;
-import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_ENV_SETTING_UP;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_ENV_WAITING;
+import static org.jboss.pnc.enums.BuildExecutionStatus.BUILD_SETTING_UP;
+import static org.jboss.pnc.enums.BuildExecutionStatus.DONE_WITH_ERRORS;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
