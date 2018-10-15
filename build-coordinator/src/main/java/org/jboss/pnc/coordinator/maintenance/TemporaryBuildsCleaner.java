@@ -29,9 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.jboss.pnc.enums.ArtifactQuality;
 
 /**
  * Bean providing an interface to delete temporary builds
@@ -106,7 +109,7 @@ public class TemporaryBuildsCleaner {
     private void deleteDependencies(BuildRecord buildRecord) {
         for(Artifact artifact : buildRecord.getDependencies()) {
             //check if the BR in which this artifact was produced has been already deleted
-            if(Artifact.Quality.DELETED.equals(artifact.getArtifactQuality())) {
+            if(ArtifactQuality.DELETED.equals(artifact.getArtifactQuality())) {
                 if (artifact.getDependantBuildRecords().size() == 0) {
                     artifactRepository.delete(artifact.getId());
                 }
@@ -118,7 +121,7 @@ public class TemporaryBuildsCleaner {
         for(Artifact artifact : artifactsToBeDeleted) {
             if (artifact.getDependantBuildRecords().size() > 0) {
                 log.info("Marking temporary artifact as DELETED: " + artifact.getDescriptiveString());
-                artifact.setArtifactQuality(Artifact.Quality.DELETED);
+                artifact.setArtifactQuality(ArtifactQuality.DELETED);
                 artifactRepository.save(artifact);
             } else {
                 log.info("Deleting temporary artifact: " + artifact.getDescriptiveString());

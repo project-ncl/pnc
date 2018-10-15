@@ -63,6 +63,7 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.HashSet;
@@ -71,6 +72,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jboss.pnc.enums.ArtifactQuality;
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -260,7 +262,7 @@ public class TemporaryBuildsCleanerTest {
     public void shouldNotDeleteNonTemporaryArtifacts() {
         // given
         Artifact artifact = initArtifactBuilder()
-                .artifactQuality(Artifact.Quality.NEW)
+                .artifactQuality(ArtifactQuality.NEW)
                 .build();
         artifactRepository.save(artifact);
 
@@ -334,7 +336,7 @@ public class TemporaryBuildsCleanerTest {
 
     private Artifact storeAndGetArtifact() {
         Artifact artifact = initArtifactBuilder()
-                .artifactQuality(Artifact.Quality.TEMPORARY)
+                .artifactQuality(ArtifactQuality.TEMPORARY)
                 .build();
         return artifactRepository.save(artifact);
 

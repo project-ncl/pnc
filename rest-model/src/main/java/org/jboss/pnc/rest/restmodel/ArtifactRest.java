@@ -18,9 +18,11 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -29,10 +31,12 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jboss.pnc.enums.ArtifactQuality;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Artifact")
@@ -46,7 +50,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     private String identifier;
 
     @ApiModelProperty(dataType = "string")
-    private Artifact.Quality artifactQuality;
+    private ArtifactQuality artifactQuality;
 
     @Getter
     private TargetRepositoryRest targetRepository;
@@ -149,11 +153,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.targetRepository = targetRepository;
     }
 
-    public Artifact.Quality getArtifactQuality() {
+    public ArtifactQuality getArtifactQuality() {
         return artifactQuality;
     }
 
-    public void setArtifactQuality(Artifact.Quality artifactQuality) {
+    public void setArtifactQuality(ArtifactQuality artifactQuality) {
         this.artifactQuality = artifactQuality;
     }
 
