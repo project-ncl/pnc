@@ -21,7 +21,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
@@ -31,6 +30,7 @@ import javax.inject.Inject;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import org.jboss.pnc.enums.SystemImageType;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

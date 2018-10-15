@@ -22,7 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;

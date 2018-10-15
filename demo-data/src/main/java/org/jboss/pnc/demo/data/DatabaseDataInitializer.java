@@ -38,7 +38,7 @@ import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;

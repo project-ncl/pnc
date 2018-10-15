@@ -21,7 +21,7 @@ package org.jboss.pnc.rest.serialization;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
