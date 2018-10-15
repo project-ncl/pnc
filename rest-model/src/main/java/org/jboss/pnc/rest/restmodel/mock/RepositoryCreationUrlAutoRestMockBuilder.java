@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.restmodel.mock;
 
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
