@@ -23,7 +23,7 @@ import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;

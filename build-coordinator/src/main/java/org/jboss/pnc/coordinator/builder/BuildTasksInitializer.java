@@ -205,7 +205,7 @@ public class BuildTasksInitializer {
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
                 .startTime(new Date())
-                .status(org.jboss.pnc.model.BuildStatus.BUILDING)
+                .status(org.jboss.pnc.enums.BuildStatus.BUILDING)
                 .temporaryBuild(buildOptions.isTemporaryBuild())
                 .build();
 

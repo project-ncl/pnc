@@ -23,13 +23,14 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+
 import java.util.List;
 
 import static org.jboss.pnc.common.Configuration.CONFIG_SYSPROP;

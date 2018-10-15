@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.BuildStatus;
 import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.common.security.Md5;
@@ -51,6 +52,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
