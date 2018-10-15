@@ -28,7 +28,7 @@ import org.jboss.pnc.rest.executor.notifications.NotificationSender;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.utils.BpmNotifier;
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;

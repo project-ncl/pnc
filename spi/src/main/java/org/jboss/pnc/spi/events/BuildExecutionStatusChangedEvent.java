@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.spi.events;
 
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 
 import java.util.Optional;
