@@ -58,7 +58,7 @@ public enum BuildCoordinationStatus {
     /**
      * Rejected because given {@link org.jboss.pnc.model.BuildConfiguration} has been already built.
      */
-    REJECTED_ALREADY_BUILT(true, false),
+    REJECTED_ALREADY_BUILT(false, false),
 
     SYSTEM_ERROR(true, true),
 
@@ -95,12 +95,13 @@ public enum BuildCoordinationStatus {
      * do not mix statuses
      */
     @Deprecated
-    public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) { // TODO 
+    public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) { // TODO
 
         BuildStatus[] done = {BuildStatus.SUCCESS};
         BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.REJECTED};
         BuildStatus[] cancelled = {BuildStatus.CANCELLED};
         BuildStatus[] building = {BuildStatus.BUILDING};
+        BuildStatus[] notRequired = {BuildStatus.NO_REBUILD_REQUIRED};
 
         if (Arrays.asList(done).contains(buildStatus)) {
             return DONE;
@@ -110,8 +111,30 @@ public enum BuildCoordinationStatus {
             return BUILDING;
         } else if (Arrays.asList(cancelled).contains(buildStatus)) {
             return CANCELLED;
+        } else if (Arrays.asList(notRequired).contains(buildStatus)) {
+            return REJECTED_ALREADY_BUILT;
         } else {
             return SYSTEM_ERROR;
+        }
+    }
+
+    /**
+     * do not mix statuses
+     */
+    @Deprecated
+    public static BuildCoordinationStatus fromBuildExecutionStatus(BuildExecutionStatus status) { // TODO
+        if (status.equals(BuildExecutionStatus.SYSTEM_ERROR)) {
+            return SYSTEM_ERROR;
+        }
+
+        if (status.isCompleted()) {
+            if (status.hasFailed()) {
+                return DONE_WITH_ERRORS;
+            } else {
+                return DONE;
+            }
+        } else {
+            return BUILDING;
         }
     }
 

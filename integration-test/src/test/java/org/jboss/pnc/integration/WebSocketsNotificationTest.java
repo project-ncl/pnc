@@ -24,7 +24,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -45,6 +45,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.time.temporal.ChronoUnit;

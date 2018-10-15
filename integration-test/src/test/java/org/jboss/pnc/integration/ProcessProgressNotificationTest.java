@@ -28,7 +28,7 @@ import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.rest.notifications.websockets.ProgressUpdatesRequest;
 import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -49,6 +49,7 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Date;
