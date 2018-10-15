@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -62,6 +62,7 @@ import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;

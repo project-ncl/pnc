@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.IdRev;

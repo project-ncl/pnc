@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.spi.executor;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;

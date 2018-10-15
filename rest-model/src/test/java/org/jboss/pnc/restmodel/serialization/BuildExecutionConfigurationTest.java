@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.restmodel.serialization;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;

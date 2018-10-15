@@ -33,7 +33,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
