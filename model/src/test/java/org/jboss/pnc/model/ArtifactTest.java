@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class ArtifactTest extends AbstractModelTest {
     public void shouldProhibitDeletionOfNonTemporaryArtifact() {
         // given
         Artifact artifact = prepareArtifactBuilder()
-                .artifactQuality(Artifact.Quality.NEW)
+                .artifactQuality(ArtifactQuality.NEW)
                 .build();
 
         em.getTransaction().begin();
@@ -82,7 +83,7 @@ public class ArtifactTest extends AbstractModelTest {
     public void shouldAllowDeletionOfTemporaryArtifact() {
         // given
         Artifact artifact = prepareArtifactBuilder()
-                .artifactQuality(Artifact.Quality.TEMPORARY)
+                .artifactQuality(ArtifactQuality.TEMPORARY)
                 .build();
 
         em.getTransaction().begin();
