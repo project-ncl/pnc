@@ -25,7 +25,7 @@ import lombok.Setter;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 

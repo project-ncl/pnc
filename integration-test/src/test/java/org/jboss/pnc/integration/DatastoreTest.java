@@ -30,7 +30,7 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.datastore.audit.AuditRepository;
 import org.jboss.pnc.spi.datastore.audit.Revision;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
