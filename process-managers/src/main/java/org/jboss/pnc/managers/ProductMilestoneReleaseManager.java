@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +56,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import org.jboss.pnc.enums.BuildPushStatus;
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
 /**
@@ -208,7 +210,7 @@ public class ProductMilestoneReleaseManager {
         String combinedLog = ArtifactImportError.combineMessages(buildRest.getErrorMessage(), buildRest.getErrors());
 
 
-        BuildRecordPushResult.Status status;
+        BuildPushStatus status;
         try {
             status = convertStatus(buildRest.getStatus());
         } catch (ProcessManagerException e) {
@@ -227,14 +229,14 @@ public class ProductMilestoneReleaseManager {
         buildRecordPushResultRepository.save(buildRecordPush);
     }
 
-    private BuildRecordPushResult.Status convertStatus(BuildImportStatus status) throws ProcessManagerException {
+    private BuildPushStatus convertStatus(BuildImportStatus status) throws ProcessManagerException {
         switch (status) {
             case SUCCESSFUL:
-                return BuildRecordPushResult.Status.SUCCESS;
+                return BuildPushStatus.SUCCESS;
             case FAILED:
-                return BuildRecordPushResult.Status.FAILED;
+                return BuildPushStatus.FAILED;
             case ERROR:
-                return BuildRecordPushResult.Status.SYSTEM_ERROR;
+                return BuildPushStatus.SYSTEM_ERROR;
         }
         throw new ProcessManagerException("Invalid BuildImportStatus: " + status.toString());
     }

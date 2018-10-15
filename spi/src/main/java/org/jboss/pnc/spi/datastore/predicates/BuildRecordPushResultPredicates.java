@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.BuildRecordPushResult_;
 import org.jboss.pnc.model.BuildRecord_;
@@ -35,9 +36,8 @@ public class BuildRecordPushResultPredicates {
     }
     
     public static Predicate<BuildRecordPushResult> successForBuildRecord(Integer buildRecordId) {
-        return (root, query, cb) -> cb.and(
-            cb.equal(root.get(BuildRecordPushResult_.buildRecord).get(BuildRecord_.id), buildRecordId),
-            cb.equal(root.get(BuildRecordPushResult_.status), BuildRecordPushResult.Status.SUCCESS )
+        return (root, query, cb) -> cb.and(cb.equal(root.get(BuildRecordPushResult_.buildRecord).get(BuildRecord_.id), buildRecordId),
+            cb.equal(root.get(BuildRecordPushResult_.status), BuildPushStatus.SUCCESS )
         );
     }
 

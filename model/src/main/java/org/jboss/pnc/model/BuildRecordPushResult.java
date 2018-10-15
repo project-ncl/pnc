@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.BuildPushStatus;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
@@ -52,7 +53,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     private BuildRecord buildRecord;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private BuildPushStatus status;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -87,9 +88,6 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
         return new Builder();
     }
 
-    public enum Status {
-        SUCCESS, FAILED, SYSTEM_ERROR, CANCELED;
-    }
 
     @Override
     public Integer getId() {
@@ -109,11 +107,11 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
         this.buildRecord = buildRecord;
     }
 
-    public Status getStatus() {
+    public BuildPushStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(BuildPushStatus status) {
         this.status = status;
     }
 
@@ -168,7 +166,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
 
         private BuildRecord buildRecord;
 
-        private Status status;
+        private BuildPushStatus status;
 
         private String log;
 
@@ -191,7 +189,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder status(Status val) {
+        public Builder status(BuildPushStatus val) {
             status = val;
             return this;
         }
