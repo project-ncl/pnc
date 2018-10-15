@@ -22,7 +22,7 @@ import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.notifications.websockets.DefaultNotifier;
 import org.jboss.pnc.rest.provider.ArtifactProvider;

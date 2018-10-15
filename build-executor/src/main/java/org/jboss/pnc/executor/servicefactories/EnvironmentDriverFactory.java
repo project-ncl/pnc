@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.executor.servicefactories;
 
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 

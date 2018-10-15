@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.SystemImageType;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
@@ -36,6 +37,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.util.HashMap;
 import java.util.Map;
 

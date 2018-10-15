@@ -18,10 +18,11 @@
 package org.jboss.pnc.environment.openshift;
 
 import com.openshift.internal.restclient.DefaultClient;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
