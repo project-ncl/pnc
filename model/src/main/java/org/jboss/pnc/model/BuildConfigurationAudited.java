@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.BuildType;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

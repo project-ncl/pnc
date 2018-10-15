@@ -19,8 +19,9 @@ package org.jboss.pnc.rest.restmodel;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -29,6 +30,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
