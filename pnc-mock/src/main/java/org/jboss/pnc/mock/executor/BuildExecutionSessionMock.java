@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mock.executor;
 
-import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.DebugData;
@@ -39,7 +39,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
+import static org.jboss.pnc.enums.BuildExecutionStatus.DONE_WITH_ERRORS;
 
 /**
  * This is a Copy of org.jboss.pnc.executor.DefaultBuildExecutionSession due to a module dependency issue.
