@@ -19,10 +19,12 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -32,7 +34,10 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+
 import java.util.List;
+
+import org.jboss.pnc.enums.BuildPushStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -54,7 +59,7 @@ public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
 
     @NotNull
     @Getter
-    private BuildRecordPushResult.Status status;
+    private BuildPushStatus status;
 
     @NotNull
     @Getter

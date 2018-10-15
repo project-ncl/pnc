@@ -26,6 +26,8 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import org.jboss.pnc.enums.BuildPushStatus;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -37,7 +39,7 @@ public class BuildRecordPushResultRestEventTest {
         BuildRecordPushResultRest buildRecordPushResultRest = new BuildRecordPushResultRest(
                 1,
                 2,
-                BuildRecordPushResult.Status.SUCCESS,
+                BuildPushStatus.SUCCESS,
                 "He's in the best selling show",
                 Collections.emptyList(),
                 3,
