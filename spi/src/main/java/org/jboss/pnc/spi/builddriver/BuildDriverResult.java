@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.enums.BuildStatus;
 
 import java.io.Serializable;
 
