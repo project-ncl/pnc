@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.DeploymentException;
+
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import org.jboss.pnc.enums.BuildPushStatus;
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
 @RunWith(Arquillian.class)
@@ -143,7 +145,7 @@ public class BuildRecordPushTest extends AbstractTest {
 
     private void mockCompletedFromCauseway(BuildRecordPushRestClient pushRestClient, Integer buildRecordId) {
         BuildRecordPushResultRest pushResultRest = BuildRecordPushResultRest.builder()
-                .status(BuildRecordPushResult.Status.SUCCESS)
+                .status(BuildPushStatus.SUCCESS)
                 .log(PUSH_LOG)
                 .buildRecordId(buildRecordId)
                 .build();
