@@ -39,21 +39,14 @@
   <productrelease id="1" productmilestone_id="1"
     version="1.0.0.Beta1" />
 
-  <license id="1" fullName="Apache License Version 2.0"
-    shortName="Apache 2.0" refUrl="http://apache.org/licenses/LICENSE-2.0.txt"
-    fullContent="This is just test data" />
-  <license id="2" fullName="GNU General Public License Version 3"
-    shortName="GPLv3" refUrl="http://www.gnu.org/licenses/gpl.txt"
-    fullContent="This is just test data" />
-
   <buildenvironment id="1" name="Mock Test Build System"
     description="Mock build system record for testing" systemImageId="123456"
     systemImageType="DOCKER_IMAGE" deprecated="false" />
 
   <project id="1" name="Test Project 1" description="Test Project 1 Description"
-    issueTrackerUrl="http://issues.jboss.org" license_id="1" />
+    issueTrackerUrl="http://issues.jboss.org" />
   <project id="2" name="Test Project 2" description="Test Project 2 Description"
-    issueTrackerUrl="http://issues.jboss.org" license_id="2" />
+    issueTrackerUrl="http://issues.jboss.org" />
 
   <repositoryconfiguration id="1" internalUrl="http://www.github.com" preBuildSyncEnabled="false" />
   <repositoryconfiguration id="2" internalUrl="http://www.example.com" preBuildSyncEnabled="false" />
