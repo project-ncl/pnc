@@ -134,7 +134,8 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
             ProductVersionRest productVersionRest) throws RestValidationException {
-        return super.update(id, productVersionRest);
+        productVersionProvider.update(id, productVersionRest);
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Gets build configuration sets associated with a product version")
