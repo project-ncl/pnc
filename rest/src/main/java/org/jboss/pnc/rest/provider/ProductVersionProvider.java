@@ -175,6 +175,15 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     }
 
     @Override
+    public void update(Integer id, ProductVersionRest restEntity) throws RestValidationException {
+        ProductVersionRest current = super.getSpecific(id);
+        if (current.getVersion().equals(restEntity.getVersion()) && current.getProductMilestones().stream().anyMatch(milestone -> milestone.getEndDate() != null)) {
+            throw new InvalidEntityException("Cannot change version id due to having closed milestone. Product version id: " + id);
+        }
+        super.update(id, restEntity);
+    }
+
+    @Override
     protected void validateBeforeSaving(ProductVersionRest restEntity) throws RestValidationException {
         super.validateBeforeSaving(restEntity);
         Product product = productRepository.queryById(restEntity.getProductId());
