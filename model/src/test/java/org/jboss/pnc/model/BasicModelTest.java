@@ -69,7 +69,6 @@ public class BasicModelTest extends AbstractModelTest {
         Assert.assertEquals(2, em.createQuery("from Product").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from ProductVersion").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from ProductMilestone").getResultList().size());
-        Assert.assertEquals(2, em.createQuery("from License").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from BuildConfiguration").getResultList().size());
         Assert.assertEquals(2, em.createQuery("from RepositoryConfiguration").getResultList().size());
     }
@@ -263,32 +262,6 @@ public class BasicModelTest extends AbstractModelTest {
 
             ProductRelease release = em.find(ProductRelease.class, productRelease1.getId());
             Assert.assertEquals(1, release.getProductMilestone().getDistributedArtifacts().size());
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    @Test(expected = RollbackException.class)
-    public void testProjectInsertConstraintFailure() throws Exception {
-
-        EntityManager em = getEmFactory().createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-
-        Project project1 = Project.Builder.newBuilder()
-                .name("Project 1")
-                .description("Project 1 Description")
-                .build();
-
-        try {
-            tx.begin();
-            // Expect this to fail because of missing license foreign key
-            em.persist(project1);
-            tx.commit();
         } catch (RuntimeException e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
