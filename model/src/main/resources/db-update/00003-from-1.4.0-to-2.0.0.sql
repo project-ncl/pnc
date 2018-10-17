@@ -16,6 +16,11 @@
 -- limitations under the License.
 --
 
+-- Add active field from NCL-3702 to BCS table (for archiving)
+alter table BuildConfigurationSet add column active boolean;
+-- by default all existing BCS are active
+update BuildConfigurationSet set active = true;
+
 -- insert npm repositories
 insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/group/builds-untested', 'NPM');
 insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (true, 'indy-npm', '/api/content/npm/group/temporary-builds', 'NPM');
