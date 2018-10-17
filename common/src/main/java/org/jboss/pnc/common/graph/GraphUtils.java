@@ -22,7 +22,6 @@ import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +43,8 @@ public class GraphUtils {
 
         //create edges
         for (Vertex<T> vertex: addedVerticies) {
-            for (Object o : Collections.unmodifiableCollection(vertex.getOutgoingEdges())) {
+            ArrayList outgoingEdges = new ArrayList<>(vertex.getOutgoingEdges());
+            for (Object o : outgoingEdges) {
                 Edge<T> edge = (Edge<T>) o;
                 target.addEdge(
                         target.findVertexByName(edge.getFrom().getName()),
