@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
-import org.jboss.pnc.model.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
@@ -32,6 +33,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
+
 import java.util.Date;
 
 /**
