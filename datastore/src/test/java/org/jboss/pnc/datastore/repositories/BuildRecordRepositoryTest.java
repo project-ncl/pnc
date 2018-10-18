@@ -27,6 +27,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -68,7 +69,7 @@ public class BuildRecordRepositoryTest {
     public void shouldFindNoneExpiredTemporaryBuilds() {
         // given
         Date now = new Date();
-        BuildRecord givenBr = initBuildRecordBuilder()
+        BuildRecord givenBr = initBuildRecordBuilder(datastore.getNextBuildRecordId())
                 .endTime(now)
                 .temporaryBuild(true)
                 .build();
@@ -85,7 +86,7 @@ public class BuildRecordRepositoryTest {
     @Test
     public void shouldFindExpiredTemporaryBuilds() {
         // given
-        BuildRecord givenBr = initBuildRecordBuilder()
+        BuildRecord givenBr = initBuildRecordBuilder(datastore.getNextBuildRecordId())
                 .endTime(new Date(0))
                 .temporaryBuild(true)
                 .build();
@@ -99,8 +100,44 @@ public class BuildRecordRepositoryTest {
         assertEquals(givenBr.getId(), found.get(0).getId());
     }
 
+    @InSequence(3)
+    @Test
+    public void dependencyGraphTest() {
+        // given
+        Date now = new Date();
+        BuildRecord buildRecord1 = initBuildRecordBuilder(100001)
+                .endTime(now)
+                .temporaryBuild(true)
+                .dependencyBuildRecordIds(new Integer[]{100002})
+                .dependentBuildRecordIds(new Integer[]{})
+                .build();
+        buildRecordRepository.save(buildRecord1);
 
-    private BuildRecord.Builder initBuildRecordBuilder() {
+        BuildRecord buildRecord2 = initBuildRecordBuilder(100002)
+                .endTime(now)
+                .temporaryBuild(true)
+                .dependencyBuildRecordIds(new Integer[]{100003})
+                .dependentBuildRecordIds(new Integer[]{100001})
+                .build();
+        buildRecordRepository.save(buildRecord2);
+
+        BuildRecord buildRecord3 = initBuildRecordBuilder(100003)
+                .endTime(now)
+                .temporaryBuild(true)
+                .dependencyBuildRecordIds(new Integer[]{})
+                .dependentBuildRecordIds(new Integer[]{100002})
+                .build();
+        buildRecordRepository.save(buildRecord3);
+
+        // when
+        GraphWithMetadata<BuildRecord, Integer> dependencyGraph = buildRecordRepository.getDependencyGraph(100002);
+
+        // then
+        assertEquals(3, dependencyGraph.getGraph().size());
+    }
+
+
+    private BuildRecord.Builder initBuildRecordBuilder(Integer id) {
         if(user == null) {
             List<User> users = userRepository.queryWithPredicates(UserPredicates.withUserName("demo-user"));
             if (users.size() > 0) {
@@ -117,7 +154,7 @@ public class BuildRecordRepositoryTest {
         }
 
         return BuildRecord.Builder.newBuilder()
-                .id(datastore.getNextBuildRecordId())
+                .id(id)
                 .buildConfigurationAuditedId(1)
                 .buildConfigurationAuditedRev(1)
                 .submitTime(new Date())
