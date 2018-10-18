@@ -17,39 +17,30 @@
  */
 package org.jboss.pnc.dto.model;
 
-import org.jboss.pnc.dto.validation.constraints.RefHasId;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
-@Builder(builderClassName = "Builder")
+@Data
 public class Build extends BuildRef {
 
     private final ProjectRef project;
 
     private final RepositoryConfigurationRef repository;
 
-    private final BuildEnvironmentRef buildEnvironmentId;
+    private final BuildEnvironment buildEnvironmentId;
 
     private final Map<String, String> attributes;
-
-    private final GroupBuildRef groupBuild;
-
-    /**
-     * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
-     */
-    private final ProductMilestoneRef productMilestone;
 
     private final UserRef user;
 
@@ -58,6 +49,19 @@ public class Build extends BuildRef {
     private final List<Integer> dependentBuildIds;
 
     private final List<Integer> dependencyBuildIds;
+
+    @lombok.Builder(builderClassName = "Builder")
+    public Build(ProjectRef project, RepositoryConfigurationRef repository, BuildEnvironment buildEnvironmentId, Map<String, String> attributes, UserRef user, BuildConfigurationRevisionRef buildConfigurationAudited, List<Integer> dependentBuildIds, List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime, BuildCoordinationStatus status, String buildContentId, Boolean temporaryBuild) {
+        super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild);
+        this.project = project;
+        this.repository = repository;
+        this.buildEnvironmentId = buildEnvironmentId;
+        this.attributes = attributes;
+        this.user = user;
+        this.buildConfigurationAudited = buildConfigurationAudited;
+        this.dependentBuildIds = dependentBuildIds;
+        this.dependencyBuildIds = dependencyBuildIds;
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

@@ -17,22 +17,19 @@
  */
 package org.jboss.pnc.dto.model;
 
-import org.jboss.pnc.dto.validation.constraints.RefHasId;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.BuildType;
 
 import java.time.Instant;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Value;
+import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
+@Data
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
     private final RepositoryConfigurationRef repositoryConfiguration;

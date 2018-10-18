@@ -24,26 +24,25 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Value;
+import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
+@Data
 public class GroupConfig extends GroupConfigRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
-    private final List<Integer> buildConfigurationIds;
+    private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder")
-    GroupConfig(ProductVersionRef productVersion, List<Integer> buildConfigurationIds, Integer id, String name) {
+    GroupConfig(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
         super(id, name);
         this.productVersion = productVersion;
-        this.buildConfigurationIds = buildConfigurationIds;
+        this.buildConfigurations = buildConfigurations;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
