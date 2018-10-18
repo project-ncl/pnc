@@ -25,7 +25,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.model.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
