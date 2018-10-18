@@ -21,17 +21,17 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Value;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
+@Data
 @Builder(builderClassName = "Builder")
 public class ArtifactImportError {
 
     private final Integer artifactId;
+
     private final String errorMessage;
 
     @JsonPOJOBuilder(withPrefix = "")

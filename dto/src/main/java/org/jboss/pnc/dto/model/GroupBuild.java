@@ -23,14 +23,13 @@ import java.time.Instant;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Value;
+import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
+@Data
 public class GroupBuild extends GroupBuildRef {
 
     private final GroupConfigRef groupConfig;
