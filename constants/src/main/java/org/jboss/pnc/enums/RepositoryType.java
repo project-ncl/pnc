@@ -15,24 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.executor;
-
-import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.TargetRepository;
+package org.jboss.pnc.enums;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * Types of artifact repositories
+ *
+ * Types *_TEMPORAL are repository groups for temporal build (Snapshots / Pull Request)
  */
-public class BuildTypeToRepositoryType {
+public enum RepositoryType {
+    /**
+     * Maven artifact repository such as Maven central (http://central.maven.org/maven2/).
+     */
+    MAVEN,
+    /**
+     * Node.js package repository such as https://registry.npmjs.org/.
+     */
+    NPM,
+    /**
+     * CocoaPod repository for managing Swift and Objective-C Cocoa dependencies.
+     */
+    COCOA_POD,
+    /**
+     * Generic HTTP proxy that captures artifacts with an unsupported, or no specific, repository
+     * type.
+     */
+    GENERIC_PROXY
 
-    public static RepositoryType getRepositoryType(BuildType buildType) {
-        switch (buildType) {
-            case MVN:
-                return RepositoryType.MAVEN;
-            case NPM:
-                return RepositoryType.NPM;
-        }
-        throw new RuntimeException("Cannot create repository for build type: " + buildType);
-    }
 }

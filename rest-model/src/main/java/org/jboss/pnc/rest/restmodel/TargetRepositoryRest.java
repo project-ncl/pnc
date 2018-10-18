@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.TargetRepository;
@@ -34,9 +35,12 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.jboss.pnc.enums.RepositoryType;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -68,7 +72,7 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
     @Getter
     @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
     @ApiModelProperty(dataType = "string")
-    private TargetRepository.Type repositoryType;
+    private RepositoryType repositoryType;
 
     @Getter
     @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})

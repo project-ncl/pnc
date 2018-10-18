@@ -47,6 +47,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -190,7 +191,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     private static class DummyRepositoryConfiguration implements RepositorySession {
 
         @Override
-        public TargetRepository.Type getType() {
+        public RepositoryType getType() {
             return null;
         }
 

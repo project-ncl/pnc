@@ -19,7 +19,7 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.TargetRepository.Type;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -30,7 +30,10 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import javax.enterprise.context.ApplicationScoped;
+
 import java.util.function.Consumer;
+
+import org.jboss.pnc.enums.RepositoryType;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
@@ -68,14 +71,14 @@ public class RepositoryManagerMock implements RepositoryManager {
 
     @Override
     public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken, Type repositoryType) throws RepositoryManagerException {
+            String serviceAccountToken, RepositoryType repositoryType) throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;
     }
 
     @Override
-    public boolean canManage(TargetRepository.Type managerType) {
+    public boolean canManage(RepositoryType managerType) {
         return true;
     }
 

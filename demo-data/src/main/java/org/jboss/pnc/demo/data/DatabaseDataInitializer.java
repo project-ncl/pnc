@@ -75,6 +75,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 
 /**
@@ -448,7 +449,7 @@ public class DatabaseDataInitializer {
     public void initiliazeBuildRecordDemoData() {
 
         TargetRepository targetRepository = TargetRepository.newBuilder()
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
                 .temporaryRepo(false)

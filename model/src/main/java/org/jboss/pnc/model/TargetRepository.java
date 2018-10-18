@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.RepositoryType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -30,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.util.Set;
 
 /**
@@ -82,7 +85,7 @@ public class TargetRepository implements GenericEntity<Integer> {
     @NotNull
     @Column(updatable=false)
     @Enumerated(EnumType.STRING)
-    private Type repositoryType;
+    private RepositoryType repositoryType;
 
     @OneToMany(mappedBy = "targetRepository")
     private Set<Artifact> artifacts;
@@ -137,11 +140,11 @@ public class TargetRepository implements GenericEntity<Integer> {
         this.repositoryPath = repositoryPath;
     }
 
-    public Type getRepositoryType() {
+    public RepositoryType getRepositoryType() {
         return repositoryType;
     }
 
-    public void setRepositoryType(Type repositoryType) {
+    public void setRepositoryType(RepositoryType repositoryType) {
         this.repositoryType = repositoryType;
     }
 
@@ -162,33 +165,6 @@ public class TargetRepository implements GenericEntity<Integer> {
                 ", repositoryPath='" + repositoryPath + '\'' +
                 ", repositoryType=" + repositoryType +
                 '}';
-    }
-
-    /**
-     * Types of artifact repositories
-     *
-     * Types *_TEMPORAL are repository groups for temporal build (Snapshots / Pull Request)
-     */
-    public enum Type {
-        /**
-         * Maven artifact repository such as Maven central (http://central.maven.org/maven2/)
-         */
-        MAVEN,
-
-        /**
-         * Node.js package repository such as https://registry.npmjs.org/
-         */
-        NPM,
-
-        /**
-         * CocoaPod repository for managing Swift and Objective-C Cocoa dependencies
-         */
-        COCOA_POD,
-
-        /**
-         * Generic HTTP proxy that captures artifacts with an unsupported, or no specific, repository type.
-         */
-        GENERIC_PROXY
     }
 
     /**
@@ -233,7 +209,7 @@ public class TargetRepository implements GenericEntity<Integer> {
 
         private String repositoryPath;
 
-        private Type repositoryType;
+        private RepositoryType repositoryType;
 
         private Set<Artifact> artifacts;
 
@@ -260,7 +236,7 @@ public class TargetRepository implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder repositoryType(Type val) {
+        public Builder repositoryType(RepositoryType val) {
             repositoryType = val;
             return this;
         }

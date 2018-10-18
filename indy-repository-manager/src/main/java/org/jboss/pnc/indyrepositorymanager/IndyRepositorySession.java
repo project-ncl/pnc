@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
@@ -126,7 +127,7 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     @Override
-    public TargetRepository.Type getType() {
+    public RepositoryType getType() {
         return toRepoType(packageKey);
     }
 
@@ -270,7 +271,7 @@ public class IndyRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository.Type repoType = toRepoType(packageType);
+                RepositoryType repoType = toRepoType(packageType);
                 TargetRepository targetRepository = getDownloadsTargetRepository(repoType, storeKey, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -309,17 +310,17 @@ public class IndyRepositorySession implements RepositorySession {
         return promotionTargets.get(packageType);
     }
 
-    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, StoreKey sk, IndyContentClientModule content)
+    private TargetRepository getDownloadsTargetRepository(RepositoryType repoType, StoreKey sk, IndyContentClientModule content)
             throws RepositoryManagerException {
         String identifier;
         String repoPath;
-        if (repoType == TargetRepository.Type.MAVEN) {
+        if (repoType == RepositoryType.MAVEN) {
                 identifier = "indy-maven";
                 repoPath = "/api/" + content.contentPath(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
-        } else if (repoType == TargetRepository.Type.NPM) {
+        } else if (repoType == RepositoryType.NPM) {
                 identifier = "indy-npm";
                 repoPath = "/api/" + content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
-        } else if (repoType == TargetRepository.Type.GENERIC_PROXY) {
+        } else if (repoType == RepositoryType.GENERIC_PROXY) {
                 identifier = "indy-http:" + sk.getName();
                 repoPath = "/not-available/"; //TODO set the path for http cache
         } else {
@@ -335,15 +336,15 @@ public class IndyRepositorySession implements RepositorySession {
                 .build();
     }
 
-    private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType,
+    private TargetRepository getUploadsTargetRepository(RepositoryType repoType,
             IndyContentClientModule content) throws RepositoryManagerException {
         String groupName = (isTempBuild ? TEMPORARY_BUILDS_GROUP : UNTESTED_BUILDS_GROUP);
         StoreKey storeKey;
         String identifier;
-        if (repoType == TargetRepository.Type.MAVEN) {
+        if (repoType == RepositoryType.MAVEN) {
             storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, groupName);
             identifier = "indy-maven";
-        } else if (repoType == TargetRepository.Type.NPM) {
+        } else if (repoType == RepositoryType.NPM) {
             storeKey = new StoreKey(NPM_PKG_KEY, StoreType.group, groupName);
             identifier = "indy-npm";
         } else {
@@ -437,7 +438,7 @@ public class IndyRepositorySession implements RepositorySession {
                     throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
                 }
 
-                TargetRepository.Type repoType = toRepoType(storeKey.getPackageType());
+                RepositoryType repoType = toRepoType(storeKey.getPackageType());
                 TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
 
                 ArtifactQuality artifactQuality = getArtifactQuality(isTempBuild);
@@ -604,16 +605,16 @@ public class IndyRepositorySession implements RepositorySession {
         return false;
     }
 
-    private TargetRepository.Type toRepoType(String packageType) {
+    private RepositoryType toRepoType(String packageType) {
         switch (packageType) {
             case MAVEN_PKG_KEY:
-                return TargetRepository.Type.MAVEN;
+                return RepositoryType.MAVEN;
             case NPM_PKG_KEY:
-                return TargetRepository.Type.NPM;
+                return RepositoryType.NPM;
             case GENERIC_PKG_KEY:
-                return TargetRepository.Type.GENERIC_PROXY;
+                return RepositoryType.GENERIC_PROXY;
             default:
-                return TargetRepository.Type.GENERIC_PROXY;
+                return RepositoryType.GENERIC_PROXY;
         }
     }
 

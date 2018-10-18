@@ -18,6 +18,7 @@
 package org.jboss.pnc.indyrepositorymanager;
 
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -41,7 +42,7 @@ public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest
         BuildExecution execution = new TestBuildExecution();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken,
-                TargetRepository.Type.MAVEN);
+                RepositoryType.MAVEN);
 
         assertThat(repositoryConfiguration, notNullValue());
 
