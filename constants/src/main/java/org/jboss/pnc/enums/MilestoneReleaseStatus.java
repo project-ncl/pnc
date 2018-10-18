@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model;
+package org.jboss.pnc.enums;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
