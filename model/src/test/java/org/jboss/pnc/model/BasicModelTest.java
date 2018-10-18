@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.RepositoryType;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.RollbackException;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -161,7 +163,7 @@ public class BasicModelTest extends AbstractModelTest {
                     .temporaryRepo(false)
                     .identifier("indy-maven")
                     .repositoryPath(path)
-                    .repositoryType(TargetRepository.Type.MAVEN)
+                    .repositoryType(RepositoryType.MAVEN)
                     .build();
     }
 

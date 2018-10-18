@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
@@ -184,7 +185,7 @@ public class DatastoreTest {
         Assert.assertNotNull(buildConfigAud);
 
         TargetRepository targetRepository = TargetRepository.newBuilder()
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("builds-untested")
                 .identifier("indy-maven")
                 .temporaryRepo(false)
@@ -255,13 +256,13 @@ public class DatastoreTest {
 
         String buildsUntestedRepoPath = "builds-untested";
         TargetRepository targetRepository = TargetRepository.newBuilder()
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath(buildsUntestedRepoPath)
                 .identifier("indy-maven")
                 .temporaryRepo(false)
                 .build();
         TargetRepository targetRepositorySharedImports = TargetRepository.newBuilder()
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("shared-imports")
                 .identifier("indy-maven")
                 .temporaryRepo(false)
@@ -269,7 +270,7 @@ public class DatastoreTest {
 
         String now = Instant.now().toString();
         TargetRepository targetRepositoryTmp = TargetRepository.newBuilder()
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("temp-" + now)
                 .identifier("indy-maven")
                 .temporaryRepo(true)
