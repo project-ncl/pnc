@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
@@ -199,7 +200,7 @@ public class DefaultDatastore implements Datastore {
             linkTargetRepository(repositoriesCache, artifact, targetRepository);
 
             Artifact artifactFromDb;
-            if (TargetRepository.Type.GENERIC_PROXY.equals(targetRepository.getRepositoryType())) {
+            if (RepositoryType.GENERIC_PROXY.equals(targetRepository.getRepositoryType())) {
                 artifactFromDb = saveHttpArtifact(artifact);
             } else {
                 artifactFromDb = getOrSaveRepositoryArtifact(artifact, artifactCache);

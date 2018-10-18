@@ -23,6 +23,7 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -45,7 +46,7 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
         Indy indy = driver.getIndy(accessToken);
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken,
-                TargetRepository.Type.MAVEN);
+                RepositoryType.MAVEN);
         String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));

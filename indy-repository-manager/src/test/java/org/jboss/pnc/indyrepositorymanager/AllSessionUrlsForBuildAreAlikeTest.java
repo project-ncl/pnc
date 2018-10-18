@@ -18,6 +18,7 @@
 package org.jboss.pnc.indyrepositorymanager;
 
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -40,7 +41,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, TargetRepository.Type.MAVEN);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();

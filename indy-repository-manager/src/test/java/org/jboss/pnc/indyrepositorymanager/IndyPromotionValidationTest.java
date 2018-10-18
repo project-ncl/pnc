@@ -44,6 +44,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -74,7 +75,7 @@ public class IndyPromotionValidationTest {
         try {
             driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
             RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null,
-                    TargetRepository.Type.MAVEN);
+                    RepositoryType.MAVEN);
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();
 

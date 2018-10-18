@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.junit.After;
 import org.junit.Before;
@@ -106,7 +107,7 @@ public class ArtifactTest extends AbstractModelTest {
         this.targetRepository = TargetRepository.newBuilder()
                 .identifier("Indy")
                 .repositoryPath("/api")
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .temporaryRepo(false)
                 .build();
         em.getTransaction().begin();
