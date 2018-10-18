@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.enums;
 
-package org.jboss.pnc.rest.swagger.response;
-
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.enums.SupportLevel;
-import org.jboss.pnc.rest.restmodel.response.Page;
-
-public class SupportLevelPage extends Page<SupportLevel> {
-
+/**
+ * Contains the various possible support levels, such as UNRELEASED, SUPPORTED, EOL, etc..
+ *
+ */
+public enum SupportLevel {
+    UNRELEASED, EARLYACCESS, SUPPORTED, EXTENDED_SUPPORT, EOL
+    
 }
