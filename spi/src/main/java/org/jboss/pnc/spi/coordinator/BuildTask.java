@@ -290,11 +290,18 @@ public class BuildTask {
         graph.addVertex(currentVertex);
 
         for (BuildTask dependency : current.getDependencies()) {
-            Vertex<BuildTask> dependencyVertex = buildDependencyGraph(graph, dependency);
+            Vertex<BuildTask> dependencyVertex = getVisited(graph, dependency);
+            if (dependencyVertex == null) {
+                dependencyVertex = buildDependencyGraph(graph, dependency);
+            }
             graph.addEdge(currentVertex, dependencyVertex, 1);
         }
 
         return currentVertex;
+    }
+
+    private Vertex<BuildTask> getVisited(Graph<BuildTask> graph, BuildTask buildTask) {
+        return graph.findVertexByName(Integer.toString(buildTask.getId()));
     }
 
     private Vertex<BuildTask> buildDependantsGraph(Graph<BuildTask> graph, BuildTask current) {
@@ -302,7 +309,10 @@ public class BuildTask {
         graph.addVertex(currentVertex);
 
         for (BuildTask dependant : current.getDependants()) {
-            Vertex<BuildTask> dependantVertex = buildDependantsGraph(graph, dependant);
+            Vertex<BuildTask> dependantVertex = getVisited(graph, dependant);
+            if (dependantVertex == null) {
+                dependantVertex = buildDependantsGraph(graph, dependant);
+            }
             graph.addEdge(dependantVertex, currentVertex, 1);
         }
         return currentVertex;
