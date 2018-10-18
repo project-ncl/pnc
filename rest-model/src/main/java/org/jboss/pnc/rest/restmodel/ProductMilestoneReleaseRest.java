@@ -19,10 +19,12 @@ package org.jboss.pnc.rest.restmodel;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.jboss.pnc.model.MilestoneReleaseStatus;
+
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Date;
 
 @XmlRootElement(name = "ProductMilestoneRelease")

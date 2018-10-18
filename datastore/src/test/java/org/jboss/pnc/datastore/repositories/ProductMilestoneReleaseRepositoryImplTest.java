@@ -21,7 +21,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.datastore.DeploymentFactory;
-import org.jboss.pnc.model.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
