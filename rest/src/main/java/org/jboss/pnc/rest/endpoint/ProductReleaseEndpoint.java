@@ -41,7 +41,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -67,6 +67,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.Arrays;
 import java.util.List;
 
