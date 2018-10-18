@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.jboss.pnc.constants.Patterns;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -38,6 +39,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,12 +64,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    /**
-     * Contains the milestone version string.  This consists of a major, minor, and micro
-     * numeric version followed by an alphanumeric qualifier. Micro version can be left out in special cases.
-     * For example "1.0.0.ER1", 1.0.CD1.
-     */
-    @Pattern(message="The version should consist of two or three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$")
+    @Pattern(message="The version should consist of two or three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp=Patterns.PRODUCT_VERSION)
     @NotNull
     @Size(max=50)
     private String version;

@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.jboss.pnc.constants.Patterns;
 import org.jboss.util.StringPropertyReplacer;
 
 import javax.persistence.CascadeType;
@@ -41,6 +42,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -69,11 +71,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    /**
-     * The version string that represents this product version.  This should normally
-     * consist of a major and minor version separated by a dot, for example "1.0".
-     */
-    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$")
+    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp=Patterns.PRODUCT_STREAM_VERSION)
     @NotNull
     @Size(max=50)
     private String version;
