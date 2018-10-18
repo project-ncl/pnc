@@ -22,25 +22,19 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildType;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.Value;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
+@Data
 public class BuildConfiguration extends BuildConfigurationRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
@@ -50,26 +44,26 @@ public class BuildConfiguration extends BuildConfigurationRef {
     private final ProjectRef project;
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    protected final BuildEnvironmentRef environment;
+    protected final BuildEnvironment environment;
 
     private final Set<Integer> dependencyIds;
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
-    private final Set<Integer> groupBuildIds;
+    private final Set<Integer> groupConfigIds;
 
     private final Map<String, String> genericParameters;
 
     @lombok.Builder(builderClassName = "Builder")
-    public BuildConfiguration(RepositoryConfigurationRef repositoryConfiguration, ProjectRef project, BuildEnvironmentRef environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<Integer> groupBuildIds, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, boolean archived, BuildType buildType) {
+    public BuildConfiguration(RepositoryConfigurationRef repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<Integer> groupConfigIds, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, boolean archived, BuildType buildType) {
         super(id, name, description, buildScript, scmRevision, creationTime, lastModificationTime, archived, buildType);
         this.repositoryConfiguration = repositoryConfiguration;
         this.project = project;
         this.environment = environment;
         this.dependencyIds = dependencyIds;
         this.productVersion = productVersion;
-        this.groupBuildIds = groupBuildIds;
+        this.groupConfigIds = groupConfigIds;
         this.genericParameters = genericParameters;
     }
 

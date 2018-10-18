@@ -29,13 +29,13 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Value
+@Data
 @Builder(builderClassName = "Builder")
 public class BuildPushResult implements DTOEntity {
 
