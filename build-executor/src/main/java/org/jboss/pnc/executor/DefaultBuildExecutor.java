@@ -70,6 +70,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+import org.jboss.pnc.enums.RepositoryType;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -201,7 +203,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         if (buildType == null) {
             throw new BuildProcessException("Missing required value buildExecutionConfiguration.buildType");
         }
-        TargetRepository.Type repositoryType = BuildTypeToRepositoryType.getRepositoryType(buildType);
+        RepositoryType repositoryType = BuildTypeToRepositoryType.getRepositoryType(buildType);
 
         try {
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(repositoryType);
@@ -422,7 +424,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             String accessToken = buildExecutionSession.getAccessToken();
             log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
             try {
-                TargetRepository.Type repoType = BuildTypeToRepositoryType.getRepositoryType(
+                RepositoryType repoType = BuildTypeToRepositoryType.getRepositoryType(
                         buildExecutionSession.getBuildExecutionConfiguration().getBuildType());
                 repositoryManagerFactory.getRepositoryManager(repoType).close(accessToken);
             } catch (ExecutorException executionException) {

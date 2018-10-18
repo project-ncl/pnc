@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
@@ -40,7 +41,7 @@ public interface RepositoryManager {
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
     RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken, TargetRepository.Type repositoryType) throws RepositoryManagerException;
+            String serviceAccountToken, RepositoryType repositoryType) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the
@@ -79,6 +80,6 @@ public interface RepositoryManager {
      */
     void close(String accessToken);
 
-    boolean canManage(TargetRepository.Type managerType);
+    boolean canManage(RepositoryType managerType);
 
 }

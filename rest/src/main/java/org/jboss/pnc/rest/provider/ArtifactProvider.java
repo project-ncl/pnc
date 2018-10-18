@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
@@ -125,13 +127,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     private String getDeployUrl(Artifact artifact) {
-        TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.NPM)) {
+        RepositoryType repositoryType = artifact.getTargetRepository().getRepositoryType();
+        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
                 try {
-                    if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
+                    if (repositoryType.equals(RepositoryType.MAVEN)) {
                         return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
@@ -151,13 +153,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     private String getPublicUrl(Artifact artifact) {
-        TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN) || repositoryType.equals(TargetRepository.Type.NPM)) {
+        RepositoryType repositoryType = artifact.getTargetRepository().getRepositoryType();
+        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
                 try {
-                    if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
+                    if (repositoryType.equals(RepositoryType.MAVEN)) {
                         return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());

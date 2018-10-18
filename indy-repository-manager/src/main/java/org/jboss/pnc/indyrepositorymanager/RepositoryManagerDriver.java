@@ -63,6 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pnc.enums.RepositoryType;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP;
@@ -180,8 +181,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Only supports {@link TargetRepository.Type#MAVEN}.
      */
     @Override
-    public boolean canManage(TargetRepository.Type managerType) {
-        return (managerType == TargetRepository.Type.MAVEN) || (managerType == TargetRepository.Type.NPM);
+    public boolean canManage(RepositoryType managerType) {
+        return (managerType == RepositoryType.MAVEN) || (managerType == RepositoryType.NPM);
     }
 
     /**
@@ -194,7 +195,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     @Override
     public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken, TargetRepository.Type repositoryType) throws RepositoryManagerException {
+            String serviceAccountToken, RepositoryType repositoryType) throws RepositoryManagerException {
         Indy indy = init(accessToken);
         Indy serviceAccountIndy = init(serviceAccountToken);
 
@@ -235,7 +236,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
     }
 
-    private String getIndyPackageTypeKey(TargetRepository.Type repoType) {
+    private String getIndyPackageTypeKey(RepositoryType repoType) {
         switch (repoType) {
             case MAVEN:
                 return MAVEN_PKG_KEY;

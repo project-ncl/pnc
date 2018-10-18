@@ -24,6 +24,8 @@ import org.jboss.pnc.model.TargetRepository;
 import java.time.Instant;
 import java.util.Date;
 
+import org.jboss.pnc.enums.RepositoryType;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -65,7 +67,7 @@ public class ArtifactBuilder {
         return TargetRepository.newBuilder()
                 .identifier("indy-maven")
                 .repositoryPath(path)
-                .repositoryType(TargetRepository.Type.MAVEN)
+                .repositoryType(RepositoryType.MAVEN)
                 .temporaryRepo(false)
                 .build();
     }

@@ -31,13 +31,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pnc.enums.RepositoryType;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
 public class RepositorySessionMock implements RepositorySession {
     @Override
-    public TargetRepository.Type getType() {
-        return TargetRepository.Type.MAVEN;
+    public RepositoryType getType() {
+        return RepositoryType.MAVEN;
     }
 
     @Override

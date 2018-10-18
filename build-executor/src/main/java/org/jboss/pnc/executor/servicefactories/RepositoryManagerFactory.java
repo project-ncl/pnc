@@ -25,6 +25,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import org.jboss.pnc.enums.RepositoryType;
+
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -35,7 +37,7 @@ public class RepositoryManagerFactory {
     @Inject
     Instance<RepositoryManager> availableManagers;
 
-    public RepositoryManager getRepositoryManager(TargetRepository.Type managerType) throws ExecutorException {
+    public RepositoryManager getRepositoryManager(RepositoryType managerType) throws ExecutorException {
 
         for (RepositoryManager manager : availableManagers) {
             if (manager.canManage(managerType)) {
