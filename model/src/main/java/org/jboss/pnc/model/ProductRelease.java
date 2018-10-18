@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.SupportLevel;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -24,6 +25,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import java.util.Date;
 
 /**
@@ -168,13 +170,6 @@ public class ProductRelease implements GenericEntity<Integer> {
         return "ProductRelease [id=" + id + ", version=" + version + "]";
     }
 
-    /**
-     * Contains the various possible support levels, such as UNRELEASED, SUPPORTED, EOL, etc..
-     *
-     */
-    public enum SupportLevel {
-        UNRELEASED, EARLYACCESS, SUPPORTED, EXTENDED_SUPPORT, EOL
-    }
 
     public static class Builder {
 

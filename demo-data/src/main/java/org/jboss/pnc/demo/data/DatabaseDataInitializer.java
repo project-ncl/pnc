@@ -34,7 +34,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
