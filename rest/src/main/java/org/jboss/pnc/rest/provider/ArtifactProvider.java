@@ -175,7 +175,6 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     public CollectionInfo<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
             Optional<String> sha256, Optional<String> md5, Optional<String> sha1) {
-        logger.debug("HELLO + sha1: " + sha1 + " sha256:" + sha256 + " md5: " + md5);
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withSha256(sha256),
                 withMd5(md5),withSha1(sha1));
     }

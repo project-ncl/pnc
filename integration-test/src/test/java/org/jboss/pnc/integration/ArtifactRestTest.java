@@ -104,7 +104,7 @@ public class ArtifactRestTest extends AbstractTest {
         Response response = given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
-        logger.debug(response.jsonPath().getList("content").toString() + " HELLO");
+
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0]");
     }
@@ -135,7 +135,6 @@ public class ArtifactRestTest extends AbstractTest {
                 .queryParam("sha1",artifactRest2.getSha1())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
-        logger.debug("{} : {} : {} : FIND ME", artifactRest1.getId(),artifactRest2.getId(), artifactRest3.getId());
 
         //artifacts 2 and 3 have same SHA1
         List<Map<String,Object>> list = response.jsonPath().getList("content");
