@@ -22,6 +22,7 @@ import org.jboss.pnc.pncmetrics.rest.GeneralRestMetricsFilter;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.pncmetrics.rest.TimedMetricFilter;
 import org.jboss.pnc.rest.debug.TestEndpoint;
+import org.jboss.pnc.rest.endpoint.ArtifactEndpoint;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
@@ -98,6 +99,7 @@ public class JaxRsActivator extends Application {
     }
 
     private void addEndpoints(Set<Class<?>> resources) {
+        resources.add(ArtifactEndpoint.class);
         resources.add(ProductEndpoint.class);
         resources.add(ProductVersionEndpoint.class);
         resources.add(ProductMilestoneEndpoint.class);

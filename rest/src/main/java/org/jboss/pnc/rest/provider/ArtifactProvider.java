@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -52,6 +53,9 @@ import java.util.stream.Stream;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
 @Stateless
 public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
@@ -179,6 +183,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildRecordId));
+    }
+
+    public CollectionInfo<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
+            Optional<String> sha256, Optional<String> md5, Optional<String> sha1) {
+        logger.debug("HELLO + sha1: " + sha1 + " sha256:" + sha256 + " md5: " + md5);
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withSha256(sha256),
+                withMd5(md5),withSha1(sha1));
     }
 
     @Override
