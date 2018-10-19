@@ -92,6 +92,9 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         BuildConfiguration buildConfiguration = AuditReaderFactory.get(entityManager)
                 .find(BuildConfiguration.class, idRev.getId(), idRev.getRev());
 
+        if (buildConfiguration == null) {
+            return null;
+        }
         List<BuildRecord> buildRecords = getBuildRecords(idRev);
 
         //preload generic parameters
