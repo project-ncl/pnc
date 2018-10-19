@@ -26,6 +26,7 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -83,6 +84,18 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withOriginUrl(String originUrl) {
         return (root, query, cb) -> cb.equal(root.get(Artifact_.originUrl), originUrl);
+    }
+
+    public static Predicate<Artifact> withSha256(Optional<String> sha256) {
+        return ((root, query, cb) -> sha256.isPresent() ? cb.equal(root.get(Artifact_.sha256), sha256.get()) : cb.and());
+    }
+
+    public static Predicate<Artifact> withMd5(Optional<String> md5) {
+        return ((root, query, cb) -> md5.isPresent() ? cb.equal(root.get(Artifact_.md5), md5.get()) : cb.and());
+    }
+
+    public static Predicate<Artifact> withSha1(Optional<String> sha1) {
+        return ((root, query, cb) -> sha1.isPresent() ? cb.equal(root.get(Artifact_.sha1), sha1.get()) : cb.and());
     }
 
     public static Predicate<Artifact> withDistributedInMilestone(Integer productMilestoneId) {
