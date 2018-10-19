@@ -140,7 +140,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
 
         Vertex<BuildRecord> buildDependencyGraph(Graph<BuildRecord> graph, Integer buildRecordId) {
-            BuildRecord buildRecord = findByIdFetchAllProperties(buildRecordId);
+            BuildRecord buildRecord = findByIdFetchProperties(buildRecordId);
             if (buildRecord != null) {
                 Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
                 graph.addVertex(buildRecordVertex);
@@ -161,7 +161,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         }
 
         Vertex<BuildRecord> buildDependentGraph(Graph<BuildRecord> graph, Integer buildRecordId) {
-            BuildRecord buildRecord = findByIdFetchAllProperties(buildRecordId);
+            BuildRecord buildRecord = findByIdFetchProperties(buildRecordId);
             if (buildRecord != null) {
                 Vertex<BuildRecord> buildRecordVertex = new NameUniqueVertex<>(Integer.toString(buildRecord.getId()), buildRecord);
                 graph.addVertex(buildRecordVertex);
