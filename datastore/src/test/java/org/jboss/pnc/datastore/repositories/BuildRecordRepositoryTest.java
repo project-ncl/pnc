@@ -21,11 +21,15 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.datastore.DeploymentFactory;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
@@ -40,6 +44,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Jakub Bartecek
@@ -57,7 +62,16 @@ public class BuildRecordRepositoryTest {
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
+    private BuildConfigurationRepository buildConfigurationRepository;
+
+    @Inject
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    @Inject
     private Datastore datastore;
+
+    @Inject
+    Producers producers;
 
     @Deployment
     public static Archive<?> getDeployment() {
@@ -134,6 +148,8 @@ public class BuildRecordRepositoryTest {
 
         // then
         assertEquals(3, dependencyGraph.getGraph().size());
+        BuildRecord buildRecord = dependencyGraph.getGraph().findVertexByName(100002 + "").getData();
+        assertNotNull(buildRecord.getBuildConfigurationAudited().getName());
     }
 
 
@@ -153,10 +169,14 @@ public class BuildRecordRepositoryTest {
             }
         }
 
+        BuildConfiguration buildConfiguration = producers.createValidBuildConfiguration("buildRecordTest-" + id);
+        BuildConfiguration saved = buildConfigurationRepository.save(buildConfiguration);
+        BuildConfigurationAudited buildConfigurationAudited =
+                buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(saved.getId()).get(0);
+
         return BuildRecord.Builder.newBuilder()
                 .id(id)
-                .buildConfigurationAuditedId(1)
-                .buildConfigurationAuditedRev(1)
+                .buildConfigurationAudited(buildConfigurationAudited)
                 .submitTime(new Date())
                 .user(user)
                 .status(BuildStatus.SUCCESS);
