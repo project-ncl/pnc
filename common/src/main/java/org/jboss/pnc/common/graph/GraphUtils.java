@@ -20,38 +20,38 @@ package org.jboss.pnc.common.graph;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class GraphUtils {
 
+    private static Logger logger = LoggerFactory.getLogger(GraphUtils.class);
+
     /**
      * Adds all elements from toMerge to target.
      */
     public static <T> void merge(Graph<T> target, Graph<T> toMerge) {
-        List<Vertex<T>> addedVerticies = new ArrayList<>();
         for (Vertex<T> vertex : toMerge.getVerticies()) {
-            boolean added = target.addVertex(vertex);
-            if (added) {
-                addedVerticies.add(vertex);
-            }
+            target.addVertex(vertex);
         }
 
-        //create edges
-        for (Vertex<T> vertex: addedVerticies) {
-            ArrayList outgoingEdges = new ArrayList<>(vertex.getOutgoingEdges());
-            for (Object o : outgoingEdges) {
-                Edge<T> edge = (Edge<T>) o;
-                target.addEdge(
-                        target.findVertexByName(edge.getFrom().getName()),
-                        target.findVertexByName(edge.getTo().getName()),
-                        edge.getCost());
+        // merge edges
+        List<Edge<T>> edges = target.getEdges();
+        for (Edge newEdge : toMerge.getEdges()) {
+            Optional<Edge<T>> any = edges.stream()
+                    .filter(existing ->
+                            existing.getFrom().getName().equals(newEdge.getFrom().getName())
+                             && existing.getTo().getName().equals(newEdge.getTo().getName())
+                    ).findAny();
+            if (!any.isPresent()) {
+                edges.add(newEdge);
             }
         }
-
     }
 }
