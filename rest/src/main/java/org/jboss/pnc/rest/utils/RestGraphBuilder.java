@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.utils;
 import org.jboss.pnc.rest.restmodel.graph.EdgeRest;
 import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.graph.VertexRest;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
@@ -56,13 +55,13 @@ public class RestGraphBuilder<T> {
                     dataType.getName(),
                     vertex.getData());
             verticles.put(vertexRest.getName(), vertexRest);
-
-            for (Object o : vertex.getOutgoingEdges()) {
-                Edge<BuildTask> edge = (Edge<BuildTask>) o;
-                EdgeRest<T> edgeRest = new EdgeRest<T>(edge.getFrom().getName(), edge.getTo().getName(), edge.getCost());
-                edges.add(edgeRest);
-            }
         }
+
+        for (Edge<T> edge : graph.getEdges()) {
+            EdgeRest<T> edgeRest = new EdgeRest<T>(edge.getFrom().getName(), edge.getTo().getName(), edge.getCost());
+            edges.add(edgeRest);
+        }
+
         GraphRest<T> graphRest = new GraphRest<>(verticles, edges, metadata);
         return graphRest;
     }
