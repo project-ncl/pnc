@@ -175,7 +175,9 @@
         dependencyStructure.push(customBuild);
 
         (isBuildRecord ? build.dependencyBuildRecordIds : build.buildRecordIds).forEach(function(buildId) {
-          createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild);
+          if (dependencyGraph.vertices[buildId]) {
+            createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild);
+          }
         });
 
         return dependencyStructure;
