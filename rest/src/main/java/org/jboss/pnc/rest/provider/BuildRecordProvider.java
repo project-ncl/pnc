@@ -198,6 +198,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
         GraphWithMetadata<BuildRecordRest, Integer> buildRecordGraph;
         if (buildTask == null) {
+            logger.debug("Looking for stored buildRecordId: {}.", buildId);
             BuildRecord buildRecord = repository.queryById(buildId);
             if (buildRecord == null) {
                 logger.warn("Cannot find build {}", buildId);
@@ -205,9 +206,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             } else {
                 GraphWithMetadata dependencyGraph = repository.getDependencyGraph(buildId);
                 Graph<BuildRecordRest> buildRecordRestGraph = convertBuildRecordToRest(dependencyGraph.getGraph());
+                logger.trace("Rest graph for buildRecordId {} {}; Graph edges {}.", buildId, buildRecordRestGraph, buildRecordRestGraph.getEdges());
                 buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, dependencyGraph.getMissingNodeIds());
             }
         } else {
+            logger.debug("Getting dependency graph for running build: {}.", buildId);
             Graph<BuildRecordRest> buildRecordRestGraph = convertBuildTaskToRecordRest(buildTask.getDependencyGraph());
             buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, new ArrayList<>());
         }
@@ -244,14 +247,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             buildRecordGraph.addVertex(buildRecordRestVertex);
         }
         //create edges
-        for (Vertex<BuildRecord> vertex: recordGraph.getVerticies()) {
-            for (Object o : vertex.getOutgoingEdges()) {
-                Edge<BuildRecord> edge = (Edge<BuildRecord>) o;
-                buildRecordGraph.addEdge(
-                        buildRecordGraph.findVertexByName(edge.getFrom().getName()),
-                        buildRecordGraph.findVertexByName(edge.getTo().getName()),
-                        edge.getCost());
-            }
+        for (Edge<BuildRecord> edge : recordGraph.getEdges()) {
+            buildRecordGraph.addEdge(
+                    buildRecordGraph.findVertexByName(edge.getFrom().getName()),
+                    buildRecordGraph.findVertexByName(edge.getTo().getName()),
+                    edge.getCost());
         }
         return buildRecordGraph;
     }
@@ -365,6 +365,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         for (BuildRecord buildRecord : buildConfigSetRecord.getBuildRecords()) {
             GraphWithMetadata<BuildRecordRest, Integer> dependencyGraph = getDependencyGraph(buildRecord.getId());
             GraphUtils.merge(buildGraph, dependencyGraph.getGraph());
+            logger.trace("Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},", buildRecord.getId(), buildGraph, buildGraph.getEdges());
             missingBuildRecordId.addAll(dependencyGraph.getMissingNodeIds());
         }
         return new GraphWithMetadata<>(buildGraph, missingBuildRecordId);
