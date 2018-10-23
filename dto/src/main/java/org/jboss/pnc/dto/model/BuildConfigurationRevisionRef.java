@@ -36,7 +36,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 public class BuildConfigurationRevisionRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
