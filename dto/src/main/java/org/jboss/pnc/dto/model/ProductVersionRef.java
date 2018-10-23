@@ -37,7 +37,7 @@ import java.util.Map;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 public class ProductVersionRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)

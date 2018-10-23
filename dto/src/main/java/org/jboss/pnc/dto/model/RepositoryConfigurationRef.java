@@ -35,7 +35,7 @@ import org.jboss.pnc.dto.validation.constraints.SCMUrl;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 public class RepositoryConfigurationRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
