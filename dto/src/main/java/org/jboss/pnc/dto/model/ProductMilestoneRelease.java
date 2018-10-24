@@ -21,38 +21,34 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import org.jboss.pnc.dto.validation.constraints.SCMUrl;
+import java.time.Instant;
 
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class RepositoryConfigurationRef implements DTOEntity {
+@Builder(builderClassName = "Builder")
+public class ProductMilestoneRelease implements DTOEntity {
+
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class} )
-    protected final String internalUrl;
+    protected final MilestoneReleaseStatus status;
 
-    protected final String internalUrlNormalized;
+    protected final String log;
 
-    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class} )
-    protected final String externalUrl;
+    protected final Instant endDate;
 
-    protected final String externalUrlNormalized;
-
-    protected final Boolean preBuildSyncEnabled;
+    protected final Instant startingDate;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

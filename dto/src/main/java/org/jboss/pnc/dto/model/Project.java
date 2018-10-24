@@ -17,12 +17,14 @@
  */
 package org.jboss.pnc.dto.model;
 
-import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.dto.validation.constraints.RefHasId;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
-import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Data;
 
 /**
@@ -30,23 +32,18 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class GroupBuild extends GroupBuildRef {
+public class Project extends ProjectRef {
 
-    private final GroupConfigRef groupConfig;
+    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    private final RepositoryConfiguration repositoryConfiguration;
 
-    private final User user;
-
-    private final ProductVersionRef productVersion;
-
-    private final Set<Integer> buildIds;
+    private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder")
-    public GroupBuild(GroupConfigRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
-        super(id, startTime, endTime, status, temporaryBuild);
-        this.groupConfig = groupConfig;
-        this.user = user;
-        this.productVersion = productVersion;
-        this.buildIds = buildIds;
+    public Project(RepositoryConfiguration repositoryConfiguration, List<BuildConfigurationRef> buildConfigurations, Integer id, String name, String description, String issueTrackerUrl, String projectUrl) {
+        super(id, name, description, issueTrackerUrl, projectUrl);
+        this.repositoryConfiguration = repositoryConfiguration;
+        this.buildConfigurations = buildConfigurations;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
