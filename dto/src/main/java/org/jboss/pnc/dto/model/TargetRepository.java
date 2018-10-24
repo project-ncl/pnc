@@ -17,27 +17,28 @@
  */
 package org.jboss.pnc.dto.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.RepositoryType;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import java.util.Set;
+
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Data;
 
 /**
  *
- * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class UserRef implements DTOEntity {
-    @NotNull(groups = WhenUpdating.class)
-    @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+public class TargetRepository extends TargetRepositoryRef {
 
-    protected final String username;
+    private final Set<Integer> artifactIds;
+
+    @lombok.Builder(builderClassName = "Builder")
+    public TargetRepository(Set<Integer> artifactIds, Integer id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
+        super(id, temporaryRepo, identifier, repositoryType, repositoryPath);
+        this.artifactIds = artifactIds;
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

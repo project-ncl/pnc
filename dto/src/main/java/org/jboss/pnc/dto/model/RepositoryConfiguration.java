@@ -21,36 +21,39 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
-import org.jboss.pnc.constants.Patterns;
+import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
+
+import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class ProductRef implements DTOEntity {
+@Builder(builderClassName = "Builder")
+public class RepositoryConfiguration implements DTOEntity {
+
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    protected final String name;
+    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final String internalUrl;
 
-    protected final String description;
+    protected final String internalUrlNormalized;
 
-    @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
-    @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
-    protected final String abbreviation;
+    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final String externalUrl;
 
-    protected final String productCode;
+    protected final String externalUrlNormalized;
 
-    protected final String pgmSystemName;
+    protected final Boolean preBuildSyncEnabled;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
