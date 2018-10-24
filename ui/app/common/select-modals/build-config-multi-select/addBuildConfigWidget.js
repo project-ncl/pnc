@@ -67,16 +67,12 @@
 
     function fetchBuildConfigs(projectId) {
       Project.queryBuildConfigurations({ id: projectId }).$promise.then(function (page) {
-        var resultLength = page.data.length;
-        if (resultLength) {
-          // keep buildConfig data separately from other item attributes as pf-list-view modifies item attributes (for example 'selected')
-          for (var i = 0; i < resultLength; i++) {
-            $ctrl.items.push({
-              buildConfig: page.data[i]
-            });
-          }
-        } else {
-          $ctrl.items = [];
+        $ctrl.items = [];
+        // keep buildConfig data separately from other item attributes as pf-list-view modifies item attributes (for example 'selected')
+        for (var i = 0; i < page.data.length; i++) {
+          $ctrl.items.push({
+            buildConfig: page.data[i]
+          });
         }
       });
     }
