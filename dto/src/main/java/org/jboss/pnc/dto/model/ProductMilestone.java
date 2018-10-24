@@ -17,12 +17,14 @@
  */
 package org.jboss.pnc.dto.model;
 
-import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.dto.validation.constraints.RefHasId;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
 import java.time.Instant;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Data;
 
 /**
@@ -30,23 +32,24 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class GroupBuild extends GroupBuildRef {
+public class ProductMilestone extends ProductMilestoneRef {
 
-    private final GroupConfigRef groupConfig;
-
-    private final User user;
-
+    @RefHasId(groups = {WhenCreatingNew.class})
     private final ProductVersionRef productVersion;
 
-    private final Set<Integer> buildIds;
+    private final Set<Integer> performedBuilds;
+
+    private final Set<Integer> distributedArtifactIds;
+
+    private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder")
-    public GroupBuild(GroupConfigRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
-        super(id, startTime, endTime, status, temporaryBuild);
-        this.groupConfig = groupConfig;
-        this.user = user;
+    public ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
+        super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
-        this.buildIds = buildIds;
+        this.performedBuilds = performedBuilds;
+        this.distributedArtifactIds = distributedArtifactIds;
+        this.productRelease = productRelease;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

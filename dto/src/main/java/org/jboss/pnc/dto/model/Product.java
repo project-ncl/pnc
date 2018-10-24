@@ -17,36 +17,29 @@
  */
 package org.jboss.pnc.dto.model;
 
-import org.jboss.pnc.enums.BuildStatus;
-
-import java.time.Instant;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class GroupBuild extends GroupBuildRef {
+public class Product extends ProductRef {
 
-    private final GroupConfigRef groupConfig;
-
-    private final User user;
-
-    private final ProductVersionRef productVersion;
-
-    private final Set<Integer> buildIds;
+    @Getter
+    @Setter
+    private final Set<ProductVersionRef> productVersions;
 
     @lombok.Builder(builderClassName = "Builder")
-    public GroupBuild(GroupConfigRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
-        super(id, startTime, endTime, status, temporaryBuild);
-        this.groupConfig = groupConfig;
-        this.user = user;
-        this.productVersion = productVersion;
-        this.buildIds = buildIds;
+    public Product(Set<ProductVersionRef> productVersions, Integer id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
+        super(id, name, description, abbreviation, productCode, pgmSystemName);
+        this.productVersions = productVersions;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

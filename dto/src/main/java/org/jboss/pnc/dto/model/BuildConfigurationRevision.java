@@ -32,7 +32,7 @@ import lombok.Data;
 @Data
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
-    private final RepositoryConfigurationRef repositoryConfiguration;
+    private final RepositoryConfiguration repositoryConfiguration;
 
     private final ProjectRef project;
 
@@ -41,7 +41,7 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
     private final Map<String, String> genericParameters ;
 
     @lombok.Builder(builderClassName = "Builder")
-    public BuildConfigurationRevision(RepositoryConfigurationRef repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Map<String, String> genericParameters, Integer id, Integer rev, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, BuildType buildType) {
+    public BuildConfigurationRevision(RepositoryConfiguration repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Map<String, String> genericParameters, Integer id, Integer rev, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, BuildType buildType) {
         super(id, rev, name, description, buildScript, scmRevision, creationTime, lastModificationTime, buildType);
         this.repositoryConfiguration = repositoryConfiguration;
         this.project = project;

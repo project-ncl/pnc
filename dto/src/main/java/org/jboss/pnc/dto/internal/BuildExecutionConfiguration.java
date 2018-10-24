@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.dto.internal;
 
-import org.jboss.pnc.dto.model.UserRef;
+import org.jboss.pnc.dto.model.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 
@@ -39,7 +39,7 @@ public class BuildExecutionConfiguration {
 
     private final Integer id;
     private final String buildContentId;
-    private final UserRef user;
+    private final User user;
     private final String buildScript;
     private final String name;
 
