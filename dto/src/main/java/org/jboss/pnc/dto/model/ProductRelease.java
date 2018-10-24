@@ -20,11 +20,9 @@ package org.jboss.pnc.dto.model;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.SupportLevel;
 
 import java.time.Instant;
-import java.util.Map;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -35,36 +33,21 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class BuildConfiguration extends BuildConfigurationRef {
+public class ProductRelease extends ProductReleaseRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private final RepositoryConfiguration repositoryConfiguration;
 
-    @RefHasId(groups = WhenCreatingNew.class)
-    private final ProjectRef project;
-
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    protected final BuildEnvironment environment;
-
-    private final Set<Integer> dependencyIds;
-
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
-    private final Set<GroupConfigRef> groupConfigs;
-
-    private final Map<String, String> genericParameters;
+    private final ProductMilestoneRef productMilestone;
 
     @lombok.Builder(builderClassName = "Builder")
-    public BuildConfiguration(RepositoryConfiguration repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, boolean archived, BuildType buildType) {
-        super(id, name, description, buildScript, scmRevision, creationTime, lastModificationTime, archived, buildType);
+    public ProductRelease(RepositoryConfiguration repositoryConfiguration, ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
+        super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
         this.repositoryConfiguration = repositoryConfiguration;
-        this.project = project;
-        this.environment = environment;
-        this.dependencyIds = dependencyIds;
         this.productVersion = productVersion;
-        this.groupConfigs = groupConfigs;
-        this.genericParameters = genericParameters;
+        this.productMilestone = productMilestone;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
