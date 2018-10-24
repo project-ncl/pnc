@@ -25,34 +25,39 @@
       onAdd: '&'
     },
     templateUrl: 'common/select-modals/build-config-multi-select/add-build-config-widget.html',
-    controller: ['Project', Controller]
+    controller: ['Project', '$scope', Controller]
   });
 
 
-  function Controller(Project) {
+  function Controller(Project, $scope) {
     var $ctrl = this;
 
     // -- Controller API --
 
     $ctrl.select = select;
     $ctrl.add = add;
+    $ctrl.addSelected = addSelected;
+    $ctrl.selectAll = selectAll;
+    $ctrl.selectAllState = true;
 
-    $ctrl.buildConfigs = [];
+    $ctrl.items = [];
+    $ctrl.checkedItems = [];
 
     $ctrl.config = {
      selectItems: false,
      multiSelect: false,
      dblClick: false,
-     selectionMatchProp: 'id',
-     showSelectBox: false,
+     selectionMatchProp: 'buildConfig.id',
+     showSelectBox: true,
+     onCheckBoxChange: handleCheckBoxChange
     };
     $ctrl.actionButtons = [
       {
         name: 'Add',
         title: 'Add this Build Config',
         include: 'button-add-right', // <-- Template for the action button -- defined within this component's template.
-        actionFn: function (action, object) {
-          $ctrl.add(object);
+        actionFn: function (action, item) {
+          $ctrl.add(item);
         }
       }
     ];
@@ -62,7 +67,17 @@
 
     function fetchBuildConfigs(projectId) {
       Project.queryBuildConfigurations({ id: projectId }).$promise.then(function (page) {
-        $ctrl.buildConfigs = page.data || [];
+        var resultLength = page.data.length;
+        if (resultLength) {
+          // keep buildConfig data separately from other item attributes as pf-list-view modifies item attributes (for example 'selected')
+          for (var i = 0; i < resultLength; i++) {
+            $ctrl.items.push({
+              buildConfig: page.data[i]
+            });
+          }
+        } else {
+          $ctrl.items = [];
+        }
       });
     }
 
@@ -70,8 +85,47 @@
       fetchBuildConfigs(item.id);
     }
 
-    function add(buildConfig) {
-      $ctrl.onAdd({ buildConfig: buildConfig});
+    function add(item) {
+      $ctrl.onAdd(item);
+    }
+
+    function handleCheckBoxChange(item) {
+      if (item.selected) {
+        $ctrl.checkedItems.push(item);
+      } else {
+        var index = $ctrl.checkedItems.findIndex(function (x) { 
+          return item.buildConfig.id === x.buildConfig.id; 
+        });
+        if (index > -1) {
+          $ctrl.checkedItems.splice(index, 1);
+        }
+      }
+    }
+
+    function addSelected() {
+      for (var i = 0; i < $ctrl.checkedItems.length; i++) {
+        $ctrl.onAdd($ctrl.checkedItems[i]);
+      }
+    }
+
+    /**
+     * Select All is not natively supported by PatternFly.
+     */
+    function selectAll(select) {
+      var $checkboxes = $('#build-configs-' + $scope.$id + ' .list-view-pf-checkbox input');
+
+      $checkboxes.each(function(){
+        var $that = $(this);
+        if ((select && !$that.is(':checked')) || (!select && $that.is(':checked'))) {
+          // keep UI responsive when there is a lot of items to select
+          setTimeout(function() { 
+            // simulate click so that PatternFly click handlers are executed
+            $that.click(); 
+          }, 0);
+        }
+      });
+
+      $ctrl.selectAllState = !$ctrl.selectAllState;
     }
 
   }
