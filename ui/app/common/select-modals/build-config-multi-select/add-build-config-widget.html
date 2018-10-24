@@ -28,21 +28,34 @@
       <span id="helpBlock" class="help-block">Begin typing to select a Project, then select the desired Build Config from the list below.</span>
     </div>
   </div>
+
+  <div class="row">
+    <div class="col-xs-12 text-right m-t-10">
+      <button class="btn btn-default btn-sm" ng-click="$ctrl.selectAll($ctrl.selectAllState)">
+        <span ng-if="!$ctrl.selectAllState">Clear</span>
+        <span ng-if="$ctrl.selectAllState">Select</span>
+        All
+      </button>
+      <button class="btn btn-primary btn-sm" ng-click="$ctrl.addSelected()">Add Selected</button>
+    </div>
+  </div>
   <div class="row">
     <div class="col-xs-12">
-      <pf-list-view class="list-group list-view-pf list-view-pf-view"
+      <div id="build-configs-{{::$id}}">
+        <pf-list-view class="list-group list-view-pf list-view-pf-view"
                         id="add-build-groups-{{::$id}}"
                         config="$ctrl.config"
-                        items="$ctrl.buildConfigs"
+                        items="$ctrl.items"
                         action-buttons="$ctrl.actionButtons"
-                        ng-if="$ctrl.buildConfigs.length > 0">
+                        ng-if="$ctrl.items.length > 0">
 
           <div class="list-view-pf-description">
             <div class="list-group-item-heading">
-              {{ item.name }}
+              {{ item.buildConfig.name }}
+            </div>
           </div>
-        </div>
-      </pf-list-view>
+        </pf-list-view>
+      </div>
     </div>
   </div>
 </div>
