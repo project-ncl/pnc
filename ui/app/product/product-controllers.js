@@ -60,11 +60,13 @@
     '$state',
     'productDetail',
     'versionDetail',
-    function($log, $state, productDetail, versionDetail) {
+    'closedMilestoneDetail',
+    function($log, $state, productDetail, versionDetail, closedMilestoneDetail) {
 
       var that = this;
       that.product = productDetail;
       that.version = versionDetail;
+      that.closedMilestone = closedMilestoneDetail;
 
       // Update a product version after editing
       that.update = function() {
