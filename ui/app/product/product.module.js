@@ -99,7 +99,12 @@
           return ProductVersionDAO.get({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
+        },
+        closedMilestoneDetail: function(ProductMilestoneDAO, $stateParams) {
+          return ProductMilestoneDAO.getClosedMilestone({
+            versionId: $stateParams.versionId });
         }
+        
       }
     });
 

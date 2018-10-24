@@ -65,12 +65,17 @@
         closeMilestone: {
           method: 'PUT',
           url: REST_BASE_URL + '/product-milestones/:milestoneId/close-milestone'
+        },
+        _getClosedMilestone: {
+          method: 'GET',
+          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId?pageIndex=0&pageSize=1&q=endDate=isnull=false'
         }
       });
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
       PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
-
+      PageFactory.decorateNonPaged(resource, '_getClosedMilestone', 'getClosedMilestone');
+      
       PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
       PageFactory.decorate(resource, '_getDistributedArtifacts', 'getPagedDistributedArtifacts');
       PageFactory.decorate(resource, '_getPerformedBuilds', 'getPagedPerformedBuilds');
