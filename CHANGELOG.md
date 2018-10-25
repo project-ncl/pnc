@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- [NCL-4189] Call scripts at the beginning and end of a build run in debug mode. The script will launch tools such as `tcpdump` in the background to capture packets. If the build fails, the packet capture can be collected and then analyzed
+
 ### Changed
 - [NCL-3886] Relax milestone version restrictions to support Continuous Delivery
 
