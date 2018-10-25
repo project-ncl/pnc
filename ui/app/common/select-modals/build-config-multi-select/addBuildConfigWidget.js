@@ -68,6 +68,7 @@
     function fetchBuildConfigs(projectId) {
       Project.queryBuildConfigurations({ id: projectId }).$promise.then(function (page) {
         $ctrl.items = [];
+        $ctrl.selectAllState = true;
         // keep buildConfig data separately from other item attributes as pf-list-view modifies item attributes (for example 'selected')
         for (var i = 0; i < page.data.length; i++) {
           $ctrl.items.push({
