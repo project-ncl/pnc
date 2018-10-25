@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row" ng-if="$ctrl.items.length">
     <div class="col-xs-12 text-right m-t-10">
       <button class="btn btn-default btn-sm" ng-click="$ctrl.selectAll($ctrl.selectAllState)">
         <span ng-if="!$ctrl.selectAllState">Clear</span>
