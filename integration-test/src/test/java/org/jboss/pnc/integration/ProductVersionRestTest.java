@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
+import org.jboss.pnc.integration.client.ProductMilestoneRestClient;
 import org.jboss.pnc.integration.client.ProductRestClient;
 import org.jboss.pnc.integration.client.ProductVersionRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -27,6 +28,7 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -40,6 +42,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,10 +65,13 @@ public class ProductVersionRestTest {
     private static ProductVersionRestClient productVersionRestClient;
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
     private static ProductRestClient productRestClient;
+    private static ProductMilestoneRestClient productMilestoneRestClient;
 
     private static ProductRest productRest1;
+    private static ProductRest productRest2;
     private static ProductVersionRest productVersionRest1;
     private static ProductVersionRest productVersionRest2;
+    private static ProductVersionRest productVersionRestWithClosedMilestone;
 
     private BuildConfigurationSetRest buildConfigurationSetRest1;
     private BuildConfigurationSetRest buildConfigurationSetRest2;
@@ -92,12 +100,20 @@ public class ProductVersionRestTest {
         if(productRestClient == null) {
             productRestClient = new ProductRestClient();
         }
+        if(productMilestoneRestClient == null) {
+            productMilestoneRestClient = new ProductMilestoneRestClient();
+        }
 
         if (!isInitialised.getAndSet(true)) {
             productRest1 = new ProductRest();
             productRest1.setName("product-version-rest-test-product-1");
             productRest1.setAbbreviation("PVR");
             productRest1 = productRestClient.createNew(productRest1).getValue();
+
+            productRest2 = new ProductRest();
+            productRest2.setName("product-version-rest-test-product-2");
+            productRest2.setAbbreviation("PVRR");
+            productRest2 = productRestClient.createNew(productRest2).getValue();
 
             productVersionRest1 = new ProductVersionRest();
             productVersionRest1.setVersion("1.0");
@@ -108,6 +124,22 @@ public class ProductVersionRestTest {
             productVersionRest2.setVersion("2.0");
             productVersionRest2.setProductId(productRest1.getId());
             productVersionRest2 = productVersionRestClient.createNew(productVersionRest2).getValue();
+
+            productVersionRestWithClosedMilestone = new ProductVersionRest();
+            productVersionRestWithClosedMilestone.setVersion("1.0");
+            productVersionRestWithClosedMilestone.setProductId(productRest2.getId());
+            productVersionRestWithClosedMilestone = productVersionRestClient.createNew(productVersionRestWithClosedMilestone).getValue();
+
+            ProductMilestoneRest milestoneRest = new ProductMilestoneRest();
+            milestoneRest.setVersion("1.0.0.GA");
+            milestoneRest.setEndDate(Date.from(LocalDateTime.now()
+                    .atZone(ZoneId.systemDefault()).toInstant()));
+            milestoneRest.setPlannedEndDate(Date.from(LocalDateTime.now().plusDays(1L)
+                    .atZone(ZoneId.systemDefault()).toInstant()));
+            milestoneRest.setStartingDate(Date.from(LocalDateTime.now().minusDays(1L)
+                    .atZone(ZoneId.systemDefault()).toInstant()));
+            milestoneRest.setProductVersionId(productVersionRestWithClosedMilestone.getId());
+            productMilestoneRestClient.createNew(milestoneRest);
         }
 
         buildConfigurationSetRest1 = new BuildConfigurationSetRest();
@@ -220,6 +252,18 @@ public class ProductVersionRestTest {
         //then
         assertThat(response.getValue().stream().map(BuildConfigurationSetRest::getId).collect(Collectors.toList()))
                 .containsOnly(buildConfigurationSetRest3.getId());
+    }
+
+    @Test
+    public void shouldNotUpdateWithClosedMilestone() {
+        //given
+        productVersionRestWithClosedMilestone.setVersion("2.0");
+
+        //when
+        RestResponse<ProductVersionRest> response = productVersionRestClient.update(productVersionRestWithClosedMilestone.getId(),productVersionRestWithClosedMilestone, false);
+
+        //then
+        assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(400);
     }
 
     @Test
