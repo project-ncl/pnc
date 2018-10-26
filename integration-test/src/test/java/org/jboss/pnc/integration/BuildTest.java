@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
@@ -31,8 +30,6 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.utils.ResponseUtils;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
@@ -154,13 +151,17 @@ public class BuildTest {
     }
 
     private RestResponse<BuildRecordRest> triggerBCBuild(BuildConfigurationRest buildConfiguration, Optional<Integer> revision) {
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+
+        return triggerBCBuild(buildConfiguration, revision, buildOptions);
+    }
+
+    private RestResponse<BuildRecordRest> triggerBCBuild(BuildConfigurationRest buildConfiguration, Optional<Integer> revision, BuildOptions buildOptions) {
         RestResponse<UserRest> loggedUser = userRestClient.getLoggedUser();
 
         logger.debug("LoggedUser: {}", loggedUser.hasValue() ? loggedUser.getValue() : "-no-logged-user-");
         logger.info("About to trigger build: {} with id: {}.", buildConfiguration.getName(), buildConfiguration.getId());
-
-        BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
 
         RestResponse<BuildRecordRest> triggeredConfiguration;
         if(revision.isPresent()) {
@@ -235,6 +236,29 @@ public class BuildTest {
 
         //then
         verifyBuildSetResults(response, buildRecordSetId);
+    }
+
+    @Test
+    public void shouldBuildTemporaryBuildAndNotAssignItToMilestone() {
+        // BC pnc-1.0.0.DR1 is assigned to a product version containing an active product milestone see DatabaseDataInitializer#initiliazeProjectProductData
+        BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("pnc-1.0.0.DR1").getValue();
+
+        //when
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setForceRebuild(true);
+        buildOptions.setTemporaryBuild(true);
+        RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfiguration, Optional.empty(), buildOptions);
+
+        //then
+        assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
+
+        Integer buildRecordId = triggeredConfiguration.getValue().getId();
+
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 15, TimeUnit.SECONDS);
+
+        RestResponse<BuildRecordRest> buildRecordRestResponse = buildRecordRestClient.get(buildRecordId);
+        assertThat(buildRecordRestResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        assertThat(buildRecordRestResponse.getValue().getProductMilestoneId()).isNull();
     }
 
     private void verifyBuildSetResults(RestResponse<BuildConfigSetRecordRest> response, Integer buildRecordSetId) {
