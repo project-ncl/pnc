@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
-- [NCL-3886] Relax milestone version restrictions to support Continuous Delivery
+- [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
 
 
 ## [1.4.0]
