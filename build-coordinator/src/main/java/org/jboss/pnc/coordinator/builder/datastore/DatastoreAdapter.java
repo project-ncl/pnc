@@ -294,8 +294,11 @@ public class DatastoreAdapter {
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
-                .productMilestone(buildTask.getProductMilestone())
                 .temporaryBuild(buildOptions.isTemporaryBuild());
+
+        if (! buildOptions.isTemporaryBuild()) {
+            builder.productMilestone(buildTask.getProductMilestone());
+        }
 
         if (buildTask.getEndTime() == null) {
             buildTask.setEndTime(Date.from(Instant.now()));
