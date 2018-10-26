@@ -45,6 +45,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PersistenceException;
+import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -336,6 +337,14 @@ public class BuildRecord implements GenericEntity<Integer> {
     public void preRemove() {
         if(this.temporaryBuild == false )
             throw new PersistenceException("The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if(this.temporaryBuild && this.productMilestone != null) {
+            logger.warn("Temporary builds cannot be assigned to a milestone");
+            this.productMilestone = null;
+        }
     }
 
     /**
@@ -869,7 +878,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setScmRevision(scmRevision);
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
-            buildRecord.setProductMilestone(productMilestone);
             buildRecord.setAttributes(attributes);
             buildRecord.setSshCommand(sshCommand);
             buildRecord.setSshPassword(sshPassword);
@@ -887,6 +895,10 @@ public class BuildRecord implements GenericEntity<Integer> {
                 temporaryBuild = true;
             }
             buildRecord.setTemporaryBuild(temporaryBuild);
+
+            if(!temporaryBuild) {
+                buildRecord.setProductMilestone(productMilestone);
+            }
 
             try {
                 buildRecord.setBuildLogMd5(Md5.digest(buildLog));
