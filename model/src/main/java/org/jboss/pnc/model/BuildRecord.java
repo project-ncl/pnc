@@ -335,13 +335,13 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if(this.temporaryBuild == false )
+        if (this.temporaryBuild == false )
             throw new PersistenceException("The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
     }
 
     @PrePersist
     public void prePersist() {
-        if(this.temporaryBuild && this.productMilestone != null) {
+        if (this.temporaryBuild && this.productMilestone != null) {
             logger.warn("Temporary builds cannot be assigned to a milestone");
             this.productMilestone = null;
         }
