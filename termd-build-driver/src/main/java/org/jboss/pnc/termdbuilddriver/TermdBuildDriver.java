@@ -238,28 +238,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    /**
-     * When the build fails, run the stopDebugTools.sh script to shutdown any debug tools that might have been running
-     * in the background
-     *
-     * Related: NCL-4189
-     *
-     * @param maybeClient
-     */
-    private void shutdownDebug(Optional<BuildAgentClient> maybeClient) {
-
-        if (maybeClient.isPresent()) {
-            BuildAgentClient client = maybeClient.get();
-            try {
-                client.executeCommand("/usr/local/bin/stopDebugTools.sh");
-            } catch (BuildAgentClientException e) {
-                logger.error("Failed to stop debug env tools", e);
-            }
-        } else {
-            logger.error("No build agent client present to stop debug tools");
-        }
-    }
-
     private Void createBuildAgentClient(
             RemoteInvocation remoteInvocation,
             RunningEnvironment runningEnvironment,
@@ -351,13 +329,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         String workingDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString();
         String name = termdRunningBuild.getName();
-
         if (debugData.isEnableDebugOnFailure()) {
-
-            // NCL-4189: start debug tools to use for debugging before the build
-            buildScript.append("/usr/local/bin/startDebugTools.sh");
-
-            // This is so that we are in the correct directory when we ssh into the pod
             String projectDirectory = (workingDirectory.endsWith("/") ? workingDirectory : workingDirectory + "/") + name;
             String enterProjectDirCommand = "echo 'cd " + projectDirectory + "' >> /home/worker/.bashrc";
             buildScript.append(enterProjectDirCommand).append("\n");
