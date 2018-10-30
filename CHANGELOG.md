@@ -29,9 +29,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Added
-- [NCL-4189] Call scripts at the beginning and end of a build run in debug mode. The script will launch tools such as `tcpdump` in the background to capture packets. If the build fails, the packet capture can be collected and then analyzed
-
 ### Changed
 - [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
 - [NCL-4077] Send revision information to Maitai and Repour on build configuration creation. This helps syncing only the particular revision provided by the user, avoiding potential merge conflicts with other branches that we do not use for building
