@@ -46,7 +46,7 @@
     $ctrl.buildTree = null;
     $ctrl.buildItem = null;
     $ctrl.isLoaded = false;
-    $ctrl.expandAll = expandAll;
+    $ctrl.expandNodes = expandNodes;
     $ctrl.componentIdAttr = 'build-tree-' + UNIQUE_ID;
     
 
@@ -60,7 +60,7 @@
       }).$promise;
 
       buildItemPromise.then(function (dependencyGraph) {
-        $ctrl.buildTree = convertGraphToTree(dependencyGraph);
+        $ctrl.buildTree = convertGraphToTree(dependencyGraph, { expandLevel: 2 });
       }).finally(function () {
         $ctrl.isLoaded = true;
       });
@@ -72,6 +72,7 @@
       buildItemPromise.then(function () {
         $timeout(function() {
           $('.table-treegrid').treegrid();
+          $ctrl.dependencyStructureIsLoaded = true;
         });
       });
     };
@@ -80,13 +81,27 @@
     /*
      * Expand All is not natively supported by Patternfly.
      */
-    function expandAll() {
-      var $nodeAll = $('#' + $ctrl.componentIdAttr + ' .treegrid-node');
-
-      if (!$nodeAll.first().parent().hasClass('collapsed')) {
-        $nodeAll.first().click();
+    function expandNodes(level) {
+      var expandOptions = {};
+      if (level) {
+        if (level === -1) {
+          expandOptions.expandFailed = true;
+        } else if (level >= 1) {
+          expandOptions.expandLevel = level;
+        }
+      } else {
+        expandOptions = null;
       }
-      $nodeAll.click();
+
+      $ctrl.dependencyStructureIsLoaded = false;
+      buildItemPromise.then(function (dependencyGraph) {
+        $ctrl.buildTree.dependencyStructure = convertGraphToTree(dependencyGraph, expandOptions).dependencyStructure;
+        $timeout(function() {
+          $('.table-treegrid').treegrid();
+          $ctrl.dependencyStructureIsLoaded = true;
+        });
+      });
+      
     }
 
     /**
@@ -111,7 +126,7 @@
     }
 
 
-    function convertGraphToTree(dependencyGraph) {
+    function convertGraphToTree(dependencyGraph, expandOptions) {
 
       var PREFIX_PARENT = '#';   
       var ID_SEPARATOR = '-';
@@ -124,7 +139,9 @@
        * @param {Object} build - processed build
        * @param {Object} customBuildParent - parent build for processed build
        */
-      function createDependencyStructure(build, customBuildParent) {
+      function createDependencyStructure(build, customBuildParent, level) {
+
+        level = level || 1;
 
         // BuildRecord or BuildGroupRecord
         var isBuildRecord = build.buildConfigurationId;
@@ -137,9 +154,11 @@
         }
 
         var attrClass = '';
-        // collapse all successful builds except the current page one
-        if (build.status === 'DONE' && !isCurrentPageBuild) {
-          attrClass += 'collapsed';
+        if (expandOptions) {
+          if ((expandOptions.expandLevel && level > expandOptions.expandLevel) || 
+              (expandOptions.expandFailed && build.status === 'DONE' && !isCurrentPageBuild)) {
+            attrClass += 'collapsed';
+          }
         }
         if (isCurrentPageBuild) {
           attrClass += ' bg-lightblue';
@@ -167,7 +186,7 @@
 
         (isBuildRecord ? build.dependencyBuildRecordIds : build.buildRecordIds).forEach(function(buildId) {
           if (dependencyGraph.vertices[buildId]) {
-            createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild);
+            createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1);
           }
         });
 
