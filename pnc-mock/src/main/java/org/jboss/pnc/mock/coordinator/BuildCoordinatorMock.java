@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mock.coordinator;
 
-import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -29,7 +29,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -117,7 +116,7 @@ public class BuildCoordinatorMock implements BuildCoordinator {
         logger.info("Called start threads");
     }
 
-    @Override public Optional<MDCMeta> getMDCMeta(Integer buildTaskId) {
+    @Override public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
         return Optional.empty();
     }
 }

@@ -27,7 +27,7 @@ import java.util.Date;
  */
 @AllArgsConstructor
 @Getter
-public class MDCMeta {
+public class BuildTaskContext {
 
     private final String buildContentId;
 

@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
@@ -180,9 +180,9 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
         boolean success = false;
         try {
             logger.debug("Received cancel request for buildTaskId: {}.", buildTaskId);
-            Optional<MDCMeta> mdcMeta = buildTriggerer.getMdcMeta(buildTaskId);
+            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildTaskId);
             if (mdcMeta.isPresent()) {
-                MDCUtils.setMDC(mdcMeta.get());
+                MDCUtils.addContext(mdcMeta.get());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildTaskId);
             }
