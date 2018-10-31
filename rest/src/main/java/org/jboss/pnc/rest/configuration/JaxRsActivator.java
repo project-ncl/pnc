@@ -60,6 +60,7 @@ public class JaxRsActivator extends Application {
     public JaxRsActivator() throws IOException {
         configureSwagger();
         configureCors();
+        singletons.add(new MDCLoggingFilter());
     }
 
     @Override
