@@ -20,7 +20,7 @@ package org.jboss.pnc.coordinator.builder;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
@@ -335,15 +335,15 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public Optional<MDCMeta> getMDCMeta(Integer buildTaskId) {
+    public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
         return getSubmittedBuildTasks().stream().
                 filter(buildTask -> buildTaskId.equals(buildTask.getId()))
                 .map(this::getMDCMeta)
                 .findAny();
     }
 
-    private MDCMeta getMDCMeta(BuildTask buildTask) {
-        return new MDCMeta(
+    private BuildTaskContext getMDCMeta(BuildTask buildTask) {
+        return new BuildTaskContext(
                 buildTask.getContentId(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
                 systemConfig.getTemporalBuildExpireDate());
@@ -363,7 +363,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                         && t.getBuildSetTask().getId().equals(buildSetTaskId))
                 .forEach(buildTask -> {
                     try {
-                        MDCUtils.setMDC(getMDCMeta(buildTask));
+                        MDCUtils.addContext(getMDCMeta(buildTask));
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e){

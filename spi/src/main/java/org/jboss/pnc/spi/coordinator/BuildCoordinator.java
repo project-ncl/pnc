@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
-import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -57,6 +57,6 @@ public interface BuildCoordinator {
 
     void start();
 
-    Optional<MDCMeta> getMDCMeta(Integer buildTaskId);
+    Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId);
 
 }

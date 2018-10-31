@@ -238,7 +238,7 @@ public class BuildTasksInitializer {
             BuildOptions buildOptions) {
         for (BuildConfigurationAudited buildConfigAudited : toBuild) {
             String buildContentId = ContentIdentityManager.getBuildContentId(buildConfigAudited.getName());
-            MDCUtils.setMDC(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
+            MDCUtils.addBuildContext(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
 
             Optional<BuildTask> taskOptional = alreadySubmittedBuildTasks.stream()
                     .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
