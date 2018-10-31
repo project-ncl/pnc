@@ -21,6 +21,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.criteria.AuditDisjunction;
+import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.common.util.StringUtils;
@@ -85,6 +86,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -211,10 +213,29 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             }
         } else {
             logger.debug("Getting dependency graph for running build: {}.", buildId);
-            Graph<BuildRecordRest> buildRecordRestGraph = convertBuildTaskToRecordRest(buildTask.getDependencyGraph());
+
+            Graph<BuildTask> graph = getBuiltTaskDependencyGraph(buildId);
+
+            Graph<BuildRecordRest> buildRecordRestGraph = convertBuildTaskToRecordRest(graph);
             buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, new ArrayList<>());
         }
         return buildRecordGraph;
+    }
+
+    private Graph<BuildTask> getBuiltTaskDependencyGraph(Integer buildId) {
+        Graph<BuildTask> graph = new Graph<>();
+        GraphBuilder graphBuilder = new GraphBuilder<BuildTask>(
+                id -> Optional.ofNullable(getSubmittedBuild(id)),
+                bt -> bt.getDependencies().stream().map(BuildTask::getId).collect(Collectors.toList()),
+                bt -> bt.getDependants().stream().map(BuildTask::getId).collect(Collectors.toList())
+        );
+
+        Vertex<BuildTask> current = graphBuilder.buildDependencyGraph(graph, buildId);
+        if (current != null) {
+            BuildTask currentTask = current.getData();
+            graphBuilder.buildDependentGraph(graph, currentTask.getId());
+        }
+        return graph;
     }
 
     private Graph<BuildRecordRest> convertBuildTaskToRecordRest(Graph<BuildTask> taskGraph) {
@@ -352,7 +373,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         Graph<BuildTask> buildGraph = new Graph<>();
         for (BuildTask buildTask : buildTasks) {
             //Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
-            Graph<BuildTask> dependencyGraph = buildTask.getDependencyGraph();
+            Graph<BuildTask> dependencyGraph = getBuiltTaskDependencyGraph(buildTask.getId());
             GraphUtils.merge(buildGraph, dependencyGraph);
         }
         return buildGraph;
