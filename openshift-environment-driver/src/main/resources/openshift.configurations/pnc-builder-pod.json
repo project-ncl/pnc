@@ -31,6 +31,10 @@
                         "value": "${allowedHttpOutgoingDestinations}"
                     },
                     {
+                        "name": "isDebugOn",
+                        "value": "${isDebugOn}"
+                    },
+                    {
                         "name": "isHttpActive",
                         "value": "${isHttpActive}"
                     },

@@ -396,6 +396,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         properties.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
         // This property sent as Json
         properties.put("allowedHttpOutgoingDestinations", toEscapedJsonString(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
+        properties.put("isDebugOn", Boolean.toString(debugData.isEnableDebugOnFailure()));
         properties.put("isHttpActive", proxyActive.toString().toLowerCase());
         properties.put("proxyServer", environmentConfiguration.getProxyServer());
         properties.put("proxyPort", environmentConfiguration.getProxyPort());
