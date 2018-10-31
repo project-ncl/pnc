@@ -122,6 +122,7 @@ public class DatastoreAdapter {
             BuildStatus buildRecordStatus = UNKNOWN;
 
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+            buildRecordBuilder.buildContentId(buildTask.getContentId());
 
             if (buildResult.getRepourResult().isPresent()) {
                 RepourResult repourResult = buildResult.getRepourResult().get();
@@ -158,8 +159,6 @@ public class DatastoreAdapter {
                 if (repositoryManagerResult.getCompletionStatus().isFailed()) {
                     buildRecordStatus = FAILED; //TODO, do not mix statuses
                 }
-
-                buildRecordBuilder.buildContentId(repositoryManagerResult.getBuildContentId());
 
                 Collection<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
                 Map<Artifact, String> builtConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
