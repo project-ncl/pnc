@@ -91,7 +91,6 @@ public class BuildRecordProviderTest {
     }
 
     private void mockMethods(BuildSetTask buildSetTask, BuildTask task, int id) {
-        when(task.getDependencyGraph()).thenCallRealMethod();
         when(task.getUser()).thenReturn(mock(User.class));
         when(task.getId()).thenReturn(id);
         when(task.getBuildSetTask()).thenReturn(buildSetTask);
