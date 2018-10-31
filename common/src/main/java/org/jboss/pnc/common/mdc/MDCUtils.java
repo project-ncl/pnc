@@ -28,14 +28,33 @@ import java.util.Map;
  */
 public class MDCUtils {
 
-    public static void setMDC(MDCMeta mdcMeta) {
-        setMDC(mdcMeta.getBuildContentId(), mdcMeta.isTemporaryBuild(), mdcMeta.getTemporaryBuildExpireDate());
+    public static void addContext(BuildTaskContext buildTaskContext) {
+        addBuildContext(
+                buildTaskContext.getBuildContentId(),
+                buildTaskContext.isTemporaryBuild(),
+                buildTaskContext.getTemporaryBuildExpireDate()
+        );
     }
-    public static void setMDC(String buildContentId, Boolean temporaryBuild, Date temporaryBuildExpireDate) {
-        Map<String, String> context = new HashMap<>();
+
+    public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Date temporaryBuildExpireDate) {
+        Map<String, String> context = getContextMap();
         context.put("buildContentId", buildContentId);
         context.put("temporaryBuild", temporaryBuild.toString());
         context.put("expires", Long.toString(temporaryBuildExpireDate.getTime()));
         MDC.setContextMap(context);
+    }
+
+    public static void addRequestContext(String requestContext) {
+        Map<String, String> context = getContextMap();
+        context.put("requestContext", requestContext);
+        MDC.setContextMap(context);
+    }
+
+    private static Map<String, String> getContextMap() {
+        Map<String, String> context = MDC.getCopyOfContextMap();
+        if (context == null) {
+            context = new HashMap<>();
+        }
+        return context;
     }
 }

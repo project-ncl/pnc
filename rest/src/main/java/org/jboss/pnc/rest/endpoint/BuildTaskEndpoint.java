@@ -33,7 +33,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.mdc.MDCMeta;
+import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
@@ -116,7 +116,7 @@ public class BuildTaskEndpoint {
 //            logger.error("Missing buildExecutionConfiguration in buildResult for buildTaskId [{}].", buildId);
 //            throw new CoreException("Missing buildExecutionConfiguration in buildResult for buildTaskId " + buildId);
 //        }
-//        MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
+//        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
         logger.info("Received build task completed notification for id {}.", buildId);
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
@@ -132,7 +132,7 @@ public class BuildTaskEndpoint {
             BpmBuildTask bpmBuildTask = (BpmBuildTask) taskOptional.get();
             BuildTask buildTask = bpmBuildTask.getBuildTask();
 
-            MDCUtils.setMDC(buildTask.getContentId(), buildTask.getBuildOptions().isTemporaryBuild(), systemConfig.getTemporalBuildExpireDate());
+            MDCUtils.addBuildContext(buildTask.getContentId(), buildTask.getBuildOptions().isTemporaryBuild(), systemConfig.getTemporalBuildExpireDate());
             if (buildTask.getStatus().isCompleted()) {
                 logger.warn("Task with id: {} is already completed with status: {}", buildTask.getId(), buildTask.getStatus());
                 return Response.status(Response.Status.GONE).entity("Task with id: " + buildTask.getId() + " is already completed with status: " + buildTask.getStatus() + ".").build();
@@ -170,7 +170,7 @@ public class BuildTaskEndpoint {
 
         try {
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
-            MDCUtils.setMDC(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
+            MDCUtils.addBuildContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
             logger.info("Build execution requested.");
             logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
 
@@ -214,9 +214,9 @@ public class BuildTaskEndpoint {
             @Context HttpServletRequest request) {
         logger.debug("Endpoint /cancel-build requested for buildTaskId [{}], from [{}]", buildExecutionConfigurationId, request.getRemoteAddr());
         try {
-            Optional<MDCMeta> mdcMeta = buildExecutorTriggerer.getMdcMeta(buildExecutionConfigurationId);
+            Optional<BuildTaskContext> mdcMeta = buildExecutorTriggerer.getMdcMeta(buildExecutionConfigurationId);
             if (mdcMeta.isPresent()) {
-                MDCUtils.setMDC(mdcMeta.get());
+                MDCUtils.addContext(mdcMeta.get());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildExecutionConfigurationId: {}.", buildExecutionConfigurationId);
             }
