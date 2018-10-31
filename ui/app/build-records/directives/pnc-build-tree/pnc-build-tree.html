@@ -50,11 +50,19 @@
       <tr class="bg-white">
         <td>
           <strong>Dependencies</strong>
-          <button class="btn btn-default btn-xs m-l-20" ng-click="$ctrl.expandAll()" title="Expand all nodes">Expand All</button>
+          <button class="btn btn-default btn-xs m-l-20" ng-click="$ctrl.expandNodes(1)">Expand 1 Level</button>
+          <button class="btn btn-default btn-xs" ng-click="$ctrl.expandNodes(2)">Expand 2 Levels</button>
+          <button class="btn btn-default btn-xs" ng-click="$ctrl.expandNodes()">Expand All</button>
+          <button class="btn btn-default btn-xs" ng-click="$ctrl.expandNodes(-1)">Expand All Failed</button>
         </td>
       </tr>
 
-      <tr ng-repeat="item in $ctrl.buildTree.dependencyStructure" id="{{item.attrId}}" ng-attr-data-parent="{{item.attrParent}}" class="{{item.attrClass}}">
+      <tr ng-hide="$ctrl.dependencyStructureIsLoaded">
+        <td>
+          <div class="loading-placeholder w-100-20"></div>
+        </td>
+      </tr>
+      <tr ng-show="$ctrl.dependencyStructureIsLoaded" ng-repeat="item in $ctrl.buildTree.dependencyStructure" id="{{item.attrId}}" ng-attr-data-parent="{{item.attrParent}}" class="{{item.attrClass}}">
         <td class="treegrid-node">
           <pnc-build-tree-link ng-if="item.isBuildRecord" class="inline-block" build-record="$ctrl.buildTree.nodes[item.id].data"></pnc-build-tree-link>
           <pnc-build-tree-link ng-if="item.isBuildGroupRecord" class="inline-block" build-group-record="$ctrl.buildItem"></pnc-build-tree-link>
