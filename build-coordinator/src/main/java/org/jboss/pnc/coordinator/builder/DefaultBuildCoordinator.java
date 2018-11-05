@@ -402,12 +402,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildResult result = new BuildResult(
                 CompletionStatus.CANCELLED,
                 Optional.empty(),
-                "", Optional.empty(),
+                "",
+                Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty());
         completeBuild(buildTask, result);
+        //TODO 2.0 completeNoBuild(buildTask, CompletionStatus.CANCELLED);
 
         log.info("Task {} canceled internally.", buildTask.getId());
     }
@@ -531,9 +533,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 }
 
                 if (!task.getBuildOptions().isForceRebuild() && !datastoreAdapter.requiresRebuild(task)) {
-                    updateBuildTaskStatus(task,
-                            BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
-                            "The configuration has already been built");
+                    completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED);
                     return;
                 }
                 task.setStartTime(new Date());
@@ -559,6 +559,36 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
             throw error;
         }
+    }
+
+    public void completeNoBuild(BuildTask buildTask, CompletionStatus completionStatus) {
+        int buildTaskId = buildTask.getId();
+        BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+        try {
+            if (CompletionStatus.NO_REBUILD_REQUIRED.equals(completionStatus)) {
+                updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+//TODO cancel should be here enable in 2.0 as CANCELed is not failed build
+//            } else if (CompletionStatus.CANCELLED.equals(completionStatus)) {
+//                updateBuildTaskStatus(buildTask, BuildCoordinationStatus.CANCELLED);
+            } else {
+                throw new BuildCoordinationException(String.format("Invalid status %s.", completionStatus));
+            }
+
+            log.debug("Storing no build required result.", buildTaskId);
+            BuildRecord buildRecord = datastoreAdapter.storeRecordForNoRebuild(buildTask);
+            if (buildRecord.getStatus().completedSuccessfully()) {
+                coordinationStatus = BuildCoordinationStatus.DONE;
+            } else {
+                log.warn("[buildTaskId: {}] Something went wrong while storing the success result. The status has changed to {}.", buildTaskId, buildRecord.getStatus());
+                coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+            }
+
+        } catch (Throwable e ) {
+            log.error("[buildTaskId: "+buildTaskId+"] Cannot store results to datastore.", e);
+            coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+            } finally {
+            updateBuildTaskStatus(buildTask, coordinationStatus);
+            }
     }
 
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {

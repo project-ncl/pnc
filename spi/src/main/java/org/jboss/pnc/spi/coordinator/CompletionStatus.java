@@ -23,12 +23,13 @@ package org.jboss.pnc.spi.coordinator;
 public enum CompletionStatus {
 
     SUCCESS,
+    NO_REBUILD_REQUIRED,
     FAILED,
     CANCELLED,
     TIMED_OUT,
     SYSTEM_ERROR;
 
     public boolean isFailed() {
-        return this != SUCCESS;
+        return this != SUCCESS && this != NO_REBUILD_REQUIRED;
     }
 }
