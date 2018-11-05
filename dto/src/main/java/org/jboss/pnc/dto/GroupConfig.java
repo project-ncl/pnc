@@ -15,31 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
-import java.util.Set;
+import org.jboss.pnc.dto.validation.constraints.RefHasId;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+
+import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class Product extends ProductRef {
+public class GroupConfig extends GroupConfigRef {
 
-    @Getter
-    @Setter
-    private final Set<ProductVersionRef> productVersions;
+    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
+    private final ProductVersionRef productVersion;
+
+    private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder")
-    public Product(Set<ProductVersionRef> productVersions, Integer id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
-        super(id, name, description, abbreviation, productCode, pgmSystemName);
-        this.productVersions = productVersions;
+    GroupConfig(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
+        super(id, name);
+        this.productVersion = productVersion;
+        this.buildConfigurations = buildConfigurations;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -15,17 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.SupportLevel;
+import org.jboss.pnc.enums.BuildType;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 
 import java.time.Instant;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -33,22 +37,32 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class ProductRelease extends ProductReleaseRef {
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+public class BuildConfigurationRef implements DTOEntity {
 
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final RepositoryConfiguration repositoryConfiguration;
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    protected final Integer id;
 
-    private final ProductVersionRef productVersion;
+    @NotNull(groups = WhenCreatingNew.class)
+    @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$",
+            groups = {WhenCreatingNew.class, WhenUpdating.class})
+    protected final String name;
 
-    private final ProductMilestoneRef productMilestone;
+    protected final String description;
 
-    @lombok.Builder(builderClassName = "Builder")
-    public ProductRelease(RepositoryConfiguration repositoryConfiguration, ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
-        super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
-        this.repositoryConfiguration = repositoryConfiguration;
-        this.productVersion = productVersion;
-        this.productMilestone = productMilestone;
-    }
+    protected final String buildScript;
+
+    protected final String scmRevision;
+
+    protected final Instant creationTime;
+
+    protected final Instant modificationTime;
+
+    protected final boolean archived;
+
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    protected final BuildType buildType;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

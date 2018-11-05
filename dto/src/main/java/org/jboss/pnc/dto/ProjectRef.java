@@ -15,49 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
+import lombok.Data;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.SystemImageType;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
-import lombok.Data;
-
 /**
  *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-public class BuildEnvironment implements DTOEntity {
-
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+public class ProjectRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    private final Integer id;
+    protected final Integer id;
 
-    private final String name;
+    protected final String name;
 
-    private final String description;
+    protected final String description;
 
-    private final String systemImageRepositoryUrl;
+    protected final String issueTrackerUrl;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final String systemImageId;
-
-    private final Map<String, String> attributes;
-
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final SystemImageType systemImageType;
-
-    private final boolean deprecated;
+    protected final String projectUrl;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

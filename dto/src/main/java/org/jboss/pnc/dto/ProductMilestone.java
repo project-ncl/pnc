@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -31,30 +32,24 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class ProductVersion extends ProductVersionRef {
+public class ProductMilestone extends ProductMilestoneRef {
 
     @RefHasId(groups = {WhenCreatingNew.class})
-    private final ProductRef productId;
+    private final ProductVersionRef productVersion;
 
-    private final ProductMilestoneRef currentProductMilestone;
+    private final Set<Integer> performedBuilds;
 
-    private final List<ProductMilestoneRef> productMilestones;
+    private final Set<Integer> distributedArtifactIds;
 
-    private final List<ProductReleaseRef> productReleases;
-
-    private final List<GroupConfigRef> buildConfigurationSets;
-
-    private final List<BuildConfigurationRef> buildConfigurations;
+    private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder")
-    public ProductVersion(ProductRef productId, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigRef> buildConfigurationSets, List<BuildConfigurationRef> buildConfigurations, Integer id, String version) {
-        super(id, version);
-        this.productId = productId;
-        this.currentProductMilestone = currentProductMilestone;
-        this.productMilestones = productMilestones;
-        this.productReleases = productReleases;
-        this.buildConfigurationSets = buildConfigurationSets;
-        this.buildConfigurations = buildConfigurations;
+    public ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
+        super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
+        this.productVersion = productVersion;
+        this.performedBuilds = performedBuilds;
+        this.distributedArtifactIds = distributedArtifactIds;
+        this.productRelease = productRelease;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

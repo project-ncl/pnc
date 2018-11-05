@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.dto.validation.validators;
 
-import org.jboss.pnc.dto.model.DTOEntity;
+import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 
 import javax.validation.ConstraintValidator;
