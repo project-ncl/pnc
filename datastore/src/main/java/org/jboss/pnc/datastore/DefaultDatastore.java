@@ -152,6 +152,17 @@ public class DefaultDatastore implements Datastore {
         return buildRecord;
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord) {
+        logger.debug("Storing record for not required build {}.", buildRecord);
+
+        buildRecord = buildRecordRepository.save(buildRecord);
+        logger.debug("Build record {} saved.", buildRecord.getId());
+
+        return buildRecord;
+    }
+
     /**
      * Checks the given list against the existing database and creates a new list containing
      * artifacts which have been saved to or loaded from the database.

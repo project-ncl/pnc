@@ -98,7 +98,14 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         waitForEmptyBuildQueue();
 
         //then
+        //there should be one non build
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
+
+        //there should be stored one NO_REBUILD_REQUIRED
+        List<BuildRecord> collectNoRebuildRequired = buildRecordRepository.queryAll().stream()
+                .filter(r -> r.getStatus() == BuildStatus.NO_REBUILD_REQUIRED)
+                .collect(Collectors.toList());
+        assertThat(collectNoRebuildRequired.size()).isEqualTo(1);
     }
 
     @Test
@@ -246,7 +253,9 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     }
 
     private List<BuildRecord> getNonRejectedBuildRecords() {
-        return buildRecordRepository.queryAll().stream().filter(r -> r.getStatus() != BuildStatus.REJECTED).collect(Collectors.toList());
+        return buildRecordRepository.queryAll().stream()
+                .filter(r -> r.getStatus() != BuildStatus.REJECTED && r.getStatus() != BuildStatus.NO_REBUILD_REQUIRED)
+                .collect(Collectors.toList());
     }
 
     private void logRecords(List<BuildRecord> buildRecords) {

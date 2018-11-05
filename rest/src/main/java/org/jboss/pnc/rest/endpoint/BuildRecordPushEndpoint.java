@@ -143,6 +143,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
         Integer buildRecordId = buildRecordPushRequestRest.getBuildRecordId();
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        //TODO check if the BR is NO_REBUILD_REQUIRED, if it is use previous record
         if (buildRecord == null) {
             return Response.noContent().entity("Cannot find a BuildRecord with given id.").build();
         }
