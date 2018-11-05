@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.api.endpoints;
 
 
 import org.jboss.pnc.dto.BuildConfiguration;
-import org.jboss.pnc.dto.GroupConfig;
+import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -100,7 +100,7 @@ public interface BuildConfigurationSetEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    public Response createNew(@NotNull GroupConfig buildConfigurationSet);
+    public Response createNew(@NotNull GroupConfiguration buildConfigurationSet);
 
     @Operation(summary = "Gets a specific Build Configuration Set",
             responses = {
@@ -131,7 +131,7 @@ public interface BuildConfigurationSetEndpoint{
     @PUT
     @Path("/{id}")
     public Response update(@Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull GroupConfig buildConfigurationSet);
+            @NotNull GroupConfiguration buildConfigurationSet);
 
     @Operation(summary = "Removes a specific Build Configuration Set",
             responses = {

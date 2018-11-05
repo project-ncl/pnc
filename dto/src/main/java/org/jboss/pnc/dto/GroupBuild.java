@@ -32,7 +32,7 @@ import lombok.Data;
 @Data
 public class GroupBuild extends GroupBuildRef {
 
-    private final GroupConfigRef groupConfig;
+    private final GroupConfigurationRef groupConfig;
 
     private final User user;
 
@@ -41,7 +41,7 @@ public class GroupBuild extends GroupBuildRef {
     private final Set<Integer> buildIds;
 
     @lombok.Builder(builderClassName = "Builder")
-    public GroupBuild(GroupConfigRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
+    public GroupBuild(GroupConfigurationRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
         super(id, startTime, endTime, status, temporaryBuild);
         this.groupConfig = groupConfig;
         this.user = user;

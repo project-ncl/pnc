@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.api.endpoints;
 
 
-import org.jboss.pnc.dto.GroupConfig;
+import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -130,7 +130,7 @@ public interface ProductVersionEndpoint{
     @PUT
     @Path("/{id}/build-configuration-sets")
     public Response updateGroupConfigs(@Parameter(description = "Product Version id", required = true) @PathParam("id") Integer id,
-            List<GroupConfig> buildConfigurationSets);
+            List<GroupConfiguration> buildConfigurationSets);
 
     @Operation(summary = "Create a new ProductVersion for a Product",
             responses = {
