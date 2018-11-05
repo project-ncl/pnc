@@ -103,6 +103,23 @@ public class DatastoreAdapterTest {
     }
 
     @Test
+    public void shouldStoreNoRequiredRebuild() throws DatastoreException {
+        //given
+        DatastoreMock datastore = new DatastoreMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+
+        //when
+        datastoreAdapter.storeRecordForNoRebuild(mockBuildTask());
+
+        //then
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        Assert.assertEquals(1, buildRecords.size());
+        BuildRecord buildRecord = buildRecords.get(0);
+
+        Assert.assertEquals(BuildStatus.NO_REBUILD_REQUIRED, buildRecord.getStatus());
+    }
+
+    @Test
     public void shouldStoreRepourResult() throws DatastoreException {
         //given
         DatastoreMock datastore = new DatastoreMock();

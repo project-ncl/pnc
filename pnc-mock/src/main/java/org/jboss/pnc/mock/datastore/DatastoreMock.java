@@ -79,6 +79,12 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
+    public BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord) {
+        buildRecords.add(buildRecord);
+        return buildRecord;
+    }
+
+    @Override
     public User retrieveUserByUsername(String username) {
         User user = new User();
         user.setUsername("demo-user");

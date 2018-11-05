@@ -53,6 +53,8 @@ public interface Datastore {
      */
     BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) throws DatastoreException;
 
+    BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
+
     /**
      * Returns User upon its username.
      *
