@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.dto.internal;
 
-import org.jboss.pnc.dto.model.User;
+import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 

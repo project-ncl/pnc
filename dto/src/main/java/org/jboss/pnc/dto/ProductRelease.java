@@ -15,20 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
+import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.BuildPushStatus;
+import org.jboss.pnc.enums.SupportLevel;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
-import java.util.List;
+import java.time.Instant;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -36,36 +33,22 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-public class BuildPushResult implements DTOEntity {
+public class ProductRelease extends ProductReleaseRef {
 
-    @NotNull(groups = WhenUpdating.class)
-    @Null(groups = WhenCreatingNew.class)
-    private final Integer id;
+    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    private final RepositoryConfiguration repositoryConfiguration;
 
-    @NotNull
-    private final Integer buildRecordId;
+    private final ProductVersionRef productVersion;
 
-    @NotNull
-    private final BuildPushStatus status;
+    private final ProductMilestoneRef productMilestone;
 
-    @NotNull
-    private final String log;
-
-    /**
-     * list of errors for artifact imports
-     */
-    private final List<ArtifactImportError> artifactImportErrors;
-
-    /**
-     * build id assigned by brew
-     */
-    private final Integer brewBuildId;
-
-    /**
-     * link to brew
-     */
-    private final String brewBuildUrl;
+    @lombok.Builder(builderClassName = "Builder")
+    public ProductRelease(RepositoryConfiguration repositoryConfiguration, ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
+        super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
+        this.repositoryConfiguration = repositoryConfiguration;
+        this.productVersion = productVersion;
+        this.productMilestone = productMilestone;
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

@@ -15,35 +15,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+
+import java.time.Instant;
 
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class ProjectRef implements DTOEntity {
+@Builder(builderClassName = "Builder")
+public class ProductMilestoneRelease implements DTOEntity {
+
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    protected final String name;
+    protected final MilestoneReleaseStatus status;
 
-    protected final String description;
+    protected final String log;
 
-    protected final String issueTrackerUrl;
+    protected final Instant endDate;
 
-    protected final String projectUrl;
+    protected final Instant startingDate;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

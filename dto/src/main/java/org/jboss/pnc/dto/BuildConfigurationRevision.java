@@ -15,16 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.validation.constraints.RefHasId;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.BuildType;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Data;
 
 /**
@@ -32,18 +30,23 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class Project extends ProjectRef {
+public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private final RepositoryConfiguration repositoryConfiguration;
 
-    private final List<BuildConfigurationRef> buildConfigurations;
+    private final ProjectRef project;
+
+    private final BuildEnvironment environment;
+
+    private final Map<String, String> genericParameters ;
 
     @lombok.Builder(builderClassName = "Builder")
-    public Project(RepositoryConfiguration repositoryConfiguration, List<BuildConfigurationRef> buildConfigurations, Integer id, String name, String description, String issueTrackerUrl, String projectUrl) {
-        super(id, name, description, issueTrackerUrl, projectUrl);
+    public BuildConfigurationRevision(RepositoryConfiguration repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Map<String, String> genericParameters, Integer id, Integer rev, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, BuildType buildType) {
+        super(id, rev, name, description, buildScript, scmRevision, creationTime, lastModificationTime, buildType);
         this.repositoryConfiguration = repositoryConfiguration;
-        this.buildConfigurations = buildConfigurations;
+        this.project = project;
+        this.environment = environment;
+        this.genericParameters = genericParameters;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

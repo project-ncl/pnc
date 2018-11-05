@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.BuildPushStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.time.Instant;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -36,20 +36,36 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class GroupBuildRef implements DTOEntity {
+@Builder(builderClassName = "Builder")
+public class BuildPushResult implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    private final Integer id;
 
-    protected final Instant startTime;
+    @NotNull
+    private final Integer buildRecordId;
 
-    protected final Instant endTime;
+    @NotNull
+    private final BuildPushStatus status;
 
-    protected final BuildStatus status;
+    @NotNull
+    private final String log;
 
-    protected final Boolean temporaryBuild;
+    /**
+     * list of errors for artifact imports
+     */
+    private final List<ArtifactImportError> artifactImportErrors;
+
+    /**
+     * build id assigned by brew
+     */
+    private final Integer brewBuildId;
+
+    /**
+     * link to brew
+     */
+    private final String brewBuildUrl;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

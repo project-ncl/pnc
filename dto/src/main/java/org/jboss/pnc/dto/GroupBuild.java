@@ -15,17 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.BuildStatus;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import java.time.Instant;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -33,14 +30,24 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class GroupConfigRef implements DTOEntity {
+public class GroupBuild extends GroupBuildRef {
 
-    @NotNull(groups = WhenUpdating.class)
-    @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    private final GroupConfigRef groupConfig;
 
-    protected final String name;
+    private final User user;
+
+    private final ProductVersionRef productVersion;
+
+    private final Set<Integer> buildIds;
+
+    @lombok.Builder(builderClassName = "Builder")
+    public GroupBuild(GroupConfigRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
+        super(id, startTime, endTime, status, temporaryBuild);
+        this.groupConfig = groupConfig;
+        this.user = user;
+        this.productVersion = productVersion;
+        this.buildIds = buildIds;
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

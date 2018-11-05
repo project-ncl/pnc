@@ -15,18 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.RepositoryType;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 
 /**
  *
@@ -34,22 +35,22 @@ import javax.validation.constraints.Null;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class TargetRepositoryRef implements DTOEntity {
+public class ProductRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    protected final Boolean temporaryRepo;
+    protected final String name;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    protected final String identifier;
+    protected final String description;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    protected final RepositoryType repositoryType;
+    @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
+    protected final String abbreviation;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    protected final String repositoryPath;
+    protected final String productCode;
+
+    protected final String pgmSystemName;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

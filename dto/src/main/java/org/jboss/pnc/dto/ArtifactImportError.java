@@ -15,14 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
-
-import org.jboss.pnc.enums.BuildStatus;
-
-import java.time.Instant;
-import java.util.Set;
+package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -30,24 +27,12 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class GroupBuild extends GroupBuildRef {
+@Builder(builderClassName = "Builder")
+public class ArtifactImportError {
 
-    private final GroupConfigRef groupConfig;
+    private final Integer artifactId;
 
-    private final User user;
-
-    private final ProductVersionRef productVersion;
-
-    private final Set<Integer> buildIds;
-
-    @lombok.Builder(builderClassName = "Builder")
-    public GroupBuild(GroupConfigRef groupConfig, User user, ProductVersionRef productVersion, Set<Integer> buildIds, Integer id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
-        super(id, startTime, endTime, status, temporaryBuild);
-        this.groupConfig = groupConfig;
-        this.user = user;
-        this.productVersion = productVersion;
-        this.buildIds = buildIds;
-    }
+    private final String errorMessage;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

@@ -15,30 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
-
-import org.jboss.pnc.enums.RepositoryType;
-
-import java.util.Set;
+package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
+import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 /**
  *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-public class TargetRepository extends TargetRepositoryRef {
+@Builder(builderClassName = "Builder")
+public class User implements DTOEntity {
 
-    private final Set<Integer> artifactIds;
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    protected final Integer id;
 
-    @lombok.Builder(builderClassName = "Builder")
-    public TargetRepository(Set<Integer> artifactIds, Integer id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
-        super(id, temporaryRepo, identifier, repositoryType, repositoryPath);
-        this.artifactIds = artifactIds;
-    }
+    protected final String username;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
