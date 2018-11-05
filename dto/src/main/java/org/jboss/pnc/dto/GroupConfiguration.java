@@ -31,7 +31,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class GroupConfig extends GroupConfigRef {
+public class GroupConfiguration extends GroupConfigurationRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
@@ -39,7 +39,7 @@ public class GroupConfig extends GroupConfigRef {
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder")
-    GroupConfig(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
+    GroupConfiguration(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
         super(id, name);
         this.productVersion = productVersion;
         this.buildConfigurations = buildConfigurations;

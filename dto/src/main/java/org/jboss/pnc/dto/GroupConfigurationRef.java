@@ -34,7 +34,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class GroupConfigRef implements DTOEntity {
+public class GroupConfigurationRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)

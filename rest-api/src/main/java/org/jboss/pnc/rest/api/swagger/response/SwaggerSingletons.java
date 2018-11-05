@@ -9,7 +9,7 @@ import org.jboss.pnc.dto.BuildEnvironment;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.GroupConfig;
+import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRelease;
@@ -35,7 +35,7 @@ public class SwaggerSingletons {
     public static class BuildPushResultSingleton extends Singleton<BuildPushResult>{};
     public static class DTOEntitySingleton extends Singleton<DTOEntity>{};
     public static class GroupBuildSingleton extends Singleton<GroupBuild>{};
-    public static class GroupConfigSingleton extends Singleton<GroupConfig>{};
+    public static class GroupConfigSingleton extends Singleton<GroupConfiguration>{};
     public static class ProductSingleton extends Singleton<Product>{};
     public static class ProductMilestoneSingleton extends Singleton<ProductMilestone>{};
     public static class ProductMilestoneReleaseSingleton extends Singleton<ProductMilestoneRelease>{};

@@ -51,12 +51,12 @@ public class BuildConfiguration extends BuildConfigurationRef {
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
-    private final Set<GroupConfigRef> groupConfigs;
+    private final Set<GroupConfigurationRef> groupConfigs;
 
     private final Map<String, String> genericParameters;
 
     @lombok.Builder(builderClassName = "Builder")
-    public BuildConfiguration(RepositoryConfiguration repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, boolean archived, BuildType buildType) {
+    public BuildConfiguration(RepositoryConfiguration repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant lastModificationTime, boolean archived, BuildType buildType) {
         super(id, name, description, buildScript, scmRevision, creationTime, lastModificationTime, archived, buildType);
         this.repositoryConfiguration = repositoryConfiguration;
         this.project = project;
