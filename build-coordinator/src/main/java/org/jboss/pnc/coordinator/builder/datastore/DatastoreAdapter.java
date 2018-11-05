@@ -206,6 +206,22 @@ public class DatastoreAdapter {
         }
     }
 
+    public BuildRecord storeRecordForNoRebuild(BuildTask buildTask) throws DatastoreException {
+        try {
+            log.debug("Storing record for non required rebuild of buildTask [{}] to datastore.", buildTask.getId());
+            BuildRecord buildRecord = initBuildRecordBuilder(buildTask)
+                    .status(BuildStatus.NO_REBUILD_REQUIRED)
+                    .appendLog("No rebuild was required.")
+                    .buildContentId(buildTask.getContentId())
+                    .build();
+            BuildRecord storedRecord = datastore.storeRecordForNoRebuild(buildRecord);
+            userLog.info("Successfully completed.");
+            return storedRecord;
+        } catch (Exception e) {
+            return storeResult(buildTask, Optional.empty(), e);
+        }
+    }
+
     /**
      * Store build result along with error information appended to the build log
      *
@@ -289,7 +305,8 @@ public class DatastoreAdapter {
      */
     private BuildRecord.Builder initBuildRecordBuilder(BuildTask buildTask) {
         BuildOptions buildOptions = buildTask.getBuildOptions();
-        BuildRecord.Builder builder = BuildRecord.Builder.newBuilder().id(buildTask.getId())
+        BuildRecord.Builder builder = BuildRecord.Builder.newBuilder()
+                .id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())

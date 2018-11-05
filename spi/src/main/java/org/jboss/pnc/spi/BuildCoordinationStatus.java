@@ -60,7 +60,7 @@ public enum BuildCoordinationStatus {
     /**
      * Rejected because given {@link org.jboss.pnc.model.BuildConfiguration} has been already built.
      */
-    REJECTED_ALREADY_BUILT(true, false),
+    REJECTED_ALREADY_BUILT(false, false),
 
     SYSTEM_ERROR(true, true),
 
@@ -103,6 +103,7 @@ public enum BuildCoordinationStatus {
         BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.REJECTED};
         BuildStatus[] cancelled = {BuildStatus.CANCELLED};
         BuildStatus[] building = {BuildStatus.BUILDING};
+        BuildStatus[] notRequired = {BuildStatus.NO_REBUILD_REQUIRED};
 
         if (Arrays.asList(done).contains(buildStatus)) {
             return DONE;
@@ -112,6 +113,8 @@ public enum BuildCoordinationStatus {
             return BUILDING;
         } else if (Arrays.asList(cancelled).contains(buildStatus)) {
             return CANCELLED;
+        } else if (Arrays.asList(notRequired).contains(buildStatus)) {
+            return REJECTED_ALREADY_BUILT;
         } else {
             return SYSTEM_ERROR;
         }
