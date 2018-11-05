@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
 
 import java.time.Instant;
 
@@ -38,31 +37,23 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class BuildConfigurationRef implements DTOEntity {
+public class BuildRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    @NotNull(groups = WhenCreatingNew.class)
-    @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$",
-            groups = {WhenCreatingNew.class, WhenUpdating.class})
-    protected final String name;
+    protected final Instant submitTime;
 
-    protected final String description;
+    protected final Instant startTime;
 
-    protected final String buildScript;
+    protected final Instant endTime;
 
-    protected final String scmRevision;
+    protected final BuildCoordinationStatus status;
 
-    protected final Instant creationTime;
+    protected final String buildContentId;
 
-    protected final Instant modificationTime;
-
-    protected final boolean archived;
-
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    protected final BuildType buildType;
+    protected final Boolean temporaryBuild;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

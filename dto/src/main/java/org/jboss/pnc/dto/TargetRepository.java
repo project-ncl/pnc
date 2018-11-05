@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.validation.constraints.RefHasId;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.RepositoryType;
 
-import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.Data;
 
 /**
@@ -31,18 +30,14 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class GroupConfig extends GroupConfigRef {
+public class TargetRepository extends TargetRepositoryRef {
 
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
-    private final ProductVersionRef productVersion;
-
-    private final List<BuildConfigurationRef> buildConfigurations;
+    private final Set<Integer> artifactIds;
 
     @lombok.Builder(builderClassName = "Builder")
-    GroupConfig(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
-        super(id, name);
-        this.productVersion = productVersion;
-        this.buildConfigurations = buildConfigurations;
+    public TargetRepository(Set<Integer> artifactIds, Integer id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
+        super(id, temporaryRepo, identifier, repositoryType, repositoryPath);
+        this.artifactIds = artifactIds;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

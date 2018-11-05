@@ -15,23 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
+import java.util.Set;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-public class GroupBuildRequest {
+public class Product extends ProductRef {
 
-    private final List<BuildConfigurationRevisionRef> buildConfigurationRevisions;
+    @Getter
+    @Setter
+    private final Set<ProductVersionRef> productVersions;
 
+    @lombok.Builder(builderClassName = "Builder")
+    public Product(Set<ProductVersionRef> productVersions, Integer id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
+        super(id, name, description, abbreviation, productCode, pgmSystemName);
+        this.productVersions = productVersions;
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class Builder {
+    }
 }

@@ -15,41 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.SupportLevel;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.time.Instant;
+import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-public class ProductReleaseRef implements DTOEntity {
+@Builder(builderClassName = "Builder")
+public class RepositoryConfiguration implements DTOEntity {
+
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    protected final String version;
+    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final String internalUrl;
 
-    protected final SupportLevel supportLevel;
+    protected final String internalUrlNormalized;
 
-    protected final Instant releaseDate;
+    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final String externalUrl;
 
-    protected final String downloadUrl;
+    protected final String externalUrlNormalized;
 
-    protected final String issueTrackerUrl;
+    protected final Boolean preBuildSyncEnabled;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

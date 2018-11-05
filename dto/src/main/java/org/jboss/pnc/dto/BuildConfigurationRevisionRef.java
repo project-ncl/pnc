@@ -15,7 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.model;
+package org.jboss.pnc.dto;
+
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.BuildType;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
+import java.time.Instant;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -27,12 +36,28 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-public class ArtifactImportError {
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+public class BuildConfigurationRevisionRef implements DTOEntity {
 
-    private final Integer artifactId;
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    protected final Integer id;
 
-    private final String errorMessage;
+    protected final Integer rev;
+
+    protected final String name;
+
+    protected final String description;
+
+    protected final String buildScript;
+
+    protected final String scmRevision;
+
+    protected final Instant creationTime;
+
+    protected final Instant modificationTime;
+
+    protected final BuildType buildType;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
