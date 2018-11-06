@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -59,4 +60,5 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId);
 
+    BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev);
 }

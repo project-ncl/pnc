@@ -44,6 +44,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccessForIdRevOrderByIdDesc;
+
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
 
@@ -139,6 +141,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         logger.trace("Graph with dependents of buildRecord.id {} {}; Graph edges: {}.", buildRecordId, graph, graph.getEdges());
 
         return new GraphWithMetadata(graph, graphBuilder.getMissingNodes());
+    }
+
+    @Override
+    public BuildRecord getLatestSuccessfulBuildRecord(IdRev idRev) {
+        return queryByPredicates(withSuccessForIdRevOrderByIdDesc(idRev));
     }
 
 }
