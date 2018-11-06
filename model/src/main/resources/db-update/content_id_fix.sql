@@ -6,9 +6,9 @@
 update buildrecord
 set buildcontentid = subquery.bcid
 from
-	(select substring(buildlog from '/track/(.*?)/') as bcid,id
-	from buildrecord
-	where buildcontentid is null
-	and buildlog like '%http://indy%')
-		as subquery
+	(select substring(buildlog from '/api/folo/track/(build_.*?)/') as bcid, id
+        from buildrecord
+        where buildcontentid is null
+            and buildlog like '%/api/folo/track/build_%')
+	as subquery
 where buildrecord.id = subquery.id
