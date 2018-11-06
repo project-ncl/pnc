@@ -35,6 +35,8 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
@@ -119,12 +121,24 @@ public class BuildResultPushManager {
 
         Set<Result> result = new HashSet<>();
         for (Integer buildRecordId : buildRecordIds) {
-            Result pushResult = pushToCauseway(
-                    authToken,
-                    buildRecordId,
-                    String.format(callBackUrlTemplate, buildRecordId),
-                    tagPrefix);
-            result.add(pushResult);
+            //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
+            BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+            if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
+                IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
+                buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev);
+                if (buildRecord != null) {
+                    buildRecordId = buildRecord.getId();
+                    Result pushResult = pushToCauseway(
+                            authToken,
+                            buildRecordId,
+                            String.format(callBackUrlTemplate, buildRecordId),
+                            tagPrefix);
+                    result.add(pushResult);
+                } else {
+                    logger.warn("Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
+                            buildRecordId, idRev);
+                }
+            }
         }
         return result;
     }
