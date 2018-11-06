@@ -73,6 +73,18 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> cb.equal(root.get(BuildRecord_.status), BuildStatus.SUCCESS);
     }
 
+    public static Predicate<BuildRecord> withSuccessForIdRevOrderByIdDesc(IdRev idRev) {
+        return (root, query, cb) ->
+                query.where(
+                    cb.and(
+                        withBuildConfigurationIdRev(idRev).apply(root, query, cb),
+                        withSuccess().apply(root, query, cb),
+                        cb.equal(root.get(BuildRecord_.status), BuildStatus.SUCCESS)
+                    )
+                ).orderBy(cb.desc(root.get(BuildRecord_.id)))
+                .getRestriction();
+    }
+
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
         return (root, query, cb) -> {
 

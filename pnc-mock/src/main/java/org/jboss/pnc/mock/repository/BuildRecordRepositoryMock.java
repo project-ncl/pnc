@@ -19,6 +19,7 @@ package org.jboss.pnc.mock.repository;
 
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -78,6 +79,11 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
 
     @Override
     public GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev) {
         throw new UnsupportedOperationException();
     }
 
