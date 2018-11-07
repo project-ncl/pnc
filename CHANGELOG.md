@@ -30,9 +30,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
-- [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
 - [NCL-4077] Send revision information to Maitai and Repour on build configuration creation. This helps syncing only the particular revision provided by the user, avoiding potential merge conflicts with other branches that we do not use for building
 - [NCL-4236] Any authenticated user can create/edit/delete stuff. Before it was restricted to authenticated users having 'user' role
+- [NCL-3643] Added NPM-specific identifier format
+
+
+## [1.4.2]
+
+### Added
+- [NCL-4177] Add an option to specify implicit or explicit dependency check for a rebuild
+- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
+
+### Fixed
+- [NCL-4235]: Fix potential collision of the 2 same builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
+
+### Changed
+- [NCL-4218] Don't break the build if JMS server is down
+- [NCL-4177] Force rebuild is propagated to explicit dependencies.
+
+## [1.4.1]
+
+### Changed
+- [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
 
 ## [1.4.0]
 
@@ -67,6 +86,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-3698] Brew Push tab appears when push completes / fails without user refresh
 - [NCL-4021] Handle rejected build group status correctly in the UI
 - [NCL-4100] Fix no push button on Build Group Record page
-    
+
 ### Security
 - [NCL-3549] Use service account when managing repositories in Indy
