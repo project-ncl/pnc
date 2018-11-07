@@ -49,7 +49,6 @@ import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.resteasy.annotations.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -590,8 +589,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @GET
     @Path("/{id}/build-records/latest")
-    public Response getLatestBuildRecord(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id));
+    public Response getLatestBuildRecord(
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "When true, records with NO_REBUILD_REQUIRED status are excluded.", required = false, defaultValue = "false") @QueryParam("executed") boolean executed) {
+        return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id, executed));
     }
 
     //TODO To be removed after testing, will be available via pnc-rest/rest/builds?q=buildConfigurationAuditedId==1

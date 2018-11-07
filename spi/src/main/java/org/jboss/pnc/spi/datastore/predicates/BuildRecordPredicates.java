@@ -59,6 +59,14 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> cb.equal(root.get(BuildRecord_.buildConfigurationId), configurationId);
     }
 
+    public static Predicate<BuildRecord> withBuildConfigurationIdAndStatusExecuted(Integer configurationId) {
+        return (root, query, cb) ->
+            cb.and(
+                    withBuildConfigurationId(configurationId).apply(root, query, cb),
+                    cb.notEqual(root.get(BuildRecord_.status), BuildStatus.NO_REBUILD_REQUIRED) //TODO 2.0 add CANCEL
+            );
+    }
+
     public static Predicate<BuildRecord> withBuildConfigurationIds(Set<Integer> configurationIds) {
         return (root, query, cb) -> root.get(BuildRecord_.buildConfigurationId).in(configurationIds);
     }
@@ -71,18 +79,6 @@ public class BuildRecordPredicates {
 
     public static Predicate<BuildRecord> withSuccess() {
         return (root, query, cb) -> cb.equal(root.get(BuildRecord_.status), BuildStatus.SUCCESS);
-    }
-
-    public static Predicate<BuildRecord> withSuccessForIdRevOrderByIdDesc(IdRev idRev) {
-        return (root, query, cb) ->
-                query.where(
-                    cb.and(
-                        withBuildConfigurationIdRev(idRev).apply(root, query, cb),
-                        withSuccess().apply(root, query, cb),
-                        cb.equal(root.get(BuildRecord_.status), BuildStatus.SUCCESS)
-                    )
-                ).orderBy(cb.desc(root.get(BuildRecord_.id)))
-                .getRestriction();
     }
 
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
