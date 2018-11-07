@@ -97,6 +97,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withA
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdAndStatusExecuted;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
@@ -576,10 +577,16 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         }
     }
 
-    public BuildRecordRest getLatestBuildRecord(Integer configId) {
+    public BuildRecordRest getLatestBuildRecord(Integer configId, boolean executedOnly) {
         PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
         SortInfo sortInfo = this.sortInfoProducer.getSortInfo(SortInfo.SortingDirection.DESC, "endTime");
-        List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, withBuildConfigurationId(configId));
+        List<BuildRecord> buildRecords;
+        if (executedOnly) {
+            buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, withBuildConfigurationIdAndStatusExecuted(configId));
+        } else {
+            buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, withBuildConfigurationId(configId));
+        }
+
         if (buildRecords.isEmpty()) {
             return null;
         }
