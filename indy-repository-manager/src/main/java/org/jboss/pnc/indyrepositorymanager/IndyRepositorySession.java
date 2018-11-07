@@ -18,6 +18,11 @@
 package org.jboss.pnc.indyrepositorymanager;
 
 import org.apache.commons.lang.StringUtils;
+import org.commonjava.atlas.maven.ident.ref.ArtifactRef;
+import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
+import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
+import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.commonjava.atlas.npm.ident.util.NpmPackagePathInfo;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.module.IndyContentClientModule;
@@ -33,9 +38,6 @@ import org.commonjava.indy.promote.model.GroupPromoteResult;
 import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
 import org.commonjava.indy.promote.model.ValidationResult;
-import org.commonjava.atlas.maven.ident.ref.ArtifactRef;
-import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
-import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.model.Artifact;
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -245,20 +248,7 @@ public class IndyRepositorySession implements RepositorySession {
                     }
                 }
 
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-
-                String identifier;
-                if (pathInfo == null) {
-                    identifier = download.getOriginUrl();
-                    if (identifier == null) {
-                        // this is from a hosted repository, either shared-imports or a build, or something like that.
-                        identifier = download.getLocalUrl();
-                    }
-                    identifier += '|' + download.getSha256();
-                } else {
-                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
-                    identifier = aref.toString();
-                }
+                String identifier = computeIdentifier(download);
 
                 logger.info("Recording download: {}", identifier);
 
@@ -411,20 +401,7 @@ public class IndyRepositorySession implements RepositorySession {
                     continue;
                 }
 
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-
-                String identifier;
-                if (pathInfo == null) {
-                    identifier = upload.getOriginUrl();
-                    if (identifier == null) {
-                        // this is to a hosted repository, either the build repo or something like that.
-                        identifier = upload.getLocalUrl();
-                    }
-                    identifier += '|' + upload.getSha256();
-                } else {
-                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
-                    identifier = aref.toString();
-                }
+                String identifier = computeIdentifier(upload);
 
                 logger.info("Recording upload: {}", identifier);
 
@@ -457,6 +434,70 @@ public class IndyRepositorySession implements RepositorySession {
             return builds;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Computes identifier string for an artifact. If the download path is valid for a package-type specific artifact it
+     * creates the identifier accordingly.
+     *
+     * @param transfer the download or upload that we want to generate identifier for
+     * @return generated identifier
+     */
+    private String computeIdentifier(final TrackedContentEntryDTO transfer) {
+        String identifier = null;
+
+        switch (transfer.getStoreKey().getPackageType()) {
+            case MAVEN_PKG_KEY:
+                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(transfer.getPath());
+                if (pathInfo != null) {
+                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+                    identifier = aref.toString();
+                }
+                break;
+
+            case NPM_PKG_KEY:
+                NpmPackagePathInfo npmPathInfo = NpmPackagePathInfo.parse(transfer.getPath());
+                if (npmPathInfo != null) {
+                    NpmPackageRef packageRef = new NpmPackageRef(npmPathInfo.getName(), npmPathInfo.getVersion());
+                    identifier = packageRef.toString();
+                }
+                break;
+
+            case GENERIC_PKG_KEY:
+                // handle generic downloads along with other invalid download paths for other package types
+                break;
+
+            default:
+                // do not do anything by default
+                logger.warn("Package type {} is not handled by Indy repository session.", transfer.getStoreKey().getPackageType());
+                break;
+        }
+
+        if (identifier == null) {
+            identifier = computeGenericIdentifier(transfer.getOriginUrl(), transfer.getLocalUrl(), transfer.getSha256());
+        }
+
+        return identifier;
+    }
+
+    /**
+     * Compute the identifier string for a generic download, that does not match package type specific files structure.
+     * It prefers to use the origin URL if it is not empty. In case it is then it uses local URL, which can never be
+     * empty, it is the local file mirror in Indy. After that it attaches the sha256 separated by a pipe.
+     *
+     * @param originUrl the origin URL of the transfer, it can be null
+     * @param localUrl url where the artifact was backed up in Indy
+     * @param sha256 the SHA-256 of the transfer
+     * @return the generated identifier
+     */
+    private String computeGenericIdentifier(String originUrl, String localUrl, String sha256) {
+        String identifier = originUrl;
+        if (identifier == null) {
+            // this is from/to a hosted repository, either the build repo or something like that.
+            identifier = localUrl;
+        }
+        identifier += '|' + sha256;
+        return identifier;
     }
 
     /**
