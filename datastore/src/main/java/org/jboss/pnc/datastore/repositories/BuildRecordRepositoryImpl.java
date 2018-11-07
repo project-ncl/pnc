@@ -24,6 +24,7 @@ import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
 import org.jboss.pnc.datastore.repositories.internal.SpecificationsMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -32,6 +33,8 @@ import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
@@ -44,7 +47,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccessForIdRevOrderByIdDesc;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
@@ -145,7 +149,19 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
     @Override
     public BuildRecord getLatestSuccessfulBuildRecord(IdRev idRev) {
-        return queryByPredicates(withSuccessForIdRevOrderByIdDesc(idRev));
+        PageInfo pageInfo = new DefaultPageInfo(0, 1);
+        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.id.getName());
+
+        List<BuildRecord> buildRecords = queryWithPredicates(pageInfo,
+                sortInfo,
+                withBuildConfigurationIdRev(idRev),
+                withSuccess());
+
+        if (buildRecords.size() == 0) {
+            return null;
+        } else {
+            return buildRecords.get(0);
+        }
     }
 
 }
