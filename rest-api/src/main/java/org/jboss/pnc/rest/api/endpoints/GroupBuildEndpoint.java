@@ -91,7 +91,7 @@ public interface GroupBuildEndpoint {
     Response getSpecific(@Parameter(description = GB_ID) @PathParam("id") int id);
 
     @Operation(summary = "Delete specific temporary group build.",
-            description = "The operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.",
+            description = "The operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
