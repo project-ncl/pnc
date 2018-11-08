@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
@@ -29,11 +30,12 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupBuildSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupConfigSingleton;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -44,10 +46,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -68,17 +72,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
-@Path("/build-configuration-sets")
+@Tag(name = "Group Configs")
+@Path("/group-configuration")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface BuildConfigurationSetEndpoint{
+public interface GroupConfigurationEndpoint{
+    static final String GC_ID = "ID of the group config";
 
-    @Operation(summary = "Gets all Build Configuration Sets",
+    @Operation(summary = "Gets all group configs.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupConfigPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = GroupConfigPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -86,11 +89,11 @@ public interface BuildConfigurationSetEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
+    Response getAll(@BeanParam PageParameters pageParams);
 
-    @Operation(summary = "Creates a new Build Configuration Set",
+    @Operation(summary = "Creates a new group config.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = GroupConfigSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -100,27 +103,23 @@ public interface BuildConfigurationSetEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    public Response createNew(@NotNull GroupConfiguration buildConfigurationSet);
+    Response createNew(@NotNull GroupConfiguration buildConfigurationSet);
 
-    @Operation(summary = "Gets a specific Build Configuration Set",
+    @Operation(summary = "Gets a specific group config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = GroupConfigSingleton.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupConfigSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id);
+    Response getSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
 
-    @Operation(summary = "Updates an existing Build Configuration Set",
+    @Operation(summary = "Updates an existing group config.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -130,26 +129,44 @@ public interface BuildConfigurationSetEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(@Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+    Response update(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
             @NotNull GroupConfiguration buildConfigurationSet);
 
-    @Operation(summary = "Removes a specific Build Configuration Set",
+    @Operation(summary = "Removes a specific group config.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id);
+    Response deleteSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
 
-    @Operation(summary = "Gets the Configurations for the Specified Set",
+    @Operation(summary = "Builds the build configs in the group config.",
+            responses = {
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = GroupBuildSingleton.class))),
+                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @POST
+    @Path("/{id}/build")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response trigger(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @BeanParam GroupBuildParameters buildParams,
+            GroupBuildRequest request,
+            @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
+
+    @Operation(summary = "Gets the build configs for the group config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -158,15 +175,11 @@ public interface BuildConfigurationSetEndpoint{
     })
     @GET
     @Path("/{id}/build-configurations")
-    public Response getConfigurations(@BeanParam PageParameters pageParameters,
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id);
+    Response getConfigurations(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParams);
 
-    @PUT
-    @Path("/{id}/build-configurations")
-    public Response updateConfigurations(@Parameter(description = "Build Configuration Set Id", required = true) @PathParam("id") Integer id,
-            List<BuildConfiguration> buildConfigurations);
-
-    @Operation(summary = "Adds a configuration to the Specified Set",
+    @Operation(summary = "Adds a build config to the group config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -176,11 +189,11 @@ public interface BuildConfigurationSetEndpoint{
     })
     @POST
     @Path("/{id}/build-configurations")
-    public Response addConfiguration(
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+    Response addConfiguration(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
             BuildConfiguration buildConfig);
 
-    @Operation(summary = "Removes a configuration from the specified config set",
+    @Operation(summary = "Removes a build config from the specified group config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -190,15 +203,13 @@ public interface BuildConfigurationSetEndpoint{
     })
     @DELETE
     @Path("/{id}/build-configurations/{configId}")
-    public Response removeConfiguration(
-            @Parameter(description = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @Parameter(description = "Build configuration id", required = true) @PathParam("configId") Integer configId);
+    Response removeConfiguration(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = "ID of the build config") @PathParam("configId") int configId);
 
-    @Operation(summary = "Gets all build records associated with the contained build configurations",
+    @Operation(summary = "Gets all builds associated with the contained build configs.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -206,55 +217,15 @@ public interface BuildConfigurationSetEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-records")
-    public Response getBuilds(
-            @Parameter(description = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @BeanParam PageParameters pageParameters);
+    @Path("/{id}/builds")
+    Response getBuilds(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParams,
+            @BeanParam BuildsFilterParameters filterParams);
 
-    @Operation(summary = "Builds the Configurations for the Specified Set",
+    @Operation(summary = "Get all group builds associated with this group config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupBuildSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    @Path("/{id}/build")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response build(
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @Parameter(description = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
-            @Parameter(description = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @Parameter(description = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
-            @Parameter(description = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment);
-
-    @Operation(summary = "Builds the configurations for the Specified Set with an option to specify exact revision of a BC",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupBuildSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    @Path("/{id}/build-versioned")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response buildVersioned(
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @Parameter(description = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
-            @Parameter(description = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @Parameter(description = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
-            @Parameter(description = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
-            GroupBuildRequest buildConfigurationAudited);
-
-    @Operation(summary = "Get all build config set execution records associated with this build config set, returns empty list if none are found",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupBuildPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = GroupBuildPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -262,9 +233,9 @@ public interface BuildConfigurationSetEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-config-set-records")
-    public Response getAllGroupBuilds(
-            @BeanParam PageParameters pageParameters,
-            @Parameter(description = "Build config set id", required = true) @PathParam("id") Integer id);
+    @Path("/{id}/group-builds")
+    Response getAllGroupBuilds(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParams);
 
 }
