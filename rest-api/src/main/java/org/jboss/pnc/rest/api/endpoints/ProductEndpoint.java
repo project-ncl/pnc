@@ -20,12 +20,11 @@ package org.jboss.pnc.rest.api.endpoints;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductVersionPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductSingleton;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -38,12 +37,13 @@ import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -58,17 +58,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
+@Tag(name = "Products")
 @Path("/products")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ProductEndpoint{
+    static final String P_ID = "ID of the product";
 
-    @Operation(summary = "Gets all Products",
+    @Operation(summary = "Gets all products.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProductPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -76,26 +75,11 @@ public interface ProductEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
+    Response getAll(@BeanParam PageParameters pageParameters);
 
-    @Operation(summary = "Get specific Product",
+    @Operation(summary = "Creates a new product.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductSingleton.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}")
-    public Response getSpecific(@Parameter(description = "Product id", required = true) @PathParam("id") Integer id);
-
-    @Operation(summary = "Creates a new Product",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProductSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -105,11 +89,23 @@ public interface ProductEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    public Response createNew(Product product);
+    Response createNew(Product product);
 
-    @Operation(summary = "Updates an existing Product",
+    @Operation(summary = "Gets a specific product.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ProductSingleton.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}")
+    Response getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+
+    @Operation(summary = "Updates an existing product.",
+            responses = {
+                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_CODE),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -119,14 +115,28 @@ public interface ProductEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(@Parameter(description = "Product id", required = true) @PathParam("id") Integer productId,
-            @NotNull @Valid Product product);
+    Response update(
+            @Parameter(description = P_ID) @PathParam("id") int id,
+            Product product);
 
-    @Operation(summary = "Get all versions for a Product",
+    @Operation(summary = "Gets all build configs for a specific product.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @GET
+    @Path("/{id}/build-configurations")
+    Response getBuildConfigurations(
+            @Parameter(description = P_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParams);
+
+    @Operation(summary = "Get all versions for a specific product.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductVersionPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProductVersionPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -134,9 +144,9 @@ public interface ProductEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/product-versions")
-    public Response getProductVersions(
-            @BeanParam PageParameters pageParameters,
-            @Parameter(description = "Product id", required = true) @PathParam("id") Integer productId);
+    @Path("/{id}/versions")
+    Response getProductVersions(
+            @Parameter(description = P_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParameters);
 
 }
