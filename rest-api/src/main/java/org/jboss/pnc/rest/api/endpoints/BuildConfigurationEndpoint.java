@@ -346,22 +346,6 @@ public interface BuildConfigurationEndpoint {
 
     //TODO:         vvv MOVE TO PRODUCT ENDPOINTS vvv
 
-    @Operation(summary = "Gets all build configs of a Product",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class)))
-    })
-    @GET
-    @Path("/products/{productId}")
-    Response getAllByProductId(@BeanParam PageParameters pageParams,
-            @Parameter(description = "Product id") @PathParam("productId") int productId);
-
     @Operation(summary = "Gets all build configs of the Specified Product Version",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
