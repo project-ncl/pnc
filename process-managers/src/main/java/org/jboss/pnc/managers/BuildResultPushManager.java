@@ -123,21 +123,26 @@ public class BuildResultPushManager {
         for (Integer buildRecordId : buildRecordIds) {
             //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
             BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+            Integer pushBuildRecordId = null;
             if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
                 IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
                 buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev);
                 if (buildRecord != null) {
-                    buildRecordId = buildRecord.getId();
-                    Result pushResult = pushToCauseway(
-                            authToken,
-                            buildRecordId,
-                            String.format(callBackUrlTemplate, buildRecordId),
-                            tagPrefix);
-                    result.add(pushResult);
+                    pushBuildRecordId = buildRecord.getId();
                 } else {
                     logger.warn("Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
                             buildRecordId, idRev);
                 }
+            } else {
+                pushBuildRecordId = buildRecordId;
+            }
+            if (pushBuildRecordId != null) {
+                Result pushResult = pushToCauseway(
+                        authToken,
+                        pushBuildRecordId,
+                        String.format(callBackUrlTemplate, buildRecordId),
+                        tagPrefix);
+                result.add(pushResult);
             }
         }
         return result;

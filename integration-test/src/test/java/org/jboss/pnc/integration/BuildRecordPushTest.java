@@ -79,6 +79,7 @@ public class BuildRecordPushTest extends AbstractTest {
     public void shouldPushBuildRecord() throws IOException, DeploymentException, TimeoutException, InterruptedException {
         List<BuildRecordPushResultRest> results = new ArrayList<>();
         Consumer<BuildRecordPushResultRest> onMessage = (result) -> {
+            logger.debug("Received notification result {}.", result);
             results.add(result);
         };
 
