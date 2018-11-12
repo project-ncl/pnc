@@ -18,16 +18,8 @@
 
 -->
 <div class="row">
-  <div class="col-md-12 edit-container">
-    <pnc-inline-notification name="edit-build-config"></pnc-inline-notification>
-
-    <div ng-if="!$ctrl.isEditModeActive()">
-      <pnc-build-config-properties build-config="$ctrl.buildConfig"></pnc-build-config-properties>
-    </div>
-    <div ng-if="$ctrl.isEditModeActive()">
-      <div>
-        <pnc-build-config-details-editor build-config="$ctrl.buildConfig" on-success="$ctrl.onSuccess(buildConfig)" on-cancel="$ctrl.onCancelEdit()"></pnc-build-config-details-editor>
-      </div>
-    </div>
+  <div class="col-md-12">
+    <pnc-related-build-configs-editable-table page="$ctrl.page" on-remove="$ctrl.onRemove" on-edit="$ctrl.onEdit"></pnc-related-build-configs-editable-table>
   </div>
 </div>
+

@@ -97,6 +97,22 @@
         }
       });
 
+      $stateProvider.state('projects.detail.build-configs.detail.dependencies', {
+        url: '/dependencies',
+        component: 'pncBuildConfigDependenciesTab',
+        bindings: {
+          buildConfig: 'configurationDetail'
+        },
+        resolve: {
+          dependencies: [
+            'configurationDetail',
+            function (configurationDetail) {
+              return configurationDetail.$getDependencies();
+            }
+          ]
+        }
+      });
+
 
 
 
