@@ -66,6 +66,10 @@
         title: 'Error',
         message: 'The requested resource could not be found.'
       },
+      data: {
+        displayName: 'Error',
+        title: 'Error'
+      },
       views: {
         'content@': {
           templateUrl: 'error.html',
