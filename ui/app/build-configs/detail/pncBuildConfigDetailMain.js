@@ -24,11 +24,11 @@
       buildConfig: '<'
     },
     templateUrl: 'build-configs/detail/pnc-build-config-detail-main.html',
-    controller: [Controller]
+    controller: ['$scope', '$state', Controller]
   });
 
 
-  function Controller() {
+  function Controller($scope, $state) {
     var $ctrl = this,
         onEditFn;
 
@@ -38,6 +38,7 @@
     $ctrl.edit = edit;
     $ctrl.delete = deleteBc;
     $ctrl.registerOnEdit = registerOnEdit;
+    $ctrl.updateBuildConfig = updateBuildConfig;
 
     // --------------------
 
@@ -46,6 +47,14 @@
     };
 
     function clone() {
+      $ctrl.buildConfig.$clone().then(function (resp) {
+        $state.go('projects.detail.build-configs.detail', {
+          configurationId: resp.id,
+          projectId: resp.project.id
+        }, {
+          reload: true
+        });
+      });
     }
 
     function edit() {
@@ -53,10 +62,21 @@
     }
 
     function deleteBc() {
+      $ctrl.buildConfig.$delete().then(function (resp) {
+        $state.go('projects.detail', {
+          configurationId: resp.id        
+        }, {
+          reload: true
+        });
+      });
     }
 
     function registerOnEdit(func) {
       onEditFn = func;
+    }
+
+    function updateBuildConfig(buildConfig) {
+      $scope.$applyAsync(function () { $ctrl.buildConfig = buildConfig; });
     }
   }
 
