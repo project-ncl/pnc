@@ -62,7 +62,9 @@
       toggleEdit();
     }
 
-    function onSuccess() {
+    function onSuccess(buildConfig) {
+      $ctrl.buildConfig = buildConfig;
+      $ctrl.mainCtrl.updateBuildConfig(buildConfig);
       toggleEdit();
       notify({
         type: 'success',
