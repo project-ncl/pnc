@@ -31,16 +31,16 @@
     </pnc-header>
   </div> <!-- /col -->
 </div> <!-- /row -->
-<div class="row" >
+<div class="row">
   <div class="col-md-12">
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#">Details</a></li>
-      <li><a href="#">Dependencies</a></li>
+      <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.default">Details</a></li>
+      <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.dependencies">Dependencies</a></li>
       <li><a href="#">Usages</a></li>
       <li><a href="#">Revisions</a></li>
       <li><a href="#">Build History</a></li>
     </ul>
-    <div ui-view></div>
+    <div class="m-t-20" ui-view></div>
   </div>
 </div> <!-- /row -->
 
