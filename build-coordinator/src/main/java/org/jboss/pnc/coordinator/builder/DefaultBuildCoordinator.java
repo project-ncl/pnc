@@ -409,7 +409,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 Optional.empty(),
                 Optional.empty());
         completeBuild(buildTask, result);
-        //TODO 2.0 completeNoBuild(buildTask, CompletionStatus.CANCELLED);
+        //TODO 2.0 completeNoBuild(buildTask, CompletionStatus.CANCELLED); NCL-4242
 
         log.info("Task {} canceled internally.", buildTask.getId());
     }

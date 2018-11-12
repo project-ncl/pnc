@@ -147,12 +147,13 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             return Response.noContent().entity("Cannot find a BuildRecord with given id.").build();
         }
         Map<Integer, IdRev> buildRecordsIds = Collections.singletonMap(buildRecordId, buildRecord.getBuildConfigurationAuditedIdRev());
+        logger.debug("Pushing BuildRecords {}.", buildRecordsIds);
         Set<Result> pushed = buildResultPushManager.push(
                 buildRecordsIds.keySet(),
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),
                 buildRecordPushRequestRest.getTagPrefix());
-
+        logger.info("Push Results {}.", pushed.stream().map(r -> r.getId()).collect(Collectors.joining(",")));
         Set<ResultRest> pushedResponse = toResultRests(pushed, buildRecordsIds);
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
