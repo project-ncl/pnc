@@ -32,7 +32,7 @@
         var toState = trans.to(),
             stateService = trans.router.stateService;
 
-        if (toState.data.requireAuth && !authService.isAuthenticated()) {
+        if (toState.data && toState.data.requireAuth && !authService.isAuthenticated()) {
           authService.login($window.location.origin + '/' + stateService.href(toState));
         }
       });
