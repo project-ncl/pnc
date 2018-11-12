@@ -59,69 +59,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface BuildRecordPushEndpoint{
 
-    @Operation(summary = "Push build record results to Brew.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = "Map of all requested Build ids with boolean status.",
-                    content = @Content(array = @ArraySchema( schema = @Schema(implementation = Result.class)))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    public Response push(BuildPushRequest buildRecordPushRequest);
-
-    @Operation(summary = "Get Build Record Push Result by Id..",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{buildRecordPushResultId}")
-    public Response get(@Parameter(description = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordPushResultId);
-
-    @Operation(summary = "Build record push results.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = Integer.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    @Path("/{buildRecordId}/cancel/")
-    public Response cancel(
-            BuildPushResult buildRecordPushResult,
-            @Parameter(description = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId);
-
-    @Operation(summary = "Build record push results.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = Integer.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    @Path("/{buildRecordId}/complete/")
-    public Response push(
-            BuildPushResult buildRecordPushResult,
-            @Parameter(description = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId);
-
     @Operation(summary = "Latest push result of Build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
