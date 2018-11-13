@@ -56,12 +56,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * This endpoint is used for starting and interacting
- * with BPM processes.
+ * This endpoint is used for starting and interacting with BPM processes.
  *
  * @author Jakub Senko
  */
-@Tag(name = "")
+@Tag(name = "Internal")
 @Path("/bpm")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -74,18 +73,7 @@ public interface BpmEndpoint{
     @POST
     @Path("/tasks/{taskId}/notify")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response notifyTask(@Parameter(description = "BPM task ID", required = true) @PathParam("taskId") int taskId);
-
-    @Operation(summary = "Start Repository Creation task with url autodetect (internal vs. external).",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = "Success",
-                    content = @Content(schema = @Schema(implementation = Integer.class)))
-    })
-    @POST
-    @Path("/tasks/start-repository-configuration-creation-url-auto")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response startRCreationTaskWithSingleUrl(
-            @Parameter(description = "Task parameters.", required = true) RepositoryCreationUrlAuto repositoryCreationUrlAuto);
+    public Response notifyTask(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
     
     @Operation(summary = "List of (recently) active BPM tasks.",
             responses = {
@@ -109,11 +97,10 @@ public interface BpmEndpoint{
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BpmTaskSingleton.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BpmTaskSingleton.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
     })
     @GET
     @Path("/tasks/{taskId}")
-    public Response getBPMTaskById(@Parameter(description = "BPM task ID", required = true) @PathParam("taskId") int taskId);
+    public Response getBPMTaskById(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
 
 }
