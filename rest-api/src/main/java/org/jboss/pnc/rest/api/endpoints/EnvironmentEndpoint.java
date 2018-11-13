@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import org.jboss.pnc.dto.BuildEnvironment;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildEnvironmentPage;
@@ -35,8 +34,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -51,17 +48,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
+@Tag(name = "Environments")
 @Path("/environments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface BuildEnvironmentEndpoint{
+public interface EnvironmentEndpoint{
 
-    @Operation(summary = "Gets all Environments",
+    @Operation(summary = "Gets all environments.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildEnvironmentPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildEnvironmentPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -71,26 +66,16 @@ public interface BuildEnvironmentEndpoint{
     @GET
     public Response getAll(@BeanParam PageParameters pageParameters);
 
-    @Operation(summary = "Get specific Environment",
+    @Operation(summary = "Gets a specific environment.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildEnvironmentSingleton.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildEnvironmentSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@Parameter(description = "Environment id", required = true) @PathParam("id") Integer id);
-
-    public Response createNew(BuildEnvironment environment);
-
-    public Response update(@Parameter(description = "Environment id", required = true) @PathParam("id") Integer environmentId,
-            BuildEnvironment environment);
-
-    public Response delete(@Parameter(description = "Environment id", required = true) @PathParam("id") Integer id);
+    public Response getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
 
 }
