@@ -60,6 +60,7 @@ public interface SwaggerConstants {
             + "fulltext search is hard-coded for some predefined fields (record id, configuration name) "
             + "and performed using this argument. "
             + "Empty string leaves all data unfiltered.";
-    public static final String SEARCH_QUERY_PARAM = "search";
+    public static final String SEARCH_QUERY_PARAM = "search-url";
+    public static final String MATCH_QUERY_PARAM = "url";
     public static final String SEARCH_DEFAULT_VALUE = "";
 }
