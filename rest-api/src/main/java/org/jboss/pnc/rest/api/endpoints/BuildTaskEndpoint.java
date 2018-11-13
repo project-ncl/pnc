@@ -43,7 +43,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
+@Tag(name = "Internal")
 @Path("/build-tasks")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -57,7 +57,7 @@ public interface BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
-            @Parameter(description = "Build task id", required = true) @PathParam("taskId") Integer buildId,
+            @Parameter(description = "Build task id") @PathParam("taskId") int buildId,
             @Parameter(description = "Build result", required = true) @FormParam("buildResult") BuildResult buildResult);
 
     @Operation(summary = "Triggers the build execution for a given configuration.",
@@ -73,9 +73,9 @@ public interface BuildTaskEndpoint {
     public Response build(
             @Parameter(description = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
             @FormParam("buildExecutionConfiguration") BuildExecutionConfiguration buildExecutionConfiguration,
-            @Parameter(description = "Username who triggered the build. If empty current user is used.", required = false)
+            @Parameter(description = "Username who triggered the build. If empty current user is used.")
             @FormParam("usernameTriggered") String usernameTriggered,
-            @Parameter(description = "Optional Callback URL", required = false)
+            @Parameter(description = "Optional Callback URL")
             @FormParam("callbackUrl") String callbackUrl);
 
     @Operation(summary = "Cancel the build execution defined with given executionConfigurationId.",
@@ -89,7 +89,7 @@ public interface BuildTaskEndpoint {
     @Path("/cancel-build/{buildExecutionConfigurationId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response cancelBbuild(
-            @Parameter(description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
-            @PathParam("buildExecutionConfigurationId") Integer buildExecutionConfigurationId);
+            @Parameter(description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.")
+            @PathParam("buildExecutionConfigurationId") int buildExecutionConfigurationId);
 
 }
