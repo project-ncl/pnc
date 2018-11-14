@@ -29,6 +29,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -197,7 +198,7 @@ public class ProjectBuilder {
         final Semaphore buildSetSemaphore = registerBuildSetListeners(receivedSetStatuses, BUILD_SET_STATUS_UPDATES);
 
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), buildOptions);
 
         assertBuildStartedSuccessfully(buildSetTask);

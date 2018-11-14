@@ -29,6 +29,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
 import org.jboss.pnc.spi.notifications.model.EventType;
 import org.jboss.pnc.spi.notifications.model.Notification;
@@ -125,7 +126,7 @@ public class RemoteBuildTest {
                 3
         );
 
-        BuildOptions options = new BuildOptions(false, true, false, false, false);
+        BuildOptions options = new BuildOptions(false, false, false, false, RebuildMode.FORCE);
         RestResponse<BuildRecordRest> triggered = buildConfigurationRestClient.trigger(buildConfiguration.getId(), options);
         return buildConfiguration.getId();
     }

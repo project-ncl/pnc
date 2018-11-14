@@ -21,6 +21,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
@@ -75,13 +76,13 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         saveConfig(config1);
         configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
 
-        markAsAlreadyBuilt(config1, configA, configB, configC);
+        insertNewBuildRecords(config1, configA, configB, configC);
         makeResult(configA).dependOn(config1);
     }
 
     @Test
     public void shouldNotRebuildIfDependencyIsNotRebuilt() throws CoreException, TimeoutException, InterruptedException {
-        build(configSet, false);
+        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
         assertThat(configsWithTasks).isEmpty();
@@ -89,15 +90,12 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
 
     @Test
     public void shouldRebuildOnlyDependent() throws CoreException, TimeoutException, InterruptedException {
-        createNewVersion(config1);
+        insertNewBuildRecords(config1);
 
-        build(configSet, false);
+        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
         assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configA, configB));
     }
 
-    private void createNewVersion(BuildConfiguration config1) {
-        buildRecordRepository.save(buildRecord(config1));
-    }
 }

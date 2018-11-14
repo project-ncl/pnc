@@ -24,6 +24,7 @@ import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
@@ -101,7 +102,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
     @Test
     public void buildWithAdvancedOptionsTest() throws Exception {
         //given
-        BuildOptions originalBuildOptions = new BuildOptions(true, true, true, true, true);
+        BuildOptions originalBuildOptions = new BuildOptions(true, true, true, true, RebuildMode.FORCE);
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();

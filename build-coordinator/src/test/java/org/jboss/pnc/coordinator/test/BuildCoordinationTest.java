@@ -33,6 +33,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -97,7 +98,7 @@ public class BuildCoordinationTest {
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(false);
+        buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
@@ -118,7 +119,7 @@ public class BuildCoordinationTest {
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
@@ -139,7 +140,7 @@ public class BuildCoordinationTest {
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
@@ -172,7 +173,7 @@ public class BuildCoordinationTest {
         log.info("Running builds ...");
 
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to NEW for task set. Received: " + buildSetStatusChangedEvents);
