@@ -17,15 +17,13 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestonePage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductMilestoneReleaseSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductMilestoneSingleton;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -40,12 +38,13 @@ import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -60,46 +59,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
+@Tag(name = "Product Milestones")
 @Path("/product-milestones")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ProductMilestoneEndpoint{
+    static final String PM_ID = "ID of the product milestone";
 
-    @Operation(summary = "Gets all Product Milestones",
+    @Operation(summary = "Creates a new product milestone.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestonePage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestonePage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
-
-
-    @Operation(summary = "Gets specific Product Milestone",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestoneSingleton.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestoneSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}")
-    public Response getSpecific(
-            @Parameter(description = "Product Milestone id", required = true) @PathParam("id") Integer id);
-
-    @Operation(summary = "Creates a new Product Milestone for the Specified Product Version",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProductMilestoneSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -111,9 +80,21 @@ public interface ProductMilestoneEndpoint{
     @POST
     public Response createNew(ProductMilestone productMilestone);
 
-    @Operation(summary = "Updates an existing Product Milestone",
+    @Operation(summary = "Gets a specific product milestone.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ProductMilestoneSingleton.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}")
+    public Response getSpecific(@Parameter(description = PM_ID) @PathParam("id") int id);
+
+    @Operation(summary = "Updates an existing product milestone.",
+            responses = {
+                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_CODE),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -124,71 +105,41 @@ public interface ProductMilestoneEndpoint{
     @PUT
     @Path("/{id}")
     public Response update(
-            @Parameter(description = "Product Milestone id", required = true) @PathParam("id") Integer id,
+            @Parameter(description = PM_ID) @PathParam("id") int id,
             ProductMilestone productMilestone);
 
-    @Operation(summary = "Close/Release a Product Milestone",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PUT
-    @Path("/{id}/close-milestone")
-    public Response closeMilestone(
-            @Parameter(description = "Product Milestone id", required = true) @PathParam("id") Integer id,
-            ProductMilestone productMilestone);
-
-    @Operation(summary = "Cancel Product Milestone Release process.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    @Path("/{id}/close-milestone-cancel")
-    public Response cancelMilestoneClose(
-            @Parameter(description = "Product Milestone id", required = true) @PathParam("id") Integer id);
-
-    @Operation(summary = "Get the artifacts distributed in this milestone",
+    @Operation(summary = "Gets builds performed during a product milestone cycle.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/distributed-artifacts")
-    public Response getDistributedArtifacts(@BeanParam PageParameters pageParameters,
-            @Parameter(description = "Product milestone id", required = true) @PathParam("id") Integer id);
+    @Path("/{id}/builds")
+    public Response getPerformedBuilds(
+            @Parameter(description = PM_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParameters);
 
-    @Operation(summary = "Adds an artifact to the list of distributed artifacts for this product milestone",
+    @Operation(summary = "Close a product milestone.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @Path("/{id}/distributed-artifacts/")
-    public Response addDistributedArtifact(
-            @Parameter(description = "Product milestone id", required = true) @PathParam("id") Integer id,
-            Artifact artifact);
+    @Path("/{id}/close")
+    public Response closeMilestone(
+            @Parameter(description = PM_ID) @PathParam("id") int id,
+            ProductMilestone productMilestone);
 
-    @Operation(summary = "Removes an artifact from the specified product milestone",
+    @Operation(summary = "Cancel product milestone close process.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -197,58 +148,7 @@ public interface ProductMilestoneEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
-    @Path("/{id}/distributed-artifacts/{artifactId}")
-    public Response removeDistributedArtifact(
-            @Parameter(description = "Product milestone id", required = true) @PathParam("id") Integer id,
-            @Parameter(description = "Artifact id", required = true) @PathParam("artifactId") Integer artifactId);
-
-    @Operation(summary = "Gets the set of builds performed during in a Product Milestone cycle",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}/performed-builds")
-    public Response getPerformedBuilds(
-            @Parameter(description = "Product Milestone id", required = true) @PathParam("id") Integer id,
-            @BeanParam PageParameters pageParameters);
-
-    @Operation(summary = "Gets the set of builds which produced artifacts distributed/shipped in a Product Milestone",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}/distributed-builds")
-    public Response getDistributedBuilds(
-            @BeanParam PageParameters pageParameters,
-            @Parameter(description = "Product Milestone id", required = true) @PathParam("id") Integer milestoneId);
-
-    @Operation(summary = "Gets the set of builds which produced artifacts distributed/shipped in a Product Milestone",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestoneReleaseSingleton.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestoneReleaseSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}/releases/latest")
-    public Response getLatestRelease(@PathParam("id") Integer milestoneId);
+    @Path("/{id}/close")
+    public Response cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") int id);
 
 }
