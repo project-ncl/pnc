@@ -337,8 +337,8 @@ public class DatastoreAdapter {
         return datastore.getNextBuildRecordId();
     }
 
-    public boolean requiresRebuild(BuildConfiguration configuration) {
-        return datastore.requiresRebuild(configuration);
+    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies) {
+        return datastore.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies);
     }
 
     public boolean requiresRebuild(BuildTask task) {

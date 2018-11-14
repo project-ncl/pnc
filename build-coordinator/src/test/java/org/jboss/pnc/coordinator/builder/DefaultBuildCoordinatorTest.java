@@ -33,6 +33,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -44,6 +45,7 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -56,15 +58,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.jboss.pnc.spi.exception.BuildConflictException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -73,8 +74,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.Map;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -135,7 +134,7 @@ public class DefaultBuildCoordinatorTest {
     public void setUp() throws DatastoreException {
         MockitoAnnotations.initMocks(this);
         when(systemConfig.getTemporalBuildExpireDate()).thenReturn(new Date(1));
-        when(datastore.requiresRebuild(any(BuildConfiguration.class))).thenReturn(true);
+        when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class))).thenReturn(true);
         when(datastore.requiresRebuild(any(BuildTask.class))).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
         coordinator = new DefaultBuildCoordinator(
@@ -300,7 +299,7 @@ public class DefaultBuildCoordinatorTest {
         buildConfiguration.setId(12);
         buildConfiguration.setProject(new Project());
 
-        BuildOptions buildOptions = new BuildOptions(false, false, true, false, false);
+        BuildOptions buildOptions = new BuildOptions(false, true, false, false, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         BuildTask buildTask = BuildTask.build(
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,

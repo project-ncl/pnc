@@ -25,6 +25,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -134,7 +135,7 @@ public class BuildConfigurationEndpointTest {
     @Test(expected = InvalidEntityException.class)
     public void invalidBuildOptionsRejectedTest() throws InvalidEntityException, MalformedURLException, CoreException, BuildConflictException {
         // when
-        bcEndpoint.trigger(1, null, false, false, false, false, true, null);
+        bcEndpoint.trigger(1, null, false, false, false, false, true, (RebuildMode) null, null);
     }
 
 }

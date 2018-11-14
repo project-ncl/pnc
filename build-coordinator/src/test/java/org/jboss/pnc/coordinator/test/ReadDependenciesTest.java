@@ -25,6 +25,7 @@ import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -83,7 +84,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         return buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,

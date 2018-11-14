@@ -44,6 +44,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -413,7 +414,7 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         //when
         userRestClient.getLoggedUser(); //initialize user
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         RestResponse<BuildConfigSetRecordRest> buildResponse = buildConfigurationSetRestClient.trigger(bcSetRest2.getId(), buildOptions);
         Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(buildResponse.getRestCallResponse());
 
