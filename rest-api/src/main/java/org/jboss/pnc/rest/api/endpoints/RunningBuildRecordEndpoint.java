@@ -88,21 +88,6 @@ public interface RunningBuildRecordEndpoint{
     @Path("/{id}")
     public Response getSpecific(@Parameter(description = "Build id", required = true) @PathParam("id") Integer id);
 
-    @Operation(summary = "Gets running Build Records for a specific Build Configuration.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/build-configurations/{id}")
-    public Response getAllForBC(@BeanParam PageParameters pageParameters,
-            @Parameter(description = "Build Configuration id", required = true) @PathParam("id") Integer bcId);
 
     @Operation(summary = "Gets running Build Records for a specific Build Configuration Set Record.",
             responses = {
