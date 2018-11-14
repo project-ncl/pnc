@@ -21,11 +21,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Let A -> B, C denote that config A depends on configs B and C <br/>
@@ -60,8 +56,8 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         c = config("c", d, g);
         b = config("b", d, e, f);
         a = config("a", b, c);
-        all = new BuildConfiguration[]{a, b, c, d, e, f, g, h};
-        markAsAlreadyBuilt(all);
+        all = new BuildConfiguration[]{h, g, f, e, d, c, b, a};
+        insertNewBuildRecords(all);
 
         makeResult(g).dependOn(h);
         makeResult(c).dependOn(d, g);
@@ -130,11 +126,5 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         build(a);
         // then
         expectBuilt(all);
-    }
-
-    private void expectBuilt(BuildConfiguration... configurations) throws InterruptedException, TimeoutException {
-        waitForEmptyBuildQueue();
-        List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
-        assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configurations));
     }
 }

@@ -107,15 +107,18 @@ public interface Datastore {
     /**
      * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was modified)
      *
-     * @param configuration configuration to check
+     * @param buildConfigurationAudited
+     * @param checkImplicitDependencies when true check also automatically captured dependencies.
+     * @return
      */
-    boolean requiresRebuild(BuildConfiguration configuration);
+    boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies );
 
-    /**
-     * Check if a build task should be rebuilt (if some of its dependencies were rebuild or the configuration was modified)
-     *
-     * @param task task to check
-     */
+
+        /**
+         * Check if a build task should be rebuilt (if some of its dependencies were rebuild or the configuration was modified)
+         *
+         * @param task task to check
+         */
     boolean requiresRebuild(BuildTask task);
 
     Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet);

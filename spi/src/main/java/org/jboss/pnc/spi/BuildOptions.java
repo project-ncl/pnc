@@ -43,11 +43,6 @@ public class BuildOptions {
     private boolean temporaryBuild = false;
 
     /**
-     * Should we force the rebuild?
-     */
-    private boolean forceRebuild = false;
-
-    /**
      * Should we build also dependencies of this BuildConfiguration? Valid only for BuildConfiguration
      */
     private boolean buildDependencies = true;
@@ -62,4 +57,13 @@ public class BuildOptions {
      */
     private boolean timestampAlignment = false;
 
+    private RebuildMode rebuildMode = RebuildMode.IMPLICIT_DEPENDENCY_CHECK;
+
+    public boolean isImplicitDependenciesCheck() {
+        return RebuildMode.IMPLICIT_DEPENDENCY_CHECK.equals(rebuildMode);
+    }
+
+    public boolean isForceRebuild() {
+        return RebuildMode.FORCE.equals(rebuildMode);
+    }
 }

@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -203,7 +204,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldRerunTheSameBuildConfigurationIfRebuildAllIsSpecified() throws Exception {
         buildRecordRepository.clear();
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         //when
         coordinator.build(configA, null, buildOptions);
@@ -239,7 +240,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldRerunTheSameBuildConfigurationSetIfRebuildAllIsSpecified() throws Exception {
         //when
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         coordinator.build(configSet, null, buildOptions); //first build
         waitForEmptyBuildQueue();
 

@@ -26,8 +26,10 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -59,9 +61,15 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
 
     @Override
     public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
-        return queryAll().stream()
+        List<BuildRecord> buildRecords = queryAll();
+        return getLatestSuccessfulBuildRecord(configurationId, buildRecords);
+    }
+
+    public static BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, List<BuildRecord> buildRecords) {
+        return buildRecords.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
+                .sorted(Comparator.comparing(BuildRecord::getId).reversed())
                 .findFirst().orElse(null);
     }
 
@@ -84,7 +92,16 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
 
     @Override
     public BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev) {
-        throw new UnsupportedOperationException();
+        return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data);
+    }
+
+    public static BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, List<BuildRecord> buildRecords) {
+        Optional<BuildRecord> first = buildRecords.stream()
+                .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
+                .filter(buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev().equals(buildConfigurationAuditedIdRev))
+                .sorted(Comparator.comparing(BuildRecord::getId).reversed())
+                .findFirst();
+        return first.orElse(null);
     }
 
     @Override

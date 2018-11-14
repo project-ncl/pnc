@@ -44,9 +44,11 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.rest.utils.ParameterBackCompatibility;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
@@ -280,14 +282,16 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "DEPRECATED: Use RebuildMode.") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @ApiParam(value = "Should we build also dependencies of this BuildConfiguration?") @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
             @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+            @ApiParam(value = "Rebuild Modes: FORCE: always rebuild the configuration; EXPLICIT_DEPENDENCY_CHECK: check if any of user defined dependencies has been update; IMPLICIT_DEPENDENCY_CHECK: check if any captured dependency has been updated;") @QueryParam("rebuildMode") RebuildMode rebuildMode,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
-        return triggerBuild(id, Optional.empty(), callbackUrl, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
-    }
 
+        rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
+        return triggerBuild(id, Optional.empty(), callbackUrl, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
+    }
 
     @ApiOperation(value = "Triggers a build of a specific Build Configuration in a specific revision")
     @ApiResponses(value = {
@@ -302,30 +306,32 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                             @ApiParam(value = "Revision of a Build Configuration", required = true) @PathParam("rev") Integer rev,
                             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
                             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-                            @ApiParam(value = "Should we force the rebuild?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+                            @ApiParam(value = "DEPRECATED: Use RebuildMode.") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
                             @ApiParam(value = "Should we build also dependencies of this BuildConfiguration?") @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
                             @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
                             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+                            @ApiParam(value = "Rebuild Modes: FORCE: always rebuild the configuration; EXPLICIT_DEPENDENCY_CHECK: check if any of user defined dependencies has been update; IMPLICIT_DEPENDENCY_CHECK: check if any captured dependency has been updated;") @QueryParam("rebuildMode") RebuildMode rebuildMode,
                             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
-        return triggerBuild(id, Optional.of(rev), callbackUrl, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
+        rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
+        return triggerBuild(id, Optional.of(rev), callbackUrl, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
     }
 
     private Response triggerBuild(Integer id,
                                   Optional<Integer> rev,
                                   String callbackUrl,
                                   boolean temporaryBuild,
-                                  boolean forceRebuild,
+                                  RebuildMode rebuildMode,
                                   boolean buildDependencies,
                                   boolean keepPodOnFailure,
                                   boolean timestampAlignment,
                                   UriInfo uriInfo) throws InvalidEntityException, BuildConflictException, CoreException, MalformedURLException {
-        logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, temporaryBuild: {}, forceRebuild: {}, " +
+        logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, temporaryBuild: {}, rebuildMode: {}, " +
                         "buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
-                id, rev, temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
+                id, rev, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment);
 
         User currentUser = getCurrentUser();
 
-        BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, buildDependencies, keepPodOnFailure, timestampAlignment);
+        BuildOptions buildOptions = new BuildOptions(temporaryBuild, buildDependencies, keepPodOnFailure, timestampAlignment, rebuildMode);
         checkBuildOptionsValidity(buildOptions);
 
         Integer runningBuildId = null;

@@ -22,32 +22,34 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.*;
+import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.rest.utils.ParameterBackCompatibility;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +71,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -304,13 +305,15 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @ApiParam(value = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "DEPRECATED: Use RebuildMode.") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+            @ApiParam(value = "Rebuild Modes: FORCE: always rebuild all the configurations in the set; EXPLICIT_DEPENDENCY_CHECK: check if any of user defined dependencies has been update; IMPLICIT_DEPENDENCY_CHECK: check if any captured dependency has been updated;") @QueryParam("rebuildMode") RebuildMode rebuildMode,
             @Context UriInfo uriInfo)
             throws CoreException, MalformedURLException, InvalidEntityException {
-        logger.info("Executing build configuration set: [id: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}]",
-                id, temporaryBuild, forceRebuild, timestampAlignment);
-        return triggerBuild(Optional.empty(), Optional.of(id), callbackUrl, temporaryBuild, forceRebuild, timestampAlignment, uriInfo);
+        logger.info("Executing build configuration set: [id: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}, rebuildMode: {}.]",
+                id, temporaryBuild, forceRebuild, timestampAlignment, rebuildMode);
+        rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
+        return triggerBuild(Optional.empty(), Optional.of(id), callbackUrl, temporaryBuild, rebuildMode, timestampAlignment, uriInfo);
     }
 
     @ApiOperation(value = "Builds the configurations for the Specified Set with an option to specify exact revision of a BC")
@@ -326,15 +329,18 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @ApiParam(value = "Should we force the rebuild of all build configurations?") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @ApiParam(value = "DEPRECATED: Use RebuildMode.") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             BuildConfigurationSetWithAuditedBCsRest buildConfigurationAuditedRest,
+            @ApiParam(value = "Rebuild Modes: FORCE: always rebuild all the configurations in the set; EXPLICIT_DEPENDENCY_CHECK: check if any of user defined dependencies has been update; IMPLICIT_DEPENDENCY_CHECK: check if any captured dependency has been updated;") @QueryParam("rebuildMode") RebuildMode rebuildMode,
             @Context UriInfo uriInfo)
             throws CoreException, MalformedURLException, InvalidEntityException {
         logger.info("Executing build configuration set with build configurations in specific values: " +
-                "[BuildConfigurationSetAuditedRest: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}]",
-                buildConfigurationAuditedRest, temporaryBuild, forceRebuild, timestampAlignment);
-        return triggerBuild(Optional.of(buildConfigurationAuditedRest), Optional.empty(), callbackUrl, temporaryBuild, forceRebuild, timestampAlignment, uriInfo);
+                "[BuildConfigurationSetAuditedRest: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}, rebuildMode: {}.]",
+                buildConfigurationAuditedRest, temporaryBuild, forceRebuild, timestampAlignment, rebuildMode);
+
+        rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
+        return triggerBuild(Optional.of(buildConfigurationAuditedRest), Optional.empty(), callbackUrl, temporaryBuild, rebuildMode, timestampAlignment, uriInfo);
     }
 
     private Response triggerBuild(
@@ -342,12 +348,12 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             Optional<Integer> buildConfigurationSetId,
             String callbackUrl,
             boolean temporaryBuild,
-            boolean forceRebuild,
+            RebuildMode rebuildMode,
             boolean timestampAlignment,
             UriInfo uriInfo) throws InvalidEntityException, CoreException, MalformedURLException {
         User currentUser = getCurrentUser();
 
-        BuildOptions buildOptions = new BuildOptions(temporaryBuild, forceRebuild, false, false, timestampAlignment);
+        BuildOptions buildOptions = new BuildOptions(temporaryBuild, false, false, timestampAlignment, rebuildMode);
         BuildConfigurationEndpoint.checkBuildOptionsValidity(buildOptions);
 
         BuildConfigurationSetTriggerResult result;

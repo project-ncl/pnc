@@ -33,6 +33,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -194,7 +195,7 @@ public class DatastoreAdapterTest {
         buildConfiguration.setName("Configuration.");
         buildConfiguration.setProject(new Project());
 
-        BuildOptions buildOptions = new BuildOptions(false, false, true, false, false);
+        BuildOptions buildOptions = new BuildOptions(false, true, false, false, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         BuildTask buildTask = BuildTask.build(
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,

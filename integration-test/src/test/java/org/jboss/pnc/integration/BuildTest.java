@@ -39,6 +39,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -152,7 +153,7 @@ public class BuildTest {
 
     private RestResponse<BuildRecordRest> triggerBCBuild(BuildConfigurationRest buildConfiguration, Optional<Integer> revision) {
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         return triggerBCBuild(buildConfiguration, revision, buildOptions);
     }
@@ -201,7 +202,7 @@ public class BuildTest {
         //when
         userRestClient.getLoggedUser(); //initialize user
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         RestResponse<BuildConfigSetRecordRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildOptions);
         Integer buildRecordSetId = response.getValue().getId();
@@ -229,7 +230,7 @@ public class BuildTest {
         //when
         userRestClient.getLoggedUser(); //initialize user
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         RestResponse<BuildConfigSetRecordRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), buildConfigurationSetWithAuditedBCsRest, buildOptions);
         Integer buildRecordSetId = response.getValue().getId();
@@ -245,7 +246,7 @@ public class BuildTest {
 
         //when
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
         buildOptions.setTemporaryBuild(true);
         RestResponse<BuildRecordRest> triggeredConfiguration = triggerBCBuild(buildConfiguration, Optional.empty(), buildOptions);
 

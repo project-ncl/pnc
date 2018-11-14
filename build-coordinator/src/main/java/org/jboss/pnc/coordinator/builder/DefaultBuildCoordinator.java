@@ -248,19 +248,23 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void validateBuildConfigurationSetTasks(BuildConfigurationSet buildConfigurationSet, BuildOptions buildOptions, BuildSetTask buildSetTask) {
         checkForEmptyBuildSetTask(buildSetTask);
         if (!buildOptions.isForceRebuild()) {
-            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet);
+            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet, buildOptions.isImplicitDependenciesCheck());
         }
 
         checkForCyclicDependencies(buildSetTask);
         build(buildSetTask);
     }
 
-    private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask, BuildConfigurationSet buildConfigurationSet) {
+    private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask,
+            BuildConfigurationSet buildConfigurationSet,
+            boolean checkImplicitDependencies) {
         Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
         int requiresRebuild = buildConfigurations.size();
         log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
         for (BuildConfiguration buildConfiguration : buildConfigurations) {
-            if (!datastoreAdapter.requiresRebuild(buildConfiguration)) {
+            BuildConfigurationAudited buildConfigurationAudited =
+                    datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
+            if (!datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies)) {
                 requiresRebuild--;
             }
         }
