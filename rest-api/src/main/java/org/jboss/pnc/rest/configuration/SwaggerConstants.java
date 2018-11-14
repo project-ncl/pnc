@@ -27,7 +27,13 @@ public interface SwaggerConstants {
     public static final String SUCCESS_DESCRIPTION = "Success with results";
     public static final String SUCCESS_CODE = "200";
     public static final String ENTITY_CREATED_DESCRIPTION = "Entity successfully created";
-    public static final String ENTITY_CREATED_CODE = "200";
+    public static final String ENTITY_CREATED_CODE = "201";
+    public static final String ENTITY_UPDATED_DESCRIPTION = "Entity successfully updated";
+    public static final String ENTITY_UPDATED_CODE = "204";
+    public static final String ENTITY_DELETED_DESCRIPTION = "Entity deleted";
+    public static final String ENTITY_DELETED_CODE = "204";
+    public static final String ACCEPTED_DESCRIPTION = "Request was accepted for processing";
+    public static final String ACCEPTED_CODE = "202";
     public static final String NO_CONTENT_DESCRIPTION = "Success but no content provided";
     public static final String NO_CONTENT_CODE = "204";
     public static final String INVALID_DESCRIPTION = "Invalid input parameters or validation error";

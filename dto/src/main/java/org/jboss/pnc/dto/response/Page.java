@@ -18,31 +18,41 @@
 package org.jboss.pnc.dto.response;
 
 import java.util.Collection;
+import java.util.Collections;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * Collection REST response.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@Data
+@AllArgsConstructor
 public class Page<T> {
 
     /**
      * Page index.
      */
-    private Integer pageIndex;
+    private int pageIndex;
 
     /**
      * Number of records per page.
      */
-    private Integer pageSize;
+    private int pageSize;
 
     /**
      * Total pages provided by this query or -1 if unknown.
      */
-    private Integer totalPages;
+    private int totalPages;
 
     /**
      * Embedded collection of data.
      */
     private Collection<T> content;
+
+    public Page() {
+        content = Collections.emptyList();
+    }
 }
