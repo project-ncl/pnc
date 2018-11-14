@@ -18,19 +18,19 @@
 package org.jboss.pnc.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 /**
- * Singleton REST response.
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Data
+@Getter
 @AllArgsConstructor
-public class Singleton<T>  {
+public class Edge<T> {
 
-    /**
-     * Content of the response.
-     */
-    private T content;
+    private final String source;
+
+    private final String target;
+
+    private final int cost;
+
 }
