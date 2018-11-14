@@ -75,22 +75,6 @@ public interface ProductReleaseEndpoint{
     @GET
     public Response getAll(@BeanParam PageParameters pageParameters);
 
-    @Operation(summary = "Gets all Product Releases of the Specified Product Version",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleasePage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleasePage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/product-versions/{versionId}")
-    public Response getAllByProductVersionId(
-            @BeanParam PageParameters pageParameters,
-            @Parameter(description = "Product Version id", required = true) @PathParam("versionId") Integer versionId);
 
     @Operation(summary = "Gets specific Product Release",
             responses = {
