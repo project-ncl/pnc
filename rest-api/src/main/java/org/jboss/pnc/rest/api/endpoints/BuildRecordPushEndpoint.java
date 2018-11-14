@@ -73,22 +73,6 @@ public interface BuildRecordPushEndpoint{
     @POST
     public Response push(BuildPushRequest buildRecordPushRequest);
 
-    @Operation(summary = "Push build config set record to Brew.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = "Map of all requested Build ids with boolean status.",
-                    content = @Content(array = @ArraySchema( schema = @Schema(implementation = Result.class)))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @POST
-    @Path("/record-set/")
-    public Response pushRecordSet(
-            GroupBuildPushRequest buildConfigSetRecordPushRequest);
-
     @Operation(summary = "Get Build Record Push Result by Id..",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
