@@ -89,31 +89,4 @@ public interface RunningBuildRecordEndpoint{
     public Response getSpecific(@Parameter(description = "Build id", required = true) @PathParam("id") Integer id);
 
 
-    @Operation(summary = "Gets running Build Records for a specific Build Configuration Set Record.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/build-config-set-records/{id}")
-    public Response getAllForBCSetRecord(@BeanParam PageParameters pageParameters,
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer bcSetRecordId);
-
-    @Operation(summary = "Cancel all builds running in the build group",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SEARCH_DESCRIPTION),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION)
-    })
-    @POST
-    @Path("/build-config-set-records/{id}/cancel")
-    public Response cancelAllBuildsInGroup(
-            @Parameter(description = "Build Configuration Set id", required = true) @PathParam("id") Integer bcSetRecordId);
-
 }
