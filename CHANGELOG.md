@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4089] Introduce EXECUTION_ROOT_NAME generic param - This is used to override the default value, and can be useful for builds that disable PME. Format is '<groupid>:<artifactid>'
 - [NCL-3920] Browser now shows page titles based on displayed page contents
 - [NCL-4153] Generic http downloads are stored persistently and handle the changes on remote server correctly
+- [NCL-4177] Add an option to specify implicit or explicit dependency check for a rebuild
 
 ### Changed
 - [NCL-3932] Use builds-untested+shared-imports+public in build groups for better usage of indexes in Indy

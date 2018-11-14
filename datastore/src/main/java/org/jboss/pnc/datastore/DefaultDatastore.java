@@ -349,27 +349,29 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public boolean requiresRebuild(BuildConfiguration configuration) {
-        List<BuildRecord> buildRecords = buildRecordRepository.queryWithBuildConfigurationId(configuration.getId());
-
-        if (buildRecords.isEmpty()) {
+    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies ) {
+        IdRev idRev = buildConfigurationAudited.getIdRev();
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev);
+        if (latestSuccessfulBuildRecord == null) {
+            logger.debug("Rebuild of buildConfiguration.idRev: {} required as there is no successful BuildRecord.", idRev);
             return true;
         }
-
-        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecords);
-        if (latestSuccessfulBuildRecord == null) {
-            return true; //there is no successful BuildRecord
+        if (!isLatestSuccessBRFromThisBCA(buildConfigurationAudited)) {
+            return true;
         }
-
-        IdRev configurationIdRevOfLastSuccessfulBR = latestSuccessfulBuildRecord.getBuildConfigurationAuditedIdRev();
-        BuildConfigurationAudited latestConfigurationAudited = getLatestBuildConfigurationAudited(configuration.getId());
-
-        boolean hasModifiedConfiguration = !configurationIdRevOfLastSuccessfulBR.equals(latestConfigurationAudited.getIdRev());
-        boolean requiresRebuild = hasModifiedConfiguration || hasARebuiltDependency(configuration, latestSuccessfulBuildRecord);
-        logger.debug("Checked {} hasModifiedConfiguration: {}, requiresRebuild: {}", configuration, hasModifiedConfiguration, requiresRebuild);
-        return requiresRebuild;
+        if (checkImplicitDependencies) {
+            boolean rebuild = hasARebuiltImplicitDependency(latestSuccessfulBuildRecord);
+            logger.debug("Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.", idRev, rebuild);
+            if (rebuild) {
+                return rebuild;
+            }
+        }
+        // check explicit dependencies
+        Set<BuildConfiguration> dependencies = buildConfigurationAudited.getBuildConfiguration().getDependencies();
+        boolean rebuild = hasARebuiltExplicitDependency(latestSuccessfulBuildRecord, dependencies);
+        logger.debug("Explicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.", idRev, rebuild);
+        return rebuild;
     }
-
 
     /**
      * A rebuild is required:
@@ -384,9 +386,8 @@ public class DefaultDatastore implements Datastore {
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
         BuildSetTask taskSet = task.getBuildSetTask();
-        BuildConfiguration refreshedConfig = buildConfigurationRepository.queryById(task.getBuildConfigurationAudited().getId());
 
-        if (requiresRebuild(refreshedConfig)) {
+        if (requiresRebuild(task.getBuildConfigurationAudited(), task.getBuildOptions().isImplicitDependenciesCheck())) {
             return true;
         }
 
@@ -396,7 +397,8 @@ public class DefaultDatastore implements Datastore {
                     .map(BuildTask::getBuildConfigurationAudited)
                     .map(BuildConfigurationAudited::getBuildConfiguration)
                     .collect(Collectors.toList());
-            boolean hasInGroupDependency = refreshedConfig.dependsOnAny(nonRejectedBuildsInGroup);
+            BuildConfiguration buildConfiguration = task.getBuildConfigurationAudited().getBuildConfiguration();
+            boolean hasInGroupDependency = buildConfiguration.dependsOnAny(nonRejectedBuildsInGroup);
             if (hasInGroupDependency) {
                 return true;
             }
@@ -405,32 +407,62 @@ public class DefaultDatastore implements Datastore {
     }
 
     /**
+     * @return true when the latest success {@link BuildRecord} of {@link BuildConfiguration} is build from this {@link BuildConfigurationAudited}
+     */
+    private boolean isLatestSuccessBRFromThisBCA(BuildConfigurationAudited buildConfigurationAudited) {
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId());
+        if (latestSuccessfulBuildRecord == null) {
+            logger.warn("The check should be done once it's known there is a successful BuildRecord. There is no successful BuildRecord for BuildConfigurationAudited {}.", buildConfigurationAudited.getIdRev());
+        }
+        if (latestSuccessfulBuildRecord.getBuildConfigurationAuditedIdRev().equals(buildConfigurationAudited.getIdRev())) {
+            return true;
+        } else {
+            logger.debug("Last successful BuildRecord id {} is not from this BuildConfigurationAudited idRev {}.", latestSuccessfulBuildRecord.getId(), buildConfigurationAudited.getIdRev());
+            return false;
+        }
+    }
+
+    /**
      * Check is some of the dependencies from the previous build were rebuild.
      * Checking is done based on captured dependencies which are stored in the Build Record.
      */
-    private boolean hasARebuiltDependency(BuildConfiguration configuration, BuildRecord latestSuccessfulBuildRecord) {
-
+    private boolean hasARebuiltImplicitDependency(BuildRecord latestSuccessfulBuildRecord) {
         Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(latestSuccessfulBuildRecord);
-
         return lastBuiltFrom.stream()
                 .anyMatch(br -> hasNewerVersion(br));
     }
 
+    /**
+     * Check is some of the dependencies defined on BuildConfiguration has newer version.
+     */
+    private boolean hasARebuiltExplicitDependency(BuildRecord latestSuccessfulBuildRecord, Set<BuildConfiguration> dependencies) {
+        for (BuildConfiguration dependencyBuildConfiguration : dependencies) {
+            BuildRecord dependencyLatestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(dependencyBuildConfiguration.getId());
+            if (dependencyLatestSuccessfulBuildRecord == null) {
+                return true;
+            }
+            boolean newer = dependencyLatestSuccessfulBuildRecord.getEndTime().after(latestSuccessfulBuildRecord.getEndTime());
+            if (newer) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return true if there is newer successful BuildRecord for the same buildConfiguration.idRev
+     */
     private boolean hasNewerVersion(BuildRecord buildRecord) {
-        Integer buildConfigurationId = buildRecord.getBuildConfigurationId();
-        List<BuildRecord> buildRecords = buildRecordRepository.queryWithBuildConfigurationId(buildConfigurationId);
-
-        if (buildRecords.isEmpty()) {
-            logger.error("Something went wrong, there should be at least the buildRecord.");
-        }
-        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecords);
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecord.getBuildConfigurationAuditedIdRev());
         if (latestSuccessfulBuildRecord == null) {
-            logger.error("Something went wrong, at least the buildRecord should be successful.");
+            logger.error("Something went wrong, the buildRecord should be successful (ot this lattest or the BuildRecord that produced artifacts.).");
         }
-
         return !buildRecord.getId().equals(latestSuccessfulBuildRecord.getId());
     }
 
+    /**
+     * @return BuildRecords that produced captured dependencies artifacts
+     */
     private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record) {
         return ofNullableCollection(record.getDependencies())
                 .stream()

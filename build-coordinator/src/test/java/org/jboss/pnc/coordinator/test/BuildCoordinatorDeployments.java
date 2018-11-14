@@ -131,7 +131,7 @@ public class BuildCoordinatorDeployments {
                         ModuleConfigFactory.class.getPackage())
                 //TODO remove, no need to use default beans.xml
                 .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()), "beans.xml")
-                .addAsResource("logback.xml");
+                .addAsResource("logback-test.xml", "logback.xml");
 
         log.info("Deployment content: {}", jar.toString(true));
         return jar;

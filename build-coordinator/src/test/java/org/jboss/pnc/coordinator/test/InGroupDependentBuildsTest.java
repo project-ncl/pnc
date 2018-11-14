@@ -21,6 +21,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
@@ -76,7 +77,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldBuildAllIfNotSuccessfullyBuilt() throws CoreException, TimeoutException, InterruptedException {
-        build(configSet, false);
+        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
 
         waitForEmptyBuildQueue();
 
@@ -85,8 +86,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldNotCreateTaskForNonDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
-        markAsAlreadyBuilt(configE);
-        build(configSet, false);
+        insertNewBuildRecords(configE);
+        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
 
         waitForEmptyBuildQueue();
 
@@ -95,8 +96,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldCreateTaskForNonDependentBuiltWithRebuildAll() throws CoreException, TimeoutException, InterruptedException {
-        markAsAlreadyBuilt(configE);
-        build(configSet, true);
+        insertNewBuildRecords(configE);
+        build(configSet, RebuildMode.FORCE);
 
         waitForEmptyBuildQueue();
 
@@ -106,8 +107,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldCreateTaskForDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
-        markAsAlreadyBuilt(configA, configC, configD, configE);
-        build(configSet, false);
+        insertNewBuildRecords(configA, configC, configD, configE);
+        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
 
         waitForEmptyBuildQueue();
 

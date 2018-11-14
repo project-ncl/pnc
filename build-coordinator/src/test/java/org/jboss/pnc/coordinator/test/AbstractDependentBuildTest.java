@@ -45,6 +45,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.RebuildMode;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -66,6 +67,7 @@ import javax.enterprise.event.Event;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +80,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -133,6 +136,14 @@ public abstract class AbstractDependentBuildTest {
         buildConfigurationAuditedRepository = new BuildConfigurationAuditedRepositoryMock();
         TargetRepositoryRepository targetRepositoryRepository = new TargetRepositoryRepositoryMock();
 
+        SequenceHandlerRepositoryMock sequenceHandlerRepositoryMock = new SequenceHandlerRepositoryMock() {
+
+            @Override
+            public synchronized Long getNextID(String sequenceName) {
+                return Long.valueOf(buildRecordIdSequence.incrementAndGet());
+            }
+
+        };
         DefaultDatastore datastore = new DefaultDatastore(
                 new ArtifactRepositoryMock(),
                 buildRecordRepository,
@@ -140,7 +151,7 @@ public abstract class AbstractDependentBuildTest {
                 buildConfigurationAuditedRepository,
                 new BuildConfigSetRecordRepositoryMock(),
                 new UserRepositoryMock(),
-                new SequenceHandlerRepositoryMock(),
+                sequenceHandlerRepositoryMock,
                 targetRepositoryRepository
         );
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
@@ -158,11 +169,19 @@ public abstract class AbstractDependentBuildTest {
     }
 
 
-    protected void markAsAlreadyBuilt(BuildConfiguration... configs) {
-        Stream.of(configs).forEach(
-                c -> buildRecordRepository.save(buildRecord(c))
-        );
+    protected void insertNewBuildRecords(BuildConfiguration... configs) {
+        Stream.of(configs).forEach(c -> insertNewBuildRecord(c));
     }
+
+    private void insertNewBuildRecord(BuildConfiguration config) {
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        buildRecordRepository.save(buildRecord(config));
+    }
+
 
     protected BuildRecord buildRecord(BuildConfiguration config) {
         BuildConfigurationAudited configurationAudited =
@@ -172,6 +191,9 @@ public abstract class AbstractDependentBuildTest {
                 .status(BuildStatus.SUCCESS)
                 .buildConfigurationAudited(configurationAudited)
                 .temporaryBuild(false)
+                .submitTime(new Date())
+                .startTime(new Date())
+                .endTime(new Date())
                 .build();
     }
 
@@ -229,9 +251,9 @@ public abstract class AbstractDependentBuildTest {
         return BuildConfigurationAudited.fromBuildConfiguration(config, rev);
     }
 
-    protected void build(BuildConfigurationSet configSet, boolean rebuildAll) throws CoreException {
+    protected void build(BuildConfigurationSet configSet, RebuildMode rebuildMode) throws CoreException {
         BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setForceRebuild(rebuildAll);
+        buildOptions.setRebuildMode(rebuildMode);
 
         coordinator.build(configSet, null, buildOptions);
         coordinator.start();
@@ -341,6 +363,12 @@ public abstract class AbstractDependentBuildTest {
 
     protected DependencyHandler makeResult(BuildConfiguration config) {
         return new DependencyHandler(config);
+    }
+
+    protected void expectBuilt(BuildConfiguration... configurations) throws InterruptedException, TimeoutException {
+        waitForEmptyBuildQueue();
+        List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
+        assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configurations));
     }
 
     @RequiredArgsConstructor

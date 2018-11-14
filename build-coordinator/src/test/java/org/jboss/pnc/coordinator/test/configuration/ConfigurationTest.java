@@ -51,7 +51,7 @@ public class ConfigurationTest {
                 .addClass(Configuration.class)
                 .addClass(OpenshiftEnvironmentDriverModuleConfig.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("logback.xml");
+                .addAsResource("logback-test.xml", "logback.xml");
 
         logger.debug(jar.toString(true));
         return jar;

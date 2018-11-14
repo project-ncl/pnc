@@ -96,8 +96,13 @@ public class BuildTasksInitializer {
 
         toBuild.add(buildConfigurationAudited);
         if (buildOptions.isBuildDependencies()) {
-            buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(c ->
-                    collectDependentConfigurations(c, datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(c.getId()), toBuild, visited));
+            buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(dependencyConfiguration ->
+                    collectDependentConfigurations(
+                            dependencyConfiguration,
+                            datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependencyConfiguration.getId()),
+                            toBuild,
+                            visited,
+                            buildOptions.isImplicitDependenciesCheck()));
         }
     }
 
@@ -108,20 +113,22 @@ public class BuildTasksInitializer {
      * @param buildConfigurationAudited Specific revision of a BuildConfiguration (passed as first parameter) to be potentially built
      * @param toBuild Set of BuildConfigurationAudited entities planned to be built
      * @param visited Set of BuildConfigurations, which were already evaluated, if should be built
+     * @param checkImplicitDependencies
      * @return Returns true, if the buildConfiguration should be rebuilt, otherwise returns false.
      */
     private boolean collectDependentConfigurations(BuildConfiguration buildConfiguration,
-                                                   BuildConfigurationAudited buildConfigurationAudited,
-                                                   Set<BuildConfigurationAudited> toBuild,
-                                                   Set<BuildConfiguration> visited) {
+            BuildConfigurationAudited buildConfigurationAudited,
+            Set<BuildConfigurationAudited> toBuild,
+            Set<BuildConfiguration> visited, boolean checkImplicitDependencies) {
         if (visited.contains(buildConfiguration)) {
             return toBuild.contains(buildConfigurationAudited);
         }
         visited.add(buildConfiguration);
 
-        boolean requiresRebuild = datastoreAdapter.requiresRebuild(buildConfiguration);
+        boolean requiresRebuild = datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies);
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
-            requiresRebuild |= collectDependentConfigurations(dependency, datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()), toBuild, visited);
+            requiresRebuild |= collectDependentConfigurations(dependency, datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()), toBuild, visited,
+                    checkImplicitDependencies);
         }
         if (requiresRebuild) {
             toBuild.add(buildConfigurationAudited);

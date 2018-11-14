@@ -109,7 +109,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     @Override
     public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
         List<BuildRecord> buildRecords = queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
-
         return getLatestSuccessfulBuildRecord(buildRecords);
     }
 
