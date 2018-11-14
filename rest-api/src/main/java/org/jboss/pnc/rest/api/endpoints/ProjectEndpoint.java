@@ -19,8 +19,11 @@ package org.jboss.pnc.rest.api.endpoints;
 
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import static org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint.BC_ID;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProjectSingleton;
 
@@ -37,12 +40,16 @@ import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -57,17 +64,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
+@Tag(name = "Projects")
 @Path("/projects")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ProjectEndpoint{
+    static final String P_ID = "ID of the project";
 
-    @Operation(summary = "Gets all Projects",
+    @Operation(summary = "Gets all projects.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProjectPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProjectPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -77,24 +83,9 @@ public interface ProjectEndpoint{
     @GET
     public Response getAll(@BeanParam PageParameters pageParameters);
 
-    @Operation(summary = "Gets specific Project",
+    @Operation(summary = "Creates a new project.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProjectSingleton.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProjectSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}")
-    public Response getSpecific(@Parameter(description = "Project id", required = true) @PathParam("id") Integer id);
-
-    @Operation(summary = "Creates a new Project",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProjectSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -106,9 +97,21 @@ public interface ProjectEndpoint{
     @POST
     public Response createNew(Project project);
 
-    @Operation(summary = "Updates an existing Project",
+    @Operation(summary = "Gets a specific project.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ProjectSingleton.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}")
+    public Response getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+
+    @Operation(summary = "Updates an existing project.",
+            responses = {
+                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -118,26 +121,24 @@ public interface ProjectEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(@Parameter(description = "Project id", required = true) @PathParam("id") Integer id,
+    public Response update(
+            @Parameter(description = P_ID) @PathParam("id") int id,
             Project project);
 
-    @Operation(summary = "Removes a specific project and associated build configurations",
+    @Operation(summary = "Removes a specific project and associated build configs.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@Parameter(description = "Project id", required = true) @PathParam("id") Integer id);
+    public Response deleteSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
 
-    @Operation(summary = "Gets all BuildConfigurations associated with the specified Project Id",
+    @Operation(summary = "Gets all build configs associated with the specified project.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -146,7 +147,24 @@ public interface ProjectEndpoint{
     })
     @GET
     @Path("/{id}/build-configurations")
-    public Response getBuildConfigurations(@Parameter(description = "Project Id", required = true) @PathParam("id") Integer id,
+    public Response getBuildConfigurations(
+            @Parameter(description = "Project Id") @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
+
+    @Operation(summary = "Get all builds associated with a specific project.",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
+                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/builds")
+    Response getBuilds(
+            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParams,
+            @BeanParam BuildsFilterParameters buildsFilter);
 
 }
