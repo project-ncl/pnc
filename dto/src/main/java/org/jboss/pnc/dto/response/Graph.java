@@ -18,19 +18,22 @@
 package org.jboss.pnc.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * Singleton REST response.
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Data
+@Getter
 @AllArgsConstructor
-public class Singleton<T>  {
+public class Graph<T> {
 
-    /**
-     * Content of the response.
-     */
-    private T content;
+    private final Map<String, Vertex<T>> vertices;
+
+    private final List<Edge<T>> edges;
+
+    private final Map<String, String> metadata;
+
 }
