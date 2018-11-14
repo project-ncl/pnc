@@ -343,24 +343,4 @@ public interface BuildConfigurationEndpoint {
     @Path("/supported-parameters")
     Response getSupportedParameters();
 
-
-    //TODO:         vvv MOVE TO PRODUCT ENDPOINTS vvv
-
-    @Operation(summary = "Gets all build configs of the Specified Product Version",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/products/{productId}/product-versions/{versionId}")
-    Response getAllByProductVersionId(@BeanParam PageParameters pageParams,
-            @Parameter(description = "Product id") @PathParam("productId") int productId,
-            @Parameter(description = "Product Version id") @PathParam("versionId") int versionId);
-
 }
