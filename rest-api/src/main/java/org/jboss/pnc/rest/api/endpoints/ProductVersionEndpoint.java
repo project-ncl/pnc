@@ -18,13 +18,15 @@
 package org.jboss.pnc.rest.api.endpoints;
 
 
-import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductVersionPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductVersionSingleton;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,16 +38,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -60,44 +59,42 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "")
+@Tag(name = "Product Versions")
 @Path("/product-versions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ProductVersionEndpoint{
+    static final String PV_ID = "ID of the product version";
 
-    @Operation(summary = "Gets all Product Versions",
+    @Operation(summary = "Creates a new product version.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductVersionPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductVersionPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
+                    @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ProductVersionSingleton.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @POST
+    Response createNewProductVersion(ProductVersion productVersion);
 
-    @Operation(summary = "Gets specific Product Version",
+    @Operation(summary = "Gets a specific product version.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProductVersionSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @Parameter(description = "Product Version id", required = true) @PathParam("id") Integer id);
+    Response getSpecific(@Parameter(description = PV_ID) @PathParam("id") int id);
 
-    @Operation(summary = "Updates an existing Product Version",
+    @Operation(summary = "Updates an existing product version.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_CODE),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -107,14 +104,28 @@ public interface ProductVersionEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(@Parameter(description = "Product Version id", required = true) @PathParam("id") Integer id,
+    Response update(
+            @Parameter(description = PV_ID) @PathParam("id") int id,
             ProductVersion productVersion);
 
-    @Operation(summary = "Gets build configuration sets associated with a product version",
+    @Operation(summary = "Gets all build configs in a specific product version.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupConfigPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
+                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/build-configurations")
+    Response getBuildConfigurations(
+            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParams);
+
+    @Operation(summary = "Gets group configs associated with a specific product version.",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = GroupConfigPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -122,28 +133,39 @@ public interface ProductVersionEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-configuration-sets")
-    public Response getGroupConfigs(
-            @BeanParam PageParameters pageParameters,
-            @Parameter(description = "Product Version id", required = true) @PathParam("id") Integer id);
+    @Path("/{id}/group-configurations")
+    Response getGroupConfigurations(
+            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParameters);
 
-    @PUT
-    @Path("/{id}/build-configuration-sets")
-    public Response updateGroupConfigs(@Parameter(description = "Product Version id", required = true) @PathParam("id") Integer id,
-            List<GroupConfiguration> buildConfigurationSets);
-
-    @Operation(summary = "Create a new ProductVersion for a Product",
+    @Operation(summary = "Gets all product milestones of a specific product version.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductVersionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = SwaggerPages.ProductMilestonePage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @POST
-    public Response createNewProductVersion(ProductVersion productVersion);
+    @GET
+    @Path("/{id}/milestones")
+    Response getMilestones(
+            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParameters);
 
+
+    @Operation(summary = "Gets all product releases of a specific product version.",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = SwaggerPages.ProductReleasePage.class))),
+                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/releases")
+    public Response getReleases(
+            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParameters);
 }
