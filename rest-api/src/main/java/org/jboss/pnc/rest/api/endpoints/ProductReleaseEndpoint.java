@@ -23,8 +23,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -32,11 +30,13 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductReleasePage;
+import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductReleaseSingleton;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -49,51 +49,23 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 
-@Tag(name = "")
+@Tag(name = "Product Releases")
 @Path("/product-releases")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ProductReleaseEndpoint{
+    static final String PR_ID = "ID of the product release";
 
-    @Operation(summary = "Gets all Product Releases",
+    @Operation(summary = "Creates a new product release.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleasePage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleasePage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
-
-
-    @Operation(summary = "Gets specific Product Release",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleaseSingleton.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleaseSingleton.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}")
-    public Response getSpecific(@Parameter(description = "Product Release id", required = true) @PathParam("id") Integer id);
-
-    @Operation(summary = "Creates a new Product Release",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ProductReleaseSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -105,9 +77,21 @@ public interface ProductReleaseEndpoint{
     @POST
     public Response createNew(ProductRelease productRelease);
 
-    @Operation(summary = "Updates an existing Product Release",
+    @Operation(summary = "Gets a specific product release.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ProductReleaseSingleton.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}")
+    public Response getSpecific(@Parameter(description = PR_ID) @PathParam("id") int id);
+
+    @Operation(summary = "Updates an existing product release.",
+            responses = {
+                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -117,39 +101,19 @@ public interface ProductReleaseEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(@Parameter(description = "Product Release id", required = true) @PathParam("id") Integer id,
+    public Response update(
+            @Parameter(description = PR_ID) @PathParam("id") int id,
             ProductRelease productRelease);
 
-    @Operation(summary = "Gets all Product Releases Support Level",
+    @Operation(summary = "Gets all product releases support levels.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SupportLevelPage.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SupportLevelPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SupportLevel.class)))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/support-level")
+    @Path("/support-levels")
     public Response getAllSupportLevel();
-
-    @Operation(summary = "Gets all Builds distributed for Product Version",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildIds.class))),
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildIds.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}/distributed-build-records-ids")
-    public Response getAllBuildsInDistributedRecordsetOfProductRelease(
-            @BeanParam PageParameters pageParametersuery,
-            @Parameter(description = "Product Release id", required = true) @PathParam("id") Integer id);
 
 }
