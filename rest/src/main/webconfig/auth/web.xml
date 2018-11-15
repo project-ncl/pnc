@@ -46,7 +46,7 @@
             <http-method>GET</http-method>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>user</role-name>
+            <role-name>*</role-name>
         </auth-constraint>
     </security-constraint>
 
@@ -71,9 +71,9 @@
          <http-method>TRACE</http-method>
          <http-method>POST</http-method>
        </web-resource-collection>
-        <auth-constraint>
-            <role-name>user</role-name>
-        </auth-constraint>
+       <auth-constraint>
+           <role-name>*</role-name>
+       </auth-constraint>
     </security-constraint>
 
     <login-config>
@@ -85,7 +85,7 @@
         <role-name>admin</role-name>
     </security-role>
     <security-role>
-        <role-name>user</role-name>
+        <role-name>*</role-name>
     </security-role>
 
   <!-- see noauth/web.xml for posisble replacement -->
