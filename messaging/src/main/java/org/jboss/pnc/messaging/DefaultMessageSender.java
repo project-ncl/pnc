@@ -59,9 +59,8 @@ public class DefaultMessageSender implements MessageSender {
             connection = connectionFactory.createConnection();
             logger.info("JMS client ID {}.", connection.getClientID());
             logger.info("JMSXPropertyNames {}.", connection.getMetaData().getJMSXPropertyNames());
-        } catch (JMSException e) {
-            logger.error("Failed to initialize JMS.");
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error("Failed to initialize JMS.", e);
         }
     }
 
@@ -70,8 +69,8 @@ public class DefaultMessageSender implements MessageSender {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (JMSException e) {
-                logger.error("Failed to close JMS connection.");
+            } catch (Exception e) {
+                logger.error("Failed to close JMS connection.", e);
             }
         }
     }
@@ -108,8 +107,8 @@ public class DefaultMessageSender implements MessageSender {
             session = getSession();
             messageProducer = session.createProducer(destination);
             send(message, headers, session, messageProducer);
-        } catch (JMSException e) {
-            throw new MessagingRuntimeException(e);
+        } catch (Exception e) {
+            logger.error("Cannot send the message: " + message + "; with headers: " + headers + ".", e);
         } finally {
             if (session != null) {
                 try {
