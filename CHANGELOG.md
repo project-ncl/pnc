@@ -56,7 +56,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4048] Use human friendly identifier for RCs instead of DB ID
 - [NCL-4097] Update status icons on build tree when websocket notifications received
 - [NCL-4051] Increase size of build script widget in BC edit view
-- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run  
+- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
+- [NCL-4218] Don't break the build if JMS server is down
 
 ### Fixed
 - [NCL-3966] Fix wrong projectName in BuildRecordRest entity
