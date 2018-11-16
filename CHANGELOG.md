@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
-
+- [NCL-4236] Any authenticated user can create/edit/delete stuff. Before it was restricted to authenticated users having 'user' role
 
 ## [1.4.0]
 
