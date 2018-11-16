@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
 - [NCL-4077] Send revision information to Maitai and Repour on build configuration creation. This helps syncing only the particular revision provided by the user, avoiding potential merge conflicts with other branches that we do not use for building
+- [NCL-4236] Any authenticated user can create/edit/delete stuff. Before it was restricted to authenticated users having 'user' role
 
 ## [1.4.0]
 
