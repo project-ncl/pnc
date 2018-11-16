@@ -43,24 +43,48 @@
   function Controller($log, BuildConfigurationDAO, BuildConfigurationSetDAO) {
     var $ctrl = this;
 
-    $ctrl.dropdownMenu = false;
+    var REBUILD_MODE_INDEX_DEFAULT = 1;
 
-    // default build values
-    $ctrl.params = {
-      temporaryBuild: false,
-      forceRebuild: false,
-      timestampAlignment: false
+    $ctrl.dropdownMenu = false;
+    
+    /*
+     * When used together with forceRebuild parameter (deprecated), forceRebuild will be ignored
+     */
+    $ctrl.rebuildModes = [{
+      title: 'Explicit',
+      value: 'EXPLICIT_DEPENDENCY_CHECK'
+    }, {
+      title: 'Implicit',
+      value: 'IMPLICIT_DEPENDENCY_CHECK'
+    }, {
+      title: 'Force',
+      value: 'FORCE'
+    }];
+
+    $ctrl.$onInit = function () {
+      // default build values
+      $ctrl.params = {
+        temporaryBuild: false,
+        rebuildMode: $ctrl.rebuildModes[REBUILD_MODE_INDEX_DEFAULT].value,
+        timestampAlignment: false
+      };
+
+      $ctrl.refreshRebuildModes(REBUILD_MODE_INDEX_DEFAULT);
+      
+      if ($ctrl.buildConfig) {
+        $ctrl.params.keepPodOnFailure = false;
+        $ctrl.params.buildDependencies = true;
+      }
     };
 
-    if ($ctrl.buildConfig) {
-      $ctrl.params.keepPodOnFailure = false;
-      $ctrl.params.buildDependencies = true;
-    }
-
-    $ctrl.refreshBuildModes = function() {
+    $ctrl.refreshBuildTypes = function() {
       if (!$ctrl.params.temporaryBuild) {
         $ctrl.params.timestampAlignment = false;
       }
+    };
+
+    $ctrl.refreshRebuildModes = function(rebuildModeIndex) {
+      $ctrl.currentRebuildModeTitle = $ctrl.rebuildModes[rebuildModeIndex].title;
     };
 
     $ctrl.build = function() {
