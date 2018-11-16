@@ -34,7 +34,7 @@
     <!-- build type -->
     <div class="radio">
       <label>
-        <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="false" ng-change="$ctrl.refreshBuildModes()"> persistent
+        <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="false" ng-change="$ctrl.refreshBuildTypes()"> Persistent
         <a uib-popover="Standard build, which can be used for product release" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
@@ -42,7 +42,7 @@
     </div>
     <div class="radio">
       <label>
-        <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="true" ng-change="$ctrl.refreshBuildModes()"> temporary
+        <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="true" ng-change="$ctrl.refreshBuildTypes()"> Temporary
         <a uib-popover="Test build, which cannot be used for product release and which will be garbage collected" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
@@ -51,19 +51,53 @@
 
     <hr>
 
-    <!-- build mode -->
+    <!-- rebuild mode -->
+    Rebuild Mode
+    <script type="text/ng-template" id="rebuildModeTooltipTemplate.html"><div>
+      Rebuild a previously <em>successful</em> build config when:
+      <dl class="m-t-10">
+        <dt>{{ $ctrl.rebuildModes[0].title }}</dt>
+        <dd>
+          <ul>
+              <li>The build config has been modified since the last successful build</li>
+              <li>A build config, explicitly defined as a dependency of this one, has been modified<br>since the last successful build</li>
+              <li>There exists a newer, successful build of a build config explicitly defined as a dependency of this one</li>
+          </ul>
+        </dd>
+
+        <dt>{{ $ctrl.rebuildModes[1].title }}</dt>
+        <dd>
+          <ul>
+            <li><strong>Explicit</strong> criteria plus:</li>
+            <li>There exists a newer version of an implicit dependency (automatically<br>captured from sources such as Indy, MRRC or Maven Central)</li>
+          </ul>
+        </dd>
+
+        <dt>{{ $ctrl.rebuildModes[2].title }}</dt>
+        <dd>
+          <ul>
+            <li>Always</li>
+          </ul>
+        </dd>
+      </dl>
+    </div></script>
+    <a uib-popover-template="'rebuildModeTooltipTemplate.html'" popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
+      <span class="fa fa-info-circle"></span>
+    </a>
+
+    <div class="radio" ng-repeat="rebuildMode in $ctrl.rebuildModes">
+      <label>
+        <input type="radio" name="rebuildModeName" ng-model="$ctrl.params.rebuildMode" value="{{ rebuildMode.value }}" ng-change="$ctrl.refreshRebuildModes($index)"> {{ rebuildMode.title }}
+      </label>
+    </div>
+
+    <hr>
+
+    <!-- additional options -->
     <div class="checkbox" ng-if="::$ctrl.buildConfig">
       <label>
         <input type="checkbox" ng-model="$ctrl.params.keepPodOnFailure"> keep pod alive
         <a uib-popover="The builder container won't be destroyed if the build fails and you can use SSH to debug it" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
-          <span class="fa fa-info-circle"></span>
-        </a>
-      </label>
-    </div>
-    <div class="checkbox">
-      <label>
-        <input type="checkbox" ng-model="$ctrl.params.forceRebuild"> force rebuild
-        <a uib-popover="Perform the build even if successful build of the same configuration is present" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
       </label>
@@ -90,8 +124,15 @@
     <div class="text-center">
       <small>
         Press <em>Build</em> button to start 
-        {{ $ctrl.params.temporaryBuild ? 'temporary' : 'persistent' }} build
-        {{ $ctrl.params.forceRebuild && $ctrl.params.buildDependencies ? 'forcing only build itself, not forcing its dependencies' : '' }}
+        {{ $ctrl.params.temporaryBuild ? 'Temporary' : 'Persistent' }} 
+        {{ $ctrl.currentRebuildModeTitle }}
+        build
+        <span ng-show="$ctrl.params.buildDependencies">
+          applying the same Rebuild Mode also to explicitly defined dependencies
+          <a uib-popover="Not implicit (automatically captured) ones - those are used only to determine if the rebuild is required" popover-placement="bottom" popover-class="popover-info-tip" popover-append-to-body="true" href>
+            <span class="fa fa-info-circle"></span>
+          </a>
+        </span>
       </small>
     </div>
 
