@@ -44,14 +44,15 @@
             filterType: 'text'
           },
           {
-            id: 'repoType',
+            id: 'targetRepository.repositoryType',
             title: 'Repo Type',
             placeholder: 'Filter by Repo Type',
             filterType: 'select',
             filterValues: [
               'MAVEN',
               'GENERIC_PROXY',
-              'MAVEN_TEMPORARY'
+              'NPM',
+              'COCOA_POD'
             ]
           },
           {
