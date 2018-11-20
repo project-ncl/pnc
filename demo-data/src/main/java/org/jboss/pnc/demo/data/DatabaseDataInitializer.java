@@ -18,6 +18,7 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildType;
@@ -150,6 +151,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     private Datastore datastore;
+
+    @Inject
+    DemoDataConfig demoDataConfig;
 
     @Inject
     SystemConfig systemConfig;
@@ -336,11 +340,11 @@ public class DatabaseDataInitializer {
         projectRepository.save(project4);
         projectRepository.save(project5);
 
-        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/pnc.git");
-        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/termd.git");
-        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/pnc-build-agent.git");
-        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/dependency-analysis.git");
-        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration("ssh://git@github.com:22/project-ncl/causeway.git");
+        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(demoDataConfig.getInternalRepo1());
+        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(demoDataConfig.getInternalRepo2());
+        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(demoDataConfig.getInternalRepo3());
+        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(demoDataConfig.getInternalRepo4());
+        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(demoDataConfig.getInternalRepo5());
 
         repositoryConfigurationRepository.save(repositoryConfiguration1);
         repositoryConfigurationRepository.save(repositoryConfiguration2);
