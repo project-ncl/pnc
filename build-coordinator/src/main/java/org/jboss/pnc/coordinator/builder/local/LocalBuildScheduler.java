@@ -75,7 +75,7 @@ public class LocalBuildScheduler implements BuildScheduler {
             }
         };
 
-        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getBuildConfigurationAudited().getName());
+        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
         BuildConfigurationAudited configuration = buildTask.getBuildConfigurationAudited();
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),

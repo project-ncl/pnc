@@ -73,7 +73,7 @@ public class BpmBuildTask extends BpmTask {
     private BuildExecutionConfigurationRest getBuildExecutionConfiguration(BuildTask buildTask) {
 
         BuildConfigurationAudited buildConfigurationAudited = buildTask.getBuildConfigurationAudited();
-        String contentId = ContentIdentityManager.getBuildContentId(buildConfigurationAudited.getName());
+        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
 
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
