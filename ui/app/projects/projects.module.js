@@ -33,7 +33,7 @@
       // NCL-2402 changed the module base URL, this redirect should
       // be removed at some point in the future.
       $urlRouterProvider.when(/^\/project\/.*/, function ($location) {
-        return $location.url().replace('/project/', '/projects/');
+        return $location.url().replace('/project/', '/projects');
       });
 
       $stateProvider.state('projects', {
