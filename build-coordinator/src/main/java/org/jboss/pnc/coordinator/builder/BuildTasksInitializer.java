@@ -244,9 +244,6 @@ public class BuildTasksInitializer {
             Set<BuildTask> alreadySubmittedBuildTasks,
             BuildOptions buildOptions) {
         for (BuildConfigurationAudited buildConfigAudited : toBuild) {
-            String buildContentId = ContentIdentityManager.getBuildContentId(buildConfigAudited.getName());
-            MDCUtils.addBuildContext(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
-
             Optional<BuildTask> taskOptional = alreadySubmittedBuildTasks.stream()
                     .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
                     .findAny();
@@ -256,11 +253,15 @@ public class BuildTasksInitializer {
                 buildTask = taskOptional.get();
                 log.debug("Linking BuildConfigurationAudited {} to existing task {}.", buildConfigAudited, buildTask);
             } else {
+                int buildId = buildTaskIdProvider.get();
+                String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
+                MDCUtils.addBuildContext(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
+
                 buildTask = BuildTask.build(
                         buildConfigAudited,
                         buildSetTask.getBuildOptions(),
                         user,
-                        buildTaskIdProvider.get(),
+                        buildId,
                         buildSetTask,
                         buildSetTask.getStartTime(),
                         productMilestone,

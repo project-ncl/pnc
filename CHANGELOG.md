@@ -29,9 +29,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- [NCL-4235]: Fix potential collision of the 2 same builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
+
+## [1.4.1]
+
 ### Changed
 - [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
-
 
 ## [1.4.0]
 
