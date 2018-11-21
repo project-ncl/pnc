@@ -29,8 +29,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [1.4.2]
+
+### Added
+- [NCL-4177] Add an option to specify implicit or explicit dependency check for a rebuild
+- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
+
 ### Fixed
 - [NCL-4235]: Fix potential collision of the 2 same builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
+
+### Changed
+- [NCL-4218] Don't break the build if JMS server is down
+
 
 ## [1.4.1]
 
@@ -52,7 +63,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4089] Introduce EXECUTION_ROOT_NAME generic param - This is used to override the default value, and can be useful for builds that disable PME. Format is '<groupid>:<artifactid>'
 - [NCL-3920] Browser now shows page titles based on displayed page contents
 - [NCL-4153] Generic http downloads are stored persistently and handle the changes on remote server correctly
-- [NCL-4177] Add an option to specify implicit or explicit dependency check for a rebuild
 
 ### Changed
 - [NCL-3932] Use builds-untested+shared-imports+public in build groups for better usage of indexes in Indy
@@ -60,8 +70,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4048] Use human friendly identifier for RCs instead of DB ID
 - [NCL-4097] Update status icons on build tree when websocket notifications received
 - [NCL-4051] Increase size of build script widget in BC edit view
-- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
-- [NCL-4218] Don't break the build if JMS server is down
 
 ### Fixed
 - [NCL-3966] Fix wrong projectName in BuildRecordRest entity
