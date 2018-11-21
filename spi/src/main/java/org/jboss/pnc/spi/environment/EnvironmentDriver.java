@@ -38,7 +38,8 @@ public interface EnvironmentDriver {
      * @param systemImageRepositoryUrl The URL containing the system image
      * @param systemImageType The type of image to be initialized
      * @param repositorySession Configuration of repository to store built artifacts
-     * 
+     *
+     * @param tempBuild
      * @return New started environment in initialization phase
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
      */
@@ -48,7 +49,7 @@ public interface EnvironmentDriver {
             SystemImageType systemImageType,
             RepositorySession repositorySession,
             DebugData debugData,
-            String accessToken) throws EnvironmentDriverException;
+            String accessToken, boolean tempBuild) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment

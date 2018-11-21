@@ -18,7 +18,8 @@
 package org.jboss.pnc.environment.openshift;
 
 import com.openshift.internal.restclient.DefaultClient;
-import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.model.SystemImageType;
@@ -35,6 +36,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -64,15 +66,18 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
     private final EnvironmentDriver environmentDriver;
 
-    private final Configuration configurationService;
-
     public OpenshiftEnvironmentDriverRemoteTest() throws Exception {
         //workaround for protected root rest endpoint from where version should be read
         System.setProperty(DefaultClient.SYSTEM_PROP_OPENSHIFT_API_VERSION, "v1");
 
-        configurationService = new Configuration();
+        SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
+        OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig = Mockito.mock(OpenshiftEnvironmentDriverModuleConfig.class);
 
-        environmentDriver = new OpenshiftEnvironmentDriver(configurationService, new PullingMonitor());
+        environmentDriver = new OpenshiftEnvironmentDriver(
+                new PullingMonitor(),
+                systemConfig,
+                openshiftEnvironmentDriverModuleConfig,
+                null);
     }
 
     @Test
@@ -90,7 +95,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 SystemImageType.DOCKER_IMAGE,
                 DUMMY_REPOSITORY_CONFIGURATION,
                 new DebugData(false),
-                "put-access-token-here");
+                "put-access-token-here", false);
 
         Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
             boolean containerDestroyed = false;

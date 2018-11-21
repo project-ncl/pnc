@@ -46,7 +46,7 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
             SystemImageType buildType,
             final RepositorySession repositoryConfiguration,
             DebugData debugData,
-            String accessToken) throws EnvironmentDriverException {
+            String accessToken, boolean tempBuild) throws EnvironmentDriverException {
         return new StartedEnvironment() {
 
             @Override

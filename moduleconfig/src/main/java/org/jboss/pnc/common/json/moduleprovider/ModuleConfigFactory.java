@@ -21,8 +21,12 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -33,6 +37,8 @@ import javax.inject.Inject;
  */
 @Dependent
 public class ModuleConfigFactory {
+
+    private final Logger logger = LoggerFactory.getLogger(ModuleConfigFactory.class);
 
     private Configuration configuration;
 
@@ -63,5 +69,22 @@ public class ModuleConfigFactory {
     @Dependent
     TermdBuildDriverModuleConfig createTermdBuildDriverModuleConfig() throws ConfigurationParseException {
         return configuration.getModuleConfig(new PncConfigProvider<>(TermdBuildDriverModuleConfig.class));
+    }
+
+    @Produces
+    @Dependent
+    OpenshiftEnvironmentDriverModuleConfig createOpenshiftEnvironmentDriverModuleConfig() throws ConfigurationParseException {
+        return configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+    }
+
+    @Produces
+    @Dependent
+    OpenshiftBuildAgentConfig createOpenshiftBuildAgentConfig() throws ConfigurationParseException {
+        try {
+            return configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftBuildAgentConfig.class));
+        } catch (ConfigurationParseException e) {
+            logger.warn("OpenshiftBuildAgentConfig is not provided or is broken. Using the default built-in config.");
+            return null;
+        }
     }
 }
