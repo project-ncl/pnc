@@ -47,6 +47,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -110,7 +111,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             RepositorySession repositorySession,
             String systemImageId,
             DebugData debugData,
-            String accessToken) {
+            String accessToken,
+            boolean tempBuild,
+            Date temporaryBuildExpireDate) {
 
         logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
 
@@ -144,6 +147,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
         runtimeProperties.put("accessToken", accessToken);
         runtimeProperties.put("buildContentId", repositorySession.getBuildRepositoryId());
+        runtimeProperties.put("tempBuild", Boolean.toString(tempBuild));
+        runtimeProperties.put("expiresDate", Long.toString(temporaryBuildExpireDate.getTime()));
 
         initDebug();
 

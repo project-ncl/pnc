@@ -42,7 +42,7 @@ public class EnvironmentDriverWithFailedContainerInitializationMock implements E
             SystemImageType buildType,
             final RepositorySession repositoryConfiguration,
             DebugData debugData,
-            String accessToken)
+            String accessToken, boolean tempBuild)
             throws EnvironmentDriverException {
 
         return new StartedEnvironment() {
