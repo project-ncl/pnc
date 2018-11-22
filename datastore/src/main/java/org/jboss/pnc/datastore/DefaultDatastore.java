@@ -26,8 +26,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates;
@@ -55,7 +53,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
@@ -373,37 +370,11 @@ public class DefaultDatastore implements Datastore {
         return rebuild;
     }
 
-    /**
-     * A rebuild is required:
-     *  - when the {@link BuildConfiguration} has been updated
-     *  - when the dependencies captured in the {@link BuildRecord} were rebuilt
-     *  - when the {@link BuildConfiguration} depends on another that is scheduled for a rebuild in the submitted set
-     *
-     * @param task task to check
-     * @return
-     */
+    @Deprecated
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
-        BuildSetTask taskSet = task.getBuildSetTask();
-
-        if (requiresRebuild(task.getBuildConfigurationAudited(), task.getBuildOptions().isImplicitDependenciesCheck())) {
-            return true;
-        }
-
-        if (taskSet != null) {
-            List<BuildConfiguration> nonRejectedBuildsInGroup = taskSet.getBuildTasks().stream()
-                    .filter(t -> t.getStatus() != BuildCoordinationStatus.REJECTED_ALREADY_BUILT)
-                    .map(BuildTask::getBuildConfigurationAudited)
-                    .map(BuildConfigurationAudited::getBuildConfiguration)
-                    .collect(Collectors.toList());
-            BuildConfiguration buildConfiguration = task.getBuildConfigurationAudited().getBuildConfiguration();
-            boolean hasInGroupDependency = buildConfiguration.dependsOnAny(nonRejectedBuildsInGroup);
-            if (hasInGroupDependency) {
-                return true;
-            }
-        }
-        return false;
+        return requiresRebuild(task.getBuildConfigurationAudited(), task.getBuildOptions().isImplicitDependenciesCheck());
     }
 
     /**

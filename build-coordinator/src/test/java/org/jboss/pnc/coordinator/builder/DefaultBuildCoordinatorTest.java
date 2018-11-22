@@ -135,7 +135,7 @@ public class DefaultBuildCoordinatorTest {
         MockitoAnnotations.initMocks(this);
         when(systemConfig.getTemporalBuildExpireDate()).thenReturn(new Date(1));
         when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class))).thenReturn(true);
-        when(datastore.requiresRebuild(any(BuildTask.class))).thenReturn(true);
+        when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class))).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
         coordinator = new DefaultBuildCoordinator(
                 datastoreAdapter,

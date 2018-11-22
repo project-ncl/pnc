@@ -342,7 +342,7 @@ public class DatastoreAdapter {
     }
 
     public boolean requiresRebuild(BuildTask task) {
-        return datastore.requiresRebuild(task);
+        return datastore.requiresRebuild(task.getBuildConfigurationAudited(), task.getBuildOptions().isImplicitDependenciesCheck());
     }
 
     public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {

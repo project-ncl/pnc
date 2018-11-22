@@ -104,7 +104,6 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD, configE));
     }
 
-
     @Test
     public void shouldCreateTaskForDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
         insertNewBuildRecords(configA, configC, configD, configE);
@@ -113,5 +112,31 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         waitForEmptyBuildQueue();
 
         assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configB, configC, configD));
+    }
+
+    @Test
+    public void shouldBuildOnlyCWhenOnlyCIsUpdated() throws CoreException, TimeoutException, InterruptedException {
+        insertNewBuildRecords(configA, configB, configC, configD, configE);
+
+        updateConfiguration(configC);
+
+        build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+
+        waitForEmptyBuildQueue();
+
+        expectBuilt(configC);
+    }
+
+    @Test
+    public void shouldBuildBCDWhenBIsUpdated() throws CoreException, TimeoutException, InterruptedException {
+        insertNewBuildRecords(configA, configB, configC, configD, configE);
+
+        updateConfiguration(configB);
+
+        build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+
+        waitForEmptyBuildQueue();
+
+        expectBuilt(configB,configC,configD);
     }
 }
