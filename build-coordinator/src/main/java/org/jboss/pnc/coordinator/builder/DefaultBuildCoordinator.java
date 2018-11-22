@@ -205,7 +205,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildQueue.getUnfinishedTasks());
             updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
-            validateBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
+            validateAndEnqueueBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
             return buildSetTask;
         }
     }
@@ -240,12 +240,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildQueue.getUnfinishedTasks());
             updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
 
-            validateBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
+            validateAndEnqueueBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
             return buildSetTask;
         }
     }
 
-    private void validateBuildConfigurationSetTasks(BuildConfigurationSet buildConfigurationSet, BuildOptions buildOptions, BuildSetTask buildSetTask) {
+    private void validateAndEnqueueBuildConfigurationSetTasks(BuildConfigurationSet buildConfigurationSet, BuildOptions buildOptions, BuildSetTask buildSetTask) {
         checkForEmptyBuildSetTask(buildSetTask);
         if (!buildOptions.isForceRebuild()) {
             checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet, buildOptions.isImplicitDependenciesCheck());
