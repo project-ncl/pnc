@@ -36,10 +36,11 @@ public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
     @Before
     public void setUp() throws TimeoutException, InterruptedException {
         // given
+        d = config("d");
         c = config("c");
-        b = config("b");
+        b = config("b", d);
         a = config("a", b);
-        all = new BuildConfiguration[]{c, b, a};
+        all = new BuildConfiguration[]{d, c, b, a};
         insertNewBuildRecords(all);
 
         makeResult(b).dependOn(c);
@@ -81,5 +82,18 @@ public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
         build(a, buildOptions);
         // then
         expectBuilt(a);
+    }
+
+    @Test
+    public void shouldBuildABCOnForceAWithDependencies() throws TimeoutException, InterruptedException {
+        // when
+        insertNewBuildRecords(d,b,a);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setBuildDependencies(true);
+        buildOptions.setRebuildMode(RebuildMode.FORCE);
+        build(a, buildOptions);
+        // then
+        expectBuilt(d,b,a);
     }
 }
