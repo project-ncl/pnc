@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.integration.remote;
 
+import io.undertow.connector.ByteBufferPool;
+import io.undertow.server.DefaultByteBufferPool;
 import io.undertow.websockets.client.WebSocketClient;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedBinaryMessage;
@@ -24,7 +26,6 @@ import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.WebSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xnio.ByteBufferSlicePool;
 import org.xnio.IoFuture;
 import org.xnio.OptionMap;
 import org.xnio.Xnio;
@@ -43,9 +44,10 @@ public class WebsocketListener {
     public WebsocketListener(URI uri, Consumer<String> onMessage) throws IOException {
         OptionMap optionMap = OptionMap.EMPTY;
 
+        ByteBufferPool byteBufferSlicePool = new DefaultByteBufferPool(true, 1024);
         IoFuture<WebSocketChannel> ioFuture = WebSocketClient.connectionBuilder(
                 Xnio.getInstance().createWorker(optionMap),
-                new ByteBufferSlicePool(1024, 1024),
+                byteBufferSlicePool,
                 uri).connect();
 
         WebSocketChannel webSocketChannel = ioFuture.get();
