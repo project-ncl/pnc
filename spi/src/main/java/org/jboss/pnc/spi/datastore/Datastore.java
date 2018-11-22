@@ -113,12 +113,7 @@ public interface Datastore {
      */
     boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies );
 
-
-        /**
-         * Check if a build task should be rebuilt (if some of its dependencies were rebuild or the configuration was modified)
-         *
-         * @param task task to check
-         */
+    @Deprecated
     boolean requiresRebuild(BuildTask task);
 
     Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet);
