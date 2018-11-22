@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - [NCL-4218] Don't break the build if JMS server is down
-
+- [NCL-4177] Force rebuild is propagated to explicit dependencies.
 
 ## [1.4.1]
 
