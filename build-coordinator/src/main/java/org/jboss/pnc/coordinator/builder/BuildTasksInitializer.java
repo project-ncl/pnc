@@ -102,7 +102,8 @@ public class BuildTasksInitializer {
                             datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependencyConfiguration.getId()),
                             toBuild,
                             visited,
-                            buildOptions.isImplicitDependenciesCheck()));
+                            buildOptions.isImplicitDependenciesCheck(),
+                            buildOptions.isForceRebuild()));
         }
     }
 
@@ -119,17 +120,27 @@ public class BuildTasksInitializer {
     private boolean collectDependentConfigurations(BuildConfiguration buildConfiguration,
             BuildConfigurationAudited buildConfigurationAudited,
             Set<BuildConfigurationAudited> toBuild,
-            Set<BuildConfiguration> visited, boolean checkImplicitDependencies) {
+            Set<BuildConfiguration> visited,
+            boolean checkImplicitDependencies,
+            boolean forceRebuild) {
         if (visited.contains(buildConfiguration)) {
             return toBuild.contains(buildConfigurationAudited);
         }
         visited.add(buildConfiguration);
 
-        boolean requiresRebuild = datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies);
+        boolean requiresRebuild = forceRebuild || datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies);
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
-            requiresRebuild |= collectDependentConfigurations(dependency, datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()), toBuild, visited,
-                    checkImplicitDependencies);
+            boolean dependencyRequiresRebuild = collectDependentConfigurations(dependency,
+                    datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()),
+                    toBuild,
+                    visited,
+                    checkImplicitDependencies,
+                    forceRebuild);
+
+            requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
+
         }
+        log.debug("Configuration {} requires rebuild: ", buildConfiguration.getId(), requiresRebuild);
         if (requiresRebuild) {
             toBuild.add(buildConfigurationAudited);
         }
