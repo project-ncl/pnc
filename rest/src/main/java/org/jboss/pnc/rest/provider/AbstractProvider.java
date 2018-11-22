@@ -43,7 +43,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.function.Function;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 /**
  * Abstract provider with common functionality.

@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "ProductMilestone")
 public class ProductMilestoneRest implements GenericRestEntity<Integer> {

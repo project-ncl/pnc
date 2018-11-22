@@ -62,7 +62,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;

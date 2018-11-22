@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jboss.pnc.enums.ArtifactQuality;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Artifact")
 public class ArtifactRest implements GenericRestEntity<Integer> {
