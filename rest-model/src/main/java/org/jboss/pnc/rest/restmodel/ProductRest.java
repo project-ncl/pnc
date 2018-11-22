@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Product")
 public class ProductRest implements GenericRestEntity<Integer> {

@@ -17,9 +17,12 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
@@ -32,13 +35,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.jboss.pnc.constants.Patterns.PRODUCT_STREAM_VERSION;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductVersion")
