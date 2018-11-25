@@ -116,7 +116,7 @@
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
     <version.keycloak>4.5.0.Final</version.keycloak>
-    <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
+    <version.undertow>1.4.18.Final</version.undertow>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
     <version.buildagent>0.5.0-SNAPSHOT</version.buildagent>
@@ -553,8 +553,22 @@
 
       <dependency>
         <groupId>io.undertow</groupId>
+        <artifactId>undertow-core</artifactId>
+        <version>${version.undertow}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.undertow</groupId>
         <artifactId>undertow-websockets-jsr</artifactId>
-        <version>${version.undertow-websockets-jsr}</version>
+        <version>${version.undertow}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.undertow</groupId>
+        <artifactId>undertow-servlet</artifactId>
+        <version>${version.undertow}</version>
         <scope>provided</scope>
       </dependency>
 
