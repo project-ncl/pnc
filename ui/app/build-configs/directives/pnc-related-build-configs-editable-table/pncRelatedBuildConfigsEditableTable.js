@@ -22,6 +22,7 @@
   angular.module('pnc.build-configs').component('pncRelatedBuildConfigsEditableTable', {
     bindings: {
       page: '<',
+      displayFields: '<',
       onRemove: '&',
       onEdit: '&'
     },

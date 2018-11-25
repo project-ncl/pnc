@@ -113,6 +113,39 @@
         }
       });
 
+      $stateProvider.state('projects.detail.build-configs.detail.dependants', {
+        url: '/dependendants',
+        component: 'pncBuildConfigDependantsTab',
+        bindings: {
+          buildConfig: 'configurationDetail'
+        },
+        resolve: {
+          dependants: [
+            'configurationDetail',
+            function (configurationDetail) {
+              return configurationDetail.$getDependants();
+            }
+          ]
+        }
+      });
+
+      $stateProvider.state('projects.detail.build-configs.detail.build-groups', {
+        url: '/build-groups',
+        component: 'pncBuildConfigBuildGroupsTab',
+        bindings: {
+          buildConfig: 'configurationDetail'
+        },
+        resolve: {
+          buildGroups: [
+            'configurationDetail',
+            'BuildConfigurationSet',
+            function (configurationDetail, BuildConfigurationSet) {
+              return BuildConfigurationSet.queryContainsBuildConfiguration({}, { id: configurationDetail.id }).$promise;
+            }
+          ]
+        }
+      });
+
 
 
 

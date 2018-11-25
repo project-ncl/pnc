@@ -31,7 +31,8 @@
             tooltip-popup-delay="2500"
             tooltip-placement="top"
             tooltip-append-to-body="true"
-            ng-click="$ctrl.edit()">
+            ng-click="$ctrl.edit()"
+            ng-if="::$ctrl.onEdit()">
       <i class="pficon pficon-edit"></i> Edit
     </button>
   </div>
