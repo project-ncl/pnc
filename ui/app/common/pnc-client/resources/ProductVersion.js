@@ -30,7 +30,8 @@
     '$resource',
     'restConfig',
     'PRODUCT_VERSION_PATH',
-    function($resource, restConfig, PRODUCT_VERSION_PATH) {
+    'rsqlQuery',
+    function($resource, restConfig, PRODUCT_VERSION_PATH, rsqlQuery) {
       var ENDPOINT = restConfig.getPncUrl() + PRODUCT_VERSION_PATH;
 
       var resource = $resource(ENDPOINT, {
@@ -51,6 +52,16 @@
         updateBuildConfigurationSets: {
           url: ENDPOINT + '/build-configuration-sets',
           method: 'PUT'
+        },
+        queryContainsBuildConfiguration: {
+          url: restConfig.getPncUrl() + '/product-versions',
+          method: 'GET',
+          isPaged: true,
+          params: {
+            q: function (data) {
+              return rsqlQuery().where('buildConfigurations.id').in([data.id]).end();
+            }
+          }
         }
       });
 

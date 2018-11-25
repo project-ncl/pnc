@@ -146,6 +146,23 @@
         }
       });
 
+      $stateProvider.state('projects.detail.build-configs.detail.products', {
+        url: '/products',
+        component: 'pncBuildConfigProductsTab',
+        bindings: {
+          buildConfig: 'configurationDetail'
+        },
+        resolve: {
+          productVersions: [
+            'configurationDetail',
+            'ProductVersion',
+            function (configurationDetail, ProductVersion) {
+              return ProductVersion.queryContainsBuildConfiguration({}, { id: configurationDetail.id }).$promise;
+            }
+          ]
+        }
+      });
+
 
 
 
