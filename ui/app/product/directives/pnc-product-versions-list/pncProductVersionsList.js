@@ -19,53 +19,55 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-groups').component('pncBuildGroupsDataTable', {
+  angular.module('pnc.product').component('pncProductVersionsList', {
     bindings: {
       /**
-       * page object: the page of build groups to display in the table.
+       * array of ProductVersions: The list of ProductVersions to display.
        */
-      page: '<',
+      productVersions: '<',
       /**
        * array of strings: Names of table columns to display (see template for possible options)
        */
       displayFields: '<',
       /**
-       * 
+       * string URL: template to display in actions column, column will not be shown if omitted.
+       * The specific ProductVersion will be available to the template on the scope as `productVersion`
        */
-      onEdit: '&',
+      actionsTemplateUrl: '@',
       /**
-       * 
+       * object: properties or callbacks to be accessed from the actions template.
+       * all properties on the object will be made available to the template on the scope
+       * under the `actions` object.
        */
-      onRemove: '&'
+      actionsData: '<'
     },
-    templateUrl: 'build-groups/directives/pnc-build-groups-data-table/pnc-build-groups-data-table.html',
-    controller: ['$log', '$q', Controller]
+    templateUrl: 'product/directives/pnc-product-versions-list/pnc-product-versions-list.html',
+    controller: ['$scope', Controller]
   });
 
 
-  function Controller($log, $q) {
+  function Controller($scope) {
     var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.actions = {
-      remove: remove
-    };
+    $ctrl.showTable = showTable;
+    $ctrl.showColumn = showColumn;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
+      $scope.actions = $ctrl.actionsData;
     };
 
-    
-    function remove(buildGroup) {
-      $log.debug('Table action: remove Build Group: %O', buildGroup);
-      $q.when($ctrl.onRemove()(buildGroup)).then(function () {
-        $ctrl.page.refresh();
-      });
+    function showTable() {
+      return $ctrl.productVersions && $ctrl.productVersions.length > 0;
     }
 
+    function showColumn(property) {
+      return $ctrl.displayFields.includes(property);
+    }
   }
 
 })();

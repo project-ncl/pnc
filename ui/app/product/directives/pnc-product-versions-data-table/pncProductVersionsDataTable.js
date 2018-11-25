@@ -19,10 +19,10 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-groups').component('pncBuildGroupsDataTable', {
+  angular.module('pnc.product').component('pncProductVersionsDataTable', {
     bindings: {
       /**
-       * page object: the page of build groups to display in the table.
+       * page object: the page of ProductVersions to display in the table.
        */
       page: '<',
       /**
@@ -38,7 +38,7 @@
        */
       onRemove: '&'
     },
-    templateUrl: 'build-groups/directives/pnc-build-groups-data-table/pnc-build-groups-data-table.html',
+    templateUrl: 'product/directives/pnc-product-versions-data-table/pnc-product-versions-data-table.html',
     controller: ['$log', '$q', Controller]
   });
 
@@ -59,9 +59,9 @@
     };
 
     
-    function remove(buildGroup) {
-      $log.debug('Table action: remove Build Group: %O', buildGroup);
-      $q.when($ctrl.onRemove()(buildGroup)).then(function () {
+    function remove(productVersion) {
+      $log.debug('Table action: remove Product Version: %O', productVersion);
+      $q.when($ctrl.onRemove()(productVersion)).then(function () {
         $ctrl.page.refresh();
       });
     }
