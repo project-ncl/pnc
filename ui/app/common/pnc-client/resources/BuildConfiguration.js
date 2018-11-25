@@ -59,6 +59,11 @@
           url: ENDPOINT + '/dependencies',
           isPaged: true
         },
+        getDependants: {
+          method: 'GET',
+          url: restConfig.getPncUrl() + '/build-configurations/?q=dependencies.id=in=(:id)',
+          isPaged: true
+        },
         removeDependency: {
           method: 'DELETE',
           url: ENDPOINT + '/dependencies/:dependencyId'

@@ -63,8 +63,18 @@
           method: 'POST'
         },
         removeBuildConfiguration: {
-          url: ENDPOINT + '/build-configurations/:configId',
+          url: ENDPOINT + '/build-configurations/:buildConfigId',
           method: 'DELETE'
+        },
+        queryContainsBuildConfiguration: {
+          url: restConfig.getPncUrl() + '/build-configuration-sets',
+          method: 'GET',
+          isPaged: true,
+          params: {
+            q: function (data) {
+              return rsqlQuery().where('buildConfigurations.id').in([data.id]).end();
+            }
+          }
         }
       });
 
