@@ -17,14 +17,18 @@
     limitations under the License.
 
 -->
-<div ng-show="$ctrl.item && $ctrl.isLoaded">
-  <pnc-build-status-icon build-record="$ctrl.item"></pnc-build-status-icon>
-  <a ng-if="$ctrl.buildRecord" ui-sref="build-records.detail.default({ recordId: $ctrl.item.id })" ng-click="$ctrl.stopPropagation && $event.stopPropagation()"># {{ $ctrl.item.id }}</a>
-  <a ng-if="$ctrl.buildGroupRecord" ui-sref="build-group-records.detail({ id: $ctrl.item.id })"># {{ $ctrl.item.id }}</a>
-  <span title="End Time">{{ $ctrl.item.endTime | date:'medium' }}</span>
-  <span title="Start Time" ng-hide="$ctrl.item.endTime">{{ $ctrl.item.startTime | date:'medium' }}</span>
-  <span ng-show="$ctrl.item.username">,</span>
-  <span class="text-bold">{{ $ctrl.item.username }}</span>
+<div class="pnc-build-status">
+  <div ng-show="$ctrl.item && $ctrl.isLoaded">
+    <pnc-build-status-icon build-record="$ctrl.item"></pnc-build-status-icon>
+    <a ng-if="$ctrl.buildRecord" ui-sref="build-records.detail.default({ recordId: $ctrl.item.id })" ng-click="$ctrl.stopPropagation && $event.stopPropagation()"># {{ $ctrl.item.id }}</a>
+    <a ng-if="$ctrl.buildGroupRecord" ui-sref="build-group-records.detail({ id: $ctrl.item.id })"># {{ $ctrl.item.id }}</a>
+    <span title="End Time">{{ $ctrl.item.endTime | date:'medium' }}</span>
+    <span title="Start Time" ng-hide="$ctrl.item.endTime">{{ $ctrl.item.startTime | date:'medium' }}</span>
+    <span ng-show="$ctrl.item.username">,</span>
+    <span class="text-bold">{{ $ctrl.item.username }}</span>
+  </div>
+  <em ng-show="!$ctrl.item && $ctrl.isLoaded">none</em>
+  <div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>
 </div>
 <em ng-show="!$ctrl.item && $ctrl.isLoaded">none</em>
 <div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>

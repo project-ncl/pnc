@@ -316,5 +316,36 @@
   }
 }
 
+.build-status-table .pnc-build-status {
+  min-width: 310px;
+  height: 28px;
+}
+
+
+table.build-status-table tr > td {
+  vertical-align: middle;
+}
+
+.actions-table tr > td:last-child {
+  width: 1%;
+  padding: 0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.actions-table tr > td:last-child .btn-group {
+  display: flex;
+}
+
+.actions-table tr > td:last-child .btn-block + .btn-block {
+  margin-top: 0;
+}
+
+.build-status-table.actions-table tr > td:last-child .btn-block {
+  height: 34px;
+}
+
+
+
 
 
