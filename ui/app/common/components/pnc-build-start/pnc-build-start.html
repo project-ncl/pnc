@@ -35,7 +35,7 @@
     <div class="radio">
       <label>
         <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="false" ng-change="$ctrl.refreshBuildTypes()"> Persistent
-        <a uib-popover="Standard build, which can be used for product release" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+        <a uib-popover="Standard build, which can be used for product release" popover-trigger="'outsideClick'" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
       </label>
@@ -43,7 +43,7 @@
     <div class="radio">
       <label>
         <input type="radio" name="buildStartType-{{$id}}" ng-model="$ctrl.params.temporaryBuild" ng-value="true" ng-change="$ctrl.refreshBuildTypes()"> Temporary
-        <a uib-popover="Test build, which cannot be used for product release and which will be garbage collected" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+        <a uib-popover="Test build, which cannot be used for product release and which will be garbage collected" popover-trigger="'outsideClick'" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
       </label>
@@ -81,7 +81,7 @@
         </dd>
       </dl>
     </div></script>
-    <a uib-popover-template="'rebuildModeTooltipTemplate.html'" popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
+    <a uib-popover-template="'rebuildModeTooltipTemplate.html'" popover-trigger="'outsideClick'" popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
       <span class="fa fa-info-circle"></span>
     </a>
 
@@ -97,7 +97,7 @@
     <div class="checkbox" ng-if="::$ctrl.buildConfig">
       <label>
         <input type="checkbox" ng-model="$ctrl.params.keepPodOnFailure"> keep pod alive
-        <a uib-popover="The builder container won't be destroyed if the build fails and you can use SSH to debug it" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+        <a uib-popover="The builder container won't be destroyed if the build fails and you can use SSH to debug it" popover-trigger="'outsideClick'" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
       </label>
@@ -105,7 +105,7 @@
     <div class="checkbox" ng-if="::$ctrl.buildConfig">
       <label>
         <input type="checkbox" ng-model="$ctrl.params.buildDependencies"> with dependencies
-        <a uib-popover="Build also dependencies of this build configuration if they are not built yet" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+        <a uib-popover="Build also dependencies of this build configuration if they are not built yet" popover-trigger="'outsideClick'" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
       </label>
@@ -113,7 +113,7 @@
     <div class="checkbox" ng-class="{'disabled-option': !$ctrl.params.temporaryBuild}" title="{{ !$ctrl.params.temporaryBuild ? 'Not valid option' : '' }}">
       <label>
         <input type="checkbox" ng-model="$ctrl.params.timestampAlignment"> timestamp alignment
-        <a uib-popover="Append timestamp to the artifact's maven version during the alignment phase" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
+        <a uib-popover="Append timestamp to the artifact's maven version during the alignment phase" popover-trigger="'outsideClick'" popover-placement="top" popover-class="popover-info-tip" popover-append-to-body="true" href>
           <span class="fa fa-info-circle"></span>
         </a>
       </label>
@@ -129,7 +129,7 @@
         build
         <span ng-show="$ctrl.params.buildDependencies">
           applying the same Rebuild Mode also to explicitly defined dependencies
-          <a uib-popover="Not implicit (automatically captured) ones - those are used only to determine if the rebuild is required" popover-placement="bottom" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <a uib-popover="Not implicit (automatically captured) ones - those are used only to determine if the rebuild is required" popover-trigger="'outsideClick'" popover-placement="bottom" popover-class="popover-info-tip" popover-append-to-body="true" href>
             <span class="fa fa-info-circle"></span>
           </a>
         </span>
