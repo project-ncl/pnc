@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
+<table class="table table-bordered table-striped table-hover build-status-table actions-table" ng-show="$ctrl.showTable()">
   <thead>
     <th ng-if="::$ctrl.showColumn('name')">Name</th>
     <th ng-if="::$ctrl.showColumn('project')">Project</th>
@@ -43,7 +43,7 @@
       <td ng-if="::$ctrl.showColumn('buildStatus')">
         <pnc-latest-build build-config="buildConfig"></pnc-latest-build>
       </td>
-      <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
+      <td ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
     </tr>
   </tbody>
 </table>
