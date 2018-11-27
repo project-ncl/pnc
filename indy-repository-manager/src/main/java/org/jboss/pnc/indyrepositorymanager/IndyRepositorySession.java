@@ -220,31 +220,48 @@ public class IndyRepositorySession implements RepositorySession {
 
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
         if (downloads != null) {
-            Map<StoreKey, Set<String>> toPromote = new HashMap<>();
+            Map<StoreKey, Map<StoreKey, Set<String>>> toPromote = new HashMap<>();
 
+            Map<String, StoreKey> promotionTargets = new HashMap<>();
             for (TrackedContentEntryDTO download : downloads) {
                 String path = download.getPath();
-                StoreKey storeKey = download.getStoreKey();
-                String packageType = storeKey.getPackageType();
+                StoreKey source = download.getStoreKey();
+                String packageType = source.getPackageType();
                 if (ignoreContent(packageType, path)) {
-                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), storeKey);
+                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), source);
                     continue;
                 }
 
-                // We don't promote stuff coming through generic proxy, because the remote repos are configured per-build
-                // and the cached data never expire and also we don't want to share binaries with other builds
-                if (!GENERIC_PKG_KEY.equals(packageType)) {
-                    // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
-                    // New binary imports will be coming from a remote repository...
-                    if (isExternalOrigin(storeKey) && StoreType.hosted != storeKey.getType()) {
-                        // this has not been captured, so promote it.
-                        Set<String> paths = toPromote.get(storeKey);
-                        if (paths == null) {
-                            paths = new HashSet<>();
-                            toPromote.put(storeKey, paths);
-                        }
 
-                        paths.add(path);
+                // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
+                // New binary imports will be coming from a remote repository...
+                if (isExternalOrigin(source) && StoreType.hosted != source.getType()) {
+                    StoreKey target = null;
+                    Map<StoreKey, Set<String>> sources = null;
+                    Set<String> paths = null;
+
+                    // this has not been captured, so promote it.
+                    switch (packageType) {
+                        case MAVEN_PKG_KEY:
+                        case NPM_PKG_KEY:
+                            target = getPromotionTarget(packageType, promotionTargets);
+                            sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
+                            paths = sources.computeIfAbsent(source, s -> new HashSet<>());
+
+                            paths.add(download.getPath());
+                            break;
+
+                        case GENERIC_PKG_KEY:
+                            target = new StoreKey(source.getPackageType(), StoreType.hosted, source.getName());
+                            sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
+                            paths = sources.computeIfAbsent(source, s -> new HashSet<>());
+
+                            paths.add(download.getPath());
+                            break;
+
+                        default:
+                            // do not promote anything else anywhere
+                            break;
                     }
                 }
 
@@ -259,7 +276,7 @@ public class IndyRepositorySession implements RepositorySession {
                 }
 
                 TargetRepository.Type repoType = toRepoType(packageType);
-                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, storeKey, content);
+                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, source, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -277,12 +294,13 @@ public class IndyRepositorySession implements RepositorySession {
                 deps.add(artifact);
             }
 
-            Map<String, StoreKey> promotionTargets = new HashMap<>();
-            for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
-                StoreKey source = entry.getKey();
-                StoreKey target = getPromotionTarget(source.getPackageType(), promotionTargets);
-                PathsPromoteRequest req = new PathsPromoteRequest(source, target, entry.getValue()).setPurgeSource(false);
-                doPromoteByPath(req);
+            for (Map.Entry<StoreKey, Map<StoreKey, Set<String>>> targetToSources : toPromote.entrySet()) {
+                StoreKey target = targetToSources.getKey();
+                for (Map.Entry<StoreKey, Set<String>> sourceToPaths : targetToSources.getValue().entrySet()) {
+                    StoreKey source = sourceToPaths.getKey();
+                    PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue()).setPurgeSource(false);
+                    doPromoteByPath(req);
+                }
             }
         }
 
