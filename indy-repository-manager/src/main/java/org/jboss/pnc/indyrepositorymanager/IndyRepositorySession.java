@@ -299,7 +299,8 @@ public class IndyRepositorySession implements RepositorySession {
                 for (Map.Entry<StoreKey, Set<String>> sourceToPaths : targetToSources.getValue().entrySet()) {
                     StoreKey source = sourceToPaths.getKey();
                     PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue()).setPurgeSource(false);
-                    doPromoteByPath(req);
+                    // set read-only only the generic http proxy hosted repos, not shared-imports
+                    doPromoteByPath(req, GENERIC_PKG_KEY.equals(target.getPackageType()));
                 }
             }
         }
@@ -541,10 +542,11 @@ public class IndyRepositorySession implements RepositorySession {
      *
      * @param req The promotion request to process, which contains source and target store keys, and (optionally) the set of
      *        paths to promote
+     * @param setReadonly flag telling if the target repo should be set to readOnly
      * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
      *         transport, or if the promotion process results in an error.
      */
-    private void doPromoteByPath(PathsPromoteRequest req) throws RepositoryManagerException {
+    private void doPromoteByPath(PathsPromoteRequest req, boolean setReadonly) throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
@@ -554,7 +556,26 @@ public class IndyRepositorySession implements RepositorySession {
 
         try {
             PathsPromoteResult result = promoter.promoteByPath(req);
-            if (result.getError() != null) {
+            if (result.getError() == null) {
+                if (setReadonly && !isTempBuild) {
+                    HostedRepository hosted = serviceAccountIndy.stores().load(req.getTarget(), HostedRepository.class);
+                    hosted.setReadonly(true);
+                    try {
+                        serviceAccountIndy.stores().update(hosted, "Setting readonly after successful build and promotion.");
+                    } catch (IndyClientException ex) {
+                        try {
+                            promoter.rollbackPathPromote(result);
+                        } catch (IndyClientException ex2) {
+                            logger.error("Failed to set readonly flag on repo: %s. Reason given was: %s.", ex, req.getTarget(), ex.getMessage());
+                            throw new RepositoryManagerException(
+                                    "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason given was: %s",
+                                    ex2, req.getSource(), req.getTarget(), ex2.getMessage());
+                        }
+                        throw new RepositoryManagerException("Failed to set readonly flag on repo: %s. Reason given was: %s",
+                                ex, req.getTarget(), ex.getMessage());
+                    }
+                }
+            } else {
                 String addendum = "";
                 try {
                     PathsPromoteResult rollback = promoter.rollbackPathPromote(result);
