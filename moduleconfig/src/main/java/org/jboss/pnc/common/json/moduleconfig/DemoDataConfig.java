@@ -20,6 +20,9 @@ package org.jboss.pnc.common.json.moduleconfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DemoDataConfig extends AbstractModuleConfig{
 
     public static String MODULE_NAME = "demo-data-config";
@@ -28,25 +31,22 @@ public class DemoDataConfig extends AbstractModuleConfig{
      * Import initial data on application boot
      */
     private Boolean importDemoData;
-    private String internalRepo1;
-    private String internalRepo2;
-    private String internalRepo3;
-    private String internalRepo4;
-    private String internalRepo5;
+
+    public List<String> getInternalRepos() {
+        return internalRepos;
+    }
+
+    public void setInternalRepos(List<String> internalRepos) {
+        this.internalRepos = internalRepos;
+    }
+
+    private List<String> internalRepos;
 
     public DemoDataConfig(@JsonProperty("importDemoData") Boolean importDemoData,
-            @JsonProperty(value = "internalRepo1") String internalRepo1,
-            @JsonProperty(value = "internalRepo2") String internalRepo2,
-            @JsonProperty(value = "internalRepo3") String internalRepo3,
-            @JsonProperty(value = "internalRepo4") String internalRepo4,
-            @JsonProperty(value = "internalRepo5") String internalRepo5) {
+            @JsonProperty(value = "internalRepos") List<String> internalRepos) {
         super();
         this.importDemoData = importDemoData;
-        this.internalRepo1 = internalRepo1 == null ? "ssh://git@github.com:22/project-ncl/pnc.git" : internalRepo1;
-        this.internalRepo2 = internalRepo2 == null ? "ssh://git@github.com:22/project-ncl/termd.git" : internalRepo2;
-        this.internalRepo3 = internalRepo3 == null ? "ssh://git@github.com:22/project-ncl/pnc-build-agent.git" : internalRepo3;
-        this.internalRepo4 = internalRepo4 == null ? "ssh://git@github.com:22/project-ncl/dependency-analysis.git" : internalRepo4;
-        this.internalRepo5 = internalRepo5 == null ? "ssh://git@github.com:22/project-ncl/causeway.git" : internalRepo5;
+        this.internalRepos = internalRepos == null ? new ArrayList<>() : internalRepos;
     }
 
     public void setImportDemoData(Boolean importDemoData) {
@@ -55,46 +55,6 @@ public class DemoDataConfig extends AbstractModuleConfig{
 
     public Boolean getImportDemoData() {
         return importDemoData;
-    }
-
-    public String getInternalRepo1() {
-        return internalRepo1;
-    }
-
-    public void setInternalRepo1(String internalRepo1) {
-        this.internalRepo1 = internalRepo1;
-    }
-
-    public String getInternalRepo2() {
-        return internalRepo2;
-    }
-
-    public void setInternalRepo2(String internalRepo2) {
-        this.internalRepo2 = internalRepo2;
-    }
-
-    public String getInternalRepo3() {
-        return internalRepo3;
-    }
-
-    public void setInternalRepo3(String internalRepo3) {
-        this.internalRepo3 = internalRepo3;
-    }
-
-    public String getInternalRepo4() {
-        return internalRepo4;
-    }
-
-    public void setInternalRepo4(String internalRepo4) {
-        this.internalRepo4 = internalRepo4;
-    }
-
-    public String getInternalRepo5() {
-        return internalRepo5;
-    }
-
-    public void setInternalRepo5(String internalRepo5) {
-        this.internalRepo5 = internalRepo5;
     }
 
     @Override

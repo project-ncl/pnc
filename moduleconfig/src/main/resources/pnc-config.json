@@ -27,7 +27,13 @@
                 },
                 {
                     "@module-config": "demo-data-config",
-                    "importDemoData": true
+                    "importDemoData": true,
+                    "internalRepos": ["ssh://git@github.com:22/project-ncl/pnc.git",
+                        "ssh://git@github.com:22/project-ncl/termd.git",
+                        "ssh://git@github.com:22/project-ncl/pnc-build-agent.git",
+                        "ssh://git@github.com:22/project-ncl/dependency-analysis.git",
+                        "ssh://git@github.com:22/project-ncl/causeway.git"
+                        ]
                 },
                 {
                     "@module-config": "termd-build-driver",
