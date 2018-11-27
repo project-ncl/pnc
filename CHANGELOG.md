@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4077] Send revision information to Maitai and Repour on build configuration creation. This helps syncing only the particular revision provided by the user, avoiding potential merge conflicts with other branches that we do not use for building
 - [NCL-4236] Any authenticated user can create/edit/delete stuff. Before it was restricted to authenticated users having 'user' role
 - [NCL-3643] Added NPM-specific identifier format
+- [NCL-4117] Restricted editing of productVersion name when having a closed milestone to keep consistency with external data
 
 
 ## [1.4.3]
