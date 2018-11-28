@@ -230,12 +230,11 @@ public class MavenRepositorySession implements RepositorySession {
 
             for (TrackedContentEntryDTO download : downloads) {
                 String path = download.getPath();
+                StoreKey source = download.getStoreKey();
                 if (ignoreContent(path)) {
-                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), download.getStoreKey());
+                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), source);
                     continue;
                 }
-
-                StoreKey source = download.getStoreKey();
 
                 // If the entry is from a hosted repository, it shouldn't be auto-promoted.
                 // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
