@@ -71,6 +71,14 @@ if (angular.isUndefined(window.pnc)) {
 
     console.info('Starting UI with configuration: ' + JSON.stringify(config, null, 2));
 
+    /* 
+     * Override PatternFly sidebar function computing min-height for sidebar and content part.
+     * JavaScript is not needed anymore, CSS already provides sufficient and more robust way to do it.
+     * 
+     * https://github.com/patternfly/patternfly/blob/master/src/js/patternfly-functions-sidebar.js
+     */
+    window.jQuery.fn.sidebar = angular.noop;
+
     angular.element(document).ready(function () {
       var keycloak;
       var kcInitParams = {
