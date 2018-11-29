@@ -165,7 +165,7 @@
         var attrClass = '';
         if (expandOptions) {
           if ((expandOptions.expandLevel && level > expandOptions.expandLevel) || 
-              (expandOptions.expandFailed && build.status === 'DONE' && !isCurrentPageBuild)) {
+              (expandOptions.expandFailed && (build.status === 'DONE' || build.status === 'REJECTED_ALREADY_BUILT') && !isCurrentPageBuild)) {
             attrClass += 'collapsed';
           }
         }
