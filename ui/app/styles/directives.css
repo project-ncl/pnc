@@ -100,10 +100,6 @@
 /**
  * my-builds-panel
  */
-.build-panel {
-    min-height: 539px;
-}
-
 .running-build-panel {
     min-height: 71px;
 }
@@ -143,6 +139,10 @@
 /**
  * pnc-page-controls
  */
+.pnc-page-controls {
+  margin: 10px 0;
+}
+
 .pnc-page-controls label,input,.btn,.of-x-pages {
     vertical-align: middle;
 }
@@ -151,8 +151,21 @@
   margin-bottom: 0;
 }
 
-.pnc-page-controls > .form-group {
+.pnc-page-controls .pnc-page-controls-size {
+  position: relative;
+  top: 1px;
   margin-right: 1em;
+  display: inline-block;
+}
+
+.pnc-page-controls .pnc-page-controls-size select {
+  height: 22px;
+}
+
+.pnc-page-controls .pnc-page-controls-pager {
+  white-space: nowrap;
+  display: inline-block;
+  margin-top: 5px;
 }
 
 .pnc-page-controls .pnc-page-controls-pager input,.of-x-pages {
@@ -161,6 +174,7 @@
 
 .pnc-page-controls .pnc-page-controls-pager input {
   margin-left: 0.5rem;
+  height: 22px;
 }
 
 .pnc-page-controls > .pnc-page-controls-size .btn-group.bootstrap-select {
