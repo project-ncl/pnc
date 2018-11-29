@@ -34,15 +34,11 @@ import lombok.Data;
 @Data
 public class Project extends ProjectRef {
 
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final RepositoryConfiguration repositoryConfiguration;
-
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder")
-    public Project(RepositoryConfiguration repositoryConfiguration, List<BuildConfigurationRef> buildConfigurations, Integer id, String name, String description, String issueTrackerUrl, String projectUrl) {
+    public Project(List<BuildConfigurationRef> buildConfigurations, Integer id, String name, String description, String issueTrackerUrl, String projectUrl) {
         super(id, name, description, issueTrackerUrl, projectUrl);
-        this.repositoryConfiguration = repositoryConfiguration;
         this.buildConfigurations = buildConfigurations;
     }
 
