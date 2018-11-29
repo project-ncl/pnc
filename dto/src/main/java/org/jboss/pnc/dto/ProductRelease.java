@@ -36,16 +36,13 @@ import lombok.Data;
 public class ProductRelease extends ProductReleaseRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final RepositoryConfiguration repositoryConfiguration;
-
     private final ProductVersionRef productVersion;
 
     private final ProductMilestoneRef productMilestone;
 
     @lombok.Builder(builderClassName = "Builder")
-    public ProductRelease(RepositoryConfiguration repositoryConfiguration, ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
+    public ProductRelease(ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
         super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
-        this.repositoryConfiguration = repositoryConfiguration;
         this.productVersion = productVersion;
         this.productMilestone = productMilestone;
     }

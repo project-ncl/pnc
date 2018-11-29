@@ -46,12 +46,8 @@ public class RepositoryConfiguration implements DTOEntity {
     @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
     protected final String internalUrl;
 
-    protected final String internalUrlNormalized;
-
     @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
     protected final String externalUrl;
-
-    protected final String externalUrlNormalized;
 
     protected final Boolean preBuildSyncEnabled;
 
