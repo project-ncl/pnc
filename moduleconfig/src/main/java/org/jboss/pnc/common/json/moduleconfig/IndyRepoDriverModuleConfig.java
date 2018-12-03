@@ -239,6 +239,28 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
             }
         }
 
+        /**
+         * Gets the list of Generic-http strings.
+         * @return the list of Generic-http strings or empty list if no value is set (never {@code null})
+         */
+        public List<String> getGeneric() {
+            return generic == null ? Collections.emptyList() : generic;
+        }
+
+        /**
+         * Adds extra members to the list of Generic-http strings.
+         * @param addition added strings
+         */
+        public void addGeneric(List<String> addition) {
+            if (addition != null) {
+                if (generic == null) {
+                    generic = new ArrayList<>(addition);
+                } else {
+                    npm.addAll(addition);
+                }
+            }
+        }
+
     }
 
 
@@ -268,6 +290,13 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
             List<String> npmWithShared = (npm == null ? new ArrayList<>() : new ArrayList<>(npm));
             npmWithShared.addAll(getShared());
             return npmWithShared;
+        }
+
+        @JsonIgnore
+        public List<String> getGenericWithShared() {
+            List<String> genericWithShared = (generic == null ? new ArrayList<>() : new ArrayList<>(generic));
+            genericWithShared.addAll(getShared());
+            return genericWithShared;
         }
 
         /**
