@@ -186,6 +186,11 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
         @JsonInclude(Include.NON_EMPTY)
         protected List<String> npm;
 
+        @Setter
+        @JsonProperty("generic")
+        @JsonInclude(Include.NON_EMPTY)
+        protected List<String> generic;
+
         /**
          * Gets the list of Maven strings.
          * @return the list of Maven strings or empty list if no value is set (never {@code null})

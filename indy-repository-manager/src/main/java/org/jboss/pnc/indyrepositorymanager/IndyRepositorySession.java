@@ -398,6 +398,9 @@ public class IndyRepositorySession implements RepositorySession {
             case NPM_PKG_KEY:
                 patterns = internalRepoPatterns.getNpm();
                 break;
+            case GENERIC_PKG_KEY:
+                patterns = internalRepoPatterns.getGeneric();
+                break;
             default:
                 throw new IllegalArgumentException("Package type " + storeKey.getPackageType()
                         + " is not supported by Indy repository manager driver.");
