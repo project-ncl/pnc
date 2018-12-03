@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- [NCL-4219] Add generic proxy content promotion and set the promotion target as readonly 
+- [NCL-4219] Add generic proxy content promotion and set the promotion target as readonly
+- [NCL-4240] Add DB indexes on md5 and sha1 fields of Artifact model entity
 
 
 ## [1.4.2]
