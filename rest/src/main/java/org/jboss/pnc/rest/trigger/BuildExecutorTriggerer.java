@@ -23,7 +23,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.mdc.BuildTaskContext;
+import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.rest.executor.notifications.NotificationSender;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;

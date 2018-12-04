@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.common.mdc;
+package org.jboss.pnc.common.logging;
 
 import org.slf4j.MDC;
 
@@ -38,15 +38,15 @@ public class MDCUtils {
 
     public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Date temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
-        context.put("buildContentId", buildContentId);
-        context.put("temporaryBuild", temporaryBuild.toString());
-        context.put("expires", Long.toString(temporaryBuildExpireDate.getTime()));
+        context.put("ctx", buildContentId);
+        context.put("tmp", temporaryBuild.toString());
+        context.put("exp", Long.toString(temporaryBuildExpireDate.getTime()));
         MDC.setContextMap(context);
     }
 
     public static void addRequestContext(String requestContext) {
         Map<String, String> context = getContextMap();
-        context.put("requestContext", requestContext);
+        context.put("rCtx", requestContext);
         MDC.setContextMap(context);
     }
 

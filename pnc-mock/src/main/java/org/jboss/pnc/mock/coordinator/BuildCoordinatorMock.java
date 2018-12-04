@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mock.coordinator;
 
-import org.jboss.pnc.common.mdc.BuildTaskContext;
+import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
