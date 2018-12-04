@@ -15,35 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.spi.dto;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.dto.Build;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
-import java.util.Date;
+/**
+ *
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
+ */
+@Deprecated
+@Data
+@AllArgsConstructor
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+public class ProjectRef implements DTOEntity {
+    protected final Integer id;
 
-public interface BuildCoordinationStatusChangedEvent {
+    protected final String name;
 
-    BuildCoordinationStatus getOldStatus();
+    protected final String description;
 
-    @Deprecated
-    BuildCoordinationStatus getNewStatus();
+    protected final String issueTrackerUrl;
 
-    @Deprecated
-    Integer getBuildTaskId();
-    @Deprecated
-    Integer getUserId();
-    @Deprecated
-    Integer getBuildConfigurationId();
-    @Deprecated
-    Integer getBuildConfigurationRevision();
-    @Deprecated
-    String getBuildConfigurationName();
-    @Deprecated
-    Date getBuildStartTime();
-    @Deprecated
-    Date getBuildEndTime();
+    protected final String projectUrl;
 
-    Build getBuild();
-
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class Builder {
+    }
 }

@@ -23,11 +23,13 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
+import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.spi.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -76,6 +78,7 @@ public class WebSocketsNotificationTest {
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         restWar.addClass(WebSocketsNotificationTest.class);
         restWar.addClass(NotificationCollector.class);
+        restWar.addClass(BuildMock.class);
         restWar.addPackage(NotificationsEndpoint.class.getPackage());
         restWar.addPackage(Notifier.class.getPackage());
         logger.info(enterpriseArchive.toString(true));
@@ -98,9 +101,16 @@ public class WebSocketsNotificationTest {
     @InSequence(2)
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         // given
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, 1, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildCoordinationStatus\":\"DONE\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\",\"buildStartTime\":1453118400000,\"buildEndTime\":1453122000000}}";
+        Build build = BuildMock.newBuild(BuildCoordinationStatus.DONE, "Build1");
+
+        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
+                build,
+                BuildCoordinationStatus.NEW,
+                new Date(1453118400000L),
+                new Date(1453122000000L)
+        );
+
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildCoordinationStatus\":\"DONE\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\",\"buildStartTime\":1453118400000,\"buildEndTime\":1453122000000,\"build\":{\"project\":{\"id\":1,\"name\":\"A\",\"description\":\"desc\",\"issueTrackerUrl\":\"url1\",\"projectUrl\":\"url2\"},\"repository\":{\"id\":1,\"internalUrl\":\"url1\",\"externalUrl\":\"url2\",\"preBuildSyncEnabled\":true},\"buildEnvironmentId\":{\"id\":1,\"name\":\"jdk8\",\"description\":\"desc\",\"systemImageRepositoryUrl\":\"url\",\"systemImageId\":\"11\",\"attributes\":{},\"systemImageType\":\"DOCKER_IMAGE\",\"deprecated\":true},\"attributes\":{},\"user\":{\"id\":1,\"username\":\"user\"},\"buildConfigurationAudited\":{\"id\":1,\"rev\":1,\"name\":\"Build1\",\"description\":\"desc\",\"buildScript\":\"true\",\"scmRevision\":\"awqs21\"},\"dependentBuildIds\":[],\"dependencyBuildIds\":[],\"id\":1,\"status\":\"DONE\",\"buildContentId\":\"build-42\",\"temporaryBuild\":true}}}";
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);

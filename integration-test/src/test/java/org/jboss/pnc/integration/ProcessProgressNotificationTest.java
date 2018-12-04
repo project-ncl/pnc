@@ -22,6 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
+import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.rest.notifications.websockets.Action;
 import org.jboss.pnc.rest.notifications.websockets.MessageType;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
@@ -30,6 +31,7 @@ import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.spi.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -81,6 +83,7 @@ public class ProcessProgressNotificationTest {
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         restWar.addClass(ProcessProgressNotificationTest.class);
         restWar.addClass(NotificationCollector.class);
+        restWar.addClass(BuildMock.class);
         restWar.addPackage(NotificationsEndpoint.class.getPackage());
         restWar.addPackage(Notifier.class.getPackage());
         logger.info(enterpriseArchive.toString(true));
@@ -103,8 +106,15 @@ public class ProcessProgressNotificationTest {
 
         // given
         Integer taskId = 1;
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, taskId, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+
+        Build build = BuildMock.newBuild(taskId, BuildCoordinationStatus.DONE, "Build1");
+
+        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
+                build,
+                BuildCoordinationStatus.NEW,
+                new Date(1453118400000L),
+                new Date(1453122000000L)
+        );
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);

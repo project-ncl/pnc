@@ -63,10 +63,10 @@ public class BuildStatusMQNotifications {
     private void send(MessageSender ms, BuildCoordinationStatusChangedEvent event) {
         Status newStatus = toMqStatus(event.getNewStatus());
         if (newStatus != null) {
+
             Message message = new BuildStatusChanged(
                     toStringStatus(getOldStatus(event.getOldStatus())),
-                    toStringStatus(newStatus),
-                    event.getBuildTaskId().toString()
+                    event.getBuild()
             );
             ms.sendToTopic(message, prepareHeaders(event));
         }

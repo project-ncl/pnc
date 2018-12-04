@@ -31,6 +31,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
@@ -44,6 +45,11 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.dto.Build;
+import org.jboss.pnc.spi.dto.BuildConfigurationRevisionRef;
+import org.jboss.pnc.spi.dto.BuildEnvironment;
+import org.jboss.pnc.spi.dto.ProjectRef;
+import org.jboss.pnc.spi.dto.RepositoryConfiguration;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -59,6 +65,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +75,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
@@ -451,21 +459,79 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
         BuildCoordinationStatus oldStatus = task.getStatus();
-        Integer userId = Optional.ofNullable(task.getUser()).map(User::getId).orElse(null);
 
-        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
-                oldStatus,
-                status,
+        BuildConfigurationAudited buildConfigurationAudited = task.getBuildConfigurationAudited();
+        Project projectDb = task.getBuildConfigurationAudited().getProject();
+        ProjectRef project = new ProjectRef(
+                projectDb.getId(),
+                projectDb.getName(),
+                projectDb.getDescription(),
+                projectDb.getIssueTrackerUrl(),
+                projectDb.getProjectUrl()
+        );
+
+        org.jboss.pnc.model.RepositoryConfiguration repositoryConfiguration = task.getBuildConfigurationAudited()
+                .getRepositoryConfiguration();
+        RepositoryConfiguration repository = new RepositoryConfiguration(
+                repositoryConfiguration.getId(),
+                repositoryConfiguration.getInternalUrl(),
+                repositoryConfiguration.getExternalUrl(),
+                repositoryConfiguration.isPreBuildSyncEnabled()
+        );
+
+        org.jboss.pnc.model.BuildEnvironment buildEnvironmentDb = buildConfigurationAudited.getBuildEnvironment();
+        BuildEnvironment buildEnvironment = new BuildEnvironment(
+                buildEnvironmentDb.getId(),
+                buildEnvironmentDb.getName(),
+                buildEnvironmentDb.getDescription(),
+                buildEnvironmentDb.getSystemImageRepositoryUrl(),
+                buildEnvironmentDb.getSystemImageId(),
+                buildEnvironmentDb.getAttributes(),
+                buildEnvironmentDb.getSystemImageType(),
+                buildEnvironmentDb.isDeprecated()
+        );
+
+        User userDb = task.getUser();
+        org.jboss.pnc.spi.dto.User user = new org.jboss.pnc.spi.dto.User(
+                userDb.getId(),
+                userDb.getUsername()
+        );
+
+        BuildConfigurationRevisionRef buildConfigurationRevisionRef = new BuildConfigurationRevisionRef(
+                buildConfigurationAudited.getId(),
+                buildConfigurationAudited.getRev(),
+                buildConfigurationAudited.getName(),
+                buildConfigurationAudited.getDescription(),
+                buildConfigurationAudited.getBuildScript(),
+                buildConfigurationAudited.getScmRevision()
+        );
+
+        List<Integer> dependants = task.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
+        List<Integer> dependencies = task.getDependencies().stream().map(t -> t.getId()).collect(Collectors.toList());
+        Build build = new Build(
+                project,
+                repository,
+                buildEnvironment,
+                Collections.<String,String>emptyMap(),
+                user,
+                buildConfigurationRevisionRef,
+                dependants,
+                dependencies,
                 task.getId(),
-                task.getBuildConfigurationAudited().getId(),
-                task.getBuildConfigurationAudited().getRev(),
-                task.getBuildConfigurationAudited().getName(),
+                status,
+                task.getContentId(),
+                task.getBuildOptions().isTemporaryBuild()
+        );
+        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
+                build,
+                oldStatus,
                 task.getStartTime(),
-                task.getEndTime(),
-                userId);
+                task.getEndTime());
+
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
         if (status.isCompleted()) {
-            markFinished(task, status, statusDescription);
+            markFinished(task,
+                    status, statusDescription);
         } else {
             task.setStatus(status);
             task.setStatusDescription(statusDescription);
