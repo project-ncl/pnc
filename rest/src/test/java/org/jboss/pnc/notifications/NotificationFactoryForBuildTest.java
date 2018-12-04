@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.notifications;
 
+import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.spi.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
 import org.jboss.pnc.spi.notifications.model.EventType;
@@ -37,8 +39,11 @@ public class NotificationFactoryForBuildTest {
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
 
         // given
-        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, 1, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+        String buildConfigurationName = "Build1";
+        Date startTime = new Date(1453118400000L);
+        Date endTime = new Date(1453122000000L);
+        Build build = BuildMock.newBuild(BuildCoordinationStatus.DONE, buildConfigurationName);
+        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(build, BuildCoordinationStatus.NEW, startTime, endTime);
 
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
@@ -50,9 +55,9 @@ public class NotificationFactoryForBuildTest {
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
         assertThat(((BuildChangedPayload)notification.getPayload()).getBuildCoordinationStatus()).isEqualTo(BuildCoordinationStatus.DONE);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationName()).isEqualTo("Build1");
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildStartTime()).isEqualTo(new Date(1453118400000L));
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildEndTime()).isEqualTo(new Date(1453122000000L));
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationName()).isEqualTo(buildConfigurationName);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildStartTime()).isEqualTo(startTime);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildEndTime()).isEqualTo(endTime);
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);

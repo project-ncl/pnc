@@ -17,29 +17,47 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.dto.Build;
 
 import java.util.Date;
 
-@JsonDeserialize(builder = BuildChangedPayload.BuildChangedPayloadBuilder.class)
+//@JsonDeserialize(builder = BuildChangedPayload.BuildChangedPayloadBuilder.class)
 @AllArgsConstructor
 @Builder
+//TODO 2.0 unify with BuildStatusChanged
 public class BuildChangedPayload implements NotificationPayload {
 
+    @Deprecated
     private final Integer id;
+    @Deprecated
     private final BuildCoordinationStatus buildCoordinationStatus;
+
+    @Deprecated
     private final Integer userId;
+    @Deprecated
     private final Integer buildConfigurationId;
+    @Deprecated
     private final String buildConfigurationName;
+    @Deprecated
     private final Date buildStartTime;
+    @Deprecated
     private final Date buildEndTime;
 
-    public BuildChangedPayload(Integer id, BuildCoordinationStatus eventType, Integer buildConfigurationId,
-            String buildConfigurationName, Date buildStartTime, Date buildEndTime, Integer userId) {
+    private final Build build;
+
+    @Deprecated
+    public BuildChangedPayload(
+            Integer id,
+            BuildCoordinationStatus eventType,
+            Integer buildConfigurationId,
+            String buildConfigurationName,
+            Date buildStartTime,
+            Date buildEndTime,
+            Integer userId) {
         this.id = id;
         this.buildCoordinationStatus = eventType;
         this.userId = userId;
@@ -47,6 +65,22 @@ public class BuildChangedPayload implements NotificationPayload {
         this.buildConfigurationName = buildConfigurationName;
         this.buildStartTime = buildStartTime;
         this.buildEndTime = buildEndTime;
+        this.build = null;
+    }
+
+    public BuildChangedPayload(
+            Build build,
+            @Deprecated Date buildStartTime, //TODO remove in 2.0 it should be part of the build
+            @Deprecated Date buildEndTime //TODO remove in 2.0 it should be part of the build
+    ) {
+        this.id = build.getId();
+        this.buildCoordinationStatus = build.getStatus();
+        this.userId = build.getUser().getId();
+        this.buildConfigurationId = build.getBuildConfigurationAudited().getId();
+        this.buildConfigurationName = build.getBuildConfigurationAudited().getName();
+        this.buildStartTime = buildStartTime;
+        this.buildEndTime = buildEndTime;
+        this.build = build;
     }
 
     public BuildCoordinationStatus getBuildCoordinationStatus() {
@@ -77,6 +111,10 @@ public class BuildChangedPayload implements NotificationPayload {
 
     public Date getBuildEndTime() {
         return buildEndTime;
+    }
+
+    public Build getBuild() {
+        return build;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

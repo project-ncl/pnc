@@ -92,10 +92,10 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildOptions.setBuildDependencies(false);
 
         //when
-        coordinator.build(testConfiguration, null, buildOptions);
+        coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
-        coordinator.build(testConfiguration, null, buildOptions);
+        coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
         //then
@@ -119,13 +119,13 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildOptions.setBuildDependencies(false);
 
         //when
-        coordinator.build(testConfiguration, null, buildOptions);
+        coordinator.build(testConfiguration, user, buildOptions);
         BuildConfiguration updatedConfiguration = updateConfiguration(testConfiguration);
 
         BuildSetTask buildSetTask;
         boolean rejected = false;
         try {
-            buildSetTask = coordinator.build(updatedConfiguration, null, buildOptions);
+            buildSetTask = coordinator.build(updatedConfiguration, user, buildOptions);
         } catch (BuildConflictException e) {
             rejected = true;
         }
@@ -147,8 +147,8 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         BuildOptions buildOptions = new BuildOptions();
 
         //when
-        coordinator.build(configurationB, null, buildOptions);
-        coordinator.build(configurationA, null, buildOptions);
+        coordinator.build(configurationB, user, buildOptions);
+        coordinator.build(configurationA, user, buildOptions);
 
         //then
         new PullingMonitor().monitor(() -> {},
@@ -171,7 +171,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         BuildOptions buildOptions = new BuildOptions();
 
         //when
-        coordinator.build(testConfiguration, null, buildOptions);
+        coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
         //then
@@ -188,12 +188,12 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         testConfiguration.addDependency(dependency);
         BuildOptions buildOptions = new BuildOptions();
 
-        coordinator.build(dependency, null, buildOptions);
+        coordinator.build(dependency, user, buildOptions);
         waitForEmptyBuildQueue();
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
 
         //when
-        coordinator.build(testConfiguration, null, buildOptions);
+        coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
         //then
@@ -207,10 +207,10 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         //when
-        coordinator.build(configA, null, buildOptions);
+        coordinator.build(configA, user, buildOptions);
         waitForEmptyBuildQueue();
 
-        coordinator.build(configA, null, buildOptions);
+        coordinator.build(configA, user, buildOptions);
         waitForEmptyBuildQueue();
 
         //then
@@ -223,11 +223,11 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
         //when
         BuildOptions buildOptions1 = new BuildOptions();
-        coordinator.build(configSet, null, buildOptions1); //first build
+        coordinator.build(configSet, user, buildOptions1); //first build
         waitForEmptyBuildQueue();
 
         BuildOptions buildOptions2 = new BuildOptions();
-        coordinator.build(configSet, null, buildOptions2); // rebuild build
+        coordinator.build(configSet, user, buildOptions2); // rebuild build
         waitForEmptyBuildQueue();
 
         //then
@@ -241,11 +241,11 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         //when
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        coordinator.build(configSet, null, buildOptions); //first build
+        coordinator.build(configSet, user, buildOptions); //first build
         waitForEmptyBuildQueue();
 
 
-        coordinator.build(configSet, null, buildOptions); //forced rebuild build
+        coordinator.build(configSet, user, buildOptions); //forced rebuild build
         waitForEmptyBuildQueue();
         //then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();

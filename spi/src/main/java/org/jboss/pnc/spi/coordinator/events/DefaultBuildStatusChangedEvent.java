@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.coordinator.events;
 
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import java.util.Date;
@@ -33,7 +34,9 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     private final String buildConfigurationName;
     private final Date buildStartTime;
     private final Date buildEndTime;
+    private final Build build;
 
+    @Deprecated
     public DefaultBuildStatusChangedEvent(
             BuildCoordinationStatus oldStatus,
             BuildCoordinationStatus newStatus,
@@ -53,7 +56,43 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
         this.buildStartTime = buildStartTime;
         this.buildEndTime = buildEndTime;
         this.userId = userId;
+        this.build = null;
     }
+
+    @Deprecated
+    public DefaultBuildStatusChangedEvent(
+            Build build,
+            BuildCoordinationStatus oldStatus,
+            Date buildStartTime,
+            Date buildEndTime) {
+        this.build = build;
+        this.oldStatus = oldStatus;
+        this.newStatus = build.getStatus();
+        this.buildTaskId = build.getId();
+        this.buildConfigurationId = build.getBuildConfigurationAudited().getId();
+        this.buildConfigurationRevision = build.getBuildConfigurationAudited().getRev();
+        this.buildConfigurationName = build.getBuildConfigurationAudited().getName();
+        this.buildStartTime = buildStartTime;
+        this.buildEndTime = buildEndTime;
+        this.userId = build.getUser().getId();
+    }
+
+    public DefaultBuildStatusChangedEvent(
+            Build build,
+            BuildCoordinationStatus oldStatus) {
+        this.build = build;
+        this.oldStatus = oldStatus;
+        this.newStatus = build.getStatus();
+        this.buildTaskId = build.getId();
+        this.buildConfigurationId = build.getBuildConfigurationAudited().getId();
+        this.buildConfigurationRevision = build.getBuildConfigurationAudited().getRev();
+        this.buildConfigurationName = build.getBuildConfigurationAudited().getName();
+        this.buildStartTime = null; //TODO 2.0
+        this.buildEndTime = null; //TODO 2.0
+        this.userId = build.getUser().getId();
+    }
+
+
 
     @Override
     public Integer getBuildTaskId() {
@@ -98,6 +137,11 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     @Override
     public Date getBuildEndTime() {
         return buildEndTime;
+    }
+
+    @Override
+    public Build getBuild() {
+        return build;
     }
 
     @Override

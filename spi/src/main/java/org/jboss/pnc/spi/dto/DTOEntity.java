@@ -15,35 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.spi.dto;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.dto.Build;
+/**
+ * A base interface for all DTO entities
+ * to allow generic implementation of some standard operations
+ */
+@Deprecated
+public interface DTOEntity {
 
-import java.util.Date;
-
-public interface BuildCoordinationStatusChangedEvent {
-
-    BuildCoordinationStatus getOldStatus();
-
-    @Deprecated
-    BuildCoordinationStatus getNewStatus();
-
-    @Deprecated
-    Integer getBuildTaskId();
-    @Deprecated
-    Integer getUserId();
-    @Deprecated
-    Integer getBuildConfigurationId();
-    @Deprecated
-    Integer getBuildConfigurationRevision();
-    @Deprecated
-    String getBuildConfigurationName();
-    @Deprecated
-    Date getBuildStartTime();
-    @Deprecated
-    Date getBuildEndTime();
-
-    Build getBuild();
+    /**
+     * Get the entity Id
+     *
+     * @return Id
+     */
+    Integer getId();
 
 }

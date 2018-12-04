@@ -15,35 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.mock.model;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.dto.Build;
+import org.jboss.pnc.model.RepositoryConfiguration;
 
-import java.util.Date;
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class RepositoryConfigurationMock {
 
-public interface BuildCoordinationStatusChangedEvent {
-
-    BuildCoordinationStatus getOldStatus();
-
-    @Deprecated
-    BuildCoordinationStatus getNewStatus();
-
-    @Deprecated
-    Integer getBuildTaskId();
-    @Deprecated
-    Integer getUserId();
-    @Deprecated
-    Integer getBuildConfigurationId();
-    @Deprecated
-    Integer getBuildConfigurationRevision();
-    @Deprecated
-    String getBuildConfigurationName();
-    @Deprecated
-    Date getBuildStartTime();
-    @Deprecated
-    Date getBuildEndTime();
-
-    Build getBuild();
-
+    public static RepositoryConfiguration newTestRepository() {
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
+        repositoryConfiguration.setId(1645886423);
+        repositoryConfiguration.setExternalUrl("externalUrl");
+        repositoryConfiguration.setInternalUrl("internalUrl");
+        repositoryConfiguration.setPreBuildSyncEnabled(true);
+        return repositoryConfiguration;
+    }
 }

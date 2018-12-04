@@ -87,7 +87,7 @@ public class DebugEndpoint {
                         new Date(),
                         null,
                         4
-                ));
+                        ));
             } else {
                 messageSender.get().sendToTopic("Test Message.");
             }

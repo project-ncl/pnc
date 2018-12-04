@@ -18,12 +18,14 @@
 package org.jboss.pnc.rest.debug;
 
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
 @XmlRootElement
+@Deprecated
 public class BuildStatusChangedEventRest implements BuildCoordinationStatusChangedEvent {
 
     private BuildCoordinationStatus oldStatus;
@@ -35,6 +37,7 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     private String buildConfigurationName;
     private Date buildStartTime;
     private Date buildEndTime;
+    private Build build;
 
     public void setOldStatus(BuildCoordinationStatus oldStatus) {
         this.oldStatus = oldStatus;
@@ -70,6 +73,10 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
 
     public void setBuildEndTime(Date buildEndTime) {
         this.buildEndTime = buildEndTime;
+    }
+
+    public void setBuild(Build build) {
+        this.build = build;
     }
 
     @Override
@@ -115,5 +122,10 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     @Override
     public Date getBuildEndTime() {
         return buildEndTime;
+    }
+
+    @Override
+    public Build getBuild() {
+        return build;
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.notifications;
 
+import org.jboss.pnc.spi.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
@@ -35,9 +36,11 @@ public class DefaultNotificationFactory implements NotificationFactory {
 
     @Override
     public Notification createNotification(BuildCoordinationStatusChangedEvent event) {
-        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildTaskId(), event.getNewStatus(),
-                event.getBuildConfigurationId(), event.getBuildConfigurationName(), event.getBuildStartTime(),
-                event.getBuildEndTime(), event.getUserId());
+        Build build = event.getBuild();
+        BuildChangedPayload payload = new BuildChangedPayload(
+                build,
+                event.getBuildStartTime(),
+                event.getBuildEndTime());
 
         return new Notification(EventType.BUILD_STATUS_CHANGED, null, payload);
     }
