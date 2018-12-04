@@ -252,7 +252,16 @@ public class IndyRepositorySession implements RepositorySession {
                             break;
 
                         case GENERIC_PKG_KEY:
-                            target = new StoreKey(source.getPackageType(), StoreType.hosted, source.getName());
+                            String remoteName = source.getName();
+                            String hostedName;
+                            if (remoteName.startsWith("r-")) {
+                                hostedName = "h-" + remoteName.substring(2);
+                            } else {
+                                logger.warn("Unexpected generic http remote repo name {}. Using it for hosted repo "
+                                        + "without change, but it probably doesn't exist.", remoteName);
+                                hostedName = remoteName;
+                            }
+                            target = new StoreKey(source.getPackageType(), StoreType.hosted, hostedName);
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
