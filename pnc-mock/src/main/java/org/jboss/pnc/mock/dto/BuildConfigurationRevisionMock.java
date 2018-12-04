@@ -15,20 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.test.event;
+package org.jboss.pnc.mock.dto;
 
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.junit.Assert;
-
-import javax.enterprise.event.Observes;
+import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class TestBuildStatusUpdates {
-    public void collectEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
-        Assert.assertNotEquals("Status update event should not be fired if there is no status updates. " + buildStatusChangedEvent,
-                buildStatusChangedEvent.getBuild().getStatus(),
-                buildStatusChangedEvent.getOldStatus());
+public class BuildConfigurationRevisionMock {
+
+    public static BuildConfigurationRevisionRef newBuildConfigurationRevisionRef() {
+        return newBuildConfigurationRevisionRef("name");
     }
+    public static BuildConfigurationRevisionRef newBuildConfigurationRevisionRef(String name) {
+        return BuildConfigurationRevisionRef.refBuilder()
+                .id(1)
+                .rev(1)
+                .name(name)
+                .description("desc")
+                .buildScript("true")
+                .scmRevision("awqs21")
+                .build();
+    }
+
 }

@@ -15,15 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.mock.dto;
 
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.dto.ProjectRef;
 
-public interface BuildCoordinationStatusChangedEvent {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class ProjectMock {
 
-    BuildCoordinationStatus getOldStatus();
-
-    Build getBuild();
+    public static ProjectRef newProjectRef() {
+        return ProjectRef.refBuilder()
+                .id(1)
+                .name("A")
+                .description("desc")
+                .projectUrl("url1")
+                .issueTrackerUrl("url2")
+                .build();
+    }
 
 }

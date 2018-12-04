@@ -15,15 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.mock.dto;
 
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.dto.User;
 
-public interface BuildCoordinationStatusChangedEvent {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class UserMock {
 
-    BuildCoordinationStatus getOldStatus();
-
-    Build getBuild();
-
+    public static User newUser() {
+        return User.builder()
+                .id(1)
+                .username("user")
+                .build();
+    }
 }

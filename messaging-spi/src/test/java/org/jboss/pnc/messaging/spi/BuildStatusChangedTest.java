@@ -19,6 +19,14 @@ package org.jboss.pnc.messaging.spi;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
+import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.User;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.SystemImageType;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +43,15 @@ public class BuildStatusChangedTest {
     @Test
     public void shouldSerializeObject() throws IOException {
         //given
-        String pncBuildId = "123";
+
+        Build build = getBuild();
+
         Status oldStatus = Status.ACCEPTED;
-        Status newStatus = Status.BUILDING;
-        BuildStatusChanged buildStatusChanged = new BuildStatusChanged(oldStatus.lowercase(), newStatus.lowercase(), pncBuildId);
+
+        BuildStatusChanged buildStatusChanged = BuildStatusChanged.builder()
+                .oldStatus(oldStatus.lowercase())
+                .build(build)
+                .buildMe();
 
         //when
         String serialized = buildStatusChanged.toJson();
@@ -49,5 +62,56 @@ public class BuildStatusChangedTest {
         //then
         Assertions.assertThat(deserialized).isEqualToComparingFieldByField(buildStatusChanged);
 
+    }
+
+    private Build getBuild() {
+        ProjectRef projectRef = ProjectRef.refBuilder()
+                .id(1)
+                .name("A")
+                .description("desc")
+                .projectUrl("url1")
+                .issueTrackerUrl("url2")
+                .build();
+
+        SCMRepository scmRepository = SCMRepository.builder()
+                .id(1)
+                .internalUrl("url1")
+                .externalUrl("url2")
+                .preBuildSyncEnabled(true)
+                .build();
+
+        BuildEnvironment buildEnvironment = BuildEnvironment.builder()
+                .id(1)
+                .name("jdk8")
+                .description("desc")
+                .systemImageRepositoryUrl("url")
+                .systemImageId("11")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .deprecated(true)
+                .build();
+
+        User user = User.builder()
+                .id(1)
+                .username("user")
+                .build();
+        BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
+                .id(1)
+                .rev(1)
+                .name("name")
+                .description("desc")
+                .buildScript("true")
+                .scmRevision("awqs21")
+                .build();
+
+        return Build.builder()
+                .project(projectRef)
+                .repository(scmRepository)
+                .environment(buildEnvironment)
+                .user(user)
+                .buildConfigurationAudited(buildConfigurationRevisionRef)
+                .status(BuildCoordinationStatus.BUILDING)
+                .buildContentId("build-42")
+                .temporaryBuild(true)
+                .build();
     }
 }

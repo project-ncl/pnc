@@ -112,9 +112,9 @@ public class BuildTriggerer {
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            if (statusChangedEvent.getNewStatus().isCompleted()) {
+            if (statusChangedEvent.getBuild().getStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getBuild().getStatus());
             }
         };
 

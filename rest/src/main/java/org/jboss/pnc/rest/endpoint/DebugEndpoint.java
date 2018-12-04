@@ -18,8 +18,9 @@
 package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.coordinator.builder.BuildQueue;
-import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
@@ -34,8 +35,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import java.util.Date;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -79,20 +78,23 @@ public class DebugEndpoint {
         } else {
             if (type != null && type.equals("status")) {
                 buildStatusChangedEventNotifier.fire(new DefaultBuildStatusChangedEvent(
-                        BuildCoordinationStatus.ENQUEUED,
-                        BuildCoordinationStatus.CANCELLED,
-                        1,
-                        2,
-                        3,
-                        "debug configuration name",
-                        new Date(),
-                        null,
-                        4
-                ));
+                        newBuild(),BuildCoordinationStatus.CANCELLED
+                        ));
             } else {
                 messageSender.get().sendToTopic("Test Message.");
             }
             return Response.ok().build();
         }
     }
+
+    public static Build newBuild() {
+        return Build.builder()
+                .id(1)
+                .status(BuildCoordinationStatus.ENQUEUED)
+                .buildContentId("build-42")
+                .temporaryBuild(true)
+                .build();
+    }
+
+
 }

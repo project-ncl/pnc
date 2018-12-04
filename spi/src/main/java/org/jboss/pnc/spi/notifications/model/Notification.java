@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.notifications.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 import java.io.IOException;
 
@@ -37,7 +38,7 @@ public class Notification {
     }
 
     public Notification(String serialized) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
         JsonNode node = objectMapper.readTree(serialized);
         String eventTypeString = node.get("eventType").asText();
         EventType eventType = EventType.valueOf(eventTypeString);

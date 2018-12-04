@@ -21,10 +21,13 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
+import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -45,7 +48,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
-
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.time.temporal.ChronoUnit;
@@ -77,6 +79,7 @@ public class WebSocketsNotificationTest {
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         restWar.addClass(WebSocketsNotificationTest.class);
         restWar.addClass(NotificationCollector.class);
+        restWar.addPackages(true, BuildMock.class.getPackage());
         restWar.addPackage(NotificationsEndpoint.class.getPackage());
         restWar.addPackage(Notifier.class.getPackage());
         logger.info(enterpriseArchive.toString(true));
@@ -99,9 +102,15 @@ public class WebSocketsNotificationTest {
     @InSequence(2)
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         // given
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, 1, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildCoordinationStatus\":\"DONE\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\",\"buildStartTime\":1453118400000,\"buildEndTime\":1453122000000}}";
+        Build build = BuildMock.newBuild(BuildCoordinationStatus.DONE, "Build1");
+
+        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
+                build,
+                BuildCoordinationStatus.NEW
+        );
+
+        String buildString = JsonOutputConverterMapper.apply(build);
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"oldStatus\":\"NEW\",\"build\":" + buildString + "}}";
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
@@ -114,9 +123,16 @@ public class WebSocketsNotificationTest {
     @InSequence(3)
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
         // given
-        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW,
-                BuildSetStatus.DONE, 1, 1, "BuildSet1", new Date(1453118400000L), new Date(1453122000000L), 1);
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\",\"buildSetStartTime\":1453118400000,\"buildSetEndTime\":1453122000000}}";
+        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
+                BuildSetStatus.NEW,
+                BuildSetStatus.DONE,
+                1,
+                1,
+                "BuildSet1",
+                new Date(1453118400000L),
+                new Date(1453122000000L),
+                1, "description");
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\",\"buildSetStartTime\":1453118400000,\"buildSetEndTime\":1453122000000,\"description\":\"description\"}}";
 
         //when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);

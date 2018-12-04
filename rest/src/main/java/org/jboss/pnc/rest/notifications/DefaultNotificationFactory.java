@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.notifications;
 
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
@@ -35,9 +36,11 @@ public class DefaultNotificationFactory implements NotificationFactory {
 
     @Override
     public Notification createNotification(BuildCoordinationStatusChangedEvent event) {
-        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildTaskId(), event.getNewStatus(),
-                event.getBuildConfigurationId(), event.getBuildConfigurationName(), event.getBuildStartTime(),
-                event.getBuildEndTime(), event.getUserId());
+        Build build = event.getBuild();
+        BuildChangedPayload payload = BuildChangedPayload.builder()
+                .oldStatus(event.getOldStatus().toString())
+                .build(build)
+                .buildMe();
 
         return new Notification(EventType.BUILD_STATUS_CHANGED, null, payload);
     }
@@ -46,7 +49,7 @@ public class DefaultNotificationFactory implements NotificationFactory {
     public Notification createNotification(BuildSetStatusChangedEvent event) {
         BuildSetChangedPayload payload = new BuildSetChangedPayload(event.getBuildSetTaskId(), event.getNewStatus(),
                 event.getBuildSetConfigurationId(), event.getBuildSetConfigurationName(), event.getBuildSetStartTime(),
-                event.getBuildSetEndTime(), event.getUserId());
+                event.getBuildSetEndTime(), event.getUserId(), event.getDescription());
 
         return new Notification(EventType.BUILD_SET_STATUS_CHANGED, null, payload);
     }

@@ -14,7 +14,7 @@
 - Section
 
 ### Fixed
-- [NCL-4314] Build with log containing 0 byte fails to store
+- Section
 
 ### Security
 - Section
@@ -36,7 +36,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4117] Restricted editing of productVersion name when having a closed milestone to keep consistency with external data
 - [NCL-4240] Add DB indexes on md5 and sha1 fields of Artifact model entity
 - [NCL-4300] Fixed updating of brew pushed status
-
+- [NCL-4282] Add Build to MQ message
+- [NCL-4290] Add Build to Websocket satus update
 
 ## [1.4.3]
 

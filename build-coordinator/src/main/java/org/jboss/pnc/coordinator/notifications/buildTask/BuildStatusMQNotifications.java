@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.notifications.buildTask;
 
+import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.messaging.spi.BuildStatusChanged;
 import org.jboss.pnc.messaging.spi.Message;
 import org.jboss.pnc.messaging.spi.MessageSender;
@@ -62,13 +63,14 @@ public class BuildStatusMQNotifications {
     }
 
     private void send(MessageSender ms, BuildCoordinationStatusChangedEvent event) {
-        Status newStatus = toMqStatus(event.getNewStatus());
+        Status newStatus = toMqStatus(event.getBuild().getStatus());
         if (newStatus != null) {
-            Message message = new BuildStatusChanged(
-                    toStringStatus(getOldStatus(event.getOldStatus())),
-                    toStringStatus(newStatus),
-                    event.getBuildTaskId().toString()
-            );
+
+            Message message = BuildStatusChanged.builder()
+                    .oldStatus(toStringStatus(getOldStatus(event.getOldStatus())))
+                    .build(event.getBuild())
+                    .buildMe();
+
             ms.sendToTopic(message, prepareHeaders(event));
         }
     }
@@ -86,14 +88,15 @@ public class BuildStatusMQNotifications {
     }
 
     private Map<String, String> prepareHeaders(BuildCoordinationStatusChangedEvent event) {
+        BuildConfigurationRevisionRef buildConfigurationAudited = event.getBuild().getBuildConfigurationAudited();
         Map<String, String> headers = new HashMap<>();
         headers.put("type", "BuildStateChange");
         headers.put("attribute", "state");
-        headers.put("name", event.getBuildConfigurationName());
-        headers.put("configurationId", event.getBuildConfigurationId().toString());
-        headers.put("configurationRevision", event.getBuildConfigurationRevision().toString());
+        headers.put("name", buildConfigurationAudited.getName());
+        headers.put("configurationId", buildConfigurationAudited.getId().toString());
+        headers.put("configurationRevision", buildConfigurationAudited.getRev().toString());
         headers.put("oldStatus", toStringStatus(getOldStatus(event.getOldStatus())));
-        headers.put("newStatus", toStringStatus(toMqStatus(event.getNewStatus())));
+        headers.put("newStatus", toStringStatus(toMqStatus(event.getBuild().getStatus())));
         return headers;
     }
 
