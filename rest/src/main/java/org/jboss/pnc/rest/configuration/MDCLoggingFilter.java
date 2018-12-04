@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.common.mdc.MDCUtils;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

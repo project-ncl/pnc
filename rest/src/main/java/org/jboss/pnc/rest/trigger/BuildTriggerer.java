@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.mdc.BuildTaskContext;
+import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
