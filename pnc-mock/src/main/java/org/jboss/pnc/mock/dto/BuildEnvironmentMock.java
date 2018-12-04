@@ -15,15 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.mock.dto;
 
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.enums.SystemImageType;
 
-public interface BuildCoordinationStatusChangedEvent {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class BuildEnvironmentMock {
 
-    BuildCoordinationStatus getOldStatus();
-
-    Build getBuild();
-
+    public static BuildEnvironment newBuildEnvironment() {
+        return BuildEnvironment.builder()
+            .id(1)
+            .name("jdk8")
+            .description("desc")
+            .systemImageRepositoryUrl("url")
+            .systemImageId("11")
+            .systemImageType(SystemImageType.DOCKER_IMAGE)
+            .deprecated(true)
+            .build();
+    }
 }

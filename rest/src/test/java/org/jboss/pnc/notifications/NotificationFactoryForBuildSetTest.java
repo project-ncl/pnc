@@ -36,8 +36,15 @@ public class NotificationFactoryForBuildSetTest {
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
 
         //given
-        DefaultBuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1,
-                1, "BuildSet1", new Date(1453118400000L), new Date(1453122000000L), 1);
+        DefaultBuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(
+                BuildSetStatus.NEW,
+                BuildSetStatus.DONE,
+                1,
+                1,
+                "BuildSet1",
+                new Date(1453118400000L),
+                new Date(1453122000000L),
+                1, "description");
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
         //when

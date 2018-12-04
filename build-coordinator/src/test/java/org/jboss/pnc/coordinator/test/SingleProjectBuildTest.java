@@ -77,8 +77,8 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildRecord.getStartTime());
         Assert.assertNotNull(buildRecord.getEndTime());
 
-        receivedStatuses.stream().filter(e -> e.getNewStatus().isCompleted()).forEach(e -> {
-            Assert.assertNotNull("Final event " + e + " should have end build time.", e.getBuildEndTime());
+        receivedStatuses.stream().filter(e -> e.getBuild().getStatus().isCompleted()).forEach(e -> {
+            Assert.assertNotNull("Final event " + e + " should have end build time.", e.getBuild().getEndTime());
         });
     }
 

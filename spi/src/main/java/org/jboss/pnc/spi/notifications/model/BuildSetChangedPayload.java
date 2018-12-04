@@ -30,9 +30,16 @@ public class BuildSetChangedPayload implements NotificationPayload {
     private final String buildSetConfigurationName;
     private final Date buildSetStartTime;
     private final Date buildSetEndTime;
+    private final String description;
 
-    public BuildSetChangedPayload(Integer id, BuildSetStatus newStatus, Integer buildSetConfigurationId,
-            String buildSetConfigurationName, Date buildSetStartTime, Date buildSetEndTime, Integer userId) {
+    public BuildSetChangedPayload(Integer id,
+            BuildSetStatus newStatus,
+            Integer buildSetConfigurationId,
+            String buildSetConfigurationName,
+            Date buildSetStartTime,
+            Date buildSetEndTime,
+            Integer userId,
+            String description) {
         this.id = id;
         this.buildStatus = newStatus;
         this.userId = userId;
@@ -40,6 +47,7 @@ public class BuildSetChangedPayload implements NotificationPayload {
         this.buildSetConfigurationName = buildSetConfigurationName;
         this.buildSetStartTime = buildSetStartTime;
         this.buildSetEndTime = buildSetEndTime;
+        this.description = description;
     }
 
     public BuildSetStatus getBuildStatus() {
@@ -72,4 +80,7 @@ public class BuildSetChangedPayload implements NotificationPayload {
         return buildSetEndTime;
     }
 
+    public String getDescription() {
+        return description;
+    }
 }

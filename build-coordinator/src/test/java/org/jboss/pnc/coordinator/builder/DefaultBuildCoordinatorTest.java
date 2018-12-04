@@ -20,7 +20,9 @@ package org.jboss.pnc.coordinator.builder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.MockUser;
+import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
 import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -88,17 +90,23 @@ public class DefaultBuildCoordinatorTest {
             .id(3)
             .project(PROJECT)
             .name("build-config-3")
+            .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
+            .buildEnvironment(BuildEnvironmentMock.newTest())
             .build();
     private static final BuildConfiguration BC_2 = BuildConfiguration.Builder.newBuilder()
             .id(2)
             .project(PROJECT)
             .name("build-config-2")
+            .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
+            .buildEnvironment(BuildEnvironmentMock.newTest())
             .build();
     private static final BuildConfiguration BC_1 = BuildConfiguration.Builder.newBuilder()
             .id(1)
             .project(PROJECT)
             .name("build-config")
             .dependency(BC_2)
+            .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
+            .buildEnvironment(BuildEnvironmentMock.newTest())
             .build();
     private static final BuildConfigurationSet BCS = BuildConfigurationSet.Builder.newBuilder()
             .id(88)
@@ -298,6 +306,8 @@ public class DefaultBuildCoordinatorTest {
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(12);
         buildConfiguration.setProject(new Project());
+        buildConfiguration.setRepositoryConfiguration(RepositoryConfigurationMock.newTestRepository());
+        buildConfiguration.setBuildEnvironment(BuildEnvironmentMock.newTest());
 
         BuildOptions buildOptions = new BuildOptions(false, true, false, false, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         BuildTask buildTask = BuildTask.build(

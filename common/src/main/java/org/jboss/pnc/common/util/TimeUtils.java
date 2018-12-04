@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.common.util;
 
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
@@ -123,5 +124,13 @@ public class TimeUtils {
     public static Date getDateXDaysAgo(int numberOfDays) {
         long unixMilisecondsExpirationThreshold = new Date().getTime() - (1000 * 60 * 60 * 24 * numberOfDays);
         return new Date(unixMilisecondsExpirationThreshold);
+    }
+
+    public static Instant toInstant(Date date) {
+        if (date == null) {
+            return null;
+        } else {
+            return date.toInstant();
+        }
     }
 }

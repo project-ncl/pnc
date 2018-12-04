@@ -17,75 +17,25 @@
  */
 package org.jboss.pnc.rest.debug;
 
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import java.util.Date;
-
 @XmlRootElement
+@Deprecated
 public class BuildStatusChangedEventRest implements BuildCoordinationStatusChangedEvent {
 
     private BuildCoordinationStatus oldStatus;
-    private BuildCoordinationStatus newStatus;
-    private Integer buildTaskId;
-    private Integer userId;
-    private Integer buildConfigurationId;
-    private Integer buildConfigurationRevision;
-    private String buildConfigurationName;
-    private Date buildStartTime;
-    private Date buildEndTime;
+    private Build build;
 
     public void setOldStatus(BuildCoordinationStatus oldStatus) {
         this.oldStatus = oldStatus;
     }
 
-    public void setNewStatus(BuildCoordinationStatus newStatus) {
-        this.newStatus = newStatus;
-    }
-
-    public void setBuildTaskId(Integer buildTaskId) {
-        this.buildTaskId = buildTaskId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public void setBuildConfigurationId(Integer buildConfigurationId) {
-        this.buildConfigurationId = buildConfigurationId;
-    }
-
-    public void setBuildConfigurationRevision(Integer buildConfigurationRevision) {
-        this.buildConfigurationRevision = buildConfigurationRevision;
-    }
-
-    public void setBuildConfigurationName(String buildConfigurationName) {
-        this.buildConfigurationName = buildConfigurationName;
-    }
-
-    public void setBuildStartTime(Date buildStartTime) {
-        this.buildStartTime = buildStartTime;
-    }
-
-    public void setBuildEndTime(Date buildEndTime) {
-        this.buildEndTime = buildEndTime;
-    }
-
-    @Override
-    public Integer getUserId() {
-        return userId;
-    }
-
-    @Override
-    public Integer getBuildConfigurationId() {
-        return buildConfigurationId;
-    }
-
-    @Override
-    public Integer getBuildConfigurationRevision() {
-        return buildConfigurationRevision;
+    public void setBuild(Build build) {
+        this.build = build;
     }
 
     @Override
@@ -94,27 +44,7 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     }
 
     @Override
-    public BuildCoordinationStatus getNewStatus() {
-        return newStatus;
-    }
-
-    @Override
-    public Integer getBuildTaskId() {
-        return buildTaskId;
-    }
-
-    @Override
-    public String getBuildConfigurationName() {
-        return buildConfigurationName;
-    }
-
-    @Override
-    public Date getBuildStartTime() {
-        return buildStartTime;
-    }
-
-    @Override
-    public Date getBuildEndTime() {
-        return buildEndTime;
+    public Build getBuild() {
+        return build;
     }
 }

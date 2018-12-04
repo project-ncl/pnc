@@ -17,8 +17,14 @@
  */
 package org.jboss.pnc.notifications;
 
-import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.mock.dto.BuildConfigurationRevisionMock;
+import org.jboss.pnc.mock.dto.BuildEnvironmentMock;
+import org.jboss.pnc.mock.dto.ProjectMock;
+import org.jboss.pnc.mock.dto.SCMRepositoryMock;
+import org.jboss.pnc.mock.dto.UserMock;
+import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
@@ -27,6 +33,7 @@ import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +44,24 @@ public class NotificationFactoryForBuildTest {
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
 
         // given
-        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.DONE, 1, 1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
+        String buildConfigurationName = "Build1";
+        Instant startTime = new Date(1453118400000L).toInstant();
+        Instant endTime = new Date(1453122000000L).toInstant();
+        Build build = Build.builder()
+                .id(1)
+                .status(BuildCoordinationStatus.DONE)
+                .buildContentId("build-42")
+                .temporaryBuild(true)
+                .project(ProjectMock.newProjectRef())
+                .repository(SCMRepositoryMock.newScmRepository())
+                .environment(BuildEnvironmentMock.newBuildEnvironment())
+                .user(UserMock.newUser())
+                .buildConfigurationAudited(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+
+        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(build, BuildCoordinationStatus.NEW);
 
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
@@ -48,11 +71,11 @@ public class NotificationFactoryForBuildTest {
         //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
-        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildCoordinationStatus()).isEqualTo(BuildCoordinationStatus.DONE);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationName()).isEqualTo("Build1");
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildStartTime()).isEqualTo(new Date(1453118400000L));
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildEndTime()).isEqualTo(new Date(1453122000000L));
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStatus()).isEqualTo(BuildCoordinationStatus.DONE);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationAudited().getId()).isEqualTo(1);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationAudited().getName()).isEqualTo(buildConfigurationName);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStartTime()).isEqualTo(startTime);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getEndTime()).isEqualTo(endTime);
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);

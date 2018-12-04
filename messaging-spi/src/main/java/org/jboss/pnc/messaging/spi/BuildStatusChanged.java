@@ -19,35 +19,31 @@ package org.jboss.pnc.messaging.spi;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.Build;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Builder()
-@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
+@Builder(buildMethodName = "buildMe")
 @JsonDeserialize(builder = BuildStatusChanged.BuildStatusChangedBuilder.class)
 public class BuildStatusChanged implements Message {
 
-    private final String attribute = "state";
+    private final String attribute = "state-change";
 
     private final String oldStatus;
 
-    private final String newStatus;
-
-    private final String buildRecordId;
+    private final Build build;
 
     @Override
     public String toJson() {
         return JsonOutputConverterMapper.apply(this);
     }
 
-    @JsonPOJOBuilder(withPrefix = "")
+    @JsonPOJOBuilder(withPrefix = "", buildMethodName = "buildMe")
     public static final class BuildStatusChangedBuilder {
     }
 }

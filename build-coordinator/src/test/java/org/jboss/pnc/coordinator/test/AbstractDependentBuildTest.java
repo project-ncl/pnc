@@ -28,6 +28,8 @@ import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.datastore.DefaultDatastore;
+import org.jboss.pnc.mock.model.BuildEnvironmentMock;
+import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
@@ -44,6 +46,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.RebuildMode;
@@ -113,12 +116,18 @@ public abstract class AbstractDependentBuildTest {
     protected BuildRecordRepositoryMock buildRecordRepository;
     protected BuildSchedulerFactory buildSchedulerFactory;
 
+    protected User user;
+
     @Before
     @SuppressWarnings("unchecked")
     public void initialize() throws DatastoreException, ConfigurationParseException {
         MockitoAnnotations.initMocks(this);
 
         builtTasks = new ArrayList<>();
+
+        user = new User();
+        user.setId(375939);
+        user.setUsername("username");
 
         Configuration config = mock(Configuration.class);
         SystemConfig systemConfig = mock(SystemConfig.class);
@@ -212,10 +221,14 @@ public abstract class AbstractDependentBuildTest {
                 .name("Mock project")
                 .build();
 
+
+
         BuildConfiguration config = BuildConfiguration.Builder.newBuilder()
                         .id(id)
                         .name(name)
                         .project(project)
+                        .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
+                        .buildEnvironment(BuildEnvironmentMock.newTest())
                         .build();
         Stream.of(dependencies).forEach(config::addDependency);
         return config;
@@ -257,7 +270,7 @@ public abstract class AbstractDependentBuildTest {
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(rebuildMode);
 
-        coordinator.build(configSet, null, buildOptions);
+        coordinator.build(configSet, user, buildOptions);
         coordinator.start();
     }
 
@@ -268,7 +281,8 @@ public abstract class AbstractDependentBuildTest {
 
     protected void build(BuildConfiguration config, BuildOptions buildOptions) {
         try {
-            coordinator.build(config, null, buildOptions);
+
+            coordinator.build(config, user, buildOptions);
         } catch (BuildConflictException | CoreException e) {
             throw new RuntimeException("Failed to run a build of: " + config, e);
         }

@@ -23,16 +23,23 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
+import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
@@ -57,7 +64,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +74,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
@@ -451,18 +458,78 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
         BuildCoordinationStatus oldStatus = task.getStatus();
-        Integer userId = Optional.ofNullable(task.getUser()).map(User::getId).orElse(null);
+
+        BuildConfigurationAudited buildConfigurationAudited = task.getBuildConfigurationAudited();
+        Project projectDb = task.getBuildConfigurationAudited().getProject();
+        ProjectRef project = ProjectRef.refBuilder()
+                .id(projectDb.getId())
+                .name(projectDb.getName())
+                .description(projectDb.getDescription())
+                .issueTrackerUrl(projectDb.getIssueTrackerUrl())
+                .projectUrl(projectDb.getProjectUrl())
+                .build();
+
+        org.jboss.pnc.model.RepositoryConfiguration repositoryConfiguration = task.getBuildConfigurationAudited()
+                .getRepositoryConfiguration();
+        SCMRepository repository = SCMRepository.builder()
+                .id(repositoryConfiguration.getId())
+                .internalUrl(repositoryConfiguration.getInternalUrl())
+                .externalUrl(repositoryConfiguration.getExternalUrl())
+                .preBuildSyncEnabled(repositoryConfiguration.isPreBuildSyncEnabled())
+                .build();
+
+        org.jboss.pnc.model.BuildEnvironment buildEnvironmentDb = buildConfigurationAudited.getBuildEnvironment();
+        BuildEnvironment buildEnvironment = BuildEnvironment.builder()
+                .id(buildEnvironmentDb.getId())
+                .name(buildEnvironmentDb.getName())
+                .description(buildEnvironmentDb.getDescription())
+                .systemImageRepositoryUrl(buildEnvironmentDb.getSystemImageRepositoryUrl())
+                .systemImageId(buildEnvironmentDb.getSystemImageId())
+                .attributes(buildEnvironmentDb.getAttributes())
+                .systemImageType(buildEnvironmentDb.getSystemImageType())
+                .deprecated(buildEnvironmentDb.isDeprecated())
+                .build();
+
+        User userDb = task.getUser();
+        org.jboss.pnc.dto.User user = org.jboss.pnc.dto.User.builder()
+                .id(userDb.getId())
+                .username(userDb.getUsername())
+                .build();
+
+        BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
+                .id(buildConfigurationAudited.getId())
+                .rev(buildConfigurationAudited.getRev())
+                .name(buildConfigurationAudited.getName())
+                .description(buildConfigurationAudited.getDescription())
+                .buildScript(buildConfigurationAudited.getBuildScript())
+                .scmRevision(buildConfigurationAudited.getScmRevision())
+                .build();
+
+        List<Integer> dependants = task.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
+        List<Integer> dependencies = task.getDependencies().stream().map(t -> t.getId()).collect(Collectors.toList());
+
+        Build build = Build.builder()
+                .project(project)
+                .repository(repository)
+                .environment(buildEnvironment)
+                .user(user)
+                .buildConfigurationAudited(buildConfigurationRevisionRef)
+                .dependentBuildIds(dependants)
+                .dependencyBuildIds(dependencies)
+                .id(task.getId())
+                .submitTime(TimeUtils.toInstant(task.getSubmitTime()))
+                .startTime(TimeUtils.toInstant(task.getStartTime()))
+                .endTime(TimeUtils.toInstant(task.getEndTime()))
+                .status(status)
+                .buildContentId(task.getContentId())
+                .temporaryBuild(task.getBuildOptions().isTemporaryBuild())
+                .build();
 
         BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
-                oldStatus,
-                status,
-                task.getId(),
-                task.getBuildConfigurationAudited().getId(),
-                task.getBuildConfigurationAudited().getRev(),
-                task.getBuildConfigurationAudited().getName(),
-                task.getStartTime(),
-                task.getEndTime(),
-                userId);
+                build,
+                oldStatus
+        );
+
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
         if (status.isCompleted()) {
             markFinished(task, status, statusDescription);
@@ -482,10 +549,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status, String description) {
-        log.debug("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
+        log.info("Setting new status {} on buildSetTask.id {}. Description: {}.", status, buildSetTask.getId(), description);
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
-        sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord);
+        sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord, description);
         
         // Rejected status needs to be propagated to the BuildConfigSetRecord in database. 
         // Completed BuildSets are updated using BuildSetTask#taskStatusUpdatedToFinalState()
@@ -505,7 +572,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void sendSetStatusChangeEvent(BuildSetTask buildSetTask,
                                           BuildSetStatus status,
                                           BuildSetStatus oldStatus,
-                                          Optional<BuildConfigSetRecord> maybeRecord) {
+                                          Optional<BuildConfigSetRecord> maybeRecord,
+                                          String description) {
         maybeRecord.ifPresent(record -> {
             Integer userId = Optional.ofNullable(record.getUser()).map(User::getId).orElse(null);
 
@@ -517,7 +585,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     record.getBuildConfigurationSet().getName(),
                     record.getStartTime(),
                     record.getEndTime(),
-                    userId);
+                    userId,
+                    description);
             log.debug("Notifying build set status update {}.", event);
             buildSetStatusChangedEventNotifier.fire(event);
         });

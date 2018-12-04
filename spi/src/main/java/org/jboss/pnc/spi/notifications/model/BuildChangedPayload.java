@@ -17,72 +17,37 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import org.jboss.pnc.dto.Build;
 
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-
-import java.util.Date;
-
+@Data
+@Builder(buildMethodName = "buildMe")
 @JsonDeserialize(builder = BuildChangedPayload.BuildChangedPayloadBuilder.class)
-@AllArgsConstructor
-@Builder
 public class BuildChangedPayload implements NotificationPayload {
 
-    private final Integer id;
-    private final BuildCoordinationStatus buildCoordinationStatus;
-    private final Integer userId;
-    private final Integer buildConfigurationId;
-    private final String buildConfigurationName;
-    private final Date buildStartTime;
-    private final Date buildEndTime;
+    private final String oldStatus;
 
-    public BuildChangedPayload(Integer id, BuildCoordinationStatus eventType, Integer buildConfigurationId,
-            String buildConfigurationName, Date buildStartTime, Date buildEndTime, Integer userId) {
-        this.id = id;
-        this.buildCoordinationStatus = eventType;
-        this.userId = userId;
-        this.buildConfigurationId = buildConfigurationId;
-        this.buildConfigurationName = buildConfigurationName;
-        this.buildStartTime = buildStartTime;
-        this.buildEndTime = buildEndTime;
-    }
+    private final Build build;
 
-    public BuildCoordinationStatus getBuildCoordinationStatus() {
-        return buildCoordinationStatus;
-    }
-
+    @JsonIgnore
     @Override
     public Integer getId() {
-        return id;
+        return build.getId();
     }
 
+    @JsonIgnore
     @Override
     public Integer getUserId() {
-        return userId;
+        return build.getUser().getId();
     }
 
-    public Integer getBuildConfigurationId() {
-        return buildConfigurationId;
-    }
-
-    public String getBuildConfigurationName() {
-        return buildConfigurationName;
-    }
-
-    public Date getBuildStartTime() {
-        return buildStartTime;
-    }
-
-    public Date getBuildEndTime() {
-        return buildEndTime;
-    }
-
-    @JsonPOJOBuilder(withPrefix = "")
+    @JsonPOJOBuilder(withPrefix = "", buildMethodName = "buildMe")
     public static final class BuildChangedPayloadBuilder {
     }
 
 }
+

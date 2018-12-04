@@ -15,15 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.mock.model;
 
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.RepositoryConfiguration;
 
-public interface BuildCoordinationStatusChangedEvent {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class RepositoryConfigurationMock {
 
-    BuildCoordinationStatus getOldStatus();
-
-    Build getBuild();
-
+    public static RepositoryConfiguration newTestRepository() {
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
+        repositoryConfiguration.setId(1645886423);
+        repositoryConfiguration.setExternalUrl("externalUrl");
+        repositoryConfiguration.setInternalUrl("internalUrl");
+        repositoryConfiguration.setPreBuildSyncEnabled(true);
+        return repositoryConfiguration;
+    }
 }

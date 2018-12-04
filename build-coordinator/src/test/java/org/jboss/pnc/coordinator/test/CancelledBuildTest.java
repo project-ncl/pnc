@@ -72,11 +72,11 @@ public class CancelledBuildTest extends ProjectBuilder {
 
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
+            if (event.getBuild().getStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
-                        coordinator.cancel(event.getBuildTaskId());
+                        coordinator.cancel(event.getBuild().getId());
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -117,12 +117,12 @@ public class CancelledBuildTest extends ProjectBuilder {
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new ArrayList<>();
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getBuildConfigurationId().equals(2) && event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
+            if (event.getBuild().getBuildConfigurationAudited().getId().equals(2) && event.getBuild().getStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
                         //we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class directly, so we need to dit it up from buildTaskId that event provides
-                        coordinator.cancelSet(getBuildConfigSetId(coordinator,event.getBuildTaskId()));
+                        coordinator.cancelSet(getBuildConfigSetId(coordinator,event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
