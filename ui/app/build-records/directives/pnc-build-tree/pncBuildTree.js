@@ -82,26 +82,42 @@
      * Expand All is not natively supported by Patternfly.
      */
     function expandNodes(level) {
-      var expandOptions = {};
-      if (level) {
-        if (level === -1) {
-          expandOptions.expandFailed = true;
-        } else if (level >= 1) {
-          expandOptions.expandLevel = level;
-        }
-      } else {
-        expandOptions = null;
-      }
 
-      $ctrl.dependencyStructureIsLoaded = false;
-      buildItemPromise.then(function (dependencyGraph) {
-        $ctrl.buildTree.dependencyStructure = convertGraphToTree(dependencyGraph, expandOptions).dependencyStructure;
-        $timeout(function() {
-          $('.table-treegrid').treegrid();
-          $ctrl.dependencyStructureIsLoaded = true;
+      // more performant way to expand first two levels
+      if (level > 0 && level <= 2) {
+        var $nodeAll = $('#' + $ctrl.componentIdAttr + ' .treegrid-node');
+
+        if (!$nodeAll.first().parent().hasClass('collapsed')) {
+          $nodeAll.first().click();
+        }
+        
+        for (var i = 1; i <= level; i++) {
+          $nodeAll.filter('.level-' + i).click();
+        }
+      } 
+
+      // expand other levels
+      else {
+        var expandOptions = {};
+        if (level) {
+          if (level === -1) {
+            expandOptions.expandFailed = true;
+          } else if (level >= 1) {
+            expandOptions.expandLevel = level;
+          }
+        } else {
+          expandOptions = null;
+        }
+  
+        $ctrl.dependencyStructureIsLoaded = false;
+        buildItemPromise.then(function (dependencyGraph) {
+          $ctrl.buildTree.dependencyStructure = convertGraphToTree(dependencyGraph, expandOptions).dependencyStructure;
+          $timeout(function() {
+            $('.table-treegrid').treegrid();
+            $ctrl.dependencyStructureIsLoaded = true;
+          });
         });
-      });
-      
+      }
     }
 
     /**
@@ -168,7 +184,8 @@
           id: build.id,
           attrId: customBuildParent ? customBuildParent.attrId + ID_SEPARATOR + build.id : UNIQUE_ID + '-' + build.id,
           attrParent: customBuildParent ? PREFIX_PARENT + customBuildParent.attrId : undefined,
-          attrClass: attrClass
+          attrClass: attrClass,
+          tdAttrClass: 'level-' + level
         };
 
         if (isBuildRecord) {
