@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-3643] Added NPM-specific identifier format
 - [NCL-4117] Restricted editing of productVersion name when having a closed milestone to keep consistency with external data
 - [NCL-4240] Add DB indexes on md5 and sha1 fields of Artifact model entity
+- [NCL-4300] Fixed updating of brew pushed status
 
 
 ## [1.4.3]
