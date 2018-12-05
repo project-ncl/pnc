@@ -29,7 +29,7 @@ public class BuildRecordPushResultPredicates {
 
     public static Predicate<BuildRecordPushResult> forBuildRecordOrderByIdDesc(Integer buildRecordId) {
         return (root, query, cb) -> {
-            cb.desc(root.get(BuildRecordPushResult_.id));
+            query.orderBy(cb.desc(root.get(BuildRecordPushResult_.id)));
             return cb.equal(root.get(BuildRecordPushResult_.buildRecord).get(BuildRecord_.id), buildRecordId);
         };
     }
