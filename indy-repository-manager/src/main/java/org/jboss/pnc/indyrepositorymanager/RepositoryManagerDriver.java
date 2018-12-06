@@ -202,7 +202,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildExecution, pakageType, indy);
+            setupBuildRepos(buildExecution, pakageType, serviceAccountIndy);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
