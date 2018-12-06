@@ -1,6 +1,6 @@
-/**
+/*
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2019 Red Hat, Inc., and individual contributors
+ * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,18 +16,14 @@
  * limitations under the License.
  */
 
-/* sidebar overrides */
+(function () {
+  'use strict';
 
-.row.flex {
-  display: inherit;
-}
-@media (min-width: 768px) {
-  .row.flex {
-    display: flex;
-  }
-}
+  angular.module('pnc.build-configs').component('pncBuildConfigRevisionLink', {
+    bindings: {
+      revision: '<',
+    },
+    templateUrl: 'build-configs/detail/revisions-tab/pnc-build-config-revision-link.html'
+  });
 
-.sidebar-pf.sidebar-pf-right {
-  padding-top: 40px;
-  min-height: calc(100vh - var(--masthead-height) - var(--breadcrumbs-height) - var(--footer-height));
-}
+})();

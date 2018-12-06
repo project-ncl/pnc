@@ -1,0 +1,15 @@
+:root {
+  /* Colors */
+  --main-section-border-color: #d0d0d0;
+
+  /* Fixed Heights */
+  --masthead-height: 72px;
+  --breadcrumbs-height: 37px;
+  --footer-height: 60px;
+  --page-header-height: 106px;
+  --tabs-height: 35px;
+
+  /* Standard sizes */
+  --pf-col-padding: 20px;
+  
+}
