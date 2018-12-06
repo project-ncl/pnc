@@ -24,9 +24,9 @@
       <a ui-sref="projects.detail({projectId: $ctrl.buildConfig.project.id})" ng-bind="$ctrl.buildConfig.project.name" href></a>
     </dd>
     <dt>Created</dt>
-    <dd>{{ $ctrl.buildConfig.creationTime | date : medium }}</dd>
+    <dd>{{ $ctrl.buildConfig.creationTime | date : 'medium' }}</dd>
     <dt>Modified</dt>
-    <dd>{{ $ctrl.buildConfig.lastModificationTime | date : medium }}</dd>
+    <dd>{{ $ctrl.buildConfig.lastModificationTime | date : 'medium' }}</dd>
     <dt>Description</dt>
     <dd>{{ $ctrl.buildConfig.description }}</dd>
     <dt>Build Type</dt>

@@ -19,29 +19,21 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-configs').component('pncBuildConfigProductsTab', {
+  angular.module('pnc.build-configs').component('pncRevisionsVerticalNav', {
     bindings: {
-      buildConfig: '<',
-      productVersions: '<'
+      revisions: '<'
     },
-    require : {
-      mainCtrl: '^^pncBuildConfigDetailMain'
-    },
-    templateUrl: 'build-configs/detail/products-tab/pnc-build-config-products-tab.html',
-    controller: ['$log', 'paginator', Controller]
+    templateUrl: 'build-configs/detail/revisions-tab/pnc-revisions-vertical-nav.html',
+    controller: [Controller]
   });
 
 
-  function Controller($log, paginator) {
+  function Controller() {
     var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.page = paginator($ctrl.productVersions);
-    $ctrl.displayFields = ['name'];
 
-    $ctrl.onRemove = onRemove;
-    $ctrl.onEdit = onEdit;
 
     // --------------------
 
@@ -50,13 +42,6 @@
 
     };
 
-    function onRemove(productVersion) {
-      $log.debug('Table action: remove ProductVersion %O', productVersion);
-    }
-
-    function onEdit() {
-      $log.debug('Table action: Edit product versions');
-    }
   }
 
 })();

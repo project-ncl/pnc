@@ -34,15 +34,15 @@
 <div class="row">
   <div class="col-md-12">
     <ul class="nav nav-tabs">
-      <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.default">Details</a></li>
+      <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.default" ui-sref-opts="{reload:true}">Details</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.dependencies">Dependencies</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.dependants">Dependants</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.build-groups">Build Groups</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.products">Products</a></li>
-      <li><a href="#">Revisions</a></li>
+      <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.revisions">Revisions</a></li>
       <li><a href="#">Build History</a></li>
     </ul>
     <div class="m-t-20" ui-view></div>
-  </div>
+  </div><!-- /col -->
 </div> <!-- /row -->
 

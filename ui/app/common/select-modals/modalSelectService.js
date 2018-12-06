@@ -103,6 +103,25 @@
            }
          });
        };
+
+      /**
+       * Opens a modal window for multiple selection of ProductVersions.
+       * 
+       * Takes a config object that can have the following properties:
+       *
+       * title {String} - The title to display in the modal window
+       * selected {Array} - An array of ProductVersions that are initially selected.
+       */
+       this.openForProductVersions = function (config) {
+         return asyncModal({
+           animation: true,
+           size: 'xl',
+           component: 'pncProductVersionMultiSelectModal',
+           resolve: {
+            config: () => $q.when(config)
+           }
+         })
+       }
     }
   ]);
 

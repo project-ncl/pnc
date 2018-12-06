@@ -346,6 +346,45 @@ table.build-status-table tr > td {
 }
 
 
+.master-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+
+@media (min-width: 768px) {
+  .master-detail {
+    flex-direction: row;
+  }
+
+  .master-detail > * {
+    padding: 0 20px;
+  }
+
+  .master-detail > nav {
+    border-right: 1px solid var(--main-section-border-color);
+    white-space: nowrap;
+  }
+
+  .master-detail > main,
+  .master-detail > section,
+  .master-detail > div {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .revisions-tab {
+    min-height: calc(100vh - 2 * var(--pf-col-padding) - var(--masthead-height) - var(--breadcrumbs-height) - var(--footer-height) - var(--page-header-height) - var(--tabs-height));
+    padding-bottom: 0;
+    margin-left: -20px;
+  }
+}
+
+
+
+
+
 
 
 
