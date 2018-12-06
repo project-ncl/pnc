@@ -41,6 +41,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - [NCL-4219] Add generic proxy content promotion and set the promotion target as readonly
+- [NCL-4240] Add DB indexes on md5 and sha1 fields of Artifact model entity
+
+### Fixed
+- [NCL-4294] Fix credentials used to create and update Indy repositories
 
 ## [1.4.2]
 
