@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4219] Add generic proxy content promotion and set the promotion target as readonly
 - [NCL-4240] Add DB indexes on md5 and sha1 fields of Artifact model entity
 
+### Fixed
+- [NCL-4294] Fix credentials used to create and update Indy repositories
+
 
 ## [1.4.2]
 
@@ -82,6 +85,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-3698] Brew Push tab appears when push completes / fails without user refresh
 - [NCL-4021] Handle rejected build group status correctly in the UI
 - [NCL-4100] Fix no push button on Build Group Record page
-    
+
 ### Security
 - [NCL-3549] Use service account when managing repositories in Indy

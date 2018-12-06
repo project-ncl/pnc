@@ -571,11 +571,11 @@ public class MavenRepositorySession implements RepositorySession {
                     }
                 } else {
                     // support usage of Indy 1.2.x and earlier, which sets readonly flag as part of the promotion
-                    HostedRepository hosted = indy.stores().load(hostedKey, HostedRepository.class);
+                    HostedRepository hosted = serviceAccountIndy.stores().load(hostedKey, HostedRepository.class);
                     if (hosted.isReadonly()) {
                         hosted.setReadonly(false);
                         try {
-                            indy.stores().update(hosted, "Reset readonly flag for temporary build after promotion.");
+                            serviceAccountIndy.stores().update(hosted, "Reset readonly flag for temporary build after promotion.");
                         } catch (IndyClientException ex) {
                             logger.error("Failed to reset readonly flag on repo: %s. Reason given was: %s.", ex, hostedKey, ex.getMessage());
                         }
