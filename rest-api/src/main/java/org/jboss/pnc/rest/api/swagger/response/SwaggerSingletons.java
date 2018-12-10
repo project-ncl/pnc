@@ -19,6 +19,8 @@ import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.RepositoryConfiguration;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.User;
+import org.jboss.pnc.dto.internal.bpm.BPMTask;
+import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Singleton;
 
 /**
@@ -156,6 +158,13 @@ public class SwaggerSingletons {
     public static class UserSingleton extends Singleton<User> {
 
         public UserSingleton(User content) {
+            super(content);
+        }
+    };
+
+    public static class BPMTaskSingleton extends Singleton<BPMTask> {
+
+        public BPMTaskSingleton(BPMTask content) {
             super(content);
         }
     };
