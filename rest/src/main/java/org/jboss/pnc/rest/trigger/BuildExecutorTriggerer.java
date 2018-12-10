@@ -25,7 +25,7 @@ import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.mdc.MDCMeta;
 import org.jboss.pnc.rest.executor.notifications.NotificationSender;
-import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
+import org.jboss.pnc.enums.BPMTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.enums.BuildExecutionStatus;
@@ -120,7 +120,7 @@ public class BuildExecutorTriggerer {
         BuildExecutionStatus status = statusChangedEvent.getNewStatus();
 
         String taskName = null;
-        BpmTaskStatus bpmTaskStatus = BpmTaskStatus.STARTING;
+        BPMTaskStatus bpmTaskStatus = BPMTaskStatus.STARTING;
         String wsDetails = "";
 
         switch (status) {
@@ -134,7 +134,7 @@ public class BuildExecutorTriggerer {
 
             case BUILD_WAITING:
                 taskName = "Build";
-                bpmTaskStatus = BpmTaskStatus.STARTED;
+                bpmTaskStatus = BPMTaskStatus.STARTED;
                 BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(statusChangedEvent.getBuildTaskId());
                 Optional<URI> liveLogsUri = runningExecution.getLiveLogsUri();
                 if (liveLogsUri.isPresent()) {

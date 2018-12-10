@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.rest.restmodel.bpm;
 
+import org.jboss.pnc.enums.BPMTaskStatus;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,7 +46,7 @@ public class ProcessProgressUpdate extends BpmNotificationRest {
     private String taskName;
 
     @Getter
-    private BpmTaskStatus bpmTaskStatus;
+    private BPMTaskStatus bpmTaskStatus;
 
     /**
      * Url to subscribe to detailed notification.

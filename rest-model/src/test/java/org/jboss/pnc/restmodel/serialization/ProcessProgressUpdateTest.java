@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.restmodel.serialization;
 
-import org.jboss.pnc.rest.restmodel.bpm.BpmTaskStatus;
+import org.jboss.pnc.enums.BPMTaskStatus;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class ProcessProgressUpdateTest {
     @Test
     public void serializeAndDeserialize() throws IOException {
         ProcessProgressUpdate processProgressUpdate = new ProcessProgressUpdate("repour",
-                BpmTaskStatus.STARTED,
+                BPMTaskStatus.STARTED,
                 "ws://repour/ws-endpoint");
         String serialized = JsonOutputConverterMapper.apply(processProgressUpdate);
         log.info("Serialized:" + serialized);
