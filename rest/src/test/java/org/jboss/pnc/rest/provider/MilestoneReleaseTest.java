@@ -27,7 +27,7 @@ import org.jboss.pnc.rest.restmodel.causeway.ArtifactImportError;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
-import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
+import org.jboss.pnc.enums.ReleaseStatus;
 import org.jboss.pnc.rest.utils.mock.BpmMock.Push;
 import org.jboss.pnc.rest.utils.mock.BpmMock.PushList;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
@@ -35,11 +35,13 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;

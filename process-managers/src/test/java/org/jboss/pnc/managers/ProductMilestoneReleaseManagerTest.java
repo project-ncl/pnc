@@ -34,7 +34,7 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
-import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
+import org.jboss.pnc.enums.ReleaseStatus;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;

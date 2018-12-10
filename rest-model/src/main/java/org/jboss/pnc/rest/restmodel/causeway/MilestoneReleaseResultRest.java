@@ -17,8 +17,12 @@
  */
 package org.jboss.pnc.rest.restmodel.causeway;
 
+import org.jboss.pnc.enums.ReleaseStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
+
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 
 import java.util.ArrayList;
