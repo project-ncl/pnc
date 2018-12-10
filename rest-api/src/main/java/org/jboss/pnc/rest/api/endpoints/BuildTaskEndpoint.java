@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.api.endpoints;
 
 import org.jboss.pnc.dto.internal.BuildExecutionConfiguration;
+import org.jboss.pnc.dto.internal.bpm.BuildResult;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;

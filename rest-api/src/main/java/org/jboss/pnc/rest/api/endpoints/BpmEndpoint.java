@@ -18,6 +18,8 @@
 package org.jboss.pnc.rest.api.endpoints;
 
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BPMTaskPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BPMTaskSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -78,9 +80,9 @@ public interface BpmEndpoint{
     @Operation(summary = "List of (recently) active BPM tasks.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BpmTaskPage.class))),
+                    content = @Content(schema = @Schema(implementation = BPMTaskPage.class))),
                 @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BpmTaskPage.class))),
+                    content = @Content(schema = @Schema(implementation = BPMTaskPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -96,7 +98,7 @@ public interface BpmEndpoint{
     @Operation(summary = "Get single (recently) active BPM task.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BpmTaskSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BPMTaskSingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
     })
     @GET
