@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - [NCL-4294] Fix credentials used to create and update Indy repositories
+- [NCL-4300] Fixed updating of brew pushed status
 
 
 ## [1.4.2]
