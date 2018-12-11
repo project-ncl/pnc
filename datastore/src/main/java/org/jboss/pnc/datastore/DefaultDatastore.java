@@ -125,7 +125,7 @@ public class DefaultDatastore implements Datastore {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
-        BuildRecord buildRecord = buildRecordBuilder.build();
+        BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
 
         Map<String, TargetRepository> repositoriesCache = new HashMap<>();
