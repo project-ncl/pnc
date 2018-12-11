@@ -14,7 +14,7 @@
 - Section
 
 ### Fixed
-- Section
+- [NCL-4314] Build with log containing 0 byte fails to store
 
 ### Security
 - Section
