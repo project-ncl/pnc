@@ -867,6 +867,15 @@ public class BuildRecord implements GenericEntity<Integer> {
         }
 
         public BuildRecord build() {
+            return build(true);
+        }
+
+        /**
+         *
+         * @param sanitizeLogs required because PostgreSQL doesn't support storing NULL (\0x00) characters in text fields"
+         * @return
+         */
+        public BuildRecord build(boolean sanitizeLogs ) {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
             buildRecord.setBuildContentId(buildContentId);
@@ -885,11 +894,27 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setExecutionRootVersion(executionRootVersion);
             buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
             buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
+            if (sanitizeLogs) {
+                buildRecord.setRepourLog(repourLog.replaceAll("\u0000", ""));
+                buildRecord.setBuildLog(buildLog.replaceAll("\u0000", ""));
+            } else {
+                buildRecord.setRepourLog(repourLog);
+                buildRecord.setBuildLog(buildLog);
+            }
+            buildRecord.setRepourLogSize(buildRecord.repourLog.length());
+            buildRecord.setBuildLogSize(buildRecord.buildLog.length());
 
-            buildRecord.setRepourLog(repourLog);
-            buildRecord.setRepourLogSize(repourLog.length());
-            buildRecord.setBuildLog(buildLog);
-            buildRecord.setBuildLogSize(buildLog.length());
+            try {
+                buildRecord.setBuildLogMd5(Md5.digest(buildRecord.buildLog));
+                buildRecord.setBuildLogSha256(Sha256.digest(buildRecord.buildLog));
+
+                buildRecord.setRepourLogMd5(Md5.digest(buildRecord.repourLog));
+                buildRecord.setRepourLogSha256(Sha256.digest(buildRecord.repourLog));
+
+            } catch (NoSuchAlgorithmException | IOException e) {
+                logger.error("Cannot compute log checksum.", e);
+                throw new RuntimeException("Cannot compute log checksum.", e);
+            }
 
             if (temporaryBuild == null) {
                 temporaryBuild = true;
@@ -898,18 +923,6 @@ public class BuildRecord implements GenericEntity<Integer> {
 
             if(!temporaryBuild) {
                 buildRecord.setProductMilestone(productMilestone);
-            }
-
-            try {
-                buildRecord.setBuildLogMd5(Md5.digest(buildLog));
-                buildRecord.setBuildLogSha256(Sha256.digest(buildLog));
-
-                buildRecord.setRepourLogMd5(Md5.digest(repourLog));
-                buildRecord.setRepourLogSha256(Sha256.digest(repourLog));
-
-            } catch (NoSuchAlgorithmException | IOException e) {
-                logger.error("Cannot compute log checksum.", e);
-                throw new RuntimeException("Cannot compute log checksum.", e);
             }
 
             if (buildConfigurationAudited != null) {
