@@ -49,7 +49,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$", groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @Pattern(message="Version doesn't match the required pattern " + ProductVersion.VERSION_PATTERN , regexp=ProductVersion.VERSION_PATTERN, groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String version;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})

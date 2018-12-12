@@ -45,7 +45,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
      * Version check to be correspond with the DB pattern in ProductMilestone.version. Version examples: 1.2.3.ER1, 1.2.10.CR1, 1.2.CD1
      */
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = "^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$", message = "Version doesn't match the required pattern ^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$")
+    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = ProductMilestone.VERSION_PATTERN, message = "Version doesn't match the required pattern " + ProductMilestone.VERSION_PATTERN)
     private String version;
 
     private Date endDate;

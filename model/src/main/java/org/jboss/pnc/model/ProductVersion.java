@@ -69,11 +69,13 @@ public class ProductVersion implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    public static final String VERSION_PATTERN = "^[0-9]+\\.[0-9]+$";
+
     /**
      * The version string that represents this product version.  This should normally
      * consist of a major and minor version separated by a dot, for example "1.0".
      */
-    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$")
+    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp= VERSION_PATTERN)
     @NotNull
     @Size(max=50)
     private String version;
@@ -103,7 +105,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     @MapKeyColumn(name="key")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
-    
+
     public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
         buildConfigurations = new HashSet<>();
