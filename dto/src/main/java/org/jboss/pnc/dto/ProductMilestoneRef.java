@@ -43,7 +43,7 @@ public class ProductMilestoneRef implements DTOEntity {
     protected final Integer id;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_VERSION)
+    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_MILESTONE_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     protected final String version;
 
     protected final Instant endDate;

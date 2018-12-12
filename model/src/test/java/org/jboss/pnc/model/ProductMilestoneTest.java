@@ -19,7 +19,6 @@ package org.jboss.pnc.model;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.persistence.EntityManager;
@@ -78,7 +77,7 @@ public class ProductMilestoneTest extends AbstractModelTest {
     public void shouldCreateProductMilestoneWithCDVersionFormat() {
         // given
         ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder()
-                .version("1.0.CD1")
+                .version("1.0.0.CD1")
                 .productVersion(productVersion)
                 .build();
 
@@ -96,7 +95,7 @@ public class ProductMilestoneTest extends AbstractModelTest {
     public void shouldNotCreateProductMilestoneWithMalformedVersion() {
         // given
         ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder()
-                .version("1.0-CD1")
+                .version("1.0.0-CD1")
                 .productVersion(productVersion)
                 .build();
 

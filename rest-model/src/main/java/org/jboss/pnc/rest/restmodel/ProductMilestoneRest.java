@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
@@ -45,7 +46,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
      * Version check to be correspond with the DB pattern in ProductMilestone.version. Version examples: 1.2.3.ER1, 1.2.10.CR1, 1.2.CD1
      */
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = "^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$", message = "Version doesn't match the required pattern ^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$")
+    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_MILESTONE_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     private String version;
 
     private Date endDate;

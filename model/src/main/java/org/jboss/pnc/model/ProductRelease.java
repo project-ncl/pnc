@@ -28,6 +28,8 @@ import javax.validation.constraints.Size;
 
 import java.util.Date;
 
+import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
+
 /**
  * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a product
  * version (many releases for one version), and each release is associated with a single milestone (one to one). For example,
@@ -50,7 +52,7 @@ public class ProductRelease implements GenericEntity<Integer> {
      * Contains the milestone version string.  This consists of a major, minor, and micro
      * numeric version followed by an alphanumeric qualifier.  For example "1.0.0.ER1".
      */
-    @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w]+$")
+    @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp=PRODUCT_RELEASE_VERSION)
     @NotNull
     @Size(max=50)
     private String version;
