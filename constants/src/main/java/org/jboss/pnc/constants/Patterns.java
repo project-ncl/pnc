@@ -26,16 +26,21 @@ public class Patterns {
     /**
      * Version that consists of a major, minor and micro numeric version followed by an
      * alphanumeric qualifier. Micro version can be left out in special cases.
-     * For example 1.0.0.ER1, 1.2.10.CR1, 1.0.CD1.
+     * For example 1.0.0.ER1, 1.2.10.CR1, 1.0.0.CD1.CR1
+     * See {@link org.jboss.pnc.constants.PatternsTest} for valid examples.
      */
-    public static final String PRODUCT_VERSION = "^[0-9]+\\.[0-9]+(\\.[0-9]+)?\\.[\\w]+$";
+    public static final String PRODUCT_MILESTONE_VERSION = "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w\\.-]+$";
     
     /**
      * Version that consists of a major and minor numeric version.
      * For example 1.0, 1.2.
      */
     public static final String PRODUCT_STREAM_VERSION = "^[0-9]+\\.[0-9]+$";
-    
+
+    /**
+     * See {@link org.jboss.pnc.constants.PatternsTest} for valid examples.
+     */
+    public static final String PRODUCT_RELEASE_VERSION = "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w-]+$";
     
     /**
      * Product name abbreviation. May consists of letters, numbers and dash.

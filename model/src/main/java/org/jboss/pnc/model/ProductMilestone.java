@@ -64,7 +64,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    @Pattern(message="The version should consist of two or three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp=Patterns.PRODUCT_VERSION)
+    @Pattern(message="The version should consist of two or three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp=Patterns.PRODUCT_MILESTONE_VERSION)
     @NotNull
     @Size(max=50)
     private String version;

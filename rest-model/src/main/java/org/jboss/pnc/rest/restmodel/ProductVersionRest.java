@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.jboss.pnc.constants.Patterns.PRODUCT_STREAM_VERSION;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
@@ -49,7 +50,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$", groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @Pattern(message="Version doesn't match the required pattern " + PRODUCT_STREAM_VERSION , regexp=PRODUCT_STREAM_VERSION, groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String version;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
