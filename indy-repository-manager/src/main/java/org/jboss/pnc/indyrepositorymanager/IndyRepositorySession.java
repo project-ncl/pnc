@@ -286,8 +286,7 @@ public class IndyRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                RepositoryType repoType = toRepoType(packageType);
-                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, source, content);
+                TargetRepository targetRepository = getDownloadsTargetRepository(download, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -327,16 +326,14 @@ public class IndyRepositorySession implements RepositorySession {
         return promotionTargets.get(packageType);
     }
 
-    private TargetRepository getDownloadsTargetRepository(RepositoryType repoType, StoreKey sk, IndyContentClientModule content)
-            throws RepositoryManagerException {
+    private TargetRepository getDownloadsTargetRepository(TrackedContentEntryDTO download, IndyContentClientModule content) throws RepositoryManagerException {
         String identifier;
         String repoPath;
-        if (repoType == RepositoryType.MAVEN) {
-                identifier = "indy-maven";
-                repoPath = "/api/" + content.contentPath(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
-        } else if (repoType == RepositoryType.NPM) {
-                identifier = "indy-npm";
-                repoPath = "/api/" + content.contentPath(new StoreKey(NPM_PKG_KEY, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+        StoreKey sk = download.getStoreKey();
+        RepositoryType repoType = toRepoType(sk.getPackageType());
+        if (repoType == RepositoryType.MAVEN || repoType == RepositoryType.NPM) {
+                identifier = "indy-" + repoType.name().toLowerCase();
+                repoPath = getTargetRepositoryPath(download, content);
         } else if (repoType == RepositoryType.GENERIC_PROXY) {
                 identifier = "indy-http:" + sk.getName();
                 repoPath = "/not-available/"; //TODO set the path for http cache
@@ -351,6 +348,19 @@ public class IndyRepositorySession implements RepositorySession {
                 .repositoryPath(repoPath)
                 .temporaryRepo(false)
                 .build();
+    }
+
+    private String getTargetRepositoryPath(TrackedContentEntryDTO download, IndyContentClientModule content) {
+        String result;
+        StoreKey sk = download.getStoreKey();
+        if (isExternalOrigin(sk)) {
+            result = "/api/" + content.contentPath(new StoreKey(sk.getPackageType(), StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+        } else {
+            String localUrl = download.getLocalUrl();
+            String path = download.getPath();
+            result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
+        }
+        return result;
     }
 
     private TargetRepository getUploadsTargetRepository(RepositoryType repoType,
