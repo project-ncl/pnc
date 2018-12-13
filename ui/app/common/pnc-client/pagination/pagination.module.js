@@ -34,7 +34,7 @@
        * data in a page object. This must enhance and not break the expected
        * behaviour of using an ng-resource class.
        */
-      $provide.decorator('$resource', function ($delegate) {
+      $provide.decorator('$resource', ['$delegate', function ($delegate) {
         return function (url, paramDefaults, actions, options) {
           var Resource;
 
@@ -138,7 +138,7 @@
 
           return Resource;
         };
-      });
+      }]);
     }
   ]);
 

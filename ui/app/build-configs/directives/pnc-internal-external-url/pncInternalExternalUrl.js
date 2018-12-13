@@ -42,7 +42,7 @@
           sidebarCols: '@',
           singleScm: '@?'
         },
-        controller: PncInternalExternalUrlController
+        controller: ['$scope', 'pncProperties', PncInternalExternalUrlController]
       };
 
     }

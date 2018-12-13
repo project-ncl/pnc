@@ -39,7 +39,7 @@
    * <button pnc-confirm-click="deleteAllTheThings()" pnc-confirm-message="Are
    * you sure you want to delete all the things?">Delete All The Things</button>
    */
-  module.directive('pncConfirmClick', function ($uibModal) {
+  module.directive('pncConfirmClick', ['$uibModal', function ($uibModal) {
     var DEFAULT_MESSAGE = 'Are you sure?';
 
     return {
@@ -75,5 +75,5 @@
         });
       }
     };
-  });
+  }]);
 })();
