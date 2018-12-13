@@ -25,7 +25,7 @@
     'bccEventHandler',
     function (eventTypes, bccEventHandler) {
 
-      function PncConfigurationCreateController($log, $state, $filter, $scope, pncNotify,
+      function PncConfigurationCreateController($log, $state, $scope, pncNotify,
         EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO, BpmDAO) {
 
         // Selection of Product Versions.
@@ -151,7 +151,10 @@
         scope: {
           fixedProject: '@'
         },
-        controller: PncConfigurationCreateController
+        controller: [
+          '$log', '$state', '$scope', 'pncNotify', 'EnvironmentDAO', 'ProjectDAO', 'ProductDAO', 
+          'BuildConfigurationDAO', 'BuildConfigurationSetDAO', 'BpmDAO', 
+          PncConfigurationCreateController]
       };
 
     }

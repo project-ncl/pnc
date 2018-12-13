@@ -116,11 +116,15 @@ if (angular.isUndefined(window.pnc)) {
       // Bootstrap application
       if (isKeycloakEnabled(config)) {
         keycloak.init(kcInitParams).success(function () {
-          angular.bootstrap(document, ['pnc']);
+          angular.bootstrap(document, ['pnc'], {
+            strictDi: true
+          });
         });
 
       } else {
-        angular.bootstrap(document, ['pnc']);
+        angular.bootstrap(document, ['pnc'], {
+          strictDi: true
+        });
       }
 
     });

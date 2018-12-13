@@ -33,7 +33,7 @@
    */
   module.directive('pncGroupBuilds', [
     function () {
-      function PncGroupBuildsCtrl($log, $scope, BuildConfigurationSetRecordDAO, eventTypes) {
+      function PncGroupBuildsCtrl($scope, BuildConfigurationSetRecordDAO, eventTypes) {
         $scope.page = BuildConfigurationSetRecordDAO.getPaged();
 
         $scope.$on(eventTypes.BUILD_SET_STARTED, $scope.page.reload());
@@ -44,7 +44,7 @@
         restrict: 'E',
         templateUrl: 'build-group-records/components/pnc-group-builds/pnc-group-builds.html',
         scope: {},
-        controller: PncGroupBuildsCtrl
+        controller: ['$scope', 'BuildConfigurationSetRecordDAO', 'eventTypes', PncGroupBuildsCtrl]
       };
     }
   ]);

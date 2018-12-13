@@ -33,7 +33,7 @@
   module.directive('pncBuilds', [
     function () {
 
-      function PncBuildsCtrl($log, $scope, BuildsDAO, eventTypes) {
+      function PncBuildsCtrl($scope, BuildsDAO, eventTypes) {
         $scope.page = BuildsDAO.getPaged();
 
         $scope.page.setUrlParameters([{
@@ -49,7 +49,7 @@
         restrict: 'E',
         templateUrl: 'build-records/directives/pnc-builds/pnc-builds.html',
         scope: {},
-        controller: PncBuildsCtrl
+        controller: ['$scope', 'BuildsDAO', 'eventTypes', PncBuildsCtrl]
       };
     }
   ]);

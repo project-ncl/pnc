@@ -42,7 +42,7 @@
   module.directive('pncGenericParameters', [
     function () {
 
-      function PncGenericParameters($log, $scope, BuildConfigurationDAO) {
+      function PncGenericParameters($scope, BuildConfigurationDAO) {
 
         function prepareSupportedGenericParameters() {
           var result = [];
@@ -98,7 +98,7 @@
           genericParameters: '=',
           control: '='
         },
-        controller: PncGenericParameters
+        controller: ['$scope', 'BuildConfigurationDAO', PncGenericParameters]
       };
     }
   ]);
