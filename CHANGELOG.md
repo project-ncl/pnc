@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [1.4.3]
+
 ### Changed
 - [NCL-4282] New fields in the status update messages
 
@@ -44,7 +47,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4300] Fixed updating of brew pushed status
 - [NCL-4314] Build with log containing 0 byte fails to store
 - [NCL-4274] Fixed wrong dependencies' links
-
 
 ## [1.4.2]
 
