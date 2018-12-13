@@ -301,8 +301,7 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
-                TargetRepository targetRepository = getDownloadsTargetRepository(repoType, source);
+                TargetRepository targetRepository = getDownloadsTargetRepository(download);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -334,16 +333,18 @@ public class MavenRepositorySession implements RepositorySession {
         return deps;
     }
 
-    private TargetRepository getDownloadsTargetRepository(TargetRepository.Type repoType, StoreKey sk) throws RepositoryManagerException {
+    private TargetRepository getDownloadsTargetRepository(TrackedContentEntryDTO download) throws RepositoryManagerException {
         TargetRepository targetRepository;
+        TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
             targetRepository = TargetRepository.newBuilder()
                     .identifier("indy-maven")
                     .repositoryType(repoType)
-                    .repositoryPath("/api/content/maven/hosted/shared-imports/")
+                    .repositoryPath(getMavenTargetRepositoryPath(download))
                     .temporaryRepo(false)
                     .build();
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
+            StoreKey sk = download.getStoreKey();
             targetRepository = TargetRepository.newBuilder()
                     .identifier("indy-http:" + sk.getName())
                     .repositoryType(repoType)
@@ -354,6 +355,19 @@ public class MavenRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
         }
         return targetRepository;
+    }
+
+    private String getMavenTargetRepositoryPath(TrackedContentEntryDTO download) {
+        String result;
+        StoreKey sk = download.getStoreKey();
+        if (isExternalOrigin(sk)) {
+            result = "/api/content/maven/hosted/shared-imports/";
+        } else {
+            String localUrl = download.getLocalUrl();
+            String path = download.getPath();
+            result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
+        }
+        return result;
     }
 
     private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
