@@ -14,7 +14,7 @@
 - Section
 
 ### Fixed
-- [NCL-4314] Build with log containing 0 byte fails to store
+- Section
 
 ### Security
 - Section
@@ -30,10 +30,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
-- [NCL-4282] - new fields in the status update messages
+- [NCL-4282] New fields in the status update messages
 
 ### Deprecated
-- [NCL-4282] - some fields were deprecated in the status update messages 
+- [NCL-4282] Some fields were deprecated in the status update messages
 
 ### Added
 - [NCL-4219] Add generic proxy content promotion and set the promotion target as readonly
@@ -42,16 +42,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - [NCL-4294] Fix credentials used to create and update Indy repositories
 - [NCL-4300] Fixed updating of brew pushed status
+- [NCL-4314] Build with log containing 0 byte fails to store
+- [NCL-4274] Fixed wrong dependencies' links
 
 
 ## [1.4.2]
 
 ### Added
 - [NCL-4177] Add an option to specify implicit or explicit dependency check for a rebuild
-- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
+- [NCL-4192] Creating a BuildRecord with status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
 
 ### Fixed
-- [NCL-4235]: Fix potential collision of the 2 same builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
+- [NCL-4235] Fix potential collision of 2 builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
 
 ### Changed
 - [NCL-4218] Don't break the build if JMS server is down
@@ -60,7 +62,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.4.1]
 
 ### Changed
-- [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
+- [NCL-4214] Temporary builds won't be assigned to a milestone anymore
 
 ## [1.4.0]
 
