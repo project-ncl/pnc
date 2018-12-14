@@ -1,4 +1,4 @@
-Project-ncl
+PNC
 ===========
 A system for managing, executing, and tracking cross-platform builds.
 
