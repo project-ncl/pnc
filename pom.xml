@@ -99,6 +99,7 @@
     <module>bpm</module>
     <module>process-managers</module>
     <module>client</module>
+    <module>processor</module>
   </modules>
 
   <properties>
@@ -380,6 +381,18 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>process-managers</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>processor</artifactId>
         <version>${project.version}</version>
       </dependency>
 

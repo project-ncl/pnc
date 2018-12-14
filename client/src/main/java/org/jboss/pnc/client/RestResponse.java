@@ -17,41 +17,25 @@
  */
 package org.jboss.pnc.client;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface SimpleClient {
-    @GET
-    @Path("basic")
-    @Produces("text/plain")
-    String getBasic();
+class RestResponse<T> {
 
-    @PUT
-    @Path("basic")
-    @Consumes("text/plain")
-    void putBasic(String body);
+    private final int status;
 
-    @GET
-    @Path("queryParam")
-    @Produces("text/plain")
-    String getQueryParam(@QueryParam("param")String param);
+    private final T entity;
 
-    @GET
-    @Path("matrixParam")
-    @Produces("text/plain")
-    String getMatrixParam(@MatrixParam("param")String param);
+    public RestResponse(int status, T entity) {
+        this.status = status;
+        this.entity = entity;
+    }
 
-    @GET
-    @Path("uriParam/{param}")
-    @Produces("text/plain")
-    int getUriParam(@PathParam("param")int param);
+    public int getStatus() {
+        return status;
+    }
+
+    public T getEntity() {
+        return entity;
+    }
 }

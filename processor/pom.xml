@@ -26,34 +26,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>client</artifactId>
-  <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>processor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>dto</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>rest-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxrs</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
-    </dependency>
-  </dependencies>
-
+  <!--<groupId>org.jboss.pnc</groupId>-->
+  <!--<version>2.0.0-SNAPSHOT</version>-->
+  <artifactId>processor</artifactId>
 
   <build>
     <plugins>
@@ -64,19 +39,10 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
-          <!--<annotationProcessorPaths>-->
-            <!--<path>-->
-              <!--<groupId>org.jboss.pnc</groupId>-->
-              <!--<artifactId>processor</artifactId>-->
-              <!--<version>2.0.0-SNAPSHOT</version>-->
-            <!--</path>-->
-          <!--</annotationProcessorPaths>-->
-          <!--<annotationProcessors>-->
-            <!--<processor>org.jboss.pnc.processor.AutoGenerateProcessor</processor>-->
-          <!--</annotationProcessors>-->
-          <!--<verbose>true</verbose>-->
+          <compilerArgument>-proc:none</compilerArgument>
         </configuration>
       </plugin>
     </plugins>
   </build>
+
 </project>
