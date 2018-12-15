@@ -55,6 +55,6 @@ public class ProjectTest {
 
     @Test
     public void generatedClassTest() {
-        new org.jboss.pnc.client.example.User("a", "b").
+//        new org.jboss.pnc.client.example.User("a", "b").
     }
 }

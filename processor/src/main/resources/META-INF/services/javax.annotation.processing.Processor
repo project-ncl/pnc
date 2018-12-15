@@ -1,1 +1,2 @@
 org.jboss.pnc.processor.AutoGenerateProcessor
+org.jboss.pnc.processor.ClientApiProcessor
