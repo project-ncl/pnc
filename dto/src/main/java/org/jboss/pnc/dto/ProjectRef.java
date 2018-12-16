@@ -35,7 +35,7 @@ import javax.validation.constraints.Null;
 public class ProjectRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    protected final String id;
 
     protected final String name;
 

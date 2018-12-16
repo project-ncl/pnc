@@ -17,29 +17,26 @@
  */
 package org.jboss.pnc.client;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Data
+@AllArgsConstructor
+@Builder
 public class ConnectionInfo {
 
-    String host;
-    Integer port;
+    private final String host;
+    private final Integer port;
 
-    BasicAuth basicAuth;
+    private final BasicAuth basicAuth;
 
-    String bearerToken;
+    private final String bearerToken;
 
-    private ConnectionInfo(Builder builder) {
-        host = builder.host;
-        port = builder.port;
-        basicAuth = builder.basicAuth;
-        bearerToken = builder.bearerToken;
-    }
-
-    public static Builder newBuilder() {
-        return new Builder();
-    }
+    private final String protocol;
 
     public static class BasicAuth {
         String username;
@@ -51,49 +48,4 @@ public class ConnectionInfo {
         }
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public static final class Builder {
-
-        private String host;
-
-        private Integer port;
-
-        private BasicAuth basicAuth;
-
-        private String bearerToken;
-
-        private Builder() {
-        }
-
-        public Builder host(String host) {
-            this.host = host;
-            return this;
-        }
-
-        public Builder port(Integer port) {
-            this.port = port;
-            return this;
-        }
-
-        public Builder basicAuth(BasicAuth basicAuth) {
-            this.basicAuth = basicAuth;
-            return this;
-        }
-
-        public Builder bearerToken(String bearerToken) {
-            this.bearerToken = bearerToken;
-            return this;
-        }
-
-        public ConnectionInfo build() {
-            return new ConnectionInfo(this);
-        }
-    }
 }

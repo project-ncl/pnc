@@ -17,62 +17,47 @@
  */
 package org.jboss.pnc.client;
 
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.rest.api.endpoints.ProjectEndpoint;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ws.rs.core.Response;
-import java.util.Optional;
+import javax.ws.rs.ClientErrorException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-class ProjectClient {
+public class ProjectClient extends ClientBase<Project> {
 
-    static final String BASE_URL = "http://localhost:8080/";
-
-    static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
-
-    ResteasyClient client = new ResteasyClientBuilder().build();
-
-    ResteasyWebTarget target = client.target(getEndpointUrl());
-
-    private ConnectionInfo connectionInfo;
 
     public ProjectClient(ConnectionInfo connectionInfo) {
-        this.connectionInfo = connectionInfo;
+        super(connectionInfo);
     }
 
-    public String getEndpointUrl() {
-        return "http://" + connectionInfo.getHost() + ":" + connectionInfo.getPort() + PROJECT_REST_ENDPOINT;
-    }
-
-    private ProjectEndpoint getEndpoint() {
+    protected ProjectEndpoint getEndpoint() {
         return target.proxy(ProjectEndpoint.class);
     }
 
-    Optional<Project> getSpecific(int id) {
-        Response response = getEndpoint().getSpecific(id);
-        Optional<Project> result = processResponse(response);
-        return result;
-    }
-
-    Optional<Project> createNew(Project project) {
-        Response response = getEndpoint().createNew(project);
-        Optional<Project> result = processResponse(response);
-        return result;
-    }
-
-    private Optional<Project> processResponse(Response response) {
-        Optional<Project> result;
-        if (response.getStatus() == 200) {
-            result = Optional.ofNullable(response.readEntity(Project.class));
-        } else {
-            result = Optional.empty();
+    public Page<BuildConfiguration> getBuildConfigurations(String id, PageParameters page) throws RemoteResourseReadException {
+        try {
+            return getEndpoint().getBuildConfigurations(id, page);
+        } catch (ClientErrorException e) {
+            throw new RemoteResourseReadException("Cannot get remote resource.", e);
         }
-        response.close();
-        return result;
     }
+
+    public Page<Build> getBuilds(String id,
+            PageParameters page,
+            BuildsFilterParameters filter) throws RemoteResourseReadException {
+        try {
+            return getEndpoint().getBuilds(id, page, filter);
+        } catch (ClientErrorException e) {
+            throw new RemoteResourseReadException("Cannot get remote resource.", e);
+        }
+    }
+
+
 }

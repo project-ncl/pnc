@@ -28,13 +28,14 @@ import java.util.Optional;
  */
 public class ProjectTest {
 
-    ConnectionInfo connectionInfo = ConnectionInfo.newBuilder()
-            .host("locahost")
+    ConnectionInfo connectionInfo = ConnectionInfo.builder()
+            .protocol("http")
+            .host("localhost")
             .port(8080)
             .build();
 
     @Test
-    public void shouldCreateNewProject() {
+    public void shouldCreateNewProject() throws RemoteResourceCreateException, RemoteResourseReadException {
         ProjectClient projectClient = new ProjectClient(connectionInfo);
 
         Project project = Project.builder()
@@ -42,10 +43,9 @@ public class ProjectTest {
                 .issueTrackerUrl("https://github.com/entity-ncl/pnc/issues")
                 .build();
 
-        Optional<Project> projectReturned = projectClient.createNew(project);
-        Assert.assertTrue(projectReturned.isPresent());
+        Project projectReturned = projectClient.createNew(project);
 
-        Integer returnedId = projectReturned.get().getId();
+        String returnedId = projectReturned.getId();
         Assert.assertNotNull(returnedId);
 
         Optional<Project> stored = projectClient.getSpecific(returnedId);
@@ -53,8 +53,4 @@ public class ProjectTest {
         Assert.assertNotNull(stored.get().getName());
     }
 
-    @Test
-    public void generatedClassTest() {
-//        new org.jboss.pnc.client.example.User("a", "b").
-    }
 }

@@ -15,19 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto;
+package org.jboss.pnc.client;
 
 /**
- * A base interface for all DTO entities
- * to allow generic implementation of some standard operations
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface DTOEntity {
+public class RemoteResourceUpdateException extends ClientException {
 
-    /**
-     * Get the entity Id
-     *
-     * @return Id
-     */
-    String getId();
-
+    public RemoteResourceUpdateException(String message, Exception e) {
+        super(message, e);
+    }
 }
