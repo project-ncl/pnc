@@ -72,6 +72,19 @@ public interface BaseEndpoint<T> {
     @GET
     Page<T> getAll(@BeanParam PageParameters pageParameters);
 
+    @Operation(summary = "Gets a specific.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = SwaggerSingletons.ProjectSingleton.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+
+    @GET
+    @Path("/{id}")
+    public T getSpecific(@Parameter(description = ID) @PathParam("id") String id);
+
     @Operation(summary = "Creates a new.",
             responses = {
                     @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
@@ -85,18 +98,6 @@ public interface BaseEndpoint<T> {
             })
     @POST
     T createNew(T object);
-
-    @Operation(summary = "Gets a specific.",
-            responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = SwaggerSingletons.ProjectSingleton.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
-    @GET
-    @Path("/{id}")
-    public T getSpecific(@Parameter(description = ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing.",
             responses = {
