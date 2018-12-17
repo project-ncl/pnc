@@ -17,17 +17,25 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Graph;
+import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushResultPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigurationRevisionSingleton;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildPushResultSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -50,10 +58,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -64,7 +69,6 @@ import javax.ws.rs.DELETE;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -87,7 +91,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Response getAll(@BeanParam PageParameters pageParams,
+    Page<Build> getAll(@BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams,
             @BeanParam BuildAttributeParameters attributes);
 
@@ -101,7 +105,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}")
-    Response getSpecific(@Parameter(description = B_ID) @PathParam("id") int id);
+    Singleton<Build> getSpecific(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Delete specific temporary build.",
             description = "The operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
@@ -113,7 +117,7 @@ public interface BuildEndpoint{
     })
     @DELETE
     @Path("/{id}")
-    Response delete(@Parameter(description = B_ID) @PathParam("id") int id);
+    void delete(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets artifacts built in a specific build.",
             responses = {
@@ -126,7 +130,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/artifacts/built")
-    Response getBuiltArtifacts(
+    Page<Artifact> getBuiltArtifacts(
             @Parameter(description = B_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
@@ -141,7 +145,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/artifacts/dependencies")
-    Response getDependencyArtifacts(
+    Page<Artifact> getDependencyArtifacts(
             @Parameter(description = B_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
@@ -155,7 +159,7 @@ public interface BuildEndpoint{
     })
     @POST
     @Path("/{id}/attributes")
-    Response addAttribute(
+    void addAttribute(
             @Parameter(description = B_ID) @PathParam("id") int id,
             @Parameter(description = "Attribute key", required = true) @QueryParam("key") String key,
             @Parameter(description = "Attribute value", required = true) @QueryParam("value") String value);
@@ -170,26 +174,26 @@ public interface BuildEndpoint{
     })
     @DELETE
     @Path("/{id}/attributes")
-    Response removeAttribute(
+    void removeAttribute(
             @Parameter(description = B_ID) @PathParam("id") int id,
             @Parameter(description = "Attribute key", required = true) @QueryParam("key") String key);
 
     @Operation(summary = "Get Brew push result for specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                    content = @Content(schema = @Schema(implementation = BuildPushResultSingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}/brew-push")
-    Response getPushResult(@Parameter(description = B_ID) @PathParam("id") int id);
+    Singleton<BuildPushResult> getPushResult(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Push build to Brew.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(array = @ArraySchema( schema = @Schema(implementation = BuildPushResult.class)))),
+                    content = @Content(schema = @Schema(implementation = BuildPushResultPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -199,24 +203,24 @@ public interface BuildEndpoint{
     })
     @POST
     @Path("/{id}/brew-push")
-    Response push(BuildPushRequest buildRecordPushRequest);
+    Page<BuildPushResult> push(BuildPushRequest buildRecordPushRequest);
 
     @Operation(summary = "Cancels push of build to Brew.",
             responses = {
-                @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = "Can not find any Brew push in progress."),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
     @Path("/{id}/brew-push")
-    public Response cancelPush(@Parameter(description = B_ID) @PathParam("id") int id);
+    void cancelPush(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Notifies that the Brew push finished.",
             tags = "Internal",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = BuildPushResultSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -225,8 +229,8 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @Path("/{id}/brew-push/complete/")
-    public Response completePush(
+    @Path("/{id}/brew-push/complete")
+    Singleton<BuildPushResult> completePush(
             @Parameter(description = B_ID) @PathParam("id") int id,
             BuildPushResult buildRecordPushResult);
 
@@ -240,7 +244,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/build-configuration-revision")
-    Response getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") int id);
+    Singleton<BuildConfigurationRevision> getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Cancel running build.",
             responses = {
@@ -251,7 +255,7 @@ public interface BuildEndpoint{
     })
     @POST
     @Path("/{id}/cancel")
-    Response cancel(@Parameter(description = B_ID) @PathParam("id") int id);
+    void cancel(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets dependency graph for a build.",
             responses = {
@@ -263,7 +267,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/dependency-graph")
-    Response getDependencyGraph(@Parameter(description = B_ID) @PathParam("id") int id);
+    Graph<Build> getDependencyGraph(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets alignment logs for specific build.",
             responses = {
@@ -276,7 +280,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/logs/align")
     @Produces(MediaType.TEXT_PLAIN)
-    Response getAlignLogs(@Parameter(description = B_ID) @PathParam("id") int id);
+    String getAlignLogs(@Parameter(description = B_ID) @PathParam("id") int id);
 
 
     @Operation(summary = "Gets build logs for specific build.",
@@ -290,7 +294,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/logs/build")
     @Produces(MediaType.TEXT_PLAIN)
-    Response getBuildLogs(@Parameter(description = B_ID) @PathParam("id") int id);
+    String getBuildLogs(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets ssh credentials to log into the build pod.",
             description = "This GET requests require authentication",
@@ -305,7 +309,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/ssh-credentials/{id}") // TODO: Check that we can change to /{id}/ssh-credentials and keep auth: ("The path for the endpoint is not restful to be able to authenticate this GET request only.")
-    Response getSshCredentials(@Parameter(description = B_ID) @PathParam("id") int id);
+    SSHCredentials getSshCredentials(@Parameter(description = B_ID) @PathParam("id") int id);
 
 
 }

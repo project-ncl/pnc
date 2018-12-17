@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.internal.bpm.BPMTask;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BPMTaskPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BPMTaskSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -48,7 +51,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,7 +77,7 @@ public interface BpmEndpoint{
     @POST
     @Path("/tasks/{taskId}/notify")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response notifyTask(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
+    void notifyTask(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
     
     @Operation(summary = "List of (recently) active BPM tasks.",
             responses = {
@@ -90,7 +92,7 @@ public interface BpmEndpoint{
     })
     @GET
     @Path("/tasks")
-    public Response getBPMTasks(
+    public Page<BPMTask> getBPMTasks(
             @Parameter(description = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @Parameter(description = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize
     );
@@ -103,6 +105,6 @@ public interface BpmEndpoint{
     })
     @GET
     @Path("/tasks/{taskId}")
-    public Response getBPMTaskById(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
+    public Singleton<BPMTask> getBPMTaskById(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
 
 }

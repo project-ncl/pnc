@@ -18,12 +18,19 @@
 package org.jboss.pnc.rest.api.endpoints;
 
 
+import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.GroupConfiguration;
+import org.jboss.pnc.dto.ProductMilestone;
+import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestonePage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductReleasePage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductVersionSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -36,7 +43,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
@@ -79,7 +85,7 @@ public interface ProductVersionEndpoint{
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     @POST
-    Response createNewProductVersion(ProductVersion productVersion);
+    Singleton<ProductVersion> createNewProductVersion(ProductVersion productVersion);
 
     @Operation(summary = "Gets a specific product version.",
             responses = {
@@ -91,7 +97,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}")
-    Response getSpecific(@Parameter(description = PV_ID) @PathParam("id") int id);
+    Singleton<ProductVersion> getSpecific(@Parameter(description = PV_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product version.",
             responses = {
@@ -105,7 +111,7 @@ public interface ProductVersionEndpoint{
     })
     @PUT
     @Path("/{id}")
-    Response update(
+    void update(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             ProductVersion productVersion);
 
@@ -120,7 +126,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}/build-configurations")
-    Response getBuildConfigurations(
+    Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
 
@@ -135,14 +141,14 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}/group-configurations")
-    Response getGroupConfigurations(
+    Page<GroupConfiguration> getGroupConfigurations(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Gets all product milestones of a specific product version.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SwaggerPages.ProductMilestonePage.class))),
+                    content = @Content(schema = @Schema(implementation = ProductMilestonePage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -150,7 +156,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}/milestones")
-    Response getMilestones(
+    Page<ProductMilestone> getMilestones(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
@@ -158,7 +164,7 @@ public interface ProductVersionEndpoint{
     @Operation(summary = "Gets all product releases of a specific product version.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SwaggerPages.ProductReleasePage.class))),
+                    content = @Content(schema = @Schema(implementation = ProductReleasePage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -166,7 +172,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}/releases")
-    public Response getReleases(
+    ProductRelease getReleases(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 }

@@ -17,10 +17,15 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -64,7 +69,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
+import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -92,7 +98,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Response getAll(@BeanParam PageParameters pageParams);
+    Page<BuildConfiguration> getAll(@BeanParam PageParameters pageParams);
 
     @Operation(summary = "Creates a new build config.",
             responses = {
@@ -106,7 +112,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Response createNew(BuildConfiguration buildConfiguration);
+    Singleton<BuildConfiguration> createNew(BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Gets a specific build config.",
             responses = {
@@ -118,7 +124,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}")
-    Response getSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
+    Singleton<BuildConfiguration> getSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing build config.",
             responses = {
@@ -132,7 +138,7 @@ public interface BuildConfigurationEndpoint {
     })
     @PUT
     @Path("/{id}")
-    Response update(@Parameter(description = BC_ID) @PathParam("id") int id,
+    void update(@Parameter(description = BC_ID) @PathParam("id") int id,
             BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Removes a specific build config.",
@@ -144,7 +150,7 @@ public interface BuildConfigurationEndpoint {
     })
     @DELETE
     @Path("/{id}")
-    Response deleteSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
+    void deleteSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Triggers a build of a specific build config.",
             responses = {
@@ -159,7 +165,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/build")
-    Response trigger(
+    Singleton<Build> trigger(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam BuildParameters buildParams,
             @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
@@ -175,7 +181,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}/builds")
-    Response getBuilds(
+    Page<Build> getBuilds(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
@@ -190,7 +196,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/clone")
-    Response clone(@Parameter(description = BC_ID) @PathParam("id") int id);
+    Singleton<BuildConfiguration> clone(@Parameter(description = BC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets group configs associated with the specified build config.",
             responses = {
@@ -203,7 +209,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}/group-configurations")
-    Response getGroupConfigs(
+    Page<GroupConfiguration> getGroupConfigs(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
 
@@ -218,7 +224,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}/dependencies")
-    Response getDependencies(
+    Page<BuildConfiguration> getDependencies(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
 
@@ -232,7 +238,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/dependencies")
-    Response addDependency(
+    void addDependency(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             BuildConfigurationRef dependency);
 
@@ -245,7 +251,7 @@ public interface BuildConfigurationEndpoint {
     })
     @DELETE
     @Path("/{id}/dependencies/{depId}")
-    Response removeDependency(
+    void removeDependency(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @Parameter(description = "ID of the dependency") @PathParam("depId") int dependencyId);
     
@@ -260,7 +266,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}/revisions")
-    Response getRevisions(
+    Page<BuildConfigurationRevision> getRevisions(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
 
@@ -278,7 +284,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/revisions")
-    Response createRevision(
+    Singleton<BuildConfigurationRevision> createRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             BuildConfiguration buildConfiguration);
 
@@ -292,7 +298,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}/revisions/{rev}")
-    Response getRevision(
+    Singleton<BuildConfigurationRevision> getRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @Parameter(description = REV) @PathParam("rev") int rev);
 
@@ -309,7 +315,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/revisions/{rev}/build")
-    Response triggerRevision(
+    Singleton<Build> triggerRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @Parameter(description = REV) @PathParam("rev") int rev,
             @BeanParam BuildParameters buildParams,
@@ -330,7 +336,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/create-with-scm")
-    Response createWithSCM(BuildConfigWithSCMRequest request);
+    TaskResponse createWithSCM(BuildConfigWithSCMRequest request);
 
     @Operation(summary = "Provides list of supported parameters.",
             description = "Provides list of parameters supported by core, there can be also other parameters not known by core.",
@@ -340,6 +346,6 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/supported-parameters")
-    Response getSupportedParameters();
+    Set<org.jboss.pnc.dto.response.Parameter> getSupportedParameters();
 
 }

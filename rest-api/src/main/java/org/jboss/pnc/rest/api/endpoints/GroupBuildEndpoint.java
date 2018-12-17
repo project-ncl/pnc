@@ -17,8 +17,13 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Graph;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
@@ -42,7 +47,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
@@ -76,7 +80,7 @@ public interface GroupBuildEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Response getAll(@BeanParam PageParameters pageParams);
+    Page<GroupBuild> getAll(@BeanParam PageParameters pageParams);
 
     @Operation(summary = "Gets specific group build.",
             responses = {
@@ -88,7 +92,7 @@ public interface GroupBuildEndpoint {
     })
     @GET
     @Path("/{id}")
-    Response getSpecific(@Parameter(description = GB_ID) @PathParam("id") int id);
+    Singleton<GroupBuild> getSpecific(@Parameter(description = GB_ID) @PathParam("id") int id);
 
     @Operation(summary = "Delete specific temporary group build.",
             description = "The operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
@@ -100,7 +104,7 @@ public interface GroupBuildEndpoint {
     })
     @DELETE
     @Path("/{id}")
-    Response delete(@Parameter(description = GB_ID) @PathParam("id") int id);
+    void delete(@Parameter(description = GB_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets the builds associated with this group build.",
             responses = {
@@ -113,7 +117,7 @@ public interface GroupBuildEndpoint {
     })
     @GET
     @Path("/{id}/builds")
-    Response getBuilds(
+    Page<Build> getBuilds(
             @Parameter(description = GB_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
@@ -130,7 +134,7 @@ public interface GroupBuildEndpoint {
     })
     @POST
     @Path("/brew-push")
-    Response brewPush(GroupBuildPushRequest buildConfigSetRecordPushRequest);
+    void brewPush(GroupBuildPushRequest buildConfigSetRecordPushRequest);
 
     @Operation(summary = "Cancel all builds running in the build group.",
             responses = {
@@ -141,7 +145,7 @@ public interface GroupBuildEndpoint {
     })
     @POST
     @Path("/{id}/cancel")
-    Response cancel(@Parameter(description = GB_ID) @PathParam("id") int id);
+    void cancel(@Parameter(description = GB_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets builds dependency graph for a build group.",
             responses = {
@@ -153,6 +157,6 @@ public interface GroupBuildEndpoint {
     })
     @GET
     @Path("/{id}/dependency-graph")
-    Response getDependencyGraph(@Parameter(description = GB_ID) @PathParam("id") int id);
+    Graph<Build> getDependencyGraph(@Parameter(description = GB_ID) @PathParam("id") int id);
 
 }
