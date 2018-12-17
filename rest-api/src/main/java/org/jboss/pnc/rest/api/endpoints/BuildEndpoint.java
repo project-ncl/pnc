@@ -34,7 +34,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushResultPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigurationRevisionSingleton;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigRevisionSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildPushResultSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -237,7 +237,7 @@ public interface BuildEndpoint{
     @Operation(summary = "Gets the build config revision for specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevisionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionSingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

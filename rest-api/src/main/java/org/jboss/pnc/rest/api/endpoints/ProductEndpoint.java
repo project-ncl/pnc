@@ -24,7 +24,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductVersionPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductSingleton;
@@ -126,7 +126,7 @@ public interface ProductEndpoint{
     @Operation(summary = "Gets all build configs for a specific product.",
             responses = {
                     @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
+                            content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
