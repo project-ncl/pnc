@@ -60,16 +60,16 @@ public class SwaggerSingletons {
         }
     };
 
-    public static class BuildConfigurationSingleton extends Singleton<BuildConfiguration> {
+    public static class BuildConfigSingleton extends Singleton<BuildConfiguration> {
 
-        public BuildConfigurationSingleton(BuildConfiguration content) {
+        public BuildConfigSingleton(BuildConfiguration content) {
             super(content);
         }
     };
 
-    public static class BuildConfigurationRevisionSingleton extends Singleton<BuildConfigurationRevision> {
+    public static class BuildConfigRevisionSingleton extends Singleton<BuildConfigurationRevision> {
 
-        public BuildConfigurationRevisionSingleton(BuildConfigurationRevision content) {
+        public BuildConfigRevisionSingleton(BuildConfigurationRevision content) {
             super(content);
         }
     };

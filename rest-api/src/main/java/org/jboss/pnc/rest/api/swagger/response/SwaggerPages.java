@@ -46,8 +46,8 @@ import org.jboss.pnc.dto.response.Page;
 public class SwaggerPages {
     public static class ArtifactImportErrorPage extends Page<ArtifactImportError>{};
     public static class ArtifactPage extends Page<Artifact>{};
-    public static class BuildConfigurationPage extends Page<BuildConfiguration>{};
-    public static class BuildConfigurationRevisionPage extends Page<BuildConfigurationRevision>{};
+    public static class BuildConfigPage extends Page<BuildConfiguration>{};
+    public static class BuildConfigRevisionPage extends Page<BuildConfigurationRevision>{};
     public static class BuildEnvironmentPage extends Page<BuildEnvironment>{};
     public static class BuildPage extends Page<Build>{};
     public static class BuildPushResultPage extends Page<BuildPushResult>{};

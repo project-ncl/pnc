@@ -30,12 +30,12 @@ import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationRevisionPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigurationRevisionSingleton;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigurationSingleton;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigRevisionSingleton;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -91,7 +91,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Gets all build configs.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -103,7 +103,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Creates a new build config.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -117,7 +117,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Gets a specific build config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -189,10 +189,10 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Clones an existing build config.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationSingleton.class)))
+                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class)))
     })
     @POST
     @Path("/{id}/clone")
@@ -216,7 +216,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Get the direct dependencies of the specified build config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -258,7 +258,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Gets audited revisions of this build config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevisionPage.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -274,7 +274,7 @@ public interface BuildConfigurationEndpoint {
             description = "This endpoint can be used for updating build config while returning the new revision.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevisionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionSingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -291,7 +291,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Get specific audited revision of this build config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevisionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionSingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

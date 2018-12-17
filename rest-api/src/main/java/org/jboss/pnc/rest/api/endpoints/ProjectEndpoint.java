@@ -26,7 +26,7 @@ import org.jboss.pnc.dto.response.Singleton;
 import static org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint.BC_ID;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProjectSingleton;
@@ -142,7 +142,7 @@ public interface ProjectEndpoint{
     @Operation(summary = "Gets all build configs associated with the specified project.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationPage.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
