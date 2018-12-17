@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.ClientApi;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -76,34 +77,34 @@ public interface ProjectEndpointX{
 
     @GET
     @Path("/{id}")
-    public Project getSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
+    public Singleton<Project> getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
 
     @GET
-    public Project getAll(@BeanParam PageParameters pageParameters);
+    public Page<Project> getAll(@BeanParam PageParameters pageParameters);
 
     @POST
-    public Project createNew(Project project);
+    public Singleton<Project> createNew(Project project);
 
     @PUT
     @Path("/{id}")
-    public Project update(
-            @Parameter(description = P_ID) @PathParam("id") String id,
+    public Singleton<Project> update(
+            @Parameter(description = P_ID) @PathParam("id") int id,
             Project project);
 
     @DELETE
     @Path("/{id}")
-    public Project deleteSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
+    public Singleton<Project> deleteSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
     @GET
     @Path("/{id}/build-configurations")
     public Page<BuildConfiguration> getBuildConfigurations(
-            @Parameter(description = "Project Id") @PathParam("id") String id,
+            @Parameter(description = "Project Id") @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = BC_ID) @PathParam("id") String id,
+            @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 

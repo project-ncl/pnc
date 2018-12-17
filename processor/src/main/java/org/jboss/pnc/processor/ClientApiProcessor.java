@@ -36,6 +36,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.ws.rs.ClientErrorException;
@@ -60,7 +61,6 @@ public class ClientApiProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        System.out.println(">>>>>>>>> PROCESSING ....");
         try {
             return process0(annotations, roundEnv);
         } catch (IOException e) {
@@ -73,6 +73,8 @@ public class ClientApiProcessor extends AbstractProcessor {
         Set<? extends Element> restApiInterfaces = roundEnv.getElementsAnnotatedWith(ClientApi.class);
 
         for (Element ednpointApi : restApiInterfaces) {
+
+            System.out.println(">>> Generating client for " + ednpointApi.getSimpleName().toString());
 
             List<MethodSpec> methods = new ArrayList<>();
 
@@ -94,26 +96,27 @@ public class ClientApiProcessor extends AbstractProcessor {
                     builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
                             .beginControlFlow("try");
 
-                    //startsWith beacuse off the generics
+                    //startsWith because off the generics
                     if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Page").toString())) {
                         //Page result
                         builder.returns(TypeName.get(returnType))
                                 .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
-                    } else {
+                    } else if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Singleton").toString())) {
                         //single result
+                        TypeMirror singletonTypeGeneric = ((DeclaredType)returnType).getTypeArguments().get(0); //TODO some validation
                         if (restApiMethod.getAnnotation(GET.class) != null) {
-                            builder.returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnType)))
-                                    .addStatement(
-                                            "return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))");
+                                builder
+                                    .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(singletonTypeGeneric)))
+                                    .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())");
                         } else if (restApiMethod.getAnnotation(POST.class) != null) {
-                            builder.returns(TypeName.get(returnType))
-                                    .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
+                            builder.returns(TypeName.get(singletonTypeGeneric))
+                                    .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()");
                         } else if (restApiMethod.getAnnotation(PUT.class) != null || restApiMethod.getAnnotation(DELETE.class) != null) {
                             String parameterName = parameters.get(0);
                             builder
                                 .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
-                                .returns(TypeName.get(returnType))
-                                .addStatement(TypeName.get(returnType) + " entity = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                .returns(TypeName.get(singletonTypeGeneric))
+                                .addStatement(TypeName.get(singletonTypeGeneric) + " entity = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()")
                                 .beginControlFlow("if (entity == null)")
                                 .addStatement("throw new RemoteResourceNotFoundException(\"Could not found remote resource.\")")
                                 .endControlFlow()
@@ -154,10 +157,6 @@ public class ClientApiProcessor extends AbstractProcessor {
                     .build()
                     .writeTo(processingEnv.getFiler());
         }
-
-
-        helloWord();
-
         return true;
     }
 

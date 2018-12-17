@@ -36,7 +36,7 @@ public class ProjectTest {
 
     @Test
     public void shouldCreateNewProject()
-            throws RemoteResourceCreateException, RemoteResourseReadException, RemoteResourceException {
+            throws RemoteResourceException {
 //        ProjectClient projectClient = new ProjectClient(connectionInfo);
         ProjectEndpointXClient projectClient = new ProjectEndpointXClient(connectionInfo);
 
@@ -47,7 +47,7 @@ public class ProjectTest {
 
         Project projectReturned = projectClient.createNew(project);
 
-        String returnedId = projectReturned.getId();
+        int returnedId = projectReturned.getId();
         Assert.assertNotNull(returnedId);
 
         Optional<Project> stored = projectClient.getSpecific(returnedId);
