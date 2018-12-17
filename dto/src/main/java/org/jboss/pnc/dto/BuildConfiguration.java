@@ -38,7 +38,7 @@ import lombok.Data;
 public class BuildConfiguration extends BuildConfigurationRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final RepositoryConfiguration repositoryConfiguration;
+    private final SCMRepository repository;
 
     @RefHasId(groups = WhenCreatingNew.class)
     private final ProjectRef project;
@@ -56,9 +56,9 @@ public class BuildConfiguration extends BuildConfigurationRef {
     private final Map<String, String> genericParameters;
 
     @lombok.Builder(builderClassName = "Builder")
-    public BuildConfiguration(RepositoryConfiguration repositoryConfiguration, ProjectRef project, BuildEnvironment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
+    public BuildConfiguration(SCMRepository repository, ProjectRef project, BuildEnvironment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
         super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, archived, buildType);
-        this.repositoryConfiguration = repositoryConfiguration;
+        this.repository = repository;
         this.project = project;
         this.environment = environment;
         this.dependencyIds = dependencyIds;

@@ -33,7 +33,7 @@ import org.jboss.pnc.dto.ProductMilestoneRelease;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.Project;
-import org.jboss.pnc.dto.RepositoryConfiguration;
+import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.internal.bpm.BPMTask;
@@ -60,7 +60,7 @@ public class SwaggerPages {
     public static class ProductReleasePage extends Page<ProductRelease>{};
     public static class ProductVersionPage extends Page<ProductVersion>{};
     public static class ProjectPage extends Page<Project>{};
-    public static class RepositoryConfigurationPage extends Page<RepositoryConfiguration>{};
+    public static class SCMRepositoryPage extends Page<SCMRepository>{};
     public static class TargetRepositoryPage extends Page<TargetRepository>{};
     public static class UserPage extends Page<User>{};
     public static class BPMTaskPage extends Page<BPMTask>{};

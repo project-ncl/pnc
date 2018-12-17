@@ -33,7 +33,7 @@ import org.jboss.pnc.dto.ProductMilestoneRelease;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.Project;
-import org.jboss.pnc.dto.RepositoryConfiguration;
+import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.internal.bpm.BPMTask;
@@ -158,9 +158,9 @@ public class SwaggerSingletons {
         }
     };
 
-    public static class RepositoryConfigurationSingleton extends Singleton<RepositoryConfiguration> {
+    public static class SCMRepositorySingleton extends Singleton<SCMRepository> {
 
-        public RepositoryConfigurationSingleton(RepositoryConfiguration content) {
+        public SCMRepositorySingleton(SCMRepository content) {
             super(content);
         }
     };

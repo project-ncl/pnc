@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-import org.jboss.pnc.dto.RepositoryConfiguration;
+import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.RepositoryConfigurationPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.RepositoryConfigurationSingleton;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.SCMRepositorySingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 
@@ -75,14 +75,14 @@ public interface SCMRepositoryEndpoint{
     @Operation(summary = "Gets all SCM repositories.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = RepositoryConfigurationPage.class))),
+                    content = @Content(schema = @Schema(implementation = SCMRepositoryPage.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<RepositoryConfiguration> getAll(
+    Page<SCMRepository> getAll(
             @BeanParam PageParameters pageParameters,
             @Parameter(description = "Url to search for") @QueryParam(MATCH_QUERY_PARAM) String url,
             @Parameter(description = "Url part to search for") @QueryParam(SEARCH_QUERY_PARAM) String scmUrl);
@@ -90,7 +90,7 @@ public interface SCMRepositoryEndpoint{
     @Operation(summary = "Gets a specific SCM repository.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = RepositoryConfigurationSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = SCMRepositorySingleton.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -99,7 +99,7 @@ public interface SCMRepositoryEndpoint{
     })
     @GET
     @Path("/{id}")
-    Singleton<RepositoryConfiguration> getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
+    Singleton<SCMRepository> getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing SCM repository.",
             responses = {
@@ -115,13 +115,13 @@ public interface SCMRepositoryEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = SCM_ID) @PathParam("id") int id,
-            RepositoryConfiguration repositoryConfiguration);
+            SCMRepository repositoryConfiguration);
 
     @Operation(summary = "Creates a new SCM repository.",
             description = "If the given URL is external, it does create the repository in the scm server.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = RepositoryConfigurationSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = SCMRepositorySingleton.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -131,5 +131,5 @@ public interface SCMRepositoryEndpoint{
     })
     @POST
     @Path("/create-and-sync")
-    Singleton<RepositoryConfiguration> createNew(CreateAndSyncSCMRequest request);
+    Singleton<SCMRepository> createNew(CreateAndSyncSCMRequest request);
 }
