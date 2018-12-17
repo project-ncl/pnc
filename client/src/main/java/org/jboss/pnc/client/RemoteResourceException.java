@@ -20,17 +20,9 @@ package org.jboss.pnc.client;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class ClientException extends Exception {
+public class RemoteResourceException extends ClientException {
 
-    public ClientException(String message) {
-        super(message);
-    }
-
-    public ClientException(Throwable cause) {
+    public RemoteResourceException(Throwable cause) {
         super(cause);
-    }
-
-    public ClientException(String message, Exception e) {
-        super(message, e);
     }
 }

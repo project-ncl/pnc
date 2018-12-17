@@ -35,8 +35,10 @@ public class ProjectTest {
             .build();
 
     @Test
-    public void shouldCreateNewProject() throws RemoteResourceCreateException, RemoteResourseReadException {
-        ProjectClient projectClient = new ProjectClient(connectionInfo);
+    public void shouldCreateNewProject()
+            throws RemoteResourceCreateException, RemoteResourseReadException, RemoteResourceException {
+//        ProjectClient projectClient = new ProjectClient(connectionInfo);
+        ProjectEndpointXClient projectClient = new ProjectEndpointXClient(connectionInfo);
 
         Project project = Project.builder()
                 .projectUrl("https://github.com/entity-ncl/pnc")

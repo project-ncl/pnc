@@ -39,7 +39,10 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,25 +91,39 @@ public class ClientApiProcessor extends AbstractProcessor {
                     }
                     String parametersList = parameters.stream().collect(Collectors.joining(","));
 
-                    builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourseReadException"))
+                    builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
                             .beginControlFlow("try");
 
-                    if (restApiMethod.getAnnotation(GET.class) != null) {
-                        //startsWith beacuse off the generics
-                        if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Page").toString())) {
-                            //Collection
+                    //startsWith beacuse off the generics
+                    if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Page").toString())) {
+                        //Page result
+                        builder.returns(TypeName.get(returnType))
+                                .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
+                    } else {
+                        //single result
+                        if (restApiMethod.getAnnotation(GET.class) != null) {
+                            builder.returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnType)))
+                                    .addStatement(
+                                            "return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))");
+                        } else if (restApiMethod.getAnnotation(POST.class) != null) {
                             builder.returns(TypeName.get(returnType))
                                     .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
-                        } else {
-                            builder.returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnType)))
-                                    .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))");
+                        } else if (restApiMethod.getAnnotation(PUT.class) != null || restApiMethod.getAnnotation(DELETE.class) != null) {
+                            String parameterName = parameters.get(0);
+                            builder
+                                .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
+                                .returns(TypeName.get(returnType))
+                                .addStatement(TypeName.get(returnType) + " entity = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                .beginControlFlow("if (entity == null)")
+                                .addStatement("throw new RemoteResourceNotFoundException(\"Could not found remote resource.\")")
+                                .endControlFlow()
+                                .addStatement("return entity");
                         }
                     }
 
-
                     MethodSpec methodSpec = builder
                             .nextControlFlow("catch ($T e)", ClientErrorException.class)
-                            .addStatement("throw new RemoteResourseReadException(\"Cannot get remote resource.\", e)")
+                            .addStatement("throw new RemoteResourceException(e)")
                             .endControlFlow()
                             .build();
                     methods.add(methodSpec);
