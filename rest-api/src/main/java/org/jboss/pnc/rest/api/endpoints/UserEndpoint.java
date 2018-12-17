@@ -17,7 +17,11 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.UserSingleton;
@@ -28,7 +32,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -61,7 +64,7 @@ public interface UserEndpoint{
     })
     @GET
     @Path("/current")
-    public Response getCurrentUser();
+    Singleton<User> getCurrentUser();
 
     @Operation(summary = "Gets all builds triggered by specific user.",
             responses = {
@@ -74,7 +77,7 @@ public interface UserEndpoint{
     })
     @GET
     @Path("/{id}/builds")
-    public Response getBuilds(
+    Page<Build> getBuilds(
             @Parameter(description = "ID of the user") @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 

@@ -30,6 +30,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductReleaseSingleton;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -46,6 +47,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,7 +78,7 @@ public interface ProductReleaseEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    public Response createNew(ProductRelease productRelease);
+    Singleton<ProductRelease> createNew(ProductRelease productRelease);
 
     @Operation(summary = "Gets a specific product release.",
             responses = {
@@ -87,7 +90,7 @@ public interface ProductReleaseEndpoint{
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@Parameter(description = PR_ID) @PathParam("id") int id);
+    Singleton<ProductRelease> getSpecific(@Parameter(description = PR_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product release.",
             responses = {
@@ -101,7 +104,7 @@ public interface ProductReleaseEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(
+    void update(
             @Parameter(description = PR_ID) @PathParam("id") int id,
             ProductRelease productRelease);
 
@@ -114,6 +117,6 @@ public interface ProductReleaseEndpoint{
     })
     @GET
     @Path("/support-levels")
-    public Response getAllSupportLevel();
+    Set<SupportLevel> getAllSupportLevel();
 
 }

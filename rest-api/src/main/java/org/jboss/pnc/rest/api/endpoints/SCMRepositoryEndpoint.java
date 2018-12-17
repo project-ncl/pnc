@@ -20,6 +20,8 @@ package org.jboss.pnc.rest.api.endpoints;
 import org.jboss.pnc.dto.RepositoryConfiguration;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.RepositoryConfigurationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.RepositoryConfigurationSingleton;
@@ -35,7 +37,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -81,7 +82,7 @@ public interface SCMRepositoryEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Response getAll(
+    Page<RepositoryConfiguration> getAll(
             @BeanParam PageParameters pageParameters,
             @Parameter(description = "Url to search for") @QueryParam(MATCH_QUERY_PARAM) String url,
             @Parameter(description = "Url part to search for") @QueryParam(SEARCH_QUERY_PARAM) String scmUrl);
@@ -98,7 +99,7 @@ public interface SCMRepositoryEndpoint{
     })
     @GET
     @Path("/{id}")
-    Response getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
+    Singleton<RepositoryConfiguration> getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing SCM repository.",
             responses = {
@@ -112,7 +113,7 @@ public interface SCMRepositoryEndpoint{
     })
     @PUT
     @Path("/{id}")
-    Response update(
+    void update(
             @Parameter(description = SCM_ID) @PathParam("id") int id,
             RepositoryConfiguration repositoryConfiguration);
 
@@ -130,5 +131,5 @@ public interface SCMRepositoryEndpoint{
     })
     @POST
     @Path("/create-and-sync")
-    public Response createNew(CreateAndSyncSCMRequest request);
+    Singleton<RepositoryConfiguration> createNew(CreateAndSyncSCMRequest request);
 }

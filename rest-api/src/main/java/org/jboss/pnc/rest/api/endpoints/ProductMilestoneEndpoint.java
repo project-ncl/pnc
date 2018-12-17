@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductMilestoneSingleton;
@@ -34,7 +37,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -79,7 +81,7 @@ public interface ProductMilestoneEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    public Response createNew(ProductMilestone productMilestone);
+    Singleton<ProductMilestone> createNew(ProductMilestone productMilestone);
 
     @Operation(summary = "Gets a specific product milestone.",
             responses = {
@@ -91,7 +93,7 @@ public interface ProductMilestoneEndpoint{
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@Parameter(description = PM_ID) @PathParam("id") int id);
+    Singleton<ProductMilestone> getSpecific(@Parameter(description = PM_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product milestone.",
             responses = {
@@ -105,7 +107,7 @@ public interface ProductMilestoneEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(
+    void update(
             @Parameter(description = PM_ID) @PathParam("id") int id,
             ProductMilestone productMilestone);
 
@@ -120,7 +122,7 @@ public interface ProductMilestoneEndpoint{
     })
     @GET
     @Path("/{id}/builds")
-    public Response getPerformedBuilds(
+    Page<Build> getPerformedBuilds(
             @Parameter(description = PM_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
@@ -136,13 +138,13 @@ public interface ProductMilestoneEndpoint{
     })
     @POST
     @Path("/{id}/close")
-    public Response closeMilestone(
+    void closeMilestone(
             @Parameter(description = PM_ID) @PathParam("id") int id,
             ProductMilestone productMilestone);
 
     @Operation(summary = "Cancel product milestone close process.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
@@ -150,6 +152,6 @@ public interface ProductMilestoneEndpoint{
     })
     @DELETE
     @Path("/{id}/close")
-    public Response cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") int id);
+    void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") int id);
 
 }

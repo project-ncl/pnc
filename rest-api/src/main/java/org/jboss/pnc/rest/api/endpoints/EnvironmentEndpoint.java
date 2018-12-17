@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.BuildEnvironment;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildEnvironmentPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildEnvironmentSingleton;
@@ -28,7 +31,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -64,7 +66,7 @@ public interface EnvironmentEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
+    Page<BuildEnvironment> getAll(@BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Gets a specific environment.",
             responses = {
@@ -76,6 +78,6 @@ public interface EnvironmentEndpoint{
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
+    Singleton<BuildEnvironment> getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
 
 }

@@ -17,8 +17,12 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Product;
+import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigurationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductPage;
@@ -33,7 +37,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -76,7 +79,7 @@ public interface ProductEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Response getAll(@BeanParam PageParameters pageParameters);
+    Page<Product> getAll(@BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Creates a new product.",
             responses = {
@@ -90,7 +93,7 @@ public interface ProductEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Response createNew(Product product);
+    Singleton<Product> createNew(Product product);
 
     @Operation(summary = "Gets a specific product.",
             responses = {
@@ -102,7 +105,7 @@ public interface ProductEndpoint{
     })
     @GET
     @Path("/{id}")
-    Response getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    Singleton<Product> getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product.",
             responses = {
@@ -116,7 +119,7 @@ public interface ProductEndpoint{
     })
     @PUT
     @Path("/{id}")
-    Response update(
+    void update(
             @Parameter(description = P_ID) @PathParam("id") int id,
             Product product);
 
@@ -131,7 +134,7 @@ public interface ProductEndpoint{
             })
     @GET
     @Path("/{id}/build-configurations")
-    Response getBuildConfigurations(
+    Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = P_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
 
@@ -146,7 +149,7 @@ public interface ProductEndpoint{
     })
     @GET
     @Path("/{id}/versions")
-    Response getProductVersions(
+    Page<ProductVersion> getProductVersions(
             @Parameter(description = P_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 

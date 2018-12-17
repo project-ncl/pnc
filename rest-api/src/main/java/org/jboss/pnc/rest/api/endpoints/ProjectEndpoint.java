@@ -17,8 +17,12 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Singleton;
 import static org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint.BC_ID;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -36,7 +40,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -81,7 +84,7 @@ public interface ProjectEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    public Response getAll(@BeanParam PageParameters pageParameters);
+    Page<Project> getAll(@BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Creates a new project.",
             responses = {
@@ -95,7 +98,7 @@ public interface ProjectEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    public Response createNew(Project project);
+    Singleton<Project> createNew(Project project);
 
     @Operation(summary = "Gets a specific project.",
             responses = {
@@ -107,7 +110,7 @@ public interface ProjectEndpoint{
     })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    Singleton<Project> getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing project.",
             responses = {
@@ -121,7 +124,7 @@ public interface ProjectEndpoint{
     })
     @PUT
     @Path("/{id}")
-    public Response update(
+    void update(
             @Parameter(description = P_ID) @PathParam("id") int id,
             Project project);
 
@@ -134,7 +137,7 @@ public interface ProjectEndpoint{
     })
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    void deleteSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets all build configs associated with the specified project.",
             responses = {
@@ -147,7 +150,7 @@ public interface ProjectEndpoint{
     })
     @GET
     @Path("/{id}/build-configurations")
-    public Response getBuildConfigurations(
+    Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = "Project Id") @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
@@ -162,7 +165,7 @@ public interface ProjectEndpoint{
     })
     @GET
     @Path("/{id}/builds")
-    Response getBuilds(
+    Page<Build> getBuilds(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
