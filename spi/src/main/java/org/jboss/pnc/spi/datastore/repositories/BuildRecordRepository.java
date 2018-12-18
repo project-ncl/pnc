@@ -45,11 +45,21 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates,
                                                             List<Predicate<BuildRecord>> orPredicates);
 
-    BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId);
+    BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean buildTemporary);
 
-    default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords) {
+    default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean buildTemporary) {
         return buildRecords.stream()
-                .filter(b -> b.getStatus() == BuildStatus.SUCCESS)
+                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
+                /*
+                 * filter out the temporary records if we are building persistent(temporaryBuild == false)
+                 * For clarification:
+                 *  |     temporaryBuild     | !record.isTemporaryBuild() |  CONDITION IN FILTER  |
+                 *  |         TRUE           |          TRUE              |        TRUE           |
+                 *  |         TRUE           |          FALSE             |        TRUE           |
+                 *  |         FALSE          |          TRUE              |        TRUE           |
+                 *  |         FALSE          |          FALSE             |        FALSE          |
+                 */
+                .filter(record -> buildTemporary || !record.isTemporaryBuild() )
                 .sorted((o1, o2) -> -o1.getId().compareTo(o2.getId()))
                 .findFirst().orElse(null);
     }
@@ -60,5 +70,5 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId);
 
-    BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev);
+    BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
 }

@@ -126,7 +126,7 @@ public class BuildResultPushManager {
             Integer pushBuildRecordId = null;
             if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
                 IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
-                buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev);
+                buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, buildRecord.isTemporaryBuild());
                 if (buildRecord != null) {
                     pushBuildRecordId = buildRecord.getId();
                 } else {

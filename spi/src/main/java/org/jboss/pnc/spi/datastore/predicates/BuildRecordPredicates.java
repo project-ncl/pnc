@@ -81,6 +81,18 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> cb.equal(root.get(BuildRecord_.status), BuildStatus.SUCCESS);
     }
 
+    /**
+     * Only relevant situation is when (temporary is false) and whole right side is false.
+     * Right side is false when BuildRecord is temporary => cb.isFalse(true) (true is not false)
+     *  -> conclusion = in case requested build is not temporary (persistent) and record is temporary, record is ignored
+     *
+     * @param temporary if requested build is temporary
+     * @return Predicate that filters out temporary records when dealing with persistent builds
+     */
+    public static Predicate<BuildRecord> includeTemporary(boolean temporary) {
+        return (root, query, cb) -> (temporary) ? cb.and() : cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+    }
+
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
         return (root, query, cb) -> {
 

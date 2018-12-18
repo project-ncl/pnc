@@ -26,7 +26,6 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
@@ -47,8 +46,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
@@ -107,21 +110,21 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
-        List<BuildRecord> buildRecords = queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
-        return getLatestSuccessfulBuildRecord(buildRecords);
+    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean temporaryBuild) {
+        List<BuildRecord> buildRecords = queryWithBuildConfigurationId(configurationId);
+        return getLatestSuccessfulBuildRecord(buildRecords, temporaryBuild);
     }
 
     @Override
     public List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId) {
-        return queryWithPredicates(BuildRecordPredicates.withBuildConfigurationId(configurationId));
+        return queryWithPredicates(withBuildConfigurationId(configurationId));
     }
 
     @Override
     public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
         return queryWithPredicates(
-                BuildRecordPredicates.temporaryBuild(),
-                BuildRecordPredicates.buildFinishedBefore(date));
+                temporaryBuild(),
+                buildFinishedBefore(date));
     }
 
     @Override
@@ -147,14 +150,15 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(IdRev idRev) {
+    public BuildRecord getLatestSuccessfulBuildRecord(IdRev idRev, boolean temporaryBuild) {
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
         SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.id.getName());
 
         List<BuildRecord> buildRecords = queryWithPredicates(pageInfo,
                 sortInfo,
                 withBuildConfigurationIdRev(idRev),
-                withSuccess());
+                withSuccess(),
+                includeTemporary(temporaryBuild));
 
         if (buildRecords.size() == 0) {
             return null;

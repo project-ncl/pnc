@@ -60,15 +60,16 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId) {
+    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean temporaryBuild) {
         List<BuildRecord> buildRecords = queryAll();
-        return getLatestSuccessfulBuildRecord(configurationId, buildRecords);
+        return getLatestSuccessfulBuildRecord(configurationId, buildRecords, temporaryBuild);
     }
 
-    public static BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, List<BuildRecord> buildRecords) {
+    public static BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, List<BuildRecord> buildRecords, boolean temporaryBuild) {
         return buildRecords.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
+                .filter(br -> !(temporaryBuild==false && br.isTemporaryBuild()))
                 .sorted(Comparator.comparing(BuildRecord::getId).reversed())
                 .findFirst().orElse(null);
     }
@@ -91,7 +92,7 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev) {
+    public BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild) {
         return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data);
     }
 
