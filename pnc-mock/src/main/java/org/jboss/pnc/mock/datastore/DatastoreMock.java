@@ -160,7 +160,8 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies) {
+    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies,
+            boolean temporaryBuild) {
         return true;
     }
 

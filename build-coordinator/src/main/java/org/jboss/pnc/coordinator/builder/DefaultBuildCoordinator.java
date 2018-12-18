@@ -255,7 +255,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void validateAndEnqueueBuildConfigurationSetTasks(BuildConfigurationSet buildConfigurationSet, BuildOptions buildOptions, BuildSetTask buildSetTask) {
         checkForEmptyBuildSetTask(buildSetTask);
         if (!buildOptions.isForceRebuild()) {
-            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet, buildOptions.isImplicitDependenciesCheck());
+            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet, buildOptions.isImplicitDependenciesCheck(),
+                    buildOptions.isTemporaryBuild());
         }
 
         checkForCyclicDependencies(buildSetTask);
@@ -264,14 +265,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask,
             BuildConfigurationSet buildConfigurationSet,
-            boolean checkImplicitDependencies) {
+            boolean checkImplicitDependencies, boolean temporaryBuild) {
         Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
         int requiresRebuild = buildConfigurations.size();
         log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
         for (BuildConfiguration buildConfiguration : buildConfigurations) {
             BuildConfigurationAudited buildConfigurationAudited =
                     datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
-            if (!datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies)) {
+            if (!datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild)) {
                 requiresRebuild--;
             }
         }

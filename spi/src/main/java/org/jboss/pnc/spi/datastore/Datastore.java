@@ -109,9 +109,11 @@ public interface Datastore {
      *
      * @param buildConfigurationAudited
      * @param checkImplicitDependencies when true check also automatically captured dependencies.
+     * @param temporaryBuild true if requested build is going to be temporary
      * @return
      */
-    boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies );
+    boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies,
+            boolean temporaryBuild);
 
     @Deprecated
     boolean requiresRebuild(BuildTask task);
