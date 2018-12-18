@@ -103,7 +103,8 @@ public class BuildTasksInitializer {
                             toBuild,
                             visited,
                             buildOptions.isImplicitDependenciesCheck(),
-                            buildOptions.isForceRebuild()));
+                            buildOptions.isForceRebuild(),
+                            buildOptions.isTemporaryBuild()));
         }
     }
 
@@ -122,20 +123,22 @@ public class BuildTasksInitializer {
             Set<BuildConfigurationAudited> toBuild,
             Set<BuildConfiguration> visited,
             boolean checkImplicitDependencies,
-            boolean forceRebuild) {
+            boolean forceRebuild,
+            boolean temporaryBuild) {
         if (visited.contains(buildConfiguration)) {
             return toBuild.contains(buildConfigurationAudited);
         }
         visited.add(buildConfiguration);
 
-        boolean requiresRebuild = forceRebuild || datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies);
+        boolean requiresRebuild = forceRebuild || datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild);
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
             boolean dependencyRequiresRebuild = collectDependentConfigurations(dependency,
                     datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()),
                     toBuild,
                     visited,
                     checkImplicitDependencies,
-                    forceRebuild);
+                    forceRebuild,
+                    temporaryBuild);
 
             requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
 
