@@ -15,27 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.client;
+package org.jboss.pnc.processor.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-class RestResponse<T> {
-
-    private final int status;
-
-    private final T entity;
-
-    public RestResponse(int status, T entity) {
-        this.status = status;
-        this.entity = entity;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public T getEntity() {
-        return entity;
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Client {
 }

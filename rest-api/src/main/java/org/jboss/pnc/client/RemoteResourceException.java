@@ -17,24 +17,12 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public abstract class ClientBaseSimple {
+public class RemoteResourceException extends ClientException {
 
-    protected final String BASE_PATH = "/pnc-rest/rest";
-
-    protected final ResteasyClient client;
-
-    protected final ResteasyWebTarget target;
-
-    protected ClientBaseSimple(ConnectionInfo connectionInfo) {
-        client = new ResteasyClientBuilder().build();
-        target = client.target(connectionInfo.getProtocol() + "://" + connectionInfo.getHost() + ":" + connectionInfo.getPort() + BASE_PATH);
+    public RemoteResourceException(Throwable cause) {
+        super(cause);
     }
-
 }

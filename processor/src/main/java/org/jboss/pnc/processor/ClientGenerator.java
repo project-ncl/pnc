@@ -23,7 +23,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import org.jboss.pnc.processor.annotation.ClientApi;
+import org.jboss.pnc.processor.annotation.Client;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -55,12 +55,17 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @SupportedAnnotationTypes(
-        {"org.jboss.pnc.processor.annotation.ClientApi"})
+        {"org.jboss.pnc.processor.annotation.Client"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-public class ClientApiProcessor extends AbstractProcessor {
+public class ClientGenerator extends AbstractProcessor {
+
+    public ClientGenerator() {
+
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        System.out.println("Running annotation processor ...");
         try {
             return process0(annotations, roundEnv);
         } catch (IOException e) {
@@ -70,7 +75,7 @@ public class ClientApiProcessor extends AbstractProcessor {
     }
 
     private boolean process0(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) throws IOException {
-        Set<? extends Element> restApiInterfaces = roundEnv.getElementsAnnotatedWith(ClientApi.class);
+        Set<? extends Element> restApiInterfaces = roundEnv.getElementsAnnotatedWith(Client.class);
 
         for (Element ednpointApi : restApiInterfaces) {
 
@@ -79,6 +84,11 @@ public class ClientApiProcessor extends AbstractProcessor {
             List<MethodSpec> methods = new ArrayList<>();
 
             for (ExecutableElement restApiMethod : ElementFilter.methodsIn(ednpointApi.getEnclosedElements())) {
+                System.out.println(">>> >> Processing method " + restApiMethod.getSimpleName());
+                System.out.println(">>> >>  " + restApiMethod.getAnnotationMirrors());
+
+
+
                 if (restApiMethod.getKind() == ElementKind.METHOD) {
                     TypeMirror returnType = restApiMethod.getReturnType();
 
@@ -111,16 +121,20 @@ public class ClientApiProcessor extends AbstractProcessor {
                         } else if (restApiMethod.getAnnotation(POST.class) != null) {
                             builder.returns(TypeName.get(singletonTypeGeneric))
                                     .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()");
-                        } else if (restApiMethod.getAnnotation(PUT.class) != null || restApiMethod.getAnnotation(DELETE.class) != null) {
-                            String parameterName = parameters.get(0);
+                        }
+                    } else if (ClassName.get(returnType).toString().equals("void")) {
+                        //void response
+                        if (restApiMethod.getAnnotation(PUT.class) != null || restApiMethod.getAnnotation(DELETE.class) != null) {
+                            //                            String parameterName = parameters.get(0);
                             builder
-                                .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
-                                .returns(TypeName.get(singletonTypeGeneric))
-                                .addStatement(TypeName.get(singletonTypeGeneric) + " entity = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()")
-                                .beginControlFlow("if (entity == null)")
-                                .addStatement("throw new RemoteResourceNotFoundException(\"Could not found remote resource.\")")
-                                .endControlFlow()
-                                .addStatement("return entity");
+                                    .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
+                                    //.returns(TypeName.get(singletonTypeGeneric))
+                                    .returns(TypeName.get(void.class))
+                                    .addStatement("getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
+                            //.beginControlFlow("if (entity == null)")
+                            //.addStatement("throw new RemoteResourceNotFoundException(\"Could not found remote resource.\")")
+                            //.endControlFlow()
+                            //.addStatement("return entity");
                         }
                     }
 
@@ -150,7 +164,7 @@ public class ClientApiProcessor extends AbstractProcessor {
                     .addMethod(constructor)
                     .addMethod(getEndpoint)
                     .addMethods(methods)
-                    .superclass(ClassName.get("org.jboss.pnc.client", "ClientBaseSimple"))
+                    .superclass(ClassName.get("org.jboss.pnc.client", "ClientBase"))
                     .build();
 
             JavaFile.builder("org.jboss.pnc.client", clazz)
@@ -159,23 +173,4 @@ public class ClientApiProcessor extends AbstractProcessor {
         }
         return true;
     }
-
-    private void helloWord() throws IOException {
-        MethodSpec main = MethodSpec.methodBuilder("main")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(void.class)
-                .addParameter(String[].class, "args")
-                .addStatement("$T.out.println($S)", System.class, "Hello, JavaPoet!")
-                .build();
-
-        TypeSpec helloWorld = TypeSpec.classBuilder("ProjectClientX")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addMethod(main)
-                .build();
-
-        JavaFile.builder("org.jboss.pnc.client", helloWorld)
-                .build()
-                .writeTo(processingEnv.getFiler());
-    }
-
 }

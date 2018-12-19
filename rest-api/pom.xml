@@ -42,7 +42,12 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>dto</artifactId>
         </dependency>
-    
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+        </dependency>
+
+
         <!-- REST dependencies -->
         <dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
@@ -59,8 +64,13 @@
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
-        
-    
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>
