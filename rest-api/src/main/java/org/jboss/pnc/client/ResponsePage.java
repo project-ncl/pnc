@@ -17,24 +17,11 @@
  */
 package org.jboss.pnc.client;
 
+import org.jboss.pnc.dto.response.Page;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class RemoteResourceException extends ClientException {
+public class ResponsePage<T> extends Page<T> {
 
-    private final int status;
-
-    public RemoteResourceException(Throwable cause) {
-        super(cause);
-        status = -1;
-    }
-
-    public RemoteResourceException(String message, int status) {
-        super(message + " status: " + status);
-        this.status = status;
-    }
-
-    public int getStatus() {
-        return status;
-    }
 }

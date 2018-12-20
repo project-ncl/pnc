@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.processor;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -44,7 +45,9 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -77,13 +80,14 @@ public class ClientGenerator extends AbstractProcessor {
     private boolean process0(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) throws IOException {
         Set<? extends Element> restApiInterfaces = roundEnv.getElementsAnnotatedWith(Client.class);
 
-        for (Element ednpointApi : restApiInterfaces) {
+        for (Element endpointApi : restApiInterfaces) {
 
-            System.out.println(">>> Generating client for " + ednpointApi.getSimpleName().toString());
+            System.out.println(">>> Generating client for " + endpointApi.getSimpleName().toString());
 
             List<MethodSpec> methods = new ArrayList<>();
+            List<MethodSpec> restMethods = new ArrayList<>();
 
-            for (ExecutableElement restApiMethod : ElementFilter.methodsIn(ednpointApi.getEnclosedElements())) {
+            for (ExecutableElement restApiMethod : ElementFilter.methodsIn(endpointApi.getEnclosedElements())) {
                 System.out.println(">>> >> Processing method " + restApiMethod.getSimpleName());
                 System.out.println(">>> >>  " + restApiMethod.getAnnotationMirrors());
 
@@ -104,53 +108,79 @@ public class ClientGenerator extends AbstractProcessor {
                     String parametersList = parameters.stream().collect(Collectors.joining(","));
 
                     builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
+                            .addStatement("$T response = null;", Response.class)
                             .beginControlFlow("try");
 
                     //startsWith because off the generics
                     if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Page").toString())) {
                         //Page result
                         builder.returns(TypeName.get(returnType))
-                                .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
+                        .addStatement("response = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                        .addStatement("return readPageResponse(response)");
                     } else if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Singleton").toString())) {
                         //single result
                         TypeMirror singletonTypeGeneric = ((DeclaredType)returnType).getTypeArguments().get(0); //TODO some validation
                         if (restApiMethod.getAnnotation(GET.class) != null) {
-                                builder
+                            builder
                                     .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(singletonTypeGeneric)))
-                                    .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())");
+                                    .addStatement("response = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                    .addStatement("return Optional.ofNullable(readSingletonResponse(response, $T.HTTP_OK, $T.HTTP_NO_CONTENT))", HttpURLConnection.class, HttpURLConnection.class);
                         } else if (restApiMethod.getAnnotation(POST.class) != null) {
                             builder.returns(TypeName.get(singletonTypeGeneric))
-                                    .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()");
+                                    .addStatement("response = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                    .addStatement("return readSingletonResponse(response, HttpURLConnection.HTTP_CREATED)");
                         }
                     } else if (ClassName.get(returnType).toString().equals("void")) {
                         //void response
-                        if (restApiMethod.getAnnotation(PUT.class) != null || restApiMethod.getAnnotation(DELETE.class) != null) {
+                        builder
+                                .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
+                                //.returns(TypeName.get(singletonTypeGeneric))
+                                .returns(TypeName.get(void.class));
+                        if (restApiMethod.getAnnotation(PUT.class) != null) {
                             //                            String parameterName = parameters.get(0);
+
                             builder
-                                    .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
-                                    //.returns(TypeName.get(singletonTypeGeneric))
-                                    .returns(TypeName.get(void.class))
-                                    .addStatement("getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")");
-                            //.beginControlFlow("if (entity == null)")
-                            //.addStatement("throw new RemoteResourceNotFoundException(\"Could not found remote resource.\")")
-                            //.endControlFlow()
-                            //.addStatement("return entity");
+                                    .addStatement("response = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                    .addStatement("validateUpdate(response)");
+                        }
+                        if (restApiMethod.getAnnotation(DELETE.class) != null) {
+                            builder
+                                    .addStatement("response = getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                    .addStatement("validateDelete(response)");
                         }
                     }
 
                     MethodSpec methodSpec = builder
                             .nextControlFlow("catch ($T e)", ClientErrorException.class)
                             .addStatement("throw new RemoteResourceException(e)")
+                            .nextControlFlow("finally")
+                                .beginControlFlow("if (response != null)")
+                                .addStatement("response.close()")
+                                .endControlFlow()
                             .endControlFlow()
                             .build();
                     methods.add(methodSpec);
+
+
+                    MethodSpec.Builder restMethodBuilder = MethodSpec.methodBuilder(restApiMethod.getSimpleName().toString())
+                            .returns(Response.class)
+                            .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                            .addAnnotations(restApiMethod.getAnnotationMirrors().stream().map(mirror -> AnnotationSpec.get(mirror)).collect(Collectors.toSet()));
+
+                    for (VariableElement parameter : restApiMethod.getParameters()) {
+                        restMethodBuilder.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
+                    }
+
+                    restMethods.add(restMethodBuilder.build());
                 }
             }
 
+            String clientInterfaceName = endpointApi.getSimpleName().toString() + "RestClient";
+
             MethodSpec getEndpoint = MethodSpec.methodBuilder("getEndpoint")
                     .addModifiers(Modifier.PROTECTED)
-                    .returns(TypeName.get(ednpointApi.asType()))
-                    .addStatement("return target.proxy(" + ednpointApi.asType().toString() + ".class)")
+                    .returns(ClassName.get("org.jboss.pnc.client", clientInterfaceName))
+                    .addStatement("return target.proxy(" + clientInterfaceName + ".class)")
                     .build();
 
             MethodSpec constructor = MethodSpec.constructorBuilder()
@@ -159,7 +189,7 @@ public class ClientGenerator extends AbstractProcessor {
                     .addStatement("super(connectionInfo)")
                     .build();
 
-            TypeSpec clazz = TypeSpec.classBuilder(ednpointApi.getSimpleName().toString() + "Client")
+            TypeSpec javaClientClass = TypeSpec.classBuilder(endpointApi.getSimpleName().toString() + "Client")
                     .addModifiers(Modifier.PUBLIC)
                     .addMethod(constructor)
                     .addMethod(getEndpoint)
@@ -167,7 +197,22 @@ public class ClientGenerator extends AbstractProcessor {
                     .superclass(ClassName.get("org.jboss.pnc.client", "ClientBase"))
                     .build();
 
-            JavaFile.builder("org.jboss.pnc.client", clazz)
+//            AnnotationSpec.get(Client.class);
+            TypeName clientAnnotation = TypeName.get(Client.class);
+
+            TypeSpec clientInterface = TypeSpec.interfaceBuilder(clientInterfaceName)
+                    .addAnnotations(endpointApi.getAnnotationMirrors().stream()
+                            .filter(mirror -> !TypeName.get(mirror.getAnnotationType()).equals(clientAnnotation))
+                            .map(mirror -> AnnotationSpec.get(mirror)).collect(Collectors.toSet()))
+                    .addModifiers(Modifier.PUBLIC)
+                    .addMethods(restMethods)
+                    .build();
+
+            JavaFile.builder("org.jboss.pnc.client", javaClientClass)
+                    .build()
+                    .writeTo(processingEnv.getFiler());
+
+            JavaFile.builder("org.jboss.pnc.client", clientInterface)
                     .build()
                     .writeTo(processingEnv.getFiler());
         }

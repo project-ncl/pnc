@@ -17,7 +17,12 @@
  */
 package org.jboss.pnc.client;
 
+import org.jboss.pnc.dto.Project;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -30,24 +35,24 @@ public class ProjectTest {
             .port(8080)
             .build();
 
-    @Test
+    @Test @Ignore
     public void shouldCreateNewProject()
             throws RemoteResourceException {
-//        ProjectEndpointClient projectClient = new ProjectEndpointClient(connectionInfo);
-//
-//        Project project = Project.builder()
-//                .projectUrl("https://github.com/entity-ncl/pnc")
-//                .issueTrackerUrl("https://github.com/entity-ncl/pnc/issues")
-//                .build();
-//
-//        Project projectReturned = projectClient.createNew(project);
-//
-//        int returnedId = projectReturned.getId();
-//        Assert.assertNotNull(returnedId);
-//
-//        Optional<Project> stored = projectClient.getSpecific(returnedId);
-//        Assert.assertTrue(stored.isPresent());
-//        Assert.assertNotNull(stored.get().getName());
+        ProjectEndpointClient projectClient = new ProjectEndpointClient(connectionInfo);
+
+        Project project = Project.builder()
+                .projectUrl("https://github.com/entity-ncl/pnc")
+                .issueTrackerUrl("https://github.com/entity-ncl/pnc/issues")
+                .build();
+
+        Project projectReturned = projectClient.createNew(project);
+
+        int returnedId = projectReturned.getId();
+        Assert.assertNotNull(returnedId);
+
+        Optional<Project> stored = projectClient.getSpecific(returnedId);
+        Assert.assertTrue(stored.isPresent());
+        Assert.assertNotNull(stored.get().getName());
     }
 
 }
