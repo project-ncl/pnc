@@ -38,6 +38,9 @@ public class ProjectTest {
     @Test @Ignore
     public void shouldCreateNewProject()
             throws RemoteResourceException {
+
+        System.out.println("aabbcc".replaceAll("bb", ""));
+
         ProjectEndpointClient projectClient = new ProjectEndpointClient(connectionInfo);
 
         Project project = Project.builder()

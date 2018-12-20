@@ -89,9 +89,7 @@ public class ClientGenerator extends AbstractProcessor {
 
             for (ExecutableElement restApiMethod : ElementFilter.methodsIn(endpointApi.getEnclosedElements())) {
                 System.out.println(">>> >> Processing method " + restApiMethod.getSimpleName());
-                System.out.println(">>> >>  " + restApiMethod.getAnnotationMirrors());
-
-
+//                System.out.println(">>> >>  " + restApiMethod.getAnnotationMirrors());
 
                 if (restApiMethod.getKind() == ElementKind.METHOD) {
                     TypeMirror returnType = restApiMethod.getReturnType();
@@ -179,7 +177,7 @@ public class ClientGenerator extends AbstractProcessor {
 
             MethodSpec getEndpoint = MethodSpec.methodBuilder("getEndpoint")
                     .addModifiers(Modifier.PROTECTED)
-                    .returns(ClassName.get("org.jboss.pnc.client", clientInterfaceName))
+                    .returns(ClassName.get("org.jboss.pnc.rest.api.responseendpoints", clientInterfaceName))
                     .addStatement("return target.proxy(" + clientInterfaceName + ".class)")
                     .build();
 
@@ -189,7 +187,10 @@ public class ClientGenerator extends AbstractProcessor {
                     .addStatement("super(connectionInfo)")
                     .build();
 
-            TypeSpec javaClientClass = TypeSpec.classBuilder(endpointApi.getSimpleName().toString() + "Client")
+            String clientName = endpointApi.getSimpleName().toString() + "Client";
+            clientName = clientName.replaceAll("Endpoint", "");
+
+            TypeSpec javaClientClass = TypeSpec.classBuilder(clientName)
                     .addModifiers(Modifier.PUBLIC)
                     .addMethod(constructor)
                     .addMethod(getEndpoint)
@@ -197,7 +198,6 @@ public class ClientGenerator extends AbstractProcessor {
                     .superclass(ClassName.get("org.jboss.pnc.client", "ClientBase"))
                     .build();
 
-//            AnnotationSpec.get(Client.class);
             TypeName clientAnnotation = TypeName.get(Client.class);
 
             TypeSpec clientInterface = TypeSpec.interfaceBuilder(clientInterfaceName)
@@ -212,7 +212,7 @@ public class ClientGenerator extends AbstractProcessor {
                     .build()
                     .writeTo(processingEnv.getFiler());
 
-            JavaFile.builder("org.jboss.pnc.client", clientInterface)
+            JavaFile.builder("org.jboss.pnc.rest.api.responseendpoints", clientInterface)
                     .build()
                     .writeTo(processingEnv.getFiler());
         }
