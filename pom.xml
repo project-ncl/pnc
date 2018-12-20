@@ -98,7 +98,6 @@
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
     <module>bpm</module>
     <module>process-managers</module>
-    <module>client</module>
     <module>processor</module>
   </modules>
 
@@ -356,6 +355,13 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api</artifactId>
+        <classifier>java-client</classifier>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-new</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -381,12 +387,6 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>process-managers</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>client</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -1058,11 +1058,6 @@
         <groupId>com.squareup</groupId>
         <artifactId>javapoet</artifactId>
         <version>1.9.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.javassist</groupId>
-        <artifactId>javassist</artifactId>
-        <version>3.18.1-GA</version>
       </dependency>
 
     </dependencies>

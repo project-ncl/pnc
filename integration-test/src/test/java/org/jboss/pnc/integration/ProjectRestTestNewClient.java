@@ -27,6 +27,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -53,7 +54,7 @@ public class ProjectRestTestNewClient {
     @Before
     public void before() {
         if(projectClient == null) {
-            ConnectionInfo connectionInfo = ConnectionInfo.newBuilder()
+            ConnectionInfo connectionInfo = ConnectionInfo.builder()
                     .host("localhost")
                     .port(8080)
                     .build();
@@ -61,7 +62,7 @@ public class ProjectRestTestNewClient {
         }
     }
 
-    @Test
+    @Test @Ignore
     public void shouldInsertNewProject() throws Exception {
         //given
         Project project = Project.builder()
