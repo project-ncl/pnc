@@ -26,7 +26,8 @@
   "appPath": "app",
   "resolutions": {
     "angular": "1.5.8",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "bootstrap": "~3.3.7"
   },
   "overrides": {
     "angular-websocket": {
