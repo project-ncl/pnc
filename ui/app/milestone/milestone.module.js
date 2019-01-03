@@ -44,17 +44,17 @@
           title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Milestone'
         },
         resolve: {
-          milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
+          milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
             return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
                 .$promise;
-          },
-          distributedArtifacts: function (ProductMilestoneDAO, $stateParams) {
+          }],
+          distributedArtifacts: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
             return ProductMilestoneDAO.getPagedDistributedArtifacts({milestoneId: $stateParams.milestoneId}).$promise;
-          },
-          performedBuilds: function (ProductMilestoneDAO, $stateParams) {
+          }],
+          performedBuilds: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
             return ProductMilestoneDAO.getPagedPerformedBuilds({milestoneId: $stateParams.milestoneId}).$promise;
-          },
-          latestRelease: function (ProductMilestoneDAO, $stateParams, $log) {
+          }],
+          latestRelease: ['ProductMilestoneDAO', '$stateParams', '$log', function (ProductMilestoneDAO, $stateParams, $log) {
             return ProductMilestoneDAO
                 .getLatestRelease({ milestoneId: $stateParams.milestoneId })
                 .$promise
@@ -62,7 +62,7 @@
                   $log.error('Error loading release workflow: ' + JSON.stringify(error));
                   return {};
                 });
-          }
+          }]
         }
       })
       .state('product.detail.version.milestoneDetail.log', {
@@ -95,7 +95,7 @@
           requireAuth: true
         },
         resolve: {
-          milestoneDetail: function() { return null; }
+          milestoneDetail: [function() { return null; }]
         },
       })
       .state('product.detail.version.milestoneUpdate', {
@@ -113,10 +113,10 @@
           requireAuth: true
         },
         resolve: {
-          milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
+          milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
             return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
               .$promise;
-          }
+          }]
         }
       })
       .state('product.detail.version.milestoneClose', {
@@ -134,10 +134,10 @@
           requireAuth: true
         },
         resolve: {
-          milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
+          milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
             return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
               .$promise;
-          }
+          }]
         }
       });
 

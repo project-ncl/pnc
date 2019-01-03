@@ -48,9 +48,9 @@
 	  controller: 'ProductShippedReportController',
 	  controllerAs: 'productShippedReportCtrl',
 	  resolve: {
-		 whitelistProducts: function(ReportDAO) {
+		 whitelistProducts: ['ReportDAO', function(ReportDAO) {
 	       return ReportDAO.getWhitelistProducts();
-	     }
+	     }]
       }
     });
 
@@ -87,9 +87,9 @@
         controller: 'DifferentArtifactsInProductsReportController',
         controllerAs: 'diffGAVInProdReportCtrl',
         resolve: {
-           whitelistProducts: function(ReportDAO) {
+           whitelistProducts: ['ReportDAO', function(ReportDAO) {
              return ReportDAO.getWhitelistProducts();
-           }
+           }]
         }
       });
 
@@ -116,13 +116,13 @@
     	controller: 'ProjectProductDiff',
     	controllerAs: 'ctr',
     	resolve: {
-    	  productList: function(ReportDAO) {
+    	  productList: ['ReportDAO', function(ReportDAO) {
           return ReportDAO.getWhitelistProducts().then(function(products) {
             return _(products).sortBy(function(p) {
               return p.name + p.version;
             }).value().reverse();
           });
-        }
+        }]
       }
     });
 

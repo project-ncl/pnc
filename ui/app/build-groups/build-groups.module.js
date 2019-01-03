@@ -34,9 +34,9 @@
 
       // NCL-2401 changed the module base URL, this redirect should
       // be removed at some point in the future.
-      $urlRouterProvider.when(/^\/configuration-set\/.*/, function ($location) {
+      $urlRouterProvider.when(/^\/configuration-set\/.*/, ['$location', function ($location) {
         return $location.url().replace('/configuration-set/', '/build-groups/');
-      });
+      }]);
 
       $stateProvider.state('build-groups', {
         abstract: true,
@@ -61,9 +61,9 @@
         controller: 'ConfigurationSetListController',
         controllerAs: 'setlistCtrl',
         resolve: {
-          configurationSetList: function(BuildConfigurationSetDAO) {
+          configurationSetList: ['BuildConfigurationSetDAO', function(BuildConfigurationSetDAO) {
             return BuildConfigurationSetDAO.getAll().$promise;
-          }
+          }]
         }
       });
 
@@ -78,21 +78,21 @@
         controller: 'ConfigurationSetDetailController',
         controllerAs: 'detailSetCtrl',
         resolve: {
-          configurationSetDetail: function(BuildConfigurationSet, $stateParams) {
+          configurationSetDetail: ['BuildConfigurationSet', '$stateParams', function(BuildConfigurationSet, $stateParams) {
             return BuildConfigurationSet.get({
               id: $stateParams.configurationSetId }).$promise;
-          },
-          productVersion: function ($q, ProductVersion, configurationSetDetail) {
+          }],
+          productVersion: ['$q', 'ProductVersion', 'configurationSetDetail', function ($q, ProductVersion, configurationSetDetail) {
             return $q.when(configurationSetDetail.productVersionId).then(function (id) {
               if (id) {
                 return ProductVersion.get({ id: id }).$promise;
               }
             });
-          },
-          configurations: function(BuildConfigurationSetDAO, $stateParams) {
+          }],
+          configurations: ['BuildConfigurationSetDAO', '$stateParams', function(BuildConfigurationSetDAO, $stateParams) {
             return BuildConfigurationSetDAO.getConfigurations({
               configurationSetId: $stateParams.configurationSetId });
-          },
+          }],
           previousState: ['$state', '$q', function ($state, $q) {
             var currentStateData = {
               Name: $state.current.name,
@@ -143,9 +143,9 @@
         controller: 'ConfigurationSetCreateController',
         controllerAs: 'createSetCtrl',
         resolve: {
-          products: function(ProductDAO) {
+          products: ['ProductDAO', function(ProductDAO) {
             return ProductDAO.getAll();
-          },
+          }],
         },
       });
 
@@ -160,13 +160,13 @@
         controller: 'ConfigurationSetAddConfigurationController',
         controllerAs: 'addConfigurationSetCtrl',
         resolve: {
-          configurationSetDetail: function(BuildConfigurationSetDAO, $stateParams) {
+          configurationSetDetail: ['BuildConfigurationSetDAO', '$stateParams', function(BuildConfigurationSetDAO, $stateParams) {
             return BuildConfigurationSetDAO.get({
               configurationSetId: $stateParams.configurationSetId }).$promise;
-          },
-          projects: function(ProjectDAO) {
+          }],
+          projects: ['ProjectDAO', function(ProjectDAO) {
             return ProjectDAO.query();
-          }
+          }]
         }
       });
     }

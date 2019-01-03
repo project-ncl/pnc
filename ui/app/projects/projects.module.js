@@ -32,9 +32,9 @@
 
       // NCL-2402 changed the module base URL, this redirect should
       // be removed at some point in the future.
-      $urlRouterProvider.when(/^\/project\/.*/, function ($location) {
+      $urlRouterProvider.when(/^\/project\/.*/, ['$location', function ($location) {
         return $location.url().replace('/project/', '/projects');
-      });
+      }]);
 
       $stateProvider.state('projects', {
         abstract: true,
@@ -59,9 +59,9 @@
         controller: 'ProjectListController',
         controllerAs: 'listCtrl',
         resolve: {
-          projectList: function(ProjectDAO) {
+          projectList: ['ProjectDAO', function(ProjectDAO) {
             return ProjectDAO.getAll().$promise;
-          }
+          }]
         }
       });
 
@@ -75,10 +75,10 @@
         controller: 'ProjectDetailController',
         controllerAs: 'detailCtrl',
         resolve: {
-          projectDetail: function(ProjectDAO, $stateParams) {
+          projectDetail: ['ProjectDAO', '$stateParams', function(ProjectDAO, $stateParams) {
             return ProjectDAO.get({
               projectId: $stateParams.projectId}).$promise;
-          }
+          }]
         }
       });
 
@@ -93,10 +93,10 @@
         controller: 'CreateBCController',
         controllerAs: 'ctrl',
         resolve: {
-          projectDetail: function(ProjectDAO, $stateParams) {
+          projectDetail: ['ProjectDAO', '$stateParams', function(ProjectDAO, $stateParams) {
             return ProjectDAO.get({
               projectId: $stateParams.projectId}).$promise;
-          }
+          }]
         }
       });
 
