@@ -45,7 +45,7 @@
         requireAuth: true
       },
       resolve: {
-        releaseDetail: function() { return null; }
+        releaseDetail: [function() { return null; }]
       },
     })
     .state('product.detail.version.releaseUpdate', {
@@ -63,10 +63,10 @@
         requireAuth: true
       },
       resolve: {
-        releaseDetail: function(ProductReleaseDAO, $stateParams) {
+        releaseDetail: ['ProductReleaseDAO', '$stateParams', function(ProductReleaseDAO, $stateParams) {
           return ProductReleaseDAO.get({ releaseId: $stateParams.releaseId })
           .$promise;
-        },
+        }],
       },
     });
 

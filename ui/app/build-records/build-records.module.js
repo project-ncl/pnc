@@ -33,9 +33,9 @@
 
       // NCL-2402 changed the module base URL, this redirect should
       // be removed at some point in the future.
-      $urlRouterProvider.when(/^\/record\/?.*/, function ($location) {
+      $urlRouterProvider.when(/^\/record\/?.*/, ['$location', function ($location) {
         return $location.url().replace('/record', '/build-records');
-      });
+      }]);
 
       $stateProvider.state('build-records', {
         abstract: true,
@@ -54,9 +54,9 @@
         abstract: true,
         url: '/{recordId:int}',
         resolve: {
-          recordDetail: function (BuildRecord, $stateParams) {
+          recordDetail: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
             return BuildRecord.get({ id: $stateParams.recordId }).$promise;
-          }
+          }]
         }
       });
 
@@ -160,12 +160,12 @@
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
         resolve: {
-          recordDetail: function (BuildRecord, $stateParams) {
+          recordDetail: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
             return BuildRecord.get({ id: $stateParams.recordId }).$promise;
-          },
-          buildRecordPushResult: function (BuildRecord, $stateParams) {
+          }],
+          buildRecordPushResult: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
             return BuildRecord.getLatestPushStatus($stateParams.recordId);
-          }
+          }]
         }
       });
 
@@ -187,14 +187,14 @@
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Log'
         },
         resolve: {
-          buildLog: function (BuildRecord, recordDetail) {
+          buildLog: ['BuildRecord', 'recordDetail', function (BuildRecord, recordDetail) {
             return BuildRecord.getLog({ id: recordDetail.id }).$promise;
-          },
-          sshCredentials: function (BuildRecord, recordDetail) {
+          }],
+          sshCredentials: ['BuildRecord', 'recordDetail', function (BuildRecord, recordDetail) {
             return BuildRecord.getSshCredentials({
               recordId: recordDetail.id
             });
-          }
+          }]
         }
       });
 
@@ -208,9 +208,9 @@
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Artifacts'
         },
         resolve: {
-          artifacts: function (recordDetail) {
+          artifacts: ['recordDetail', function (recordDetail) {
             return recordDetail.$getBuiltArtifacts({ pageSize: 10 });
-          }
+          }]
         }
       });
 
@@ -224,9 +224,9 @@
             title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Dependencies'
           },
           resolve: {
-            artifacts: function (recordDetail) {
+            artifacts: ['recordDetail', function (recordDetail) {
               return recordDetail.$getDependencies({ pageSize: 10 });
-            }
+            }]
           }
         });
 
@@ -243,9 +243,9 @@
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Alignment Log'
         },
         resolve: {
-          repourLog: function (BuildRecord, recordDetail) {
+          repourLog: ['BuildRecord', 'recordDetail', function (BuildRecord, recordDetail) {
             return BuildRecord.getRepourLog({ id: recordDetail.id }).$promise;
-          }
+          }]
         }
       });
 
@@ -260,9 +260,9 @@
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Brew Push'
         },
         resolve: {
-          buildRecordPushResult: function (BuildRecord, $stateParams) {
+          buildRecordPushResult: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
             return BuildRecord.getLatestPushStatus($stateParams.recordId);
-          }
+          }]
         }
       });
 

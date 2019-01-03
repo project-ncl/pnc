@@ -48,9 +48,9 @@
         title: 'Repository Configurations'
       },
       resolve: {
-        repositoryConfigurations: function(RepositoryConfiguration) {
+        repositoryConfigurations: ['RepositoryConfiguration', function(RepositoryConfiguration) {
           return RepositoryConfiguration.query().$promise;
-        }
+        }]
       }
     });
 
@@ -62,11 +62,11 @@
         title: '{{ repositoryConfiguration.getName() }} | Repository Configuration'
       },
       resolve: {
-        repositoryConfiguration: function(RepositoryConfiguration, $stateParams) {
+        repositoryConfiguration: ['RepositoryConfiguration', '$stateParams', function(RepositoryConfiguration, $stateParams) {
           return RepositoryConfiguration.get({
             id: $stateParams.repositoryConfigurationId
           }).$promise;
-        }
+        }]
       }
     });
 

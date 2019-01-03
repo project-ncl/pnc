@@ -53,9 +53,9 @@
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
       resolve: {
-        productList: function(ProductDAO) {
+        productList: ['ProductDAO', function(ProductDAO) {
           return ProductDAO.getAll().$promise;
-        }
+        }]
       }
     });
 
@@ -69,10 +69,10 @@
       controller: 'ProductDetailController',
       controllerAs: 'detailCtrl',
       resolve: {
-        productDetail: function(ProductDAO, $stateParams) {
+        productDetail: ['ProductDAO', '$stateParams', function(ProductDAO, $stateParams) {
           return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
-        }
+        }]
       }
     });
 
@@ -91,19 +91,19 @@
          title: '{{ versionDetail.version }} | {{ productDetail.name }}'
       },
       resolve: {
-        productDetail: function(ProductDAO, $stateParams) {
+        productDetail: ['ProductDAO', '$stateParams', function(ProductDAO, $stateParams) {
           return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
-        },
-        versionDetail: function(ProductVersionDAO, $stateParams) {
+        }],
+        versionDetail: ['ProductVersionDAO', '$stateParams', function(ProductVersionDAO, $stateParams) {
           return ProductVersionDAO.get({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
-        },
-        closedMilestoneDetail: function(ProductMilestoneDAO, $stateParams) {
+        }],
+        closedMilestoneDetail: ['ProductMilestoneDAO', '$stateParams', function(ProductMilestoneDAO, $stateParams) {
           return ProductMilestoneDAO.getClosedMilestone({
             versionId: $stateParams.versionId });
-        }
+        }]
         
       }
     });
@@ -135,10 +135,10 @@
         requireAuth: true
       },
       resolve: {
-        productDetail: function(ProductDAO, $stateParams) {
+        productDetail: ['ProductDAO', '$stateParams', function(ProductDAO, $stateParams) {
           return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
-        },
+        }],
       },
     });
 
