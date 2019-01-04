@@ -111,16 +111,6 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.description = description;
     }
 
-    @Deprecated
-    public String getImageRepositoryUrl() {
-        return systemImageRepositoryUrl;
-    }
-
-    @Deprecated
-    public void setImageRepositoryUrl(String systemImageRepositoryUrl) {
-        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
-    }
-
     public String getSystemImageRepositoryUrl() {
         return systemImageRepositoryUrl;
     }
