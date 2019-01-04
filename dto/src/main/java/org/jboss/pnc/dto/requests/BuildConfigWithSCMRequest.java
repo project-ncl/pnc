@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.BuildConfiguration;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -35,6 +36,7 @@ import lombok.Setter;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildConfigWithSCMRequest.Builder.class)
 public class BuildConfigWithSCMRequest {
 
     @NotBlank

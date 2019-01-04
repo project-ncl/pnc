@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -31,6 +32,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = ProductVersion.Builder.class)
 public class ProductVersion extends ProductVersionRef {
 
     @RefHasId(groups = {WhenCreatingNew.class})

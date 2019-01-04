@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import java.time.Instant;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 
@@ -30,6 +31,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = GroupBuild.Builder.class)
 public class GroupBuild extends GroupBuildRef {
 
     private final GroupConfigurationRef groupConfig;

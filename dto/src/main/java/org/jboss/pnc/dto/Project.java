@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -32,6 +33,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = Project.Builder.class)
 public class Project extends ProjectRef {
 
     private final List<BuildConfigurationRef> buildConfigurations;

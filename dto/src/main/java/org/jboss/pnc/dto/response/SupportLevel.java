@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = SupportLevel.Builder.class)
 public class SupportLevel {
 
     public final String name;

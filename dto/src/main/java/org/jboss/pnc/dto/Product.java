@@ -19,6 +19,7 @@ package org.jboss.pnc.dto;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -30,6 +31,7 @@ import lombok.Setter;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = Product.Builder.class)
 public class Product extends ProductRef {
 
     @Getter

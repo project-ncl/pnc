@@ -21,6 +21,7 @@ import org.jboss.pnc.enums.RepositoryType;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -30,6 +31,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = TargetRepository.Builder.class)
 public class TargetRepository extends TargetRepositoryRef {
 
     private final Set<Integer> artifactIds;

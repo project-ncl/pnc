@@ -26,6 +26,7 @@ import javax.validation.constraints.Null;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -37,6 +38,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+@JsonDeserialize(builder = ArtifactRef.Builder.class)
 public class ArtifactRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)

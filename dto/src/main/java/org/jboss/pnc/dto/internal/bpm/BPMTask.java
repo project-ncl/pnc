@@ -19,6 +19,7 @@ package org.jboss.pnc.dto.internal.bpm;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -32,6 +33,7 @@ import lombok.Setter;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BPMTask.Builder.class)
 public class BPMTask {
 
     /**

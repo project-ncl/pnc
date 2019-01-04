@@ -20,6 +20,7 @@ package org.jboss.pnc.dto.internal.bpm;
 import org.jboss.pnc.enums.BPMTaskStatus;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -30,6 +31,7 @@ import lombok.Data;
  */
 @Data
 @JsonTypeName(value = ProcessProgressUpdate.PROCESS_PROGRESS_UPDATE)
+@JsonDeserialize(builder = ProcessProgressUpdate.Builder.class)
 public class ProcessProgressUpdate extends BPMNotification {
     static final String PROCESS_PROGRESS_UPDATE = "PROCESS_PROGRESS_UPDATE";
 

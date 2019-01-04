@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -35,6 +36,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = BuildConfiguration.Builder.class)
 public class BuildConfiguration extends BuildConfigurationRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
