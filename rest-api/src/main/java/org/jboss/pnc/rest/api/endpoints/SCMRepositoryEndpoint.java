@@ -70,6 +70,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Path("/repository-configurations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Client
 public interface SCMRepositoryEndpoint{
     static final String SCM_ID =  "ID of the SCM repository";
 

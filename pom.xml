@@ -98,6 +98,7 @@
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
     <module>bpm</module>
     <module>process-managers</module>
+    <module>processor</module>
   </modules>
 
   <properties>
@@ -354,6 +355,13 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-api</artifactId>
+        <classifier>java-client</classifier>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-new</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -379,6 +387,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>process-managers</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>processor</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -763,6 +777,16 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-client</artifactId>
+        <version>${version.org.jboss.resteasy}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jackson2-provider</artifactId>
+        <version>${version.org.jboss.resteasy}</version>
+      </dependency>
 
       <dependency>
         <groupId>commons-beanutils</groupId>
@@ -1029,6 +1053,11 @@
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
         <version>1.5.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup</groupId>
+        <artifactId>javapoet</artifactId>
+        <version>1.9.0</version>
       </dependency>
 
     </dependencies>

@@ -2,7 +2,7 @@
 
 ## [<version>] - <yyyy>-<mm>-<dd>
 ### Added
-- Section
+- Java Client lib
 
 ### Changed
 - Section

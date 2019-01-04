@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupBuild;
@@ -25,6 +31,7 @@ import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Singleton;
+import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -34,10 +41,9 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupBuildSingleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupConfigSingleton;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -49,6 +55,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -68,19 +76,11 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
-import javax.ws.rs.BeanParam;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 @Tag(name = "Group Configs")
 @Path("/group-configuration")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Client
 public interface GroupConfigurationEndpoint{
     static final String GC_ID = "ID of the group config";
 

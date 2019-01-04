@@ -213,7 +213,7 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
         Response responseAll = given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(REPOSITORY_CONFIGURATION_REST_ENDPOINT);
-        System.out.println(responseAll.asString());
+        logger.debug(responseAll.asString());
 
         //when
         Response responseMatch = given().headers(testHeaders)
