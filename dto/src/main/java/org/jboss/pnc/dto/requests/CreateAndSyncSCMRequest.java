@@ -19,6 +19,7 @@ package org.jboss.pnc.dto.requests;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -30,6 +31,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
 public class CreateAndSyncSCMRequest {
 
     @NotBlank

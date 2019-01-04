@@ -19,6 +19,7 @@ package org.jboss.pnc.dto.requests;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -30,6 +31,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildPushRequest.Builder.class)
 public class BuildPushRequest {
 
     private final String tagPrefix;

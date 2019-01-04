@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +37,7 @@ import org.jboss.pnc.dto.validation.constraints.SCMUrl;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = SCMRepository.Builder.class)
 public class SCMRepository implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)

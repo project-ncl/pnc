@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +37,7 @@ import java.time.Instant;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = ProductMilestoneRelease.Builder.class)
 public class ProductMilestoneRelease implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)

@@ -18,6 +18,7 @@
 package org.jboss.pnc.dto.internal;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -29,6 +30,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = ArtifactRepository.Builder.class)
 public class ArtifactRepository {
 
     private final Integer id;

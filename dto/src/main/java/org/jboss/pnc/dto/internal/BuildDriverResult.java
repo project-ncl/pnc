@@ -19,6 +19,7 @@ package org.jboss.pnc.dto.internal;
 
 import org.jboss.pnc.enums.BuildStatus;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -30,6 +31,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildDriverResult.Builder.class)
 public class BuildDriverResult {
 
     private final String buildLog;

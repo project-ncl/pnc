@@ -26,6 +26,7 @@ import javax.validation.constraints.Null;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -37,6 +38,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildEnvironment.Builder.class)
 public class BuildEnvironment implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)

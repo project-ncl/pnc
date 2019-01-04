@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import java.time.Instant;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -32,6 +33,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = ProductMilestone.Builder.class)
 public class ProductMilestone extends ProductMilestoneRef {
 
     @RefHasId(groups = {WhenCreatingNew.class})

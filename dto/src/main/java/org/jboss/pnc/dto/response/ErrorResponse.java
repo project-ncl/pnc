@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ import lombok.Data;
 @Data
 @Builder(builderClassName = "Builder")
 @AllArgsConstructor()
+@JsonDeserialize(builder = ErrorResponse.Builder.class)
 public class ErrorResponse {
 
     private final String errorType;

@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.BuildType;
 import java.time.Instant;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 
@@ -30,6 +31,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = BuildConfigurationRevision.Builder.class)
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
     private final SCMRepository repository;

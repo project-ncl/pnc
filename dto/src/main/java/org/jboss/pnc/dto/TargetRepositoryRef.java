@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +35,7 @@ import javax.validation.constraints.Null;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+@JsonDeserialize(builder = TargetRepositoryRef.Builder.class)
 public class TargetRepositoryRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)

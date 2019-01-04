@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import java.time.Instant;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -31,6 +32,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = Artifact.Builder.class)
 public class Artifact extends ArtifactRef {
 
     private final TargetRepositoryRef targetRepository;

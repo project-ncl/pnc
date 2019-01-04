@@ -24,6 +24,7 @@ import org.jboss.pnc.enums.SystemImageType;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -35,6 +36,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildExecutionConfiguration.Builder.class)
 public class BuildExecutionConfiguration {
 
     private final Integer id;

@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
@@ -32,6 +33,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@JsonDeserialize(builder = Build.Builder.class)
 public class Build extends BuildRef {
 
     private final ProjectRef project;

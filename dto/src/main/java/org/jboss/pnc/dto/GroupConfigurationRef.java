@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -34,6 +35,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+@JsonDeserialize(builder = GroupConfigurationRef.Builder.class)
 public class GroupConfigurationRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)

@@ -27,6 +27,7 @@ import javax.validation.constraints.Pattern;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
@@ -38,6 +39,7 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+@JsonDeserialize(builder = BuildConfigurationRef.Builder.class)
 public class BuildConfigurationRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
