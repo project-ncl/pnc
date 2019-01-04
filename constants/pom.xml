@@ -37,6 +37,11 @@
   
   
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>test-common</artifactId>
+        </dependency>
+
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -18,6 +18,10 @@
 
 package org.jboss.pnc.rest.api.endpoints;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.internal.BuildExecutionConfiguration;
 import org.jboss.pnc.dto.internal.bpm.BuildResult;
 
@@ -38,11 +42,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Internal")
 @Path("/build-tasks")
@@ -89,7 +88,7 @@ public interface BuildTaskEndpoint {
     @POST
     @Path("/cancel-build/{buildExecutionConfigurationId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response cancelBbuild(
+    public Response cancelBuild(
             @Parameter(description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.")
             @PathParam("buildExecutionConfigurationId") int buildExecutionConfigurationId);
 

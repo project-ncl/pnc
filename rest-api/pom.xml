@@ -42,7 +42,18 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>dto</artifactId>
         </dependency>
-    
+
+        <!-- java client dependencies -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+        </dependency>
+
+
         <!-- REST dependencies -->
         <dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
@@ -59,8 +70,13 @@
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
-        
-    
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -68,5 +84,38 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <id>with-client</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <classifier>java-client</classifier>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>org/jboss/pnc/client/**/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
   
 </project>
