@@ -68,7 +68,7 @@ public class ProjectRestTestNewClient {
         }
     }
 
-    @Test @Ignore
+    @Test @Ignore //TODO enable
     public void shouldInsertNewProject() throws Exception {
         //given
         Project project = Project.builder()
