@@ -25,7 +25,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public abstract class ClientBase {
+public abstract class ClientBase<T> {
 
     protected final String BASE_PATH = "/pnc-rest/rest";
 
@@ -33,7 +33,10 @@ public abstract class ClientBase {
 
     protected final ResteasyWebTarget target;
 
-    protected ClientBase(ConnectionInfo connectionInfo) {
+    protected T proxy;
+
+
+    protected ClientBase(ConnectionInfo connectionInfo, Class<T> clazz) {
         client = new ResteasyClientBuilder().build();
         target = client.target(connectionInfo.getProtocol() + "://" + connectionInfo.getHost() + ":" + connectionInfo.getPort() + BASE_PATH);
         ConnectionInfo.BasicAuth basicAuth = connectionInfo.getBasicAuth();
@@ -44,7 +47,14 @@ public abstract class ClientBase {
         if (bearerToken != null && !bearerToken.equals("")) {
             target.register(new BearerAuthentication(bearerToken));
         }
+
+        proxy = target.proxy(clazz);
     }
+
+    protected T getEndpoint() {
+        return proxy;
+    }
+
 
 
 }

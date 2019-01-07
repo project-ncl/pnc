@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -60,17 +62,18 @@ import java.util.stream.Collectors;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class ClientGenerator extends AbstractProcessor {
 
-    public ClientGenerator() {
+    private static final Logger logger = Logger.getLogger(ClientGenerator.class.getName());
 
+    public ClientGenerator() {
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        System.out.println("Running annotation processor ...");
+        logger.info("Running annotation processor ...");
         try {
             return process0(annotations, roundEnv);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Failed to processs annotated sources.", e);
         }
         return false;
     }
@@ -81,13 +84,13 @@ public class ClientGenerator extends AbstractProcessor {
         for (Element endpointApi : restApiInterfaces) {
 
             String restInterfaceName = endpointApi.getSimpleName().toString();
-            System.out.println(">> Generating client for " + restInterfaceName);
+            logger.info("Generating client for " + restInterfaceName);
 
             List<MethodSpec> methods = new ArrayList<>();
             List<MethodSpec> restMethods = new ArrayList<>();
 
             for (ExecutableElement restApiMethod : ElementFilter.methodsIn(endpointApi.getEnclosedElements())) {
-                System.out.println(">> > Processing method " + restApiMethod.getSimpleName());
+                logger.info("Processing method " + restApiMethod.getSimpleName());
 
                 if (restApiMethod.getKind() == ElementKind.METHOD) {
                     TypeMirror returnType = restApiMethod.getReturnType();
@@ -101,7 +104,7 @@ public class ClientGenerator extends AbstractProcessor {
                         builder.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
                         parameters.add(parameter.getSimpleName().toString());
                     }
-                    String parametersList = parameters.stream().collect(Collectors.joining(","));
+                    String parametersList = parameters.stream().collect(Collectors.joining(", "));
 
                     builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
                             .beginControlFlow("try");
@@ -168,16 +171,12 @@ public class ClientGenerator extends AbstractProcessor {
                 }
             }
 
-            MethodSpec getEndpoint = MethodSpec.methodBuilder("getEndpoint")
-                    .addModifiers(Modifier.PROTECTED)
-                    .returns(ClassName.get("org.jboss.pnc.rest.api.endpoints", restInterfaceName))
-                    .addStatement("return target.proxy(" + restInterfaceName + ".class)")
-                    .build();
+            ClassName restInterfaceClassName = ClassName.get("org.jboss.pnc.rest.api.endpoints", restInterfaceName);
 
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(ClassName.get("org.jboss.pnc.client","ConnectionInfo"), "connectionInfo")
-                    .addStatement("super(connectionInfo)")
+                    .addStatement("super(connectionInfo, " + restInterfaceName + ".class)")
                     .build();
 
             String clientName = restInterfaceName + "Client";
@@ -186,9 +185,11 @@ public class ClientGenerator extends AbstractProcessor {
             TypeSpec javaClientClass = TypeSpec.classBuilder(clientName)
                     .addModifiers(Modifier.PUBLIC)
                     .addMethod(constructor)
-                    .addMethod(getEndpoint)
                     .addMethods(methods)
-                    .superclass(ClassName.get("org.jboss.pnc.client", "ClientBase"))
+                    .superclass(ParameterizedTypeName.get(
+                            ClassName.get("org.jboss.pnc.client", "ClientBase"),
+                            restInterfaceClassName
+                    ))
                     .build();
 
             JavaFile.builder("org.jboss.pnc.client", javaClientClass)
