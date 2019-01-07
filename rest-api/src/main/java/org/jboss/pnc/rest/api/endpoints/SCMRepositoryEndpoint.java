@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Singleton;
+import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.SCMRepositorySingleton;
@@ -121,7 +122,7 @@ public interface SCMRepositoryEndpoint{
             description = "If the given URL is external, it does create the repository in the scm server.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SCMRepositorySingleton.class))),
+                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -131,5 +132,5 @@ public interface SCMRepositoryEndpoint{
     })
     @POST
     @Path("/create-and-sync")
-    Singleton<SCMRepository> createNew(CreateAndSyncSCMRequest request);
+    TaskResponse createNew(CreateAndSyncSCMRequest request);
 }

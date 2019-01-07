@@ -172,7 +172,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}/releases")
-    ProductRelease getReleases(
+    Page<ProductRelease> getReleases(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 }
