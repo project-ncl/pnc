@@ -53,7 +53,7 @@ public class Build extends BuildRef {
     private final List<Integer> dependencyBuildIds;
 
     @lombok.Builder(builderClassName = "Builder")
-    public Build(ProjectRef project, SCMRepository repository, BuildEnvironment environment, Map<String, String> attributes, User user, BuildConfigurationRevisionRef buildConfigurationAudited, List<Integer> dependentBuildIds, List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime, BuildCoordinationStatus status, String buildContentId, Boolean temporaryBuild) {
+    private Build(ProjectRef project, SCMRepository repository, BuildEnvironment environment, Map<String, String> attributes, User user, BuildConfigurationRevisionRef buildConfigurationAudited, List<Integer> dependentBuildIds, List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime, BuildCoordinationStatus status, String buildContentId, Boolean temporaryBuild) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild);
         this.project = project;
         this.repository = repository;
