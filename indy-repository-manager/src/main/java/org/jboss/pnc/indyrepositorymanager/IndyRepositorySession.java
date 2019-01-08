@@ -669,7 +669,7 @@ public class IndyRepositorySession implements RepositorySession {
                 suffixes = ignoredPathSuffixes.getNpmWithShared();
                 break;
             case GENERIC_PKG_KEY:
-                suffixes = ignoredPathSuffixes.getGenericWithShared();
+                suffixes = ignoredPathSuffixes.getShared();
                 break;
             default:
                 throw new IllegalArgumentException("Package type " + packageType

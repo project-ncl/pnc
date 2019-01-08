@@ -292,13 +292,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
             return npmWithShared;
         }
 
-        @JsonIgnore
-        public List<String> getGenericWithShared() {
-            List<String> genericWithShared = (generic == null ? new ArrayList<>() : new ArrayList<>(generic));
-            genericWithShared.addAll(getShared());
-            return genericWithShared;
-        }
-
         /**
          * Gets the list of ignored path suffixes shared among all package types.
          * @return the list of shared strings or empty list if no value is set (never {@code null})
