@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.processor;
 
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -44,7 +43,6 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +85,6 @@ public class ClientGenerator extends AbstractProcessor {
             logger.info("Generating client for " + restInterfaceName);
 
             List<MethodSpec> methods = new ArrayList<>();
-            List<MethodSpec> restMethods = new ArrayList<>();
 
             for (ExecutableElement restApiMethod : ElementFilter.methodsIn(endpointApi.getEnclosedElements())) {
                 logger.info("Processing method " + restApiMethod.getSimpleName());
@@ -120,7 +117,9 @@ public class ClientGenerator extends AbstractProcessor {
                         if (restApiMethod.getAnnotation(GET.class) != null) {
                             builder
                                     .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(singletonTypeGeneric)))
-                                    .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())");
+                                    .addStatement("return Optional.of(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())") //TODO check for empty Singleton
+                                    .nextControlFlow("catch ($T e)", NotFoundException.class)
+                                    .addStatement("return Optional.empty()");
                         } else if (restApiMethod.getAnnotation(POST.class) != null) {
                             builder.returns(TypeName.get(singletonTypeGeneric))
                                     .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()");
@@ -156,18 +155,6 @@ public class ClientGenerator extends AbstractProcessor {
                             .endControlFlow()
                             .build();
                     methods.add(methodSpec);
-
-
-                    MethodSpec.Builder restMethodBuilder = MethodSpec.methodBuilder(restApiMethod.getSimpleName().toString())
-                            .returns(Response.class)
-                            .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                            .addAnnotations(restApiMethod.getAnnotationMirrors().stream().map(mirror -> AnnotationSpec.get(mirror)).collect(Collectors.toSet()));
-
-                    for (VariableElement parameter : restApiMethod.getParameters()) {
-                        restMethodBuilder.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
-                    }
-
-                    restMethods.add(restMethodBuilder.build());
                 }
             }
 
