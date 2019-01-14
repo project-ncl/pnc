@@ -91,7 +91,7 @@ public class BuildStatusMQNotifications {
         BuildConfigurationRevisionRef buildConfigurationAudited = event.getBuild().getBuildConfigurationAudited();
         Map<String, String> headers = new HashMap<>();
         headers.put("type", "BuildStateChange");
-        headers.put("attribute", "state");
+        headers.put("attribute", "state-change");
         headers.put("name", buildConfigurationAudited.getName());
         headers.put("configurationId", buildConfigurationAudited.getId().toString());
         headers.put("configurationRevision", buildConfigurationAudited.getRev().toString());
