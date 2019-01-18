@@ -85,6 +85,14 @@
                     {
                         "name": "buildAgentJvmProperties",
                         "value": "-DlogMDC=buildContext:${buildContentId};tmp:${tempBuild};exp:${expiresDate}"
+                    },
+                    {
+                        "name": "http_proxy",
+                        "value": "http://${buildContentId}+tracking:${accessToken}@${proxyServer}:${proxyPort}"
+                    },
+                    {
+                        "name": "https_proxy",
+                        "value": "http://${buildContentId}+tracking:${accessToken}@${proxyServer}:${proxyPort}"
                     }
                 ],
                 "resources": {},
