@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mock.dto;
 
-import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.enums.SystemImageType;
 
 /**
@@ -25,8 +25,8 @@ import org.jboss.pnc.enums.SystemImageType;
  */
 public class BuildEnvironmentMock {
 
-    public static BuildEnvironment newBuildEnvironment() {
-        return BuildEnvironment.builder()
+    public static Environment newBuildEnvironment() {
+        return Environment.builder()
             .id(1)
             .name("jdk8")
             .description("desc")

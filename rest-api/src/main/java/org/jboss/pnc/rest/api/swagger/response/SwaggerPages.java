@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.ArtifactImportError;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupBuild;
@@ -48,7 +48,7 @@ public class SwaggerPages {
     public static class ArtifactPage extends Page<Artifact>{};
     public static class BuildConfigPage extends Page<BuildConfiguration>{};
     public static class BuildConfigRevisionPage extends Page<BuildConfigurationRevision>{};
-    public static class BuildEnvironmentPage extends Page<BuildEnvironment>{};
+    public static class BuildEnvironmentPage extends Page<Environment>{};
     public static class BuildPage extends Page<Build>{};
     public static class BuildPushResultPage extends Page<BuildPushResult>{};
     public static class DTOEntityPage extends Page<DTOEntity>{};

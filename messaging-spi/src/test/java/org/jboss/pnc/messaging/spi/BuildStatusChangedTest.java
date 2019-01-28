@@ -21,7 +21,7 @@ import org.assertj.core.api.Assertions;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
-import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
@@ -80,7 +80,7 @@ public class BuildStatusChangedTest {
                 .preBuildSyncEnabled(true)
                 .build();
 
-        BuildEnvironment buildEnvironment = BuildEnvironment.builder()
+        Environment buildEnvironment = Environment.builder()
                 .id(1)
                 .name("jdk8")
                 .description("desc")
@@ -108,7 +108,7 @@ public class BuildStatusChangedTest {
                 .repository(scmRepository)
                 .environment(buildEnvironment)
                 .user(user)
-                .buildConfigurationAudited(buildConfigurationRevisionRef)
+                .buildConfigurationRevision(buildConfigurationRevisionRef)
                 .status(BuildCoordinationStatus.BUILDING)
                 .buildContentId("build-42")
                 .temporaryBuild(true)

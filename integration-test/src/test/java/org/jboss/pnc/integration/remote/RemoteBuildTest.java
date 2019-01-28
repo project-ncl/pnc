@@ -81,7 +81,7 @@ public class RemoteBuildTest {
                 if (EventType.BUILD_STATUS_CHANGED.equals(notification.getEventType())) {
                     BuildChangedPayload buildStatusUpdate = (BuildChangedPayload) notification.getPayload();
                     if (buildStatusUpdate.getBuild().getStatus().isCompleted()) {
-                        notifyCompleted(buildStatusUpdate.getBuild().getBuildConfigurationAudited().getId(), buildStatusUpdate.getBuild().getStatus());
+                        notifyCompleted(buildStatusUpdate.getBuild().getBuildConfigurationRevision().getId(), buildStatusUpdate.getBuild().getStatus());
                     }
                 }
             } catch (IOException e) {

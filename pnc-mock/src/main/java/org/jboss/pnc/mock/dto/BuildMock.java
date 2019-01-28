@@ -39,7 +39,7 @@ public class BuildMock {
                 .repository(SCMRepositoryMock.newScmRepository())
                 .environment(BuildEnvironmentMock.newBuildEnvironment())
                 .user(UserMock.newUser())
-                .buildConfigurationAudited(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
+                .buildConfigurationRevision(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
                 .build();
     }
 

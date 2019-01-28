@@ -56,7 +56,7 @@ public class NotificationFactoryForBuildTest {
                 .repository(SCMRepositoryMock.newScmRepository())
                 .environment(BuildEnvironmentMock.newBuildEnvironment())
                 .user(UserMock.newUser())
-                .buildConfigurationAudited(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
+                .buildConfigurationRevision(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
                 .startTime(startTime)
                 .endTime(endTime)
                 .build();
@@ -72,8 +72,8 @@ public class NotificationFactoryForBuildTest {
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStatus()).isEqualTo(BuildCoordinationStatus.DONE);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationAudited().getId()).isEqualTo(1);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationAudited().getName()).isEqualTo(buildConfigurationName);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationRevision().getId()).isEqualTo(1);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationRevision().getName()).isEqualTo(buildConfigurationName);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStartTime()).isEqualTo(startTime);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getEndTime()).isEqualTo(endTime);
         assertThat(notification.getPayload()).isNotNull();

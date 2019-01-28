@@ -88,7 +88,7 @@ public class BuildStatusMQNotifications {
     }
 
     private Map<String, String> prepareHeaders(BuildCoordinationStatusChangedEvent event) {
-        BuildConfigurationRevisionRef buildConfigurationAudited = event.getBuild().getBuildConfigurationAudited();
+        BuildConfigurationRevisionRef buildConfigurationAudited = event.getBuild().getBuildConfigurationRevision();
         Map<String, String> headers = new HashMap<>();
         headers.put("type", "BuildStateChange");
         headers.put("attribute", "state-change");

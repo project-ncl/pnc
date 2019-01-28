@@ -28,7 +28,7 @@ import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
-import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -484,7 +484,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .build();
 
         org.jboss.pnc.model.BuildEnvironment buildEnvironmentDb = buildConfigurationAudited.getBuildEnvironment();
-        BuildEnvironment buildEnvironment = BuildEnvironment.builder()
+        Environment buildEnvironment = Environment.builder()
                 .id(buildEnvironmentDb.getId())
                 .name(buildEnvironmentDb.getName())
                 .description(buildEnvironmentDb.getDescription())
@@ -518,7 +518,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .repository(repository)
                 .environment(buildEnvironment)
                 .user(user)
-                .buildConfigurationAudited(buildConfigurationRevisionRef)
+                .buildConfigurationRevision(buildConfigurationRevisionRef)
                 .dependentBuildIds(dependants)
                 .dependencyBuildIds(dependencies)
                 .id(task.getId())

@@ -46,7 +46,7 @@ public class BuildPushResult implements DTOEntity {
     private final Integer id;
 
     @NotNull
-    private final Integer buildRecordId;
+    private final Integer buildId;
 
     @NotNull
     private final BuildPushStatus status;

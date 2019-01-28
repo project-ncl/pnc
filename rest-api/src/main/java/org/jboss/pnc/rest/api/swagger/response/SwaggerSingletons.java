@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.ArtifactImportError;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupBuild;
@@ -74,9 +74,9 @@ public class SwaggerSingletons {
         }
     };
 
-    public static class BuildEnvironmentSingleton extends Singleton<BuildEnvironment> {
+    public static class BuildEnvironmentSingleton extends Singleton<Environment> {
 
-        public BuildEnvironmentSingleton(BuildEnvironment content) {
+        public BuildEnvironmentSingleton(Environment content) {
             super(content);
         }
     };
