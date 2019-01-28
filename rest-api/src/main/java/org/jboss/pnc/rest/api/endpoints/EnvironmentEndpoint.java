@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.BuildEnvironment;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Singleton;
@@ -66,7 +66,7 @@ public interface EnvironmentEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<BuildEnvironment> getAll(@BeanParam PageParameters pageParameters);
+    Page<Environment> getAll(@BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Gets a specific environment.",
             responses = {
@@ -78,6 +78,6 @@ public interface EnvironmentEndpoint{
     })
     @GET
     @Path("/{id}")
-    Singleton<BuildEnvironment> getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
+    Singleton<Environment> getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
 
 }

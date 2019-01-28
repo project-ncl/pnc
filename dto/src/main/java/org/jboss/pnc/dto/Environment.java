@@ -38,8 +38,8 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = BuildEnvironment.Builder.class)
-public class BuildEnvironment implements DTOEntity {
+@JsonDeserialize(builder = Environment.Builder.class)
+public class Environment implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
