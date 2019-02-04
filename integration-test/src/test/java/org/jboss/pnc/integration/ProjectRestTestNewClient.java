@@ -84,4 +84,34 @@ public class ProjectRestTestNewClient {
         Assert.assertNotNull(returnedId);
     }
 
+    @Test @Ignore //TODO enable
+    public void shouldUpdateOnlySomeFields() throws Exception {
+        //given
+        int id = 1; //TODO get id
+
+        Project project = Project.builder()
+                .description("Amazing project!")
+                .build();
+
+        //when
+        projectClient.update(id, project);
+
+        //than
+        //non specified fields should be untouched
+    }
+
+    @Test @Ignore //TODO enable
+    public void shouldReadAllThelist() throws Exception {
+        //given
+        //-- save lots of projects
+
+        //when
+        for (Project project1 : projectClient.getAll()) {
+
+        }
+
+        //than
+        //non specified fields should be untouched
+    }
+
 }
