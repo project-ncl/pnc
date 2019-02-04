@@ -21,6 +21,7 @@ import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -38,6 +39,7 @@ public abstract class ClientBase<T> {
 
     protected ClientBase(ConnectionInfo connectionInfo, Class<T> clazz) {
         client = new ResteasyClientBuilder().build();
+        client.register(ResteasyJackson2Provider.class);
         target = client.target(connectionInfo.getProtocol() + "://" + connectionInfo.getHost() + ":" + connectionInfo.getPort() + BASE_PATH);
         ConnectionInfo.BasicAuth basicAuth = connectionInfo.getBasicAuth();
         if (basicAuth != null) {
