@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.dto.response;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Collection REST response.
@@ -46,6 +46,11 @@ public class Page<T> {
      * Total pages provided by this query or -1 if unknown.
      */
     private int totalPages;
+
+    /**
+     * Number of all hits (not only this page)
+     */
+    private int totalHits;
 
     /**
      * Embedded collection of data.
