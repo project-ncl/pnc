@@ -25,6 +25,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
 public class ProductVersionProviderTest {
 
     private ProductVersionProvider productVersionProvider;
+    private ProductMilestoneRepository mockProductMilestoneRepository;
     private ProductVersionRepository mockProductVersionRepository;
     private BuildConfigurationSetRepository mockBuildConfigurationSetRepository;
 
@@ -62,12 +64,13 @@ public class ProductVersionProviderTest {
     @Before
     public void setup() {
         mockProductVersionRepository = mock(ProductVersionRepository.class);
+        mockProductMilestoneRepository = mock(ProductMilestoneRepository.class);
         mockBuildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
 
         SystemConfig systemConfig = mock(SystemConfig.class);
         when(systemConfig.getBrewTagPattern()).thenReturn("${product_short_name}-${product_version}-pnc");
 
-        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null, null, systemConfig);
+        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null, null, mockProductMilestoneRepository, systemConfig);
 
         product1 = Product.Builder.newBuilder().id(1).name("product-1").build();
 
