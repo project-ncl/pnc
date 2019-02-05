@@ -44,8 +44,7 @@ public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
 
     @Override
     public int size() {
-        return -1;
-        //return page.getTotalHits(); //TODO
+        return currentPage.getTotalHits();
     }
 
     @Override
