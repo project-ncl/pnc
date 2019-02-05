@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -32,6 +33,7 @@ import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -61,6 +63,8 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
 
     private ProductRepository productRepository;
 
+    private ProductMilestoneRepository productMilestoneRepository;
+
     private SystemConfig systemConfig;
 
     @Inject
@@ -71,10 +75,12 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
             SortInfoProducer sortInfoProducer,
             PageInfoProducer pageInfoProducer,
             ProductRepository productRepository,
+            ProductMilestoneRepository productMilestoneRepository,
             SystemConfig systemConfig) {
         super(productVersionRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.productRepository = productRepository;
+        this.productMilestoneRepository = productMilestoneRepository;
         this.systemConfig = systemConfig;
     }
 
@@ -161,16 +167,16 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
 
     @Override
     protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModel() {
-        return productVersionRest -> productVersionRest.toDBEntityBuilder().build();        
+        return productVersionRest -> productVersionRest.toDBEntityBuilder().build();
     }
-    
+
     @Override
     public Integer store(ProductVersionRest restEntity) throws RestValidationException {
         validateBeforeSaving(restEntity);
         ProductVersion.Builder productVersionBuilder = restEntity.toDBEntityBuilder();
         Product product = productRepository.queryById(restEntity.getProductId());
         productVersionBuilder.generateBrewTagPrefix(product.getAbbreviation(), restEntity.getVersion(), systemConfig.getBrewTagPattern());
-        
+
         return repository.save(productVersionBuilder.build()).getId();
     }
 
@@ -180,6 +186,28 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         Product product = productRepository.queryById(restEntity.getProductId());
         if (product == null) {
             throw new InvalidEntityException("Product with id: " + restEntity.getProductId() + " does not exist.");
+        }
+    }
+
+    @Override
+    protected void validateBeforeUpdating(Integer id, ProductVersionRest restEntity) throws RestValidationException {
+        super.validateBeforeUpdating(id, restEntity);
+        // check if new current product milestone is not closed
+        Integer newMilestoneId = restEntity.getCurrentProductMilestoneId();
+        if (newMilestoneId != null) {
+            ProductVersion currentVersion = repository.queryById(id);
+            ProductMilestone currentProductMilestone = currentVersion.getCurrentProductMilestone();
+            // only check if the milestone ID is changing
+            if (currentProductMilestone == null || !currentProductMilestone.getId().equals(newMilestoneId)) {
+                ProductMilestone newMilestone = productMilestoneRepository.queryById(newMilestoneId);
+                if (newMilestone == null) {
+                    throw new InvalidEntityException("Milestone with id: " + newMilestoneId
+                            + " does not exist.");
+                } else if (newMilestone.getEndDate() != null) {
+                    throw new InvalidEntityException("Milestone with id: " + newMilestoneId
+                            + " is closed, so cannot be set as current.");
+                }
+            }
         }
     }
 
