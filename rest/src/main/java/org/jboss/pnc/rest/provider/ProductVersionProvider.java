@@ -211,21 +211,4 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         }
     }
 
-    private void validateBeforeUpdate(Integer productVersionId, Set<BuildConfigurationSet> sets) throws InvalidEntityException {
-        for (BuildConfigurationSet set : sets) {
-            validateBeforeUpdate(productVersionId, sets);
-        }
-    }
-
-    private void validateBeforeUpdate(Integer productVersionId, BuildConfigurationSet set) throws InvalidEntityException {
-        BuildConfigurationSetRest restModel = new BuildConfigurationSetRest(set);
-        ValidationBuilder.validateObject(set, WhenUpdating.class).validateCondition(
-                set != null, "Invalid BuildConfigurationSet"
-        );
-
-        ValidationBuilder.validateObject(restModel, WhenUpdating.class).validateCondition(
-                set.getProductVersion() == null || set.getProductVersion().getId().equals(productVersionId),
-                format("BuildConfigurationSet: '%s' is already associated with a different Product Version", restModel.getName()));
-    }
-
 }
