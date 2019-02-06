@@ -20,6 +20,7 @@ package org.jboss.pnc.model;
 import org.jboss.pnc.enums.BuildType;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,10 @@ public class BuildConfigurationAudited {
     private BuildType buildType;
 
     private BuildEnvironment buildEnvironment;
+
+    private Date creationTime;
+
+    private Date lastModificationTime;
 
     private Set<BuildRecord> buildRecords;
 
@@ -164,6 +169,22 @@ public class BuildConfigurationAudited {
         this.buildEnvironment = buildEnvironment;
     }
 
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(Date lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
+    }
+
     public Set<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
@@ -235,6 +256,8 @@ public class BuildConfigurationAudited {
             configurationAudited.setProject(buildConfiguration.getProject());
             configurationAudited.setBuildType(buildConfiguration.getBuildType());
             configurationAudited.setRepositoryConfiguration(buildConfiguration.getRepositoryConfiguration());
+            configurationAudited.setCreationTime(buildConfiguration.getCreationTime());
+            configurationAudited.setLastModificationTime(buildConfiguration.getLastModificationTime());
             configurationAudited.setBuildRecords(buildRecords);
             configurationAudited.buildConfiguration = buildConfiguration;
             return configurationAudited;
