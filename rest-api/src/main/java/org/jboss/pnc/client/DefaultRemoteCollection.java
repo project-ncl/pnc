@@ -19,6 +19,8 @@ package org.jboss.pnc.client;
 
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -30,15 +32,21 @@ import java.util.function.Function;
  */
 public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
 
+    private final Logger logger = LoggerFactory.getLogger(DefaultRemoteCollection.class);
+
     private Function<PageParameters, Page<T>> endpoint;
 
-    Page<T> currentPage;
+    private RemoteCollectionConfig config;
 
-    public DefaultRemoteCollection(Function<PageParameters, Page<T>> endpoint) {
+    protected Page<T> currentPage;
+
+    public DefaultRemoteCollection(Function<PageParameters, Page<T>> endpoint, RemoteCollectionConfig config) {
         this.endpoint = endpoint;
+        this.config = config;
         PageParameters intialPageParameters = new PageParameters();
         intialPageParameters.setPageIndex(0);
-        intialPageParameters.setPageSize(100); //TODO configurable
+        intialPageParameters.setPageSize(config.getPageSize());
+        logger.debug("Loading first page.");
         currentPage = endpoint.apply(intialPageParameters);
     }
 
@@ -60,20 +68,29 @@ public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
     }
 
     private Page<T> loadNextPage(Function<PageParameters, Page<T>> endpoint, Page<T> currentPage) {
+        int newPageIndex = currentPage.getPageIndex() + 1;
+        logger.debug("Loading new page. Index {}", newPageIndex);
         PageParameters pageParametersNext = new PageParameters();
         pageParametersNext.setPageSize(currentPage.getPageSize());
-        pageParametersNext.setPageIndex(currentPage.getPageIndex() + 1);
+        pageParametersNext.setPageIndex(newPageIndex);
         return endpoint.apply(pageParametersNext);
     }
 
     private class RemoteIterator implements Iterator<T> {
 
+        private Iterator<T> iterator;
+
+        public RemoteIterator() {
+            this.iterator = currentPage.getContent().iterator();
+        }
+
         @Override
         public boolean hasNext() {
-            if (currentPage.getContent().iterator().hasNext()) {
+            if (iterator.hasNext()) {
                 return true;
-            } else if (currentPage.getPageIndex() < currentPage.getTotalPages()) {
+            } else if (currentPage.getPageIndex() < currentPage.getTotalPages() - 1) {
                 currentPage = loadNextPage(endpoint, currentPage);
+                iterator = currentPage.getContent().iterator();
                 return true;
             } else {
                 return false;
@@ -83,7 +100,7 @@ public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
         @Override
         public T next() {
             if (hasNext()) {
-                return currentPage.getContent().iterator().next();
+                return iterator.next();
             } else {
                 throw new NoSuchElementException();
             }

@@ -36,18 +36,20 @@ public abstract class ClientBase<T> {
 
     protected T proxy;
 
+    protected Configuration configuration;
 
-    protected ClientBase(ConnectionInfo connectionInfo, Class<T> clazz) {
+    protected ClientBase(Configuration configuration, Class<T> clazz) {
+        this.configuration = configuration;
         client = new ResteasyClientBuilder()
                 .httpEngine(new ApacheHttpClient43EngineWithRetry())
                 .build();
         client.register(ResteasyJackson2Provider.class);
-        target = client.target(connectionInfo.getProtocol() + "://" + connectionInfo.getHost() + ":" + connectionInfo.getPort() + BASE_PATH);
-        ConnectionInfo.BasicAuth basicAuth = connectionInfo.getBasicAuth();
+        target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
+        Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
         if (basicAuth != null) {
             target.register(new BasicAuthentication(basicAuth.getUsername(), basicAuth.getPassword()));
         }
-        String bearerToken = connectionInfo.getBearerToken();
+        String bearerToken = configuration.getBearerToken();
         if (bearerToken != null && !bearerToken.equals("")) {
             target.register(new BearerAuthentication(bearerToken));
         }
@@ -58,6 +60,12 @@ public abstract class ClientBase<T> {
         return proxy;
     }
 
-
+    RemoteCollectionConfig getRemoteCollectionConfig() {
+        Integer pageSize = configuration.getPageSize();
+        if (pageSize == null || pageSize < 1) {
+            pageSize = 100;
+        }
+        return new RemoteCollectionConfig(pageSize);
+    }
 
 }

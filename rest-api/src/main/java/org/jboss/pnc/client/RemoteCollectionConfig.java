@@ -17,37 +17,16 @@
  */
 package org.jboss.pnc.client;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Data
-@AllArgsConstructor
+@Getter
 @Builder
-public class ConnectionInfo {
+public class RemoteCollectionConfig {
 
-    private final String host;
-    private final Integer port;
-
-    private final BasicAuth basicAuth;
-
-    private final String bearerToken;
-
-    private final String protocol;
-
-    @Getter
-    public static class BasicAuth {
-        private String username;
-        private String password;
-
-        public BasicAuth(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-    }
+    private int pageSize;
 
 }
