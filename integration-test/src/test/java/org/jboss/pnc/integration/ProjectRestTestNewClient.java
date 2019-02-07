@@ -20,7 +20,7 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.client.ConnectionInfo;
+import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.ProjectClient;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.integration.deployments.Deployments;
@@ -46,7 +46,7 @@ public class ProjectRestTestNewClient {
 
     private static ProjectClient projectClient;
 
-    private static final ConnectionInfo.BasicAuth basicAuth = new ConnectionInfo.BasicAuth("admin", "user.1234");
+    private static final Configuration.BasicAuth basicAuth = new Configuration.BasicAuth("admin", "user.1234");
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -58,13 +58,13 @@ public class ProjectRestTestNewClient {
     @Before
     public void before() {
         if(projectClient == null) {
-            ConnectionInfo connectionInfo = ConnectionInfo.builder()
+            Configuration configuration = Configuration.builder()
                     .protocol("http")
                     .host("localhost")
                     .port(8080)
                     .basicAuth(basicAuth)
                     .build();
-            projectClient = new ProjectClient(connectionInfo);
+            projectClient = new ProjectClient(configuration);
         }
     }
 

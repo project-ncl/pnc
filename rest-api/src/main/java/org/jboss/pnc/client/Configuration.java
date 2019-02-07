@@ -17,27 +17,42 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class PageReader<T> {
+@Data
+@AllArgsConstructor
+@Builder
+public class Configuration {
 
-    private Function<PageParameters, Page<T>> endpoint;
+    private final String host;
+    private final Integer port;
 
-    private RemoteCollectionConfig config;
+    private final BasicAuth basicAuth;
 
-    public PageReader(Function<PageParameters, Page<T>> endpoint, RemoteCollectionConfig config) {
-        this.endpoint = endpoint;
-        this.config = config;
-    }
+    private final String bearerToken;
 
-    public RemoteCollection<T> getCollection() {
-        return new DefaultRemoteCollection<T>(endpoint, config);
+    private final String protocol;
+
+    /**
+     * Fetch page size
+     */
+    private final int pageSize;
+
+    @Getter
+    public static class BasicAuth {
+        private String username;
+        private String password;
+
+        public BasicAuth(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
     }
 
 }

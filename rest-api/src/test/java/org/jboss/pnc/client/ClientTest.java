@@ -46,7 +46,7 @@ public class ClientTest {
                 }).build();
         server.start();
 
-        ConnectionInfo connectionInfo = ConnectionInfo.builder()
+        Configuration connectionInfo = Configuration.builder()
                 .protocol("http")
                 .host("localhost")
                 .port(8080)

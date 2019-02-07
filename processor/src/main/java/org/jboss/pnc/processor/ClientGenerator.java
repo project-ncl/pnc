@@ -122,7 +122,7 @@ public class ClientGenerator extends AbstractProcessor {
 
                         ClassName className = ClassName.get("org.jboss.pnc.client", "RemoteCollection");
                         builder.returns(ParameterizedTypeName.get(className, TypeName.get(returnGeneric)))
-                        .addStatement("PageReader pageLoader = new PageReader<>((pageParameters) -> getEndpoint()." + restApiMethod.getSimpleName() + "(" + endpointInvokeParameters + "))")
+                        .addStatement("PageReader pageLoader = new PageReader<>((pageParameters) -> getEndpoint()." + restApiMethod.getSimpleName() + "(" + endpointInvokeParameters + "), getRemoteCollectionConfig())")
                         .addStatement("return pageLoader.getCollection()");
                     } else if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Singleton").toString())) {
                         //single result
@@ -179,8 +179,8 @@ public class ClientGenerator extends AbstractProcessor {
 
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(ClassName.get("org.jboss.pnc.client","ConnectionInfo"), "connectionInfo")
-                    .addStatement("super(connectionInfo, " + restInterfaceName + ".class)")
+                    .addParameter(ClassName.get("org.jboss.pnc.client","Configuration"), "configuration")
+                    .addStatement("super(configuration, " + restInterfaceName + ".class)")
                     .build();
 
             String clientName = restInterfaceName + "Client";
