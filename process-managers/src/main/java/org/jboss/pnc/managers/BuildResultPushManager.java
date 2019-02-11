@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.managers;
 
-import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
-import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
 import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
@@ -216,7 +214,7 @@ public class BuildResultPushManager {
             executionRootName = buildRecord.getExecutionRootName();
         }
 
-        ProjectVersionRef projectVersionRef = buildRootToGAV(
+        Gav rootGav = buildRootToGAV(
                 executionRootName,
                 buildRecord.getExecutionRootVersion());
         Set<Logfile> logs = new HashSet<>();
@@ -224,9 +222,9 @@ public class BuildResultPushManager {
         addLogs(buildRecord, logs);
 
         Build build = new MavenBuild(
-                projectVersionRef.getGroupId(),
-                projectVersionRef.getArtifactId(),
-                projectVersionRef.getVersionString(),
+                rootGav.getGroupId(),
+                rootGav.getArtifactId(),
+                rootGav.getVersion(),
                 executionRootName,
                 buildRecord.getExecutionRootVersion(),
                 "PNC",
@@ -268,16 +266,16 @@ public class BuildResultPushManager {
         return String.format(PNC_BUILD_LOG_PATH, id);
     }
 
-    private ProjectVersionRef buildRootToGAV(String executionRootName, String executionRootVersion) {
+    private Gav buildRootToGAV(String executionRootName, String executionRootVersion) {
+        if (executionRootName == null) {
+            throw new IllegalArgumentException("ExecutionRootName must be defined.");
+        }
+
         String[] splittedName = executionRootName.split(":");
         if(splittedName.length != 2) {
             throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
         }
-
-        return new SimpleProjectVersionRef(
-                splittedName[0],
-                splittedName.length < 2 ? null : splittedName[1],
-                executionRootVersion);
+        return new Gav(splittedName[0], splittedName[1], executionRootVersion);
     }
 
     private Set<BuiltArtifact> collectBuiltArtifacts(Collection<Artifact> builtArtifacts) {

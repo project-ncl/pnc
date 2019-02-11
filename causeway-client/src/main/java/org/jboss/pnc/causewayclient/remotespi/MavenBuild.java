@@ -44,7 +44,7 @@ public class MavenBuild extends Build {
     private final String groupId;
     @NonNull
     private final String artifactId;
-    @NonNull
+
     private final String version;
 
     @Builder
