@@ -113,7 +113,12 @@ module.exports = function (grunt) {
             'realm': getOpt('keycloak-realm', 'PNC_UI_KEYCLOAK_REALM'),
             'clientId': getOpt('keycloak-client-id', 'PNC_UI_KEYCLOAK_CLIENT_ID')
         },
-        'internalScmAuthority': getOpt('internal-scm-authority', 'PNC_UI_INTERNAL_SCM_AUTHORITY')
+        'internalScmAuthority': getOpt('internal-scm-authority', 'PNC_UI_INTERNAL_SCM_AUTHORITY'),
+        grafana:
+        {
+          'trafficLightsUrl': getOpt('grafana-traffic-lights-url', 'PNC_UI_GRAFANA_TRAFFIC_LIGHTS_URL'),
+          'statusMapUrl': getOpt('grafana-status-map-url', 'PNC_UI_GRAFANA_STATUS_MAP_URL')
+        }
       };
     }
 

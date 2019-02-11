@@ -18,24 +18,11 @@
 
 -->
 
-<div style="margin-top: 40px;">
-  <div class="row">
-    <div class="col-md-12 col-lg-6">
-      <pnc-grafana-widget widget-type="TRAFFIC_LIGHTS"></pnc-grafana-widget>
+<pnc-dashboard-widget>
+  <widget-title>{{ ::$ctrl.title }}</widget-title>
+  <widget-body>
+    <div class="grafana-widget-body">
+      <pnc-grafana-widget-body url="$ctrl.url"></pnc-grafana-widget-body>
     </div>
-    <div class="col-md-12 col-lg-6">
-      <pnc-grafana-widget widget-type="STATUS_MAP"></pnc-grafana-widget>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12 col-lg-6">
-      <pnc-my-builds-panel></pnc-my-builds-panel>
-    </div>
-    <div class="col-md-12 col-lg-6">
-      <pnc-my-build-sets-panel></pnc-my-build-sets-panel>
-    </div>
-    <div class="col-md-12" ng-hide="ctrl.isAuthenticated()">
-      <p><a href ng-click="ctrl.login()">Log in</a> to see more widgets.</p>
-    </div>
-  </div>
-</div>
+  </widget-body>
+</pnc-dashboard-widget>
