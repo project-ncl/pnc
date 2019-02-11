@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [Unreleased]
+- [NCL-4393] Adds pnc service status visualisations to the UI dashboard
 
 ### Fixed
 - [NCL-4333] A closed milestone now cannot be set as current
