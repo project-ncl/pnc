@@ -17,25 +17,4 @@
     limitations under the License.
 
 -->
-
-<div style="margin-top: 40px;">
-  <div class="row">
-    <div class="col-md-12 col-lg-6">
-      <pnc-grafana-widget widget-type="TRAFFIC_LIGHTS"></pnc-grafana-widget>
-    </div>
-    <div class="col-md-12 col-lg-6">
-      <pnc-grafana-widget widget-type="STATUS_MAP"></pnc-grafana-widget>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12 col-lg-6">
-      <pnc-my-builds-panel></pnc-my-builds-panel>
-    </div>
-    <div class="col-md-12 col-lg-6">
-      <pnc-my-build-sets-panel></pnc-my-build-sets-panel>
-    </div>
-    <div class="col-md-12" ng-hide="ctrl.isAuthenticated()">
-      <p><a href ng-click="ctrl.login()">Log in</a> to see more widgets.</p>
-    </div>
-  </div>
-</div>
+<iframe class="grafana-iframe center-block" width="450" height="200" frameborder="0" ng-src="{{ ::$ctrl.iFrameUrl }}"></iframe>

@@ -301,3 +301,6 @@
   margin-top: -100px;
 }
 
+.grafana-widget-body {
+  margin: -15px;
+}
