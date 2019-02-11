@@ -37,7 +37,7 @@ public abstract class Build {
 
     @NonNull
     private final String buildName;
-    @NonNull
+
     private final String buildVersion;
     @NonNull
     private final String externalBuildSystem;

@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4274] Fixed wrong links when using redhat artifacts as dependencies
 - [NCL-4270] Persistent builds succesfully ignore temporary build when asking whether to rebuild
 - [NCL-4218]: Orchestrator must work also if JMS is down
+- [NCL-4381] Brew push - make buildRootVersion optional
 
 ### Changed
 - [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
@@ -69,6 +70,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - [NCL-4235] Fix potential collision of 2 builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
+
+### Changed
+- [NCL-4218] Don't break the build if JMS server is down
+- [NCL-4177] Force rebuild is propagated to explicit dependencies.
+
+## [1.4.1]
+
+### Changed
+- [NCL-4214] Temporary builds won't be assigned to a milestone anymore
 
 ## [1.4.0]
 
@@ -103,6 +113,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-3698] Brew Push tab appears when push completes / fails without user refresh
 - [NCL-4021] Handle rejected build group status correctly in the UI
 - [NCL-4100] Fix no push button on Build Group Record page
-    
+
 ### Security
 - [NCL-3549] Use service account when managing repositories in Indy
