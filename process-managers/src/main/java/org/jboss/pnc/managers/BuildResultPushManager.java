@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2018 Red Hat, Inc., and individual contributors
+ * Copyright 2014-2019 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.managers;
 
-import org.commonjava.atlas.maven.ident.ref.ProjectVersionRef;
-import org.commonjava.atlas.maven.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
 import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
@@ -30,14 +28,14 @@ import org.jboss.pnc.causewayclient.remotespi.Logfile;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.enums.BuildPushStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.enums.BuildPushStatus;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
@@ -51,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -219,7 +216,7 @@ public class BuildResultPushManager {
             executionRootName = buildRecord.getExecutionRootName();
         }
 
-        ProjectVersionRef projectVersionRef = buildRootToGAV(
+        Gav rootGav = buildRootToGAV(
                 executionRootName,
                 buildRecord.getExecutionRootVersion());
         Set<Logfile> logs = new HashSet<>();
@@ -227,9 +224,9 @@ public class BuildResultPushManager {
         addLogs(buildRecord, logs);
 
         Build build = new MavenBuild(
-                projectVersionRef.getGroupId(),
-                projectVersionRef.getArtifactId(),
-                projectVersionRef.getVersionString(),
+                rootGav.getGroupId(),
+                rootGav.getArtifactId(),
+                rootGav.getVersion(),
                 executionRootName,
                 buildRecord.getExecutionRootVersion(),
                 "PNC",
@@ -271,16 +268,16 @@ public class BuildResultPushManager {
         return String.format(PNC_BUILD_LOG_PATH, id);
     }
 
-    private ProjectVersionRef buildRootToGAV(String executionRootName, String executionRootVersion) {
+    private Gav buildRootToGAV(String executionRootName, String executionRootVersion) {
+        if (executionRootName == null) {
+            throw new IllegalArgumentException("ExecutionRootName must be defined.");
+        }
+
         String[] splittedName = executionRootName.split(":");
         if(splittedName.length != 2) {
             throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
         }
-
-        return new SimpleProjectVersionRef(
-                splittedName[0],
-                splittedName.length < 2 ? null : splittedName[1],
-                executionRootVersion);
+        return new Gav(splittedName[0], splittedName[1], executionRootVersion);
     }
 
     private Set<BuiltArtifact> collectBuiltArtifacts(Collection<Artifact> builtArtifacts) {

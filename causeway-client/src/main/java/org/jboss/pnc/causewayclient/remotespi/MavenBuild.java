@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2018 Red Hat, Inc., and individual contributors
+ * Copyright 2014-2019 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ public class MavenBuild extends Build {
     private final String groupId;
     @NonNull
     private final String artifactId;
-    @NonNull
+
     private final String version;
 
     @Builder
