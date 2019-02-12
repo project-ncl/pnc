@@ -256,7 +256,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void validateAndEnqueueBuildConfigurationSetTasks(BuildConfigurationSet buildConfigurationSet, BuildOptions buildOptions, BuildSetTask buildSetTask) {
         checkForEmptyBuildSetTask(buildSetTask);
         if (!buildOptions.isForceRebuild()) {
-            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask, buildConfigurationSet, buildOptions.isImplicitDependenciesCheck(),
+            checkIfAnyBuildConfigurationNeedsARebuild(buildSetTask,
+                    buildConfigurationSet,
+                    buildOptions.isImplicitDependenciesCheck(),
                     buildOptions.isTemporaryBuild());
         }
 
@@ -266,7 +268,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void checkIfAnyBuildConfigurationNeedsARebuild(BuildSetTask buildSetTask,
             BuildConfigurationSet buildConfigurationSet,
-            boolean checkImplicitDependencies, boolean temporaryBuild) {
+            boolean checkImplicitDependencies,
+            boolean temporaryBuild) {
         Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
         int requiresRebuild = buildConfigurations.size();
         log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
@@ -349,8 +352,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @Override
     public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
-        return getSubmittedBuildTasks().stream().
-                filter(buildTask -> buildTaskId.equals(buildTask.getId()))
+        return getSubmittedBuildTasks()
+                .stream()
+                .filter(buildTask -> buildTaskId.equals(buildTask.getId()))
                 .map(this::getMDCMeta)
                 .findAny();
     }
