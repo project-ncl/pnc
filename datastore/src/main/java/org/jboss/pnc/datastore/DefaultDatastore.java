@@ -346,7 +346,8 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies,
+    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
+            boolean checkImplicitDependencies,
             boolean temporaryBuild) {
         IdRev idRev = buildConfigurationAudited.getIdRev();
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
@@ -375,7 +376,8 @@ public class DefaultDatastore implements Datastore {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task) {
-        return requiresRebuild(task.getBuildConfigurationAudited(), task.getBuildOptions().isImplicitDependenciesCheck(),
+        return requiresRebuild(task.getBuildConfigurationAudited(),
+                task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild());
     }
 
