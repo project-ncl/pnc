@@ -112,7 +112,8 @@ public interface Datastore {
      * @param temporaryBuild true if requested build is going to be temporary
      * @return
      */
-    boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies,
+    boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
+            boolean checkImplicitDependencies,
             boolean temporaryBuild);
 
     @Deprecated
