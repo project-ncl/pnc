@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4333] A closed milestone now cannot be set as current via REST API
 - [NCL-4274] Fixed wrong links when using redhat artifacts as dependencies
 - [NCL-4270] Persistent builds succesfully ignore temporary build when asking whether to rebuild
+- [NCL-4218]: Orchestrator must work also if JMS is down
+
+### Changed
+- [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
 
 ## [1.4.3]
 
@@ -66,15 +70,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - [NCL-4235] Fix potential collision of 2 builds of the same BuildConfiguration started in 1 minute. The build repository in Indy is now named build-<BuildId>
 
-### Changed
-- [NCL-4218] Don't break the build if JMS server is down
-- [NCL-4177] Force rebuild is propagated to explicit dependencies.
-
-## [1.4.1]
-
-### Changed
-- [NCL-4214] Temporary builds won't be assigned to a milestone anymore
-
 ## [1.4.0]
 
 ### Added
@@ -90,6 +85,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4089] Introduce EXECUTION_ROOT_NAME generic param - This is used to override the default value, and can be useful for builds that disable PME. Format is '<groupid>:<artifactid>'
 - [NCL-3920] Browser now shows page titles based on displayed page contents
 - [NCL-4153] Generic http downloads are stored persistently and handle the changes on remote server correctly
+- [NCL-4177] Add an option to specify implicit or explicit dependency check for a rebuild
 
 ### Changed
 - [NCL-3932] Use builds-untested+shared-imports+public in build groups for better usage of indexes in Indy
@@ -97,6 +93,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4048] Use human friendly identifier for RCs instead of DB ID
 - [NCL-4097] Update status icons on build tree when websocket notifications received
 - [NCL-4051] Increase size of build script widget in BC edit view
+- [NCL-4192] Creating a Build Recordwith status NO_REBUILD_REQUIRED for the builds that don't need to be re-run
+- [NCL-4218] Don't break the build if JMS server is down
 
 ### Fixed
 - [NCL-3966] Fix wrong projectName in BuildRecordRest entity
@@ -105,6 +103,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-3698] Brew Push tab appears when push completes / fails without user refresh
 - [NCL-4021] Handle rejected build group status correctly in the UI
 - [NCL-4100] Fix no push button on Build Group Record page
-
+    
 ### Security
 - [NCL-3549] Use service account when managing repositories in Indy

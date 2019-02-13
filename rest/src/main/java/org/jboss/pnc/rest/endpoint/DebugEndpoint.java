@@ -18,13 +18,13 @@
 package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -35,6 +35,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -50,7 +51,7 @@ public class DebugEndpoint {
     private BuildQueue buildQueue;
 
     @Inject
-    private Instance<MessageSender> messageSender;
+    private MessageSenderProvider messageSenderProvider;
 
     @Inject
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
@@ -70,7 +71,8 @@ public class DebugEndpoint {
     @POST
     @Path("/mq-send-dummy-message")
     public Response sendDummyMessageToQueue(@QueryParam("type") String type) {
-        if (messageSender.isUnsatisfied()) {
+        Optional<MessageSender> messageSender = messageSenderProvider.getMessageSender();
+        if (!messageSender.isPresent()) {
             return Response
                     .status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity("Message sender is not available to inject.")

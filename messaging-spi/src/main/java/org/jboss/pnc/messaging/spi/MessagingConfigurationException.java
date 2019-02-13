@@ -20,17 +20,9 @@ package org.jboss.pnc.messaging.spi;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class MessagingRuntimeException extends RuntimeException {
+public class MessagingConfigurationException extends Exception {
 
-    public MessagingRuntimeException(Exception e) {
-        super(e);
-    }
-
-    public MessagingRuntimeException(String message) {
+    public MessagingConfigurationException(String message) {
         super(message);
-    }
-
-    public MessagingRuntimeException(String message, Exception e) {
-        super(message, e);
     }
 }
