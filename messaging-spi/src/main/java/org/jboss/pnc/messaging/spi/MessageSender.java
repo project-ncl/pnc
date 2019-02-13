@@ -24,6 +24,12 @@ import java.util.Map;
  */
 public interface MessageSender {
 
+    void init();
+
+    void destroy();
+
+    String getMessageSenderId();
+
     void sendToTopic(Message message);
 
     void sendToTopic(Message message, Map<String, String> headers);

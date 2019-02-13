@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import java.util.HashMap;
@@ -47,13 +46,8 @@ public class BuildStatusMQNotifications {
     final Optional<MessageSender> messageSender;
 
     @Inject
-    public BuildStatusMQNotifications(Instance<MessageSender> messageSender) {
-        if (messageSender.isUnsatisfied()) {
-            logger.warn("Messaging to MQ is disabled. There is no message sender available to inject.");
-            this.messageSender = Optional.empty();
-        } else {
-            this.messageSender = Optional.of(messageSender.get());
-        }
+    public BuildStatusMQNotifications(MessageSenderProvider messageSenderProvider) {
+        this.messageSender = messageSenderProvider.getMessageSender();
     }
 
     public void observeEvent(@Observes BuildCoordinationStatusChangedEvent event) {
