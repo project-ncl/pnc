@@ -78,7 +78,7 @@
     function getSize() {
       return {
         width: panel.clientWidth
-      }
+      };
     }
 
   }
