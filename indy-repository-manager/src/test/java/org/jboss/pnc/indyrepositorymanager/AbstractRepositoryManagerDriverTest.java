@@ -87,8 +87,9 @@ public class AbstractRepositoryManagerDriverTest {
                 "",
                 "5",
                 null,
-                "14"
-        );
+                "14",
+                "",
+                "10");
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(mavenRepoDriverModuleConfig);
         pncGroup.addConfig(systemConfig);
