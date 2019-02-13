@@ -22,6 +22,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 
+import javax.ws.rs.DefaultValue;
+import java.util.Map;
+
 /**
  * Runtime configuration parameters for the Web UI.
  *
@@ -38,6 +41,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String userGuideUrl;
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
+    private final Map<String, String> grafana;
 
     public UIModuleConfig(
             @JsonProperty("pncUrl") String pncUrl,
@@ -45,13 +49,15 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("daUrl") String daUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
-            @JsonProperty("keycloak") KeycloakConfig keycloak) {
+            @JsonProperty("keycloak") KeycloakConfig keycloak,
+            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.userGuideUrl = userGuideUrl;
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); //default to 24h
         this.keycloak = keycloak;
+        this.grafana = grafana;
     }
 
     /**
@@ -97,6 +103,15 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return keycloak;
     }
 
+
+    /**
+     * @return A map of grafana URLs to widgets embedded in the UI Dashboard
+     */
+    @JsonProperty("grafana")
+    public Map<String, String> getGrafana() {
+        return grafana;
+    }
+
     @Override
     public String toString() {
         return "UIModuleConfig{" +
@@ -104,8 +119,9 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' +
                 ", daUrl='" + daUrl + '\'' +
                 ", userGuideUrl='" + userGuideUrl + '\'' +
+                ", ssoTokenLifespan=" + ssoTokenLifespan +
                 ", keycloak=" + keycloak +
+                ", grafana=" + grafana +
                 '}';
     }
-
 }
