@@ -70,6 +70,10 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private int temporaryBuildsLifeSpan;
 
+    private String messageSenderId;
+
+    private int messagingInternalQueueSize;
+
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
@@ -80,7 +84,9 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("brewTagPattern") String brewTagPattern,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
             @JsonProperty("keycloakServiceAccountConfig") KeycloakClientConfig keycloakServiceAccountConfig,
-            @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan ) {
+            @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan,
+            @JsonProperty("messageSenderId") String messageSenderId,
+            @JsonProperty("messagingInternalQueueSize") String messagingInternalQueueSize) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.authenticationProviderId = authenticationProviderId;
@@ -91,6 +97,8 @@ public class SystemConfig extends AbstractModuleConfig {
         this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
+        this.messageSenderId = messageSenderId;
+        this.messagingInternalQueueSize = toIntWithDefault("messagingInternalQueueSize", messagingInternalQueueSize, 1000);
     }
 
     public String getBuildDriverId() {
@@ -141,6 +149,18 @@ public class SystemConfig extends AbstractModuleConfig {
         return keycloakServiceAccountConfig;
     }
 
+    public String getMessageSenderId() {
+        return messageSenderId;
+    }
+
+    public String getAuthenticationProviderId() {
+        return authenticationProviderId;
+    }
+
+    public int getMessagingInternalQueueSize() {
+        return messagingInternalQueueSize;
+    }
+
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
         int result = defaultValue;
         if (numberAsString == null) {
@@ -167,7 +187,4 @@ public class SystemConfig extends AbstractModuleConfig {
                         : "") + "]";
     }
 
-    public String getAuthenticationProviderId() {
-        return authenticationProviderId;
-    }
 }

@@ -15,22 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.messaging.spi;
+package org.jboss.pnc.messaging;
+
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+
+import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Produces;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class MessagingRuntimeException extends RuntimeException {
+@Dependent
+public class SysConfigProducer {
 
-    public MessagingRuntimeException(Exception e) {
-        super(e);
-    }
+    @Produces
+    public SystemConfig createSystemConfig() {
+//        SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
+//        Mockito.when(systemConfig.getMessagingInternalQueueSize()).thenReturn(2);
+//        return systemConfig;
 
-    public MessagingRuntimeException(String message) {
-        super(message);
-    }
-
-    public MessagingRuntimeException(String message, Exception e) {
-        super(message, e);
+        return new SystemConfig(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "10",
+                null,
+                null,
+                "",
+                "2");
     }
 }

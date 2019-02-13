@@ -23,13 +23,13 @@ import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -40,32 +40,44 @@ import java.util.Map;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Stateless
+@Singleton
 public class DefaultMessageSender implements MessageSender {
 
-    private Logger logger = LoggerFactory.getLogger(MessageSender.class);
+    private Logger logger = LoggerFactory.getLogger(DefaultMessageSender.class);
 
     @Resource(mappedName = "java:/ConnectionFactory")
-    private ConnectionFactory connectionFactory;
+    protected ConnectionFactory connectionFactory;
 
     @Resource(lookup = "java:/jms/queue/pncTopic")
-    private Destination destination;
+    protected Destination destination;
 
-    private Connection connection;
+    protected Connection connection;
 
-    @PostConstruct
+    @Override
+    public String getMessageSenderId() {
+        return DefaultMessageSender.class.getName();
+    }
+
+    @Override
     public void init() {
         try {
             connection = connectionFactory.createConnection();
             logger.info("JMS client ID {}.", connection.getClientID());
-            logger.info("JMSXPropertyNames {}.", connection.getMetaData().getJMSXPropertyNames());
+            ExceptionListener internalExceptionListener = e -> {
+                logger.error("JMS exception.", e);
+            };
+            connection.setExceptionListener(internalExceptionListener);
         } catch (Exception e) {
-            logger.error("Failed to initialize JMS.", e);
+            throw new MessagingRuntimeException("Failed to initialize JMS.", e);
         }
     }
 
     @PreDestroy
     public void destroy() {
+        closeConnection();
+    }
+
+    protected void closeConnection() {
         if (connection != null) {
             try {
                 connection.close();
@@ -75,9 +87,6 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-    /**
-     * @throws MessagingRuntimeException
-     */
     @Override
     public void sendToTopic(Message message) {
         sendToTopic(message.toJson());
@@ -88,27 +97,30 @@ public class DefaultMessageSender implements MessageSender {
         sendToTopic(message.toJson(), headers);
     }
 
-    /**
-     * @throws MessagingRuntimeException
-     */
     @Override
     public void sendToTopic(String message) {
         sendToTopic(message, Collections.EMPTY_MAP);
     }
 
-    /**
-     * @throws MessagingRuntimeException
-     */
     @Override
     public void sendToTopic(String message, Map<String, String> headers) {
+        doSendMessage(message, headers);
+    }
+
+    /**
+     * @param message
+     * @param headers
+     * @throws MessagingRuntimeException
+     */
+    protected void doSendMessage(String message, Map<String, String> headers) {
         Session session = null;
         MessageProducer messageProducer = null;
         try {
-            session = getSession();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             messageProducer = session.createProducer(destination);
-            send(message, headers, session, messageProducer);
+            sendUsingProducer(message, headers, session, messageProducer);
         } catch (Exception e) {
-            logger.error("Cannot send the message: " + message + "; with headers: " + headers + ".", e);
+            throw new MessagingRuntimeException("Cannot send the message: " + message + "; with headers: " + headers + ".", e);
         } finally {
             if (session != null) {
                 try {
@@ -127,7 +139,7 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-    private void send(String message, Map<String, String> headers, Session session, MessageProducer messageProducer) {
+    protected void sendUsingProducer(String message, Map<String, String> headers, Session session, MessageProducer messageProducer) {
         TextMessage textMessage;
         try {
             textMessage = session.createTextMessage(message);
@@ -150,15 +162,10 @@ public class DefaultMessageSender implements MessageSender {
             }
         });
         try {
-            logger.info("Sending message with headers: {}.", headerBuilder.toString());
+            logger.debug("Sending message with headers: {}.", headerBuilder.toString());
             messageProducer.send(textMessage);
         } catch (JMSException e) {
             throw new MessagingRuntimeException(e);
         }
     }
-
-    private Session getSession() throws JMSException {
-        return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
-
 }

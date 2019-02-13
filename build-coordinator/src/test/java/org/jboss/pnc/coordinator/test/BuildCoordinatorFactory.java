@@ -77,7 +77,9 @@ public class BuildCoordinatorFactory {
                     "${product_short_name}-${product_version}-pnc",
                     "10",
                     null,
-                    "")
+                    "",
+                    "",
+                    "10")
                 ).when(configuration)
                 .getModuleConfig(any(PncConfigProvider.class));
             return configuration;
