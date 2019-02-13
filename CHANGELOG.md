@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4300] Fixed updating of brew pushed status
 - [NCL-4282] Add Build to MQ message
 - [NCL-4290] Add Build to Websocket satus update
+- [NCL-4393] Add pnc service status visualisations to UI dashboard
 
 ## [1.4.3]
 
