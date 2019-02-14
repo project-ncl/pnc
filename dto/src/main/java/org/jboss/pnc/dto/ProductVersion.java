@@ -20,6 +20,7 @@ package org.jboss.pnc.dto;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -36,7 +37,7 @@ import lombok.Data;
 public class ProductVersion extends ProductVersionRef {
 
     @RefHasId(groups = {WhenCreatingNew.class})
-    private final ProductRef productId;
+    private final ProductRef product;
 
     private final ProductMilestoneRef currentProductMilestone;
 
@@ -44,18 +45,18 @@ public class ProductVersion extends ProductVersionRef {
 
     private final List<ProductReleaseRef> productReleases;
 
-    private final List<GroupConfigurationRef> buildConfigurationSets;
+    private final List<GroupConfigurationRef> groupConfigurations;
 
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder")
-    private ProductVersion(ProductRef productId, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> buildConfigurationSets, List<BuildConfigurationRef> buildConfigurations, Integer id, String version) {
-        super(id, version);
-        this.productId = productId;
+    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigurations, List<BuildConfigurationRef> buildConfigurations, Integer id, String version, HashMap<String, String> attributes) {
+        super(id, version, attributes);
+        this.product = product;
         this.currentProductMilestone = currentProductMilestone;
         this.productMilestones = productMilestones;
         this.productReleases = productReleases;
-        this.buildConfigurationSets = buildConfigurationSets;
+        this.groupConfigurations = groupConfigurations;
         this.buildConfigurations = buildConfigurations;
     }
 
