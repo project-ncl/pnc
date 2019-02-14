@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.RunningBuildsCountRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
@@ -106,6 +107,19 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = SEARCH_DESCRIPTION) @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search) {
         return fromCollection(buildRecordProvider.getAllRunning(pageIndex, pageSize, search, sort));
+    }
+
+    @ApiOperation(value = "Gets count of running, enqueued, and 'awaiting for dependencies' Build Records")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RunningBuildsCountRest.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/count")
+    public Response getCount() {
+        return Response.ok(buildRecordProvider.getRunningCount()).build();
+
     }
 
     @ApiOperation(value = "Gets specific running Build Record")
