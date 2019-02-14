@@ -438,6 +438,10 @@ public class Artifact implements GenericEntity<Integer> {
                 && sha256.equals(compare.getSha256());
     }
 
+    public static Builder builder() {
+        return Builder.newBuilder();
+    }
+
     @Override
     public int hashCode() {
         return (identifier + md5 + sha1 + sha256).hashCode();
