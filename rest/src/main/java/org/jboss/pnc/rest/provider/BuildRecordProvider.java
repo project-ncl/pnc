@@ -36,6 +36,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.RunningBuildsCountRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
@@ -194,6 +195,32 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         Map<String, String> metadata = getGraphMetadata(buildRecordGraph.getMissingNodeIds());
         RestGraphBuilder restGraphBuilder = new RestGraphBuilder(metadata);
         return restGraphBuilder.from(buildRecordGraph.getGraph(), BuildRecordRest.class);
+    }
+
+    public RunningBuildsCountRest getRunningCount() {
+
+        List<BuildTask> x = buildCoordinator.getSubmittedBuildTasks();
+
+        int waitingForDependencies = 0;
+        int running = 0;
+        int enqueued = 0;
+
+        for (BuildTask task: x) {
+            switch(task.getStatus()) {
+                case ENQUEUED:
+                    enqueued++;
+                    continue;
+                case BUILDING:
+                    running++;
+                    continue;
+                case WAITING_FOR_DEPENDENCIES:
+                    waitingForDependencies++;
+                    continue;
+            }
+        }
+
+        return new RunningBuildsCountRest(running, enqueued, waitingForDependencies);
+
     }
 
     private GraphWithMetadata<BuildRecordRest, Integer> getDependencyGraph(Integer buildId) {
