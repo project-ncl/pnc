@@ -30,7 +30,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -49,7 +48,7 @@ public class ProductVersionRef implements DTOEntity {
     @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp=Patterns.PRODUCT_STREAM_VERSION, groups = {WhenCreatingNew.class, WhenUpdating.class})
     protected final String version;
 
-    protected final Map<String, String> attributes = new HashMap<>();
+    protected final Map<String, String> attributes;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
