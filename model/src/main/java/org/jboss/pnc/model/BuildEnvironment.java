@@ -176,6 +176,11 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         return "Build Environment [name: " + name + ", image id: " + this.systemImageId + "]";
     }
 
+    // Needed for mapstruct to be able to use builders for immutable types (systemImageId)
+    public static BuildEnvironment.Builder builder() {
+        return Builder.newBuilder();
+    }
+
     public static class Builder {
 
         private Integer id;

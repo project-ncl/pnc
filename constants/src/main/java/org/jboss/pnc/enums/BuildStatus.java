@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.enums;
 
+import java.util.Arrays;
+
 /**
  * Status of a running or completed build.
  *
@@ -88,5 +90,33 @@ public enum BuildStatus {
 
     public boolean completedSuccessfully() {
         return completedSuccessfully;
+    }
+
+    @Deprecated
+    public static BuildStatus fromBuildCoordinationStatus(BuildCoordinationStatus buildCoordinationStatus) {
+        BuildCoordinationStatus[] success = {BuildCoordinationStatus.DONE};
+        BuildCoordinationStatus[] failed = {BuildCoordinationStatus.DONE_WITH_ERRORS};
+        BuildCoordinationStatus[] cancelled = {BuildCoordinationStatus.CANCELLED};
+        BuildCoordinationStatus[] building = {BuildCoordinationStatus.NEW,
+                BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES,BuildCoordinationStatus.BUILDING,
+                BuildCoordinationStatus.BUILD_COMPLETED};
+        BuildCoordinationStatus[] notRequired = {BuildCoordinationStatus.REJECTED_ALREADY_BUILT};
+        BuildCoordinationStatus[] rejected = { BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES, BuildCoordinationStatus.REJECTED};
+
+        if (Arrays.asList(success).contains(buildCoordinationStatus)) {
+            return SUCCESS;
+        } else if (Arrays.asList(failed).contains(buildCoordinationStatus)) {
+            return FAILED;
+        } else if (Arrays.asList(cancelled).contains(buildCoordinationStatus)) {
+            return CANCELLED;
+        } else if (Arrays.asList(building).contains(buildCoordinationStatus)) {
+            return BUILDING;
+        } else if (Arrays.asList(notRequired).contains(buildCoordinationStatus)) {
+            return NO_REBUILD_REQUIRED;
+        } else if (Arrays.asList(rejected).contains(buildCoordinationStatus)) {
+            return REJECTED;
+        } else {
+            return SYSTEM_ERROR;
+        }
     }
 }
