@@ -295,29 +295,6 @@ label.required::before {
   text-decoration: none;
 }
 
-/* Temporary hack [yuck] for NCL-4051 */
-.editable-wrap.editable-textarea > .editable-controls > textarea[name="buildScript"] {
-  height: 250px;
-}
-
-@media screen and (min-width: 1200px) {
-  .editable-wrap.editable-textarea > .editable-controls > textarea[name="buildScript"] {
-    width: 710px;
-  }
-}
-
-@media screen and (min-width: 1600px) {
-  .editable-wrap.editable-textarea > .editable-controls > textarea[name="buildScript"] {
-    width: 960px;
-  }
-}
-
-@media screen and (min-width: 1920px) {
-  .editable-wrap.editable-textarea > .editable-controls > textarea[name="buildScript"] {
-    width: 1160px;
-  }
-}
-
 .text-divider {
   overflow: hidden;
   display: block;
@@ -337,4 +314,9 @@ label.required::before {
 
 .text-divider.text-divider-dark {
   border-bottom: 1px solid #bbb;
+}
+
+.no-divider-header .page-header {
+  border-bottom: 0;
+  margin-bottom: -10px !important;
 }

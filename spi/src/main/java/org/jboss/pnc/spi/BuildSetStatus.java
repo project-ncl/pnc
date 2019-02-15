@@ -23,21 +23,11 @@ package org.jboss.pnc.spi;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-05-15.
  */
 public enum BuildSetStatus {
-    NEW,
-    DONE(true),
-    REJECTED(true);
+    NEW(),
+    DONE(),
+    REJECTED();
 
-    private final boolean isFinal;
 
-    BuildSetStatus() {
-        isFinal = false;
-    }
+    private final
 
-    BuildSetStatus(boolean isFinal) {
-        this.isFinal = isFinal;
-    }
-
-    public boolean isCompleted() {
-        return isFinal;
-    }
 }

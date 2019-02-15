@@ -20,8 +20,8 @@
 
 <div class="row">
   <div class="col-md-12">
-    <pnc-header>
-      <pnc-header-title class="border-none">{{ $ctrl.buildConfig.name }}</pnc-header-title>
+    <pnc-header class="no-divider-header">
+      <pnc-header-title>{{ $ctrl.buildConfig.name }}</pnc-header-title>
       <pnc-header-buttons>
         <pnc-build-start build-config="$ctrl.buildConfig"></pnc-build-start>
         <button type="button" class="btn btn-lg btn-default" uib-tooltip="Clone Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.clone()" pnc-requires-auth><i class="fa fa-files-o"></i> Clone</button>
@@ -33,14 +33,13 @@
 </div> <!-- /row -->
 <div class="row">
   <div class="col-md-12">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs nav-tabs-pf">
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.default" ui-sref-opts="{reload:true}">Details</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.dependencies">Dependencies</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.dependants">Dependants</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.build-groups">Build Groups</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.products">Products</a></li>
       <li ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.revisions">Revisions</a></li>
-      <li><a href="#">Build History</a></li>
     </ul>
     <div class="m-t-20" ui-view></div>
   </div><!-- /col -->

@@ -43,60 +43,19 @@
       onRemove: '&'
     },
     templateUrl: 'product/directives/pnc-product-versions-data-table/pnc-product-versions-data-table.html',
-    controller: ['$log', '$q', 'modalSelectService', Controller]
+    controller: ['paginator', Controller]
   });
 
 
-  function Controller($log, $q, modalSelectService) {
-    var $ctrl = this;
+  function Controller(paginator) {
+    const $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.edit = edit;
-
-    $ctrl.actions = {
-      remove: remove
-    };
+    $ctrl.paginator = paginator($ctrl.page);
 
     // --------------------
 
-
-    $ctrl.$onInit = function () {
-    };
-
-
-    function edit() {
-      modalSelectService.openForProductVersions({
-        title: 'Insert / Remove Product Versions',
-        productVersions: $ctrl.page.data
-      });
-      // $q.when()
-      //   .then(function () {
-      //     if ($ctrl.page.total === 1) {
-      //       return $ctrl.page.data;
-      //     } else {
-      //       return $ctrl.page.getWithNewSize($ctrl.page.total * $ctrl.page.count).then(resp => resp.data);
-      //     }
-      //   })
-      //   .then(function (productVersions) {
-      //     return openForProductVersions.openForBuildConfigs({
-      //       title: 'Insert / Remove Product Versions',
-      //       productVersions: productVersions
-      //     }).result;
-      //   })
-      //   .then(function (editedProductVersions) {
-      //     $q.when($ctrl.onEdit()(editedProductVersions)).then(function () {
-      //       $ctrl.page.refresh();
-      //     });
-      //   });
-    }
-    
-    function remove(productVersion) {
-      $log.debug('Table action: remove Product Version: %O', productVersion);
-      $q.when($ctrl.onRemove()(productVersion)).then(function () {
-        $ctrl.page.refresh();
-      });
-    }
   }
 
 })();

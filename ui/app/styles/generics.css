@@ -106,3 +106,8 @@
 .lh-1-6 { line-height: 1.6 !important }
 
 .border-t-w-1 { border-top-width: 1px !important;}
+
+td.shrink-to-fit {
+  width:0.1%;
+  white-space: nowrap;
+}

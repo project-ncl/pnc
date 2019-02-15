@@ -85,6 +85,9 @@
       $stateProvider.state('projects.detail.build-configs.detail.default', {
         url: '',
         component: 'pncBuildConfigDetailsTab',
+        data: {
+          displayName: false
+        },
         bindings: {
           buildConfig: 'configurationDetail'
         }
@@ -93,6 +96,9 @@
       $stateProvider.state('projects.detail.build-configs.detail.dependencies', {
         url: '/dependencies',
         component: 'pncBuildConfigDependenciesTab',
+        data: {
+          displayName: 'Dependencies'
+        },
         bindings: {
           buildConfig: 'configurationDetail'
         },
@@ -109,6 +115,9 @@
       $stateProvider.state('projects.detail.build-configs.detail.dependants', {
         url: '/dependendants',
         component: 'pncBuildConfigDependantsTab',
+        data: {
+          displayName: 'Dependants'
+        },
         bindings: {
           buildConfig: 'configurationDetail'
         },
@@ -125,6 +134,9 @@
       $stateProvider.state('projects.detail.build-configs.detail.build-groups', {
         url: '/build-groups',
         component: 'pncBuildConfigBuildGroupsTab',
+        data: {
+          displayName: 'Build Groups'
+        },
         bindings: {
           buildConfig: 'configurationDetail'
         },
@@ -142,6 +154,9 @@
       $stateProvider.state('projects.detail.build-configs.detail.products', {
         url: '/products',
         component: 'pncBuildConfigProductsTab',
+        data: {
+          displayName: 'Products'
+        },
         bindings: {
           buildConfig: 'configurationDetail'
         },
@@ -172,6 +187,9 @@
             };
           });
         },
+        data: {
+          displayName: 'Revisions'
+        },
         component: 'pncBuildConfigRevisionsTab',
         bindings: {
           buildConfig: 'configurationDetail'
@@ -199,6 +217,9 @@
           'detail': {
             component: 'pncRevisionsDetails'
           }
+        },
+        data: {
+          displayName: '{{ revision.lastModificationTime | date : \'medium\' }}'
         },
         resolve: {
           revision : [
