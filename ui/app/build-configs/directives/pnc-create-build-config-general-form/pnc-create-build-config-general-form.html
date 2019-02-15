@@ -48,6 +48,6 @@
     <label class="control-label required" for="build-config-build-script">Build Script</label>
     <textarea id="build-config-build-script" name="buildScript" class="form-control" spellcheck=false ng-model="$ctrl.data.buildScript" spellcheck="false" pnc-build-script-validator required></textarea>
     <p ng-show="form.buildScript.$invalid && form.buildScript.$touched" class="help-block">Build Script is a required field.</p>
-    <p class="help-block" ng-show="form.buildScript.$error.invalidBuildScript && form.buildScript.$touched">The 'deploy' lifecycle is required for maven builds in order to prevent artifact promotion issues.</p>
+    <p class="help-block" ng-show="form.buildScript.$error.invalidBuildScript && form.buildScript.$touched">The 'deploy' goal is required for maven builds in order to prevent artifact promotion issues.</p>
   </div>
 </ng-form>

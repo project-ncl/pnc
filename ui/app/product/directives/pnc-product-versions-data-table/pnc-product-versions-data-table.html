@@ -17,29 +17,9 @@
     limitations under the License.
 
 -->
-<div>
-  <script type="text/ng-template" id="pnc-product-versions-data-table-actions.html">
-    <div class="btn-group" role="group" aria-label="Item Actions">
-      <button class="btn btn-block btn-default" uib-tooltip="Remove ProductVersion" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(productVersion)" pnc-confirm-message="{{ 'Confirm the removal of ProductVersion: ' + productVersion.productName + ' - ' + productVersion.version + ' ?'}}">Remove</button>
-    </div>
-  </script>
-  
-  <div>
-    <div class="btn-group pull-right m-b-20">
-      <button type="button"
-              class="btn btn-default"
-              uib-tooltip="Add / Remove ProductVersions"
-              tooltip-popup-delay="2500"
-              tooltip-placement="top"
-              tooltip-append-to-body="true"
-              ng-click="$ctrl.edit()"
-              ng-if="::$ctrl.onEdit()">
-        <i class="pficon pficon-edit"></i> Edit
-      </button>
-    </div>
-    <pnc-product-versions-list product-versions="$ctrl.page.data" display-fields="$ctrl.displayFields" actions-template-url="pnc-product-versions-data-table-actions.html" actions-data="$ctrl.actions"></pnc-product-versions-list>
-    <pnc-page-controls class="pull-right m-t-10" pnc-page="$ctrl.page" ng-if="$ctrl.page"></pnc-page-controls>
-  </div>
+<div>  
+  <pnc-product-versions-list product-versions="$ctrl.paginator.data" display-fields="$ctrl.displayFields"></pnc-product-versions-list>
+  <pnc-page-controls class="pull-right m-t-10" pnc-page="$ctrl.paginator" ng-if="$ctrl.page"></pnc-page-controls>
 </div>
     
     

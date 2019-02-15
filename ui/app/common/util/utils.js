@@ -25,7 +25,8 @@
    * output from their input without any side effects.
    */
   angular.module('pnc.common.util').factory('utils', [
-    function () {
+    '$q',
+    function ($q) {
 
       /**
        * Returns true if the given value is undefined, null or an empty string.
@@ -122,12 +123,37 @@
          JSON.stringify(obj, null, _indent);
        }
 
+       /**
+        * Takes a page object and fetches all objects of all pages and returns as a flat array.
+        * 
+        * WARNING: This function should not be used except in exceptional circumstances.
+        * It has the potential to cause severe performance issues on the backend and
+        * using it should be seen as a code / UX smell. In some rare cases it is a pragmatic necessity 
+        * to use this to get around some shortcomings in the PNC REST API that are difficult to
+        * address at present. The long term goal is to address the backend issues and delete this function
+        * with extreme prejudice. 
+        * 
+        * @param {Object} page a page object
+        * @return {Object} returns a promise with the  
+        */
+       function dePaginate(page) {
+         return $q.when(page)
+            .then(page => {
+              if (page.total === 1) {
+                return page.data;
+              } else {
+                return page.getWithNewSize(page.total * page.count).then(resp => resp.data);
+              }
+            });
+       }
+
       return {
-        isEmpty: isEmpty,
-        parseBoolean: parseBoolean,
-        concatStrings: concatStrings,
-        hashCode: hashCode,
-        prettyPrint: prettyPrint
+        isEmpty,
+        parseBoolean,
+        concatStrings,
+        hashCode,
+        prettyPrint,
+        dePaginate
       };
     }
   ]);

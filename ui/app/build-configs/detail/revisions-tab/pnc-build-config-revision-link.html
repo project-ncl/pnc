@@ -17,6 +17,6 @@
     limitations under the License.
 
 -->
-<a href ui-sref="projects.detail.build-configs.detail.revisions.detail({ projectId: $ctrl.revision.project.id, configurationId: $ctrl.revision.id, revisionId: $ctrl.revision.rev  })" ng-bind="$ctrl.revision.lastModificationTime || $ctrl.revision.rev"></a>
+<a href ui-sref="projects.detail.build-configs.detail.revisions.detail({ projectId: $ctrl.revision.project.id, configurationId: $ctrl.revision.id, revisionId: $ctrl.revision.rev  })" ng-bind="($ctrl.revision.lastModificationTime | date : 'medium')|| $ctrl.revision.rev"></a>
       
       

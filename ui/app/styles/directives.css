@@ -381,10 +381,6 @@ table.build-status-table tr > td {
   }
 }
 
-
-
-
-
-
-
-
+.build-config-edit-form #build-config-build-script {
+  height: 300px;
+}

@@ -28,35 +28,20 @@
       mainCtrl: '^^pncBuildConfigDetailMain'
     },
     templateUrl: 'build-configs/detail/products-tab/pnc-build-config-products-tab.html',
-    controller: ['$log', 'paginator', Controller]
+    controller: [Controller]
   });
 
 
-  function Controller($log, paginator) {
+  function Controller() {
     var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.page = paginator($ctrl.productVersions);
-    $ctrl.displayFields = ['name'];
-
-    $ctrl.onRemove = onRemove;
-    $ctrl.onEdit = onEdit;
+    $ctrl.page = $ctrl.productVersions;
+    $ctrl.displayFields = ['name', 'version'];
 
     // --------------------
 
-
-    $ctrl.$onInit = function () {
-
-    };
-
-    function onRemove(productVersion) {
-      $log.debug('Table action: remove ProductVersion %O', productVersion);
-    }
-
-    function onEdit() {
-      $log.debug('Table action: Edit product versions');
-    }
   }
 
 })();

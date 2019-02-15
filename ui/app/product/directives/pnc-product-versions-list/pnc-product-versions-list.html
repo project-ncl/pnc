@@ -19,14 +19,20 @@
 -->
 <table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
   <thead>
-    <th ng-if="::$ctrl.showColumn('name')">Name</th>
+    <th ng-if="::$ctrl.showColumn('name')" class="shrink-to-fit">Name</th>
+    <th ng-if="::$ctrl.showColumn('version')">Version</th>
     <th ng-if="::$ctrl.actionsTemplateUrl">Actions</th>
   </thead>
   <tbody>
     <tr ng-repeat="productVersion in $ctrl.productVersions">
-      <td ng-if="::$ctrl.showColumn('name')">
+      <td ng-if="::$ctrl.showColumn('name')" class="shrink-to-fit">
         <a ui-sref="" href>
-          {{ productVersion.productName }} - {{ productVersion.version }}
+          {{ productVersion.productName }}
+        </a>
+      </td>
+      <td ng-if="::$ctrl.showColumn('version')">
+        <a ui-sref="" href>
+          {{ productVersion.version }}
         </a>
       </td>
       <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
