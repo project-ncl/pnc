@@ -38,13 +38,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4300] Fixed updating of brew pushed status
 - [NCL-4282] Add Build to MQ message
 - [NCL-4290] Add Build to Websocket satus update
-- [NCL-4393] Add pnc service status visualisations to UI dashboard
 - [NCL-4270] Persistent builds ignore successful temporary build when asking whether to rebuild
 
 ## [1.4.4]
 
 ### Added
-- [NCL-4393] Adds pnc service status visualisations to the UI dashboard
+- [NCL-4393] Add pnc service status visualisations to UI dashboard
 
 ### Fixed
 - [NCL-4333] A closed milestone now cannot be set as current via REST API
