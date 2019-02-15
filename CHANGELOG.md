@@ -41,6 +41,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4393] Add pnc service status visualisations to UI dashboard
 - [NCL-4270] Persistent builds ignore successful temporary build when asking whether to rebuild
 
+## [1.4.4]
+
+### Added
+- [NCL-4393] Adds pnc service status visualisations to the UI dashboard
+
+### Fixed
+- [NCL-4333] A closed milestone now cannot be set as current via REST API
+- [NCL-4274] Fixed wrong links when using redhat artifacts as dependencies
+
 ## [1.4.3]
 
 ### Changed

@@ -71,6 +71,7 @@ import org.jboss.pnc.enums.RepositoryType;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
+import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.TEMPORARY_BUILDS_GROUP;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
@@ -237,7 +238,7 @@ public class IndyRepositorySession implements RepositorySession {
 
                 // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
                 // New binary imports will be coming from a remote repository...
-                if (isExternalOrigin(source) && StoreType.hosted != source.getType()) {
+                if (isExternalOrigin(source)) {
                     StoreKey target = null;
                     Map<StoreKey, Set<String>> sources = null;
                     Set<String> paths = null;
@@ -320,7 +321,7 @@ public class IndyRepositorySession implements RepositorySession {
 
     private StoreKey getPromotionTarget(String packageType, Map<String, StoreKey> promotionTargets) {
         if (!promotionTargets.containsKey(packageType)) {
-            StoreKey storeKey = new StoreKey(packageType, StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID);
+            StoreKey storeKey = new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID);
             promotionTargets.put(packageType, storeKey);
         }
         return promotionTargets.get(packageType);
@@ -353,12 +354,18 @@ public class IndyRepositorySession implements RepositorySession {
     private String getTargetRepositoryPath(TrackedContentEntryDTO download, IndyContentClientModule content) {
         String result;
         StoreKey sk = download.getStoreKey();
+        String packageType = sk.getPackageType();
         if (isExternalOrigin(sk)) {
-            result = "/api/" + content.contentPath(new StoreKey(sk.getPackageType(), StoreType.hosted, IndyRepositoryConstants.SHARED_IMPORTS_ID));
+            result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID));
         } else {
-            String localUrl = download.getLocalUrl();
-            String path = download.getPath();
-            result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
+            String storeName = sk.getName();
+            if (StoreType.hosted == sk.getType() && storeName.matches("^build(?:-\\d+|_.+)$")) {
+                result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.group, UNTESTED_BUILDS_GROUP));
+            } else {
+                String localUrl = download.getLocalUrl();
+                String path = download.getPath();
+                result = localUrl.substring(localUrl.indexOf("/api/content/" + packageType + "/"), localUrl.indexOf(path) + 1);
+            }
         }
         return result;
     }
@@ -389,36 +396,40 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     private boolean isExternalOrigin(StoreKey storeKey) {
-        String repoName = storeKey.getName();
-        List<String> patterns;
-        switch (storeKey.getPackageType()) {
-            case MAVEN_PKG_KEY:
-                patterns = internalRepoPatterns.getMaven();
-                break;
-            case NPM_PKG_KEY:
-                patterns = internalRepoPatterns.getNpm();
-                break;
-            case GENERIC_PKG_KEY:
-                patterns = internalRepoPatterns.getGeneric();
-                break;
-            default:
-                throw new IllegalArgumentException("Package type " + storeKey.getPackageType()
-                        + " is not supported by Indy repository manager driver.");
-        }
-
-        for (String pattern : patterns) {
-//            Logger logger = LoggerFactory.getLogger(getClass());
-//            logger.info( "Checking ")
-            if (pattern.equals(repoName)) {
-                return false;
+        if (storeKey.getType() == StoreType.hosted) {
+            return false;
+        } else {
+            String repoName = storeKey.getName();
+            List<String> patterns;
+            switch (storeKey.getPackageType()) {
+                case MAVEN_PKG_KEY:
+                    patterns = internalRepoPatterns.getMaven();
+                    break;
+                case NPM_PKG_KEY:
+                    patterns = internalRepoPatterns.getNpm();
+                    break;
+                case GENERIC_PKG_KEY:
+                    patterns = internalRepoPatterns.getGeneric();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Package type " + storeKey.getPackageType()
+                            + " is not supported by Indy repository manager driver.");
             }
 
-            if (repoName.matches(pattern)) {
-                return false;
-            }
-        }
+            for (String pattern : patterns) {
+//                Logger logger = LoggerFactory.getLogger(getClass());
+//                logger.info( "Checking ")
+                if (pattern.equals(repoName)) {
+                    return false;
+                }
 
-        return true;
+                if (repoName.matches(pattern)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     /**
