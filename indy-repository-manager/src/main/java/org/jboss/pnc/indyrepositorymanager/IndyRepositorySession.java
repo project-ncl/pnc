@@ -216,7 +216,7 @@ public class IndyRepositorySession implements RepositorySession {
         try {
             content = indy.content();
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
         }
 
         List<Artifact> deps = new ArrayList<>();
@@ -586,7 +586,7 @@ public class IndyRepositorySession implements RepositorySession {
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
         }
 
         try {
@@ -641,7 +641,7 @@ public class IndyRepositorySession implements RepositorySession {
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
         }
 
         StoreKey hostedKey = new StoreKey(packageKey, StoreType.hosted, buildContentId);
