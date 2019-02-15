@@ -64,6 +64,7 @@ import java.util.Set;
 
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMPORARY_BUILDS_GROUP;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
@@ -361,11 +362,16 @@ public class MavenRepositorySession implements RepositorySession {
         String result;
         StoreKey sk = download.getStoreKey();
         if (isExternalOrigin(sk)) {
-            result = "/api/content/maven/hosted/shared-imports/";
+            result = "/api/content/maven/hosted/" + SHARED_IMPORTS_ID + "/";
         } else {
-            String localUrl = download.getLocalUrl();
-            String path = download.getPath();
-            result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
+            String storeName = sk.getName();
+            if (StoreType.hosted == sk.getType() && storeName.matches("^build(?:-\\d+|_.+)$")) {
+                result = "/api/content/maven/group/" + UNTESTED_BUILDS_GROUP + "/";
+            } else {
+                String localUrl = download.getLocalUrl();
+                String path = download.getPath();
+                result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
+            }
         }
         return result;
     }
@@ -392,20 +398,24 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     private boolean isExternalOrigin(StoreKey sk) {
-        String repoName = sk.getName();
-        for (String pattern : internalRepoPatterns) {
-//            Logger logger = LoggerFactory.getLogger(getClass());
-//            logger.info( "Checking ")
-            if (pattern.equals(repoName)) {
-                return false;
+        if (sk.getType() == StoreType.hosted) {
+            return false;
+        } else {
+            String repoName = sk.getName();
+            for (String pattern : internalRepoPatterns) {
+//                Logger logger = LoggerFactory.getLogger(getClass());
+//                logger.info( "Checking ")
+                if (pattern.equals(repoName)) {
+                    return false;
+                }
+
+                if (repoName.matches(pattern)) {
+                    return false;
+                }
             }
 
-            if (repoName.matches(pattern)) {
-                return false;
-            }
+            return true;
         }
-
-        return true;
     }
 
     /**
@@ -503,7 +513,7 @@ public class MavenRepositorySession implements RepositorySession {
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
         }
 
         try {
@@ -550,15 +560,15 @@ public class MavenRepositorySession implements RepositorySession {
 
 
     /**
-     * Promote the build output to the correct build group (using group promotion, where the build repo is added to the
-     * group's membership) and marks the build output as readonly.
+     * Promote the build output to the correct build group (using group promotion, where the build
+     * repo is added to the group's membership) and marks the build output as readonly.
      */
     public void promoteToBuildContentSet() throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
         }
 
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
