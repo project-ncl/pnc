@@ -133,6 +133,7 @@
     <version.jackson.databind>2.8.11.1-redhat-1</version.jackson.databind>
     <version.org.jboss.resteasy>3.0.24.Final-redhat-1</version.org.jboss.resteasy>
     <version.hibenate>5.1.13.Final</version.hibenate>
+    <version.mapstruct>1.3.0.Final</version.mapstruct>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -845,6 +846,13 @@
         <artifactId>lombok</artifactId>
         <version>1.18.4</version>
         <scope>provided</scope>
+      </dependency>
+
+
+      <dependency>
+          <groupId>org.mapstruct</groupId>
+          <artifactId>mapstruct-jdk8</artifactId>
+          <version>${version.mapstruct}</version>
       </dependency>
 
       <!-- Test dependencies -->
