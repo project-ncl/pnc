@@ -63,6 +63,11 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>rest-model</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>test-common</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Java EE dependencies -->
         <dependency>
@@ -72,6 +77,10 @@
         </dependency>
 
         <!-- 3rd party dependencies -->
+        <dependency>
+            <groupId>cz.jirutka.rsql</groupId>
+            <artifactId>rsql-parser</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-jdk8</artifactId>
