@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - [NCL-4393] Adds pnc service status visualisations to the UI dashboard
 - [NCL-4392] Expose info about number of building and enqueued builds via REST
-
+- Add retries for build environment creation in case of pod creation failures
 
 ### Fixed
 - [NCL-4333] A closed milestone now cannot be set as current via REST API

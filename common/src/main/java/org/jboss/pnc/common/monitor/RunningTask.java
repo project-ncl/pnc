@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-class RunningTask {
+public class RunningTask {
 
     private ScheduledFuture<?> future;
     Instant deadline;
