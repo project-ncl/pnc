@@ -20,6 +20,7 @@ package org.jboss.pnc.common.monitor;
 
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.util.ObjectWrapper;
+import org.jboss.pnc.common.util.ReadEnvProperty;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.util.collection.ConcurrentSet;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -67,22 +67,20 @@ public class PullingMonitor {
 
     public PullingMonitor() {
 
-        timeout = getValueFromPropertyOrDefault(PULLING_MONITOR_TIMEOUT_KEY, DEFAULT_TIMEOUT, "timeout");
-        checkInterval = getValueFromPropertyOrDefault(PULLING_MONITOR_CHECK_INTERVAL_KEY,
-                                                      DEFAULT_CHECK_INTERVAL,
-                                                      "check interval");
+        ReadEnvProperty reader = new ReadEnvProperty();
 
-        int threadSize = getValueFromPropertyOrDefault(PULLING_MONITOR_THREADPOOL_KEY,
-                DEFAULT_EXECUTOR_THREADPOOL_SIZE,
-                "thread size");
+        timeout = reader.getIntValueFromPropertyOrDefault(PULLING_MONITOR_TIMEOUT_KEY, DEFAULT_TIMEOUT);
+        checkInterval = reader.getIntValueFromPropertyOrDefault(PULLING_MONITOR_CHECK_INTERVAL_KEY, DEFAULT_CHECK_INTERVAL);
+
+        int threadSize = reader.getIntValueFromPropertyOrDefault(PULLING_MONITOR_THREADPOOL_KEY, DEFAULT_EXECUTOR_THREADPOOL_SIZE);
 
         runningTasks = new ConcurrentSet<>();
         startTimeOutVerifierService();
         executorService = MDCExecutors.newScheduledThreadPool(threadSize);
     }
 
-    public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
-        monitor(onMonitorComplete, onMonitorError, condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
+    public RunningTask monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition) {
+        return monitor(onMonitorComplete, onMonitorError, condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
     }
 
     /**
@@ -96,7 +94,7 @@ public class PullingMonitor {
      * @param timeout
      * @param timeUnit Unit used for checkInterval and timeout
      */
-    public void monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition, int checkInterval, int timeout, TimeUnit timeUnit) {
+    public RunningTask monitor(Runnable onMonitorComplete, Consumer<Exception> onMonitorError, Supplier<Boolean> condition, int checkInterval, int timeout, TimeUnit timeUnit) {
 
         ObjectWrapper<RunningTask> runningTaskReference = new ObjectWrapper<>();
         Runnable monitor = () -> {
@@ -133,7 +131,16 @@ public class PullingMonitor {
         RunningTask runningTask = new RunningTask(future, timeout, TimeUtils.chronoUnit(timeUnit), onTimeout);
         runningTasks.add(runningTask);
         runningTaskReference.set(runningTask);
+
+        return runningTask;
     }
+
+    public void cancelRunningTask(RunningTask task) {
+        runningTasks.remove(task);
+        task.cancel();
+    }
+
+
 
     public ScheduledFuture<?> timer(Runnable task, long delay, TimeUnit timeUnit) {
         return executorService.schedule(task, delay, timeUnit);
@@ -154,37 +161,4 @@ public class PullingMonitor {
         timeOutVerifierService.shutdownNow();
     }
 
-    /**
-     * If propertyName has no value (either specified in system property or environment property), then just return
-     * the default value. System property value has priority over environment property value.
-     *
-     * If value can't be parsed, just return the default value.
-     *
-     * @param propertyName property name to check the value
-     * @param defaultValue default value to use
-     * @param description description to print in case value can't be parsed as an integer
-     *
-     * @return value from property, or default value
-     */
-    private int getValueFromPropertyOrDefault(String propertyName, int defaultValue, String description) {
-
-        int value = defaultValue;
-
-        String valueEnv = System.getenv(propertyName);
-        String valueSys = System.getProperty(propertyName);
-
-        try {
-            if (valueSys != null) {
-                value = Integer.parseInt(valueSys);
-            } else if (valueEnv != null) {
-                value = Integer.parseInt(valueEnv);
-            }
-            log.info("Updated " + description + " for PullingMonitor to: " + value);
-            return value;
-        } catch (NumberFormatException e) {
-            log.warn("Could not parse the '" + propertyName +
-                    "' system property. Using default value: " + defaultValue);
-            return value;
-        }
-    }
 }

@@ -160,7 +160,6 @@ Finally, to configure the check interval in seconds for the builder pod to start
 
 Note that the system property has precedence over the environment variable if both are defined.
 
-
 ## Database set-up
 
 ### Manually Configuring the Datasource for HSQL DB
