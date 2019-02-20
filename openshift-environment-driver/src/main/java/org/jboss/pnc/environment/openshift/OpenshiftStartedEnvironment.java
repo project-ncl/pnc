@@ -34,6 +34,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.environment.openshift.exceptions.PodFailedStartException;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -71,6 +72,16 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String POD_USER_PASSWD = "workerUserPassword";
     private static final String OSE_API_VERSION = "v1";
     private static final Pattern SECURE_LOG_PATTERN = Pattern.compile("\"name\":\\s*\"accessToken\",\\s*\"value\":\\s*\"\\p{Print}+\"");
+
+    /**
+     * From: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+     *
+     * ErrImagePull and ImagePullBackOff added to that list. The pod.getStatus() call will return the *reason* of failure,
+     * and if the reason is not available, then it'll return the regular status (as mentioned in the link)
+     *
+     * For pod creation, the failure reason we expect when docker registry is not behaving is 'ErrImagePull' or 'ImagePullBackOff'
+     */
+    private static final String[] POD_FAILED_STATUSES = {"Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull", "ImagePullBackOff"};
 
 
     private boolean serviceCreated = false;
@@ -310,11 +321,26 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         return "http://" + service.getClusterIP() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
     }
 
+    /**
+     * Check if pod is in running state.
+     * If pod is in one of the failure statuses (as specified in POD_FAILED_STATUSES, PodFailedStartException is thrown
+     *
+     * @return boolean: is pod running?
+     */
     private boolean isPodRunning() {
         if (!podCreated) { //avoid Caused by: java.io.FileNotFoundException: https://<host>:8443/api/v1/namespaces/project-ncl/services/pnc-ba-pod-552c
             return false;
         }
+
         pod = client.get(pod.getKind(), pod.getName(), environmentConfiguration.getPncNamespace());
+
+        String podStatus = pod.getStatus();
+        logger.debug("Pod {} status: {}", pod.getName(), podStatus);
+
+        if (Arrays.asList(POD_FAILED_STATUSES).contains(podStatus)) {
+            throw new PodFailedStartException("Pod failed with status: " + podStatus);
+        }
+
         boolean isRunning = "Running".equals(pod.getStatus());
         if (isRunning) {
             logger.debug("Pod {} running.", pod.getName());

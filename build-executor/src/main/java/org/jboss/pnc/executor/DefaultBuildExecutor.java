@@ -31,7 +31,6 @@ import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
 import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -69,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jboss.pnc.enums.RepositoryType;
 
@@ -81,6 +81,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private final Logger log = LoggerFactory.getLogger(DefaultBuildExecutor.class);
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
+    private static final int CREATE_BUILDER_POD_RETRY = 1;
+
     private ExecutorService executor;
 
     private RepositoryManagerFactory repositoryManagerFactory;
@@ -92,7 +94,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private SystemConfig systemConfig;
 
     @Deprecated
-    public DefaultBuildExecutor() {} //CDI workaround for constructor injection
+    public DefaultBuildExecutor() {
+    } //CDI workaround for constructor injection
 
     @Inject
     public DefaultBuildExecutor(
@@ -145,10 +148,30 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         DebugData debugData = new DebugData(buildExecutionConfiguration.isPodKeptOnFailure());
 
-        CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
-                .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration, debugData), executor)
-                .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
-                .thenComposeAsync(runningBuild -> runTheBuild(buildExecutionSession), executor)
+
+        boolean finalRetry = (CREATE_BUILDER_POD_RETRY == 0);
+
+        CompletableFuture<Void> envSetup = builderEnvSetup(buildExecutionSession, debugData, finalRetry);
+
+
+        // retry for CREATE_BUILDER_POD_RETRY if env pod creation failed
+        for (int i = 1; i <= CREATE_BUILDER_POD_RETRY; i++) {
+
+            // whether it's the last retry or not. If last retry, notify bpm
+            final boolean lastRetry = (i == CREATE_BUILDER_POD_RETRY);
+
+            envSetup = envSetup.thenApplyAsync(CompletableFuture::completedFuture, executor)
+                    .exceptionally(t -> {
+
+                        log.error(t.getMessage());
+                        log.error("Retrying to start build environment pod again");
+
+                        return builderEnvSetup(buildExecutionSession, debugData, lastRetry);
+                    })
+                    .thenComposeAsync(Function.identity(), executor);
+        }
+
+        envSetup.thenComposeAsync(runningBuild -> runTheBuild(buildExecutionSession), executor)
                 //no cancellation after this point
                 .thenApplyAsync(completedBuild -> {
                     buildExecutionSession.setCancelHook(null);
@@ -174,6 +197,13 @@ public class DefaultBuildExecutor implements BuildExecutor {
         } else {
             log.warn("Trying to cancel non existing session.");
         }
+    }
+
+    private CompletableFuture<Void> builderEnvSetup(DefaultBuildExecutionSession buildExecutionSession, DebugData debugData, boolean finalRetry) {
+
+        return CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
+                .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration, debugData), executor)
+                .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment, finalRetry), executor);
     }
 
     private CompletedBuild optionallyEnableSsh(BuildExecutionSession session, CompletedBuild completedBuild) {
@@ -247,8 +277,18 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
     }
 
+    /**
+     * If finalRetry is false, we won't update the buildExecutionSession status. If yes, we will. This allows us
+     * to retry to re-create the environment in case of failure
+     *
+     * @param buildExecutionSession
+     * @param startedEnvironment
+     * @param finalRetry whether we are in our last retry for environment initialization
+     *
+     * @return
+     */
     private CompletableFuture<Void> waitForEnvironmentInitialization(
-            DefaultBuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment) {
+            DefaultBuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment, boolean finalRetry) {
 
         CompletableFuture<Void> waitToCompleteFuture = new CompletableFuture<>();
 
@@ -268,8 +308,18 @@ public class DefaultBuildExecutor implements BuildExecutor {
             Consumer<Exception> onError = (e) -> {
                 userLog.error("Failed to set-up build environment.");
 
-                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+                if (finalRetry) {
+                    buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+                }
+
                 waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
+
+                try {
+                    userLog.debug("Trying to delete the build environment due to failure");
+                    startedEnvironment.destroyEnvironment();
+                } catch (EnvironmentDriverException ex) {
+                    userLog.error("Couldn't destroy the Openshift environment", ex);
+                }
             };
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_WAITING);
 
@@ -465,10 +515,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
      */
     private void stopRunningEnvironment(Throwable ex) {
         DestroyableEnvironment destroyableEnvironment = null;
-        if(ex instanceof BuildProcessException) {
+        if (ex instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex;
             destroyableEnvironment = bpEx.getDestroyableEnvironment();
-        } else if(ex.getCause() instanceof BuildProcessException) {
+        } else if (ex.getCause() instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex.getCause();
             destroyableEnvironment = bpEx.getDestroyableEnvironment();
         } else {
