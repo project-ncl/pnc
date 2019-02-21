@@ -34,9 +34,7 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
@@ -65,12 +63,12 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
                 RemoteRepository.class);
 
         StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID);
-        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PNC_BUILDS_GROUP);
+        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, PNC_BUILDS);
         StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
         StoreKey commonConstituentsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP);
         StoreKey remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, STORE);
 
-        createOrUpdateGroup(pncBuildsKey);
+        createHostedIfMissing(pncBuildsKey, false, true);
         createHostedIfMissing(sharedImportsKey, false, true);
         createOrUpdateGroup(publicKey, remoteKey);
         createOrUpdateGroup(commonConstituentsKey, pncBuildsKey, sharedImportsKey, publicKey);

@@ -49,7 +49,7 @@ public class AbstractRepositoryManagerDriverTest {
 
     protected static final String CONFIG_SYSPROP = "pnc-config-file";
     
-    protected static final String PNC_BUILDS_GROUP = "pnc-builds";
+    protected static final String PNC_BUILDS = "pnc-builds";
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();

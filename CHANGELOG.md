@@ -29,20 +29,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- [NCL-4387] Update repo driver to work with consolidated hosted repository for builds
+
+
+## [1.4.4]
+
 ### Added
 - [NCL-4393] Adds pnc service status visualisations to the UI dashboard
 - [NCL-4392] Expose info about number of building and enqueued builds via REST
-- Add retries for build environment creation in case of pod creation failures
 
 ### Fixed
 - [NCL-4333] A closed milestone now cannot be set as current via REST API
 - [NCL-4274] Fixed wrong links when using redhat artifacts as dependencies
 - [NCL-4270] Persistent builds succesfully ignore temporary build when asking whether to rebuild
-- [NCL-4218]: Orchestrator must work also if JMS is down
+- [NCL-4218] Orchestrator must work also if JMS is down
 - [NCL-4381] Brew push - make buildRootVersion optional
 
 ### Changed
-- [NCL-4214]: Temporary builds won't be assigned to a milestone anymore
+- [NCL-4214] Temporary builds won't be assigned to a milestone anymore
 
 ## [1.4.3]
 
