@@ -47,14 +47,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-3635] Build Config view rebuild in UI for enhanced performance
 - [NCL-4441] Added REST endpoint to restore a Build Config to a specific audited revision
 
+## [1.4.5]
+
+### Changed
+- [NCL-4387] Update repo driver to work with consolidated hosted repository for builds
+
 ## [1.4.4]
 
 ### Added
-- [NCL-4393] Add pnc service status visualisations to UI dashboard
+- [NCL-4393] Add pnc service status visualizations to UI dashboard
 
 ### Fixed
 - [NCL-4333] A closed milestone now cannot be set as current via REST API
 - [NCL-4274] Fixed wrong links when using redhat artifacts as dependencies
+- [NCL-4270] Persistent builds successfully ignore temporary build when asking whether to rebuild
+- [NCL-4218] Orchestrator must work also if JMS is down
+- [NCL-4381] Brew push - make buildRootVersion optional
+
+### Changed
+- [NCL-4214] Temporary builds won't be assigned to a milestone anymore
 
 ## [1.4.3]
 

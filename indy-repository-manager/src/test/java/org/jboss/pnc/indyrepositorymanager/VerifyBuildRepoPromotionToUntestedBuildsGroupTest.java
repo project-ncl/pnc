@@ -19,11 +19,13 @@ package org.jboss.pnc.indyrepositorymanager;
 
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
 import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -58,11 +60,12 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
 
         // simulate a build deploying a file.
-        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
+        indy.module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the pnc-builds group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
+        assertThat(result.getCompletionStatus(), equalTo(CompletionStatus.SUCCESS));
 
         // do some sanity checks while we're here
         List<Artifact> deps = result.getBuiltArtifacts();
@@ -72,9 +75,8 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the pnc-builds group should contain the build hosted repo.
-        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PNC_BUILDS_GROUP);
-        Group pncBuildsGroup = driver.getIndy(accessToken).stores().load(pncBuildsKey, Group.class);
-        assertThat(pncBuildsGroup.getConstituents().contains(hostedKey), equalTo(true));
+        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, PNC_BUILDS);
+        assertThat(indy.content().exists(pncBuildsKey, path), equalTo(true));
     }
 
 }
