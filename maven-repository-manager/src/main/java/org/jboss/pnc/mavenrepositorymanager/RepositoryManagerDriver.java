@@ -91,7 +91,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final int DEFAULT_REQUEST_TIMEOUT;
 
-    private final String BUILD_PROMOTION_GROUP;
+    private final String BUILD_PROMOTION_TARGET;
 
     private final String TEMP_BUILD_PROMOTION_GROUP;
 
@@ -105,7 +105,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
-        this.BUILD_PROMOTION_GROUP = "";
+        this.BUILD_PROMOTION_TARGET = "";
         this.TEMP_BUILD_PROMOTION_GROUP = "";
     }
 
@@ -119,7 +119,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
-        this.BUILD_PROMOTION_GROUP = config.getBuildPromotionGroup();
+        this.BUILD_PROMOTION_TARGET = config.getBuildPromotionTarget();
         this.TEMP_BUILD_PROMOTION_GROUP = config.getTempBuildPromotionGroup();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
@@ -232,9 +232,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
 
         boolean tempBuild = buildExecution.isTempBuild();
-        String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_GROUP;
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
         return new MavenRepositorySession(indy, serviceAccountIndy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
+                internalRepoPatterns, ignoredPathSuffixes, buildPromotionTarget, tempBuild);
     }
 
     /**

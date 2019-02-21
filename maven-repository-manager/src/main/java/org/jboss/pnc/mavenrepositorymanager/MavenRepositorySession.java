@@ -33,6 +33,7 @@ import org.commonjava.indy.promote.model.GroupPromoteRequest;
 import org.commonjava.indy.promote.model.GroupPromoteResult;
 import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
+import org.commonjava.indy.promote.model.PromoteRequest;
 import org.commonjava.indy.promote.model.ValidationResult;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
@@ -65,8 +66,6 @@ import java.util.Set;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMPORARY_BUILDS_GROUP;
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
@@ -97,7 +96,7 @@ public class MavenRepositorySession implements RepositorySession {
 
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    private String buildPromotionGroup;
+    private String buildPromotionTarget;
 
     // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
@@ -112,7 +111,7 @@ public class MavenRepositorySession implements RepositorySession {
 
     public MavenRepositorySession(Indy indy, Indy serviceAccountIndy, String buildContentId,
             MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns,
-            Set<String> ignoredPathSuffixes, String buildPromotionGroup, boolean isTempBuild) {
+            Set<String> ignoredPathSuffixes, String buildPromotionTarget, boolean isTempBuild) {
         this.indy = indy;
         this.serviceAccountIndy = serviceAccountIndy;
         this.buildContentId = buildContentId;
@@ -120,7 +119,7 @@ public class MavenRepositorySession implements RepositorySession {
         this.ignoredPathSuffixes = ignoredPathSuffixes;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
-        this.buildPromotionGroup = buildPromotionGroup;
+        this.buildPromotionTarget = buildPromotionTarget;
         this.isTempBuild = isTempBuild; //TODO define based on buildPromotionGroup
     }
 
@@ -190,7 +189,7 @@ public class MavenRepositorySession implements RepositorySession {
         String log = "";
         CompletionStatus status = CompletionStatus.SUCCESS;
         try {
-            promoteToBuildContentSet();
+            promoteToBuildContentSet(uploads);
         } catch (RepositoryManagerException rme) {
             status = CompletionStatus.FAILED;
             log = rme.getMessage();
@@ -365,8 +364,9 @@ public class MavenRepositorySession implements RepositorySession {
             result = "/api/content/maven/hosted/" + SHARED_IMPORTS_ID + "/";
         } else {
             String storeName = sk.getName();
-            if (StoreType.hosted == sk.getType() && storeName.matches("^build(?:-\\d+|_.+)$")) {
-                result = "/api/content/maven/group/" + UNTESTED_BUILDS_GROUP + "/";
+            if (StoreType.hosted == sk.getType()
+                    && (storeName.matches("^build(?:-\\d+|_.+)$") || "pnc-builds".equals(storeName))) {
+                result = "/api/content/maven/hosted/" + sk.getName() + "/";
             } else {
                 String localUrl = download.getLocalUrl();
                 String path = download.getPath();
@@ -379,16 +379,16 @@ public class MavenRepositorySession implements RepositorySession {
     private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
         TargetRepository targetRepository;
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
-            String groupName;
+            String storePath;
             if (isTempBuild) {
-                groupName = TEMPORARY_BUILDS_GROUP;
+                storePath = "group/" + buildPromotionTarget;
             } else {
-                groupName = UNTESTED_BUILDS_GROUP;
+                storePath = "hosted/" + buildPromotionTarget;
             }
             targetRepository = TargetRepository.newBuilder()
                     .identifier("indy-maven")
                     .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("/api/content/maven/group/" + groupName)
+                    .repositoryPath("/api/content/maven/" + storePath)
                     .temporaryRepo(isTempBuild)
                     .build();
         } else {
@@ -560,10 +560,12 @@ public class MavenRepositorySession implements RepositorySession {
 
 
     /**
-     * Promote the build output to the correct build group (using group promotion, where the build
-     * repo is added to the group's membership) and marks the build output as readonly.
+     * Promote the build output to the consolidated build repo (using path promotion, where the build
+     * repo contents are added to the repo's contents) and marks the build output as readonly.
+     *
+     * @param uploads artifacts to be promoted
      */
-    public void promoteToBuildContentSet() throws RepositoryManagerException {
+    public void promoteToBuildContentSet(List<Artifact> uploads) throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
@@ -571,58 +573,75 @@ public class MavenRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
         }
 
-        StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
-        GroupPromoteRequest request = new GroupPromoteRequest(hostedKey, buildPromotionGroup);
+        StoreKey buildRepoKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+        PromoteRequest<?> request = null;
         try {
-            GroupPromoteResult result = promoter.promoteToGroup(request);
-            if (result.succeeded()) {
-                if (!isTempBuild) {
-                    HostedRepository hosted = serviceAccountIndy.stores().load(hostedKey, HostedRepository.class);
-                    hosted.setReadonly(true);
-                    try {
-                        serviceAccountIndy.stores().update(hosted, "Setting readonly after successful build and promotion.");
-                    } catch (IndyClientException ex) {
-                        try {
-                            promoter.rollbackGroupPromote(request);
-                        } catch (IndyClientException ex2) {
-                            logger.error("Failed to set readonly flag on repo: %s. Reason given was: %s.", ex, hostedKey, ex.getMessage());
-                            throw new RepositoryManagerException(
-                                    "Subsequently also failed to rollback the promotion of repo: %s to group: %s. Reason given was: %s",
-                                    ex2, request.getSource(), request.getTargetGroup(), ex2.getMessage());
-                        }
-                        throw new RepositoryManagerException("Failed to set readonly flag on repo: %s. Reason given was: %s",
-                                ex, hostedKey, ex.getMessage());
-                    }
-                } else {
-                    // support usage of Indy 1.2.x and earlier, which sets readonly flag as part of the promotion
-                    HostedRepository hosted = serviceAccountIndy.stores().load(hostedKey, HostedRepository.class);
-                    if (hosted.isReadonly()) {
-                        hosted.setReadonly(false);
-                        try {
-                            serviceAccountIndy.stores().update(hosted, "Reset readonly flag for temporary build after promotion.");
-                        } catch (IndyClientException ex) {
-                            logger.error("Failed to reset readonly flag on repo: %s. Reason given was: %s.", ex, hostedKey, ex.getMessage());
+            if (isTempBuild) {
+                request = new GroupPromoteRequest(buildRepoKey, buildPromotionTarget);
+                GroupPromoteRequest gpReq = (GroupPromoteRequest) request;
+                GroupPromoteResult result = promoter.promoteToGroup(gpReq);
+                if (result.getError() != null) {
+                    String reason = result.getError();
+                    if (reason == null) {
+                        ValidationResult validations = result.getValidations();
+                        if (validations != null) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
+
+                            validations.getValidatorErrors().forEach((rule, error) -> {
+                                sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
+                            });
+
+                            reason = sb.toString();
                         }
                     }
+
+                    throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s",
+                            request.getSource(), gpReq.getTargetGroup(), reason);
                 }
             } else {
-                String reason = result.getError();
-                if (reason == null) {
-                    ValidationResult validations = result.getValidations();
-                    if (validations != null) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
-
-                        validations.getValidatorErrors().forEach((rule, error) -> {
-                            sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
-                        });
-
-                        reason = sb.toString();
-                    }
+                StoreKey buildTarget = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildPromotionTarget);
+                Set<String> paths = new HashSet<>();
+                for (Artifact a : uploads) {
+                    paths.add(a.getDeployPath());
+                    paths.add(a.getDeployPath() + ".md5");
+                    paths.add(a.getDeployPath() + ".sha1");
                 }
+                request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
+                PathsPromoteRequest ppReq = (PathsPromoteRequest) request;
+                // TODO request.setPurgeSource(true);
 
-                throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s",
-                        request.getSource(), request.getTargetGroup(), reason);
+                PathsPromoteResult result = promoter.promoteByPath(ppReq);
+                if (result.getError() == null) {
+                    HostedRepository buildRepo = serviceAccountIndy.stores().load(buildRepoKey, HostedRepository.class);
+                    buildRepo.setReadonly(true);
+                    try {
+                        serviceAccountIndy.stores().update(buildRepo,
+                                "Setting readonly after successful build and promotion.");
+                    } catch (IndyClientException ex) {
+                        logger.error("Failed to set readonly flag on repo: %s. Reason given was: %s."
+                                + " But the promotion to consolidated repo %s succeeded.", ex, buildRepoKey,
+                                ex.getMessage(), buildPromotionTarget);
+                    }
+                } else {
+                    String reason = result.getError();
+                    if (reason == null) {
+                        ValidationResult validations = result.getValidations();
+                        if (validations != null) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
+
+                            validations.getValidatorErrors().forEach((rule, error) -> {
+                                sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
+                            });
+
+                            reason = sb.toString();
+                        }
+                    }
+
+                    throw new RepositoryManagerException("Failed to promote files from %s to target %s. Reason given was: %s",
+                            request.getSource(), ppReq.getTarget(), reason);
+                }
             }
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
