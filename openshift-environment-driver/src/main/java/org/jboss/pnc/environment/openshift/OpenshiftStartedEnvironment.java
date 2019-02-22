@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.environment.openshift;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +39,7 @@ import org.jboss.pnc.common.monitor.RunningTask;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.environment.openshift.exceptions.PodFailedStartException;
+import org.jboss.pnc.pncmetrics.MetricsConfiguration;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -77,6 +79,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String OSE_API_VERSION = "v1";
     private static final Pattern SECURE_LOG_PATTERN = Pattern.compile("\"name\":\\s*\"accessToken\",\\s*\"value\":\\s*\"\\p{Print}+\"");
 
+    private static final String METRICS_POD_STARTED_KEY = "openshift-environment-driver.started.pod";
+    private static final String METRICS_POD_STARTED_ATTEMPTED_KEY = METRICS_POD_STARTED_KEY + ".attempts";
+    private static final String METRICS_POD_STARTED_SUCCESS_KEY = METRICS_POD_STARTED_KEY + ".success";
+    private static final String METRICS_POD_STARTED_FAILED_KEY = METRICS_POD_STARTED_KEY + ".failed";
+
     private static final int DEFAULT_CREATION_POD_RETRY = 1;
 
     private int creationPodRetry;
@@ -107,6 +114,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private final Map<String, String> runtimeProperties;
 
     private final ExecutorService executor;
+    private Optional<MetricRegistry> metricRegistry = Optional.empty();
 
     private Pod pod;
     private Service service;
@@ -137,7 +145,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             DebugData debugData,
             String accessToken,
             boolean tempBuild,
-            Date temporaryBuildExpireDate) {
+            Date temporaryBuildExpireDate,
+            MetricsConfiguration metricsConfiguration) {
 
         creationPodRetry = DEFAULT_CREATION_POD_RETRY;
 
@@ -158,6 +167,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         this.repositorySession = repositorySession;
         this.imageId = systemImageId == null ? environmentConfiguration.getImageId() : systemImageId;
         this.debugData = debugData;
+        if (metricsConfiguration != null) {
+            this.metricRegistry = Optional.of(metricsConfiguration.getMetricRegistry());
+        }
 
         createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
 
@@ -236,6 +248,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             };
             creatingRoute = Optional.of(executor.submit(createRoute));
         }
+        metricRegistry.ifPresent(m -> m.meter(METRICS_POD_STARTED_ATTEMPTED_KEY).mark());
     }
 
     static String secureLog(String message) {
@@ -276,6 +289,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * @param retries how many times will we retry starting the build environment
      */
     private void retryPod(Exception e, Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError, int retries) {
+
+        metricRegistry.ifPresent(m -> m.meter(METRICS_POD_STARTED_FAILED_KEY).mark());
 
         logger.debug("Cancelling existing monitors for this build environment");
         cancelAndClearMonitors();
@@ -433,6 +448,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     debugData
             );
 
+            metricRegistry.ifPresent(m -> m.meter(METRICS_POD_STARTED_SUCCESS_KEY).mark());
             onComplete.accept(runningEnvironment);
         };
     }

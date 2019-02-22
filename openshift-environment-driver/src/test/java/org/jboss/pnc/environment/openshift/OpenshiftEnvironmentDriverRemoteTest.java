@@ -23,7 +23,6 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.enums.SystemImageType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -78,6 +77,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 new PullingMonitor(),
                 systemConfig,
                 openshiftEnvironmentDriverModuleConfig,
+                null,
                 null);
     }
 

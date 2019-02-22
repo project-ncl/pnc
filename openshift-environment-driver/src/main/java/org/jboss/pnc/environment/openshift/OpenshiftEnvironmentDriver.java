@@ -27,6 +27,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.pncmetrics.MetricsConfiguration;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -61,6 +61,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     private OpenshiftBuildAgentConfig openshiftBuildAgentConfig;
     private SystemConfig systemConfig;
     private PullingMonitor pullingMonitor;
+    private MetricsConfiguration metricsConfig;
 
     @Deprecated //CDI workaround
     public OpenshiftEnvironmentDriver() {
@@ -71,8 +72,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             PullingMonitor pullingMonitor,
             SystemConfig systemConfig,
             OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig,
-            OpenshiftBuildAgentConfig openshiftBuildAgentConfig
-            ) throws ConfigurationParseException {
+            OpenshiftBuildAgentConfig openshiftBuildAgentConfig,
+            MetricsConfiguration metricsConfig) throws ConfigurationParseException {
         this.systemConfig = systemConfig;
 
         int executorThreadPoolSize = DEFAULT_EXECUTOR_THREAD_POOL_SIZE;
@@ -87,6 +88,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
         executor = MDCExecutors.newFixedThreadPool(executorThreadPoolSize, new NamedThreadFactory("openshift-environment-driver"));
+        this.metricsConfig = metricsConfig;
 
         logger.info("Is OpenShift environment driver disabled: {}", openshiftEnvironmentDriverModuleConfig.isDisabled());
     }
@@ -114,7 +116,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
                 debugData,
                 accessToken,
                 tempBuild,
-                systemConfig.getTemporalBuildExpireDate());
+                systemConfig.getTemporalBuildExpireDate(),
+                metricsConfig);
     }
 
     @Override
