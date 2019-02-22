@@ -54,6 +54,10 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>spi</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss</groupId>
