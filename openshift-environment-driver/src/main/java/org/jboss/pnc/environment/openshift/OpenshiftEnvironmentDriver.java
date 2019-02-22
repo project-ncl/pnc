@@ -28,6 +28,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.pncmetrics.MetricsConfiguration;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -60,13 +61,14 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     private OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig;
     private OpenshiftBuildAgentConfig openshiftBuildAgentConfig;
     private PullingMonitor pullingMonitor;
+    private MetricsConfiguration metricsConfig;
 
     @Deprecated //CDI workaround
     public OpenshiftEnvironmentDriver() {
     }
 
     @Inject
-    public OpenshiftEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor) throws ConfigurationParseException {
+    public OpenshiftEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor, MetricsConfiguration metricsConfig) throws ConfigurationParseException {
 
         int executorThreadPoolSize = DEFAULT_EXECUTOR_THREAD_POOL_SIZE;
         this.pullingMonitor = pullingMonitor;
@@ -84,6 +86,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
         executor = MDCExecutors.newFixedThreadPool(executorThreadPoolSize, new NamedThreadFactory("openshift-environment-driver"));
+        this.metricsConfig = metricsConfig;
 
         logger.info("Is OpenShift environment driver disabled: {}", openshiftEnvironmentDriverModuleConfig.isDisabled());
     }
@@ -108,7 +111,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
                 repositorySession,
                 buildImageId,
                 debugData,
-                accessToken);
+                accessToken,
+                metricsConfig);
     }
 
     @Override

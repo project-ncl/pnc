@@ -72,7 +72,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
         configurationService = new Configuration();
 
-        environmentDriver = new OpenshiftEnvironmentDriver(configurationService, new PullingMonitor());
+        environmentDriver = new OpenshiftEnvironmentDriver(configurationService, new PullingMonitor(), null);
     }
 
     @Test
