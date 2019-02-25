@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4290] Add Build to Websocket satus update
 - [NCL-4270] Persistent builds ignore successful temporary build when asking whether to rebuild
 - [NCL-4345] Add Pre-alignment SCM Revision
+- [NCL-3804] UI support for NPM build types
+- [NCL-3635] Build Config view rebuild in UI for enhanced performance
 
 ## [1.4.4]
 
