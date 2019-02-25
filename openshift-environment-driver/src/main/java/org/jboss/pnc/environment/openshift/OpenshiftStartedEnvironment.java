@@ -26,7 +26,9 @@ import com.openshift.internal.restclient.model.Service;
 import com.openshift.internal.restclient.model.properties.ResourcePropertiesRegistry;
 import com.openshift.restclient.ClientBuilder;
 import com.openshift.restclient.IClient;
+import com.openshift.restclient.NotFoundException;
 import com.openshift.restclient.ResourceKind;
+import com.openshift.restclient.model.IResource;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
@@ -538,14 +540,29 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         if (!debugData.isDebugEnabled() || force) {
             if (!environmentConfiguration.getKeepBuildAgentInstance()) {
                 if (createRoute) {
-                    client.delete(routeLocal);
+                    tryOpenshiftDeleteResource(routeLocal);
                 }
-                client.delete(serviceLocal);
+                tryOpenshiftDeleteResource(serviceLocal);
                 if (sshService != null) {
-                    client.delete(sshServiceLocal);
+                    tryOpenshiftDeleteResource(sshServiceLocal);
                 }
-                client.delete(podLocal);
+                tryOpenshiftDeleteResource(podLocal);
             }
+        }
+    }
+
+    /**
+     * Try to delete an openshift resource. If it doesn't exist, it's fine
+     *
+     * @param resource Openshift resource to delete
+     * @param <T>
+     */
+    private <T extends IResource> void tryOpenshiftDeleteResource(T resource) {
+
+        try {
+            client.delete(resource);
+        } catch (NotFoundException e) {
+            logger.warn("Couldn't delete the Openshift resource since it does not exist", e);
         }
     }
 
