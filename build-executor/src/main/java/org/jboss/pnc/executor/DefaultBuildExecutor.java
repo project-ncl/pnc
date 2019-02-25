@@ -436,7 +436,14 @@ public class DefaultBuildExecutor implements BuildExecutor {
             userLog.info("Build execution completed.");
         } catch (Throwable t) {
             userLog.error("Unable to complete execution!", t);
-            buildExecutionSession.setException(new ExecutorException("Unable to recover, see system log for the details."));
+
+            String executorException = "Unable to recover, see system log for the details.";
+
+            if (t.getMessage() != null) {
+                executorException += " " + t.getMessage();
+            }
+
+            buildExecutionSession.setException(new ExecutorException(executorException));
             buildExecutionSession.setEndTime(new Date());
             buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR, true);
             runningExecutions.remove(buildExecutionSession.getId());
@@ -469,7 +476,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 destroyableEnvironment.destroyEnvironment();
             }
 
-        } catch (EnvironmentDriverException envE) {
+        } catch (Throwable envE) {
             log.warn("Running environment" + destroyableEnvironment + " couldn't be destroyed!", envE);
         }
     }
