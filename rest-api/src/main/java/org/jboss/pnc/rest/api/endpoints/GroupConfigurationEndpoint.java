@@ -30,7 +30,6 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
@@ -39,8 +38,6 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupBuildSingleton;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupConfigSingleton;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -99,7 +96,7 @@ public interface GroupConfigurationEndpoint{
     @Operation(summary = "Creates a new group config.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupConfigSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = GroupConfiguration.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -108,19 +105,19 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Singleton<GroupConfiguration> createNew(@NotNull GroupConfiguration buildConfigurationSet);
+    GroupConfiguration createNew(@NotNull GroupConfiguration buildConfigurationSet);
 
     @Operation(summary = "Gets a specific group config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupConfigSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = GroupConfiguration.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<GroupConfiguration> getSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
+    GroupConfiguration getSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing group config.",
             responses = {
@@ -152,7 +149,7 @@ public interface GroupConfigurationEndpoint{
     @Operation(summary = "Builds the build configs in the group config.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupBuildSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = GroupBuild.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -163,7 +160,7 @@ public interface GroupConfigurationEndpoint{
     @POST
     @Path("/{id}/build")
     @Consumes(MediaType.APPLICATION_JSON)
-    Singleton<GroupBuild> trigger(
+    GroupBuild trigger(
             @Parameter(description = GC_ID) @PathParam("id") int id,
             @BeanParam GroupBuildParameters buildParams,
             GroupBuildRequest request,

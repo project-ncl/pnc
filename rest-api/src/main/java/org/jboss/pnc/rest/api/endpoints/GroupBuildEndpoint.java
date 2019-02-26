@@ -29,14 +29,12 @@ import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.GroupBuildSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -84,14 +82,14 @@ public interface GroupBuildEndpoint {
     @Operation(summary = "Gets specific group build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = GroupBuildSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = GroupBuild.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<GroupBuild> getSpecific(@Parameter(description = GB_ID) @PathParam("id") int id);
+    GroupBuild getSpecific(@Parameter(description = GB_ID) @PathParam("id") int id);
 
     @Operation(summary = "Delete specific temporary group build.",
             description = "The operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??

@@ -26,10 +26,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductReleaseSingleton;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -68,7 +66,7 @@ public interface ProductReleaseEndpoint{
     @Operation(summary = "Creates a new product release.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleaseSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = ProductRelease.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -77,19 +75,19 @@ public interface ProductReleaseEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Singleton<ProductRelease> createNew(ProductRelease productRelease);
+    ProductRelease createNew(ProductRelease productRelease);
 
     @Operation(summary = "Gets a specific product release.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductReleaseSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = ProductRelease.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<ProductRelease> getSpecific(@Parameter(description = PR_ID) @PathParam("id") int id);
+    ProductRelease getSpecific(@Parameter(description = PR_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product release.",
             responses = {

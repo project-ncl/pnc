@@ -27,11 +27,9 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductMilestoneSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -72,7 +70,7 @@ public interface ProductMilestoneEndpoint{
     @Operation(summary = "Creates a new product milestone.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestoneSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = ProductMilestone.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -81,19 +79,19 @@ public interface ProductMilestoneEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Singleton<ProductMilestone> createNew(ProductMilestone productMilestone);
+    ProductMilestone createNew(ProductMilestone productMilestone);
 
     @Operation(summary = "Gets a specific product milestone.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductMilestoneSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = ProductMilestone.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<ProductMilestone> getSpecific(@Parameter(description = PM_ID) @PathParam("id") int id);
+    ProductMilestone getSpecific(@Parameter(description = PM_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product milestone.",
             responses = {

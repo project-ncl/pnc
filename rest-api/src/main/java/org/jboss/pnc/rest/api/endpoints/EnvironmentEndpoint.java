@@ -26,11 +26,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildEnvironmentPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildEnvironmentSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -71,13 +69,13 @@ public interface EnvironmentEndpoint{
     @Operation(summary = "Gets a specific environment.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildEnvironmentSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = Environment.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<Environment> getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
+    Environment getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
 
 }

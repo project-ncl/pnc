@@ -27,12 +27,10 @@ import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.SCMRepositorySingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -91,7 +89,7 @@ public interface SCMRepositoryEndpoint{
     @Operation(summary = "Gets a specific SCM repository.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SCMRepositorySingleton.class))),
+                    content = @Content(schema = @Schema(implementation = SCMRepository.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -100,7 +98,7 @@ public interface SCMRepositoryEndpoint{
     })
     @GET
     @Path("/{id}")
-    Singleton<SCMRepository> getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
+    SCMRepository getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing SCM repository.",
             responses = {

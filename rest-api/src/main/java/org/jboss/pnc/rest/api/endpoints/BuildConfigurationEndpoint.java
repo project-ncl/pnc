@@ -32,7 +32,6 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -42,9 +41,6 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigRevisionSingleton;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigSingleton;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -104,7 +100,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Creates a new build config.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfiguration.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -113,19 +109,19 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Singleton<BuildConfiguration> createNew(BuildConfiguration buildConfiguration);
+    BuildConfiguration createNew(BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Gets a specific build config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfiguration.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<BuildConfiguration> getSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
+    BuildConfiguration getSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing build config.",
             responses = {
@@ -156,7 +152,7 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Triggers a build of a specific build config.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = Build.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -166,7 +162,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/build")
-    Singleton<Build> trigger(
+    Build trigger(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam BuildParameters buildParams,
             @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
@@ -190,14 +186,14 @@ public interface BuildConfigurationEndpoint {
     @Operation(summary = "Clones an existing build config.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfiguration.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigSingleton.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
     @Path("/{id}/clone")
-    Singleton<BuildConfiguration> clone(@Parameter(description = BC_ID) @PathParam("id") int id);
+    BuildConfiguration clone(@Parameter(description = BC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets group configs associated with the specified build config.",
             responses = {
@@ -275,7 +271,7 @@ public interface BuildConfigurationEndpoint {
             description = "This endpoint can be used for updating build config while returning the new revision.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevision.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -285,28 +281,28 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/revisions")
-    Singleton<BuildConfigurationRevision> createRevision(
+    BuildConfigurationRevision createRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Get specific audited revision of this build config.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevision.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}/revisions/{rev}")
-    Singleton<BuildConfigurationRevision> getRevision(
+    BuildConfigurationRevision getRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @Parameter(description = REV) @PathParam("rev") int rev);
 
     @Operation(summary = "Triggers a build of a build config in a specific revision.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = Build.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -316,7 +312,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/{id}/revisions/{rev}/build")
-    Singleton<Build> triggerRevision(
+    Build triggerRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @Parameter(description = REV) @PathParam("rev") int rev,
             @BeanParam BuildParameters buildParams,

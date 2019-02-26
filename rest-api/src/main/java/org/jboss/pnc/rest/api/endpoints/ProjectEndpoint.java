@@ -28,14 +28,12 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProjectSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -89,7 +87,7 @@ public interface ProjectEndpoint{
     @Operation(summary = "Creates a new project.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProjectSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = Project.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -98,19 +96,19 @@ public interface ProjectEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Singleton<Project> createNew(Project project);
+    Project createNew(Project project);
 
     @Operation(summary = "Gets a specific project.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProjectSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = Project.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<Project> getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    Project getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing project.",
             responses = {

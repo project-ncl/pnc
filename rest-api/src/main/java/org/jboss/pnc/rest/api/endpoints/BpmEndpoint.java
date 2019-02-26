@@ -20,9 +20,8 @@ package org.jboss.pnc.rest.api.endpoints;
 import org.jboss.pnc.dto.internal.bpm.BPMTask;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BPMTaskPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BPMTaskSingleton;
+
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -100,11 +99,11 @@ public interface BpmEndpoint{
     @Operation(summary = "Get single (recently) active BPM task.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BPMTaskSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BPMTask.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
     })
     @GET
     @Path("/tasks/{taskId}")
-    public Singleton<BPMTask> getBPMTaskById(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
+    public BPMTask getBPMTaskById(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
 
 }
