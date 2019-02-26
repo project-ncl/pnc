@@ -32,7 +32,6 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -41,9 +40,6 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushResultPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildConfigRevisionSingleton;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildPushResultSingleton;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.BuildSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -98,14 +94,14 @@ public interface BuildEndpoint{
     @Operation(summary = "Gets specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = Build.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<Build> getSpecific(@Parameter(description = B_ID) @PathParam("id") int id);
+    Build getSpecific(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Delete specific temporary build.",
             description = "The operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
@@ -181,14 +177,14 @@ public interface BuildEndpoint{
     @Operation(summary = "Get Brew push result for specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResultSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}/brew-push")
-    Singleton<BuildPushResult> getPushResult(@Parameter(description = B_ID) @PathParam("id") int id);
+    BuildPushResult getPushResult(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Push build to Brew.",
             responses = {
@@ -220,7 +216,7 @@ public interface BuildEndpoint{
             tags = "Internal",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResultSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -230,21 +226,21 @@ public interface BuildEndpoint{
     })
     @POST
     @Path("/{id}/brew-push/complete")
-    Singleton<BuildPushResult> completePush(
+    BuildPushResult completePush(
             @Parameter(description = B_ID) @PathParam("id") int id,
             BuildPushResult buildRecordPushResult);
 
     @Operation(summary = "Gets the build config revision for specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigRevisionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevision.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}/build-configuration-revision")
-    Singleton<BuildConfigurationRevision> getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") int id);
+    BuildConfigurationRevision getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Cancel running build.",
             responses = {

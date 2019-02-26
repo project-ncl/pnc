@@ -54,7 +54,7 @@ public class ClientTest {
         ProjectClient projectClient = new ProjectClient(connectionInfo);
         try {
             projectClient.getSpecific(1);
-        } catch (javax.ws.rs.ProcessingException e) {
+        } catch (javax.ws.rs.ProcessingException | ClientException e) {
             //expected
         }
 

@@ -31,14 +31,12 @@ import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.Singleton;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestonePage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductReleasePage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerSingletons.ProductVersionSingleton;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -76,7 +74,7 @@ public interface ProductVersionEndpoint{
     @Operation(summary = "Creates a new product version.",
             responses = {
                     @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ProductVersionSingleton.class))),
+                            content = @Content(schema = @Schema(implementation = ProductVersion.class))),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -85,19 +83,19 @@ public interface ProductVersionEndpoint{
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     @POST
-    Singleton<ProductVersion> createNewProductVersion(ProductVersion productVersion);
+    ProductVersion createNewProductVersion(ProductVersion productVersion);
 
     @Operation(summary = "Gets a specific product version.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ProductVersionSingleton.class))),
+                    content = @Content(schema = @Schema(implementation = ProductVersion.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
     @Path("/{id}")
-    Singleton<ProductVersion> getSpecific(@Parameter(description = PV_ID) @PathParam("id") int id);
+    ProductVersion getSpecific(@Parameter(description = PV_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing product version.",
             responses = {
