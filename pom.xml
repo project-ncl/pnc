@@ -360,11 +360,12 @@
         <classifier>java-client</classifier>
         <version>${project.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-new</artifactId>
         <version>${project.version}</version>
+        <type>war</type>
       </dependency>
 
       <dependency>

@@ -97,6 +97,11 @@
       <type>war</type>
     </dependency>
     <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-new</artifactId>
+        <type>war</type>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>spi</artifactId>
     </dependency>
@@ -272,6 +277,12 @@
               <artifactId>rest</artifactId>
               <bundleDir>/</bundleDir>
               <contextRoot>/pnc-rest</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>rest-new</artifactId>
+              <bundleDir>/</bundleDir>
+              <contextRoot>/pnc-rest-new</contextRoot>
             </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
