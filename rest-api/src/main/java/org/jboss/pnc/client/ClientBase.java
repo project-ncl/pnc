@@ -44,6 +44,7 @@ public abstract class ClientBase<T> {
                 .httpEngine(new ApacheHttpClient43EngineWithRetry())
                 .build();
         client.register(ResteasyJackson2Provider.class);
+        client.register(PncClientRequestParams.class);
         target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
         if (basicAuth != null) {
