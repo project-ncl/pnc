@@ -83,6 +83,12 @@
   </module>
   <module>
     <web>
+      <web-uri>rest-new.war</web-uri>
+      <context-root>/pnc-rest-new</context-root>
+    </web>
+  </module>
+  <module>
+    <web>
       <web-uri>web.war</web-uri>
       <context-root>/pnc-web</context-root>
     </web>
