@@ -42,10 +42,12 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>rest-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>facade</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- REST dependencies -->
