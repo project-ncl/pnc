@@ -81,7 +81,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-    
+        <!-- Enterprise dependencies -->
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>
