@@ -30,6 +30,5 @@ import org.mapstruct.ReportingPolicy;
         implementationPackage = "org.jboss.pnc.facade.mapper",
         componentModel = "cdi"
 )
-interface MapperCentralConfig {
-
+public interface MapperCentralConfig {
 }

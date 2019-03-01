@@ -43,8 +43,6 @@ public class ProductRSQLMapper implements RSQLMapper<Product>{
             case "abbreviation": return from.get(Product_.abbreviation);
             case "productCode": return from.get(Product_.productCode);
             case "pgmSystemName": return from.get(Product_.pgmSystemName);
-            case "productVersions":
-                return pvm.toPath(from.join(Product_.productVersions), selector.next());
             default:
                 throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
         }
