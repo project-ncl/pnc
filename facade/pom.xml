@@ -68,12 +68,20 @@
             <artifactId>test-common</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>moduleconfig</artifactId>
+        </dependency>
 
         <!-- Java EE dependencies -->
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.2_spec</artifactId>
         </dependency>
 
         <!-- 3rd party dependencies -->

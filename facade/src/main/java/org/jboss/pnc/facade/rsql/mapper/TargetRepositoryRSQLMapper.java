@@ -18,35 +18,27 @@
 package org.jboss.pnc.facade.rsql.mapper;
 
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.Project_;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository_;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 
 /**
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jan Michalov <jmichalo@redhat.com>
  */
-@ApplicationScoped
-public class ProjectRSQLMapper implements RSQLMapper<Project> {
+public class TargetRepositoryRSQLMapper implements RSQLMapper<TargetRepository> {
 
-    @Inject
-    private BuildConfigurationRSQLMapper bcm;
-
-    @Override
-    public Path<?> toPath(From<?, Project> from, RSQLSelectorPath selector) {
+    @Override public Path<?> toPath(From<?, TargetRepository> from, RSQLSelectorPath selector) {
         switch (selector.getElement()) {
-            case "id": return from.get(Project_.id);
-            case "name": return from.get(Project_.name);
-            case "description": return from.get(Project_.description);
-            case "issueTrackerUrl": return from.get(Project_.issueTrackerUrl);
-            case "projectUrl": return from.get(Project_.projectUrl);
+            case "id": from.get(TargetRepository_.id);
+            case "repositoryPath": from.get(TargetRepository_.repositoryPath);
+            case "repositoryType": from.get(TargetRepository_.repositoryType);
+            case "identifier": from.get(TargetRepository_.identifier);
+            case "temporaryRepo": from.get(TargetRepository_.temporaryRepo);
             default:
                 throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
         }
-    }
 
+    }
 }

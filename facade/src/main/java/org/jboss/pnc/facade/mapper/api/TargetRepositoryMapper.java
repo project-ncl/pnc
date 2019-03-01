@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.mapper.api;
 
 import org.jboss.pnc.dto.TargetRepositoryRef;
+import org.jboss.pnc.facade.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ import org.mapstruct.Mapping;
 /**
  * @author Jan Michalov <jmichalo@redhat.com>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ArtifactMapper.class, ArtifactMapper.IDMapper.class })
+@Mapper(config = MapperCentralConfig.class, uses = {ArtifactMapper.class, AbstractArtifactMapper.IDMapper.class })
 public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, org.jboss.pnc.dto.TargetRepository, TargetRepositoryRef> {
     @Override
     @Mapping(target = "artifacts", source = "artifactIds")
