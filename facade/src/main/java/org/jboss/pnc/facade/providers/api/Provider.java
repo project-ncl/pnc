@@ -29,7 +29,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-public interface Provider<DB extends GenericEntity<Integer>, DTO extends DTOEntity, REF extends DTOEntity> {
+public interface Provider<DB extends GenericEntity<Integer>, DTO extends REF, REF extends DTOEntity> {
 
     DTO store(DTO restEntity) throws DTOValidationException;
 
