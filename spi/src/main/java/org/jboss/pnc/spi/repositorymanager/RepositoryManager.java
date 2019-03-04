@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
+import java.util.Map;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
@@ -37,11 +37,15 @@ public interface RepositoryManager {
      * @param accessToken The access token to use
      * @param serviceAccountToken The access token for service account to use for repo creation, promotion and cleanup
      * @param repositoryType the created repositories' type (npm, maven, etc.)
+     * @param genericParameters Generic parameters specified in the BuildConfiguration
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken, RepositoryType repositoryType) throws RepositoryManagerException;
+    RepositorySession createBuildRepository(BuildExecution buildExecution,
+                                            String accessToken,
+                                            String serviceAccountToken,
+                                            RepositoryType repositoryType,
+                                            Map<String,String> genericParameters) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the
