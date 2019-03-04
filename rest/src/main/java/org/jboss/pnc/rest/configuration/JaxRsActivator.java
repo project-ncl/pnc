@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.configuration;
 
-import io.swagger.jaxrs.config.BeanConfig;
 import org.jboss.pnc.pncmetrics.rest.GeneralRestMetricsFilter;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.pncmetrics.rest.TimedMetricFilter;
@@ -58,7 +57,6 @@ public class JaxRsActivator extends Application {
     private Set<Object> singletons = new HashSet<Object>();
 
     public JaxRsActivator() throws IOException {
-        configureSwagger();
         configureCors();
         singletons.add(new MDCLoggingFilter());
     }
@@ -71,7 +69,6 @@ public class JaxRsActivator extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet<>();
-        addSwaggerResources(resources);
         addProjectResources(resources);
         addMetricsResources(resources);
         return resources;
@@ -82,15 +79,6 @@ public class JaxRsActivator extends Application {
         corsFilter.getAllowedOrigins().add("*");
         corsFilter.setAllowedMethods("OPTIONS, GET, POST, DELETE, PUT, PATCH");
         singletons.add(corsFilter);
-    }
-
-    private final void configureSwagger() throws IOException {
-        BeanConfig swaggerConfig = new BeanConfig();
-        swaggerConfig.setVersion("1.0.0");
-        swaggerConfig.setBasePath(getRestBasePath());
-        swaggerConfig.setPrettyPrint(true);
-        swaggerConfig.setResourcePackage("org.jboss.pnc.rest");
-        swaggerConfig.setScan(true);
     }
 
     private void addProjectResources(Set<Class<?>> resources) {
@@ -125,12 +113,6 @@ public class JaxRsActivator extends Application {
         resources.add(ValidationExceptionExceptionMapper.class);
         resources.add(BuildConflictExceptionMapper.class);
         resources.add(AllOtherExceptionsMapper.class);
-    }
-
-
-    private void addSwaggerResources(Set<Class<?>> resources) {
-        resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
-        resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
     }
 
     private void addMetricsResources(Set<Class<?>> resources) {

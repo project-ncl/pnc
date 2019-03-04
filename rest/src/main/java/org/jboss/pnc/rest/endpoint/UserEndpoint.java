@@ -17,11 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
@@ -29,10 +25,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
-import org.jboss.pnc.rest.swagger.response.UserPage;
-import org.jboss.pnc.rest.swagger.response.UserSingleton;
 import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -57,30 +49,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
-@Api(value = "/users", description = "User related information")
+@Hidden
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -109,53 +85,25 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
         this.authenticationProvider = authenticationProviderFactory.getProvider();
     }
 
-    @ApiOperation(value = "Gets all Users")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = UserPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
-    public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q) {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets specific User")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = UserSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@ApiParam(value = "User id", required = true) @PathParam("id") @NotNull Integer id) {
+    public Response getSpecific(@PathParam("id") @NotNull Integer id) {
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates new User")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     public Response createNew(UserRest userRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.createNew(userRest, uriInfo);
     }
-    
-    @ApiOperation(value = "Gets logged user and in case not existing creates a new one")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
+
     @POST
     @Path("/loggedUser")
     public Response getLoggedUser(
@@ -186,37 +134,22 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
         }
         
     }
-    
 
-    @ApiOperation(value = "Updates an existing User")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @PUT
     @Path("/{id}")
-    public Response update(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id,
+    public Response update(@PathParam("id") Integer id,
             UserRest userRest) throws RestValidationException {
        return super.update(id, userRest);
     }
 
-    @ApiOperation(value = "Get all BuildRecords (running and archived) triggered by this User, returns empty list if no build records are found")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/builds")
     public Response getBuilds(
-            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
         return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsByUserId(pageIndex, pageSize, sort, q, id));
     }
 

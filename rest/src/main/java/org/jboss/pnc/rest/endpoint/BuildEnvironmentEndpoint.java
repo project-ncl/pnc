@@ -17,17 +17,10 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.rest.provider.BuildEnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BuildEnvironmentPage;
-import org.jboss.pnc.rest.swagger.response.BuildEnvironmentSingleton;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import javax.inject.Inject;
@@ -43,28 +36,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
-@Api(value = "/environments", description = "Environment related information")
+@Hidden
 @Path("/environments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -78,31 +57,17 @@ public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment,
         super(environmentProvider);
     }
 
-    @ApiOperation(value = "Gets all Environments")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildEnvironmentPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildEnvironmentPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
-    public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q) {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Get specific Environment")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildEnvironmentSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildEnvironmentSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}")
-    public Response getSpecific(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
@@ -111,12 +76,12 @@ public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment,
         return super.createNew(environmentRest, uriInfo);
     }
 
-    public Response update(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId,
+    public Response update(@PathParam("id") Integer environmentId,
             BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(environmentId, environmentRest);
     }
 
-    public Response delete(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id)
+    public Response delete(@PathParam("id") Integer id)
             throws RestValidationException {
         return super.delete(id);
     }

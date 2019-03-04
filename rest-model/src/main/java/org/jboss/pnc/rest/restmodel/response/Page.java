@@ -18,8 +18,6 @@
 
 package org.jboss.pnc.rest.restmodel.response;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,19 +30,18 @@ import java.util.Collections;
  * @author Sebastian Laskawiec
  */
 @XmlRootElement
-@ApiModel(description = "Results with additional Paging information")
 public class Page<T> {
 
-    @ApiModelProperty("Page index")
+    
     private Integer pageIndex;
 
-    @ApiModelProperty("Number of records per page")
+    
     private Integer pageSize;
 
-    @ApiModelProperty("Total pages provided by this query or -1 if unknown")
+    
     private Integer totalPages;
 
-    @ApiModelProperty("Embedded collection of data")
+    
     private Collection<T> content;
 
     public Page() {

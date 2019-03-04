@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
@@ -46,6 +45,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
