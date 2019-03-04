@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -53,7 +52,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Date endTime;
 
-    @ApiModelProperty(dataType = "string")
+    
     private BuildCoordinationStatus status;
 
     private Integer buildConfigurationId;

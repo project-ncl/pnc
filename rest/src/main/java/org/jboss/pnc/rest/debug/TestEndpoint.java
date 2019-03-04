@@ -17,8 +17,7 @@
  */
 package org.jboss.pnc.rest.debug;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
@@ -34,7 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Api(value = "/test", description = "This is special Endpoint for testing purpose. Use with caution.")
+@Hidden
 @Path("/test")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -49,14 +48,12 @@ public class TestEndpoint {
 
     @POST
     @Path("/build-status/notify")
-    @ApiOperation(value = "Sends BuildStatusChangedEvent just like it was from Core, useful for testing WebSockets")
     public void sendBuildStatusChangedEvent(@Valid BuildStatusChangedEventRest buildStatusChangedEventRest) {
         buildStatusChangedEventEvent.fire(buildStatusChangedEventRest);
     }
 
     @POST
     @Path("/build-set-status/notify")
-    @ApiOperation(value = "Sends BuildSetStatusChangedEvent just like it was from Core, useful for testing WebSockets")
     public void sendBuildSetStatusChangedEvent(@Valid BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         buildSetStatusChangedEventEvent.fire(buildSetStatusChangedEvent);
     }

@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -71,7 +70,7 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
 
     @Getter
     @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    @ApiModelProperty(dataType = "string")
+    
     private RepositoryType repositoryType;
 
     @Getter

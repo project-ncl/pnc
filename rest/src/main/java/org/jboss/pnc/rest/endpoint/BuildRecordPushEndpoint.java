@@ -17,11 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
@@ -68,19 +64,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Api(value = "/build-record-push", description = "BuildRecordPush related information")
+@Hidden
 @Path("/build-record-push")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -126,13 +113,6 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         }
     }
 
-    @ApiOperation(value = "Push build record results to Brew.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", responseContainer = "Set", response = ResultRest.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     public Response push(
             BuildRecordPushRequestRest buildRecordPushRequestRest,
@@ -159,13 +139,6 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
     }
 
-    @ApiOperation(value = "Push build config set record to Brew.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Map of all requested BuildRecord ids with boolean status.", responseContainer = "Set", response = ResultRest.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/record-set/")
     public Response pushRecordSet(
@@ -219,33 +192,19 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         }
     }
 
-    @ApiOperation(value = "Get Build Record Push Result by Id..")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPushResultRest.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{buildRecordPushResultId}")
     public Response get(
-            @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordPushResultId
+            @PathParam("buildRecordId") Integer buildRecordPushResultId
     ) throws RestValidationException, ProcessException {
         return getSpecific(buildRecordPushResultId);
     }
 
-    @ApiOperation(value = "Build record push results.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = Integer.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{buildRecordId}/cancel/")
     public Response cancel(
             BuildRecordPushResultRest buildRecordPushResult,
-            @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId,
+            @PathParam("buildRecordId") Integer buildRecordId,
             @Context UriInfo uriInfo) throws RestValidationException, ProcessException {
         boolean canceled = buildResultPushManager.cancelInProgressPush(buildRecordId);
         if (canceled) {
@@ -255,35 +214,21 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         }
     }
 
-    @ApiOperation(value = "Build record push results.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = Integer.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{buildRecordId}/complete/")
     public Response push(
             BuildRecordPushResultRest buildRecordPushResult,
-            @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId,
+            @PathParam("buildRecordId") Integer buildRecordId,
             @Context UriInfo uriInfo) throws RestValidationException, ProcessException {
         logger.info("Received completion notification for BuildRecord.id: {}. Object received: {}.", buildRecordId, buildRecordPushResult);
         Integer id = buildResultPushManager.complete(buildRecordId, buildRecordPushResult.toDBEntityBuilder().build());
         return Response.ok().entity(id).build();
     }
 
-    @ApiOperation(value = "Latest push result of BuildRecord.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPushResultRest.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/status/{buildRecordId}")
     public Response status(
-            @ApiParam(value = "Build Record id", required = true) @PathParam("buildRecordId") Integer buildRecordId)
+            @PathParam("buildRecordId") Integer buildRecordId)
             throws RestValidationException, ProcessException {
 
         BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildRecordId);

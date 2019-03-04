@@ -17,11 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.configuration.BuildConfigurationSupportedGenericParameters;
@@ -33,15 +29,6 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedPage;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
-import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
-import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
-import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.utils.ParameterBackCompatibility;
@@ -75,35 +62,16 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
-@Api(value = "/build-configurations", description = "Build configuration entities")
+@Hidden
 @Path("/build-configurations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -154,28 +122,14 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 .getSupportedGenericParameters();
     }
 
-    @ApiOperation(value = "Gets all Build Configurations")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
-    public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q) {
         return fromCollection(buildConfigurationProvider.getAllNonArchived(pageIndex, pageSize, sort, q));
     }
 
-    @ApiOperation(value = "Creates a new Build Configuration.")
-    @ApiResponses(value = {
-            @ApiResponse(code = ENTITY_CREATED_CODE, message = ENTITY_CREATED_DESCRIPTION, response = BuildConfigurationSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     public Response createNew(BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo)
             throws RestValidationException {
@@ -184,51 +138,27 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @GET
     @Path("/supported-generic-parameters")
-    @ApiOperation(value = "Gets the minimal set of supported genericParameters and their description for the BuildConfiguration. "
-            + "There can be also other supported parameters not know by core.")
-    @ApiResponse(response = Map.class, code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION)
     public Response getSupportedGenericParameters() {
         return Response.ok().entity(buildConfigurationSupportedGenericParameters).build();
     }
 
-    @ApiOperation(value = "Gets a specific Build Configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildConfigurationSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}")
     public Response getSpecific(
-            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
+            @PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Updates an existing Build Configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @PUT
     @Path("/{id}")
-    public Response update(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+    public Response update(@PathParam("id") Integer id,
             BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
         return super.update(id, buildConfigurationRest);
     }
 
-    @ApiOperation(value = "Updates an existing Build Configuration and returns BuildConfigurationAudited entity")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{id}/update-and-get-audited")
-    public Response updateAndGetAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+    public Response updateAndGetAudited(@PathParam("id") Integer id,
             BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
         buildConfigurationProvider.update(id, buildConfigurationRest);
         Optional<BuildConfigurationAuditedRest> buildConfigurationAuditedRestOptional = buildConfigurationProvider.getLatestAuditedMatchingBCRest(buildConfigurationRest);
@@ -240,77 +170,50 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         }
     }
 
-    @ApiOperation(value = "Removes a specific Build Configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id)
+    public Response deleteSpecific(@PathParam("id") Integer id)
             throws RestValidationException {
         buildConfigurationProvider.archive(id);
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Clones an existing Build Configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = BuildConfigurationSingleton.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = BuildConfigurationSingleton.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = BuildConfigurationSingleton.class)
-    })
     @POST
     @Path("/{id}/clone")
-    public Response clone(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+    public Response clone(@PathParam("id") Integer id,
             @Context UriInfo uriInfo) throws RestValidationException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
         int newId = buildConfigurationProvider.clone(id);
         return Response.created(uriBuilder.build(newId)).entity(new Singleton(buildConfigurationProvider.getSpecific(newId))).build();
     }
 
-    @ApiOperation(value = "Triggers a build of a specific Build Configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{id}/build")
-    public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
-            @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-            @ApiParam(value = "DEPRECATED: Use RebuildMode.") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
-            @ApiParam(value = "Should we build also dependencies of this BuildConfiguration?") @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
-            @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
-            @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
-            @ApiParam(value = "Rebuild Modes: FORCE: always rebuild the configuration; EXPLICIT_DEPENDENCY_CHECK: check if any of user defined dependencies has been update; IMPLICIT_DEPENDENCY_CHECK: check if any captured dependency has been updated;") @QueryParam("rebuildMode") RebuildMode rebuildMode,
+    public Response trigger(@PathParam("id") Integer id,
+            @QueryParam("callbackUrl") String callbackUrl,
+            @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+            @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
+            @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
+            @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+            @QueryParam("rebuildMode") RebuildMode rebuildMode,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
 
         rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
         return triggerBuild(id, Optional.empty(), callbackUrl, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
     }
 
-    @ApiOperation(value = "Triggers a build of a specific Build Configuration in a specific revision")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{id}/revisions/{rev}/build")
-    public Response triggerAudited(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-                            @ApiParam(value = "Revision of a Build Configuration", required = true) @PathParam("rev") Integer rev,
-                            @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
-                            @ApiParam(value = "Is it a temporary build or a standard build?") @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-                            @ApiParam(value = "DEPRECATED: Use RebuildMode.") @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
-                            @ApiParam(value = "Should we build also dependencies of this BuildConfiguration?") @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
-                            @ApiParam(value = "Should we keep the build container running, if the build fails?") @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
-                            @ApiParam(value = "Should we add a timestamp during the alignment? Valid only for temporary builds.") @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
-                            @ApiParam(value = "Rebuild Modes: FORCE: always rebuild the configuration; EXPLICIT_DEPENDENCY_CHECK: check if any of user defined dependencies has been update; IMPLICIT_DEPENDENCY_CHECK: check if any captured dependency has been updated;") @QueryParam("rebuildMode") RebuildMode rebuildMode,
+    public Response triggerAudited(@PathParam("id") Integer id,
+                            @PathParam("rev") Integer rev,
+                            @QueryParam("callbackUrl") String callbackUrl,
+                            @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+                            @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+                            @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
+                            @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
+                            @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+                            @QueryParam("rebuildMode") RebuildMode rebuildMode,
                             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
         rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
         return triggerBuild(id, Optional.of(rev), callbackUrl, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
@@ -358,121 +261,73 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return currentUser;
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Project")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = BuildConfigurationPage.class)
-    })
     @GET
     @Path("/projects/{projectId}")
-    public Response getAllByProjectId(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId) {
+    public Response getAllByProjectId(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("projectId") Integer projectId) {
         return fromCollection(buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sort, q, projectId));
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Product")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = BuildConfigurationPage.class)
-    })
     @GET
     @Path("/products/{productId}")
-    public Response getAllByProductId(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
+    public Response getAllByProductId(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("productId") Integer productId) {
         return fromCollection(buildConfigurationProvider.getAllForProduct(pageIndex, pageSize, sort, q, productId));
     }
-
-    @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/products/{productId}/product-versions/{versionId}")
-    public Response getAllByProductVersionId(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId) {
+    public Response getAllByProductVersionId(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("productId") Integer productId,
+            @PathParam("versionId") Integer versionId) {
         return fromCollection(buildConfigurationProvider
                 .getAllForProductAndProductVersion(pageIndex, pageSize, sort, q, productId, versionId));
     }
 
-    @ApiOperation(value = "Get the direct dependencies of the specified configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/dependencies")
-    public Response getDependencies(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+    public Response getDependencies(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
         return fromCollection(buildConfigurationProvider.getDependencies(pageIndex, pageSize, sort, q, id));
     }
 
-    @ApiOperation(value = "Adds a dependency to the specified config")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{id}/dependencies")
-    public Response addDependency(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+    public Response addDependency(@PathParam("id") Integer id,
             BuildConfigurationRest dependency) throws RestValidationException {
         buildConfigurationProvider.addDependency(id, dependency.getId());
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Removes a configuration from the specified config set")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @DELETE
     @Path("/{id}/dependencies/{dependencyId}")
     public Response removeDependency(
-            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) throws
+            @PathParam("id") Integer id,
+            @PathParam("dependencyId") Integer dependencyId) throws
             RestValidationException {
         buildConfigurationProvider.removeDependency(id, dependencyId);
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Gets BuildConfiguration Sets associated with the specified BuildConfiguration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSetPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationSetPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/build-configuration-sets")
     public Response getBuildConfigurationSets(
-            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
 
         return Response.ok().entity(buildConfigurationSetProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort,
                 q, id)).build();
@@ -481,38 +336,25 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     /**
      * @deprecated use the productVersionId field instead
      */
-    @ApiOperation(value = "Get associated Product Versions of the specified Configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductVersionPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = ProductVersionPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/product-versions")
     @Deprecated
-    public Response getProductVersions(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+    public Response getProductVersions(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
         return fromCollection(productVersionProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort, q, id));
     }
 
     /**
      * @deprecated use the productVersionId field instead
      */
-    @ApiOperation(value = "Associates a product version to the specified config")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @POST
     @Path("/{id}/product-versions")
     @Deprecated
     public Response addProductVersion(
-            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+            @PathParam("id") Integer id,
             ProductVersionRest productVersion) throws RestValidationException {
         buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
@@ -521,102 +363,61 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     /**
      * @deprecated use the productVersionId field instead
      */
-    @ApiOperation(value = "Removes a product version from the specified config set")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @DELETE
     @Path("/{id}/product-versions/{productVersionId}")
     @Deprecated
     public Response removeProductVersion(
-            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) throws
+            @PathParam("id") Integer id,
+            @PathParam("productVersionId") Integer productVersionId) throws
             RestValidationException {
         buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Gets audited revisions of this build configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationAuditedPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/revisions")
-    public Response getRevisions(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+    public Response getRevisions(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @PathParam("id") Integer id) {
         return fromCollection(buildConfigurationProvider.getRevisions(pageIndex, pageSize, id));
     }
 
-    @ApiOperation(value = "Get specific audited revision of this build configuration")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/revisions/{rev}")
-    public Response getRevision(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration rev", required = true) @PathParam("rev") Integer rev) {
+    public Response getRevision(@PathParam("id") Integer id,
+            @PathParam("rev") Integer rev) {
         return fromSingleton(buildConfigurationProvider.getRevision(id, rev));
     }
 
-    @ApiOperation(value = "Get all build record associated with this build configuration, returns empty list if no build records are found")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/build-records")
     public Response getBuildRecords(
-            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
         return fromCollection(buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort, q, id));
     }
 
-    @ApiOperation(value = "Get latest build record associated with this build configuration, returns no content if no build records are found")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/build-records/latest")
     public Response getLatestBuildRecord(
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "When true, records with NO_REBUILD_REQUIRED status are excluded.", required = false, defaultValue = "false") @QueryParam("executed") boolean executed) {
+            @PathParam("id") Integer id,
+            @QueryParam("executed") boolean executed) {
         return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id, executed));
     }
 
     //TODO To be removed after testing, will be available via pnc-rest/rest/builds?q=buildConfigurationAuditedId==1
-    @ApiOperation(value = "Get all BuildRecords (running and archived) associated with this Build Configuration, returns empty list if no build records are found")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/{id}/builds")
     public Response getBuilds(
-            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
         return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsByBuildConfigurationId(pageIndex, pageSize, sort, q, id));
     }
 }

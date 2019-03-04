@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.utils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.dto.Build;
@@ -42,6 +43,7 @@ import java.util.Optional;
  * Date: 1/25/17
  * Time: 2:25 PM
  */
+@Hidden
 @Path("/debug")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

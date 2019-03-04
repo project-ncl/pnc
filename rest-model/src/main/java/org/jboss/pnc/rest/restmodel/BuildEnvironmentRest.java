@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import io.swagger.annotations.ApiModelProperty;
 
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.enums.SystemImageType;
@@ -38,26 +37,26 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
-    @ApiModelProperty(dataType = "string")
+    
     private String name;
 
-    @ApiModelProperty(dataType = "string")
+    
     private String description;
 
-    @ApiModelProperty(dataType = "string")
+    
     private String systemImageRepositoryUrl;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @ApiModelProperty(dataType = "string")
+    
     private String systemImageId;
 
     private Map<String, String> attributes;
 
-    @ApiModelProperty(dataType = "string")
+    
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private SystemImageType systemImageType;
 
-    @ApiModelProperty(dataType = "boolean")
+    
     private boolean deprecated;
 
     public BuildEnvironmentRest() {

@@ -543,24 +543,6 @@
       </dependency>
 
       <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-jaxrs</artifactId>
-        <version>1.5.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-core</artifactId>
-        <version>1.5.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>1.5.3</version>
-      </dependency>
-
-      <dependency>
         <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-jaxrs2</artifactId>
         <version>${version.swagger2}</version>

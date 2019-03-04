@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -47,7 +46,7 @@ public class ProjectRest implements GenericRestEntity<Integer> {
 
     private String projectUrl;
 
-    @ApiModelProperty(notes = "Projects cannot set build configurations", readOnly = true)
+    
     private List<Integer> configurationIds;
 
     private Integer licenseId;

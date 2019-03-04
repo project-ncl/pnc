@@ -18,11 +18,7 @@
 
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
@@ -62,16 +58,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Optional;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
-
-@Api(value = "/build-tasks", description = "Build tasks.")
+@Hidden
 @Path("/build-tasks")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -97,16 +84,12 @@ public class BuildTaskEndpoint {
     @Deprecated
     public BuildTaskEndpoint() {} // CDI workaround
 
-    @ApiOperation(value = "Notifies the completion of externally managed build task process.", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION)
-    })
     @POST
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
-            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer buildId,
-            @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
+            @PathParam("taskId") Integer buildId,
+            @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
 
 //TODO set MDC from request headers instead of business data
 //        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
@@ -145,24 +128,17 @@ public class BuildTaskEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Triggers the build execution for a given configuration.", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
-            @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
-    })
     @POST
     @Path("/execute-build")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED) //TODO accept single json
     public Response build(
-            @ApiParam(value = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
+            
             @FormParam("buildExecutionConfiguration")
             BuildExecutionConfigurationRest buildExecutionConfiguration,
-            @ApiParam(value = "Username who triggered the build. If empty current user is used.", required = false)
+            
             @FormParam("usernameTriggered")
             String usernameTriggered,
-            @ApiParam(value = "Optional Callback URL", required = false)
+            
             @FormParam("callbackUrl")
             String callbackUrl,
             @Context UriInfo uriInfo,
@@ -196,18 +172,11 @@ public class BuildTaskEndpoint {
         }
     }
 
-    @ApiOperation(value = "Cancel the build execution defined with given executionConfigurationId.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
-            @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
-    })
     @POST
     @Path("/cancel-build/{buildExecutionConfigurationId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response cancelBbuild(
-            @ApiParam(value = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
+            
             @PathParam("buildExecutionConfigurationId")
             Integer buildExecutionConfigurationId,
             @Context UriInfo uriInfo,

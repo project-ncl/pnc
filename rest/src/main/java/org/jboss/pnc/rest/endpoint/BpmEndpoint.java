@@ -18,11 +18,7 @@
 package org.jboss.pnc.rest.endpoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
@@ -47,10 +43,6 @@ import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationProcessRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BpmTaskRestPage;
-import org.jboss.pnc.rest.swagger.response.BpmTaskRestSingleton;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
@@ -90,22 +82,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 /**
  * This endpoint is used for starting and interacting
@@ -113,7 +93,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
  *
  * @author Jakub Senko
  */
-@Api(value = "/bpm", description = "Interaction with BPM processes.")
+@Hidden
 @Path("/bpm")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -158,19 +138,12 @@ public class BpmEndpoint extends AbstractEndpoint {
         this.moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
     }
 
-
-    @ApiOperation(value = "Notify PNC about a BPM task event. " +
-            "Accepts polymorphic JSON {\"eventType\": \"string\"} " +
-            "based on \"eventType\" field.", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Success")
-    })
     @POST
     @Path("/tasks/{taskId}/notify")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response notifyTask(
             @Context HttpServletRequest request,
-            @ApiParam(value = "BPM task ID", required = true) @PathParam("taskId") int taskId) throws CoreException {
+            @PathParam("taskId") int taskId) throws CoreException {
 
         String content;
         JsonNode node;
@@ -307,15 +280,11 @@ public class BpmEndpoint extends AbstractEndpoint {
         return null;
     }
 
-    @ApiOperation(value = "Start Repository Creation task with url autodetect (internal vs. external).", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = "Success", response = Integer.class)
-    })
     @POST
     @Path("/tasks/start-repository-configuration-creation-url-auto")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response startRCreationTaskWithSingleUrl(
-            @ApiParam(value = "Task parameters.", required = true) RepositoryCreationUrlAutoRest repositoryCreationUrlAutoRest,
+            RepositoryCreationUrlAutoRest repositoryCreationUrlAutoRest,
             @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
 
         LOG.debug("Received request to start RC creation with url autodetect: " + repositoryCreationUrlAutoRest);
@@ -420,18 +389,11 @@ public class BpmEndpoint extends AbstractEndpoint {
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotify);
     }
 
-    @ApiOperation(value = "List of (recently) active BPM tasks.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BpmTaskRestPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BpmTaskRestPage.class),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
     @GET
     @Path("/tasks")
     public Response getBPMTasks(
-            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize
     ) {
 
         Collection<BpmTask> tasks = bpmManager.getActiveTasks();
@@ -448,15 +410,10 @@ public class BpmEndpoint extends AbstractEndpoint {
             t.getProcessName(),
             t.getEvents());
 
-    @ApiOperation(value = "Get single (recently) active BPM task.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BpmTaskRestSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BpmTaskRestSingleton.class),
-    })
     @GET
     @Path("/tasks/{taskId}")
     public Response getBPMTaskById(
-            @ApiParam(value = "BPM task ID", required = true) @PathParam("taskId") int taskId
+            @PathParam("taskId") int taskId
     ) {
         Optional<BpmTask> task = bpmManager.getTaskById(taskId);
         if (task.isPresent()) {

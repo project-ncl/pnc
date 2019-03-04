@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,7 +48,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String identifier;
 
-    @ApiModelProperty(dataType = "string")
+    
     private ArtifactQuality artifactQuality;
 
     @Getter
