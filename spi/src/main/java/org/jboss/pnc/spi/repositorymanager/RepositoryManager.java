@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
+import java.util.Map;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -38,8 +39,10 @@ public interface RepositoryManager {
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken) throws RepositoryManagerException;
+    RepositorySession createBuildRepository(BuildExecution buildExecution,
+                                            String accessToken,
+                                            String serviceAccountToken,
+                                            Map<String,String> genericParameters) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the

@@ -56,12 +56,14 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP;
@@ -78,6 +80,8 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMP
  */
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
+
+    private static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_PUBLIC_REPOSITORIES";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -188,14 +192,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *                                    (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution,
+                                                   String accessToken,
+                                                   String serviceAccountToken,
+                                                   Map<String, String> genericParameters) throws RepositoryManagerException {
         Indy indy = init(accessToken);
         Indy serviceAccountIndy = init(serviceAccountToken);
-
         String buildId = buildExecution.getBuildContentId();
+
         try {
-            setupBuildRepos(buildExecution, serviceAccountIndy);
+            setupBuildRepos(buildExecution, serviceAccountIndy, genericParameters);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
@@ -236,7 +242,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param execution The execution object, which contains the content id for creating the repo, and the build id.
      * @throws IndyClientException
      */
-    private void setupBuildRepos(BuildExecution execution, Indy indy)
+    private void setupBuildRepos(BuildExecution execution, Indy indy, Map<String, String> genericParameters)
             throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
@@ -270,12 +276,25 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup, tempBuild);
 
-            // add extra repositories removed from poms by the adjust process
-            addExtraConstituents(execution.getArtifactRepositories(), id, buildContentId, indy, buildGroup);
+            // add extra repositories removed from poms by the adjust process and set in BC by user
+            List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(genericParameters);
+            extraDependencyRepositories.addAll(execution.getArtifactRepositories());
+            addExtraConstituents(extraDependencyRepositories, id, buildContentId, indy, buildGroup);
 
             indy.stores().create(buildGroup, "Creating repository group for resolving artifacts in build: " + id
                     + " (repo: " + buildContentId + ")", Group.class);
         }
+    }
+
+    private List<ArtifactRepository> extractExtraRepositoriesFromGenericParameters(Map<String, String> genericParameters) {
+        String extraReposString = genericParameters.get(EXTRA_PUBLIC_REPOSITORIES_KEY);
+        if (extraReposString == null)
+            return Collections.emptyList();
+
+        return Arrays.stream(extraReposString.split("\n"))
+                .map(repoString ->
+                        ArtifactRepository.build(repoString.trim(), repoString.trim(), repoString.trim(), true, false))
+                .collect(Collectors.toList());
     }
 
     /**

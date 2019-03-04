@@ -198,8 +198,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(TargetRepository.Type.MAVEN);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
             String serviceAccountToken = (serviceClient == null ? null : serviceClient.getAuthToken());
-            return repositoryManager.createBuildRepository(buildExecution, buildExecutionSession.getAccessToken(),
-                    serviceAccountToken);
+
+            return repositoryManager.createBuildRepository(buildExecution,
+                    buildExecutionSession.getAccessToken(),
+                    serviceAccountToken,
+                    buildExecutionSession.getBuildExecutionConfiguration().getGenericParameters());
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
