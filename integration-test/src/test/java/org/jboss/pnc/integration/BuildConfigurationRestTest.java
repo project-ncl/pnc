@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 
@@ -35,10 +36,7 @@ import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+import org.jboss.pnc.rest.restmodel.*;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -437,6 +435,67 @@ public class BuildConfigurationRestTest extends AbstractTest {
 
         ResponseAssertion.assertThat(response).hasStatus(Status.OK.getStatusCode());
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty(FIRST_CONTENT_ID);
+    }
+
+
+    @Test
+    public void shouldRestoreAuditedBuildConfiguration() throws Exception {
+        // given
+        String updatedName = UUID.randomUUID().toString();
+
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
+        configurationTemplate.addValue("_name", updatedName);
+        configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
+        configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_repositoryConfigurationId", String.valueOf(repositoryConfigurationId));
+
+
+        Response updatedBcResponse = given().headers(testHeaders)
+                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+
+        ResponseAssertion.assertThat(updatedBcResponse).hasStatus(Status.OK.getStatusCode());
+
+
+        Response bcAfterUpdateResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+
+        ResponseAssertion.assertThat(bcAfterUpdateResponse).hasStatus(Status.OK.getStatusCode());
+        ResponseAssertion.assertThat(bcAfterUpdateResponse).hasJsonValueEqual("content.name", updatedName);
+
+
+
+        Response revisionsResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions", configurationId));
+
+        ResponseAssertion.assertThat(revisionsResponse).hasStatus(Status.OK.getStatusCode());
+
+        int revIdToRestore = revisionsResponse.jsonPath().<Integer>get("content[1].rev");
+        String revNameToRestore = revisionsResponse.jsonPath().<String>get("content[1].name");
+
+        assertThat(revIdToRestore).isGreaterThan(0);
+        assertThat(revNameToRestore).isNotEmpty();
+
+
+        // when
+        Response restoreResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions/%d/restore", configurationId, revIdToRestore));
+
+        ResponseAssertion.assertThat(restoreResponse).hasStatus(Status.OK.getStatusCode());
+
+
+        // then
+        Response bcAfterRestoreResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+
+        ResponseAssertion.assertThat(bcAfterRestoreResponse).hasStatus(Status.OK.getStatusCode());
+        ResponseAssertion.assertThat(bcAfterRestoreResponse).hasJsonValueEqual("content.name", revNameToRestore);
     }
 
     @Test
