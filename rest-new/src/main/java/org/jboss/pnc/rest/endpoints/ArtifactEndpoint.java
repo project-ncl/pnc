@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.jboss.pnc.dto.Artifact;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+@Stateless
 public class ArtifactEndpoint extends AbstractEndpoint<Artifact, ArtifactRef> implements
         org.jboss.pnc.rest.api.endpoints.ArtifactEndpoint {
 
