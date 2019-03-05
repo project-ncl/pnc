@@ -390,6 +390,14 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromSingleton(buildConfigurationProvider.getRevision(id, rev));
     }
 
+
+    @POST
+    @Path("/{id}/revisions/{rev}/restore")
+    public Response restoreRevision(@PathParam("id") Integer id,
+                                   @PathParam("rev") Integer rev) {
+        return Response.ok().build();
+    }
+
     @GET
     @Path("/{id}/build-records")
     public Response getBuildRecords(
