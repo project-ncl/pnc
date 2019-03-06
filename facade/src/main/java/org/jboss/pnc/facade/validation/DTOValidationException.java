@@ -25,7 +25,7 @@ import java.util.Optional;
  *
  * @author Sebastian Laskawiec
  */
-public abstract class DTOValidationException extends Exception {
+public abstract class DTOValidationException extends RuntimeException {
 
     public DTOValidationException() {
     }

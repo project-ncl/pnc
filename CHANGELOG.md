@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- [NCL-4351] Added new ArtifactEndpoint implementation 
+- Added new Rest API
 
 ### Changed
 - [NCL-4077] Send revision information to Maitai and Repour on build configuration creation. This helps syncing only the particular revision provided by the user, avoiding potential merge conflicts with other branches that we do not use for building
