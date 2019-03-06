@@ -52,16 +52,8 @@ public class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
     }
 
     protected DTO create(DTO dto) {
-        logger.debug("Creating an entity with body: " + dto.toString());
-        try{
-            dto = provider.store(dto);
-        } catch (ConflictedEntryException e) {
-            logger.debug("There was a conflict while creating entity: " + dto);
-            throw new WebApplicationException("There was a conflict while creating entity: " + dto, e, Response.status(Response.Status.CONFLICT).build());
-        } catch (DTOValidationException e) {
-            logger.debug("Validation error while creating entity: " + dtoClass.getSimpleName() + " with body: " + dto.toString());
-            throw new BadRequestException("Validation error while creating entity: " + dtoClass.getSimpleName() + " with body: " + dto.toString(), e);
-        }
+        logger.debug("Creating an entity with body: " + dto);
+        dto = provider.store(dto);
         logger.debug("Entity with id: " + dto.getId() + " successfully created");
         return dto;
     }
@@ -78,39 +70,18 @@ public class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
     }
 
     protected Page<DTO> getAll(@NotNull PageParameters pageParameters) {
-        logger.debug("Retrieving " + dtoClass.getSimpleName() + "s with these " + pageParameters.toString());
+        logger.debug("Retrieving " + dtoClass.getSimpleName() + "s with these " + pageParameters);
         return provider.getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
     };
 
     protected void update(int id, DTO dto) {
         logger.debug("Updating " + dtoClass.getSimpleName() + " with id: " + id);
-        try {
-            provider.update(id, dto);
-        } catch (ConflictedEntryException e) {
-            logger.debug("There was a conflict while updating entity + " + dto);
-            /** throws status code: {@link SwaggerConstants.CONFLICTED_CODE}*/
-            throw new WebApplicationException("There was a conflict while updating entity + " + dto, e, Response.status(Response.Status.CONFLICT).build());
-        } catch (DTOValidationException e) {
-            logger.debug("Validation error on entity: " + dtoClass.getSimpleName() + " with body: " + dto.toString());
-            /** This will throw 400 {@link SwaggerConstants.INVALID_CODE} when validation fails as it's in contracts in endpoints */
-            throw new BadRequestException("Validation error on entity: " + dtoClass.getSimpleName() + " with body: " + dto.toString(), e);
-        }
-        /** should give 204 status code {@link javax.ws.rs.core.Response.Status.NO_CONTENT} */
-        return;
+        provider.update(id, dto);
     }
 
     protected void delete(int id) {
         logger.debug("Deleting " + dtoClass.getSimpleName() + " with id: " + id);
-        try {
-            provider.delete(id);
-        } catch (DTOValidationException e) {
-            logger.debug("Entity of type " + dtoClass.getSimpleName() + "with id " + id + " wasn't found");
-            /** see {@link #update(int, DTOEntity)} */
-            throw new BadRequestException("Entity of type " + dtoClass.getSimpleName() + "with id " + id + " wasn't found", e);
-        }
-        //throw new WebApplicationException("Entity of type " + dtoClass.getSimpleName() + " with id " + id + " deleted",Response.noContent().build());
-        logger.debug("Deletion of " + dtoClass.getSimpleName() + " with id: " + id + " was successfull");
-        /** see {@link #update(int, DTOEntity)} */
-        return;
+        provider.delete(id);
+        logger.debug("Deletion of " + dtoClass.getSimpleName() + " with id: " + id + " was successful");
     }
 }

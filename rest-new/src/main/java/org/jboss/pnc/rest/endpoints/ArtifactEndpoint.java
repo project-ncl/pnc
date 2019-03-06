@@ -24,6 +24,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.ArtifactProvider;
+
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,10 @@ public class ArtifactEndpoint extends AbstractEndpoint<Artifact, ArtifactRef> im
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpoint.class);
     private ArtifactProvider artifactProvider;
 
+    @Deprecated
+    public ArtifactEndpoint() {
+    }
+
     @Inject
     public ArtifactEndpoint(ArtifactProvider provider) {
         super(provider, Artifact.class);
@@ -47,7 +52,7 @@ public class ArtifactEndpoint extends AbstractEndpoint<Artifact, ArtifactRef> im
     public Page<Artifact> getAll(PageParameters pageParams, String sha256, String md5, String sha1) {
         logger.debug("Retrieving Artifacts with these " + pageParams.toString() + "and checksums:" +
                 ((sha256 == null) ? "" : " Sha256: " + sha256) +
-                ((sha256 == null) ? "" : " Sha256: " + sha256) +
+                ((md5 == null) ? "" : " Md5: " + md5) +
                 ((sha1 == null) ? "" : " Sha1: " + sha1));
         return artifactProvider.getAll(pageParams.getPageIndex(),pageParams.getPageSize(), pageParams.getSort(),pageParams.getQ(),
                 Optional.ofNullable(sha256),
