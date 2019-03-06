@@ -70,11 +70,11 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     @Inject
     protected PageInfoProducer pageInfoProducer;
 
-    protected Repository<DB, Integer> repository;
+    protected final Repository<DB, Integer> repository;
 
-    protected EntityMapper<DB, DTO, REF> mapper;
+    protected final EntityMapper<DB, DTO, REF> mapper;
     
-    protected RSQLMapper<DB> rsql;
+    protected final RSQLMapper<DB> rsql;
 
     public AbstractProvider(Repository<DB, Integer> repository, EntityMapper<DB, DTO, REF> mapper, RSQLMapper<DB> rsql) {
         this.repository = repository;
@@ -102,14 +102,14 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     }
 
     @Override
-    public void update(Integer id, DTO restEntity) throws DTOValidationException {
+    public void update(Integer id, DTO restEntity) {
         validateBeforeUpdating(id, restEntity);
         log.debug("Updating entity: " + restEntity.toString());
         repository.save(mapper.toEntity(restEntity));
     }
 
     @Override
-    public void delete(Integer id) throws DTOValidationException {
+    public void delete(Integer id) {
         validateBeforeDeleting(id);
         repository.delete(id);
     }
@@ -129,19 +129,19 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }
 
-    protected void validateBeforeUpdating(Integer id, DTO restEntity) throws DTOValidationException {
+    protected void validateBeforeUpdating(Integer id, DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations()
                 .validateAgainstRepository(repository, id, true);
     }
 
-    protected void validateBeforeSaving(DTO restEntity) throws DTOValidationException {
+    protected void validateBeforeSaving(DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(Integer id) throws DTOValidationException {
+    protected void validateBeforeDeleting(Integer id) {
         ValidationBuilder.validateObject(WhenDeleting.class)
                 .validateAgainstRepository(repository, id, true)
                 .validateAnnotations();

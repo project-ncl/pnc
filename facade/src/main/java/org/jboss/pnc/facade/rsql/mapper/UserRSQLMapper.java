@@ -21,6 +21,7 @@ import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.User_;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 
@@ -28,6 +29,7 @@ import javax.persistence.criteria.Path;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@ApplicationScoped
 public class UserRSQLMapper implements RSQLMapper<User>{
 
     @Override

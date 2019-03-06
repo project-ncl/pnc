@@ -146,11 +146,11 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
 
     public static class IDMapper {
 
-        public Integer toId(org.jboss.pnc.model.Artifact artifact) {
+        public static Integer toId(org.jboss.pnc.model.Artifact artifact) {
             return artifact.getId();
         }
 
-        public org.jboss.pnc.model.Artifact toId(Integer artifactId) {
+        public static org.jboss.pnc.model.Artifact toId(Integer artifactId) {
             return org.jboss.pnc.model.Artifact.Builder.newBuilder().id(artifactId).build();
         }
     }

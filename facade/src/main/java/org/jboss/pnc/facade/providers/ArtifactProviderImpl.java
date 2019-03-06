@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.ArtifactMapper;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.rsql.mapper.ArtifactRSQLMapper;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.Artifact;
@@ -36,15 +37,17 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Stateless
-public class ArtifactProvider extends AbstractProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>{
+public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
+        implements ArtifactProvider {
 
     @Inject
-    public ArtifactProvider(ArtifactRepository repository,
+    public ArtifactProviderImpl(ArtifactRepository repository,
             ArtifactMapper mapper, ArtifactRSQLMapper rsql) {
         super(repository, mapper, rsql);
     }
 
 
+    @Override
     public Page<org.jboss.pnc.dto.Artifact> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
             Optional<String> sha256, Optional<String> md5, Optional<String> sha1) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withSha256(sha256), withMd5(md5),withSha1(sha1));

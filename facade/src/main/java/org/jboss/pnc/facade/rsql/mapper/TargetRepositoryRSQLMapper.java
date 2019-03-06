@@ -21,12 +21,14 @@ import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 
 /**
  * @author Jan Michalov <jmichalo@redhat.com>
  */
+@ApplicationScoped
 public class TargetRepositoryRSQLMapper implements RSQLMapper<TargetRepository> {
 
     @Override public Path<?> toPath(From<?, TargetRepository> from, RSQLSelectorPath selector) {

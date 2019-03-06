@@ -21,6 +21,7 @@ import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildConfigurationSet_;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
@@ -29,6 +30,7 @@ import javax.persistence.criteria.Path;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@ApplicationScoped
 public class GroupConfigurationRSQLMapper implements RSQLMapper<BuildConfigurationSet>{
     @Inject
     private ProductVersionRSQLMapper pvm;

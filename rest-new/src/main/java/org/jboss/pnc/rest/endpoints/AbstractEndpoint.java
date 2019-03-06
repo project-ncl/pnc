@@ -45,7 +45,6 @@ public class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
 
     private final Class<DTO> dtoClass;
 
-
     public AbstractEndpoint(Provider<?, DTO, REF> provider, Class<DTO> dtoClass) {
         this.provider = provider;
         this.dtoClass = dtoClass;

@@ -101,23 +101,23 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     BuildRecord toEntity(Build dtoEntity);
 
     public static class StatusMapper {
-        public BuildCoordinationStatus toBuildCoordinationStatus(BuildStatus status) {
+        public static BuildCoordinationStatus toBuildCoordinationStatus(BuildStatus status) {
             return BuildCoordinationStatus.fromBuildStatus(status);
         }
 
-        public BuildStatus toBuildStatus(BuildCoordinationStatus status) {
+        public static BuildStatus toBuildStatus(BuildCoordinationStatus status) {
             return BuildStatus.fromBuildCoordinationStatus(status);
         }
     }
 
     public static class IDMapper {
-        public BuildRecord toIdEntity(Integer id) {
+        public static BuildRecord toIdEntity(Integer id) {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
             return buildRecord;
         }
 
-        public Integer toId(BuildRecord buildRecord){
+        public static Integer toId(BuildRecord buildRecord){
             return buildRecord.getId();
         }
     }

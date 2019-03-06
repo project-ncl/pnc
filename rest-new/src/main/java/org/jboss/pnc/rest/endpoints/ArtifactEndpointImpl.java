@@ -23,8 +23,8 @@ import javax.inject.Inject;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.ArtifactProvider;
-
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.rest.api.endpoints.ArtifactEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,18 +32,13 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 @Stateless
-public class ArtifactEndpoint extends AbstractEndpoint<Artifact, ArtifactRef> implements
-        org.jboss.pnc.rest.api.endpoints.ArtifactEndpoint {
+public class ArtifactEndpointImpl extends AbstractEndpoint<Artifact, ArtifactRef> implements ArtifactEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpoint.class);
-    private ArtifactProvider artifactProvider;
-
-    @Deprecated
-    public ArtifactEndpoint() {
-    }
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
+    private final ArtifactProvider artifactProvider;
 
     @Inject
-    public ArtifactEndpoint(ArtifactProvider provider) {
+    public ArtifactEndpointImpl(ArtifactProvider provider) {
         super(provider, Artifact.class);
         this.artifactProvider = provider;
     }
