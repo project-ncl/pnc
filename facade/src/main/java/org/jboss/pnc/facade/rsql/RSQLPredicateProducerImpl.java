@@ -23,6 +23,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 
@@ -42,9 +43,10 @@ import cz.jirutka.rsql.parser.ast.RSQLOperators;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@ApplicationScoped
 public class RSQLPredicateProducerImpl implements RSQLPredicateProducer {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(RSQLPredicateProducerImpl.class);
 
     private final RSQLParser parser;
 

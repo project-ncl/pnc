@@ -25,6 +25,18 @@
     <java>auth.jar</java>
   </module>
   <module>
+    <java>constants.jar</java>
+  </module>
+  <module>
+    <java>facade.jar</java>
+  </module>
+  <module>
+    <java>dto.jar</java>
+  </module>
+  <module>
+    <java>rest-api.jar</java>
+  </module>
+  <module>
     <java>common.jar</java>
   </module>
   <module>

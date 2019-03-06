@@ -78,11 +78,11 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
 
     public static class IDMapper {
 
-        public Integer toId(BuildConfiguration bc) {
+        public static Integer toId(BuildConfiguration bc) {
             return bc.getId();
         }
 
-        public BuildConfiguration toId(Integer bcId) {
+        public static BuildConfiguration toId(Integer bcId) {
             BuildConfiguration bc = new BuildConfiguration();
             bc.setId(bcId);
             return bc;
