@@ -315,6 +315,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         buildConfiguration.setDescription(buildConfigurationAudited.getDescription());
         buildConfiguration.setBuildType(buildConfigurationAudited.getBuildType());
         buildConfiguration.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
+        buildConfiguration.setGenericParameters(buildConfigurationAudited.getGenericParameters());
 
         repository.save(buildConfiguration);
     }
