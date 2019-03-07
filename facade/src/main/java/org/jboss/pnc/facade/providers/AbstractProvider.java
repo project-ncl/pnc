@@ -70,11 +70,11 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     @Inject
     protected PageInfoProducer pageInfoProducer;
 
-    protected final Repository<DB, Integer> repository;
+    protected Repository<DB, Integer> repository;
 
-    protected final EntityMapper<DB, DTO, REF> mapper;
+    protected EntityMapper<DB, DTO, REF> mapper;
     
-    protected final RSQLMapper<DB> rsql;
+    protected RSQLMapper<DB> rsql;
 
     public AbstractProvider(Repository<DB, Integer> repository, EntityMapper<DB, DTO, REF> mapper, RSQLMapper<DB> rsql) {
         this.repository = repository;

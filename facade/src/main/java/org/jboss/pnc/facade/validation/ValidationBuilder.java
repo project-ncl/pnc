@@ -87,7 +87,7 @@ public class ValidationBuilder<T> {
         }
         return this;
     }
-/*
+
     public ValidationBuilder validateConflict(ConflictedEntryValidator validate) throws
             ConflictedEntryException {
         ConflictedEntryValidator.ConflictedEntryValidationError validationError = validate.validate();
@@ -96,7 +96,7 @@ public class ValidationBuilder<T> {
         }
         return this;
     }
-*/
+
     public ValidationBuilder validateNotEmptyArgument() throws EmptyEntityException {
         if(objectToBeValidated == null) {
             throw new EmptyEntityException("Input object is null");
