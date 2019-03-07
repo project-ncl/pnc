@@ -24,6 +24,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +46,8 @@ public class DeploymentFactory {
 
         logger.info("Deployment datastoreJar: {}", datastoreJar.toString(true));
 
-
-        File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeAndTestDependencies().resolve()
+        File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml")
+                .importDependencies(ScopeType.RUNTIME, ScopeType.COMPILE, ScopeType.TEST, ScopeType.IMPORT, ScopeType.SYSTEM).resolve()
                 .withTransitivity().asFile();
 
         //remove "model-<version>.jar" from the archive and add it as "model.jar" so we can reference it in the test-persistence.xml

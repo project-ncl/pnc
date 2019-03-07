@@ -46,6 +46,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -136,6 +137,11 @@ public interface BuildConfigurationEndpoint {
     @PUT
     @Path("/{id}")
     void update(@Parameter(description = BC_ID) @PathParam("id") int id,
+            BuildConfiguration buildConfiguration);
+
+    @PATCH
+    @Path("/{id}")
+    void patch(@Parameter(description = BC_ID) @PathParam("id") int id,
             BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Removes a specific build config.",
