@@ -41,9 +41,13 @@ public class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Provider<?, DTO, REF> provider;
+    private Provider<?, DTO, REF> provider;
 
     private final Class<DTO> dtoClass;
+
+    public AbstractEndpoint(Class<DTO> dtoClass){
+        this.dtoClass = dtoClass;
+    }
 
     public AbstractEndpoint(Provider<?, DTO, REF> provider, Class<DTO> dtoClass) {
         this.provider = provider;
