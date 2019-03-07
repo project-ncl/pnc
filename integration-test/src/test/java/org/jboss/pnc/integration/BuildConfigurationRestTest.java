@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.path.json.JSONAssertion;
 import com.jayway.restassured.response.Response;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -56,9 +57,12 @@ import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -450,53 +454,53 @@ public class BuildConfigurationRestTest extends AbstractTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_repositoryConfigurationId", String.valueOf(repositoryConfigurationId));
+        configurationTemplate.addValue("_genParamValue1", "arbitrary_test_value=true");
 
 
         Response updatedBcResponse = given().headers(testHeaders)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
-
         ResponseAssertion.assertThat(updatedBcResponse).hasStatus(Status.OK.getStatusCode());
 
 
         Response bcAfterUpdateResponse = given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
-
         ResponseAssertion.assertThat(bcAfterUpdateResponse).hasStatus(Status.OK.getStatusCode());
         ResponseAssertion.assertThat(bcAfterUpdateResponse).hasJsonValueEqual("content.name", updatedName);
-
 
 
         Response revisionsResponse = given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions", configurationId));
-
         ResponseAssertion.assertThat(revisionsResponse).hasStatus(Status.OK.getStatusCode());
 
         int revIdToRestore = revisionsResponse.jsonPath().<Integer>get("content[1].rev");
-        String revNameToRestore = revisionsResponse.jsonPath().<String>get("content[1].name");
-
-        assertThat(revIdToRestore).isGreaterThan(0);
-        assertThat(revNameToRestore).isNotEmpty();
+        assertThat(revIdToRestore).isNotNull();
 
 
         // when
         Response restoreResponse = given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions/%d/restore", configurationId, revIdToRestore));
-
         ResponseAssertion.assertThat(restoreResponse).hasStatus(Status.OK.getStatusCode());
 
 
         // then
-        Response bcAfterRestoreResponse = given().headers(testHeaders)
+        Response restoredBuildConfigResponse = given().headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+        ResponseAssertion.assertThat(restoredBuildConfigResponse).hasStatus(Status.OK.getStatusCode());
 
-        ResponseAssertion.assertThat(bcAfterRestoreResponse).hasStatus(Status.OK.getStatusCode());
-        ResponseAssertion.assertThat(bcAfterRestoreResponse).hasJsonValueEqual("content.name", revNameToRestore);
+
+        ResponseAssertion.assertThat(restoredBuildConfigResponse)
+                .hasJsonValueEqual("content.name", revisionsResponse.jsonPath().get("content[1].name"));
+
+        // Verify generic parameters have been restored.
+        assertThat(restoredBuildConfigResponse.jsonPath().getMap("content.genericParameters", String.class, String.class))
+                .isEqualToComparingFieldByField(revisionsResponse.jsonPath().getMap("content[1].genericParameters", String.class, String.class));
     }
+
 
     @Test
     public void shouldAddDependencyBuildConfiguration() throws Exception {
