@@ -64,7 +64,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
-public interface ProductEndpoint{
+public interface ProductEndpoint {
     static final String P_ID = "ID of the product";
 
     @Operation(summary = "Gets all products.",
@@ -120,21 +120,6 @@ public interface ProductEndpoint{
     void update(
             @Parameter(description = P_ID) @PathParam("id") int id,
             Product product);
-
-    @Operation(summary = "Gets all build configs for a specific product.",
-            responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
-    @GET
-    @Path("/{id}/build-configurations")
-    Page<BuildConfiguration> getBuildConfigurations(
-            @Parameter(description = P_ID) @PathParam("id") int id,
-            @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Get all versions for a specific product.",
             responses = {

@@ -18,6 +18,10 @@
 package org.jboss.pnc.rest;
 
 import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
+import org.jboss.pnc.rest.endpoints.ProductEndpointImpl;
+import org.jboss.pnc.rest.endpoints.ProductMilestoneEndpointImpl;
+import org.jboss.pnc.rest.endpoints.ProductReleaseEndpointImpl;
+import org.jboss.pnc.rest.endpoints.ProductVersionEndpointImpl;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
 import javax.ws.rs.ApplicationPath;
@@ -70,6 +74,11 @@ public class JaxRsActivatorNew extends Application {
 
     private void addEndpoints(Set<Class<?>> resources) {
         resources.add(ArtifactEndpointImpl.class);
+
+        resources.add(ProductEndpointImpl.class);
+        resources.add(ProductMilestoneEndpointImpl.class);
+        resources.add(ProductReleaseEndpointImpl.class);
+        resources.add(ProductVersionEndpointImpl.class);
     }
 
     private void addExceptionMappers(Set<Class<?>> resources) {

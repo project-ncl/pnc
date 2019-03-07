@@ -211,6 +211,15 @@ public class ProductVersion implements GenericEntity<Integer> {
         this.attributes = attributes;
     }
 
+    public void generateBrewTagPrefix(String productAbbreviation, String version, String tagPattern) {
+        Properties properties = new Properties();
+        properties.put("product_short_name", productAbbreviation.toLowerCase());
+        properties.put("product_version", version);
+        String replaced = StringPropertyReplacer.replaceProperties(tagPattern, properties);
+
+        this.attributes.put(ATTRIBUTE_KEY_BREW_TAG_PREFIX, replaced);
+    }
+
     @Override
     public String toString() {
         return "ProductVersion [id=" + id + ", version=" + version + "]";

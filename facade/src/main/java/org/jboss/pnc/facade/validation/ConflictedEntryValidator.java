@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.validation;
+package org.jboss.pnc.facade.validation;
 
 import org.jboss.pnc.model.GenericEntity;
 
