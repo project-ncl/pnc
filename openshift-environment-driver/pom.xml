@@ -71,8 +71,8 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>javax.el</groupId>
-      <artifactId>el-api</artifactId>
+      <groupId>org.jboss.spec.javax.el</groupId>
+      <artifactId>jboss-el-api_3.0_spec</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

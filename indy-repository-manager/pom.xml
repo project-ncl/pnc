@@ -33,13 +33,14 @@
   <description>Logic to operate with remote Indy repository manager (Implementation of spi:org.jboss.pnc.spi.repositorymanager).</description>
 
   <properties>
-    <version.hibernate-search>5.6.0.Beta1</version.hibernate-search>
+    <version.hibernate-search>5.8.1.Final</version.hibernate-search>
     <version.weld>2.4.6.Final</version.weld>
+    <version.indy-resteasy>3.0.12.Final</version.indy-resteasy>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
       <scope>test</scope>
     </dependency>
@@ -153,6 +154,7 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <!-- TODO only here as lombok is too eager to do everything-->
     <dependency>
@@ -172,12 +174,32 @@
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
-        <version>3.0.9.Final</version>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>jaxrs-api</artifactId>
-        <version>3.0.9.Final</version>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-multipart-provider</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-client</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxb-provider</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.derby</groupId>
@@ -188,7 +210,7 @@
       <dependency>
         <groupId>javax.enterprise</groupId>
         <artifactId>cdi-api</artifactId>
-        <version>1.1</version>
+        <version>1.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -200,7 +222,7 @@
       <dependency>
         <groupId>org.infinispan</groupId>
         <artifactId>infinispan-core</artifactId>
-        <version>8.2.4.Final</version>
+        <version>9.4.7.Final</version>
         <scope>test</scope>
       </dependency>
       <dependency>

@@ -25,9 +25,11 @@ import org.jboss.pnc.integration.client.ProductRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
+import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
  * Time: 2:13 PM
  */
 @RunWith(Arquillian.class)
+@Category(ContainerTest.class)
 public class ProductRestTest extends AbstractTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

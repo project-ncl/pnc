@@ -42,6 +42,11 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>dto</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>test-common</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- java client dependencies -->
         <dependency>
@@ -57,7 +62,7 @@
         <!-- REST dependencies -->
         <dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
-            <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+            <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
