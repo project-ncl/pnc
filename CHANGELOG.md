@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4345] Add Pre-alignment SCM Revision
 - [NCL-3804] UI support for NPM build types
 - [NCL-3635] Build Config view rebuild in UI for enhanced performance
+- [NCL-4441] Added REST endpoint to restore a Build Config to a specific audited revision
 
 ## [1.4.4]
 
