@@ -501,6 +501,20 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .isEqualToComparingFieldByField(revisionsResponse.jsonPath().getMap("content[1].genericParameters", String.class, String.class));
     }
 
+    @Test
+    public void shouldReturn404WhenRevisionToRestoreDoesNotExist() throws Exception {
+        // given
+        int rev = Integer.MAX_VALUE;
+
+        // when
+        Response response = given().headers(testHeaders)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions/%d/restore", configurationId, rev));
+
+        // then
+        ResponseAssertion.assertThat(response).hasStatus(Status.NOT_FOUND.getStatusCode());
+    }
+
 
     @Test
     public void shouldAddDependencyBuildConfiguration() throws Exception {
