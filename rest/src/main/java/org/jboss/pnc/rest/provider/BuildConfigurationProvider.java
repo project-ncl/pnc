@@ -303,7 +303,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 .map(buildConfigurationAuditedToRestModel());
     }
 
-    public void restoreRevision(Integer id, Integer rev) {
+    public BuildConfigurationRest restoreRevision(Integer id, Integer rev) {
         IdRev idRev = new IdRev(id, rev);
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
         BuildConfiguration buildConfiguration = repository.queryById(id);
@@ -317,7 +317,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         buildConfiguration.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
         buildConfiguration.setGenericParameters(buildConfigurationAudited.getGenericParameters());
 
-        repository.save(buildConfiguration);
+        return new BuildConfigurationRest(repository.save(buildConfiguration));
     }
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
