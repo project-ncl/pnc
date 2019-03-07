@@ -395,7 +395,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/revisions/{rev}/restore")
     public Response restoreRevision(@PathParam("id") Integer id,
                                    @PathParam("rev") Integer rev) {
-        return Response.ok().build();
+        buildConfigurationProvider.restoreRevision(id, rev);
+        return fromEmpty();
     }
 
     @GET
