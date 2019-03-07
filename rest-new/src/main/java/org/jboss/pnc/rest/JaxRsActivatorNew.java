@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest;
 
+import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
 import javax.ws.rs.ApplicationPath;
@@ -68,6 +69,7 @@ public class JaxRsActivatorNew extends Application {
     }
 
     private void addEndpoints(Set<Class<?>> resources) {
+        resources.add(ArtifactEndpointImpl.class);
     }
 
     private void addExceptionMappers(Set<Class<?>> resources) {
