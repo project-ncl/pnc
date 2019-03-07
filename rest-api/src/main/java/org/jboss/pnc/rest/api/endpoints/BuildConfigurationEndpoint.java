@@ -318,6 +318,21 @@ public interface BuildConfigurationEndpoint {
             @BeanParam BuildParameters buildParams,
             @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
 
+    @Operation(summary = "Restores a build config to a specific audited revision",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = BuildConfiguration.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @POST
+    @Path("/{id}/revisions/{rev}/restore")
+    BuildConfiguration restoreRevision(
+            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = REV) @PathParam("rev") int rev
+    );
+
     @Operation(summary = "Starts a task of creating a new build config with a given SCM URL.",
             description = "The given SCM URL is automatically analyzed and if it's an external URL"
                     + "the content of the SCM repository is cloned into an internal repository.",
