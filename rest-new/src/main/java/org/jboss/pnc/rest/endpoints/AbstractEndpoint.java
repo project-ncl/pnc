@@ -21,21 +21,13 @@ import org.jboss.pnc.dto.DTOEntity;
 
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.Provider;
-import org.jboss.pnc.facade.validation.ConflictedEntryException;
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
-import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 
 public class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
 
@@ -72,7 +64,7 @@ public class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
         return dto;
     }
 
-    protected Page<DTO> getAll(@NotNull PageParameters pageParameters) {
+    protected Page<DTO> getAll(PageParameters pageParameters) {
         logger.debug("Retrieving " + dtoClass.getSimpleName() + "s with these " + pageParameters);
         return provider.getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
     };
