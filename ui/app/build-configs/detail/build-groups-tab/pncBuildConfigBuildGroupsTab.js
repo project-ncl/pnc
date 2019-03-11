@@ -39,19 +39,12 @@
     $ctrl.page = paginator($ctrl.buildGroups);
     $ctrl.displayFields = ['name', 'productVersion', 'buildStatus'];
 
-    $ctrl.onRemove = onRemove;
-
     // --------------------
 
 
     $ctrl.$onInit = function () {
 
     };
-
-
-    function onRemove(buildGroup) {
-      return buildGroup.$removeBuildConfiguration({ buildConfigId: $ctrl.buildConfig.id });
-    }
   }
 
 })();

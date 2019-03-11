@@ -18,12 +18,6 @@
 
 -->
 <div>
-  <script type="text/ng-template" id="pnc-build-groups-data-table-actions.html">
-    <div class="btn-group" role="group" aria-label="Item Actions">
-      <button class="btn btn-block btn-default" uib-tooltip="Remove Build Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildGroup)" pnc-confirm-message="{{ 'Confirm the removal of Build Group: ' + buildGroup.name +  ' ?'}}">Remove</button>
-    </div>
-  </script>
-  
   <div>
     <div class="btn-group pull-right m-b-20">
       <button type="button"
@@ -37,7 +31,7 @@
         <i class="pficon pficon-edit"></i> Edit
       </button>
     </div>
-    <pnc-build-groups-list build-groups="$ctrl.page.data" display-fields="$ctrl.displayFields" actions-template-url="pnc-build-groups-data-table-actions.html" actions-data="$ctrl.actions"></pnc-build-groups-list>
+    <pnc-build-groups-list build-groups="$ctrl.page.data" display-fields="$ctrl.displayFields"></pnc-build-groups-list>
     <pnc-page-controls class="pull-right m-t-10" pnc-page="$ctrl.page" ng-if="$ctrl.page"></pnc-page-controls>
   </div>
 </div>

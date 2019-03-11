@@ -29,11 +29,11 @@
        */
       displayFields: '<',
       /**
-       * 
+       * boolean: whether to display the actions columns or not
        */
       onEdit: '&',
       /**
-       * 
+       * function: Callback invoked when row level remove button pressed. Passed the build group it was invoked on. 
        */
       onRemove: '&'
     },
@@ -64,7 +64,6 @@
         $ctrl.page.refresh();
       });
     }
-
   }
 
 })();
