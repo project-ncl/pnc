@@ -41,7 +41,7 @@
       factory.build = function (resource, loader, initialIndex, pageSize) {
 
         var DEFAULT_INDEX = 0;
-        var DEFAULT_PAGE_SIZE = 10;
+        var DEFAULT_PAGE_SIZE = 20;
         if (_.isUndefined(initialIndex)) {
           initialIndex = DEFAULT_INDEX;
         }
