@@ -18,14 +18,15 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-configs').component('pncRelatedBuildConfigsEditableTable', {
+  angular.module('pnc.build-configs').component('pncBuildConfigsDataTable', {
     bindings: {
       page: '<',
       displayFields: '<',
+      hideActions: '@',
       onRemove: '&',
       onEdit: '&'
     },
-    templateUrl: 'build-configs/directives/pnc-related-build-configs-editable-table/pnc-related-build-configs-editable-table.html',
+    templateUrl: 'build-configs/directives/pnc-build-configs-data-table/pnc-build-configs-data-table.html',
     controller: ['$q', 'modalSelectService', Controller]
   });
 
@@ -48,7 +49,6 @@
 
     $ctrl.$onInit = function () {
     };
-
 
     function remove(buildConfig) {
       $q.when($ctrl.onRemove()(buildConfig)).then(function () {

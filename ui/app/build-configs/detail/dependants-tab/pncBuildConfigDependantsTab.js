@@ -31,7 +31,7 @@
   });
 
 
-  function Controller(paginator, BuildConfiguration) {
+  function Controller(paginator) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -39,24 +39,12 @@
     $ctrl.page = paginator($ctrl.dependants);
     $ctrl.displayFields = ['name', 'project', 'buildStatus'];
 
-    $ctrl.onRemove = onRemove;
-
     // --------------------
 
 
     $ctrl.$onInit = function () {
 
     };
-
-    function onRemove(dependant) {
-      console.log('dependant %O', dependant);
-
-      return BuildConfiguration.removeDependency({ 
-        id: dependant.id, 
-        dependencyId: $ctrl.buildConfig.id 
-      });
-    }
-
   }
 
 })();

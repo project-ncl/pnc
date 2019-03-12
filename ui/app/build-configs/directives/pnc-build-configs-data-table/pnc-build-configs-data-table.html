@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<script type="text/ng-template" id="pnc-related-build-configs-editable-table-actions.html">
+<script type="text/ng-template" id="pnc-build-configs-data-table-actions.html">
   <div class="btn-group" role="group" aria-label="Item Actions">
     <button class="btn btn-block btn-default" uib-tooltip="Remove Build Configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' ?'}}">Remove</button>
   </div>
@@ -36,7 +36,7 @@
       <i class="pficon pficon-edit"></i> Edit
     </button>
   </div>
-  <pnc-build-configs-list build-configs="$ctrl.page.data" display-fields="$ctrl.displayFields" actions-template-url="pnc-related-build-configs-editable-table-actions.html" actions-data="$ctrl.actions"></pnc-build-configs-list>
+  <pnc-build-configs-list build-configs="$ctrl.page.data" display-fields="$ctrl.displayFields" ng-attr-actions-template-url="{{ !$ctrl.hideActions && 'pnc-build-configs-data-table-actions.html' || undefined }}" actions-data="$ctrl.actions"></pnc-build-configs-list>
   <pnc-page-controls class="pull-right m-t-10" pnc-page="$ctrl.page" ng-if="$ctrl.page"></pnc-page-controls>
 </div>
 
