@@ -140,13 +140,21 @@ if (angular.isUndefined(window.pnc)) {
   function loadServerKeycloak(onload, config) {
     if (isKeycloakEnabled(config)) {
       var handleKeycloakLoadFailure = function() {
-        console.warn('Unable to load keycloak.js, authentication will be disabled');
         onBootNotifications.warn.push({
-          message: 'Unable to load keycloak.js, authentication disabled. See the user guide for more information',
+          message: 'Unable to load Keycloak: authentication disabled, check your certificates are installed properly or visit User Guide FAQ section.',
           actionTitle: 'User Guide',
           actionCallback: function () {
             window.open(config.userGuideUrl, '_blank');
-          }
+          },
+          persistent: true
+        });
+        onBootNotifications.info.push({
+          message: `Unable to load Keycloak: as a workaround, you can visit Keycloak Server directly and reload this page.`,
+          actionTitle: 'Keycloak Server',
+          actionCallback: function () {
+            window.open(script.src, '_blank');
+          },
+          persistent: true
         });
         config.keycloak = false;
         onload(config);

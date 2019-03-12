@@ -24,8 +24,7 @@
   module.factory('pncNotify', ['$log', 'Notifications', function($log, Notifications) {
       var drawerNotifications = [];
 
-      function logHelper(func, message, actionTitle, actionCallback, menuActions) {
-       var persistent = false;
+      function logHelper(func, message, actionTitle, actionCallback, menuActions, persistent = false) {
 
        // second parameter is header, fourth parameter is closeCallback
        func(message, '', persistent, undefined, actionTitle, actionCallback, menuActions);
@@ -38,17 +37,17 @@
       }
 
       return {
-         info: function(message, actionTitle, actionCallback, menuActions) {
-           logHelper(Notifications.info, message, actionTitle, actionCallback, menuActions);
+         info: function(message, actionTitle, actionCallback, menuActions, persistent) {
+           logHelper(Notifications.info, message, actionTitle, actionCallback, menuActions, persistent);
          },
-         success: function(message, actionTitle, actionCallback, menuActions) {
-           logHelper(Notifications.success, message, actionTitle, actionCallback, menuActions);
+         success: function(message, actionTitle, actionCallback, menuActions, persistent) {
+           logHelper(Notifications.success, message, actionTitle, actionCallback, menuActions, persistent);
          },
-         error: function(message, actionTitle, actionCallback, menuActions) {
-           logHelper(Notifications.error, message, actionTitle, actionCallback, menuActions);
+         error: function(message, actionTitle, actionCallback, menuActions, persistent) {
+           logHelper(Notifications.error, message, actionTitle, actionCallback, menuActions, persistent);
          },
-         warn: function(message, actionTitle, actionCallback, menuActions) {
-           logHelper(Notifications.warn, message, actionTitle, actionCallback, menuActions);
+         warn: function(message, actionTitle, actionCallback, menuActions, persistent) {
+           logHelper(Notifications.warn, message, actionTitle, actionCallback, menuActions, persistent);
          },
          toastNotifications: function() {
            return Notifications.data;

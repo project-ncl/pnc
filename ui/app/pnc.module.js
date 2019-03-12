@@ -129,7 +129,7 @@
           if(angular.isString(notification)) {
             pncNotify[key](notification);
           } else if (angular.isObject(notification)) {
-            pncNotify[key](notification.message, notification.actionTitle, notification.actionCallback, notification.menuActions);
+            pncNotify[key](notification.message, notification.actionTitle, notification.actionCallback, notification.menuActions, notification.persistent);
           }
         });
       });
