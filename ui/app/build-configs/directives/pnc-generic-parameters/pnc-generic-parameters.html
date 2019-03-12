@@ -42,9 +42,9 @@
 </div>
 
 <div class="form-group">
-  <label for="input-build-group-configs" class="col-sm-2 control-label"></label>
-  <div class="col-sm-10">
-    <span class="btn btn-default" ng-click="addGenericParameter()" ng-disabled="!genericParameter.key.selectedId || !genericParameter.value">Add Generic Parameter</span>
+  <div class="col-sm-12">
+    <span class="btn btn-default pull-right" ng-click="addGenericParameter()" ng-disabled="!genericParameter.key.selectedId || !genericParameter.value"
+      uib-tooltip="Submit&nbsp;a&nbsp;new&nbsp;item" tooltip-is-open="genericParameter.key.selectedId && genericParameter.value" tooltip-placement="top" tooltip-popup-delay="500">Add Generic Parameter</span>
   </div>
 </div>
 
