@@ -40,6 +40,7 @@
     $ctrl.isEditModeActive = isEditModeActive;
     $ctrl.onCancelEdit = onCancelEdit;
     $ctrl.onSuccess = onSuccess;
+    $ctrl.toggleEdit = toggleEdit;
 
     // --------------------
 
