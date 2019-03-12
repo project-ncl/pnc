@@ -44,8 +44,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +51,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -64,22 +61,7 @@ import java.util.stream.Collectors;
 public class ClientGenerator extends AbstractProcessor {
 
     private static final Logger logger = Logger.getLogger(ClientGenerator.class.getName());
-    public static final ParameterizedType MAP_OF_STRINGS = new ParameterizedType() {
-        @Override
-        public Type[] getActualTypeArguments() {
-            return new Type[]{String.class, String.class};
-        }
-
-        @Override
-        public Type getRawType() {
-            return Map.class;
-        }
-
-        @Override
-        public Type getOwnerType() {
-            return null;
-        }
-    };
+    private static final ParameterizedTypeName MAP_OF_STRINGS = ParameterizedTypeName.get(Map.class, String.class, String.class);
 
     public ClientGenerator() {
     }
@@ -143,7 +125,8 @@ public class ClientGenerator extends AbstractProcessor {
         return true;
     }
 
-    private MethodSpec buildMethod(ExecutableElement restApiMethod, boolean withParameters) {
+    private MethodSpec buildMethod(ExecutableElement restApiMethod,
+                                   boolean withQueryParams) {
         String parametersList = getParameters(restApiMethod);
 
         TypeMirror returnType = restApiMethod.getReturnType();
@@ -160,7 +143,7 @@ public class ClientGenerator extends AbstractProcessor {
         builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
                 .beginControlFlow("try");
 
-        if (withParameters) {
+        if (withQueryParams) {
             builder.addStatement("PncClientRequestParams.setParams(parameters)");
         }
 
@@ -176,7 +159,7 @@ public class ClientGenerator extends AbstractProcessor {
                     parameters.add("pageParameters");
                 }
             }
-            if (withParameters) {
+            if (withQueryParams) {
                 builder.addParameter(MAP_OF_STRINGS, "parameters");
             }
             String endpointInvokeParameters = String.join(", ", parameters);
@@ -188,7 +171,7 @@ public class ClientGenerator extends AbstractProcessor {
             .addStatement("return pageLoader.getCollection()");
         } else if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Singleton").toString())) {
             //single result
-            addDefaultParameters(restApiMethod, builder, withParameters);
+            addDefaultParameters(restApiMethod, builder, withQueryParams);
             if (restApiMethod.getAnnotation(GET.class) != null) {
                 builder
                         .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnGeneric)))
@@ -202,7 +185,7 @@ public class ClientGenerator extends AbstractProcessor {
             }
         } else if (ClassName.get(returnType).toString().equals("java.lang.String")) {
             //string response
-            addDefaultParameters(restApiMethod, builder, withParameters);
+            addDefaultParameters(restApiMethod, builder, withQueryParams);
             builder
                     .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(String.class)))
                     .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))")
@@ -210,7 +193,7 @@ public class ClientGenerator extends AbstractProcessor {
                     .addStatement("return Optional.empty()");
         } else if (ClassName.get(returnType).toString().equals("void")) {
             //void response
-            addDefaultParameters(restApiMethod, builder, withParameters);
+            addDefaultParameters(restApiMethod, builder, withQueryParams);
             builder
                     .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
                     .returns(TypeName.get(void.class))
@@ -219,7 +202,7 @@ public class ClientGenerator extends AbstractProcessor {
                     .addStatement("throw new RemoteResourceNotFoundException(e)");
         } else {
             //any other return types
-            addDefaultParameters(restApiMethod, builder, withParameters);
+            addDefaultParameters(restApiMethod, builder, withQueryParams);
             builder
                     .addException(ClassName.get("org.jboss.pnc.client", "ClientException"))
                     .returns(TypeName.get(returnType))
@@ -237,11 +220,11 @@ public class ClientGenerator extends AbstractProcessor {
 
     private void addDefaultParameters(ExecutableElement restApiMethod,
                                       MethodSpec.Builder builder,
-                                      boolean withParameters) {
+                                      boolean withQueryParams) {
         for (VariableElement parameter : restApiMethod.getParameters()) {
             builder.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
         }
-        if (withParameters) {
+        if (withQueryParams) {
             builder.addParameter(MAP_OF_STRINGS, "parameters");
         }
     }
@@ -251,6 +234,6 @@ public class ClientGenerator extends AbstractProcessor {
         for (VariableElement parameter : restApiMethod.getParameters()) {
             parameters.add(parameter.getSimpleName().toString());
         }
-        return parameters.stream().collect(Collectors.joining(", "));
+        return String.join(", ", parameters);
     }
 }
