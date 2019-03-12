@@ -35,7 +35,8 @@
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIGURATION_PATH;
 
       var resource = $resource(ENDPOINT, {
-        id: '@id'
+        id: '@id',
+        revisionId: '@rev'
       }, {
         query: {
           method: 'GET',
@@ -76,6 +77,10 @@
         getRevision: {
           method: 'GET',
           url: ENDPOINT + '/revisions/:revisionId'
+        },
+        restoreRevision: {
+          method: 'POST',
+          url: ENDPOINT + '/revisions/:revisionId/restore'
         }
       });
 
