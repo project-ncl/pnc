@@ -17,4 +17,11 @@
     limitations under the License.
 
 -->
-<div><pnc-build-config-properties build-config="$ctrl.revision"></pnc-build-config-properties></div>
+<div>
+  <div class="btn-toolbar pull-right" role="toolbar" aria-label="Revisions toolbar">
+    <div class="btn-group" role="group" aria-label="revisions buttons">
+      <button type="button" class="btn btn-default" uib-tooltip="Restore current revision" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.restore()" pnc-requires-auth><i class="pficon pficon-restart"></i> Restore</button>
+      </div>
+    </div>
+  <pnc-build-config-properties build-config="$ctrl.revision"></pnc-build-config-properties>
+</div>
