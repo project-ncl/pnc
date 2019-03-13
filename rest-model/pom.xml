@@ -64,6 +64,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
+      <scope>provided</scope>
     </dependency>
     <!-- TODO only here as lombok is too eager to do everything-->
     <dependency>
@@ -111,6 +112,11 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

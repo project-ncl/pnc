@@ -38,6 +38,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(onConstructor=@__({@Deprecated}))
+@Setter(onMethod=@__({@Deprecated}))
 public class RepositoryCreationProcessRest implements Serializable {
 
     @Getter

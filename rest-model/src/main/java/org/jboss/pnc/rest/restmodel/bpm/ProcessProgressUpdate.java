@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.restmodel.bpm;
 
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jboss.pnc.enums.BPMTaskStatus;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -37,6 +39,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Builder
 @XmlRootElement
 @ToString
+@NoArgsConstructor
+@Setter(onMethod=@__({@Deprecated}))
 public class ProcessProgressUpdate extends BpmNotificationRest {
 
     /**
