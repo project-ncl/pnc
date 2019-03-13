@@ -29,4 +29,11 @@ public interface GroupConfigurationProvider extends Provider<org.jboss.pnc.model
                                                                      String sortingRsql,
                                                                      String query,
                                                                      Integer productVersionId);
+
+
+    Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(int pageIndex,
+                                                                         int pageSize,
+                                                                         String sortingRsql,
+                                                                         String query,
+                                                                         Integer bcId);
 }
