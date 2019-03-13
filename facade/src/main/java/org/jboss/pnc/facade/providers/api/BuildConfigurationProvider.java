@@ -19,7 +19,10 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.response.Page;
+
+import java.util.Optional;
 
 public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> {
 
@@ -28,4 +31,25 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
                                                                      String sortingRsql,
                                                                      String query,
                                                                      Integer productVersionId);
+
+    Page<BuildConfiguration> getBuildConfigurationsForProject(int pageIndex,
+                                                              int pageSize,
+                                                              String sortingRsql,
+                                                              String query,
+                                                              Integer projectId);
+
+    BuildConfiguration clone(Integer buildConfigurationId);
+
+    void addDependency(Integer configId, Integer dependencyId);
+
+    void removeDependency(Integer configId, Integer dependencyId);
+
+    Page<BuildConfiguration> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query, Integer configId);
+
+
+    Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, Integer id);
+
+    BuildConfigurationRevision getRevision(Integer id, Integer rev);
+
+    Optional<BuildConfigurationRevision> getLatestAuditedMatchingBCRest(BuildConfiguration buildConfigurationRest);
 }

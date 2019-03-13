@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * Keep in mind that it is not managed by JPA and needs to be filled manually.
  *
  */
-public class BuildConfigurationAudited {
+public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 0L;
 

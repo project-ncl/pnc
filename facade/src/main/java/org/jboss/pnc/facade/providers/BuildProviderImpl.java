@@ -22,20 +22,38 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 
 @Stateless
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
+    private EntityManager entityManager;
+    private BuildConfigurationRepository buildConfigurationRepository;
+
     @Inject
-    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper) {
+    public BuildProviderImpl(BuildRecordRepository repository,
+                             BuildMapper mapper,
+                             EntityManager entityManager,
+                             BuildConfigurationRepository buildConfigurationRepository) {
+
         super(repository, mapper, BuildRecord.class);
+        this.entityManager = entityManager;
+        this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
     @Override
@@ -46,5 +64,32 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                                                       Integer milestoneId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withPerformedInMilestone(milestoneId));
+    }
+
+    @Override
+    public Page<Build> getBuildsForProject(int pageIndex,
+                                           int pageSize,
+                                           String sortingRsql,
+                                           String query,
+                                           Integer projectId) {
+
+        @SuppressWarnings("unchecked")
+        Set<Integer> buildConfigIds = buildConfigurationRepository
+                .queryWithPredicates(withProjectId(projectId))
+                .stream()
+                .map(BuildConfiguration::getId)
+                .collect(Collectors.toSet());
+
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationIds(buildConfigIds));
+    }
+
+    @Override
+    public Page<Build> getBuildsForBuildConfiguration(int pageIndex,
+                                                      int pageSize,
+                                                      String sortingRsql,
+                                                      String query,
+                                                      Integer buildConfigurationId) {
+
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
     }
 }

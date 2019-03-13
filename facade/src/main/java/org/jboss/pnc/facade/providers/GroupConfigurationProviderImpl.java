@@ -28,6 +28,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
 
 @Stateless
@@ -47,5 +48,15 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
                                                                             Integer productVersionId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId));
+    }
+
+    @Override
+    public Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(int pageIndex,
+                                                                                int pageSize,
+                                                                                String sortingRsql,
+                                                                                String query,
+                                                                                Integer bcId) {
+
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(bcId));
     }
 }

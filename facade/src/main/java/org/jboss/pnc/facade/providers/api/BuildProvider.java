@@ -29,4 +29,16 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
                                                String sortingRsql,
                                                String query,
                                                Integer milestoneId);
+
+    Page<Build> getBuildsForProject(int pageIndex,
+                                    int pageSize,
+                                    String sortingRsql,
+                                    String query,
+                                    Integer projectId);
+
+    Page<Build> getBuildsForBuildConfiguration(int pageIndex,
+                                               int pageSize,
+                                               String sortingRsql,
+                                               String query,
+                                               Integer buildConfigurationId);
 }
