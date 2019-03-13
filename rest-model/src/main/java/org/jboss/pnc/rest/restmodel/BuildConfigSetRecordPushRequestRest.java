@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
@@ -31,6 +33,8 @@ import javax.validation.constraints.NotNull;
 @JsonDeserialize(builder = BuildConfigSetRecordPushRequestRest.BuildConfigSetRecordPushRequestRestBuilder.class)
 @AllArgsConstructor
 @Builder
+@NoArgsConstructor
+@Setter(onMethod=@__({@Deprecated}))
 public class BuildConfigSetRecordPushRequestRest {
     @Getter
     private String tagPrefix;

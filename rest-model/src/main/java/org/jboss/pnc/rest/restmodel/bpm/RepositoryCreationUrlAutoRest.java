@@ -41,6 +41,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(onConstructor=@__({@Deprecated}))
+@Setter(onMethod=@__({@Deprecated}))
 public class RepositoryCreationUrlAutoRest implements Serializable {
 
     @Getter

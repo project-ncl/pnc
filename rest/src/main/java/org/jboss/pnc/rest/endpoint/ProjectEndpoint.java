@@ -105,7 +105,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
 
-        return Response.ok(buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sort, q, id)).build();
+        return fromCollection(buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sort, q, id));
     }
 
 }

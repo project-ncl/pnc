@@ -22,9 +22,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.TargetRepository;
@@ -34,12 +35,9 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.jboss.pnc.enums.RepositoryType;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -49,6 +47,8 @@ import org.jboss.pnc.enums.RepositoryType;
 @Builder
 @ToString
 @XmlRootElement(name = "TargetRepository")
+@NoArgsConstructor
+@Setter(onMethod=@__({@Deprecated}))
 public class TargetRepositoryRest implements GenericEntity<Integer> {
 
     @Getter

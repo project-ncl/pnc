@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,6 +36,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Builder
 @XmlRootElement(name = "RepositoryCreationResultRest")
 @ToString
+@NoArgsConstructor
+@Setter(onMethod=@__({@Deprecated}))
 public class RepositoryCreationResultRest extends BpmNotificationRest {
 
     @Override
@@ -42,16 +46,16 @@ public class RepositoryCreationResultRest extends BpmNotificationRest {
     }
 
     @Getter
-    private final Integer repositoryId;
+    private Integer repositoryId;
 
     @Getter
-    private final Integer buildConfigurationId;
+    private Integer buildConfigurationId;
 
     @Getter
-    private final EventType eventType;
+    private EventType eventType;
 
     @Getter
-    private final String errorMessage;
+    private String errorMessage;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class RepositoryCreationResultRestBuilder {
