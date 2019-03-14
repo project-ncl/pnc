@@ -19,14 +19,24 @@ package org.jboss.pnc.facade.rsql;
 
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildEnvironment_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
@@ -46,14 +56,25 @@ import static junit.framework.Assert.fail;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RSQLPredicateProducerTest {
 
-    RSQLPredicateProducerImpl producer = new RSQLPredicateProducerImpl();
+    @Mock
+    UniversalRSQLMapper universalMapper;
+
+    @InjectMocks
+    RSQLProducerImpl producer = new RSQLProducerImpl();
+
+    @Before
+    public void setupMocks() {
+        Class<?> foo = BuildRecord.class;
+        when(universalMapper.toPath(ArgumentMatchers.same(BuildRecord.class), any(), any())).then(callBuildRecordPath());
+    }
 
     @Test
     public void testCriteriaPredicate(){
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate
-                = producer.getCriteriaPredicate(this::toPath, "id==4");
+                = producer.getCriteriaPredicate(BuildRecord.class, "id==4");
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
@@ -69,7 +90,7 @@ public class RSQLPredicateProducerTest {
     @Test
     public void testCriteriaPredicateEmbeded(){
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate
-                = producer.getCriteriaPredicate(this::toPath, "environment.name==fooEnv");
+                = producer.getCriteriaPredicate(BuildRecord.class, "environment.name==fooEnv");
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
@@ -87,7 +108,7 @@ public class RSQLPredicateProducerTest {
     @Test
     public void testCriteriaPredicateUnknownQuery(){
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate
-                = producer.getCriteriaPredicate(this::toPath, "fieldThatDoesNotExists==\"FooBar\"");
+                = producer.getCriteriaPredicate(BuildRecord.class, "fieldThatDoesNotExists==\"FooBar\"");
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
@@ -99,25 +120,6 @@ public class RSQLPredicateProducerTest {
             // ok
         }
     }
-
-    private Path<?> toPath(From<?, BuildRecord> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(BuildRecord_.id);
-            case "environment":
-                return toPathEnvironment(from.join(BuildRecord_.buildEnvironment), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
-        }
-    }
-
-    private Path<?> toPathEnvironment(From<?, BuildEnvironment> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "name": return from.get(BuildEnvironment_.name);
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
-        }
-    }
-
 
     @Test
     public void testStreamPredicate(){
@@ -165,6 +167,33 @@ public class RSQLPredicateProducerTest {
             fail("Exception expected");
         }catch(RuntimeException ex){
             // ok
+        }
+    }
+
+    private Answer<Path<?>> callBuildRecordPath() {
+        return new Answer<Path<?>>() {
+            @Override
+            public Path<?> answer(InvocationOnMock invocation) throws Throwable {
+                return toPath(invocation.getArgument(1), invocation.getArgument(2));
+            }
+        };
+    }
+    
+    private Path<?> toPath(From<?, BuildRecord> from, RSQLSelectorPath selector) {
+        switch (selector.getElement()) {
+            case "id": return from.get(BuildRecord_.id);
+            case "environment":
+                return toPathEnvironment(from.join(BuildRecord_.buildEnvironment), selector.next());
+            default:
+                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+        }
+    }
+
+    private Path<?> toPathEnvironment(From<?, BuildEnvironment> from, RSQLSelectorPath selector) {
+        switch (selector.getElement()) {
+            case "name": return from.get(BuildEnvironment_.name);
+            default:
+                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
         }
     }
 }

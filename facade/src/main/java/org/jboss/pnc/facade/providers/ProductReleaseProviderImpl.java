@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
-import org.jboss.pnc.facade.rsql.mapper.ProductReleaseRSQLMapper;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 
 import javax.ejb.Stateless;
@@ -34,8 +33,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.wi
 public class ProductReleaseProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef> implements ProductReleaseProvider {
 
     @Inject
-    public ProductReleaseProviderImpl(ProductReleaseRepository repository, ProductReleaseMapper mapper, ProductReleaseRSQLMapper rsql) {
-        super(repository, mapper, rsql);
+    public ProductReleaseProviderImpl(ProductReleaseRepository repository, ProductReleaseMapper mapper) {
+        super(repository, mapper, org.jboss.pnc.model.ProductRelease.class);
     }
 
 

@@ -19,35 +19,41 @@ package org.jboss.pnc.facade.rsql;
 
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-
-import java.util.function.BiFunction;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public interface RSQLPredicateProducer {
+public interface RSQLProducer {
 
     /**
      * Creates a Criteria API predicate from RSQL query for DB search. It uses toPath function to
      * map RSQL selector to Criteria API Path. The predicate can throw a runtime exception when used
      * if the query is bad.
-     * @param <T> Type of the entity.
-     * @param toPath Function that converts RSQL selector to CriteriaAPI Path.
+     * @param <DB> Type of the entity.
+     * @param type Entity type.
      * @param rsql The query RSQL.
      * @return Predicate representing the RSQL query.
      */
-    <T extends GenericEntity<Integer>> Predicate<T> getCriteriaPredicate(BiFunction<From<?, T>, RSQLSelectorPath, Path> toPath, String rsql);
+    <DB extends GenericEntity<Integer>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql);
 
     /**
      * Creates a predicate from RSQL query for stream search. The predicate can throw a runtime
      * exception when used if the query is bad.
-     * @param <T> Type of the entity.
+     * @param <DB> Type of the entity.
      * @param rsql The query RSQL.
      * @return Predicate representing the RSQL query.
      */
-    <T> java.util.function.Predicate<T> getStreamPredicate(String rsql);
+    <DB> java.util.function.Predicate<DB> getStreamPredicate(String rsql);
+
+    /**
+     * Gets sort info based RSQL query.
+     *
+     * @param <DB> Type of the entity.
+     * @param type Entity type.
+     * @param rsql query for sorting, e.g. <code>"=asc=id"</code>.
+     * @return Sort Info object.
+     */
+    <DB extends GenericEntity<Integer>> SortInfo getSortInfo(Class<DB> type, String rsql);
 }

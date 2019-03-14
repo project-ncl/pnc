@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.facade.rsql.mapper.BuildRSQLMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
@@ -35,8 +34,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withP
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
     @Inject
-    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper, BuildRSQLMapper rsql) {
-        super(repository, mapper, rsql);
+    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper) {
+        super(repository, mapper, BuildRecord.class);
     }
 
     @Override

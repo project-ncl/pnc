@@ -79,7 +79,7 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
         String argument = node.getArguments().get(0);
         try {
             String propertyValue = BeanUtils.getProperty(instance, fieldName);
-            if (node.getOperator().equals(RSQLPredicateProducerImpl.IS_NULL)) {
+            if (node.getOperator().equals(RSQLProducerImpl.IS_NULL)) {
                 return Boolean.valueOf(propertyValue == null).equals(Boolean.valueOf(argument));
             }
             if (propertyValue == null) {
@@ -106,8 +106,8 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
                 NumberFormat numberFormat = NumberFormat.getInstance();
                 Number argumentNumber = numberFormat.parse(argument);
                 return numberFormat.parse(propertyValue).intValue() >= argumentNumber.intValue();
-            } else if (node.getOperator().equals(RSQLPredicateProducerImpl.LIKE)) {
-                argument = argument.replaceAll(RSQLPredicateProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
+            } else if (node.getOperator().equals(RSQLProducerImpl.LIKE)) {
+                argument = argument.replaceAll(RSQLProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
                 return propertyValue.matches(argument);
             } else if (node.getOperator().equals(RSQLOperators.IN)) {
                 return node.getArguments().contains(propertyValue);

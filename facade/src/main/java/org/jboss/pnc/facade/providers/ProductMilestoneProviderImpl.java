@@ -23,7 +23,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
-import org.jboss.pnc.facade.rsql.mapper.ProductMilestoneRSQLMapper;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -34,7 +33,6 @@ import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -52,10 +50,9 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
     @Inject
     public ProductMilestoneProviderImpl(ProductMilestoneRepository repository,
                                         ProductMilestoneMapper mapper,
-                                        ProductMilestoneRSQLMapper rsql,
                                         ProductMilestoneReleaseManager releaseManager) {
 
-        super(repository, mapper, rsql);
+        super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
         this.releaseManager = releaseManager;
     }

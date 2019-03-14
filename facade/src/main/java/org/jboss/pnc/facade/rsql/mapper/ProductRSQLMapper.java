@@ -17,36 +17,41 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.Product_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProductRSQLMapper implements RSQLMapper<Product>{
+public class ProductRSQLMapper extends AbstractRSQLMapper<Product> {
 
-    @Inject
-    private ProductVersionRSQLMapper pvm;
+    public ProductRSQLMapper() {
+        super(Product.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, Product> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(Product_.id);
-            case "name": return from.get(Product_.name);
-            case "description": return from.get(Product_.description);
-            case "abbreviation": return from.get(Product_.abbreviation);
-            case "productCode": return from.get(Product_.productCode);
-            case "pgmSystemName": return from.get(Product_.pgmSystemName);
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<Product, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<Product, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return Product_.id;
+            case "name": return Product_.name;
+            case "description": return Product_.description;
+            case "abbreviation": return Product_.abbreviation;
+            case "productCode": return Product_.productCode;
+            case "pgmSystemName": return Product_.pgmSystemName;
+            default: return null;
         }
     }
 

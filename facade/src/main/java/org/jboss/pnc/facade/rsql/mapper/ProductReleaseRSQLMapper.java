@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.rsql.mapper;
 
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease_;
@@ -26,35 +27,60 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProductReleaseRSQLMapper implements RSQLMapper<ProductRelease>{
+public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<ProductRelease> {
+
     @Inject
     private ProductVersionRSQLMapper pvm;
 
-    @Inject
-    private ProductMilestoneRSQLMapper pmm;
+    public ProductReleaseRSQLMapper() {
+        super(ProductRelease.class);
+    }
 
     @Override
     public Path<?> toPath(From<?, ProductRelease> from, RSQLSelectorPath selector) {
         switch (selector.getElement()) {
-            case "id": return from.get(ProductRelease_.id);
-            case "version": return from.get(ProductRelease_.version);
-            case "supportLevel": return from.get(ProductRelease_.supportLevel);
-            case "releaseDate": return from.get(ProductRelease_.releaseDate);
-            case "downloadUrl": return from.get(ProductRelease_.downloadUrl);
-            case "issueTrackerUrl": return from.get(ProductRelease_.issueTrackerUrl);
             case "productVersion":
                 return pvm.toPath(from.join(ProductRelease_.productMilestone)
                         .join(ProductMilestone_.productVersion), selector.next());
-            case "productMilestone":
-                return pmm.toPath(from.join(ProductRelease_.productMilestone), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+            default: return super.toPath(from, selector);
+        }
+    }
+
+    @Override
+    public String toPath(RSQLSelectorPath selector) {
+        switch (selector.getElement()) {
+            case "productVersion":
+                return ProductRelease_.productMilestone.getName() + '.'
+                        + ProductMilestone_.productVersion + '.' + pvm.toPath(selector);
+            default: return super.toPath(selector);
+        }
+    }
+
+    @Override
+    protected SingularAttribute<ProductRelease, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "productMilestone": return ProductRelease_.productMilestone;
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<ProductRelease, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return ProductRelease_.id;
+            case "version": return ProductRelease_.version;
+            case "supportLevel": return ProductRelease_.supportLevel;
+            case "releaseDate": return ProductRelease_.releaseDate;
+            case "downloadUrl": return ProductRelease_.downloadUrl;
+            case "issueTrackerUrl": return ProductRelease_.issueTrackerUrl;
+            default: return null;
         }
     }
 

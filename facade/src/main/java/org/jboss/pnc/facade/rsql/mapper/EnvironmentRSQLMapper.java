@@ -17,33 +17,43 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildEnvironment_;
+import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class EnvironmentRSQLMapper implements RSQLMapper<BuildEnvironment>{
+public class EnvironmentRSQLMapper extends AbstractRSQLMapper<BuildEnvironment> {
+
+    public EnvironmentRSQLMapper() {
+        super(BuildEnvironment.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, BuildEnvironment> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(BuildEnvironment_.id);
-            case "name": return from.get(BuildEnvironment_.name);
-            case "description": return from.get(BuildEnvironment_.description);
-            case "systemImageRepositoryUrl": return from.get(BuildEnvironment_.systemImageRepositoryUrl);
-            case "systemImageId": return from.get(BuildEnvironment_.systemImageId);
-            case "systemImageType": return from.get(BuildEnvironment_.systemImageType);
-            case "deprecated": return from.get(BuildEnvironment_.deprecated);
+    protected SingularAttribute<BuildEnvironment, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
             default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+                return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<BuildEnvironment, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return BuildEnvironment_.id;
+            case "name": return BuildEnvironment_.name;
+            case "description": return BuildEnvironment_.description;
+            case "systemImageRepositoryUrl": return BuildEnvironment_.systemImageRepositoryUrl;
+            case "systemImageId": return BuildEnvironment_.systemImageId;
+            case "systemImageType": return BuildEnvironment_.systemImageType;
+            case "deprecated": return BuildEnvironment_.deprecated;
+            default: return null;
         }
     }
 

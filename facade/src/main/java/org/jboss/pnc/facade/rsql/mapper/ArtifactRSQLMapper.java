@@ -17,43 +17,47 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.inject.Inject;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @ApplicationScoped
-public class ArtifactRSQLMapper implements RSQLMapper<Artifact> {
+public class ArtifactRSQLMapper extends AbstractRSQLMapper<Artifact> {
 
-    @Inject
-    TargetRepositoryRSQLMapper trm;
+    public ArtifactRSQLMapper() {
+        super(Artifact.class);
+    }
 
-    @Override public Path<?> toPath(From<?, Artifact> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(Artifact_.id);
-            case "identifier": return from.get(Artifact_.identifier);
-            case "md5": return from.get(Artifact_.md5);
-            case "sha1": return from.get(Artifact_.sha1);
-            case "sha256": return from.get(Artifact_.sha256);
-            case "filename": return from.get(Artifact_.filename);
-            case "deployPath": return from.get(Artifact_.deployPath);
-            case "originUrl": return from.get(Artifact_.originUrl);
-            case "size": return from.get(Artifact_.size);
-            case "importDate": return from.get(Artifact_.importDate);
-            case "artifactQuality": return from.get(Artifact_.artifactQuality);
-            case "targetRepository":
-                return trm.toPath(from.join(Artifact_.targetRepository), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    @Override
+    protected SingularAttribute<Artifact, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "targetRepository": return Artifact_.targetRepository;
+            default: return null;
+        }
+    }
 
-
+    @Override
+    protected SingularAttribute<Artifact, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return Artifact_.id;
+            case "identifier": return Artifact_.identifier;
+            case "md5": return Artifact_.md5;
+            case "sha1": return Artifact_.sha1;
+            case "sha256": return Artifact_.sha256;
+            case "filename": return Artifact_.filename;
+            case "deployPath": return Artifact_.deployPath;
+            case "originUrl": return Artifact_.originUrl;
+            case "size": return Artifact_.size;
+            case "importDate": return Artifact_.importDate;
+            case "artifactQuality": return Artifact_.artifactQuality;
+            case "targetRepository": return Artifact_.targetRepository;
+            default: return null;
         }
     }
 }
