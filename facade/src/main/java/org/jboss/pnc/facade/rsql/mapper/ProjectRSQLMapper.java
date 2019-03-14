@@ -17,35 +17,40 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.Project_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProjectRSQLMapper implements RSQLMapper<Project> {
+public class ProjectRSQLMapper extends AbstractRSQLMapper<Project> {
 
-    @Inject
-    private BuildConfigurationRSQLMapper bcm;
+    public ProjectRSQLMapper() {
+        super(Project.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, Project> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(Project_.id);
-            case "name": return from.get(Project_.name);
-            case "description": return from.get(Project_.description);
-            case "issueTrackerUrl": return from.get(Project_.issueTrackerUrl);
-            case "projectUrl": return from.get(Project_.projectUrl);
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<Project, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<Project, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return Project_.id;
+            case "name": return Project_.name;
+            case "description": return Project_.description;
+            case "issueTrackerUrl": return Project_.issueTrackerUrl;
+            case "projectUrl": return Project_.projectUrl;
+            default: return null;
         }
     }
 

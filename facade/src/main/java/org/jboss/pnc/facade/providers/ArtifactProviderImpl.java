@@ -21,13 +21,13 @@ import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.ArtifactMapper;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
-import org.jboss.pnc.facade.rsql.mapper.ArtifactRSQLMapper;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.Optional;
 
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
@@ -42,8 +42,8 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
 
     @Inject
     public ArtifactProviderImpl(ArtifactRepository repository,
-            ArtifactMapper mapper, ArtifactRSQLMapper rsql) {
-        super(repository, mapper, rsql);
+            ArtifactMapper mapper) {
+        super(repository, mapper, Artifact.class);
     }
 
 

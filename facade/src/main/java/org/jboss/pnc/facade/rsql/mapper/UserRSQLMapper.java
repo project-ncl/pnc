@@ -17,28 +17,37 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.User_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class UserRSQLMapper implements RSQLMapper<User>{
+public class UserRSQLMapper extends AbstractRSQLMapper<User> {
+
+    public UserRSQLMapper() {
+        super(User.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, User> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(User_.id);
-            case "username": return from.get(User_.username);
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<User, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<User, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return User_.id;
+            case "username": return User_.username;
+            default: return null;
         }
     }
 

@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
-import org.jboss.pnc.facade.rsql.mapper.BuildConfigurationRSQLMapper;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 import javax.ejb.Stateless;
@@ -36,9 +35,8 @@ public class BuildConfigurationProviderImpl
 
     @Inject
     public BuildConfigurationProviderImpl(BuildConfigurationRepository repository,
-                                          BuildConfigurationMapper mapper,
-                                          BuildConfigurationRSQLMapper rsql) {
-        super(repository, mapper, rsql);
+                                          BuildConfigurationMapper mapper) {
+        super(repository, mapper, org.jboss.pnc.model.BuildConfiguration.class);
     }
 
 

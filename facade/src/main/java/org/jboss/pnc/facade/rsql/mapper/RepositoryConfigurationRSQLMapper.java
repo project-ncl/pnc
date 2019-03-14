@@ -17,30 +17,39 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class RepositoryConfigurationRSQLMapper implements RSQLMapper<RepositoryConfiguration>{
+public class RepositoryConfigurationRSQLMapper extends AbstractRSQLMapper<RepositoryConfiguration> {
+
+    public RepositoryConfigurationRSQLMapper() {
+        super(RepositoryConfiguration.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, RepositoryConfiguration> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(RepositoryConfiguration_.id);
-            case "internalUrl": return from.get(RepositoryConfiguration_.internalUrl);
-            case "externalUrl": return from.get(RepositoryConfiguration_.externalUrl);
-            case "preBuildSyncEnabled": return from.get(RepositoryConfiguration_.preBuildSyncEnabled);
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<RepositoryConfiguration, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<RepositoryConfiguration, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return RepositoryConfiguration_.id;
+            case "internalUrl": return RepositoryConfiguration_.internalUrl;
+            case "externalUrl": return RepositoryConfiguration_.externalUrl;
+            case "preBuildSyncEnabled": return RepositoryConfiguration_.preBuildSyncEnabled;
+            default: return null;
         }
     }
 

@@ -17,37 +17,40 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import javax.enterprise.context.ApplicationScoped;
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.GenericEntity;
 
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 
+
 /**
- * Mappers that converts RSQL path with DTO field names to Criteria API path.
+ *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
- * @param <DB> The database entity type
  */
-public interface RSQLMapper<DB extends GenericEntity<Integer>> {
+@ApplicationScoped
+public class UniversalRSQLMapper {
 
-    /**
-     * Return the class for which this mapper works.
-     * @return
-     */
-    Class<DB> type();
+    @Inject
+    private Instance<RSQLMapper<?>> mappers;
 
-    /**
-     * Converts RSQL selector to Criteria API path.
-     * @param from The entity path node.
-     * @param selector The RSQL selector.
-     * @return Criteria API path equivalent of the RSQL selector.
-     */
-    Path<?> toPath(From<?, DB> from, RSQLSelectorPath selector);
+    public <DB extends GenericEntity<Integer>> Path<?> toPath(Class<DB> type, From<?, DB> from, RSQLSelectorPath selector){
+        return mapper(type).toPath(from, selector);
+    }
 
-    /**
-     * Converts RSQL selector to string with '.' separetaed list of entity field names.
-     * @param selector The RSQL selector
-     * @return String with entity field names separated by '.'.
-     */
-    String toPath(RSQLSelectorPath selector);
+    public <DB extends GenericEntity<Integer>> String toPath(Class<DB> type, RSQLSelectorPath selector){
+        return mapper(type).toPath(selector);
+    }
+
+    private <DB extends GenericEntity<Integer>> RSQLMapper<DB> mapper(Class<DB> type){
+        for (RSQLMapper<?> mapper : mappers) {
+            if(mapper.type() == type){
+                return (RSQLMapper<DB>) mapper;
+            }
+        }
+        throw new IllegalArgumentException("Missing RSQL mapper implementation for " + type);
+    }
 }

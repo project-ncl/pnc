@@ -17,30 +17,39 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @ApplicationScoped
-public class TargetRepositoryRSQLMapper implements RSQLMapper<TargetRepository> {
+public class TargetRepositoryRSQLMapper extends AbstractRSQLMapper<TargetRepository> {
 
-    @Override public Path<?> toPath(From<?, TargetRepository> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": from.get(TargetRepository_.id);
-            case "repositoryPath": from.get(TargetRepository_.repositoryPath);
-            case "repositoryType": from.get(TargetRepository_.repositoryType);
-            case "identifier": from.get(TargetRepository_.identifier);
-            case "temporaryRepo": from.get(TargetRepository_.temporaryRepo);
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    public TargetRepositoryRSQLMapper() {
+        super(TargetRepository.class);
+    }
+
+    @Override
+    protected SingularAttribute<TargetRepository, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            default: return null;
         }
+    }
 
+    @Override
+    protected SingularAttribute<TargetRepository, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return TargetRepository_.id;
+            case "repositoryPath": return TargetRepository_.repositoryPath;
+            case "repositoryType": return TargetRepository_.repositoryType;
+            case "identifier": return TargetRepository_.identifier;
+            case "temporaryRepo": return TargetRepository_.temporaryRepo;
+            default: return null;
+        }
     }
 }

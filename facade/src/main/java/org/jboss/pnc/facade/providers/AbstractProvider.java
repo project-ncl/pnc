@@ -24,7 +24,6 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenDeleting;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.Provider;
-import org.jboss.pnc.facade.rsql.RSQLPredicateProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 
 import com.google.common.collect.ObjectArrays;
@@ -43,10 +42,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.jboss.pnc.facade.mapper.api.EntityMapper;
-import org.jboss.pnc.facade.rsql.mapper.RSQLMapper;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 
 import javax.inject.Inject;
+
+import org.jboss.pnc.facade.rsql.RSQLProducer;
 
 /**
  * Abstract provider with common functionality.
@@ -62,10 +62,7 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     private static final Logger log = LoggerFactory.getLogger(AbstractProvider.class);
 
     @Inject
-    protected RSQLPredicateProducer rsqlPredicateProducer;
-
-    @Inject
-    protected SortInfoProducer sortInfoProducer;
+    protected RSQLProducer rsqlPredicateProducer;
 
     @Inject
     protected PageInfoProducer pageInfoProducer;
@@ -73,13 +70,13 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     protected Repository<DB, Integer> repository;
 
     protected EntityMapper<DB, DTO, REF> mapper;
-    
-    protected RSQLMapper<DB> rsql;
 
-    public AbstractProvider(Repository<DB, Integer> repository, EntityMapper<DB, DTO, REF> mapper, RSQLMapper<DB> rsql) {
+    protected final Class<DB> type;
+
+    public AbstractProvider(Repository<DB, Integer> repository, EntityMapper<DB, DTO, REF> mapper, Class<DB> type) {
         this.repository = repository;
         this.mapper = mapper;
-        this.rsql = rsql;
+        this.type = type;
     }
 
     @Override
@@ -117,9 +114,9 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     @Override
     public Page<DTO> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query,
             Predicate<DB>... predicates) {
-        Predicate<DB> rsqlPredicate = rsqlPredicateProducer.getCriteriaPredicate(rsql::toPath, query);
+        Predicate<DB> rsqlPredicate = rsqlPredicateProducer.getCriteriaPredicate(type, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, sortingRsql);
         List<DB> collection = repository.queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
         int totalHits = repository.count(ObjectArrays.concat(rsqlPredicate, predicates));
         int totalPages = (totalHits + pageSize - 1) / pageSize;

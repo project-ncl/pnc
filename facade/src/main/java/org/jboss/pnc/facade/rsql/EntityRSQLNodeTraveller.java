@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.facade.rsql;
 
-import static org.jboss.pnc.facade.rsql.RSQLPredicateProducerImpl.IS_NULL;
-import static org.jboss.pnc.facade.rsql.RSQLPredicateProducerImpl.LIKE;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.LIKE;
 import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

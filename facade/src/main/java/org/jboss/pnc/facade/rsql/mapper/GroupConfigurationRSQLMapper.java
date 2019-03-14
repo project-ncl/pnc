@@ -17,33 +17,38 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildConfigurationSet_;
+import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class GroupConfigurationRSQLMapper implements RSQLMapper<BuildConfigurationSet>{
-    @Inject
-    private ProductVersionRSQLMapper pvm;
+public class GroupConfigurationRSQLMapper extends AbstractRSQLMapper<BuildConfigurationSet> {
+
+    public GroupConfigurationRSQLMapper() {
+        super(BuildConfigurationSet.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, BuildConfigurationSet> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(BuildConfigurationSet_.id);
-            case "name": return from.get(BuildConfigurationSet_.name);
-            case "productVersion":
-                return pvm.toPath(from.join(BuildConfigurationSet_.productVersion), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<BuildConfigurationSet, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "productVersion": return BuildConfigurationSet_.productVersion;
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<BuildConfigurationSet, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return BuildConfigurationSet_.id;
+            case "name": return BuildConfigurationSet_.name;
+            default: return null;
         }
     }
 

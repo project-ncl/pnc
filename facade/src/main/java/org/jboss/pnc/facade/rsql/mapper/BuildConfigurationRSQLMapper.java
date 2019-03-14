@@ -17,57 +17,47 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfiguration_;
+import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildConfigurationRSQLMapper implements RSQLMapper<BuildConfiguration>{
+public class BuildConfigurationRSQLMapper extends AbstractRSQLMapper<BuildConfiguration>{
 
-    @Inject
-    private ProjectRSQLMapper pjm;
+    public BuildConfigurationRSQLMapper() {
+        super(BuildConfiguration.class);
+    }
 
-    @Inject
-    private RepositoryConfigurationRSQLMapper rcm;
-
-    @Inject
-    private EnvironmentRSQLMapper em;
-
-    @Inject
-    private ProductVersionRSQLMapper pvm;
-    
     @Override
-    public Path<?> toPath(From<?, BuildConfiguration> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(BuildConfiguration_.id);
-            case "name": return from.get(BuildConfiguration_.name);
-            case "description": return from.get(BuildConfiguration_.description);
-            case "buildScript": return from.get(BuildConfiguration_.buildScript);
-            case "scmRevision": return from.get(BuildConfiguration_.scmRevision);
-            case "creationTime": return from.get(BuildConfiguration_.creationTime);
-            case "modificationTime": return from.get(BuildConfiguration_.lastModificationTime);
-            case "archived": return from.get(BuildConfiguration_.active); // TODO: wierd entity behaviour for archived BCs
-            case "buildType": return from.get(BuildConfiguration_.buildType);
-            case "project":
-                return pjm.toPath(from.join(BuildConfiguration_.project), selector.next());
-            case "repositoryConfiguration":
-                return rcm.toPath(from.join(BuildConfiguration_.repositoryConfiguration), selector.next());
-            case "environment":
-                return em.toPath(from.join(BuildConfiguration_.buildEnvironment), selector.next());
-            case "productVersion":
-                return pvm.toPath(from.join(BuildConfiguration_.productVersion), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<BuildConfiguration, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "project": return BuildConfiguration_.project;
+            case "repositoryConfiguration": return BuildConfiguration_.repositoryConfiguration;
+            case "environment": return BuildConfiguration_.buildEnvironment;
+            case "productVersion": return BuildConfiguration_.productVersion;
+            default: return null;
         }
     }
 
+    @Override
+    protected SingularAttribute<BuildConfiguration, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return BuildConfiguration_.id;
+            case "name": return BuildConfiguration_.name;
+            case "description": return BuildConfiguration_.description;
+            case "buildScript": return BuildConfiguration_.buildScript;
+            case "scmRevision": return BuildConfiguration_.scmRevision;
+            case "creationTime": return BuildConfiguration_.creationTime;
+            case "modificationTime": return BuildConfiguration_.lastModificationTime;
+            case "buildType": return BuildConfiguration_.buildType;
+            default: return null;
+        }
+    }
 }

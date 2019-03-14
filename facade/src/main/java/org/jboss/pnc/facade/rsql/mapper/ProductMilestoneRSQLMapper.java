@@ -17,43 +17,44 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProductMilestoneRSQLMapper implements RSQLMapper<ProductMilestone>{
-    @Inject
-    private ProductVersionRSQLMapper pvm;
+public class ProductMilestoneRSQLMapper extends AbstractRSQLMapper<ProductMilestone> {
 
-    @Inject
-    private ProductReleaseRSQLMapper prm;
+    public ProductMilestoneRSQLMapper() {
+        super(ProductMilestone.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, ProductMilestone> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(ProductMilestone_.id);
-            case "version": return from.get(ProductMilestone_.version);
-            case "endDate": return from.get(ProductMilestone_.endDate);
-            case "startingDate": return from.get(ProductMilestone_.startingDate);
-            case "plannedEndDate": return from.get(ProductMilestone_.plannedEndDate);
-            case "downloadUrl": return from.get(ProductMilestone_.downloadUrl);
-            case "issueTrackerUrl": return from.get(ProductMilestone_.issueTrackerUrl);
-            case "productVersion":
-                return pvm.toPath(from.join(ProductMilestone_.productVersion), selector.next());
-            case "productRelease":
-                return prm.toPath(from.join(ProductMilestone_.productRelease), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<ProductMilestone, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "productVersion": return ProductMilestone_.productVersion;
+            case "productRelease": return ProductMilestone_.productRelease;
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<ProductMilestone, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return ProductMilestone_.id;
+            case "version": return ProductMilestone_.version;
+            case "endDate": return ProductMilestone_.endDate;
+            case "startingDate": return ProductMilestone_.startingDate;
+            case "plannedEndDate": return ProductMilestone_.plannedEndDate;
+            case "downloadUrl": return ProductMilestone_.downloadUrl;
+            case "issueTrackerUrl": return ProductMilestone_.issueTrackerUrl;
+            default: return null;
         }
     }
 

@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
-import org.jboss.pnc.facade.rsql.mapper.ProductVersionRSQLMapper;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.Product;
@@ -43,11 +42,10 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
     @Inject
     public ProductVersionProviderImpl(ProductVersionRepository repository,
                                       ProductVersionMapper mapper,
-                                      ProductVersionRSQLMapper rsql,
                                       ProductRepository productRepository,
                                       SystemConfig systemConfig) {
 
-        super(repository, mapper, rsql);
+        super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
         this.productRepository = productRepository;
         this.systemConfig = systemConfig;

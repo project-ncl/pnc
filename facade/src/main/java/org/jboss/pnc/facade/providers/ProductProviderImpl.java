@@ -23,7 +23,6 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.mapper.api.ProductMapper;
 import org.jboss.pnc.facade.providers.api.ProductProvider;
-import org.jboss.pnc.facade.rsql.mapper.ProductRSQLMapper;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
@@ -39,8 +38,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Product, Product, ProductRef> implements ProductProvider {
 
     @Inject
-    public ProductProviderImpl(ProductRepository repository, ProductMapper mapper, ProductRSQLMapper rsql) {
-        super(repository, mapper, rsql);
+    public ProductProviderImpl(ProductRepository repository, ProductMapper mapper) {
+        super(repository, mapper, org.jboss.pnc.model.Product.class);
     }
 
     @Override

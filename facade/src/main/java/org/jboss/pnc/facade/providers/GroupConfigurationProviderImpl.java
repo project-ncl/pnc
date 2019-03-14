@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
-import org.jboss.pnc.facade.rsql.mapper.GroupConfigurationRSQLMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
@@ -35,8 +34,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> implements GroupConfigurationProvider {
 
     @Inject
-    public GroupConfigurationProviderImpl(BuildConfigurationSetRepository repository, GroupConfigurationMapper mapper, GroupConfigurationRSQLMapper rsql) {
-        super(repository, mapper, rsql);
+    public GroupConfigurationProviderImpl(BuildConfigurationSetRepository repository, GroupConfigurationMapper mapper) {
+        super(repository, mapper, BuildConfigurationSet.class);
     }
 
 

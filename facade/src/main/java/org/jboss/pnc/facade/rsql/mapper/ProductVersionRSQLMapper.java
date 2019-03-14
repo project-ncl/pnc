@@ -17,39 +17,39 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProductVersionRSQLMapper implements RSQLMapper<ProductVersion>{
+public class ProductVersionRSQLMapper extends AbstractRSQLMapper<ProductVersion> {
 
-    @Inject
-    private ProductRSQLMapper pdm;
-
-    @Inject
-    private ProductMilestoneRSQLMapper pmm;
+    public ProductVersionRSQLMapper() {
+        super(ProductVersion.class);
+    }
 
     @Override
-    public Path<?> toPath(From<?, ProductVersion> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(ProductVersion_.id);
-            case "version": return from.get(ProductVersion_.version);
-            case "product":
-                return pdm.toPath(from.join(ProductVersion_.product), selector.next());
-            case "currentProductMilestone":
-                return pmm.toPath(from.join(ProductVersion_.currentProductMilestone), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<ProductVersion, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "product": return ProductVersion_.product;
+            case "currentProductMilestone": return ProductVersion_.currentProductMilestone;
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<ProductVersion, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return ProductVersion_.id;
+            case "version": return ProductVersion_.version;
+            default: return null;
         }
     }
 

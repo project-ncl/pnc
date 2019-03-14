@@ -17,43 +17,44 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
+import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildRSQLMapper implements RSQLMapper<BuildRecord>{
+public class BuildRSQLMapper extends AbstractRSQLMapper<BuildRecord> {
 
-    @Inject
-    private EnvironmentRSQLMapper em;
-    @Inject
-    private UserRSQLMapper um;
-    
+    public BuildRSQLMapper() {
+        super(BuildRecord.class);
+    }
+
     @Override
-    public Path<?> toPath(From<?, BuildRecord> from, RSQLSelectorPath selector) {
-        switch (selector.getElement()) {
-            case "id": return from.get(BuildRecord_.id);
-            case "submitTime": return from.get(BuildRecord_.submitTime);
-            case "startTime": return from.get(BuildRecord_.startTime);
-            case "endTime": return from.get(BuildRecord_.endTime);
-            case "status": return from.get(BuildRecord_.status);
-            case "buildContentId": return from.get(BuildRecord_.buildContentId);
-            case "temporaryBuild": return from.get(BuildRecord_.temporaryBuild);
-            case "environment":
-                return em.toPath(from.join(BuildRecord_.buildEnvironment), selector.next());
-            case "user":
-                return um.toPath(from.join(BuildRecord_.user), selector.next());
-            default:
-                throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
+    protected SingularAttribute<BuildRecord, ? extends GenericEntity<Integer>> toEntity(String name) {
+        switch (name) {
+            case "environment": return BuildRecord_.buildEnvironment;
+            case "user": return BuildRecord_.user;
+            default: return null;
+        }
+    }
+
+    @Override
+    protected SingularAttribute<BuildRecord, ?> toAttribute(String name) {
+        switch (name) {
+            case "id": return BuildRecord_.id;
+            case "submitTime": return BuildRecord_.submitTime;
+            case "startTime": return BuildRecord_.startTime;
+            case "endTime": return BuildRecord_.endTime;
+            case "status": return BuildRecord_.status;
+            case "buildContentId": return BuildRecord_.buildContentId;
+            case "temporaryBuild": return BuildRecord_.temporaryBuild;
+            default: return null;
         }
     }
 
