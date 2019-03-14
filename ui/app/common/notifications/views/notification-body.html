@@ -49,18 +49,18 @@
 
   <!-- show status icon -->
   <span ng-if="notification.type"
-        class="{{'pull-left ' + customScope.getNotficationStatusIconClass(notification)}}"
-        ng-click="customScope.markRead(notification)">
+        class="{{'pull-left ' + $ctrl.customScope.getNotficationStatusIconClass(notification)}}"
+        ng-click="$ctrl.customScope.markRead(notification)">
   </span>
 
   <!-- show message -->
   <span class="drawer-pf-notification-message"
-        ng-click="customScope.markRead(notification)">
+        ng-click="$ctrl.customScope.markRead(notification)">
     {{notification.message}}
   </span>
 
   <!-- show date of notification -->
-  <div class="drawer-pf-notification-info" ng-click="customScope.markRead(notification)">
+  <div class="drawer-pf-notification-info" ng-click="$ctrl.customScope.markRead(notification)">
     <span class="date">{{notification.timeStamp | date:'mediumDate'}}</span>
     <span class="time">{{notification.timeStamp | date:'mediumTime'}}</span>
   </div>
