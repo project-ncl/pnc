@@ -138,7 +138,7 @@
             <!-- notification bell -->
             <li class="drawer-pf-trigger dropdown" ng-controller="pncDrawerNotificationController">
               <a class="nav-item-iconic drawer-pf-trigger-icon" ng-click="toggleShowDrawer()">
-                <span class="fa" ng-class="hasDrawerNotifications() ? 'fa-bell': 'fa-bell-o'" title="Notifications"></span>
+                <span class="fa" ng-class="hasDrawerNotifications() ? 'fa-bell': 'fa-bell-o'" title="Notifications"></span> {{hasDrawerNotifications() ? 'Notifications': ''}}
               </a>
               <!-- show notification drawer -->
               <div class="layout-pf-fixed">
