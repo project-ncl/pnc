@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,7 +83,7 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMP
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
 
-    private static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_PUBLIC_REPOSITORIES";
+    static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_PUBLIC_REPOSITORIES";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -278,7 +280,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             // add extra repositories removed from poms by the adjust process and set in BC by user
             List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(genericParameters);
-            extraDependencyRepositories.addAll(execution.getArtifactRepositories());
+            if(execution.getArtifactRepositories() != null) {
+                extraDependencyRepositories.addAll(execution.getArtifactRepositories());
+            }
             addExtraConstituents(extraDependencyRepositories, id, buildContentId, indy, buildGroup);
 
             indy.stores().create(buildGroup, "Creating repository group for resolving artifacts in build: " + id
@@ -286,14 +290,24 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
-    private List<ArtifactRepository> extractExtraRepositoriesFromGenericParameters(Map<String, String> genericParameters) {
+    List<ArtifactRepository> extractExtraRepositoriesFromGenericParameters(Map<String, String> genericParameters) {
         String extraReposString = genericParameters.get(EXTRA_PUBLIC_REPOSITORIES_KEY);
         if (extraReposString == null)
-            return Collections.emptyList();
+            return new ArrayList<>();
 
         return Arrays.stream(extraReposString.split("\n"))
-                .map(repoString ->
-                        ArtifactRepository.build(repoString.trim(), repoString.trim(), repoString.trim(), true, false))
+                .map((repoString) -> {
+                    try {
+                        String id = new URL(repoString)
+                                .getHost()
+                                .replaceAll("\\.", "-");
+                        return ArtifactRepository.build(id, id, repoString.trim(), true, false);
+                    } catch (MalformedURLException e) {
+                        logger.info("Malformed repository URL entered: " + repoString + ". Skipping.");
+                        return null;
+                    }
+                })
+                .filter((x) -> x != null)
                 .collect(Collectors.toList());
     }
 
