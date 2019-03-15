@@ -34,6 +34,7 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -51,7 +52,7 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, Collections.emptyMap());
 
         assertThat(rc, notNullValue());
 

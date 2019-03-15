@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
@@ -50,7 +51,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, Collections.emptyMap());
 
         // simulate a build resolving an artifact via the AProx remote repository.
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));
