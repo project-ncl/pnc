@@ -26,9 +26,11 @@
     '$httpParamSerializerJQLike', 
     'keycloak',
     'authConfig', 
-    'UserDAO',
-    function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, UserDAO) {
+    'User',
+    function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, User) {
       var authService = {};
+
+      var pncUser;
 
       authService.isAuthenticated = function () {
         return keycloak.authenticated;
@@ -48,49 +50,39 @@
         }
       };
 
-      // returns user only if he is authenticated
       authService.getPncUser = function () {
-        var deferred = $q.defer();
-        if (keycloak.authenticated) {
-          return UserDAO._getAuthenticatedUser().$promise;
-        } else {
-          var msg = 'There is no authenticated user, keycloak.authenticated: ' + keycloak.authenticated;
-          $log.info(msg);
-          deferred.reject(msg);
-        }
-        return deferred.promise;
+        return $q((resolve, reject) => {
+          if (!authService.isAuthenticated) {
+            return reject('User is not authenticated');
+          } 
+          
+          if (!pncUser) {
+            pncUser =  User.getAuthenticatedUser().$promise;
+          }
+
+          resolve(pncUser);
+        });
       };
 
       authService.forUserId = function (userId) {
-        var user = authService.getPncUser();
-        var deferred = $q.defer();
-        user.then(function(pncUser) {
-          if (pncUser.id === userId) {
-            deferred.resolve();
-          } else {
-            deferred.reject('userId: ' + pncUser.id + ' didn\'t match: ' + userId);
-          }
-        }, function(error) {
-          deferred.reject(error);
+        return authService.getPncUser().then(user => {
+            if (user.id !== userId) {
+              return $q.reject();
+            }
         });
-
-        return deferred.promise;
       };
 
       authService.logout = function (redirectUri) {
-        var redirectTo = redirectUri || $window.location.href;
-        $log.info('Logout requested with post-logout redirect to: ' + redirectTo);
-        keycloak.logout(redirectTo);
+        pncUser = undefined;
+        keycloak.logout({ redirectUri: redirectUri || $window.location.href });
       };
 
       authService.login = function(redirectUri) {
-        var redirectTo = redirectUri || $window.location.href;
-        $log.info('Login requested with post-login redirect to: ' + redirectTo);
-        keycloak.login(redirectTo);
+        keycloak.login({ redirectUri: redirectUri || $window.location.href });
       };
 
       authService.logoutAsync = function () {
-        var promise = $http({
+        return $http({
           url: keycloak.tokenParsed.iss + '/protocol/openid-connect/logout',
           method: 'POST',
           data: $httpParamSerializerJQLike({
@@ -102,12 +94,18 @@
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           successNotification: false
+        })
+        .then(() => {
+          keycloak.clearToken();
+          pncUser = undefined;
         });
-        
-        keycloak.clearToken();
-
-        return promise;
       };
+
+
+      keycloak.onAuthSuccess = () => {
+        authService.getPncUser();
+      };
+
 
       return authService;
     }

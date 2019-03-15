@@ -141,12 +141,6 @@
       }]);
 
       messageBus.connect(restConfig.getPncNotificationsUrl());
-
-      if (authService.isAuthenticated()) {
-        authService.getPncUser().then(function (result) {
-          $log.info('Authenticated with PNC as: %O', result);
-        });
-      }
   }]);
 
 })();
