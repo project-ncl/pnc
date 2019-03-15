@@ -80,7 +80,8 @@
         },
         restoreRevision: {
           method: 'POST',
-          url: ENDPOINT + '/revisions/:revisionId/restore'
+          url: ENDPOINT + '/revisions/:revisionId/restore',
+          successNotification: false
         }
       });
 

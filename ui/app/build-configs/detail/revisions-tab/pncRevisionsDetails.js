@@ -43,7 +43,7 @@
 
     
     function restore() {
-      $ctrl.revision.$restoreRevision().then(() => {
+      BuildConfiguration.restoreRevision($ctrl.revision).$promise.then(() => {
         $state.go('^.^.default', {}, { reload: true });
         pncNotify.success('Revision: ' + $ctrl.revision.rev + ' of ' + $ctrl.revision.name + ' restored');
       });
