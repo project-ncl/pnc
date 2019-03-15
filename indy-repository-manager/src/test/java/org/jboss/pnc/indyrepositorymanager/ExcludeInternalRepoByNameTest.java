@@ -94,7 +94,7 @@ public class ExcludeInternalRepoByNameTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();

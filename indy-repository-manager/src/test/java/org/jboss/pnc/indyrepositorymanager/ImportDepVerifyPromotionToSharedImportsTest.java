@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import org.jboss.pnc.enums.RepositoryType;
@@ -52,7 +53,8 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
+
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
 
         // simulate a build resolving an artifact via the Indy remote repository.
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));

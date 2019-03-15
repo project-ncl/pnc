@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mavenrepositorymanager;
+package org.jboss.pnc.indyrepositorymanager;
 
 
 import org.commonjava.indy.client.core.IndyClientException;
@@ -23,7 +23,8 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
-import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -71,7 +72,7 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
         Map<String, String> genericParams = createGenericParamsMap("http://test.com/maven/");
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositorySession = driver.createBuildRepository(execution, accessToken, accessToken, genericParams);
+        RepositorySession repositorySession = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
         assertNotNull(repositorySession);
 
         StoreKey buildGroupKey = new StoreKey(MavenPackageTypeDescriptor.MAVEN_PKG_KEY, StoreType.group, repositorySession.getBuildRepositoryId());

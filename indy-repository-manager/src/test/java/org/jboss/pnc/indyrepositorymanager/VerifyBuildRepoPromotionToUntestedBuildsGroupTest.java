@@ -33,6 +33,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import org.jboss.pnc.enums.RepositoryType;
@@ -52,7 +53,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
 
         // create a dummy build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
 
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
 

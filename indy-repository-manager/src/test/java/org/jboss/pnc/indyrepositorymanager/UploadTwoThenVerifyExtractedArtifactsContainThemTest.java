@@ -39,6 +39,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,8 +59,8 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
 
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();
