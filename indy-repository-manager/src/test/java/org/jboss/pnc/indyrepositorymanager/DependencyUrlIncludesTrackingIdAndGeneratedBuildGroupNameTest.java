@@ -27,6 +27,8 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.util.Collections;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -41,9 +43,7 @@ public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken,
-                RepositoryType.MAVEN);
-
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
         assertThat(repositoryConfiguration, notNullValue());
 
         // verify the URLs in the connection info reference this build, and refer to a tracked repository group URL

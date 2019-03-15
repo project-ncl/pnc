@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.jboss.pnc.model.TargetRepository;
 
+import java.util.Collections;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -41,7 +43,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();

@@ -35,6 +35,7 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.jboss.pnc.enums.RepositoryType;
@@ -53,7 +54,7 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
 
         assertThat(rc, notNullValue());
 
