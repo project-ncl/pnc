@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -70,7 +71,7 @@ public class IndyPromotionValidationTest {
 
         try {
             RepositoryManager driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
-            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null);
+            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null, Collections.emptyMap());
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();
 

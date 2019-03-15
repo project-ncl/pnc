@@ -34,6 +34,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
@@ -56,7 +57,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
 
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken);
+        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, Collections.emptyMap());
 
         // simulate a build deploying a file.
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);

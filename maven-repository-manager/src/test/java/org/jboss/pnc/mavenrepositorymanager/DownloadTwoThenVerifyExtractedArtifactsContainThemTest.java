@@ -37,6 +37,7 @@ import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +67,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken);
+        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, Collections.emptyMap());
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();

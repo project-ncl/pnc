@@ -30,6 +30,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.function.Consumer;
+import java.util.Map;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
@@ -67,7 +68,7 @@ public class RepositoryManagerMock implements RepositoryManager {
 
     @Override
     public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken) throws RepositoryManagerException {
+            String serviceAccountToken, Map<String, String> genericParameters) throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;

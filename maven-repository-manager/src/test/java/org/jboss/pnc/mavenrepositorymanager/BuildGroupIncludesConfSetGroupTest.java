@@ -28,6 +28,8 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.util.Collections;
+
 import static org.apache.commons.lang.StringUtils.join;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -42,7 +44,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
         BuildExecution execution = new TestBuildExecution("build_myproject_67890");
         Indy indy = driver.getIndy(accessToken);
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, Collections.emptyMap());
         String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));
