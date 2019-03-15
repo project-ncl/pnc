@@ -77,18 +77,12 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
         StoreKey buildGroupKey = new StoreKey(MavenPackageTypeDescriptor.MAVEN_PKG_KEY, StoreType.group, repositorySession.getBuildRepositoryId());
         Group buildGroup = indy.stores().load(buildGroupKey, Group.class);
 
-        Optional<Integer> hits = buildGroup.getConstituents()
+        long hits = buildGroup.getConstituents()
                 .stream()
-                .map((key) -> {
-                    if (REPO_NAME.equals(key.getName())) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                })
-                .reduce((e1, e2) -> (e1 + e2));
-        assertTrue(hits.isPresent());
-        assertEquals(1, hits.get().intValue());
+                .filter((key) -> REPO_NAME.equals(key.getName()))
+                .count();
+
+        assertEquals(1, hits);
     }
 
     private Map<String, String> createGenericParamsMap(String repoString) {
