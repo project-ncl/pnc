@@ -52,6 +52,12 @@ public class ErrorResponse {
         this.details = null;
     }
 
+    public ErrorResponse(Exception e, Object details) {
+        this.errorType = e.getClass().getSimpleName();
+        this.errorMessage = e.getMessage();
+        this.details = details;
+    }
+
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
     }
