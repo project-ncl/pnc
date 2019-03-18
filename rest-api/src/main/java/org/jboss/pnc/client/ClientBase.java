@@ -28,7 +28,8 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
  */
 public abstract class ClientBase<T> {
 
-    protected final String BASE_PATH = "/pnc-rest/rest";
+    // TODO: change it when the endpoint is updated
+    protected final String BASE_PATH = "/pnc-rest-new/rest-new";
 
     protected final ResteasyClient client;
 
