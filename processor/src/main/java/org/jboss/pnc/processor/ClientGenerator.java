@@ -100,78 +100,120 @@ public class ClientGenerator extends AbstractProcessor {
                         }
                     }
 
-                    MethodSpec.Builder builder = MethodSpec.methodBuilder(restApiMethod.getSimpleName().toString())
-                            .addModifiers(Modifier.PUBLIC);
-
-                    builder.addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
-                            .beginControlFlow("try");
-
                     //startsWith because off the generics
                     if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Page").toString())) {
                         //Page result
-                        List<String> parameters = new ArrayList<>();
+
+                        List<VariableElement> defaultParameters = new ArrayList<>();
+                        List<String> endpointParameters = new ArrayList<>();
+                        boolean hasPageParameters = false;
+
+                        ClassName returnClass = ClassName.get("org.jboss.pnc.client", "RemoteCollection");
+
                         for (VariableElement parameter : restApiMethod.getParameters()) {
                             if (!ClassName.get(parameter.asType()).toString().equals("org.jboss.pnc.rest.api.parameters.PageParameters")) {
-                                builder.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
-                                parameters.add(parameter.getSimpleName().toString());
+                                defaultParameters.add(parameter);
+                                endpointParameters.add(parameter.getSimpleName().toString());
                             } else {
-                                parameters.add("pageParameters");
+                                hasPageParameters = true;
+                                endpointParameters.add("pageParameters");
                             }
                         }
-                        String endpointInvokeParameters = parameters.stream().collect(Collectors.joining(", "));
 
-                        ClassName className = ClassName.get("org.jboss.pnc.client", "RemoteCollection");
-                        builder.returns(ParameterizedTypeName.get(className, TypeName.get(returnGeneric)))
-                        .addStatement("PageReader pageLoader = new PageReader<>((pageParameters) -> getEndpoint()." + restApiMethod.getSimpleName() + "(" + endpointInvokeParameters + "), getRemoteCollectionConfig())")
-                        .addStatement("return pageLoader.getCollection()");
+                        MethodSpec.Builder defaultMethod = beginMethod(restApiMethod);
+                        for (VariableElement parameter : defaultParameters) {
+                            defaultMethod.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
+                        }
+                        String setSortAndQuery = "";
+                        if (hasPageParameters) {
+                            ParameterizedTypeName stringOptional = ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(String.class));
+                            defaultMethod.addParameter(stringOptional, "sort");
+                            defaultMethod.addParameter(stringOptional, "query");
+                            setSortAndQuery = "setSortAndQuery(pageParameters, sort, query);";
+                        }
+                        String endpointInvokeParameters = endpointParameters.stream()
+                                .collect(Collectors.joining(", "));
+
+                        defaultMethod.returns(ParameterizedTypeName.get(returnClass, TypeName.get(returnGeneric)))
+                                .addStatement("PageReader pageLoader = new PageReader<>((pageParameters) -> { " + setSortAndQuery + " return getEndpoint()." + restApiMethod.getSimpleName() + "(" + endpointInvokeParameters + ");}, getRemoteCollectionConfig())")
+                                .addStatement("return pageLoader.getCollection()");
+                        MethodSpec methodSpec = completeMethod(defaultMethod);
+                        methods.add(methodSpec);
+
+                        //without sort and query
+                        if (hasPageParameters) {
+                            MethodSpec.Builder simpleMethod = beginMethod(restApiMethod);
+                            simpleMethod.returns(ParameterizedTypeName.get(returnClass, TypeName.get(returnGeneric)));
+                            for (VariableElement parameter : defaultParameters) {
+                                simpleMethod.addParameter(TypeName.get(parameter.asType()), parameter.getSimpleName().toString());
+                            }
+
+                            List<String> defaultMethodParameters = defaultParameters.stream()
+                                    .map(p -> p.getSimpleName().toString())
+                                    .collect(Collectors.toList());
+                            defaultMethodParameters.add("Optional.empty()");
+                            defaultMethodParameters.add("Optional.empty()");
+
+                            String defaultMethodParametersString = defaultMethodParameters.stream()
+                                    .collect(Collectors.joining(", "));
+
+                            simpleMethod.addStatement("return " + restApiMethod.getSimpleName() + "(" + defaultMethodParametersString + ")");
+                            methods.add(completeMethod(simpleMethod));
+                        }
+
                     } else if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Singleton").toString())) {
                         //single result
-                        addDefaultParameters(restApiMethod, builder);
+                        MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
+                        addDefaultParameters(restApiMethod, methodBuilder);
                         if (restApiMethod.getAnnotation(GET.class) != null) {
-                            builder
+                            methodBuilder
                                     .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnGeneric)))
                                     .addStatement("return Optional.of(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())") //TODO check for empty Singleton
                                     .nextControlFlow("catch ($T e)", NotFoundException.class)
                                     .addStatement("return Optional.empty()");
                         } else if (restApiMethod.getAnnotation(POST.class) != null) {
-                            builder
+                            methodBuilder
                                     .returns(TypeName.get(returnGeneric))
                                     .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()");
                         }
+                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        methods.add(methodSpec);
                     } else if (ClassName.get(returnType).toString().equals("java.lang.String")) {
                         //string response
-                        addDefaultParameters(restApiMethod, builder);
-                        builder
+                        MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
+                        addDefaultParameters(restApiMethod, methodBuilder);
+                        methodBuilder
                                 .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(String.class)))
                                 .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))")
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("return Optional.empty()");
+                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        methods.add(methodSpec);
                     } else if (ClassName.get(returnType).toString().equals("void")) {
                         //void response
-                        addDefaultParameters(restApiMethod, builder);
-                        builder
+                        MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
+                        addDefaultParameters(restApiMethod, methodBuilder);
+                        methodBuilder
                                 .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
                                 .returns(TypeName.get(void.class))
                                 .addStatement("getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("throw new RemoteResourceNotFoundException(e)");
+                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        methods.add(methodSpec);
                     } else {
                         //any other return types
-                        addDefaultParameters(restApiMethod, builder);
-                        builder
+                        MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
+                        addDefaultParameters(restApiMethod, methodBuilder);
+                        methodBuilder
                                 .addException(ClassName.get("org.jboss.pnc.client", "ClientException"))
                                 .returns(TypeName.get(returnType))
                                 .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("throw new RemoteResourceNotFoundException(e)");
+                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        methods.add(methodSpec);
                     }
-
-                    MethodSpec methodSpec = builder
-                            .nextControlFlow("catch ($T e)", ClientErrorException.class)
-                            .addStatement("throw new RemoteResourceException(e)")
-                            .endControlFlow()
-                            .build();
-                    methods.add(methodSpec);
                 }
             }
 
@@ -202,6 +244,22 @@ public class ClientGenerator extends AbstractProcessor {
 
         }
         return true;
+    }
+
+    private MethodSpec completeMethod(MethodSpec.Builder methodBuilder) {
+        return methodBuilder
+                                .nextControlFlow("catch ($T e)", ClientErrorException.class)
+                                .addStatement("throw new RemoteResourceException(e)")
+                                .endControlFlow()
+                                .build();
+    }
+
+    private MethodSpec.Builder beginMethod(ExecutableElement restApiMethod) {
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(restApiMethod.getSimpleName().toString())
+                .addModifiers(Modifier.PUBLIC)
+                .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"));
+        methodBuilder.beginControlFlow("try");
+        return methodBuilder;
     }
 
     private void addDefaultParameters(ExecutableElement restApiMethod, MethodSpec.Builder builder) {

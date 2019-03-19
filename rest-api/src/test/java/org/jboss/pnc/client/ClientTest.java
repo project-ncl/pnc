@@ -59,6 +59,5 @@ public class ClientTest {
         }
 
         Assert.assertTrue(requestsReceived.intValue() > 2);
-
     }
 }
