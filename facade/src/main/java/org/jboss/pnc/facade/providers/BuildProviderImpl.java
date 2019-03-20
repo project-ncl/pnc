@@ -29,7 +29,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,21 +37,17 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
 @Stateless
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
-    private EntityManager entityManager;
     private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    public BuildProviderImpl(BuildRecordRepository repository,
-                             BuildMapper mapper,
-                             EntityManager entityManager,
-                             BuildConfigurationRepository buildConfigurationRepository) {
-
+    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper, BuildConfigurationRepository buildConfigurationRepository) {
         super(repository, mapper, BuildRecord.class);
-        this.entityManager = entityManager;
+
         this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
@@ -91,5 +86,15 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                                                       Integer buildConfigurationId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
+    }
+
+    @Override
+    public Page<Build> getBuildsForUser(int pageIndex,
+                                        int pageSize,
+                                        String sortingRsql,
+                                        String query,
+                                        Integer userId) {
+
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withUserId(userId));
     }
 }
