@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.api.Provider;
 
 public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
 
@@ -41,4 +40,10 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
                                                String sortingRsql,
                                                String query,
                                                Integer buildConfigurationId);
+ 
+    Page<Build> getBuildsForUser(int pageIndex,
+                                 int pageSize,
+                                 String sortingRsql,
+                                 String query,
+                                 Integer userId);
 }

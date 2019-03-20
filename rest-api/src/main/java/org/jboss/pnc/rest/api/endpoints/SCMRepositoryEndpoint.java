@@ -83,8 +83,8 @@ public interface SCMRepositoryEndpoint{
     @GET
     Page<SCMRepository> getAll(
             @BeanParam PageParameters pageParameters,
-            @Parameter(description = "Url to search for") @QueryParam(MATCH_QUERY_PARAM) String url,
-            @Parameter(description = "Url part to search for") @QueryParam(SEARCH_QUERY_PARAM) String scmUrl);
+            @Parameter(description = "Url to search for") @QueryParam(MATCH_QUERY_PARAM) String matchUrl,
+            @Parameter(description = "Url part to search for") @QueryParam(SEARCH_QUERY_PARAM) String searchUrl);
 
     @Operation(summary = "Gets a specific SCM repository.",
             responses = {
