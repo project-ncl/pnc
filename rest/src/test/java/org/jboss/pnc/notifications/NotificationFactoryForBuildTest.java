@@ -45,8 +45,8 @@ public class NotificationFactoryForBuildTest {
 
         // given
         String buildConfigurationName = "Build1";
-        Instant startTime = new Date(1453118400000L).toInstant();
-        Instant endTime = new Date(1453122000000L).toInstant();
+        Date startTime = new Date(1453118400000L);
+        Date endTime = new Date(1453122000000L);
         Build build = Build.builder()
                 .id(1)
                 .status(BuildCoordinationStatus.DONE)

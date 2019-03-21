@@ -24,7 +24,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.time.Instant;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -60,7 +60,7 @@ public class ArtifactRef implements DTOEntity {
 
     protected final String deployPath;
 
-    protected final Instant importDate;
+    protected final Date importDate;
 
     protected final String originUrl;
 

@@ -29,8 +29,8 @@ import org.jboss.pnc.enums.SystemImageType;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -79,7 +79,7 @@ public class NotificationTest {
 
         Build build = Build.builder()
                 .id(1)
-                .submitTime(Instant.ofEpochMilli(1526473388394L))
+                .submitTime(new Date(1526473388394L))
                 .project(projectRef)
                 .repository(scmRepository)
                 .environment(buildEnvironment)
@@ -98,7 +98,7 @@ public class NotificationTest {
         String buildChangedPayloadString = JsonOutputConverterMapper.apply(buildChangedPayload);
         System.out.println(buildChangedPayloadString);
 
-        String serialized = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"oldStatus\":\"BUILDING\",\"build\":{\"id\":1,\"submitTime\":1526473388.394000000,\"status\":\"BUILDING\",\"buildContentId\":\"build-42\",\"temporaryBuild\":true,\"project\":{\"id\":1,\"name\":\"A\",\"description\":\"desc\",\"issueTrackerUrl\":\"url2\",\"projectUrl\":\"url1\"},\"repository\":{\"id\":1,\"internalUrl\":\"url1\",\"externalUrl\":\"url2\",\"preBuildSyncEnabled\":true},\"environment\":{\"id\":1,\"name\":\"jdk8\",\"description\":\"desc\",\"systemImageRepositoryUrl\":\"url\",\"systemImageId\":\"11\",\"systemImageType\":\"DOCKER_IMAGE\",\"deprecated\":true},\"user\":{\"id\":1,\"username\":\"user\"},\"buildConfigurationAudited\":{\"id\":1,\"rev\":1,\"name\":\"name\",\"description\":\"desc\",\"buildScript\":\"true\",\"scmRevision\":\"awqs21\"},\"dependencyBuildIds\":[1,2,3]}}}";
+        String serialized = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"oldStatus\":\"BUILDING\",\"build\":{\"id\":1,\"submitTime\":1526473388394,\"status\":\"BUILDING\",\"buildContentId\":\"build-42\",\"temporaryBuild\":true,\"project\":{\"id\":1,\"name\":\"A\",\"description\":\"desc\",\"issueTrackerUrl\":\"url2\",\"projectUrl\":\"url1\"},\"repository\":{\"id\":1,\"internalUrl\":\"url1\",\"externalUrl\":\"url2\",\"preBuildSyncEnabled\":true},\"environment\":{\"id\":1,\"name\":\"jdk8\",\"description\":\"desc\",\"systemImageRepositoryUrl\":\"url\",\"systemImageId\":\"11\",\"systemImageType\":\"DOCKER_IMAGE\",\"deprecated\":true},\"user\":{\"id\":1,\"username\":\"user\"},\"buildConfigurationAudited\":{\"id\":1,\"rev\":1,\"name\":\"name\",\"description\":\"desc\",\"buildScript\":\"true\",\"scmRevision\":\"awqs21\"},\"dependencyBuildIds\":[1,2,3]}}}";
         Notification notification = new Notification(serialized);
 
         Assert.assertEquals(EventType.BUILD_STATUS_CHANGED, notification.getEventType());

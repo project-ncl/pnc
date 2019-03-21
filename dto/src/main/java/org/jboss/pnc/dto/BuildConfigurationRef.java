@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 
-import java.time.Instant;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -57,9 +57,9 @@ public class BuildConfigurationRef implements DTOEntity {
 
     protected final String scmRevision;
 
-    protected final Instant creationTime;
+    protected final Date creationTime;
 
-    protected final Instant modificationTime;
+    protected final Date modificationTime;
 
     protected final boolean archived;
 

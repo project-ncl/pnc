@@ -29,7 +29,7 @@ import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.time.Instant;
+import java.util.Date;
 
 /**
  *
@@ -48,9 +48,9 @@ public class ProductMilestoneRelease implements DTOEntity {
 
     protected final String log;
 
-    protected final Instant endDate;
+    protected final Date endDate;
 
-    protected final Instant startingDate;
+    protected final Date startingDate;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

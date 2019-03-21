@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 
-import java.time.Instant;
+import java.util.Date;
 
 /**
  *
@@ -48,11 +48,11 @@ public class ProductMilestoneRef implements DTOEntity {
     @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_MILESTONE_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     protected final String version;
 
-    protected final Instant endDate;
+    protected final Date endDate;
 
-    protected final Instant startingDate;
+    protected final Date startingDate;
 
-    protected final Instant plannedEndDate;
+    protected final Date plannedEndDate;
 
     protected final String downloadUrl;
 

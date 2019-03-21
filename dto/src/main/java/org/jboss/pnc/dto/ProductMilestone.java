@@ -20,7 +20,7 @@ package org.jboss.pnc.dto;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -46,7 +46,7 @@ public class ProductMilestone extends ProductMilestoneRef {
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder")
-    private ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
+    private ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Date endDate, Date startingDate, Date plannedEndDate, String downloadUrl, String issueTrackerUrl) {
         super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
         this.performedBuilds = performedBuilds;

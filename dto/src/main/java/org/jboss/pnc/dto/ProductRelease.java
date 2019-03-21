@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SupportLevel;
 
-import java.time.Instant;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -43,7 +43,7 @@ public class ProductRelease extends ProductReleaseRef {
     private final ProductMilestoneRef productMilestone;
 
     @lombok.Builder(builderClassName = "Builder")
-    private ProductRelease(ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
+    private ProductRelease(ProductVersionRef productVersion, ProductMilestoneRef productMilestone, Integer id, String version, SupportLevel supportLevel, Date releaseDate, String downloadUrl, String issueTrackerUrl) {
         super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
         this.productMilestone = productMilestone;

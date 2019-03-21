@@ -29,7 +29,7 @@ import org.jboss.pnc.enums.SupportLevel;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.time.Instant;
+import java.util.Date;
 
 /**
  *
@@ -47,7 +47,7 @@ public class ProductReleaseRef implements DTOEntity {
 
     protected final SupportLevel supportLevel;
 
-    protected final Instant releaseDate;
+    protected final Date releaseDate;
 
     protected final String downloadUrl;
 

@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildType;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +58,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
     private final Map<String, String> genericParameters;
 
     @lombok.Builder(builderClassName = "Builder")
-    private BuildConfiguration(SCMRepository repository, ProjectRef project, Environment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
+    private BuildConfiguration(SCMRepository repository, ProjectRef project, Environment environment, Set<Integer> dependencyIds, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Date creationTime, Date modificationTime, boolean archived, BuildType buildType) {
         super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, archived, buildType);
         this.repository = repository;
         this.project = project;

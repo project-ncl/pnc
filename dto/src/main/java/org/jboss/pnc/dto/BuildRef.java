@@ -24,7 +24,7 @@ import org.jboss.pnc.enums.BuildCoordinationStatus;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.time.Instant;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -45,11 +45,11 @@ public class BuildRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
-    protected final Instant submitTime;
+    protected final Date submitTime;
 
-    protected final Instant startTime;
+    protected final Date startTime;
 
-    protected final Instant endTime;
+    protected final Date endTime;
 
     protected final BuildCoordinationStatus status;
 
