@@ -162,6 +162,29 @@
 
   <build>
     <finalName>${project.artifactId}</finalName>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-ear-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifestEntries combine.children="append">
+                <Dependencies>
+                  org.apache.commons.beanutils,
+                  org.apache.commons.codec,
+                  org.apache.commons.collections,
+                  org.apache.commons.io,
+                  org.apache.commons.lang,
+                  org.apache.commons.lang3,
+                  org.apache.httpcomponents.core
+                </Dependencies>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

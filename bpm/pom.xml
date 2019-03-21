@@ -108,22 +108,26 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-ejb-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifestEntries combine.children="append">
+                <Dependencies>
+                  org.jboss.resteasy.resteasy-jaxrs export meta-inf,
+                  org.jboss.resteasy.resteasy-jaxb-provider export meta-inf,
+                  org.apache.httpcomponents export meta-inf
+                </Dependencies>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Dependencies>
-                org.jboss.resteasy.resteasy-jaxrs export meta-inf,
-                org.jboss.resteasy.resteasy-jaxb-provider export meta-inf,
-                org.apache.httpcomponents export meta-inf
-              </Dependencies>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-ejb-plugin</artifactId>
         <configuration>
