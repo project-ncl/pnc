@@ -35,16 +35,17 @@ import java.util.Optional;
 public class ArtifactEndpointImpl extends AbstractEndpoint<Artifact, ArtifactRef> implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
+    
+    @Inject
     private ArtifactProvider artifactProvider;
 
     public ArtifactEndpointImpl(){
         super(Artifact.class);
     }
 
-    @Inject
-    public ArtifactEndpointImpl(ArtifactProvider provider) {
-        super(provider, Artifact.class);
-        this.artifactProvider = provider;
+    @Override
+    protected ArtifactProvider provider() {
+        return artifactProvider;
     }
 
     @Override

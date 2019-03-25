@@ -35,16 +35,16 @@ public class ProductReleaseEndpointImpl
         extends AbstractEndpoint<ProductRelease, ProductReleaseRef>
         implements ProductReleaseEndpoint {
 
+    @Inject
     private ProductReleaseProvider productReleaseProvider;
 
     public ProductReleaseEndpointImpl() {
         super(ProductRelease.class);
     }
 
-    @Inject
-    public ProductReleaseEndpointImpl(ProductReleaseProvider productReleaseProvider) {
-        super(productReleaseProvider, ProductRelease.class);
-        this.productReleaseProvider = productReleaseProvider;
+    @Override
+    protected ProductReleaseProvider provider() {
+        return productReleaseProvider;
     }
 
     @Override

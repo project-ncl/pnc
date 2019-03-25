@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -39,8 +38,13 @@ public class ProductMilestoneEndpointImpl
         extends AbstractEndpoint<ProductMilestone, ProductMilestoneRef>
         implements ProductMilestoneEndpoint {
 
+    @Inject
     private ProductMilestoneProvider productMilestoneProvider;
+    
+    @Inject
     private BuildProvider buildProvider;
+    
+    @Inject
     private AuthenticationProvider authenticationProvider;
 
     @Context
@@ -50,16 +54,9 @@ public class ProductMilestoneEndpointImpl
         super(ProductMilestone.class);
     }
 
-    @Inject
-    public ProductMilestoneEndpointImpl(ProductMilestoneProvider productMilestoneProvider,
-                                        BuildProvider buildProvider,
-                                        AuthenticationProviderFactory authenticationProviderFactory) {
-
-        super(productMilestoneProvider, ProductMilestone.class);
-
-        this.productMilestoneProvider = productMilestoneProvider;
-        this.buildProvider = buildProvider;
-        this.authenticationProvider = authenticationProviderFactory.getProvider();
+    @Override
+    protected ProductMilestoneProvider provider() {
+        return productMilestoneProvider;
     }
 
     @Override
