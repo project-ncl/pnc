@@ -32,20 +32,19 @@ import javax.inject.Inject;
 @Stateless
 public class ProductEndpointImpl extends AbstractEndpoint<Product, ProductRef> implements ProductEndpoint {
 
+    @Inject
     private ProductProvider productProvider;
+
+    @Inject
     private ProductVersionProvider productVersionProvider;
 
     public ProductEndpointImpl() {
         super(Product.class);
     }
 
-    @Inject
-    public ProductEndpointImpl(ProductProvider productProvider, ProductVersionProvider productVersionProvider) {
-
-        super(productProvider, Product.class);
-
-        this.productProvider = productProvider;
-        this.productVersionProvider = productVersionProvider;
+    @Override
+    protected ProductProvider provider() {
+        return productProvider;
     }
 
     @Override

@@ -37,24 +37,22 @@ public class ProjectEndpointImpl
         extends AbstractEndpoint<Project, ProjectRef>
         implements ProjectEndpoint {
 
+    @Inject
     private ProjectProvider projectProvider;
+    
+    @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
+    
+    @Inject
     private BuildProvider buildProvider;
 
     public ProjectEndpointImpl() {
         super(Project.class);
     }
 
-    @Inject
-    public ProjectEndpointImpl(ProjectProvider projectProvider,
-                               BuildConfigurationProvider buildConfigurationProvider,
-                               BuildProvider buildProvider) {
-
-        super(projectProvider, Project.class);
-
-        this.projectProvider = projectProvider;
-        this.buildConfigurationProvider = buildConfigurationProvider;
-        this.buildProvider = buildProvider;
+    @Override
+    protected ProjectProvider provider() {
+        return projectProvider;
     }
 
     @Override

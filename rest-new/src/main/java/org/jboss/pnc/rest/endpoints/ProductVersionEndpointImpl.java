@@ -40,30 +40,28 @@ public class ProductVersionEndpointImpl
         extends AbstractEndpoint<ProductVersion, ProductVersionRef>
         implements ProductVersionEndpoint {
 
+    @Inject
     private ProductVersionProvider productVersionProvider;
+    
+    @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
+    
+    @Inject
     private GroupConfigurationProvider groupConfigurationProvider;
+    
+    @Inject
     private ProductMilestoneProvider productMilestoneProvider;
+    
+    @Inject
     private ProductReleaseProvider productReleaseProvider;
 
     public ProductVersionEndpointImpl() {
         super(ProductVersion.class);
     }
 
-    @Inject
-    public ProductVersionEndpointImpl(ProductVersionProvider productVersionProvider,
-                                      BuildConfigurationProvider buildConfigurationProvider,
-                                      GroupConfigurationProvider groupConfigurationProvider,
-                                      ProductMilestoneProvider productMilestoneProvider,
-                                      ProductReleaseProvider productReleaseProvider) {
-
-        super(productVersionProvider, ProductVersion.class);
-
-        this.productVersionProvider = productVersionProvider;
-        this.buildConfigurationProvider = buildConfigurationProvider;
-        this.groupConfigurationProvider = groupConfigurationProvider;
-        this.productMilestoneProvider = productMilestoneProvider;
-        this.productReleaseProvider = productReleaseProvider;
+    @Override
+    protected ProductVersionProvider provider() {
+        return productVersionProvider;
     }
 
     @Override

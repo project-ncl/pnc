@@ -43,27 +43,25 @@ import java.util.Set;
 @Stateless
 public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfiguration, BuildConfigurationRef> implements BuildConfigurationEndpoint {
 
+    @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
+
+    @Inject
     private BuildProvider buildProvider;
+
+    @Inject
     private BuildConfigurationSupportedGenericParametersProvider bcSupportedGenericParametersProvider;
+
+    @Inject
     private GroupConfigurationProvider groupConfigurationProvider;
 
     public BuildConfigurationEndpointImpl() {
         super(BuildConfiguration.class);
     }
 
-    @Inject
-    public BuildConfigurationEndpointImpl(BuildConfigurationProvider buildConfigurationProvider,
-                                          BuildProvider buildProvider,
-                                          BuildConfigurationSupportedGenericParametersProvider bcSupportedGenericParametersProvider,
-                                          GroupConfigurationProvider groupConfigurationProvider)  {
-
-        super (buildConfigurationProvider, BuildConfiguration.class);
-
-        this.buildConfigurationProvider = buildConfigurationProvider;
-        this.buildProvider = buildProvider;
-        this.bcSupportedGenericParametersProvider = bcSupportedGenericParametersProvider;
-        this.groupConfigurationProvider = groupConfigurationProvider;
+    @Override
+    protected BuildConfigurationProvider provider() {
+        return buildConfigurationProvider;
     }
 
     @Override
