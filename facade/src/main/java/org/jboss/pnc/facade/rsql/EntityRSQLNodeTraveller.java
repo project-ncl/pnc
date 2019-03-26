@@ -45,15 +45,15 @@ import cz.jirutka.rsql.parser.ast.RSQLOperators;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-class EntityRSQLNodeTraveller<T extends GenericEntity<Integer>> extends RSQLNodeTraveller<javax.persistence.criteria.Predicate> {
+class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeTraveller<javax.persistence.criteria.Predicate> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final Root<T> root;
+    private final Root<DB> root;
     private final CriteriaBuilder cb;
-    private final BiFunction<From<?, T>, RSQLSelectorPath, Path> toPath;
+    private final BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath;
 
-    public EntityRSQLNodeTraveller(Root<T> root, CriteriaBuilder cb, BiFunction<From<?, T>, RSQLSelectorPath, Path> toPath) {
+    public EntityRSQLNodeTraveller(Root<DB> root, CriteriaBuilder cb, BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath) {
         this.root = root;
         this.cb = cb;
         this.toPath = toPath;

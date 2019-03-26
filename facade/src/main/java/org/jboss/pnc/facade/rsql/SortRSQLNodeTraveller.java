@@ -38,7 +38,7 @@ import cz.jirutka.rsql.parser.ast.LogicalNode;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-class SortRSQLNodeTraveller<T extends GenericEntity<Integer>> extends RSQLNodeTraveller<SortInfo> {
+class SortRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeTraveller<SortInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
