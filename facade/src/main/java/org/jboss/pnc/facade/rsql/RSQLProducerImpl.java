@@ -84,7 +84,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     }
 
     @Override
-    public <T extends GenericEntity<Integer>> Predicate<T> getCriteriaPredicate(Class<T> type, String rsql) {
+    public <DB extends GenericEntity<Integer>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql) {
         if (rsql == null || rsql.isEmpty()) {
             return new EmptyRSQLPredicate();
         }
@@ -102,7 +102,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     }
 
     @Override
-    public <T extends GenericEntity<Integer>> SortInfo getSortInfo(Class<T> type, String rsql) {
+    public <DB extends GenericEntity<Integer>> SortInfo getSortInfo(Class<DB> type, String rsql) {
         if(rsql == null || rsql.isEmpty()) {
             return new EmptySortInfo();
         }
@@ -125,11 +125,11 @@ public class RSQLProducerImpl implements RSQLProducer {
         return result;
     }
 
-    private <T extends GenericEntity<Integer>> Predicate<T> getEntityPredicate(Node rootNode, Class<T> type) {
+    private <DB extends GenericEntity<Integer>> Predicate<DB> getEntityPredicate(Node rootNode, Class<DB> type) {
         return (root, query, cb) -> {
-            RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(root, cb, new BiFunction<From<?, T>, RSQLSelectorPath, Path>() {
+            RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(root, cb, new BiFunction<From<?, DB>, RSQLSelectorPath, Path>() {
                 @Override
-                public Path apply(From<?, T> from, RSQLSelectorPath selector) {
+                public Path apply(From<?, DB> from, RSQLSelectorPath selector) {
                     return mapper.toPath(type, from, selector);
                 }
             });
