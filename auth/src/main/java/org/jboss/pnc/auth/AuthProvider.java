@@ -17,31 +17,17 @@
  */
 package org.jboss.pnc.auth;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.servlet.http.HttpServletRequest;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @author jbrazdil
  */
-@Dependent
-@AuthProvider
-public class JaasAuthenticationProvider implements AuthenticationProvider {
-
-    public static final String ID = "JAAS";
-
-    public final static Logger log = LoggerFactory.getLogger(JaasAuthenticationProvider.class);
-
-    @Override
-    public LoggedInUser getLoggedInUser(HttpServletRequest httpServletRequest) {
-        return new JAASLoggedInUser(httpServletRequest);
-    }
-
-    @Override
-    public String getId() {
-        return ID;
-    }
-
-}
+@Qualifier
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = {ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
+public @interface AuthProvider {}
