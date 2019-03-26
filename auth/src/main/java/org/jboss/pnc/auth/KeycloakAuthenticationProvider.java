@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 @Dependent
+@AuthProvider
 public class KeycloakAuthenticationProvider implements AuthenticationProvider {
 
     public static final String ID = "Keycloak";
@@ -48,4 +49,5 @@ public class KeycloakAuthenticationProvider implements AuthenticationProvider {
     public String getId() {
         return ID;
     }
+
 }

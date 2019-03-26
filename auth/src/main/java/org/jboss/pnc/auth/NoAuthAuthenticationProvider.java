@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Dependent
+@AuthProvider
 public class NoAuthAuthenticationProvider implements AuthenticationProvider {
 
     public static final String ID = "NO_AUTH";
@@ -47,4 +48,5 @@ public class NoAuthAuthenticationProvider implements AuthenticationProvider {
     public String getId() {
         return ID;
     }
+
 }

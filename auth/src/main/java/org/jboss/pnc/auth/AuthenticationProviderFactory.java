@@ -29,6 +29,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.enterprise.inject.Produces;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -36,7 +37,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Dependent
 public class AuthenticationProviderFactory {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationProviderFactory.class);
-
 
     private static final String DEFAULT_AUTHENTICATION_PROVIDER_ID = KeycloakAuthenticationProvider.ID;
 
@@ -47,7 +47,7 @@ public class AuthenticationProviderFactory {
     }
 
     @Inject
-    public AuthenticationProviderFactory(Instance<AuthenticationProvider> providers, Configuration configuration)
+    public AuthenticationProviderFactory(@AuthProvider Instance<AuthenticationProvider> providers, Configuration configuration)
             throws CoreException {
 
         AtomicReference<String> providerId = new AtomicReference<>(null);
@@ -70,6 +70,7 @@ public class AuthenticationProviderFactory {
         }
     }
 
+    @Produces
     public AuthenticationProvider getProvider() {
         return authenticationProvider;
     }
