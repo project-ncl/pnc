@@ -31,6 +31,10 @@ import static org.junit.Assert.assertNotNull;
  */
 public class RepositoryConfigurationTest extends AbstractModelTest {
 
+    String internalScmHost = "internal.host";
+    String internalScmPath = "/my/repo";
+    String internalScmPort = ":123";
+
     private EntityManager em;
 
     @Before
@@ -47,12 +51,13 @@ public class RepositoryConfigurationTest extends AbstractModelTest {
     @Test
     public void shouldStoreNormalizedScms() {
         //given
-        String internalScmBase = "internal.host:123/my/repo";
+        String internalScmBase = internalScmHost + internalScmPort + internalScmPath;
+        String internalScmWithoutPort = internalScmHost + internalScmPath;
         String externalScmBase = "github.com/my/repo";
 
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
-                .internalUrl("git-ssh://" + internalScmBase + ".git")
-                .externalUrl("https://" + externalScmBase + ".git")
+                .internalUrl("git-ssh://git@" + internalScmBase + ".git")
+                .externalUrl("https://git@" + externalScmBase + ".git")
                 .build();
 
         //when
@@ -63,7 +68,7 @@ public class RepositoryConfigurationTest extends AbstractModelTest {
         //then
         RepositoryConfiguration obtained = em.find(RepositoryConfiguration.class, repositoryConfiguration.getId());
         assertNotNull(obtained.getInternalUrlNormalized());
-        assertEquals(internalScmBase, obtained.getInternalUrlNormalized());
+        assertEquals(internalScmWithoutPort, obtained.getInternalUrlNormalized());
 
         assertNotNull(obtained.getExternalUrlNormalized());
         assertEquals(externalScmBase, obtained.getExternalUrlNormalized());
