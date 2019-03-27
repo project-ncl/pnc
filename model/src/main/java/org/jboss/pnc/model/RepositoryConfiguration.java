@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.util.UrlUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -62,8 +63,8 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     }
 
     private void setNormalizedUrls() {
-        internalUrlNormalized = StringUtils.stripSuffix(StringUtils.stripProtocol(internalUrl), ".git");
-        externalUrlNormalized = StringUtils.stripSuffix(StringUtils.stripProtocol(externalUrl), ".git");
+        internalUrlNormalized = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(internalUrl), ".git");
+        externalUrlNormalized = externalUrl == null ? null : StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(externalUrl), ".git");
     }
 
     @Id
