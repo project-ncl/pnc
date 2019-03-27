@@ -99,6 +99,11 @@ public final class UrlUtils {
             url = "http://" + url;
         }
 
+        //if the url ends with slash, delete it
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length()-1);
+        }
+
         URI uri = URI.create(url);
         String host = uri.getHost();
         String path = uri.getPath();
