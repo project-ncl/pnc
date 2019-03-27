@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.environment.openshift;
 
-import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +38,7 @@ import org.jboss.pnc.common.monitor.RunningTask;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.environment.openshift.exceptions.PodFailedStartException;
+import org.jboss.pnc.pncmetrics.GaugeMetric;
 import org.jboss.pnc.pncmetrics.MetricsConfiguration;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -114,7 +114,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private final Map<String, String> runtimeProperties;
 
     private final ExecutorService executor;
-    private Optional<MetricRegistry> metricRegistry = Optional.empty();
+    private Optional<GaugeMetric> gaugeMetric = Optional.empty();
 
     private Pod pod;
     private Service service;
@@ -168,7 +168,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         this.imageId = systemImageId == null ? environmentConfiguration.getImageId() : systemImageId;
         this.debugData = debugData;
         if (metricsConfiguration != null) {
-            this.metricRegistry = Optional.of(metricsConfiguration.getMetricRegistry());
+            this.gaugeMetric = Optional.of(metricsConfiguration.getGaugeMetric());
         }
 
         createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
@@ -248,7 +248,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             };
             creatingRoute = Optional.of(executor.submit(createRoute));
         }
-        metricRegistry.ifPresent(m -> m.meter(METRICS_POD_STARTED_ATTEMPTED_KEY).mark());
+        gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_ATTEMPTED_KEY));
     }
 
     static String secureLog(String message) {
@@ -290,7 +290,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private void retryPod(Exception e, Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError, int retries) {
 
-        metricRegistry.ifPresent(m -> m.meter(METRICS_POD_STARTED_FAILED_KEY).mark());
+        gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_FAILED_KEY));
 
         logger.debug("Cancelling existing monitors for this build environment");
         cancelAndClearMonitors();
@@ -448,7 +448,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     debugData
             );
 
-            metricRegistry.ifPresent(m -> m.meter(METRICS_POD_STARTED_SUCCESS_KEY).mark());
+            gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
             onComplete.accept(runningEnvironment);
         };
     }
