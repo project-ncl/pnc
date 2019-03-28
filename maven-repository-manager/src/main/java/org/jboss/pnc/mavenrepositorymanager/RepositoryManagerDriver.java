@@ -83,7 +83,7 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMP
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
 
-    static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_PUBLIC_REPOSITORIES";
+    static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_REPOSITORIES";
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
