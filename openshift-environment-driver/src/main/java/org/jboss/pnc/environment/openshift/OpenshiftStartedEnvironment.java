@@ -83,6 +83,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String METRICS_POD_STARTED_ATTEMPTED_KEY = METRICS_POD_STARTED_KEY + ".attempts";
     private static final String METRICS_POD_STARTED_SUCCESS_KEY = METRICS_POD_STARTED_KEY + ".success";
     private static final String METRICS_POD_STARTED_FAILED_KEY = METRICS_POD_STARTED_KEY + ".failed";
+    private static final String METRICS_POD_STARTED_RETRY_KEY = METRICS_POD_STARTED_KEY + ".retries";
+    private static final String METRICS_POD_STARTED_FAILED_REASON_KEY = METRICS_POD_STARTED_KEY + ".failed_reason";
 
     private static final int DEFAULT_CREATION_POD_RETRY = 1;
 
@@ -301,6 +303,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         } else {
             logger.error("Creating build environment failed! Retrying...");
+            gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_RETRY_KEY));
 
             // since deletion runs in an executor, it might run *after* the createEnvironment() is finished.
             // createEnvironment()  will overwrite the Openshift object fields. So we need to capture the existing
@@ -482,6 +485,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         logger.debug("Pod {} status: {}", pod.getName(), podStatus);
 
         if (Arrays.asList(POD_FAILED_STATUSES).contains(podStatus)) {
+            gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_FAILED_REASON_KEY + "." + podStatus));
             throw new PodFailedStartException("Pod failed with status: " + podStatus);
         }
 
