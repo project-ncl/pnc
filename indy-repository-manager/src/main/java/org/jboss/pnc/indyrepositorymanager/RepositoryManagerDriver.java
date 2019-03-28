@@ -86,6 +86,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_PUBLIC_REPOSITORIES";
 
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final int DEFAULT_REQUEST_TIMEOUT;
@@ -323,7 +325,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                                 .replaceAll("\\.", "-");
                         return ArtifactRepository.build(id, id, repoString.trim(), true, false);
                     } catch (MalformedURLException e) {
-                        logger.info("Malformed repository URL entered: " + repoString + ". Skipping.");
+                        userLog.warn("Malformed repository URL entered: " + repoString + ". Skipping.");
                         return null;
                     }
                 })
