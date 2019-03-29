@@ -282,7 +282,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             // add extra repositories removed from poms by the adjust process and set in BC by user
             List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(genericParameters);
-            if(execution.getArtifactRepositories() != null) {
+            if (execution.getArtifactRepositories() != null) {
                 extraDependencyRepositories.addAll(execution.getArtifactRepositories());
             }
             addExtraConstituents(extraDependencyRepositories, id, buildContentId, indy, buildGroup);
@@ -294,8 +294,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     List<ArtifactRepository> extractExtraRepositoriesFromGenericParameters(Map<String, String> genericParameters) {
         String extraReposString = genericParameters.get(EXTRA_PUBLIC_REPOSITORIES_KEY);
-        if (extraReposString == null)
+        if (extraReposString == null) {
             return new ArrayList<>();
+        }
 
         return Arrays.stream(extraReposString.split("\n"))
                 .map((repoString) -> {
