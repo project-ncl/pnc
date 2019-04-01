@@ -15,12 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.api.parameters;
+package org.jboss.pnc.facade.providers.api;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
-
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
 
 /**
@@ -28,15 +24,13 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class BuildsFilterParameters {
+public class BuildPageInfo {
 
-    @Parameter(description = "Should return only latest build?")
-    @QueryParam("latest")
-    @DefaultValue("false")
-    private boolean latest;
+    private final int pageIndex;
+    private final int pageSize;
+    private final String sort;
+    private final String q;
+    private final boolean latest;
+    private final boolean running;
 
-    @Parameter(description = "Should return only running builds?")
-    @QueryParam("running")
-    @DefaultValue("false")
-    private boolean running;
 }
