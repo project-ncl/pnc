@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
@@ -41,24 +40,22 @@ public class UserEndpointImpl
     @Context
     private HttpServletRequest httpServletRequest;
 
+    @Inject
     private UserProvider userProvider;
+
+    @Inject
     private AuthenticationProvider authenticationProvider;
+
+    @Inject
     private BuildProvider buildProvider;
 
     public UserEndpointImpl() {
         super(User.class);
     }
 
-    @Inject
-    public UserEndpointImpl(UserProvider userProvider,
-                            BuildProvider buildProvider,
-                            AuthenticationProviderFactory authenticationProviderFactory) {
-
-        super(userProvider, User.class);
-
-        this.userProvider = userProvider;
-        this.buildProvider = buildProvider;
-        this.authenticationProvider = authenticationProviderFactory.getProvider();
+    @Override
+    protected UserProvider provider() {
+        return userProvider;
     }
 
     @Override
@@ -67,7 +64,6 @@ public class UserEndpointImpl
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         return userProvider.getOrCreateNewUser(loginInUser.getUserName());
     }
-
 
     @Override
     public Page<Build> getBuilds(int id, PageParameters pageParameters) {
