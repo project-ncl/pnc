@@ -19,9 +19,9 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
-import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -38,6 +38,9 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withB
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
+
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
 
 @Stateless
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
@@ -97,4 +100,15 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withUserId(userId));
     }
+
+    @Override
+    public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId) {
+        throw new UnsupportedOperationException("Not supported yet."); // TODO
+    }
+
+    @Override
+    public Graph<Build> getGroupBuildGraph(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); // TODO
+    }
+
 }

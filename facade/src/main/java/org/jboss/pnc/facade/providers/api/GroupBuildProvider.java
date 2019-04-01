@@ -15,26 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
+package org.jboss.pnc.facade.providers.api;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import org.jboss.pnc.dto.GroupBuild;
+import org.jboss.pnc.dto.GroupBuildRef;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 
-import lombok.Builder;
-import lombok.Data;
+public interface GroupBuildProvider extends Provider<BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
-/**
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
- */
-@Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = GroupBuildPushRequest.Builder.class)
-public class GroupBuildPushRequest {
+    public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, int groupConfigurationId);
 
-    private final String tagPrefix;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
-    }
+    public void cancel(int id);
+    
 }
