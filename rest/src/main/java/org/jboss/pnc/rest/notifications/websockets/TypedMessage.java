@@ -30,7 +30,6 @@ import java.io.Serializable;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @JsonDeserialize(builder = TypedMessage.TypedMessageBuilder.class)
-@Builder
 @AllArgsConstructor
 @XmlRootElement
 public class TypedMessage<T> implements Serializable {
