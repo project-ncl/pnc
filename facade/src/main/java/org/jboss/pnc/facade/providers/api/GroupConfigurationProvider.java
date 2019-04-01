@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.Provider;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 
 public interface GroupConfigurationProvider extends Provider<org.jboss.pnc.model.BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
 
@@ -36,4 +37,8 @@ public interface GroupConfigurationProvider extends Provider<org.jboss.pnc.model
                                                                          String sortingRsql,
                                                                          String query,
                                                                          Integer bcId);
+
+    void addConfiguration(int id, int configId) throws DTOValidationException;
+
+    void removeConfiguration(int id, int configId) throws DTOValidationException;
 }

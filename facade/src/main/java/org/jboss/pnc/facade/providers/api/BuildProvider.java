@@ -48,6 +48,8 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
                                  String query,
                                  Integer userId);
 
+    Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId);
+
     Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId);
 
     Graph<Build> getGroupBuildGraph(int id);
