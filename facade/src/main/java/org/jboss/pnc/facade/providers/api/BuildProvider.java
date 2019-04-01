@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 
 public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
@@ -46,4 +47,8 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
                                  String sortingRsql,
                                  String query,
                                  Integer userId);
+
+    Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId);
+
+    Graph<Build> getGroupBuildGraph(int id);
 }

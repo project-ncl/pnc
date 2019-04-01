@@ -130,8 +130,10 @@ public interface GroupBuildEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @Path("/brew-push")
-    void brewPush(GroupBuildPushRequest buildConfigSetRecordPushRequest);
+    @Path("/{id}/brew-push")
+    void brewPush(
+            @Parameter(description = GB_ID) @PathParam("id") int id,
+            GroupBuildPushRequest buildConfigSetRecordPushRequest);
 
     @Operation(summary = "Cancel all builds running in the build group.",
             responses = {

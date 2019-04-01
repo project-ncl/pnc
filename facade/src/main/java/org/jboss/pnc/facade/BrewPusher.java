@@ -15,26 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
-import lombok.Data;
+package org.jboss.pnc.facade;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = GroupBuildPushRequest.Builder.class)
-public class GroupBuildPushRequest {
+public interface BrewPusher {
 
-    private final String tagPrefix;
+    public void pushGroup(int id, String tagPrefix);
 
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
-    }
 }
