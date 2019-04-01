@@ -33,29 +33,28 @@ public class SCMRepositoryEndpointImpl
         extends AbstractEndpoint<SCMRepository, SCMRepository>
         implements SCMRepositoryEndpoint {
 
+    @Inject
     private SCMRepositoryProvider scmRepositoryProvider;
 
     public SCMRepositoryEndpointImpl() {
         super(SCMRepository.class);
     }
 
-    @Inject
-    public SCMRepositoryEndpointImpl(SCMRepositoryProvider scmRepositoryProvider) {
-
-        super(scmRepositoryProvider, SCMRepository.class);
-        this.scmRepositoryProvider = scmRepositoryProvider;
+    @Override
+    protected SCMRepositoryProvider provider() {
+        return scmRepositoryProvider;
     }
 
     @Override
     public Page<SCMRepository> getAll(PageParameters pageParameters, String matchUrl, String searchUrl) {
 
-       return scmRepositoryProvider.getAllWithMatchAndSearchUrl(
-               pageParameters.getPageIndex(),
-               pageParameters.getPageSize(),
-               pageParameters.getSort(),
-               pageParameters.getQ(),
-               matchUrl,
-               searchUrl);
+        return scmRepositoryProvider.getAllWithMatchAndSearchUrl(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                matchUrl,
+                searchUrl);
     }
 
     @Override

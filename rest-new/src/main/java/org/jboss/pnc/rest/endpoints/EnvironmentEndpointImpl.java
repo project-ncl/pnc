@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
+import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
@@ -31,13 +32,16 @@ public class EnvironmentEndpointImpl
         extends AbstractEndpoint<Environment, Environment>
         implements EnvironmentEndpoint {
 
+    @Inject
+    private EnvironmentProvider environmentProvider;
+
     public EnvironmentEndpointImpl() {
         super(Environment.class);
     }
 
-    @Inject
-    public EnvironmentEndpointImpl(EnvironmentProvider environmentProvider) {
-        super(environmentProvider, Environment.class);
+    @Override
+    protected Provider<?, Environment, Environment> provider() {
+        return environmentProvider;
     }
 
     @Override
