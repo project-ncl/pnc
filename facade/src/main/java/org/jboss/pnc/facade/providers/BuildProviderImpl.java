@@ -102,6 +102,11 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
+    public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId) {
+        throw new UnsupportedOperationException("Not supported yet."); // TODO
+    }
+
+    @Override
     public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId) {
         throw new UnsupportedOperationException("Not supported yet."); // TODO
     }

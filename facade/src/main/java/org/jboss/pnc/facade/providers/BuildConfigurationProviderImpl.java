@@ -53,6 +53,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 @Stateless
@@ -279,5 +280,10 @@ public class BuildConfigurationProviderImpl
         }
 
         return dbEntity.getId().equals(restEntity.getId());
+    }
+
+    @Override
+    public Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex, int pageSize, String sortingRsql, String query, int groupConfigId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(groupConfigId));
     }
 }

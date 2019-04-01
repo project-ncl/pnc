@@ -38,6 +38,12 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
                                                               String query,
                                                               Integer projectId);
 
+    Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex,
+                                                            int pageSize,
+                                                            String sortingRsql,
+                                                            String query,
+                                                            int groupConfigId);
+
     BuildConfiguration clone(Integer buildConfigurationId);
 
     void addDependency(Integer configId, Integer dependencyId);

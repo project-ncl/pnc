@@ -20,9 +20,14 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
 import javax.ejb.Stateless;
@@ -30,15 +35,45 @@ import javax.inject.Inject;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 @Stateless
 public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> implements GroupConfigurationProvider {
+
+    @Inject
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
+    @Inject
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
     public GroupConfigurationProviderImpl(BuildConfigurationSetRepository repository, GroupConfigurationMapper mapper) {
         super(repository, mapper, BuildConfigurationSet.class);
     }
 
+    @Override
+    public Page<GroupConfiguration> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, isNotArchived());
+    }
+
+    @Override
+    public GroupConfiguration getSpecific(Integer id) {
+        BuildConfigurationSet dbEntity = repository.queryById(id);
+        if(dbEntity.isArchived()){
+            return null;
+        }
+        return mapper.toDTO(dbEntity);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        if (hasLink(repository.queryById(id))) {
+            archive(id);
+        } else {
+            super.delete(id);
+        }
+    }
 
     @Override
     public Page<GroupConfiguration> getGroupConfigurationsForProductVersion(int pageIndex,
@@ -47,7 +82,7 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
                                                                             String query,
                                                                             Integer productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId), isNotArchived());
     }
 
     @Override
@@ -57,6 +92,52 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
                                                                                 String query,
                                                                                 Integer bcId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(bcId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(bcId), isNotArchived());
+    }
+
+    private boolean hasLink(BuildConfigurationSet buildConfigurationSet) {
+        return !buildConfigurationSet.getBuildConfigSetRecords().isEmpty();
+    }
+
+    private void archive(int groupConfigurationId) throws DTOValidationException {
+        ValidationBuilder.validateObject(WhenUpdating.class)
+                .validateAgainstRepository(repository, groupConfigurationId, true);
+        BuildConfigurationSet buildConfigurationSet = repository.queryById(groupConfigurationId);
+        buildConfigurationSet.setArchived(true);
+
+        // if a build group is archived, unlink the build group from the build configurations is associated with
+        for (BuildConfiguration bc: buildConfigurationSet.getBuildConfigurations()) {
+            bc.removeBuildConfigurationSet(buildConfigurationSet);
+            buildConfigurationRepository.save(bc);
+            buildConfigurationSet.removeBuildConfiguration(bc);
+        }
+
+        repository.save(buildConfigurationSet);
+    }
+
+    @Override
+    public void addConfiguration(int id, int configId) throws DTOValidationException {
+        BuildConfigurationSet buildConfigSet = repository.queryById(id);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
+                .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
+                .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
+        if (!buildConfigSet.getBuildConfigurations().contains(buildConfig)) {
+            buildConfigSet.addBuildConfiguration(buildConfig);
+            repository.save(buildConfigSet);
+        }
+    }
+
+    @Override
+    public void removeConfiguration(int id, int configId) {
+        BuildConfigurationSet buildConfigSet = repository.queryById(id);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
+                .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
+                .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
+        if (buildConfigSet.getBuildConfigurations().contains(buildConfig)) {
+            buildConfigSet.removeBuildConfiguration(buildConfig);
+            repository.save(buildConfigSet);
+        }
     }
 }

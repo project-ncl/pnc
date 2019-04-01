@@ -23,8 +23,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
@@ -133,7 +135,7 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = GC_ID) @PathParam("id") int id,
-            @NotNull GroupConfiguration buildConfigurationSet);
+            @NotNull GroupConfiguration groupConfiguration);
 
     @Operation(summary = "Removes a specific group config.",
             responses = {
@@ -193,7 +195,7 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}/build-configurations")
     void addConfiguration(
             @Parameter(description = GC_ID) @PathParam("id") int id,
-            BuildConfiguration buildConfig);
+            BuildConfigurationRef buildConfig);
 
     @Operation(summary = "Removes a build config from the specified group config.",
             responses = {

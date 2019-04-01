@@ -38,6 +38,7 @@ import java.util.Set;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import org.jboss.pnc.rest.endpoints.GroupBuildEndpointImpl;
+import org.jboss.pnc.rest.endpoints.GroupConfigurationEndpointImpl;
 
 @ApplicationPath("/rest-new")
 public class JaxRsActivatorNew extends Application {
@@ -83,6 +84,7 @@ public class JaxRsActivatorNew extends Application {
 
         resources.add(BuildConfigurationEndpointImpl.class);
         resources.add(GroupBuildEndpointImpl.class);
+        resources.add(GroupConfigurationEndpointImpl.class);
         resources.add(ProjectEndpointImpl.class);
 
         resources.add(ProductEndpointImpl.class);
