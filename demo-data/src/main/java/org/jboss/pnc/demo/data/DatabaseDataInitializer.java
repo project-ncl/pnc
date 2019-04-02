@@ -342,11 +342,12 @@ public class DatabaseDataInitializer {
         projectRepository.save(project4);
         projectRepository.save(project5);
 
-        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(demoDataConfig.getInternalRepos().get(0));
-        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(demoDataConfig.getInternalRepos().get(1));
-        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(demoDataConfig.getInternalRepos().get(2));
-        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(demoDataConfig.getInternalRepos().get(3));
-        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(demoDataConfig.getInternalRepos().get(4));
+
+        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(0));
+        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(1));
+        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(2));
+        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(3));
+        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(4));
 
         repositoryConfigurationRepository.save(repositoryConfiguration1);
         repositoryConfigurationRepository.save(repositoryConfiguration2);

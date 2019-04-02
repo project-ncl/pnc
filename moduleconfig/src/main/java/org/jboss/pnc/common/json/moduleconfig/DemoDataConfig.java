@@ -32,14 +32,6 @@ public class DemoDataConfig extends AbstractModuleConfig{
      */
     private Boolean importDemoData;
 
-    public List<String> getInternalRepos() {
-        return internalRepos;
-    }
-
-    public void setInternalRepos(List<String> internalRepos) {
-        this.internalRepos = internalRepos;
-    }
-
     private List<String> internalRepos;
 
     public DemoDataConfig(@JsonProperty("importDemoData") Boolean importDemoData,
@@ -55,6 +47,17 @@ public class DemoDataConfig extends AbstractModuleConfig{
 
     public Boolean getImportDemoData() {
         return importDemoData;
+    }
+
+    public String getInternalRepo(int index) {
+        if (index >= 0 && index < internalRepos.size()) {
+            return internalRepos.get(index);
+        }
+        throw new IllegalArgumentException("Invalid pnc-config in module " + MODULE_NAME + " : Internal repo with index " + index + " doesn't exist");
+    }
+
+    public List<String> getInternalRepos() {
+        return internalRepos;
     }
 
     @Override
