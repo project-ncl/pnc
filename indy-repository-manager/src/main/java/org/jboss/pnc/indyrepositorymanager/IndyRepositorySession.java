@@ -253,6 +253,10 @@ public class IndyRepositorySession implements RepositorySession {
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
                             paths.add(download.getPath());
+                            if (MAVEN_PKG_KEY.equals(packageType)) {
+                                paths.add(download.getPath() + ".md5");
+                                paths.add(download.getPath() + ".sha1");
+                            }
                             break;
 
                         case GENERIC_PKG_KEY:
