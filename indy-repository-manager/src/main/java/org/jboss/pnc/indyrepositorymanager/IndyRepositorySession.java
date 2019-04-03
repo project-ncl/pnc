@@ -197,6 +197,9 @@ public class IndyRepositorySession implements RepositorySession {
             log = rme.getMessage();
             logger.error("Promotion validation error(s): \n" + log);
             userLog.error("Artifact promotion failed. Promotion validation error(s): {}", log);
+            // prevent saving artifacts and dependencies to a failed build
+            downloads = Collections.emptyList();
+            uploads = Collections.emptyList();
         }
 
         return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
