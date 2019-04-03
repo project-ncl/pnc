@@ -22,6 +22,7 @@ import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
+import org.jboss.pnc.enums.RebuildMode;
 
 /**
  *
@@ -39,6 +40,10 @@ public class BuildParameters {
     @QueryParam("forceRebuild")
     @DefaultValue("false")
     boolean forceRebuild;
+
+    @Parameter(description = "What should varant rebuild?")
+    @QueryParam("rebuildMode")
+    RebuildMode rebuildMode;
 
     @Parameter(description = "Should we build also dependencies of this BuildConfiguration?")
     @QueryParam("buildDependencies")
