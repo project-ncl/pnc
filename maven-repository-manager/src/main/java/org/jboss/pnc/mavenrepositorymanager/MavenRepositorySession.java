@@ -253,6 +253,8 @@ public class MavenRepositorySession implements RepositorySession {
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
                             paths.add(download.getPath());
+                            paths.add(download.getPath() + ".md5");
+                            paths.add(download.getPath() + ".sha1");
                             break;
 
                         case GENERIC_PROXY:
