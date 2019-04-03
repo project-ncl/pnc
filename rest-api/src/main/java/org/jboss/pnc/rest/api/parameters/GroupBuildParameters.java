@@ -22,6 +22,7 @@ import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
+import org.jboss.pnc.enums.RebuildMode;
 
 /**
  *
@@ -35,10 +36,9 @@ public class GroupBuildParameters {
     @DefaultValue("false")
     boolean temporaryBuild;
 
-    @Parameter(description = "Should we force the rebuild of all build configurations?")
-    @QueryParam("forceRebuild")
-    @DefaultValue("false")
-    boolean forceRebuild;
+    @Parameter(description = "What should varant rebuild?")
+    @QueryParam("rebuildMode")
+    RebuildMode rebuildMode;
 
     @Parameter(description = "Should we add a timestamp during the alignment? Valid only for temporary builds.")
     @QueryParam("timestampAlignment")
