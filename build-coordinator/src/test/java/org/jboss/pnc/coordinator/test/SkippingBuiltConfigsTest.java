@@ -25,7 +25,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.RebuildMode;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.BuildConflictException;

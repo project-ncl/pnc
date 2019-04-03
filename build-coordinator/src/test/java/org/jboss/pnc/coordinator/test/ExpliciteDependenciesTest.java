@@ -19,7 +19,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.RebuildMode;
+import org.jboss.pnc.enums.RebuildMode;
 import org.junit.Before;
 import org.junit.Test;
 

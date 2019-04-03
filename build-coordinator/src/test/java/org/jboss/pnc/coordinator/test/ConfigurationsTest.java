@@ -26,7 +26,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.RebuildMode;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;

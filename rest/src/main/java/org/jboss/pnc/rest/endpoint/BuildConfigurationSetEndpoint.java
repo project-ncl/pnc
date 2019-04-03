@@ -36,7 +36,7 @@ import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.RebuildMode;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
