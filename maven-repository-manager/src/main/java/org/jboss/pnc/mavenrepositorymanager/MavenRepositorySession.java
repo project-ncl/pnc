@@ -363,15 +363,9 @@ public class MavenRepositorySession implements RepositorySession {
         if (isExternalOrigin(sk)) {
             result = "/api/content/maven/hosted/" + SHARED_IMPORTS_ID + "/";
         } else {
-            String storeName = sk.getName();
-            if (StoreType.hosted == sk.getType()
-                    && (storeName.matches("^build(?:-\\d+|_.+)$") || "pnc-builds".equals(storeName))) {
-                result = "/api/content/maven/hosted/" + sk.getName() + "/";
-            } else {
-                String localUrl = download.getLocalUrl();
-                String path = download.getPath();
-                result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
-            }
+            String localUrl = download.getLocalUrl();
+            String path = download.getPath();
+            result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
         }
         return result;
     }
