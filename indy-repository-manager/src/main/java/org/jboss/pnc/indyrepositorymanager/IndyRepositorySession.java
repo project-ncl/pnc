@@ -359,16 +359,7 @@ public class IndyRepositorySession implements RepositorySession {
         if (isExternalOrigin(sk)) {
             result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID));
         } else {
-            String storeName = sk.getName();
-            if (StoreType.hosted == sk.getType()
-                    && (storeName.matches("^build(?:-\\d+|_.+)$") || "pnc-builds".equals(storeName))) {
-                result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.hosted, buildPromotionTarget));
-            } else {
-                String localUrl = download.getLocalUrl();
-                String path = download.getPath();
-                result = localUrl.substring(
-                        localUrl.indexOf("/api/content/" + packageType + "/"), localUrl.indexOf(path) + 1);
-            }
+            result = "/api/" + content.contentPath(sk);
         }
         return result;
     }
