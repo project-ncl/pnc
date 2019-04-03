@@ -252,7 +252,8 @@ module.exports = function (grunt) {
       all: {
         src: [
           'Gruntfile.js',
-          '<%= yeoman.app %>/**/*.js'
+          '<%= yeoman.app %>/**/*.js',
+          '!<%= yeoman.app %>/common/pnc-ui-extras.js' // ignore pnc-ui-extras
         ]
       },
       test: {
