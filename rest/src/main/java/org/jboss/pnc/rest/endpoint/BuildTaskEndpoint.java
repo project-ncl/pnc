@@ -122,6 +122,9 @@ public class BuildTaskEndpoint {
             }
         }
 
+        if (logger.isTraceEnabled()) {
+            logger.trace("Received build result wit full log: {}.", buildResult.toFullLogString());
+        }
         logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
         bpmManager.notify(taskId, buildResult);
         logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);

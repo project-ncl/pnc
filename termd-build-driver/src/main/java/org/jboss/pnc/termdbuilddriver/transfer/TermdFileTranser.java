@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver.transfer;
 
-import org.apache.commons.io.Charsets;
 import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +73,7 @@ public class TermdFileTranser {
             };
 
             try (InputStream inputStream = connection.getInputStream()) {
-                Charset charset = Charsets.toCharset(ENCODING);
+                Charset charset = Charset.forName(ENCODING);
                 StringUtils.readStream(inputStream, charset, logLines, maxDownloadSize, removedLines);
             }
 
@@ -88,6 +87,9 @@ public class TermdFileTranser {
             }
             if (logLines.size() > 0) {
                 logger.warn("Log buffer was not fully drained for URI: {}", uri);
+            }
+            if (logger.isTraceEnabled()) {
+                logger.trace("Downloaded log: {}." , logsAggregate);
             }
             return logsAggregate;
         } catch (IOException e) {
