@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi;
 
+import org.jboss.pnc.enums.RebuildMode;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.utils;
 
-import org.jboss.pnc.spi.RebuildMode;
+import org.jboss.pnc.enums.RebuildMode;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
