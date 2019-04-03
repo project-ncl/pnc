@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore;
 
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -43,7 +44,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,12 +53,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
-import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
+import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -129,6 +128,9 @@ public class DefaultDatastore implements Datastore {
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Build Log: {}.", buildRecord.getBuildLog());
+        }
 
         Map<String, TargetRepository> repositoriesCache = new HashMap<>();
         Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();

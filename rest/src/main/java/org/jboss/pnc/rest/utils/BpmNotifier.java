@@ -26,7 +26,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -43,7 +42,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,12 +85,7 @@ public class BpmNotifier {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toFullLogString() : "{\"error\", \"" + errMessage + "\"}"));
 
-        UrlEncodedFormEntity entity = null;
-        try {
-            entity = new UrlEncodedFormEntity(parameters);
-        } catch (UnsupportedEncodingException e) {
-            log.error("Error occurred preparing callback request.", e);
-        }
+        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
         if (entity != null) {
             request.setEntity(entity);
             log.debug("Response entity set to the post request for uri: " + uri);
