@@ -58,6 +58,10 @@
             <artifactId>resteasy-jackson2-provider</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
 
         <!-- REST dependencies -->
         <dependency>

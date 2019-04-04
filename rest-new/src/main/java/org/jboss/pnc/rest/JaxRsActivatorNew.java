@@ -27,6 +27,7 @@ import org.jboss.pnc.rest.endpoints.ProductVersionEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProjectEndpointImpl;
 import org.jboss.pnc.rest.endpoints.SCMRepositoryEndpointImpl;
 import org.jboss.pnc.rest.endpoints.UserEndpointImpl;
+import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
 import javax.ws.rs.ApplicationPath;
@@ -61,6 +62,7 @@ public class JaxRsActivatorNew extends Application {
         addSwaggerResources(resources);
         addProjectResources(resources);
         addMetricsResources(resources);
+        addProviders(resources);
         return resources;
     }
 
@@ -106,6 +108,10 @@ public class JaxRsActivatorNew extends Application {
     }
 
     private void addMetricsResources(Set<Class<?>> resources) {
+    }
+
+    private void addProviders(Set<Class<?>> resources) {
+        resources.add(JacksonProvider.class);
     }
 
 

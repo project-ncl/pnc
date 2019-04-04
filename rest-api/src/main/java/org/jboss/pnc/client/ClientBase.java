@@ -22,7 +22,6 @@ import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 
 import java.util.Optional;
 
@@ -47,7 +46,7 @@ public abstract class ClientBase<T> {
         client = new ResteasyClientBuilder()
                 .httpEngine(new ApacheHttpClient43EngineWithRetry())
                 .build();
-        client.register(ResteasyJackson2Provider.class);
+        client.register(ResteasyJackson2ProviderWithDateISO8601.class);
         target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
         if (basicAuth != null) {
