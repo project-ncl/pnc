@@ -22,7 +22,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -50,8 +49,7 @@ import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
 public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
-    extends AbstractRepositoryManagerDriverTest
-{
+    extends AbstractImportTest {
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
@@ -96,8 +94,6 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
                     refs.contains(artifact.getIdentifier()),
                     equalTo(true));
         }
-
-        Indy indy = driver.getIndy(accessToken);
 
         // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {

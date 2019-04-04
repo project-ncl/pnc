@@ -18,7 +18,6 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
-import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
@@ -56,7 +55,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
 
         // simulate a build deploying a file.
-        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
+        indy.module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the pnc-builds group.
