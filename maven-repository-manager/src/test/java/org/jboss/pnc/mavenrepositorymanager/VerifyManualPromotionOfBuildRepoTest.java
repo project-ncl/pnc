@@ -43,7 +43,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(ContainerTest.class)
-public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryManagerDriverTest {
+public class VerifyManualPromotionOfBuildRepoTest extends AbstractImportTest {
 
     private static final String PUBLIC = "public";
 
@@ -52,7 +52,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         String path = "/org/myproj/myproj/1.0/myproj-1.0.pom";
         String content = "This is a test " + System.currentTimeMillis();
 
-        String chainId = "chain";
+        // String chainId = "chain";
         String buildId = "build";
 
         // create a dummy non-chained build execution and a repo session based on it
@@ -61,7 +61,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
 
         // simulate a build deploying a file.
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
-        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
+        indy.module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -89,7 +89,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
 
         // end result: the chain group should contain the build hosted repo.
         StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC);
-        Group publicGroup = driver.getIndy(accessToken).stores().load(publicKey, Group.class);
+        Group publicGroup = indy.stores().load(publicKey, Group.class);
         System.out.println("public group constituents: " + publicGroup.getConstituents());
         assertThat(publicGroup.getConstituents().contains(hostedKey), equalTo(true));
     }
