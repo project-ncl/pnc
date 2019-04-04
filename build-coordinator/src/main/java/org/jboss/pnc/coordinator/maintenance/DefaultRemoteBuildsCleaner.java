@@ -99,8 +99,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     private Result deleteBuildsFromIndy(String buildContentId, String authToken) {
         Result result;
         if (buildContentId == null) {
-            logger.debug("Build contentId is null. Nothing tobe deleted from Indy.");
-            return new Result(buildContentId,Result.Status.SUCCESS, "BuildContentId is null. Nothing to be deleted from Indy.");
+            logger.debug("Build contentId is null. Nothing to be deleted from Indy.");
+            return new Result(buildContentId, Result.Status.SUCCESS, "BuildContentId is null. Nothing to be deleted from Indy.");
         }
 
         Indy indy = indyFactory.get(authToken);
@@ -114,8 +114,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             foloAdmin.clearTrackingRecord(buildContentId);
             result = new Result(buildContentId, Result.Status.SUCCESS);
         } catch (IndyClientException e) {
-            String description = MessageFormat.format("Failed to delete temporary hosted repository identified by buildContentId {}.",
-                    buildContentId != null ? buildContentId : "null");
+            String description = MessageFormat.format("Failed to delete temporary hosted repository identified by buildContentId {0}.", buildContentId);
             logger.error(description, e);
             result = new Result(buildContentId, Result.Status.FAILED, description);
         } finally {
