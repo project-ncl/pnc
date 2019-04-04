@@ -73,8 +73,6 @@ import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERI
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
-import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.TEMPORARY_BUILDS_GROUP;
-import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
