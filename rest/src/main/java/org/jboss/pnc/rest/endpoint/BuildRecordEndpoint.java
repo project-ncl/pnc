@@ -166,12 +166,18 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         };
 
         User currentUser = authProvider.getCurrentUser(httpServletRequest);
+        boolean found;
         try {
-            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), onComplete);
+            found = temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), onComplete);
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
-        return Response.ok().build();
+
+        if (found) {
+            return Response.ok().build();
+        } else {
+            return Response.status(Status.NOT_FOUND).build();
+        }
     }
 
     @ApiOperation(value = "Gets logs for specific Build Record")
