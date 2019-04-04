@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [NCL-4270] Persistent builds succesfully ignore temporary build when asking whether to rebuild
 - [NCL-4218] Orchestrator must work also if JMS is down
 - [NCL-4381] Brew push - make buildRootVersion optional
+- [NCL-4482] Fix http post encoding causing log checksum issues
 
 ### Changed
 - [NCL-4214] Temporary builds won't be assigned to a milestone anymore

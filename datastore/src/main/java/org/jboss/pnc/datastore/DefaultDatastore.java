@@ -127,6 +127,9 @@ public class DefaultDatastore implements Datastore {
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Build Log: {}.", buildRecord.getBuildLog());
+        }
 
         Map<String, TargetRepository> repositoriesCache = new HashMap<>();
         Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
