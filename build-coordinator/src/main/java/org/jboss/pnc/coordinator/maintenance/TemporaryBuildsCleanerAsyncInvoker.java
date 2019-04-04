@@ -74,8 +74,9 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      */
     public boolean deleteTemporaryBuild(Integer buildRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
-        if (buildRecord == null)
+        if (buildRecord == null) {
             return false;
+        }
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
