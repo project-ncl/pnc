@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.indyrepositorymanager;
 
+import org.commonjava.indy.client.core.module.IndyStoresClientModule;
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -44,7 +45,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(ContainerTest.class)
-public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManagerDriverTest {
+public class VerifyManualDeletionOfBuildRepoTest extends AbstractImportTest {
 
     @Test
     public void manuallyPromoteBuildRepoToChainGroup() throws Exception {
@@ -61,7 +62,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
 
         // simulate a build deploying a file.
         StoreKey hostedKey = new StoreKey(pkgType, StoreType.hosted, buildId);
-        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
+        indy.module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -78,6 +79,13 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         BuildRecord record = new BuildRecord();
         record.setBuildContentId(buildId);
 
+        // unset the readonly flag on the hosted repo to allow its deletion
+        IndyStoresClientModule indyStoreAdmin = indy.stores();
+        StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, record.getBuildContentId());
+        HostedRepository store = indyStoreAdmin.load(key, HostedRepository.class);
+        store.setReadonly(false);
+        indyStoreAdmin.update(store, "Unsetting readonly-flag to allow deletion");
+
         // manually delete the build to the public group (since it's convenient)
         RunningRepositoryDeletion deletion = driver.deleteBuild(record, pkgType, accessToken);
         deletion.monitor(completed -> {
@@ -88,7 +96,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         });
 
         // end result: the build hosted repo should no longer exist.
-        assertThat(driver.getIndy(accessToken).stores().exists(hostedKey), equalTo(false));
+        assertThat(indyStoreAdmin.exists(hostedKey), equalTo(false));
     }
 
 }

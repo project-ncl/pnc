@@ -22,7 +22,6 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -41,7 +40,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends AbstractRepositoryManagerDriverTest {
+public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends AbstractImportTest {
 
     @Test
     public void extractBuildArtifactsTriggersBuildRepoPromotionToChainGroup() throws Exception {
@@ -55,7 +54,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
         RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
 
         // simulate a build deploying a file.
-        driver.getIndy(accessToken).module(IndyFoloContentClientModule.class)
+        indy.module(IndyFoloContentClientModule.class)
                 .store(buildId, new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId), path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -70,7 +69,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
 
         // end result: the build aggregation group should have been garbage collected
         StoreKey groupKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildId);
-        boolean buildGroupExists = driver.getIndy(accessToken).stores().exists(groupKey);
+        boolean buildGroupExists = indy.stores().exists(groupKey);
         assertThat(buildGroupExists, equalTo(false));
     }
 
