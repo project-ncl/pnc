@@ -63,8 +63,20 @@ public class TemporaryBuildsCleanerAsyncInvoker {
         executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("build-coordinator.TemporaryBuildsCleanerAsyncInvoker"));
     }
 
-    public void deleteTemporaryBuild(Integer buildRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
+    /**
+     * Deletes a single temporary build.
+     *
+     * @param buildRecordId ID of the build to be deleted
+     * @param authToken Bearer token
+     * @param onComplete Operation to be executed after deletion operation
+     * @return True if the build exists and deletion started otherwise, false is build doesn't exist
+     * @throws ValidationException Thrown when build cannot be deleted
+     */
+    public boolean deleteTemporaryBuild(Integer buildRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
+        if (buildRecord == null)
+            return false;
+
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
@@ -78,6 +90,8 @@ public class TemporaryBuildsCleanerAsyncInvoker {
                 onComplete.accept(new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to delete temporary buildRecord."));
             }
         });
+
+        return true;
     }
 
     public void deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
