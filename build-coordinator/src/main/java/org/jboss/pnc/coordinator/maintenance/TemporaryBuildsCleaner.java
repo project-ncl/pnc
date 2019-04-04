@@ -100,6 +100,7 @@ public class TemporaryBuildsCleaner {
         deleteDependencies(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
+        log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
         return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
     }
 
@@ -149,7 +150,7 @@ public class TemporaryBuildsCleaner {
         }
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 
-        log.info("Deletion of a temporary build record set finished: " + buildConfigSetRecord);
+        log.info("Deletion of a temporary build record set {} finished successfully.", buildConfigSetRecord);
         return new Result(buildConfigSetRecordId.toString(), Result.Status.SUCCESS);
     }
 
