@@ -80,6 +80,11 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     }
 
     @Override
+    public String getInternalScmArchiveLink(int id) {
+        return buildProvider.getInternalScmArchiveLink(id);
+    }
+
+    @Override
     public void addAttribute(int id, String key, String value) {
         buildProvider.addAttribute(id, key, value);
     }
