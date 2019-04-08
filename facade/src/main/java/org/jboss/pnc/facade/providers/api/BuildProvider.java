@@ -18,10 +18,27 @@
 package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.SSHCredentials;
 
 public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
+
+
+    String getInternalScmArchiveLink(int id);
+
+    void addAttribute(int id, String key, String value);
+
+    void removeAttribute(int id, String key);
+
+    BuildConfigurationRevision getBuildConfigurationRevision(Integer id);
+
+    String getRepourLog(Integer id);
+
+    String getBuildLog(Integer id);
+
+    SSHCredentials getSshCredentials(Integer id);
 
     Page<Build> getPerformedBuildsForMilestone(int pageIndex,
                                                int pageSize,
