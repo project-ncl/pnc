@@ -65,7 +65,6 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -99,6 +98,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private static final String[] POD_FAILED_STATUSES = {"Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull", "ImagePullBackOff"};
 
+    /**
+     * Parameter specifing override for the builder pod memory size.
+     */
+    private static final String BUILDER_POD_MEMORY = "BUILDER_POD_MEMORY";
 
     private boolean serviceCreated = false;
     private boolean podCreated = false;
@@ -145,7 +148,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             String systemImageId,
             DebugData debugData,
             String accessToken,
-            MetricsConfiguration metricsConfiguration) {
+            MetricsConfiguration metricsConfiguration,
+            Map<String, String> parameters) {
 
         creationPodRetry = DEFAULT_CREATION_POD_RETRY;
 
@@ -185,6 +189,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
         runtimeProperties.put("buildContentId", repositorySession.getBuildRepositoryId());
         runtimeProperties.put("accessToken", accessToken);
+        runtimeProperties.put("resourcesMemory", builderPodMemory(environmentConfiguration, parameters));
 
         createEnvironment();
     }
@@ -246,6 +251,20 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             creatingRoute = Optional.of(executor.submit(createRoute));
         }
         gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_ATTEMPTED_KEY));
+    }
+
+    private String builderPodMemory(OpenshiftEnvironmentDriverModuleConfig environmentConfiguration1, Map<String, String> parameters) {
+        double builderPodMemory = environmentConfiguration1.getBuilderPodMemory();
+        String builderPodMemoryOverride = parameters.get(BUILDER_POD_MEMORY);
+        if (builderPodMemoryOverride != null) {
+            try {
+                builderPodMemory = Double.parseDouble(builderPodMemoryOverride);
+            } catch (NumberFormatException ex) {
+                throw new IllegalArgumentException("Failed to parse memory size '" + builderPodMemoryOverride + "' from " + BUILDER_POD_MEMORY + " parameter.", ex);
+            }
+            logger.info("Using override for builder pod memory size: " + builderPodMemoryOverride);
+        }
+        return ((int) Math.ceil(builderPodMemory * 1024)) + "Mi";
     }
 
     static String secureLog(String message) {

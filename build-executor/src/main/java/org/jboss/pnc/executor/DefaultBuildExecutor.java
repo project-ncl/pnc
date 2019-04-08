@@ -228,7 +228,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     buildExecutionConfiguration.getSystemImageType(),
                     repositorySession,
                     debugData,
-                    buildExecutionSession.getAccessToken());
+                    buildExecutionSession.getAccessToken(),
+                    buildExecutionConfiguration.getGenericParameters());
 
             buildExecutionSession.setCancelHook(() -> startedEnv.cancel());
 

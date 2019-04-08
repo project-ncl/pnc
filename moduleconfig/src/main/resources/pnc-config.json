@@ -54,7 +54,8 @@
                     "imageId": "${env.PNC_BUILDER_IMAGE_ID}",
                     "disabled": "false",
                     "keepBuildAgentInstance": true,
-                    "exposeBuildAgentOnPublicUrl": false
+                    "exposeBuildAgentOnPublicUrl": false,
+                    "builderPodMemory": 4
                 },
                 {
                     "@module-config": "authentication-config",

@@ -22,6 +22,8 @@ import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
+import java.util.Map;
+
 /**
  * SPI interface for Environment driver, which provides support
  * to control different target environments.
@@ -38,6 +40,7 @@ public interface EnvironmentDriver {
      * @param systemImageRepositoryUrl The URL containing the system image
      * @param systemImageType The type of image to be initialized
      * @param repositorySession Configuration of repository to store built artifacts
+     * @param parameters Parameters for the environment setup
      * 
      * @return New started environment in initialization phase
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
@@ -48,7 +51,8 @@ public interface EnvironmentDriver {
             SystemImageType systemImageType,
             RepositorySession repositorySession,
             DebugData debugData,
-            String accessToken) throws EnvironmentDriverException;
+            String accessToken,
+            Map<String, String> parameters) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment
