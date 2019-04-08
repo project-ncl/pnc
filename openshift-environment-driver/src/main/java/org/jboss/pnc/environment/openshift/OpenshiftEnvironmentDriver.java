@@ -40,8 +40,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -98,7 +100,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             SystemImageType systemImageType,
             RepositorySession repositorySession,
             DebugData debugData,
-            String accessToken) throws EnvironmentDriverException {
+            String accessToken,
+            Map<String, String> parameters) throws EnvironmentDriverException {
 
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
@@ -112,7 +115,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
                 buildImageId,
                 debugData,
                 accessToken,
-                metricsConfig);
+                metricsConfig,
+                parameters);
     }
 
     @Override

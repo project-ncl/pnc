@@ -18,6 +18,7 @@
 package org.jboss.pnc.environment.openshift;
 
 import com.openshift.internal.restclient.DefaultClient;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
@@ -49,6 +50,8 @@ import java.util.function.Consumer;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.Collections;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -90,7 +93,8 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 SystemImageType.DOCKER_IMAGE,
                 DUMMY_REPOSITORY_CONFIGURATION,
                 new DebugData(false),
-                "put-access-token-here");
+                "put-access-token-here",
+                Collections.emptyMap());
 
         Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
             boolean containerDestroyed = false;

@@ -27,6 +27,8 @@ import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import javax.enterprise.context.ApplicationScoped;
+
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -42,7 +44,8 @@ public class EnvironmentDriverWithFailedContainerInitializationMock implements E
             SystemImageType buildType,
             final RepositorySession repositoryConfiguration,
             DebugData debugData,
-            String accessToken)
+            String accessToken,
+            Map<String, String> parameters)
             throws EnvironmentDriverException {
 
         return new StartedEnvironment() {
