@@ -24,12 +24,15 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.util.Optional;
 
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
@@ -40,10 +43,13 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
 public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
 
+    private BuildRecordRepository buildRecordRepository;
+
     @Inject
-    public ArtifactProviderImpl(ArtifactRepository repository,
-            ArtifactMapper mapper) {
+    public ArtifactProviderImpl(ArtifactRepository repository, ArtifactMapper mapper, BuildRecordRepository buildRecordRepository) {
         super(repository, mapper, Artifact.class);
+
+        this.buildRecordRepository = buildRecordRepository;
     }
 
 
@@ -66,5 +72,24 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
     @Override
     public void delete(Integer id) throws DTOValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getBuiltArtifactsForBuild(int pageIndex,
+                                                                      int pageSize,
+                                                                      String sortingRsql,
+                                                                      String query,
+                                                                      Integer buildId) {
+
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildId));
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getDependantArtifactsForBuild(int pageIndex,
+                                                                          int pageSize,
+                                                                          String sortingRsql,
+                                                                          String query,
+                                                                          Integer buildId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildId));
     }
 }

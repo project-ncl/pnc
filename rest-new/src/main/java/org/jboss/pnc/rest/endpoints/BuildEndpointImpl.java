@@ -32,6 +32,7 @@ import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
@@ -57,6 +58,9 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     @Inject
     private BuildProvider provider;
 
+    @Inject
+    private ArtifactProvider artifactProvider;
+
     public BuildEndpointImpl() {
         super(Build.class);
     }
@@ -68,12 +72,12 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
 
     @Override
     public Build getSpecific(int id) {
-        return super.getSpecific(id); //To change body of generated methods, choose Tools | Templates.
+        return super.getSpecific(id);
     }
 
     @Override
     public void delete(int id) {
-        super.delete(id); //To change body of generated methods, choose Tools | Templates.
+        super.delete(id);
     }
 
     @Override
@@ -83,22 +87,35 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
 
     @Override
     public Page<Artifact> getBuiltArtifacts(int id, PageParameters pageParameters) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return artifactProvider.getBuiltArtifactsForBuild(pageParameters.getPageIndex(),
+                                                  pageParameters.getPageSize(),
+                                                  pageParameters.getSort(),
+                                                  pageParameters.getQ(),
+                                                  id);
     }
 
     @Override
     public Page<Artifact> getDependencyArtifacts(int id, PageParameters pageParameters) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return artifactProvider.getDependantArtifactsForBuild(pageParameters.getPageIndex(),
+                                                      pageParameters.getPageSize(),
+                                                      pageParameters.getSort(),
+                                                      pageParameters.getQ(),
+                                                      id);
+    }
+
+    @Override
+    public String getInternalScmArchiveLink(int id) {
+        return provider.getInternalScmArchiveLink(id);
     }
 
     @Override
     public void addAttribute(int id, String key, String value) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        provider.addAttribute(id, key, value);
     }
 
     @Override
     public void removeAttribute(int id, String key) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        provider.removeAttribute(id, key);
     }
 
     @Override
@@ -123,7 +140,7 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
 
     @Override
     public BuildConfigurationRevision getBuildConfigurationRevision(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return provider.getBuildConfigurationRevision(id);
     }
 
     @Override
@@ -138,17 +155,17 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
 
     @Override
     public String getAlignLogs(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return provider.getRepourLog(id);
     }
 
     @Override
     public String getBuildLogs(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return provider.getBuildLog(id);
     }
 
     @Override
     public SSHCredentials getSshCredentials(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return provider.getSshCredentials(id);
     }
 
 }

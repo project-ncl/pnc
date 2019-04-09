@@ -25,4 +25,8 @@ import java.util.Optional;
 public interface ArtifactProvider extends Provider<org.jboss.pnc.model.Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
     Page<Artifact> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Optional<String> sha256,
             Optional<String> md5, Optional<String> sha1);
+
+    Page<Artifact> getBuiltArtifactsForBuild(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildId);
+
+    Page<Artifact> getDependantArtifactsForBuild(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildId);
 }
