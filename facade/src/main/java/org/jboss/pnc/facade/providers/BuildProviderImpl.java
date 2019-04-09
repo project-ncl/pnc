@@ -17,13 +17,23 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.common.gerrit.Gerrit;
+import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.facade.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
+import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
@@ -46,12 +56,69 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
     private BuildConfigurationRepository buildConfigurationRepository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    private Gerrit gerrit;
+    private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
 
     @Inject
-    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper, BuildConfigurationRepository buildConfigurationRepository) {
+    public BuildProviderImpl(BuildRecordRepository repository,
+                             BuildMapper mapper,
+                             BuildConfigurationRepository buildConfigurationRepository,
+                             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                             Gerrit gerrit,
+                             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper) {
         super(repository, mapper, BuildRecord.class);
 
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.gerrit = gerrit;
+        this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
+    }
+
+    @Override
+    public void addAttribute(int id, String key, String value) {
+        getBuildRecord(id).putAttribute(key, value);
+    }
+
+    @Override
+    public void removeAttribute(int id, String key) {
+            getBuildRecord(id).removeAttribute(key);
+    }
+
+    @Override
+    public BuildConfigurationRevision getBuildConfigurationRevision(Integer id) {
+
+        BuildRecord buildRecord = getBuildRecord(id);
+
+        if (buildRecord.getBuildConfigurationAudited() != null) {
+            return buildConfigurationRevisionMapper.toDTO(buildRecord.getBuildConfigurationAudited());
+        } else {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .queryById(new IdRev(buildRecord.getBuildConfigurationId(), buildRecord.getBuildConfigurationRev()));
+
+            return buildConfigurationRevisionMapper.toDTO(buildConfigurationAudited);
+        }
+    }
+
+    @Override
+    public String getRepourLog(Integer id) {
+        return getBuildRecord(id).getRepourLog();
+    }
+
+    @Override
+    public String getBuildLog(Integer id) {
+        return getBuildRecord(id).getBuildLog();
+    }
+
+    @Override
+    public SSHCredentials getSshCredentials(Integer id) {
+        BuildRecord buildRecord = getBuildRecord(id);
+
+        return SSHCredentials
+                .builder()
+                .command(buildRecord.getSshCommand())
+                .password(buildRecord.getSshPassword())
+                .build();
     }
 
     @Override
@@ -116,4 +183,31 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         throw new UnsupportedOperationException("Not supported yet."); // TODO
     }
 
+    @Override
+    public String getInternalScmArchiveLink(int id) {
+
+        BuildRecord buildRecord = repository.queryById(id);
+
+        try {
+            return gerrit.generateGerritGitwebCommitUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
+        } catch (GerritException e) {
+            throw new RepositoryViolationException(e);
+        }
+    }
+
+    /**
+     * If a build record with the id is not found, EmptyEntityException is thrown
+     * @param id
+     * @return BuildRecord
+     * @throws EmptyEntityException if build record with associated id does not exist
+     */
+    private BuildRecord getBuildRecord(int id) {
+        BuildRecord buildRecord = repository.queryById(id);
+
+        if (buildRecord == null) {
+            throw new EmptyEntityException("Build with id: " + id + " does not exist!");
+        } else {
+            return buildRecord;
+        }
+    }
 }

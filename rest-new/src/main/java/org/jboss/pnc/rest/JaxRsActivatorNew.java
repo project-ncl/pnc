@@ -19,6 +19,7 @@ package org.jboss.pnc.rest;
 
 import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
+import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
 import org.jboss.pnc.rest.endpoints.EnvironmentEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProductEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProductMilestoneEndpointImpl;
@@ -81,6 +82,8 @@ public class JaxRsActivatorNew extends Application {
 
     private void addEndpoints(Set<Class<?>> resources) {
         resources.add(ArtifactEndpointImpl.class);
+
+        resources.add(BuildEndpointImpl.class);
 
         resources.add(BuildConfigurationEndpointImpl.class);
         resources.add(GroupBuildEndpointImpl.class);

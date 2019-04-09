@@ -145,6 +145,18 @@ public interface BuildEndpoint{
             @Parameter(description = B_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
+    @Operation(summary = "Gets specific build's internal SCM archive link.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = String.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/internal-scm-archive-link")
+    String getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") int id);
+
     @Operation(summary = "Add attribute to a specific build.",
             responses = {
                 @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
