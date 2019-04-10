@@ -20,9 +20,11 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.dto.Artifact;
 
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import javax.enterprise.context.ApplicationScoped;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -104,8 +106,14 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     }
 
     @Override
-    public String getInternalScmArchiveLink(int id) {
-        return provider.getInternalScmArchiveLink(id);
+    public Response getInternalScmArchiveLink(int id) {
+        URI toRedirect = provider.getInternalScmArchiveLink(id);
+
+        if (toRedirect == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } else {
+            return Response.temporaryRedirect(toRedirect).build();
+        }
     }
 
     @Override

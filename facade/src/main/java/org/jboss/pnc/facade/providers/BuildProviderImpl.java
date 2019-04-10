@@ -40,6 +40,8 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -184,14 +186,19 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public String getInternalScmArchiveLink(int id) {
+    public URI getInternalScmArchiveLink(int id) {
 
         BuildRecord buildRecord = repository.queryById(id);
 
-        try {
-            return gerrit.generateGerritGitwebCommitUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
-        } catch (GerritException e) {
-            throw new RepositoryViolationException(e);
+        if (buildRecord.getScmRevision() == null) {
+            return null;
+        } else {
+
+            try {
+                return new URI(gerrit.generateGerritGitwebCommitUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
+            } catch (GerritException | URISyntaxException e) {
+                throw new RepositoryViolationException(e);
+            }
         }
     }
 
