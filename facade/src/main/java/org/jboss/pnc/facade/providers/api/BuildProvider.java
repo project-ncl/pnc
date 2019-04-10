@@ -24,9 +24,19 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 
+import java.net.URI;
+
 public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
 
-    String getInternalScmArchiveLink(int id);
+    /**
+     * Get the internal scm archive link for a build record. If the scm revision is not specified in the build record
+     * due to a failure, it will return null
+     *
+     * @param id build id
+     *
+     * @return Uri of the internal scm archive link to download
+     */
+    URI getInternalScmArchiveLink(int id);
 
     void addAttribute(int id, String key, String value);
 

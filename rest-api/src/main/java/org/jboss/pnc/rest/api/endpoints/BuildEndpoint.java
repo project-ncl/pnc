@@ -51,6 +51,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -62,6 +63,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_C
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
@@ -145,17 +148,14 @@ public interface BuildEndpoint{
             @Parameter(description = B_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
-    @Operation(summary = "Gets specific build's internal SCM archive link.",
+    @Operation(summary = "Redirects to the SCM archive link",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = String.class))),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    @ApiResponse(responseCode = MOVED_TEMPORARILY_CODE, description = MOVED_TEMPORARILY_DESCRIPTION),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION)
     })
     @GET
-    @Path("/{id}/internal-scm-archive-link")
-    String getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") int id);
+    @Path("/{id}/scm-archive")
+    Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Add attribute to a specific build.",
             responses = {

@@ -40,6 +40,8 @@ public interface SwaggerConstants {
     public static final String INVALID_CODE = "400";
     public static final String FORBIDDEN_DESCRIPTION = "User must be logged in.";
     public static final String FORBIDDEN_CODE = "403";
+    public static final String MOVED_TEMPORARILY_DESCRIPTION = "Redirected to resource";
+    public static final String MOVED_TEMPORARILY_CODE = "302";
     public static final String NOT_FOUND_DESCRIPTION = "Can not find specified result";
     public static final String NOT_FOUND_CODE = "404";
     public static final String CONFLICTED_DESCRIPTION = "Conflict while saving an entity";
