@@ -29,13 +29,7 @@ where externalurlnormalized in
 
 -- repairs externalNormalized URLs
 update repositoryconfiguration
-set externalurlnormalized = subquery.cutnormalized
-from
-    (select substring(externalurlnormalized from '%@#"%#"' for '#') as cutnormalized, id
-        from repositoryconfiguration
-        where externalurlnormalized
-        like '%@%')
-    as subquery
-where repositoryconfiguration.id = subquery.id;
+set externalurlnormalized = substring(externalurlnormalized from '%@#"%#"' for '#')
+where externalurlnormalized like '%@%';
 
 
