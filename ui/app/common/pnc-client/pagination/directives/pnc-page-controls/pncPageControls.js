@@ -32,40 +32,43 @@
 
     var PAGESIZE_OPTIONS = [10, 25, 50, 100, 200];
 
-     return {
-       restrict: 'EA',
-       templateUrl: function(elem, attrs) {
-         return attrs.pncTemplate || DEFAULT_TEMPLATE;
-       },
-       scope: {
-         page: '=pncPage'
-       },
-       bindToController: true,
-       controllerAs: 'ctrl',
-       controller: function () {
-         var self = this;
+    return {
+      restrict: 'EA',
+      templateUrl: function (elem, attrs) {
+        return attrs.pncTemplate || DEFAULT_TEMPLATE;
+      },
+      scope: {
+        page: '=pncPage'
+      },
+      bindToController: true,
+      controllerAs: 'ctrl',
+      controller: function () {
+        var self = this;
 
-         function refresh() {
-           self.index = self.page.index + 1;
-           self.size = self.page.size;
-           self.total = self.page.total;
-         }
+        function refresh() {
+          self.index = self.page.index + 1;
+          self.size = self.page.size;
+          self.total = self.page.total;
+        }
 
-         self.pageSizes = PAGESIZE_OPTIONS;
+        self.pageSizes = PAGESIZE_OPTIONS;
 
-         self.getPageIfExists = function (index) {
-           if (self.page.has(index - 1)) {
-              self.page.get(index - 1);
-           }
-         };
+        self.getPageIfExists = function (index) {
+          if (self.page.has(index - 1)) {
+            self.page.get(index - 1);
+          }
+        };
 
-         self.page.onUpdate(function () {
+        self.$onInit = function () {
+          self.page.onUpdate(function () {
             refresh();
-         });
+          });
 
-         refresh();
-       }
-     };
+          refresh();
+        };
+
+      }
+    };
   });
 
 })();

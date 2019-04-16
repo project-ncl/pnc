@@ -33,10 +33,9 @@
 
   function Controller($q, modalSelectService) {
     var $ctrl = this;
+    const DEFAULT_FIELDS = ['name', 'project', 'buildStatus'];
 
     // -- Controller API --
-
-    $ctrl.displayFields = ['name', 'project', 'buildStatus'];
     
     $ctrl.actions = {
       remove: remove
@@ -48,6 +47,8 @@
 
 
     $ctrl.$onInit = function () {
+      // set if bindings are empty
+      $ctrl.displayFields = $ctrl.displayFields || DEFAULT_FIELDS;
     };
 
     function remove(buildConfig) {

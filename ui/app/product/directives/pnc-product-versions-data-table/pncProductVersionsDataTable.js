@@ -51,9 +51,11 @@
 
     // -- Controller API --
 
-    $ctrl.paginator = paginator($ctrl.page);
-
     // --------------------
+
+    $ctrl.$onInit = function () {
+      $ctrl.paginator = paginator($ctrl.page);
+    };
 
   }
 
