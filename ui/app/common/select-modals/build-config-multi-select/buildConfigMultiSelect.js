@@ -37,11 +37,12 @@
     $ctrl.onRemove = onRemove;
     $ctrl.onAdd = onAdd;
 
-    $ctrl.title = $ctrl.modalCtrl.config.title;
-    $ctrl.buildConfigs = angular.copy($ctrl.modalCtrl.config.buildConfigs);
-
     // --------------------
 
+    $ctrl.$onInit = function() {
+      $ctrl.title = $ctrl.modalCtrl.config.title;
+      $ctrl.buildConfigs = angular.copy($ctrl.modalCtrl.config.buildConfigs);
+    };
 
     function save() {
       $ctrl.modalCtrl.$close($ctrl.buildConfigs);

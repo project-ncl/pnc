@@ -36,10 +36,13 @@
 
     // -- Controller API --
 
-    $ctrl.page = $ctrl.productVersions;
     $ctrl.displayFields = ['name', 'version'];
 
     // --------------------
+
+    $ctrl.$onInit = function() {
+      $ctrl.page = $ctrl.productVersions;
+    };
 
   }
 

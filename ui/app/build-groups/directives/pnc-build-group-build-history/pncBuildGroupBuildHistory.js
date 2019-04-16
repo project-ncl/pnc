@@ -34,12 +34,12 @@
 
     // -- Controller API --
 
-    $ctrl.page = paginator($ctrl.buildGroupRecords);
 
     // --------------------
 
     
     $ctrl.$onInit = function () {
+      $ctrl.page = paginator($ctrl.buildGroupRecords);
       $scope.$on(eventTypes.BUILD_SET_STARTED, handleEvent);
       $scope.$on(eventTypes.BUILD_SET_FINISHED, handleEvent);
     };

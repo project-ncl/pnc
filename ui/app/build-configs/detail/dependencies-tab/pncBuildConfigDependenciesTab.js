@@ -36,7 +36,6 @@
 
     // -- Controller API --
 
-    $ctrl.page = paginator($ctrl.dependencies);
     $ctrl.displayFields = ['name', 'project', 'buildStatus'];
 
     $ctrl.onRemove = onRemove;
@@ -46,7 +45,7 @@
 
 
     $ctrl.$onInit = function () {
-
+      $ctrl.page = paginator($ctrl.dependencies);
     };
 
     function onRemove(dependency) {

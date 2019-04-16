@@ -33,11 +33,12 @@
     var $ctrl = this;
 
     // -- Controller API --
-
-    $ctrl.page = paginator($ctrl.repositoryConfigurations);
     
     // --------------------
 
+    $ctrl.$onInit = function () {
+      $ctrl.page = paginator($ctrl.repositoryConfigurations);
+    };
 
   }
 

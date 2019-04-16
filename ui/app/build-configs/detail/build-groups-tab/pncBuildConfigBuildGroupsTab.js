@@ -36,14 +36,13 @@
 
     // -- Controller API --
 
-    $ctrl.page = paginator($ctrl.buildGroups);
     $ctrl.displayFields = ['name', 'productVersion', 'buildStatus'];
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
-
+      $ctrl.page = paginator($ctrl.buildGroups);
     };
   }
 
