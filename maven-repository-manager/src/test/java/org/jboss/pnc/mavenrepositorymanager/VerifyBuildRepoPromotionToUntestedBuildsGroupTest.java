@@ -18,7 +18,6 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
-import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
@@ -70,9 +69,8 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the pnc-builds group should contain the build hosted repo.
-        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PNC_BUILDS);
-        Group pncBuildsGroup = driver.getIndy(accessToken).stores().load(pncBuildsKey, Group.class);
-        assertThat(pncBuildsGroup.getConstituents().contains(hostedKey), equalTo(true));
+        StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, PNC_BUILDS);
+        assertThat(indy.content().exists(pncBuildsKey, path), equalTo(true));
     }
 
 }
