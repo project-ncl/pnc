@@ -62,7 +62,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    public static final String VERSION_PATTERN = "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w\\.-]+$";
+    public static final String VERSION_PATTERN = "^[0-9]+\\.[0-9]+(\\.\\w[\\w-]*)+$";
 
     /**
      * Contains the milestone version string.  This consists of a major, minor, and micro
