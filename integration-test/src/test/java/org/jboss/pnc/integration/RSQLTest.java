@@ -178,18 +178,24 @@ public class RSQLTest {
         String[] queries = new String[] {
                 "username=like=%aba%",
                 "username=like=%Aba%",
+                "username=like=*aba*",
                 "username=like=aba%",
+                "username=like=aba*",
                 "username=like=%babac%",
                 "username=like=%cab%",
-                "username=like=_abacki"
+                "username=like=_abacki",
+                "username=like=?abacki"
         };
         String[][] results = new String[][] { // must be sorted lexicographically
                 {"Abacki", "Babacki", "Cabacki"},
                 {"Abacki", "Babacki", "Cabacki"},
+                {"Abacki", "Babacki", "Cabacki"},
+                {"Abacki"},
                 {"Abacki"},
                 {"Babacki"},
                 {"Cabacki"},
                 {"Babacki", "Cabacki"},
+                {"Babacki", "Cabacki"}
         };
         IntStream.range(0, queries.length)
                 .forEach(i -> assertThat(
