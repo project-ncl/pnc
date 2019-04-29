@@ -38,8 +38,18 @@ public class PatternsTest {
         Assert.assertTrue(pattern.matcher("1.2.3.Final_1").matches());
         Assert.assertTrue(pattern.matcher("1.2.3.Final-1").matches());
         Assert.assertTrue(pattern.matcher("1.2.3.CR1.CD2").matches());
-        Assert.assertFalse(pattern.matcher("1.2.3").matches());
-        Assert.assertFalse(pattern.matcher("1.0.0-CD1").matches());
+        Assert.assertTrue(pattern.matcher("1.2.CR1.CD2").matches());
+        Assert.assertTrue(pattern.matcher("1.2.Final").matches());
+        Assert.assertTrue(pattern.matcher("1.2.3.CR1.CD2.ER1").matches());
+        Assert.assertTrue(pattern.matcher("1.2.3").matches());
+        Assert.assertTrue(pattern.matcher("1.0.0-CD1").matches());
+        Assert.assertTrue(pattern.matcher("1.2.CR1.3").matches());
+
+        Assert.assertFalse(pattern.matcher("1.CR1").matches());
+        Assert.assertFalse(pattern.matcher("1.0").matches());
+        Assert.assertFalse(pattern.matcher("1.0.").matches());
+        Assert.assertFalse(pattern.matcher("1.3.-").matches());
+        Assert.assertFalse(pattern.matcher("1.2.3.-").matches());
     }
 
     @Test

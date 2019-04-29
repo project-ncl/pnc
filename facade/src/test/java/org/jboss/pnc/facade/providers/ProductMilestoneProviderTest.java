@@ -145,10 +145,6 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
         assertThatThrownBy(() -> provider.store(
                 createNewProductMilestoneDTO(mock.getProductVersion(), "a.b.c.d")))
                 .isInstanceOf(InvalidEntityException.class);
-
-        assertThatThrownBy(() -> provider.store(
-                createNewProductMilestoneDTO(mock.getProductVersion(), "7.8.0")))
-                .isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
