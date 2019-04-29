@@ -93,7 +93,7 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNod
         } else if (RSQLOperators.NOT_IN.equals(operator)) {
             return cb.not(path.in(arguments));
         } else if (LIKE.equals(operator)) {
-            return cb.like(cb.lower(path), arguments.get(0).toLowerCase());
+            return cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()));
         } else if (IS_NULL.equals(operator)) {
             if (Boolean.parseBoolean(arguments.get(0))) {
                 return cb.isNull(path);
@@ -126,5 +126,9 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNod
         } else {
             throw new UnsupportedOperationException("Logical operation not supported");
         }
+    }
+
+    private String preprocessLikeOperatorArgument(String argument) {
+        return argument.replaceAll("\\?","_").replaceAll("\\*", "%");
     }
 }

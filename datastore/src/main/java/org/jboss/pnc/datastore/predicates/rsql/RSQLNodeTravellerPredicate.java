@@ -88,7 +88,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
         operations.put(RSQLOperators.LESS_THAN_OR_EQUAL, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
         operations.put(RSQLOperators.IN, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
         operations.put(RSQLOperators.NOT_IN, (r, cb, clazz, operand, arguments) -> cb.not(((Path) selectWithOperand(r, operand, clazz)).in(arguments)));
-        operations.put(LIKE, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
+        operations.put(LIKE, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase())));
         operations.put(IS_NULL, (r, cb, clazz, operand, arguments) -> {
             if (Boolean.parseBoolean(arguments.get(0))) {
                 return cb.isNull((Path) selectWithOperand(r, operand, clazz));
@@ -251,4 +251,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
         return result;
     }
 
+    private String preprocessLikeOperatorArgument(String argument) {
+        return argument.replaceAll("\\?","_").replaceAll("\\*", "%");
+    }
 }
