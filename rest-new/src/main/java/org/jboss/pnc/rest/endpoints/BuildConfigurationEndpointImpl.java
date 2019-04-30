@@ -34,6 +34,7 @@ import org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -183,8 +184,13 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
 
     @Override
     public TaskResponse createWithSCM(BuildConfigWithSCMRequest request) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        try {
+            return buildConfigurationProvider.createWithScm(request);
+        } catch (CoreException e) {
+            //FIXME what to do???
+            return null;
+        }
+
     }
 
     @Override

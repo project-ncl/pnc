@@ -17,18 +17,17 @@
  */
 package org.jboss.pnc.dto.requests;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.jboss.pnc.dto.BuildConfiguration;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 
 /**
  *
@@ -40,11 +39,12 @@ import lombok.Setter;
 public class BuildConfigWithSCMRequest {
 
     @NotBlank
+    @SCMUrl
     private final String scmUrl;
 
     private final Boolean preBuildSyncEnabled;
 
-    @Valid // TODO this causes problems beacuase of @RefHasId RepositoryConfiguration repositoryConfiguration;
+    @Valid // TODO this causes problems because of @RefHasId SCMRepository repository;
     private final BuildConfiguration buildConfiguration;
 
     @JsonPOJOBuilder(withPrefix = "")

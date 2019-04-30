@@ -17,9 +17,16 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
+import org.jboss.pnc.spi.exception.CoreException;
+
+import java.util.function.Consumer;
 
 public interface SCMRepositoryProvider extends Provider<RepositoryConfiguration, SCMRepository, SCMRepository> {
 
@@ -29,4 +36,8 @@ public interface SCMRepositoryProvider extends Provider<RepositoryConfiguration,
                                                     String query,
                                                     String matchUrl,
                                                     String searchUrl);
+
+    TaskResponse createSCMRepositoryWithOneUrl(CreateAndSyncSCMRequest scmRequest,
+            BuildConfiguration configuration,
+            Consumer<BpmNotificationRest> onSuccessConsumer) throws CoreException;
 }

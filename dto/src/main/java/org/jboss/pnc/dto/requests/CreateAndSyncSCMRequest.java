@@ -17,13 +17,16 @@
  */
 package org.jboss.pnc.dto.requests;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.dto.validation.constraints.SCMUrl;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 /**
  *
@@ -34,7 +37,8 @@ import lombok.Data;
 @JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
 public class CreateAndSyncSCMRequest {
 
-    @NotBlank
+    @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @SCMUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String scmUrl;
 
     private final Boolean preBuildSyncEnabled;

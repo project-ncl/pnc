@@ -20,7 +20,10 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.TaskResponse;
+import org.jboss.pnc.spi.exception.CoreException;
 
 import java.util.Optional;
 
@@ -58,4 +61,6 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
     BuildConfigurationRevision getRevision(Integer id, Integer rev);
 
     Optional<BuildConfigurationRevision> getLatestAuditedMatchingBCRest(BuildConfiguration buildConfigurationRest);
+
+    TaskResponse createWithScm(BuildConfigWithSCMRequest request) throws CoreException;
 }

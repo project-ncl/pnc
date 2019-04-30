@@ -21,22 +21,35 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.DTOEntity;
+import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.facade.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
+import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
+import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
+import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,20 +76,32 @@ public class BuildConfigurationProviderImpl
     private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProviderImpl.class);
 
     private ProductVersionRepository productVersionRepository;
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
+    private GroupConfigurationProvider groupConfigurationProvider;
+    private SCMRepositoryProvider scmRepositoryProvider;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    private Notifier wsNotifier;
 
     @Inject
     public BuildConfigurationProviderImpl(BuildConfigurationRepository repository,
-                                          BuildConfigurationMapper mapper,
-                                          ProductVersionRepository productVersionRepository,
-                                          BuildConfigurationRevisionMapper buildConfigRevisionMapper,
-                                          BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
+            BuildConfigurationMapper mapper,
+            ProductVersionRepository productVersionRepository,
+            RepositoryConfigurationRepository repositoryConfigurationRepository,
+            GroupConfigurationProvider groupConfigurationProvider,
+            SCMRepositoryProvider scmRepositoryProvider,
+            BuildConfigurationRevisionMapper buildConfigRevisionMapper,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            Notifier wsNotifier) {
         super(repository, mapper, org.jboss.pnc.model.BuildConfiguration.class);
 
         this.productVersionRepository = productVersionRepository;
+        this.repositoryConfigurationRepository = repositoryConfigurationRepository;
+        this.groupConfigurationProvider = groupConfigurationProvider;
+        this.scmRepositoryProvider = scmRepositoryProvider;
         this.buildConfigurationRevisionMapper = buildConfigRevisionMapper;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.wsNotifier = wsNotifier;
     }
 
 
@@ -285,5 +310,95 @@ public class BuildConfigurationProviderImpl
     @Override
     public Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex, int pageSize, String sortingRsql, String query, int groupConfigId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(groupConfigId));
+    }
+
+    public TaskResponse createWithScm(BuildConfigWithSCMRequest request) throws CoreException {
+        CreateAndSyncSCMRequest scmRequest = CreateAndSyncSCMRequest.builder()
+                .scmUrl(request.getScmUrl())
+                .preBuildSyncEnabled(request.getPreBuildSyncEnabled())
+                .build();
+        return scmRepositoryProvider.createSCMRepositoryWithOneUrl(scmRequest, request.getBuildConfiguration(),
+                notification -> onRCCreationSuccess(notification, request.getBuildConfiguration()));
+    }
+
+    private void onRCCreationSuccess(BpmNotificationRest notification, BuildConfiguration configuration) {
+        logger.debug("Received BPM event RC_CREATION_SUCCESS: " + notification);
+        //FIXME RepositoryCreationResultRest, BpmNotificationRest and BpmStringMapNotificationRest are directly dependent on rest-model
+        BpmStringMapNotificationRest repositoryCreationTaskResult = (BpmStringMapNotificationRest) notification;
+
+        int repositoryConfigurationId = -1;
+        int buildConfigurationSavedId = -1;
+        try {
+            repositoryConfigurationId = Integer.valueOf(repositoryCreationTaskResult.getData().get("repositoryConfigurationId"));
+        } catch (NumberFormatException ex) {
+            String errorMessage = "Receive notification about successful BC creation '" + repositoryCreationTaskResult
+                    + "' but the ID of the newly created RC '" + repositoryCreationTaskResult.getData()
+                    .get("repositoryConfigurationId")
+                    + "' is not a number. It should be present under 'repositoryConfigurationId' key.";
+
+            logger.error(errorMessage, ex);
+            sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
+            return;
+        }
+
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
+        if (repositoryConfiguration == null) {
+            String errorMessage = "Repository Configuration was not found in database.";
+            logger.error(errorMessage);
+            sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
+            return;
+        }
+
+        if (configuration != null) { //TODO test me
+            org.jboss.pnc.model.BuildConfiguration buildConfiguration = mapper.toEntity(configuration);
+            buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
+            org.jboss.pnc.model.BuildConfiguration buildConfigurationSaved = repository.save(buildConfiguration);
+            buildConfigurationSavedId = buildConfigurationSaved.getId();
+
+            Set<Integer> bcSetIds = configuration.getGroupConfigs()
+                    .stream()
+                    .map(c -> c.getId())
+                    .collect(Collectors.toSet());
+            try {
+                if (bcSetIds != null) {
+                    addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, e.getMessage());
+                return;
+            }
+        }
+
+        RepositoryCreationResultRest repositoryCreationResultRest
+                = new RepositoryCreationResultRest(
+                repositoryConfigurationId,
+                buildConfigurationSavedId,
+                RepositoryCreationResultRest.EventType.RC_CREATION_SUCCESS,
+                null);
+
+        wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
+    }
+
+    private void sendErrorMessage(int repositoryConfigurationId, int buildConfigurationId, String message) {
+        //FIXME RepositoryCreationResultRest is directly dependent on rest-model
+        RepositoryCreationResultRest repositoryCreationResultRest =
+                new RepositoryCreationResultRest(
+                        repositoryConfigurationId,
+                        buildConfigurationId,
+                        RepositoryCreationResultRest.EventType.RC_CREATION_ERROR,
+                        message);
+        wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
+    }
+
+    private void addBuildConfigurationToSet(org.jboss.pnc.model.BuildConfiguration buildConfiguration, Set<Integer> bcSetIds) throws Exception {
+        for (Integer setId : bcSetIds) {
+            try {
+                groupConfigurationProvider.addConfiguration(setId, buildConfiguration.getId());
+            } catch (DTOValidationException e) {
+                throw new Exception("Could not add BC with ID '" + buildConfiguration.getId() +
+                        "' to a BC Set with id '" + setId + "'.", e);
+            }
+        }
     }
 }

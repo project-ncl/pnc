@@ -24,6 +24,7 @@ import org.jboss.pnc.dto.response.TaskResponse;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -69,7 +70,12 @@ public class SCMRepositoryEndpointImpl
 
     @Override
     public TaskResponse createNew(CreateAndSyncSCMRequest request) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        try{
+            return scmRepositoryProvider.createSCMRepositoryWithOneUrl(request,null,null);
+        } catch (CoreException e) {
+            //FIXME what to do??
+            return null;
+        }
+
     }
 }
