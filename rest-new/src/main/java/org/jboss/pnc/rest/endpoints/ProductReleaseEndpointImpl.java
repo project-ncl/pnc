@@ -23,14 +23,14 @@ import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductReleaseEndpoint;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Stateless
+@ApplicationScoped
 public class ProductReleaseEndpointImpl
         extends AbstractEndpoint<ProductRelease, ProductReleaseRef>
         implements ProductReleaseEndpoint {

@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.jboss.pnc.dto.Artifact;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-@Stateless
+@ApplicationScoped
 public class ArtifactEndpointImpl extends AbstractEndpoint<Artifact, ArtifactRef> implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);

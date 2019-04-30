@@ -32,10 +32,10 @@ import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductVersionEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class ProductVersionEndpointImpl
         extends AbstractEndpoint<ProductVersion, ProductVersionRef>
         implements ProductVersionEndpoint {

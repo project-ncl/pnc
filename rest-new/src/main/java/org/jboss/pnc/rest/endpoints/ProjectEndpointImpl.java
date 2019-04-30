@@ -29,10 +29,10 @@ import org.jboss.pnc.rest.api.endpoints.ProjectEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class ProjectEndpointImpl
         extends AbstractEndpoint<Project, ProjectRef>
         implements ProjectEndpoint {

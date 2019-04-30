@@ -25,10 +25,10 @@ import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class SCMRepositoryEndpointImpl
         extends AbstractEndpoint<SCMRepository, SCMRepository>
         implements SCMRepositoryEndpoint {

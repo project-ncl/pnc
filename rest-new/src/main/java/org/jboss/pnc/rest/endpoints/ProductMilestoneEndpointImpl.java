@@ -28,12 +28,12 @@ import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
-@Stateless
+@ApplicationScoped
 public class ProductMilestoneEndpointImpl
         extends AbstractEndpoint<ProductMilestone, ProductMilestoneRef>
         implements ProductMilestoneEndpoint {
