@@ -24,5 +24,6 @@ package org.jboss.pnc.enums;
  */
 public enum BuildType {
     MVN,
-    NPM
+    NPM,
+    GRADLE
 }
