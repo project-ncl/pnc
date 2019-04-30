@@ -61,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * <p>
@@ -901,8 +903,8 @@ public class BuildRecord implements GenericEntity<Integer> {
                 buildRecord.setRepourLog(repourLog);
                 buildRecord.setBuildLog(buildLog);
             }
-            buildRecord.setRepourLogSize(buildRecord.repourLog.length());
-            buildRecord.setBuildLogSize(buildRecord.buildLog.length());
+            buildRecord.setRepourLogSize(buildRecord.repourLog.getBytes(UTF_8).length);
+            buildRecord.setBuildLogSize(buildRecord.buildLog.getBytes(UTF_8).length);
 
             try {
                 buildRecord.setBuildLogMd5(Md5.digest(buildRecord.buildLog));
