@@ -384,3 +384,11 @@ table.build-status-table tr > td {
 .build-config-edit-form #build-config-build-script {
   height: 300px;
 }
+
+
+
+
+pf-toolbar.hide-result-count .toolbar-pf-results h5 {
+  visibility: hidden;
+  display:none;
+}

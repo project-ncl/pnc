@@ -17,6 +17,10 @@
     limitations under the License.
 
 -->
+<div class="row">
+  <pf-toolbar class="hide-result-count" config="$ctrl.toolbarConfig"></pf-toolbar>
+</div>
 <div>
-  {{ $ctrl.page.data | json }}
+  <pnc-artifacts-list artifacts="$ctrl.paginator.data"></pnc-artifacts-list>
+  <pnc-page-controls pnc-page="$ctrl.paginator" class="pull-right"></pnc-page-controls>
 </div>
