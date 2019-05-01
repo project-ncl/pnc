@@ -17,6 +17,29 @@
     limitations under the License.
 
 -->
-<div class="m-t-20">
-  <pnc-artifacts-data-table page="$ctrl.artifacts"></pnc-artifacts-data-table>
-</div>
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <th>Identifier</th>
+    <th>File Name</th>
+    <th>Repository Type</th>
+    <th>Checksums</th>
+  </thead>
+  <tbody>
+    <tr ng-repeat="artifact in $ctrl.artifacts">
+      <td>{{ artifact.identifier }}</td>
+      <td>{{ artifact.filename }}</td>
+      <td>{{ artifact.targetRepository.repositoryType }}</td>
+      <td>
+        <div class="checksum checksum-md5">
+          {{ artifact.md5 }}
+        </div>
+        <div class="checksum checksum-sha1">
+          {{ artifact.sha1 }}
+        </div>
+        <div class="checksum checksum-sha256">
+          {{ artifact.sha256 }}
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
