@@ -37,80 +37,81 @@
 
     // -- Controller API --
 
-    $ctrl.paginator = filteringPaginator($ctrl.page);
-    $ctrl.adaptor = pfFilterAdaptor($ctrl.paginator);
-
-    $ctrl.toolbarConfig = {
-      isTableView: true,
-      filterConfig: {
-        fields: [
-          {
-            id: 'identifier',
-            title: 'Identifier',
-            placeholder: 'Filter by Identifier',
-            filterType: 'text'
-          },
-          {
-            id: 'filename',
-            title:  'Filename',
-            placeholder: 'Filter by Filename',
-            filterType: 'text'
-          },
-          {
-            id: 'targetRepository.repositoryType',
-            title: 'Repo Type',
-            placeholder: 'Filter by Repo Type',
-            filterType: 'select',
-            filterValues: [
-              'MAVEN',
-              'GENERIC_PROXY',
-              'NPM',
-              'COCOA_POD'
-            ]
-          },
-          {
-            id: 'artifactQuality',
-            title: 'Quality',
-            placeholder: ' Filter by artifact quality',
-            filterType: 'select',
-            filterValues: [
-              'NEW',
-              'VERIFIED',
-              'TESTED',
-              'DEPRECATED',
-              'BLACKLISTED',
-              'TEMPORARY'
-            ]
-          },
-          {
-            id: 'md5',
-            title:  'md5',
-            placeholder: 'Filter by md5 checksum',
-            filterType: 'text'
-          },
-          {
-            id: 'sha1',
-            title:  'sha1',
-            placeholder: 'Filter by sha1 checksum',
-            filterType: 'text'
-          },
-          {
-            id: 'sha256',
-            title:  'sha256',
-            placeholder: 'Filter by sha256 checksum',
-            filterType: 'text'
-          }
-        ],
-        showTotalCountResults: false,
-        appliedFilters: [],
-        onFilterChange: $ctrl.adaptor.onFilterChange
-      }
-    };
+   
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
+      $ctrl.paginator = filteringPaginator($ctrl.page);
+      $ctrl.adaptor = pfFilterAdaptor($ctrl.paginator);
+  
+      $ctrl.toolbarConfig = {
+        isTableView: true,
+        filterConfig: {
+          fields: [
+            {
+              id: 'identifier',
+              title: 'Identifier',
+              placeholder: 'Filter by Identifier',
+              filterType: 'text'
+            },
+            {
+              id: 'filename',
+              title:  'Filename',
+              placeholder: 'Filter by Filename',
+              filterType: 'text'
+            },
+            {
+              id: 'targetRepository.repositoryType',
+              title: 'Repo Type',
+              placeholder: 'Filter by Repo Type',
+              filterType: 'select',
+              filterValues: [
+                'MAVEN',
+                'GENERIC_PROXY',
+                'NPM',
+                'COCOA_POD'
+              ]
+            },
+            {
+              id: 'artifactQuality',
+              title: 'Quality',
+              placeholder: ' Filter by artifact quality',
+              filterType: 'select',
+              filterValues: [
+                'NEW',
+                'VERIFIED',
+                'TESTED',
+                'DEPRECATED',
+                'BLACKLISTED',
+                'TEMPORARY'
+              ]
+            },
+            {
+              id: 'md5',
+              title:  'md5',
+              placeholder: 'Filter by md5 checksum',
+              filterType: 'text'
+            },
+            {
+              id: 'sha1',
+              title:  'sha1',
+              placeholder: 'Filter by sha1 checksum',
+              filterType: 'text'
+            },
+            {
+              id: 'sha256',
+              title:  'sha256',
+              placeholder: 'Filter by sha256 checksum',
+              filterType: 'text'
+            }
+          ],
+          showTotalCountResults: false,
+          appliedFilters: [],
+          onFilterChange: $ctrl.adaptor.onFilterChange
+        }
+      };
     };
 
   }
