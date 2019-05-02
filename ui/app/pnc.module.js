@@ -50,8 +50,7 @@
     function($stateProvider, $urlRouterProvider, $locationProvider,
       $httpProvider, NotificationsProvider, cfpLoadingBarProvider, $animateProvider) {
 
-    $locationProvider.html5Mode(false);
-    $locationProvider.hashPrefix('');  // remove a '!' prefix to restore the original behavior 
+    $locationProvider.html5Mode(true);
 
     // Allows dashboard to be root state.
     $urlRouterProvider.when('', '/');
