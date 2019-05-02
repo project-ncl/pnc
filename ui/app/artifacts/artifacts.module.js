@@ -56,6 +56,24 @@
           }
         });
 
+        $stateProvider.state('artifacts.detail', {
+          url: '/{id:int}',
+          data: {
+            displayName: '{{ artifact.identifier }}',
+            title: '{{ artifact.identifier }} | Artifacts'
+          },
+          component: 'pncArtifactsDetailPage',
+          resolve: {
+            artifact: [
+              '$stateParams',
+              'Artifact',
+              function ($stateParams, Artifact) {
+                return Artifact.get({ id: $stateParams.id }).$promise;
+              }
+            ]
+          }
+        });
+
       }]);
 
 })();
