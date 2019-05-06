@@ -133,11 +133,12 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
     private String expectedDescription(BuildRecord buildRecord, BuildImportResultRest buildResult) {
 
-        return String.format("%s [buildRecordId: %d, built from %s rev %s] import %s. Brew build id: %d, Brew build url: %s\n",
+        return String.format("%s [buildRecordId: %d, built from %s revision %s tag %s import %s. Brew build id: %d, Brew build url: %s\n",
                 buildRecord.getBuildConfigurationAudited().getName(),
                 buildRecord.getId(),
                 buildRecord.getScmRepoURL(),
                 buildRecord.getScmRevision(),
+                buildRecord.getScmTag(),
                 buildResult.getStatus(),
                 buildResult.getBrewBuildId(),
                 buildResult.getBrewBuildUrl());

@@ -151,6 +151,7 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 "",
+                "",
                 false,
                 "",
                 "",

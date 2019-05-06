@@ -44,6 +44,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getScmRevision();
 
+    String getScmTag();
+
     String getOriginRepoURL();
 
     boolean isPreBuildSyncEnabled();
@@ -66,6 +68,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String name,
             String scmRepoURL,
             String scmRevision,
+            String scmTag,
             String originRepoURL,
             boolean preBuildSyncEnabled,
             String systemImageId,
@@ -75,7 +78,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp) {
-        return build(id, buildContentId, userId, buildScript, name, scmRepoURL, scmRevision, originRepoURL, preBuildSyncEnabled,
+        return build(id, buildContentId, userId, buildScript, name, scmRepoURL, scmRevision, scmTag, originRepoURL, preBuildSyncEnabled,
                 systemImageId, systemImageRepositoryUrl, systemImageType, podKeptAfterFailure, null, genericParameters,
                 tempBuild, tempBuildTimestamp);
     }
@@ -88,6 +91,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String name,
             String scmRepoURL,
             String scmRevision,
+            String scmTag,
             String originRepoURL,
             boolean preBuildSyncEnabled,
             String systemImageId,
@@ -145,6 +149,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getScmRevision() {
                 return scmRevision;
+            }
+
+            @Override
+            public String getScmTag() {
+                return scmTag;
             }
 
             @Override

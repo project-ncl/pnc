@@ -37,6 +37,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String name;
     private final String scmRepoURL;
     private final String scmRevision;
+    private final String scmTag;
     private final String originRepoURL;
     private final boolean preBuildSyncEnabled;
     private final String systemImageId;
@@ -56,6 +57,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String name,
             String scmRepoURL,
             String scmRevision,
+            String scmTag,
             String originRepoURL,
             boolean preBuildSyncEnabled,
             String systemImageId,
@@ -74,6 +76,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.name = name;
         this.scmRepoURL = scmRepoURL;
         this.scmRevision = scmRevision;
+        this.scmTag = scmTag;
         this.originRepoURL = originRepoURL;
         this.preBuildSyncEnabled = preBuildSyncEnabled;
         this.systemImageId = systemImageId;
@@ -119,6 +122,11 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public String getScmRevision() {
         return scmRevision;
+    }
+
+    @Override
+    public String getScmTag() {
+        return scmTag;
     }
 
     @Override
