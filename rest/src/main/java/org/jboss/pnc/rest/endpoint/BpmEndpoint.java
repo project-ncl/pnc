@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Hidden;
+
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
@@ -40,7 +41,7 @@ import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationProcessRest;
+import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
@@ -70,6 +71,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -340,9 +342,14 @@ public class BpmEndpoint extends AbstractEndpoint {
         if (buildConfigurationRest != null) {
             revision = buildConfigurationRest.getScmRevision();
         }
+        org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfig = org.jboss.pnc.bpm.model.RepositoryConfiguration.builder()
+                .externalUrl(repositoryConfigurationRest.getExternalUrl())
+                .internalUrl(repositoryConfigurationRest.getInternalUrl())
+                .preBuildSyncEnabled(repositoryConfigurationRest.getPreBuildSyncEnabled())
+                .build();
 
-        RepositoryCreationProcessRest repositoryConfigurationProcessRest = new RepositoryCreationProcessRest(
-                repositoryConfigurationRest, revision);
+        RepositoryCreationProcess repositoryConfigurationProcessRest = new RepositoryCreationProcess(
+                repositoryConfig, revision);
 
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
 
