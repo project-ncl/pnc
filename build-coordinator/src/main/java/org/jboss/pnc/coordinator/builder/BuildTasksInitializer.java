@@ -65,7 +65,7 @@ public class BuildTasksInitializer {
                                            BuildOptions buildOptions,
                                            Supplier<Integer> buildTaskIdProvider,
                                            Set<BuildTask> submittedBuildTasks) {
-      BuildSetTask buildSetTask =
+        BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildOptions(buildOptions)
                         .startTime(new Date()).build();
