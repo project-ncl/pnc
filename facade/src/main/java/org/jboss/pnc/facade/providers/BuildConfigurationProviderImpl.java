@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,6 +56,21 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.notification.BuildConfigurationCreationError;
+import org.jboss.pnc.dto.notification.BuildConfigurationCreationSuccess;
+import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
+import org.jboss.pnc.dto.response.RepositoryCreationResponse;
+import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.notifications.Notifier;
+
+import java.util.HashSet;
 
 @Stateless
 public class BuildConfigurationProviderImpl
@@ -65,6 +81,20 @@ public class BuildConfigurationProviderImpl
     private ProductVersionRepository productVersionRepository;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    @Inject
+    private RepositoryConfigurationRepository repositoryConfigurationRepository;
+
+    @Inject
+    BuildConfigurationSetRepository buildConfigurationSetRepository;
+
+    @Inject
+    private Notifier notifier;
+
+    @Inject
+    private SCMRepositoryProvider scmRepositoryProvider;
+
+    private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id(-1).build();
 
     @Inject
     public BuildConfigurationProviderImpl(BuildConfigurationRepository repository,
@@ -285,5 +315,92 @@ public class BuildConfigurationProviderImpl
     @Override
     public Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex, int pageSize, String sortingRsql, String query, int groupConfigId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(groupConfigId));
+    }
+
+    @Override
+    public BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request) {
+        ValidationBuilder.validateObject(request, WhenCreatingNew.class)
+                .validateNotEmptyArgument().validateAnnotations();
+        BuildConfiguration buildConfiguration = request.getBuildConfiguration();
+        validateBeforeSaving(buildConfiguration.toBuilder().repository(FAKE_REPOSITORY).build());
+
+        RepositoryCreationResponse rcResponse = scmRepositoryProvider.createSCMRepository(
+                request.getScmUrl(),
+                request.getPreBuildSyncEnabled(),
+                id -> onRCCreationSuccess(id, buildConfiguration));
+
+        if(rcResponse.getTaskId() == null){
+            org.jboss.pnc.model.BuildConfiguration buildConfigurationFromDB =
+                    repository.queryByPredicates(withName(buildConfiguration.getName()), isNotArchived());
+            return new BuildConfigCreationResponse(mapper.toDTO(buildConfigurationFromDB));
+        }else{
+            return new BuildConfigCreationResponse(rcResponse.getTaskId());
+        }
+    }
+
+    private void onRCCreationSuccess(int repositoryConfigurationId, BuildConfiguration configuration) {
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
+        if (repositoryConfiguration == null) {
+            String errorMessage = "Repository Configuration was not found in database.";
+            logger.error(errorMessage);
+            sendErrorMessage(repositoryConfigurationId, null, errorMessage);
+            return;
+        }
+
+        org.jboss.pnc.model.BuildConfiguration buildConfiguration = mapper.toEntity(configuration);
+        buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
+        org.jboss.pnc.model.BuildConfiguration buildConfigurationSaved = repository.save(buildConfiguration);
+
+        Set<Integer> bcSetIds = configuration.getGroupConfigs()
+                .stream()
+                .map(c -> c.getId())
+                .collect(Collectors.toSet());
+        try {
+            if (bcSetIds != null) {
+                addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            sendErrorMessage(repositoryConfigurationId, buildConfigurationSaved.getId(), e.getMessage());
+            return;
+        }
+
+        BuildConfigurationCreationSuccess repositoryCreationResultRest
+                = new BuildConfigurationCreationSuccess(
+                        repositoryConfigurationId,
+                        buildConfigurationSaved.getId());
+
+        notifier.sendMessage(repositoryCreationResultRest); //TODO test me!
+    }
+
+    private void addBuildConfigurationToSet(org.jboss.pnc.model.BuildConfiguration buildConfig, Set<Integer> bcSetIds) {
+        Set<String> notFoundSets = null;
+        for (Integer setId : bcSetIds) {
+            BuildConfigurationSet bcSet = buildConfigurationSetRepository.queryById(setId);
+            if (bcSet == null) {
+                if (notFoundSets == null) {
+                    notFoundSets = new HashSet<>();
+                }
+                notFoundSets.add(setId.toString());
+            } else {
+                if (!bcSet.getBuildConfigurations().contains(buildConfig)) {
+                    bcSet.addBuildConfiguration(buildConfig);
+                    buildConfigurationSetRepository.save(bcSet);
+                }
+            }
+        }
+        if (notFoundSets != null) {
+            String ids = String.join(", ", notFoundSets);
+            throw new IllegalArgumentException("No group configuration exists for ids: " + ids);
+        }
+    }
+
+    private void sendErrorMessage(Integer repositoryConfigurationId, Integer buildConfigurationId, String message) {
+        BuildConfigurationCreationError repositoryCreationResultRest
+                = new BuildConfigurationCreationError(
+                        repositoryConfigurationId,
+                        buildConfigurationId,
+                        message);
+        notifier.sendMessage(repositoryCreationResultRest); //TODO test me!
     }
 }

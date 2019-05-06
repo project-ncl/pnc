@@ -15,34 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
+package org.jboss.pnc.dto.notification;
 
-import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 
-import javax.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
 import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "eventType")
+@JsonSubTypes({
+    @JsonSubTypes.Type(BuildConfigurationCreationError.class),
+    @JsonSubTypes.Type(BuildConfigurationCreationSuccess.class)
+})
 @Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
-public class CreateAndSyncSCMRequest {
+public abstract class Notification {
 
-    @NotBlank
-    @SCMUrl
-    private final String scmUrl;
+    private final String eventType;
 
-    private final Boolean preBuildSyncEnabled;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
+    protected Notification(String eventType) {
+        this.eventType = eventType;
     }
 }

@@ -15,16 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
+package org.jboss.pnc.dto.response;
 
-import org.jboss.pnc.dto.validation.constraints.SCMUrl;
-
-import javax.validation.constraints.NotBlank;
+import org.jboss.pnc.dto.SCMRepository;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -32,15 +29,26 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
-public class CreateAndSyncSCMRequest {
+@JsonDeserialize(builder = RepositoryCreationResponse.Builder.class)
+public class RepositoryCreationResponse {
 
-    @NotBlank
-    @SCMUrl
-    private final String scmUrl;
+    private Integer taskId;
 
-    private final Boolean preBuildSyncEnabled;
+    private SCMRepository repository;
+
+    public RepositoryCreationResponse(int taskId) {
+        this.taskId = taskId;
+    }
+
+    public RepositoryCreationResponse(SCMRepository repository) {
+        this.repository = repository;
+    }
+
+    @lombok.Builder(builderClassName = "Builder")
+    private RepositoryCreationResponse(Integer taskId, SCMRepository repository) {
+        this.taskId = taskId;
+        this.repository = repository;
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

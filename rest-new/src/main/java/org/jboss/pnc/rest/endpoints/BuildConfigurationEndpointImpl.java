@@ -25,7 +25,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Parameter;
-import org.jboss.pnc.dto.response.TaskResponse;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
@@ -35,12 +35,13 @@ import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.util.Optional;
 import java.util.Set;
 
-@Stateless
+@ApplicationScoped
 public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfiguration, BuildConfigurationRef> implements BuildConfigurationEndpoint {
 
     @Inject
@@ -182,9 +183,8 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
     }
 
     @Override
-    public TaskResponse createWithSCM(BuildConfigWithSCMRequest request) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+    public BuildConfigCreationResponse createWithSCM(BuildConfigWithSCMRequest request) {
+        return buildConfigurationProvider.createWithScm(request);
     }
 
     @Override
