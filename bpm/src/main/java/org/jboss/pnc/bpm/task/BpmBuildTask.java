@@ -82,6 +82,8 @@ public class BpmBuildTask extends BpmTask {
                 //TODO update to use also other parts or Repository Configuration
                 buildConfigurationAudited.getRepositoryConfiguration().getInternalUrl(),
                 buildConfigurationAudited.getScmRevision(),
+                // SCM Tag is about to be set once it is created after the alignment phase
+                null,
                 buildConfigurationAudited.getRepositoryConfiguration().getExternalUrl(),
                 buildConfigurationAudited.getRepositoryConfiguration().isPreBuildSyncEnabled(),
                 buildConfigurationAudited.getBuildEnvironment().getSystemImageId(),
