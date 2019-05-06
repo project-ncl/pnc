@@ -72,6 +72,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private String scmRevision;
 
+    @Getter
+    @Setter
+    private String scmTag;
+
     private Integer buildEnvironmentId;
 
     private Map<String, String> attributes = new HashMap<>();
@@ -127,6 +131,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildRecord.getEndTime();
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
+        this.scmTag = buildRecord.getScmTag();
         this.attributes = buildRecord.getAttributes();
         this.buildConfigurationId = buildRecord.getBuildConfigurationId();
         this.buildConfigurationRev = buildRecord.getBuildConfigurationRev();
@@ -188,6 +193,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildConfigurationName = buildExecutionConfig.getName();
         this.scmRepoURL = buildExecutionConfig.getScmRepoURL();
         this.scmRevision = buildExecutionConfig.getScmRevision();
+        this.scmTag = buildExecutionConfig.getScmTag();
 
         this.buildConfigurationId = buildConfigurationAudited.getId();
         this.projectId = buildConfigurationAudited.getProjectId();

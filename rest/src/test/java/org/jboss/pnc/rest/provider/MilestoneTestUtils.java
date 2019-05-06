@@ -47,7 +47,8 @@ public class MilestoneTestUtils {
         BuildRecord record = new BuildRecord();
         record.setId(randInt(100000, 2000000));
         record.setScmRepoURL(randomAlphabetic(20));
-        record.setScmRevision(randomAlphabetic(5));
+        record.setScmRevision(randomAlphabetic(40));
+        record.setScmTag(randomAlphabetic(5));
 
         BuildConfigurationAudited buildConfigurationAudited = Mockito.mock(BuildConfigurationAudited.class);
         Mockito.when(buildConfigurationAudited.getName()).thenReturn(randomAlphabetic(20));

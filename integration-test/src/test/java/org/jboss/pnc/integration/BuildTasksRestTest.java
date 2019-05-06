@@ -92,7 +92,7 @@ public class BuildTasksRestTest extends AbstractTest{
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master",
-                "origin-scm-url", false, "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false, null, new HashMap<>(),
+                "1.0.0.redhat-1", "origin-scm-url", false, "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false, null, new HashMap<>(),
                 false, null);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
