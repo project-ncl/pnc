@@ -28,7 +28,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = ArtifactImportError.Builder.class)
 public class ArtifactImportError {
 

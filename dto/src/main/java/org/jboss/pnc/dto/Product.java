@@ -38,7 +38,7 @@ public class Product extends ProductRef {
     @Setter
     private final Set<ProductVersionRef> productVersions;
 
-    @lombok.Builder(builderClassName = "Builder")
+    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Product(Set<ProductVersionRef> productVersions, Integer id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
         super(id, name, description, abbreviation, productCode, pgmSystemName);
         this.productVersions = productVersions;

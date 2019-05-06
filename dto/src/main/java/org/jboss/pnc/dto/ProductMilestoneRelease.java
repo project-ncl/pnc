@@ -36,7 +36,7 @@ import java.time.Instant;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = ProductMilestoneRelease.Builder.class)
 public class ProductMilestoneRelease implements DTOEntity {
 

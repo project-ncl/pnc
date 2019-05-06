@@ -32,7 +32,7 @@ import javax.validation.constraints.Null;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = User.Builder.class)
 public class User implements DTOEntity {
 

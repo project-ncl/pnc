@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -49,8 +50,8 @@ public class ProductVersion extends ProductVersionRef {
 
     private final List<BuildConfigurationRef> buildConfigurations;
 
-    @lombok.Builder(builderClassName = "Builder")
-    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigurations, List<BuildConfigurationRef> buildConfigurations, Integer id, String version, HashMap<String, String> attributes) {
+    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
+    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigurations, List<BuildConfigurationRef> buildConfigurations, Integer id, String version, Map<String, String> attributes) {
         super(id, version, attributes);
         this.product = product;
         this.currentProductMilestone = currentProductMilestone;

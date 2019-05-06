@@ -40,7 +40,7 @@ public class GroupConfiguration extends GroupConfigurationRef {
 
     private final List<BuildConfigurationRef> buildConfigurations;
 
-    @lombok.Builder(builderClassName = "Builder")
+    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     GroupConfiguration(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
         super(id, name);
         this.productVersion = productVersion;
