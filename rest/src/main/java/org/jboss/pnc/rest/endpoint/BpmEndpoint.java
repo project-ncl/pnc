@@ -42,6 +42,7 @@ import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
+import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
@@ -196,22 +197,10 @@ public class BpmEndpoint extends AbstractEndpoint {
     private void onRCCreationSuccess(BpmNotificationRest notification, BuildConfigurationRest buildConfigurationRest) {
         LOG.debug("Received BPM event RC_CREATION_SUCCESS: " + notification);
 
-        BpmStringMapNotificationRest repositoryCreationTaskResult = (BpmStringMapNotificationRest) notification;
+        RepositoryCreationSuccess repositoryCreationTaskResult = (RepositoryCreationSuccess) notification;
 
-        int repositoryConfigurationId = -1;
+        int repositoryConfigurationId = repositoryCreationTaskResult.getRepositoryConfigurationId();
         int buildConfigurationSavedId = -1;
-        try {
-            repositoryConfigurationId = Integer.valueOf(repositoryCreationTaskResult.getData().get("repositoryConfigurationId"));
-        } catch (NumberFormatException ex) {
-            String errorMessage = "Receive notification about successful BC creation '" + repositoryCreationTaskResult
-                    + "' but the ID of the newly created RC '" + repositoryCreationTaskResult.getData()
-                    .get("repositoryConfigurationId")
-                    + "' is not a number. It should be present under 'repositoryConfigurationId' key.";
-
-            LOG.error(errorMessage, ex);
-            sendErrorMessage(repositoryConfigurationId, buildConfigurationSavedId, errorMessage);
-            return;
-        }
 
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
         if (repositoryConfiguration == null) {
