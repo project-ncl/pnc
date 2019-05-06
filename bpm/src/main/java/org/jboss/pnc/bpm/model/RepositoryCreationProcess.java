@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.bpm;
+package org.jboss.pnc.bpm.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -24,7 +24,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 import java.io.Serializable;
@@ -33,20 +33,19 @@ import java.io.Serializable;
  * Repository creation configuration object.
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@JsonDeserialize(builder = RepositoryCreationProcessRest.RepositoryCreationProcessRestBuilder.class)
+@JsonDeserialize(builder = RepositoryCreationProcess.RepositoryCreationProcessRestBuilder.class)
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(onConstructor=@__({@Deprecated}))
 @Setter(onMethod=@__({@Deprecated}))
-public class RepositoryCreationProcessRest implements Serializable {
+public class RepositoryCreationProcess implements Serializable {
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
-    private RepositoryConfigurationRest repositoryConfigurationRest;
+    private RepositoryConfiguration repositoryConfiguration;
 
     @Getter
-    @Setter
     private String revision;
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -57,5 +56,16 @@ public class RepositoryCreationProcessRest implements Serializable {
     public String toString() {
         return JsonOutputConverterMapper.apply(this);
     }
+
+    @Deprecated // TODO remove for 2.0
+    public RepositoryConfiguration getRepositoryConfigurationRest() {
+        return repositoryConfiguration;
+    }
+
+    @Deprecated // TODO remove for 2.0
+    public void setRepositoryConfigurationRest(RepositoryConfiguration repositoryConfigurationRest) {
+        this.repositoryConfiguration = repositoryConfigurationRest;
+    }
+
 
 }

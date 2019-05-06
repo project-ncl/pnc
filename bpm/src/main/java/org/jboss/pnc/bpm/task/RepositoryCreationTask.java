@@ -19,8 +19,9 @@ package org.jboss.pnc.bpm.task;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
+
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationProcessRest;
+import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +40,9 @@ public class RepositoryCreationTask extends BpmTask {
     /**
      * The RepositoryCreationRest.BuildConfigurationRest
      */
-    private final RepositoryCreationProcessRest repositoryCreationProcessRest;
+    private final RepositoryCreationProcess repositoryCreationProcessRest;
 
-    public RepositoryCreationTask(RepositoryCreationProcessRest repositoryCreationProcessRest, String accessToken) {
+    public RepositoryCreationTask(RepositoryCreationProcess repositoryCreationProcessRest, String accessToken) {
         setAccessToken(accessToken);
         this.repositoryCreationProcessRest = repositoryCreationProcessRest;
     }
