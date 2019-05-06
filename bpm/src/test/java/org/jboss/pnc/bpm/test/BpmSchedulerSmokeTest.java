@@ -38,9 +38,8 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.jboss.pnc.bpm.BpmEventType.RC_CREATION_ERROR;
-import static org.jboss.pnc.bpm.BpmEventType.RC_CREATION_SUCCESS;
+import static org.jboss.pnc.bpm.BpmEventType.RC_REPO_CREATION_ERROR;
+import static org.jboss.pnc.bpm.BpmEventType.RC_REPO_CREATION_SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -98,11 +97,11 @@ public class BpmSchedulerSmokeTest {
                 return new SimpleParameters();
             }
         };
-        task.<BpmStringMapNotificationRest>addListener(RC_CREATION_SUCCESS, t -> {
+        task.<BpmStringMapNotificationRest>addListener(RC_REPO_CREATION_SUCCESS, t -> {
             assertEquals("green", t.getData().get("color"));
             successNotification = true;
         });
-        task.<BpmStringMapNotificationRest>addListener(RC_CREATION_ERROR, t -> {
+        task.<BpmStringMapNotificationRest>addListener(RC_REPO_CREATION_ERROR, t -> {
             assertEquals("red", t.getData().get("color"));
             errorNotification = true;
         });
@@ -111,7 +110,7 @@ public class BpmSchedulerSmokeTest {
         // notify
         assertEquals(new Integer(1), task.getTaskId());
         BpmStringMapNotificationRest notification = mock(BpmStringMapNotificationRest.class);
-        when(notification.getEventType()).thenReturn(RC_CREATION_SUCCESS.name());
+        when(notification.getEventType()).thenReturn(RC_REPO_CREATION_SUCCESS.name());
         Map<String, String> data = new HashMap<>();
         data.put("color", "green");
         when(notification.getData()).thenReturn(data);

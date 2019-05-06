@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.bpm;
 
+import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
+
 import lombok.ToString;
+
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
@@ -48,7 +51,7 @@ public enum BpmEventType { //TODO merge with org.jboss.pnc.spi.notifications.mod
     RC_REPO_CLONE_ERROR(BpmStringMapNotificationRest.class),
 
     //notification for bpm task completion
-    RC_CREATION_SUCCESS(BpmStringMapNotificationRest.class),
+    RC_CREATION_SUCCESS(RepositoryCreationSuccess.class),
     RC_CREATION_ERROR(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_SUCCESS(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_ERROR(BpmStringMapNotificationRest.class);
