@@ -15,26 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.response;
+package org.jboss.pnc.dto.notification;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = TaskResponse.Builder.class)
-public class TaskResponse {
+@JsonTypeName(value = BuildConfigurationCreationSuccess.BC_CREATION_SUCCESS)
+public class BuildConfigurationCreationSuccess extends Notification {
+    static final String BC_CREATION_SUCCESS = "BC_CREATION_SUCCESS";
 
-    public int taskId;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
+    public BuildConfigurationCreationSuccess(int repositoryId, int buildConfigurationId) {
+        super(BC_CREATION_SUCCESS);
+        this.repositoryId = repositoryId;
+        this.buildConfigurationId = buildConfigurationId;
     }
+
+    @Getter
+    private final int repositoryId;
+
+    @Getter
+    private final int buildConfigurationId;
 }

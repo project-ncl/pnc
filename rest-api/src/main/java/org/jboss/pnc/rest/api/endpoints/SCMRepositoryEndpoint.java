@@ -23,11 +23,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.TaskResponse;
+import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
@@ -120,7 +121,7 @@ public interface SCMRepositoryEndpoint{
             description = "If the given URL is external, it does create the repository in the scm server.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
+                    content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -130,5 +131,5 @@ public interface SCMRepositoryEndpoint{
     })
     @POST
     @Path("/create-and-sync")
-    TaskResponse createNew(CreateAndSyncSCMRequest request);
+    RepositoryCreationResponse createNew(CreateAndSyncSCMRequest request);
 }

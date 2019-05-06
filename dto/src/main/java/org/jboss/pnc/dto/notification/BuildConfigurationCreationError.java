@@ -15,34 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
+package org.jboss.pnc.dto.notification;
 
-import org.jboss.pnc.dto.validation.constraints.SCMUrl;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import javax.validation.constraints.NotBlank;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
-public class CreateAndSyncSCMRequest {
+@JsonTypeName(value = BuildConfigurationCreationError.BC_CREATION_ERROR)
+public class BuildConfigurationCreationError extends Notification {
+    static final String BC_CREATION_ERROR = "BC_CREATION_ERROR";
 
-    @NotBlank
-    @SCMUrl
-    private final String scmUrl;
-
-    private final Boolean preBuildSyncEnabled;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
+    public BuildConfigurationCreationError(Integer repositoryId, Integer buildConfigurationId, String errorMessage) {
+        super(BC_CREATION_ERROR);
+        this.repositoryId = repositoryId;
+        this.buildConfigurationId = buildConfigurationId;
+        this.errorMessage = errorMessage;
     }
+
+    @Getter
+    private final Integer repositoryId;
+
+    @Getter
+    private final Integer buildConfigurationId;
+
+    @Getter
+    private final String errorMessage;
 }

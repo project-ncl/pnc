@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -32,7 +33,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.TaskResponse;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -53,6 +54,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+
 import java.util.Set;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -338,7 +340,7 @@ public interface BuildConfigurationEndpoint {
                     + "the content of the SCM repository is cloned into an internal repository.",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
+                    content = @Content(schema = @Schema(implementation = BuildConfigCreationResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
@@ -348,7 +350,7 @@ public interface BuildConfigurationEndpoint {
     })
     @POST
     @Path("/create-with-scm")
-    TaskResponse createWithSCM(BuildConfigWithSCMRequest request);
+    BuildConfigCreationResponse createWithSCM(BuildConfigWithSCMRequest request);
 
     @Operation(summary = "Provides list of supported parameters.",
             description = "Provides list of parameters supported by core, there can be also other parameters not known by core.",

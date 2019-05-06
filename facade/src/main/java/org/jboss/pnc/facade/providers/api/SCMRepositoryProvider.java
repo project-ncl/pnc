@@ -19,7 +19,10 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.model.RepositoryConfiguration;
+
+import java.util.function.Consumer;
 
 public interface SCMRepositoryProvider extends Provider<RepositoryConfiguration, SCMRepository, SCMRepository> {
 
@@ -29,4 +32,18 @@ public interface SCMRepositoryProvider extends Provider<RepositoryConfiguration,
                                                     String query,
                                                     String matchUrl,
                                                     String searchUrl);
+
+    /**
+     * Starts the task of creating SCMRepository. If the SCM URL is external, the task creates new
+     * internal repository and does inital synchronization.
+     *
+     * @param scmUrl The URL of the SCM repository.
+     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies wheather the
+     * external repository should be synchronized into the internal one before build.
+     * @param consumers Callback functions that are called when SCM repository is created. The
+     * callback function takes SCM repository id as a parameter.
+     * @return id of the created
+     */
+    RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled, Consumer<Integer>... consumers);
+
 }

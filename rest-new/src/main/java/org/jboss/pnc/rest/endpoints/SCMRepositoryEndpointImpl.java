@@ -20,15 +20,17 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.TaskResponse;
+import org.jboss.pnc.dto.response.RepositoryCreationResponse;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class SCMRepositoryEndpointImpl
         extends AbstractEndpoint<SCMRepository, SCMRepository>
         implements SCMRepositoryEndpoint {
@@ -68,8 +70,9 @@ public class SCMRepositoryEndpointImpl
     }
 
     @Override
-    public TaskResponse createNew(CreateAndSyncSCMRequest request) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+    public RepositoryCreationResponse createNew(CreateAndSyncSCMRequest request) {
+        ValidationBuilder.validateObject(request, WhenCreatingNew.class)
+                .validateNotEmptyArgument().validateAnnotations();
+        return scmRepositoryProvider.createSCMRepository(request.getScmUrl(), request.getPreBuildSyncEnabled());
     }
 }
