@@ -99,6 +99,7 @@ public class BuildTasksRestTest extends AbstractTest{
                 "jboss-modules",
                 "scm-url",
                 "master",
+                "1.0.0.redhat-1",
                 "origin-scm-url",
                 false,
                 "dummy-docker-image-id",

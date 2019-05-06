@@ -161,6 +161,13 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(updatable = false)
     private String scmRevision;
 
+    /**
+     * The SCM revision in human readable form such as Git Tag.
+     */
+    @Size(max=255)
+    @Column(updatable = false)
+    private String scmTag;
+
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Basic(fetch = FetchType.LAZY)
@@ -445,6 +452,14 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public String getScmTag() {
+        return scmTag;
+    }
+
+    public void setScmTag(String scmTag) {
+        this.scmTag = scmTag;
     }
 
     public String getRepourLog() {
@@ -831,6 +846,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String scmRevision;
 
+        private String scmTag;
+
         private String repourLog = "";
 
         private String buildLog = "";
@@ -889,6 +906,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setUser(user);
             buildRecord.setScmRepoURL(scmRepoURL);
             buildRecord.setScmRevision(scmRevision);
+            buildRecord.setScmTag(scmTag);
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setAttributes(attributes);
@@ -1006,6 +1024,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder scmRevision(String scmRevision) {
             this.scmRevision = scmRevision;
+            return this;
+        }
+
+        public Builder scmTag(String scmTag) {
+            this.scmTag = scmTag;
             return this;
         }
 

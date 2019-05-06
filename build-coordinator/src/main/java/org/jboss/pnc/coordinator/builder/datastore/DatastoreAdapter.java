@@ -194,6 +194,7 @@ public class DatastoreAdapter {
                 BuildExecutionConfiguration buildExecutionConfig = buildResult.getBuildExecutionConfiguration().get();
                 buildRecordBuilder.scmRepoURL(buildExecutionConfig.getScmRepoURL());
                 buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
+                buildRecordBuilder.scmTag(buildExecutionConfig.getScmTag());
             } else if (!buildResult.hasFailed()) {
                 return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
             }

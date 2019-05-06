@@ -236,6 +236,7 @@ public class BuildResultPushManager {
                 buildRecord.getEndTime(),
                 buildRecord.getScmRepoURL(),
                 buildRecord.getScmRevision(),
+                buildRecord.getScmTag(),
                 buildRoot,
                 logs,
                 dependencies,

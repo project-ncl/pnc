@@ -39,6 +39,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String name;
     private String scmRepoURL;
     private String scmRevision;
+    private String scmTag;
     private String originRepoURL;
     private boolean preBuildSyncEnabled;
     private BuildType buildType;
@@ -56,6 +57,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setBuildScript("mvn install");
         mock.setScmRepoURL("http://www.github.com");
         mock.setScmRevision("1234567890");
+        mock.setScmTag("1.0.0.redhat-1");
         mock.setPreBuildSyncEnabled(false);
         mock.setBuildType(BuildType.MVN);
         mock.setSystemImageId("abcd1234");
@@ -125,6 +127,15 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     @Override
     public String getScmRevision() {
         return scmRevision;
+    }
+
+    @Override
+    public String getScmTag() {
+        return scmTag;
+    }
+
+    public void setScmTag(String scmTag) {
+        this.scmTag = scmTag;
     }
 
     @Override

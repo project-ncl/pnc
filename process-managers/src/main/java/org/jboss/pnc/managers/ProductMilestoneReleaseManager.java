@@ -278,11 +278,12 @@ public class ProductMilestoneReleaseManager {
         BuildConfigurationAudited buildConfiguration = orNull(record, BuildRecord::getBuildConfigurationAudited); //TODO fix audited entity usage
         stringBuilder.append("\n-------------------------------------------------------------------------\n");
         String buildMessage =
-                String.format("%s [buildRecordId: %d, built from %s rev %s] import %s. Brew build id: %d, Brew build url: %s\n",
+                String.format("%s [buildRecordId: %d, built from %s revision %s tag %s] import %s. Brew build id: %d, Brew build url: %s\n",
                         orNull(buildConfiguration, BuildConfigurationAudited::getName),
                         orNull(record, BuildRecord::getId),
                         orNull(record, BuildRecord::getScmRepoURL),
                         orNull(record, BuildRecord::getScmRevision),
+                        orNull(record, BuildRecord::getScmTag),
                         buildImport.getStatus(),
                         buildImport.getBrewBuildId(),
                         buildImport.getBrewBuildUrl());

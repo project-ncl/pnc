@@ -152,6 +152,7 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 "",
+                "",
                 false,
                 BuildType.MVN,
                 "",
