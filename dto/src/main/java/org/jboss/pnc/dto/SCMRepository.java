@@ -36,7 +36,7 @@ import org.jboss.pnc.dto.validation.constraints.SCMUrl;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = SCMRepository.Builder.class)
 public class SCMRepository implements DTOEntity {
 
