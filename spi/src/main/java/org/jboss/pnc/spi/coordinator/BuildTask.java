@@ -37,7 +37,7 @@ import java.util.Set;
 */
 public class BuildTask {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildTask.class);
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-task");
 
     private final Integer id;
     private final BuildConfigurationAudited buildConfigurationAudited; //TODO decouple DB entity
@@ -254,7 +254,7 @@ public class BuildTask {
     /**
      * Check if this build is ready to build, for example if all dependency builds
      * are complete.
-     * 
+     *
      * @return true if already built, false otherwise
      */
     public boolean readyToBuild() {
@@ -285,6 +285,13 @@ public class BuildTask {
                     buildSetTask.getBuildConfigSetRecord().map(BuildConfigSetRecord::getId).orElse(null);
         }
 
+        ProductMilestone milestone = productMilestone;
+        if (milestone != null && milestone.getEndDate() != null) {
+            userLog.warn("Not using current milestone {} for build task {}, because the milestone is closed.",
+                    productMilestone, buildTaskId);
+            milestone = null;
+        }
+
         return new BuildTask(
                 buildConfigurationAudited,
                 buildOptions,
@@ -293,7 +300,7 @@ public class BuildTask {
                 buildSetTask,
                 buildTaskId,
                 buildConfigSetRecordId,
-                productMilestone,
+                milestone,
                 contentId);
     }
 
