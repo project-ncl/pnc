@@ -98,7 +98,7 @@ public class BuildTasksRestTest extends AbstractTest{
                 "mvn clean install",
                 "jboss-modules",
                 "scm-url",
-                "master",
+                "f18de64523d5054395d82e24d4e28473a05a3880",
                 "1.0.0.redhat-1",
                 "origin-scm-url",
                 false,

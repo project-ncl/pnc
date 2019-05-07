@@ -47,7 +47,7 @@ public class BuildExecutionConfigurationTest {
                 "mvn clean install",
                 "configuration name",
                 "https://pathToRepo.git",
-                "1111111",
+                "f18de64523d5054395d82e24d4e28473a05a3880",
                 "1.0.0.Final-redhat-00001",
                 "https://pathToOriginRepo.git",
                 false,
