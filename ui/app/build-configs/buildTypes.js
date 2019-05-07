@@ -28,6 +28,10 @@
         {
           id: 'NPM',
           name: 'Node Package Manager (NPM)'
+        },
+        {
+          id: 'GRADLE',
+          name: 'Gradle'
         }
       ];
     }
