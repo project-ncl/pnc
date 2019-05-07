@@ -69,6 +69,14 @@
       </span>
     </dd>
 
+    <dt>SCM Tag:</dt>
+    <dd>
+      <span ng-show="ctrl.record.scmTag">{{ ctrl.record.scmTag }}</span>
+      <span ng-hide="ctrl.record.scmTag">
+        Not available
+      </span>
+    </dd>
+
     <dt>Environment:</dt>
     <dd>{{ ctrl.record.buildConfigurationAudited.environment.name || '&mdash;' }}</dd>
     <dt>Script:</dt>
