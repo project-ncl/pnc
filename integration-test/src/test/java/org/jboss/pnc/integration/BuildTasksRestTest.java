@@ -91,7 +91,7 @@ public class BuildTasksRestTest extends AbstractTest{
         request.addHeader(getAuthenticationHeaderApache());
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master",
+                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "f18de64523d5054395d82e24d4e28473a05a3880",
                 "1.0.0.redhat-1", "origin-scm-url", false, "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false, null, new HashMap<>(),
                 false, null);
 

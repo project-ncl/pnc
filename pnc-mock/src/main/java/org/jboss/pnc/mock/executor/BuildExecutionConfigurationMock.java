@@ -55,7 +55,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setId(1);
         mock.setBuildScript("mvn install");
         mock.setScmRepoURL("http://www.github.com");
-        mock.setScmRevision("1234567890");
+        mock.setScmRevision("f18de64523d5054395d82e24d4e28473a05a3880");
         mock.setScmTag("1.0.0.redhat-1");
         mock.setPreBuildSyncEnabled(false);
         mock.setSystemImageId("abcd1234");
