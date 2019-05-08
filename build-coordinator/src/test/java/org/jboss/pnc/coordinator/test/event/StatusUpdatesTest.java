@@ -29,13 +29,13 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifi
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.indyrepositorymanager.IndyRepositoryManagerResult;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
@@ -58,11 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -172,7 +168,7 @@ public class StatusUpdatesTest {
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
         BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(
                 datastoreAdapter,
-                Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+                1L
         );
         AtomicInteger atomicInteger = new AtomicInteger(1);
 

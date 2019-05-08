@@ -141,7 +141,7 @@ public class DefaultBuildCoordinatorTest {
     @Before
     public void setUp() throws DatastoreException {
         MockitoAnnotations.initMocks(this);
-        when(systemConfig.getTemporalBuildExpireDate()).thenReturn(new Date(1));
+        when(systemConfig.getTemporaryBuildsLifeSpan()).thenReturn(14);
         when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class))).thenReturn(true);
         when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class))).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());

@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.environment.openshift;
 
+import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -116,7 +117,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
                 debugData,
                 accessToken,
                 tempBuild,
-                systemConfig.getTemporalBuildExpireDate(),
+                ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), tempBuild),
                 metricsConfig);
     }
 

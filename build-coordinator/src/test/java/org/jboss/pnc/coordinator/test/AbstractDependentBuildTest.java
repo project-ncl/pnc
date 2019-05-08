@@ -18,7 +18,6 @@
 package org.jboss.pnc.coordinator.test;
 
 import lombok.RequiredArgsConstructor;
-
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -28,6 +27,7 @@ import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.datastore.DefaultDatastore;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
@@ -43,7 +43,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
@@ -68,8 +67,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
-
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,7 +131,6 @@ public abstract class AbstractDependentBuildTest {
         when(systemConfig.getCoordinatorThreadPoolSize()).thenReturn(1);
         when(systemConfig.getCoordinatorMaxConcurrentBuilds()).thenReturn(1);
         when(systemConfig.getTemporaryBuildsLifeSpan()).thenReturn(1);
-        when(systemConfig.getTemporalBuildExpireDate()).thenReturn(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
         when(config.getModuleConfig(any())).thenReturn(systemConfig);
 
         buildQueue = new BuildQueue(config);

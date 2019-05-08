@@ -137,14 +137,6 @@ public class SystemConfig extends AbstractModuleConfig {
         return temporaryBuildsLifeSpan;
     }
 
-    /**
-     * @return expiration date. Date is calculated now + temporaryBuildsLifeSpan days.
-     */
-    @JsonIgnore
-    public Date getTemporalBuildExpireDate() {
-        return Date.from(Instant.now().plus(temporaryBuildsLifeSpan, ChronoUnit.DAYS));
-    }
-
     public KeycloakClientConfig getKeycloakServiceAccountConfig() {
         return keycloakServiceAccountConfig;
     }

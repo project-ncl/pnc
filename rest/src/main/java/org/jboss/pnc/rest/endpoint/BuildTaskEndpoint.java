@@ -26,6 +26,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
@@ -99,7 +100,7 @@ public class BuildTaskEndpoint {
 //            logger.error("Missing buildExecutionConfiguration in buildResult for buildTaskId [{}].", buildId);
 //            throw new CoreException("Missing buildExecutionConfiguration in buildResult for buildTaskId " + buildId);
 //        }
-//        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
+//        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporaryBuildExpireDate());
         logger.info("Received build task completed notification for id {}.", buildId);
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
@@ -115,7 +116,12 @@ public class BuildTaskEndpoint {
             BpmBuildTask bpmBuildTask = (BpmBuildTask) taskOptional.get();
             BuildTask buildTask = bpmBuildTask.getBuildTask();
 
-            MDCUtils.addBuildContext(buildTask.getContentId(), buildTask.getBuildOptions().isTemporaryBuild(), systemConfig.getTemporalBuildExpireDate());
+            boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
+            MDCUtils.addBuildContext(
+                    buildTask.getContentId(),
+                    temporaryBuild,
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+            );
             if (buildTask.getStatus().isCompleted()) {
                 logger.warn("Task with id: {} is already completed with status: {}", buildTask.getId(), buildTask.getStatus());
                 return Response.status(Response.Status.GONE).entity("Task with id: " + buildTask.getId() + " is already completed with status: " + buildTask.getStatus() + ".").build();
@@ -149,8 +155,14 @@ public class BuildTaskEndpoint {
 
         try {
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
-            MDCUtils.addBuildContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporalBuildExpireDate());
-            logger.info("Build execution requested.");
+            boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
+            MDCUtils.addBuildContext(
+                    buildExecutionConfiguration.getBuildContentId(),
+                    temporaryBuild,
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+            );
+
+                    logger.info("Build execution requested.");
             logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
 
             AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
