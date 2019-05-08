@@ -38,9 +38,6 @@ import org.junit.runner.RunWith;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -80,7 +77,9 @@ public class ReadDependenciesTest extends ProjectBuilder {
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(
+                datastoreAdapter,
+                1L);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();

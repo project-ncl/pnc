@@ -22,13 +22,14 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.rest.executor.notifications.NotificationSender;
 import org.jboss.pnc.enums.BPMTaskStatus;
+import org.jboss.pnc.enums.BuildExecutionStatus;
+import org.jboss.pnc.rest.executor.notifications.NotificationSender;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.utils.BpmNotifier;
-import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -38,7 +39,6 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -176,10 +176,11 @@ public class BuildExecutorTriggerer {
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildExecutionConfigId);
         if (runningExecution != null) {
             BuildExecutionConfiguration buildExecutionConfiguration = runningExecution.getBuildExecutionConfiguration();
+            boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
             return Optional.of(new BuildTaskContext(
                     buildExecutionConfiguration.getBuildContentId(),
-                    buildExecutionConfiguration.isTempBuild(),
-                    systemConfig.getTemporalBuildExpireDate()
+                    temporaryBuild,
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
             ));
         } else {
             return Optional.empty();

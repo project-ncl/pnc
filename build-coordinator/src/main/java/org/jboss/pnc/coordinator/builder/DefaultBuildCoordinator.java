@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
+import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -120,7 +121,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         this.buildScheduler = buildSchedulerFactory.getBuildScheduler();
         this.systemConfig = systemConfig;
         this.buildQueue = buildQueue;
-        this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, systemConfig.getTemporalBuildExpireDate());
+        this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, systemConfig.getTemporaryBuildsLifeSpan());
     }
 
     /**
@@ -359,10 +360,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private BuildTaskContext getMDCMeta(BuildTask buildTask) {
+        boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
         return new BuildTaskContext(
                 buildTask.getContentId(),
-                buildTask.getBuildOptions().isTemporaryBuild(),
-                systemConfig.getTemporalBuildExpireDate());
+                temporaryBuild,
+                ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+        );
     }
 
     @Override

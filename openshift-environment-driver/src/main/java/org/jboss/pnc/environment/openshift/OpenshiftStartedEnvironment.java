@@ -136,7 +136,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private Optional<Future> creatingService = Optional.empty();
     private Optional<Future> creatingRoute = Optional.empty();
 
-
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
             OpenshiftBuildAgentConfig openshiftBuildAgentConfig,
@@ -183,13 +182,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties = new HashMap<>();
 
         final String buildAgentHost = environmentConfiguration.getBuildAgentHost();
+        String expiresDate = temporaryBuildExpireDate.toInstant().toString();
 
         runtimeProperties.put("build-agent-host", buildAgentHost);
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
         runtimeProperties.put("buildContentId", repositorySession.getBuildRepositoryId());
         runtimeProperties.put("accessToken", accessToken);
         runtimeProperties.put("tempBuild", Boolean.toString(tempBuild));
-        runtimeProperties.put("expiresDate", Long.toString(temporaryBuildExpireDate.getTime()));
+        runtimeProperties.put("expiresDate", expiresDate);
 
         createEnvironment();
     }

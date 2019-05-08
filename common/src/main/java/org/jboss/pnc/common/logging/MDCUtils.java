@@ -38,15 +38,15 @@ public class MDCUtils {
 
     public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Date temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
-        context.put("ctx", buildContentId);
+        context.put("processContext", buildContentId);
         context.put("tmp", temporaryBuild.toString());
-        context.put("exp", Long.toString(temporaryBuildExpireDate.getTime()));
+        context.put("exp", temporaryBuildExpireDate.toInstant().toString());
         MDC.setContextMap(context);
     }
 
     public static void addRequestContext(String requestContext) {
         Map<String, String> context = getContextMap();
-        context.put("rCtx", requestContext);
+        context.put("requestContext", requestContext);
         MDC.setContextMap(context);
     }
 

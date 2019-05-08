@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder;
 
+import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -53,11 +54,11 @@ public class BuildTasksInitializer {
 
     private DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
 
-    private Date temporaryBuildExpireDate;
+    private long temporaryBuildLifespanDays;
 
-    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, Date temporaryBuildExpireDate) {
+    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, long temporaryBuildLifespanDays) {
         this.datastoreAdapter = datastoreAdapter;
-        this.temporaryBuildExpireDate = temporaryBuildExpireDate;
+        this.temporaryBuildLifespanDays = temporaryBuildLifespanDays;
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationAudited buildConfigurationAudited,
@@ -269,7 +270,10 @@ public class BuildTasksInitializer {
             } else {
                 int buildId = buildTaskIdProvider.get();
                 String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
-                MDCUtils.addBuildContext(buildContentId, buildOptions.isTemporaryBuild(), temporaryBuildExpireDate);
+                MDCUtils.addBuildContext(
+                        buildContentId,
+                        buildOptions.isTemporaryBuild(),
+                        ExpiresDate.getTemporaryBuildExpireDate(temporaryBuildLifespanDays, buildOptions.isTemporaryBuild()));
 
                 buildTask = BuildTask.build(
                         buildConfigAudited,

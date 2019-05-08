@@ -84,7 +84,7 @@
                     },
                     {
                         "name": "buildAgentJvmProperties",
-                        "value": "-DlogMDC=buildContext:${buildContentId};tmp:${tempBuild};exp:${expiresDate}"
+                        "value": "-DlogMDC=processContext:${buildContentId};tmp:${tempBuild};exp:${expiresDate}"
                     }
                 ],
                 "resources": {},
