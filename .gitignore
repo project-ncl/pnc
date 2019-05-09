@@ -13,6 +13,9 @@ bin
 *.iml
 .idea
 
+# Netbeans
+nb-configuration.xml
+
 # DB test file
 indy-repository-manager/derby.log
 indy-repository-manager/indexedStorePath
