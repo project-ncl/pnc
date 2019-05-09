@@ -53,16 +53,19 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -134,9 +137,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private Runnable cancelHook;
     private boolean cancelRequested = false;
 
-    private Optional<Future> creatingPod = Optional.empty();
-    private Optional<Future> creatingService = Optional.empty();
-    private Optional<Future> creatingRoute = Optional.empty();
+    private Optional<CompletableFuture<Void>> creatingPod = Optional.empty();
+    private Optional<CompletableFuture<Void>> creatingService = Optional.empty();
+    private Optional<CompletableFuture<Void>> creatingRoute = Optional.empty();
+
+    // Used to track whether all the futures for creation are completed, or failed with an exception
+    private CompletableFuture<Void> creationCompletableFutures;
 
 
     public OpenshiftStartedEnvironment(
@@ -196,6 +202,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private void createEnvironment() {
 
+        List<CompletableFuture<Void>> trackCreationFutures = new ArrayList<>();
 
         String randString = RandomUtils.randString(6);//note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
@@ -219,9 +226,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 podCreated = true;
             } catch (Throwable e) {
                 logger.error("Cannot create pod.", e);
+                throw e;
             }
         };
-        creatingPod = Optional.of(executor.submit(createPod));
+        creatingPod = Optional.of(CompletableFuture.runAsync(createPod, executor));
+        trackCreationFutures.add(creatingPod.get());
 
         ModelNode serviceConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_SERVICE, openshiftBuildAgentConfig), runtimeProperties);
         service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
@@ -232,9 +241,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 serviceCreated = true;
             } catch (Throwable e) {
                 logger.error("Cannot create service.", e);
+                throw e;
             }
         };
-        creatingService = Optional.of(executor.submit(createService));
+        creatingService = Optional.of(CompletableFuture.runAsync(createService, executor));
+        trackCreationFutures.add(creatingService.get());
 
         if (createRoute) {
             ModelNode routeConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_ROUTE, openshiftBuildAgentConfig), runtimeProperties);
@@ -246,10 +257,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     routeCreated = true;
                 } catch (Throwable e) {
                     logger.error("Cannot create route.", e);
+                    throw e;
                 }
             };
-            creatingRoute = Optional.of(executor.submit(createRoute));
+            creatingRoute = Optional.of(CompletableFuture.runAsync(createRoute, executor));
+            trackCreationFutures.add(creatingRoute.get());
         }
+
+        creationCompletableFutures = CompletableFuture.allOf(trackCreationFutures.toArray(new CompletableFuture[0]));
         gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_ATTEMPTED_KEY));
     }
 
@@ -396,7 +411,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD),
                 (t) -> this.retryPod(t, onComplete, onError, retries),
-                this::isPodRunning);
+                () -> checkOpenshiftObjectCreationAndThen(this::isPodRunning));
 
         addMonitors(pullingMonitor.monitor(
                 onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE),
@@ -483,6 +498,43 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     /**
+     * Wraps around a condition and check first if the Openshift object futures are completed successfully.
+     *
+     * If completed successfully, the wrapperCondition is *then* called
+     * If completed, but not successfully, the exception in the future is thrown.
+     * If not completed, return a supplier that returns false
+     *
+     * @param wrapperCondition other condition to check if the Openshift object creations are created successfully
+     *
+     * @return supplier
+     */
+    private boolean checkOpenshiftObjectCreationAndThen(Supplier<Boolean> wrapperCondition) {
+
+
+        if (!creationCompletableFutures.isDone()) {
+            logger.debug("All openshift creating completable futures not done yet!");
+            return false;
+        } else {
+
+            // creation futures are done. Check if there was an exception or not
+            if (creationCompletableFutures.isCompletedExceptionally()) {
+                // capturing the exception
+                try {
+                    creationCompletableFutures.join();
+                } catch (Exception e) {
+                    logger.debug("Exception in one of the openshift creating completable future", e);
+                    throw e;
+                }
+                return false;
+            } else {
+                // creation of Openshift objects were successful, let's invoke the wrapper condition
+                logger.info("Calling wrapper condition");
+                return wrapperCondition.get();
+            }
+        }
+    }
+
+    /**
      * Check if pod is in running state.
      * If pod is in one of the failure statuses (as specified in POD_FAILED_STATUSES, PodFailedStartException is thrown
      *
@@ -490,6 +542,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private boolean isPodRunning() {
         if (!podCreated) { //avoid Caused by: java.io.FileNotFoundException: https://<host>:8443/api/v1/namespaces/project-ncl/services/pnc-ba-pod-552c
+            logger.info("Pod not created yet!");
             return false;
         }
 
