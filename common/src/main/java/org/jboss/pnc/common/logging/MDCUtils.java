@@ -19,7 +19,7 @@ package org.jboss.pnc.common.logging;
 
 import org.slf4j.MDC;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,11 +36,11 @@ public class MDCUtils {
         );
     }
 
-    public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Date temporaryBuildExpireDate) {
+    public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Instant temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
         context.put("processContext", buildContentId);
         context.put("tmp", temporaryBuild.toString());
-        context.put("exp", temporaryBuildExpireDate.toInstant().toString());
+        context.put("exp", temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);
     }
 
