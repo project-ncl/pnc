@@ -20,7 +20,7 @@ package org.jboss.pnc.common.logging;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -33,5 +33,5 @@ public class BuildTaskContext {
 
     private final boolean temporaryBuild;
 
-    private final Date temporaryBuildExpireDate;
+    private final Instant temporaryBuildExpireDate;
 }

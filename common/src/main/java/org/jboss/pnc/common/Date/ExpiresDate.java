@@ -19,7 +19,6 @@ package org.jboss.pnc.common.Date;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -30,11 +29,11 @@ public class ExpiresDate {
      * @return expiration date. Date is calculated now + temporaryBuildsLifeSpanDays days.
      * If the build is not temporary returns MAX java date.
      */
-    public static Date getTemporaryBuildExpireDate(long temporaryBuildsLifeSpanDays, boolean isTemporaryBuild) {
+    public static Instant getTemporaryBuildExpireDate(long temporaryBuildsLifeSpanDays, boolean isTemporaryBuild) {
         if (isTemporaryBuild) {
-            return Date.from(Instant.now().plus(temporaryBuildsLifeSpanDays, ChronoUnit.DAYS));
+            return Instant.now().plus(temporaryBuildsLifeSpanDays, ChronoUnit.DAYS);
         } else {
-            return new Date(Long.MAX_VALUE);
+            return Instant.parse("9999-01-01T00:00:00Z");
         }
     }
 

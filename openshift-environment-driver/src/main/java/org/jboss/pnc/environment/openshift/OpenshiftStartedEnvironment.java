@@ -53,8 +53,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -146,7 +146,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             DebugData debugData,
             String accessToken,
             boolean tempBuild,
-            Date temporaryBuildExpireDate,
+            Instant temporaryBuildExpireDate,
             MetricsConfiguration metricsConfiguration) {
 
         creationPodRetry = DEFAULT_CREATION_POD_RETRY;
@@ -182,14 +182,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties = new HashMap<>();
 
         final String buildAgentHost = environmentConfiguration.getBuildAgentHost();
-        String expiresDate = temporaryBuildExpireDate.toInstant().toString();
+        String expiresDateStamp = Long.toString(temporaryBuildExpireDate.toEpochMilli());
 
         runtimeProperties.put("build-agent-host", buildAgentHost);
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
         runtimeProperties.put("buildContentId", repositorySession.getBuildRepositoryId());
         runtimeProperties.put("accessToken", accessToken);
         runtimeProperties.put("tempBuild", Boolean.toString(tempBuild));
-        runtimeProperties.put("expiresDate", expiresDate);
+        runtimeProperties.put("expiresDate", "ts" + expiresDateStamp);
 
         createEnvironment();
     }
