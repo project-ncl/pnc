@@ -17,13 +17,23 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.util.regex.Pattern;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
@@ -31,11 +41,7 @@ import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
+import com.google.common.collect.Lists;
 
 @Stateless
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
@@ -95,5 +101,16 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Override
     public void cancelMilestoneClose(String id) {
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
+    }
+
+    @Override
+    public ValidationResponse validateVersion(VersionValidationRequest versionRequest) {
+        return ValidationResponse.builder()
+                .isValid(Pattern.matches(Patterns.PRODUCT_MILESTONE_VERSION, versionRequest.getVersion()))
+                .hints(
+                        Lists.newArrayList(
+                                "Allowed format consists of 2 or 3 numeric components (separated by a dot) followed by a string "
+                                        + "qualifier starting with a character, eg. 3.0.0.GA, 1.0.11.CR2.ER1, 3.0.CR2"))
+                .build();
     }
 }
