@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2014 Red Hat, Inc., and individual contributors
+ * Copyright 2014-2019 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,11 +23,17 @@
     require: {
       ngModel: 'ngModel'
     },
-    controller: [Controller]
+    controller: ['buildTypes', Controller]
   });
 
-  function Controller() {
+  function Controller(buildTypes) {
     var $ctrl = this;
+
+    // -- Controller API --
+
+    $ctrl.buildTypes = buildTypes;
+
+    // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.ngModel.$render = function () {
