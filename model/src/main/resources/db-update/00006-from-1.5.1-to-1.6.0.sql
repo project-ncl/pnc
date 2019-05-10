@@ -22,6 +22,4 @@
 alter table buildrecord add column scmTag varchar(255);
 
 UPDATE buildrecord
-SET scmTag = subquery.scmRevision
-FROM (SELECT scmRevision FROM buildrecord) AS subquery
-WHERE buildrecord.scmRevision = subquery.scmRevision;
+SET scmTag = scmRevision;
