@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2019 Red Hat, Inc., and individual contributors
+ * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,53 +35,14 @@
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIGURATION_PATH;
 
       var resource = $resource(ENDPOINT, {
-        id: '@id',
-        revisionId: '@rev'
+        id: '@id'
       }, {
         query: {
           method: 'GET',
           isPaged: true,
         },
         update: {
-          method: 'PUT',
-          successNotification: false
-        },
-        delete: {
-          method: 'DELETE',
-          successNotification: 'Build Config successfully deleted'
-        },
-        clone: {
-          method: 'POST',
-          url: ENDPOINT + '/clone',
-          successNotification: 'Build Config successfully cloned'
-        },
-        getDependencies: {
-          method: 'GET',
-          url: ENDPOINT + '/dependencies',
-          isPaged: true
-        },
-        getDependants: {
-          method: 'GET',
-          url: restConfig.getPncUrl() + '/build-configurations/?q=dependencies.id=in=(:id)',
-          isPaged: true
-        },
-        removeDependency: {
-          method: 'DELETE',
-          url: ENDPOINT + '/dependencies/:dependencyId'
-        },
-        getRevisions: {
-          method: 'GET',
-          url: ENDPOINT + '/revisions',
-          isPaged: true
-        },
-        getRevision: {
-          method: 'GET',
-          url: ENDPOINT + '/revisions/:revisionId'
-        },
-        restoreRevision: {
-          method: 'POST',
-          url: ENDPOINT + '/revisions/:revisionId/restore',
-          successNotification: false
+          method: 'PUT'
         }
       });
 
@@ -90,6 +51,7 @@
           return r.data;
         });
       };
+
 
       return resource;
     }
