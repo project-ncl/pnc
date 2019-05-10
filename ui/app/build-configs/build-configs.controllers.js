@@ -44,9 +44,10 @@
     'configurations',
     'configurationSetList',
     'linkedConfigurationSetList',
+    'buildTypes',
     function($log, $state, $filter, pncNotify, ProductDAO, BuildConfigurationSetDAO,
       configurationDetail, environments, products,
-      linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList) {
+      linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList, buildTypes) {
 
       var that = this;
 
@@ -56,6 +57,7 @@
       that.configurations = configurations;
       that.configurationSetList = configurationSetList;
       that.products = products;
+      that.buildTypes = buildTypes;
 
       that.productVersions = {
         selected: linkedProductVersions
