@@ -24,5 +24,5 @@ package org.jboss.pnc.model;
  */
 public enum BuildType {
     MVN,
-    NPM
+    GRADLE
 }
