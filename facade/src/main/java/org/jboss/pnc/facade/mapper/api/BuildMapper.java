@@ -45,7 +45,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
     @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"scmRepoURL", "scmRevision", "buildLog", "buildLogMd5", "buildLogSha256",
+    @BeanMapping(ignoreUnmappedSourceProperties = {"scmRepoURL", "scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
@@ -61,7 +61,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     }
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"scmRepoURL", "scmRevision", "buildLog", "buildLogMd5", "buildLogSha256",
+    @BeanMapping(ignoreUnmappedSourceProperties = {"scmRepoURL", "scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev", "buildEnvironment",
@@ -78,6 +78,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     @Mapping(target = "scmRepoURL", ignore = true)
     @Mapping(target = "scmRevision", ignore = true)
+    @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "repourLog", ignore = true)
     @Mapping(target = "buildLog", ignore = true)
     @Mapping(target = "builtArtifacts", ignore = true)
