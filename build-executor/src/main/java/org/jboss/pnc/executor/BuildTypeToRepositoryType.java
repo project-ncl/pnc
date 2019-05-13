@@ -28,9 +28,8 @@ public class BuildTypeToRepositoryType {
     public static TargetRepository.Type getRepositoryType(BuildType buildType) {
         switch (buildType) {
             case MVN:
+            case GRADLE:
                 return TargetRepository.Type.MAVEN;
-            case NPM:
-                return TargetRepository.Type.NPM;
         }
         throw new RuntimeException("Cannot create repository for build type: " + buildType);
     }
