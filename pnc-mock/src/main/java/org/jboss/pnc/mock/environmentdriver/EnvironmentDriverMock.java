@@ -30,6 +30,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -47,7 +48,9 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
             SystemImageType buildType,
             final RepositorySession repositoryConfiguration,
             DebugData debugData,
-            String accessToken, boolean tempBuild) throws EnvironmentDriverException {
+            String accessToken,
+            boolean tempBuild,
+            Map<String, String> parameters) throws EnvironmentDriverException {
         return new StartedEnvironment() {
 
             @Override

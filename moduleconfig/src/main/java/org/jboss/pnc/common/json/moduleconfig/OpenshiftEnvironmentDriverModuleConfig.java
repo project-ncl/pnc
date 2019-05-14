@@ -18,6 +18,7 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import org.jboss.pnc.common.json.moduleconfig.helper.HttpDestinationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,13 @@ import java.util.List;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  *
  */
+@Getter
 public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverModuleConfigBase {
 
     private static final Logger log = LoggerFactory.getLogger(OpenshiftEnvironmentDriverModuleConfig.class);
 
     public static final String MODULE_NAME = "openshift-environment-driver";
+    private static final int DEFAULT_BUILDER_POD_MEMORY = 4;
 
     private String restEndpointUrl;
     private String buildAgentHost;
@@ -46,6 +49,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private String containerPort;
     private boolean keepBuildAgentInstance;
     private boolean exposeBuildAgentOnPublicUrl;
+    private final int builderPodMemory;
 
     private String creationPodRetry;
 
@@ -66,7 +70,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("disabled") Boolean disabled,
                                                   @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
                                                   @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl,
-                                                  @JsonProperty("creationPodRetry") String creationPodRetry) {
+                                                  @JsonProperty("creationPodRetry") String creationPodRetry,
+                                                  @JsonProperty("builderPodMemory") Integer builderPodMemory) {
         super(imageId, firewallAllowedDestinations, allowedHttpOutgoingDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
@@ -79,6 +84,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.keepBuildAgentInstance = keepBuildAgentInstance != null ? keepBuildAgentInstance: false;
         this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl != null ? exposeBuildAgentOnPublicUrl: false;
         this.creationPodRetry = creationPodRetry;
+        this.builderPodMemory = builderPodMemory == null ? DEFAULT_BUILDER_POD_MEMORY : builderPodMemory;
 
         log.debug("Created new instance {}", toString());
     }
