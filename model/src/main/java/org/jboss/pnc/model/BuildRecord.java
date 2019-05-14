@@ -170,20 +170,15 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Type(type = "org.hibernate.type.TextType")
     @Basic(fetch = FetchType.LAZY)
     @LazyGroup("buildLog")
-    @Column(updatable = false)
     private String buildLog;
 
-    @Column(updatable = false)
     private String buildLogMd5;
 
-    @Column(updatable = false)
     private String buildLogSha256;
 
-    @Column(updatable = false)
     private Integer buildLogSize;
 
     @Enumerated(EnumType.STRING)
-    @Column(updatable = false)
     private BuildStatus status;
 
     @Size(max=150)

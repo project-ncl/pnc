@@ -30,4 +30,9 @@ public class ArtifactRestClient extends AbstractRestClient<ArtifactRest>{
     public ArtifactRestClient() {
         super(ARTIFACT_REST_ENDPOINT, ArtifactRest.class);
     }
+
+    public ArtifactRestClient(AuthenticateAs authenticateAs) {
+        super(ArtifactRestClient.ARTIFACT_REST_ENDPOINT, ArtifactRest.class, authenticateAs);
+    }
+
 }

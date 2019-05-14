@@ -20,12 +20,14 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import java.util.function.Function;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@PermitAll
 @Stateless
 public class BuildRecordPushResultProvider extends AbstractProvider<BuildRecordPushResult, BuildRecordPushResultRest>{
 

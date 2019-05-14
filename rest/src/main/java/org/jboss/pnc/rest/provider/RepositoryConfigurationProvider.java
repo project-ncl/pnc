@@ -41,6 +41,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
@@ -53,6 +54,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
  */
+@PermitAll
 @Stateless
 public class RepositoryConfigurationProvider extends AbstractProvider<RepositoryConfiguration, RepositoryConfigurationRest> {
 

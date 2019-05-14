@@ -87,6 +87,9 @@
     <security-role>
         <role-name>user</role-name>
     </security-role>
+    <security-role>
+        <role-name>system-user</role-name>
+    </security-role>
 
     <!--filter>
         <filter-name>cross-origin</filter-name>

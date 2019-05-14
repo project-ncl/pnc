@@ -164,6 +164,8 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     ) throws RestValidationException {
         try {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+            logger.debug("LoggedInUser: " + loginInUser);
+
 
             String loggedUser = loginInUser.getUserName().intern();
 

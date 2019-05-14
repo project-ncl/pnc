@@ -25,13 +25,13 @@ import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.coordinator.maintenance.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.graph.GraphRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ArtifactPage;
@@ -51,6 +51,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -59,6 +60,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -134,6 +137,25 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
         return super.getAll(pageIndex, pageSize, sort, q);
+    }
+
+    @ApiOperation(value = "Gets the Build Records produced from the BuildConfiguration by name.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = Collection.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = Collection.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/with-status-and-log")
+    public Response getAllByStatusAndLogContaining(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Build status") @QueryParam("status") BuildStatus status,
+            @ApiParam(value = "Log search string") @QueryParam("search") String search) {
+        return fromCollection(buildRecordProvider.getAllByStatusAndLogContaining(pageIndex, pageSize, sort, q, status, search));
     }
 
     @ApiOperation(value = "Gets specific Build Record")
@@ -244,6 +266,21 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromCollection(artifactProvider.getBuiltArtifactsForBuildRecord(pageIndex, pageSize, sort, q, id));
     }
 
+    @ApiOperation(value = "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @PUT
+    @Path("/{id}/built-artifacts")
+    public Response setArtifacts(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "List of artifact ids", required = true) List<Integer> artifactIds) {
+        buildRecordProvider.setBuiltArtifacts(id, artifactIds);
+        return Response.ok().build();
+    }
+
     @ApiOperation(value = "Gets dependency artifacts for specific Build Record")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),
@@ -259,6 +296,21 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
         return fromCollection(artifactProvider.getDependencyArtifactsForBuildRecord(pageIndex, pageSize, sort, q, id));
+    }
+
+    @ApiOperation(value = "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @PUT
+    @Path("/{id}/dependency-artifacts")
+    public Response setDependentArtifacts(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "List of artifact ids", required = true) List<Integer> artifactIds) {
+        buildRecordProvider.setDependentArtifacts(id, artifactIds);
+        return Response.ok().build();
     }
 
     /**

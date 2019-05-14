@@ -37,6 +37,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
 
+@PermitAll
 @Stateless
 public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigurationSet, BuildConfigurationSetRest> {
 
