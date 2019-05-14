@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -96,7 +97,9 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 SystemImageType.DOCKER_IMAGE,
                 DUMMY_REPOSITORY_CONFIGURATION,
                 new DebugData(false),
-                "put-access-token-here", false);
+                "put-access-token-here",
+                false,
+                Collections.emptyMap());
 
         Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
             boolean containerDestroyed = false;

@@ -241,7 +241,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     repositorySession,
                     debugData,
                     buildExecutionSession.getAccessToken(),
-                    buildExecutionConfiguration.isTempBuild());
+                    buildExecutionConfiguration.isTempBuild(),
+                    buildExecutionConfiguration.getGenericParameters());
 
             buildExecutionSession.setCancelHook(() -> startedEnv.cancel());
 

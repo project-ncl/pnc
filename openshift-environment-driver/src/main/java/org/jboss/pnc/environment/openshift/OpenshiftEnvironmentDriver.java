@@ -42,6 +42,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -102,7 +103,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             RepositorySession repositorySession,
             DebugData debugData,
             String accessToken,
-            boolean tempBuild) throws EnvironmentDriverException {
+            boolean tempBuild,
+            Map<String, String> parameters) throws EnvironmentDriverException {
 
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
@@ -118,7 +120,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
                 accessToken,
                 tempBuild,
                 ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), tempBuild),
-                metricsConfig);
+                metricsConfig,
+                parameters);
     }
 
     @Override

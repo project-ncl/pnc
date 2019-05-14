@@ -22,6 +22,8 @@ import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
+import java.util.Map;
+
 /**
  * SPI interface for Environment driver, which provides support
  * to control different target environments.
@@ -49,7 +51,9 @@ public interface EnvironmentDriver {
             SystemImageType systemImageType,
             RepositorySession repositorySession,
             DebugData debugData,
-            String accessToken, boolean tempBuild) throws EnvironmentDriverException;
+            String accessToken,
+            boolean tempBuild,
+            Map<String, String> parameters) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment
