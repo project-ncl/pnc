@@ -27,13 +27,11 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
@@ -52,10 +50,9 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -71,6 +68,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 
+@PermitAll
 @Stateless
 public class BuildConfigurationProvider extends AbstractProvider<BuildConfiguration, BuildConfigurationRest> {
 

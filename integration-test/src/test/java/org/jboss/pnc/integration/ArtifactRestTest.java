@@ -19,12 +19,18 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.ArtifactRestClient;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rest.endpoint.ArtifactEndpoint;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRepositoryRest;
@@ -44,8 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 /**
@@ -216,7 +222,61 @@ public class ArtifactRestTest extends AbstractTest {
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id",artifactRest1.getId());
-
-
     }
+
+    @InSequence(10)
+    @Test
+    public void shouldFailToSaveArtifact() {
+
+        TargetRepository targetRepository = TargetRepository.newBuilder()
+                .id(1)
+                .build();
+
+        Artifact artifact = Artifact.Builder.newBuilder()
+                .filename("builtArtifactInsert.jar")
+                .identifier("integration-test:built-artifact-insert:jar:1.0")
+                .targetRepository(targetRepository)
+                .md5("insert-md5-1")
+                .sha1("insert-1")
+                .sha256("insert-1")
+                .build();
+
+        RestResponse<ArtifactRest> response = artifactRestClient.createNew(new ArtifactRest(artifact), false);
+        Assertions.assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(403);
+    }
+
+    @InSequence(20)
+    @Test
+    public void shouldSaveArtifact() {
+        TargetRepository targetRepository = TargetRepository.newBuilder()
+                .id(100)
+                .build();
+        Artifact artifact = Artifact.Builder.newBuilder()
+                .artifactQuality(Artifact.Quality.NEW)
+                .filename("builtArtifactInsert2.jar")
+                .identifier("integration-test:built-artifact-insert2:jar:1.0")
+                .targetRepository(targetRepository)
+                .md5("insert-md5-2")
+                .sha1("insert-2")
+                .sha256("insert-2")
+                .size(10L)
+                .build();
+
+        ArtifactRestClient restClient = new ArtifactRestClient(AbstractRestClient.AuthenticateAs.SYSTEM_USER);
+
+        RestResponse<ArtifactRest> inserted = restClient.createNew(new ArtifactRest(artifact), true);
+        Integer id = inserted.getValue().getId();
+        RestResponse<ArtifactRest> retrieved = restClient.get(id);
+        Assertions.assertThat(retrieved.getValue().getArtifactQuality()).isEqualTo(Artifact.Quality.NEW);
+        Assertions.assertThat(retrieved.getValue().getMd5()).isEqualTo("insert-md5-2");
+        Assertions.assertThat(retrieved.getValue().getSize()).isEqualTo(10L);
+
+        ArtifactRest updateRest = new ArtifactRest(artifact);
+        updateRest.setArtifactQuality(Artifact.Quality.TESTED);
+        restClient.update(id, updateRest, true);
+
+        RestResponse<ArtifactRest> updated = restClient.get(id);
+        Assertions.assertThat(updated.getValue().getArtifactQuality()).isEqualTo(Artifact.Quality.TESTED);
+    }
+
 }

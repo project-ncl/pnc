@@ -26,10 +26,12 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
 
+@PermitAll
 @Stateless
 public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSetRecord, BuildConfigSetRecordRest> {
 

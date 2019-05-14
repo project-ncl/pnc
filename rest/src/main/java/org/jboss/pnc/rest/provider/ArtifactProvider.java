@@ -38,6 +38,9 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
@@ -57,6 +60,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
+@PermitAll
 @Stateless
 public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
@@ -188,16 +192,19 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         return null;
     }
 
+    @RolesAllowed("system-user")
     @Override
     public Integer store(ArtifactRest restEntity) throws RestValidationException {
-        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+        return super.store(restEntity);
     }
 
+    @RolesAllowed("system-user")
     @Override
     public void update(Integer id, ArtifactRest restEntity) throws RestValidationException {
-        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+        super.update(id, restEntity);
     }
 
+    @DenyAll
     @Override
     public void delete(Integer id) throws RestValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
@@ -210,6 +217,6 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     @Override
     protected Function<? super ArtifactRest, ? extends Artifact> toDBModel() {
-        throw new UnsupportedOperationException();
+        return (artifact) -> artifact.toDBEntityBuilder().build();
     }
 }
