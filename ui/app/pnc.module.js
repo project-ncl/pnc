@@ -107,7 +107,12 @@
     'daConfigProvider',
     'authConfigProvider',
     function (pncProperties, restConfigProvider, daConfigProvider, authConfigProvider) {
+      // representing PNC REST API version 1
       restConfigProvider.setPncUrl(pncProperties.pncUrl);
+
+      // representing PNC REST API version 2+
+      restConfigProvider.setPncRestUrl(pncProperties.pncRestUrl);
+      
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
       restConfigProvider.setDaUrl(pncProperties.daUrl);
 
