@@ -195,7 +195,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         } else {
 
             try {
-                return new URI(gerrit.generateGerritGitwebCommitUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
+                return new URI(gerrit.generateDownloadUrlWithGerritGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
             } catch (GerritException | URISyntaxException e) {
                 throw new RepositoryViolationException(e);
             }
