@@ -36,6 +36,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     public static final String MODULE_NAME = "ui";
 
     private final String pncUrl;
+    private final String pncRestUrl;
     private final String pncNotificationsUrl;
     private final String daUrl;
     private final String userGuideUrl;
@@ -45,6 +46,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
 
     public UIModuleConfig(
             @JsonProperty("pncUrl") String pncUrl,
+            @JsonProperty("pncRestUrl") String pncRestUrl,
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
             @JsonProperty("daUrl") String daUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
@@ -52,6 +54,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("keycloak") KeycloakConfig keycloak,
             @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
         this.pncUrl = pncUrl;
+        this.pncRestUrl = pncRestUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.userGuideUrl = userGuideUrl;
@@ -61,11 +64,19 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
-     * @return String representation of the PNC REST API base URL.
+     * @return String representation of the PNC REST API version 1 base URL
      */
     @JsonProperty("pncUrl")
     public String getPncUrl() {
         return pncUrl;
+    }
+
+    /**
+     * @return String representation of the PNC REST API version 2+ base URL.
+     */
+    @JsonProperty("pncRestUrl")
+    public String getPncRestUrl() {
+        return pncRestUrl;
     }
 
     /**
@@ -116,6 +127,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     public String toString() {
         return "UIModuleConfig{" +
                 "pncUrl='" + pncUrl + '\'' +
+                ", pncRestUrl='" + pncRestUrl + '\'' +
                 ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' +
                 ", daUrl='" + daUrl + '\'' +
                 ", userGuideUrl='" + userGuideUrl + '\'' +

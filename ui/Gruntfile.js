@@ -104,6 +104,7 @@ module.exports = function (grunt) {
     } else {
       cfg = {
         'pncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL', 'http://localhost:9000/pnc-rest/rest'),
+        'pncRestUrl': getOpt('pnc-rest-url', 'PNC_UI_PNC_REST_URL', 'http://localhost:9000/pnc-rest-new/rest-new'),
         'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL', 'ws://localhost:9000/pnc-rest/ws/build-records/notifications'),
         'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'userGuideUrl': getOpt('user-guide-url', 'PNC_UI_USER_GUIDE_URL'),
