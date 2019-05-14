@@ -25,10 +25,12 @@ import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
@@ -42,6 +44,7 @@ import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.rest.utils.RestGraphBuilder;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -49,8 +52,8 @@ import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.ProjectPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -67,6 +70,8 @@ import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -102,6 +107,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withB
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
+@PermitAll
 @Stateless
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
 
@@ -145,6 +151,16 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         this.projectRepository = projectRepository;
         this.entityManager = entityManager;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
+    }
+
+    @RolesAllowed("system-user")
+    public void update(Integer id, BuildRecordRest restEntity) throws RestValidationException {
+        super.update(id, restEntity);
+    }
+
+    @RolesAllowed("system-user")
+    public void delete(Integer id) throws RestValidationException {
+        super.delete(id);
     }
 
     public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search, String sort) {
@@ -580,7 +596,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return createBuildRecordForTask(buildTask);
     }
 
-    public BuildRecordRest createBuildRecordForTask(BuildTask task) {
+    private BuildRecordRest createBuildRecordForTask(BuildTask task) {
         return task == null ? null : createNewBuildRecordRest(task);
     }
 
@@ -748,7 +764,6 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return (int) Math.ceil( (totalRunningBuilds + totalDbBuilds) / (double) pageSize );
     }
 
-
     public Map<String, String> putAttribute(Integer id, String name, String value) {
         BuildRecord buildRecord = repository.queryById(id);
         buildRecord.putAttribute(name, value);
@@ -802,5 +817,38 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         .collect(Collectors.toList())));
 
         return Response.ok(uri).header("location", uri).entity(resultsToBeReturned).build();
+    }
+
+    @RolesAllowed("system-user")
+    public void setBuiltArtifacts(Integer buildRecordId, Collection<Integer> artifactIds) {
+        BuildRecord buildRecord = repository.queryById(buildRecordId);
+        Set<Artifact> artifacts = artifactIds.stream()
+                .map(id -> Artifact.Builder.newBuilder().id(id).build())
+                .collect(Collectors.toSet());
+        buildRecord.setBuiltArtifacts(artifacts);
+        repository.save(buildRecord);
+    }
+
+    @RolesAllowed("system-user")
+    public void setDependentArtifacts(Integer buildRecordId, Collection<Integer> artifactIds) {
+        BuildRecord buildRecord = repository.queryById(buildRecordId);
+        Set<Artifact> artifacts = artifactIds.stream()
+                .map(id -> Artifact.Builder.newBuilder().id(id).build())
+                .collect(Collectors.toSet());
+        buildRecord.setDependencies(artifacts);
+        repository.save(buildRecord);
+    }
+
+    public CollectionInfo<BuildRecordRest> getAllByStatusAndLogContaining(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            BuildStatus status,
+            String search) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query,
+            BuildRecordPredicates.withStatus(status),
+            BuildRecordPredicates.withBuildLogContains(search)
+        );
     }
 }

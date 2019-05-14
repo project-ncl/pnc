@@ -26,12 +26,14 @@ import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProjectName;
 
+@PermitAll
 @Stateless
 public class ProjectProvider extends AbstractProvider<Project, ProjectRest> {
 

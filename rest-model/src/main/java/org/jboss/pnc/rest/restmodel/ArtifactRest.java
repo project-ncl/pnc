@@ -75,9 +75,15 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private String originUrl;
 
-    @Getter
-    @Setter
     private Long size;
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
 
     /**
      * Internal url to the artifact using internal (cloud) network domain

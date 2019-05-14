@@ -33,6 +33,10 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 public abstract class AbstractRestClient<T> {
 
+    public enum AuthenticateAs {
+        NONE, USER, SYSTEM_USER;
+    }
+
     static class QueryParam {
         final String paramName;
         final String paramValue;
@@ -60,7 +64,21 @@ public abstract class AbstractRestClient<T> {
     }
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
-        this(collectionUrl, entityClass, ConnectionInfo.builder().port(getHttpPort()).basicAuth(new ConnectionInfo.BasicAuth("admin", "user.1234")).build());
+        this(collectionUrl, entityClass, withAuth ? AuthenticateAs.USER : AuthenticateAs.NONE);
+    }
+
+    protected AbstractRestClient(String collectionUrl, Class<T> entityClass, AuthenticateAs authAs) {
+        this(collectionUrl, entityClass, getConnectionInfo(authAs));
+    }
+
+    private static ConnectionInfo getConnectionInfo(AuthenticateAs authAs) {
+        if (authAs.equals(AuthenticateAs.SYSTEM_USER)) {
+            return ConnectionInfo.builder().port(getHttpPort()).basicAuth(new ConnectionInfo.BasicAuth("system", "system.1234")).build();
+        } else if (authAs.equals(AuthenticateAs.USER)) {
+            return ConnectionInfo.builder().port(getHttpPort()).basicAuth(new ConnectionInfo.BasicAuth("admin", "user.1234")).build();
+        } else {
+            return ConnectionInfo.builder().port(getHttpPort()).build();
+        }
     }
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, ConnectionInfo connectionInfo) {
@@ -249,6 +267,11 @@ public abstract class AbstractRestClient<T> {
 
         logger.info("response {} ", response.prettyPrint());
 
+        List<U> object = getCollection(response, type, withValidation);
+        return new RestResponse<>(response, object);
+    }
+
+    protected <U> List<U> getCollection(Response response, Class<U> type, boolean withValidation) {
         List<U> object = new ArrayList<>();
         String responseBody = response.getBody().asString();
 
@@ -276,7 +299,6 @@ public abstract class AbstractRestClient<T> {
                 response.then().statusCode(204);
             }
         }
-
-        return new RestResponse<>(response, object);
+        return object;
     }
 }

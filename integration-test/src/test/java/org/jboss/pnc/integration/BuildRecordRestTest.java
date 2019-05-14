@@ -19,19 +19,23 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
 import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthUtils;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -49,6 +53,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
@@ -225,4 +233,40 @@ public class BuildRecordRestTest extends AbstractTest {
             ResponseAssertion.assertThat(response).hasStatus(401);
         }
     }
+
+    @Test
+    public void shouldGetByStatusAndLog() {
+        BuildRecordRestClient client = new BuildRecordRestClient();
+        Collection<BuildRecordRest> collection = client.getAllByStatusAndLogContaining(BuildStatus.SUCCESS, "fox", true);
+        Assertions.assertThat(collection).isNotEmpty();
+    }
+
+    @Test
+    public void shouldSetBuiltArtifacts() {
+        BuildRecordRestClient client = new BuildRecordRestClient(AbstractRestClient.AuthenticateAs.SYSTEM_USER);
+
+        Collection<ArtifactRest> artifacts = client.getBuiltArtifacts(buildRecordId);
+        Set<Integer> artifactIds = artifacts.stream().map(a -> a.getId()).collect(Collectors.toSet());
+        Assertions.assertThat(artifactIds).contains(100, 101);
+
+        client.setBuiltArtifacts(buildRecordId, Collections.singletonList(101));
+        Collection<ArtifactRest> updatedArtifacts = client.getBuiltArtifacts(buildRecordId);
+        Set<Integer> updatedArtifactIds = updatedArtifacts.stream().map(a -> a.getId()).collect(Collectors.toSet());
+        Assertions.assertThat(updatedArtifactIds).contains(101);
+    }
+
+    @Test
+    public void shouldSetDependentArtifacts() {
+        BuildRecordRestClient client = new BuildRecordRestClient(AbstractRestClient.AuthenticateAs.SYSTEM_USER);
+
+        Collection<ArtifactRest> artifacts = client.getDependentArtifacts(buildRecordId);
+        Set<Integer> artifactIds = artifacts.stream().map(a -> a.getId()).collect(Collectors.toSet());
+        Assertions.assertThat(artifactIds).contains(102, 103);
+
+        client.setDependentArtifacts(buildRecordId, Collections.singletonList(102));
+        Collection<ArtifactRest> updatedArtifacts = client.getDependentArtifacts(buildRecordId);
+        Set<Integer> updatedArtifactIds = updatedArtifacts.stream().map(a -> a.getId()).collect(Collectors.toSet());
+        Assertions.assertThat(updatedArtifactIds).contains(102);
+    }
+
 }

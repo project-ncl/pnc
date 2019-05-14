@@ -26,12 +26,14 @@ import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.withProductVersionId;
 
+@PermitAll
 @Stateless
 public class ProductReleaseProvider extends AbstractProvider<ProductRelease, ProductReleaseRest> {
 

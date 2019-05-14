@@ -35,7 +35,12 @@
  */
 package org.jboss.pnc.integration.client;
 
+import com.jayway.restassured.response.Response;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+
+import java.util.Collection;
 
 public class BuildRecordRestClient extends AbstractRestClient<BuildRecordRest> {
 
@@ -45,4 +50,38 @@ public class BuildRecordRestClient extends AbstractRestClient<BuildRecordRest> {
         super(BUILD_RECORD_REST_ENDPOINT, BuildRecordRest.class);
     }
 
+    public BuildRecordRestClient(AuthenticateAs authenticateAs) {
+        super(BuildRecordRestClient.BUILD_RECORD_REST_ENDPOINT, BuildRecordRest.class, authenticateAs);
+    }
+
+    public Collection<ArtifactRest> getBuiltArtifacts(int buildRecordId) {
+        Response response = getRestClient().get(BUILD_RECORD_REST_ENDPOINT + buildRecordId + "/built-artifacts");
+        return getCollection(response, ArtifactRest.class, true);
+    }
+
+    public void setBuiltArtifacts(Integer buildRecordId, Collection<Integer> artifactIds) {
+        getRestClient().put(BUILD_RECORD_REST_ENDPOINT + buildRecordId + "/built-artifacts", artifactIds);
+    }
+
+    public Collection<ArtifactRest> getDependentArtifacts(int buildRecordId) {
+        Response response = getRestClient().get(BUILD_RECORD_REST_ENDPOINT + buildRecordId + "/dependency-artifacts");
+        return getCollection(response, ArtifactRest.class, true);
+    }
+
+    public void setDependentArtifacts(Integer buildRecordId, Collection<Integer> artifactIds) {
+        getRestClient().put(BUILD_RECORD_REST_ENDPOINT + buildRecordId + "/dependency-artifacts", artifactIds);
+    }
+
+    public Collection<BuildRecordRest> getAllByStatusAndLogContaining(
+            BuildStatus status,
+            String logSubstring,
+            boolean withValidation) {
+        QueryParam statusParam = new QueryParam("status", status.toString());
+        QueryParam searchParam = new QueryParam("search", logSubstring);
+
+        Response response = getRestClient().get(BUILD_RECORD_REST_ENDPOINT + "with-status-and-log", searchParam, statusParam);
+        logger.info("response {} ", response.prettyPrint());
+
+        return getCollection(response, BuildRecordRest.class, withValidation);
+    }
 }

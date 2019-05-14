@@ -39,6 +39,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.function.Function;
@@ -50,6 +51,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
  *
  * @author Sebastian Laskawiec
  */
+@PermitAll //required to allow all non explicitly restricted operations in EJB that use other restrictions
 public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, RESTEntity extends GenericRestEntity<Integer>> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractEndpoint.class);

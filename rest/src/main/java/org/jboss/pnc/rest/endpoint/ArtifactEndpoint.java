@@ -28,22 +28,31 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ArtifactPage;
 import org.jboss.pnc.rest.swagger.response.ArtifactSingleton;
+import org.jboss.pnc.rest.swagger.response.ProductSingleton;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import javax.ws.rs.core.UriInfo;
 import java.util.Optional;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -120,4 +129,35 @@ public class ArtifactEndpoint extends AbstractEndpoint<Artifact,ArtifactRest> {
             @ApiParam(value = "Artifact id", required = true) @PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
+
+    @ApiOperation(value = "[role:admin] Creates a new Artifact")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    public Response createNew(ArtifactRest artifactRest, @Context UriInfo uriInfo) throws RestValidationException {
+        return super.createNew(artifactRest, uriInfo);
+    }
+
+    @ApiOperation(value = "[role:admin] Updates an existing Artifact")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @PUT
+    @Path("/{id}")
+    public Response update(
+            @ApiParam(value = "Artifact id", required = true) @PathParam("id") Integer id,
+            @NotNull @Valid ArtifactRest artifactRest,
+            @Context UriInfo uriInfo) throws RestValidationException {
+        return super.update(id, artifactRest);
+    }
+
+
+
 }
