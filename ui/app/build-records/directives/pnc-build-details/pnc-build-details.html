@@ -69,8 +69,13 @@
       </span>
     </dd>
 
-    <dt>SCM Tag:</dt>
-    <dd>
+    <dt class="lh-1-6 m-t-5 m-b-5">
+      Post-alignment<br>SCM Tag
+      <a uib-popover="SCM Tag after Alignment is executed"
+         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+         href><span class="fa fa-info-circle"></span></a> :
+    </dt>
+    <dd class="m-t-5 m-b-5">
       <span ng-show="ctrl.record.scmTag">{{ ctrl.record.scmTag }}</span>
       <span ng-hide="ctrl.record.scmTag">
         Not available
