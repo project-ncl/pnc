@@ -54,7 +54,7 @@ public class MavenBuild extends Build {
             String scmRevision, String scmTag, BuildRoot buildRoot, Set<Logfile> logs,
             Set<Dependency> dependencies, Set<BuiltArtifact> builtArtifacts, String tagPrefix) {
         super(buildName, buildVersion, externalBuildSystem, externalBuildID, externalBuildURL,
-                startTime, endTime, scmURL, scmRevision, buildRoot, logs, dependencies,
+                startTime, endTime, scmURL, scmRevision, scmTag, buildRoot, logs, dependencies,
                 builtArtifacts, tagPrefix);
         this.groupId = groupId;
         this.artifactId = artifactId;
