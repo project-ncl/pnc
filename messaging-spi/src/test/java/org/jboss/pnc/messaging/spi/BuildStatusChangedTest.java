@@ -25,7 +25,7 @@ import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.SystemImageType;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -109,7 +109,7 @@ public class BuildStatusChangedTest {
                 .environment(buildEnvironment)
                 .user(user)
                 .buildConfigurationRevision(buildConfigurationRevisionRef)
-                .status(BuildCoordinationStatus.BUILDING)
+                .status(BuildStatus.BUILDING)
                 .buildContentId("build-42")
                 .temporaryBuild(true)
                 .build();

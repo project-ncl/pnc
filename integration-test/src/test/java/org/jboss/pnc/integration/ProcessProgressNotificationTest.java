@@ -23,6 +23,7 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.mock.dto.BuildMock;
@@ -105,12 +106,12 @@ public class ProcessProgressNotificationTest {
         // given
         Integer taskId = 1;
 
-        Build build = BuildMock.newBuild(taskId, BuildCoordinationStatus.DONE, "Build1");
+        Build build = BuildMock.newBuild(taskId, BuildStatus.SUCCESS, "Build1");
 
         BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
                 build,
-                BuildCoordinationStatus.NEW
-        );
+                BuildCoordinationStatus.NEW,
+                BuildCoordinationStatus.fromBuildStatus(build.getStatus()));
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);

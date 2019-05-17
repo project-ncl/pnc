@@ -22,6 +22,7 @@ import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
@@ -82,8 +83,7 @@ public class DebugEndpoint {
         } else {
             if (type != null && type.equals("status")) {
                 buildStatusChangedEventNotifier.fire(new DefaultBuildStatusChangedEvent(
-                        newBuild(),BuildCoordinationStatus.CANCELLED
-                        ));
+                        newBuild(),BuildCoordinationStatus.CANCELLED, BuildCoordinationStatus.CANCELLED));
             } else {
                 messageSender.get().sendToTopic("Test Message.");
             }
@@ -94,7 +94,7 @@ public class DebugEndpoint {
     public static Build newBuild() {
         return Build.builder()
                 .id(1)
-                .status(BuildCoordinationStatus.ENQUEUED)
+                .status(BuildStatus.BUILDING)
                 .buildContentId("build-42")
                 .temporaryBuild(true)
                 .build();

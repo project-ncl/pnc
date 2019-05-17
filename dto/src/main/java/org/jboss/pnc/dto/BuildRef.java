@@ -19,7 +19,6 @@ package org.jboss.pnc.dto;
 
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -31,6 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.enums.BuildStatus;
 
 /**
  *
@@ -51,7 +51,7 @@ public class BuildRef implements DTOEntity {
 
     protected final Instant endTime;
 
-    protected final BuildCoordinationStatus status;
+    protected final BuildStatus status;
 
     protected final String buildContentId;
 

@@ -528,15 +528,15 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .submitTime(TimeUtils.toInstant(task.getSubmitTime()))
                 .startTime(TimeUtils.toInstant(task.getStartTime()))
                 .endTime(TimeUtils.toInstant(task.getEndTime()))
-                .status(status)
+                .status(BuildStatus.fromBuildCoordinationStatus(status))
                 .buildContentId(task.getContentId())
                 .temporaryBuild(task.getBuildOptions().isTemporaryBuild())
                 .build();
 
         BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
                 build,
-                oldStatus
-        );
+                oldStatus,
+                status);
 
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
         if (status.isCompleted()) {

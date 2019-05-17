@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration.remote;
 
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.ConnectionInfo;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -27,7 +28,6 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
@@ -80,7 +80,7 @@ public class RemoteBuildTest {
 
                 if (EventType.BUILD_STATUS_CHANGED.equals(notification.getEventType())) {
                     BuildChangedPayload buildStatusUpdate = (BuildChangedPayload) notification.getPayload();
-                    if (buildStatusUpdate.getBuild().getStatus().isCompleted()) {
+                    if (buildStatusUpdate.getBuild().getStatus().completedSuccessfully()) {
                         notifyCompleted(buildStatusUpdate.getBuild().getBuildConfigurationRevision().getId(), buildStatusUpdate.getBuild().getStatus());
                     }
                 }
@@ -100,7 +100,7 @@ public class RemoteBuildTest {
         semaphore.acquire();
     }
 
-    private void notifyCompleted(Integer buildConfigurationId, BuildCoordinationStatus buildCoordinationStatus) {
+    private void notifyCompleted(Integer buildConfigurationId, BuildStatus buildStatus) {
         semaphore.release();
     }
 
