@@ -63,7 +63,7 @@ public class BuildStatusNotifications {
     }
 
     private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
-        if (buildStatusChangedEvent.getBuild().getStatus().isCompleted()) {
+        if (buildStatusChangedEvent.getNewStatus().isCompleted()) {
             log.debug("Subscribing new status update listener {}.", buildCallBack);
             subscribers.remove(buildCallBack);
         }

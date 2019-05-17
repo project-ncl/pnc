@@ -72,7 +72,7 @@ public class CancelledBuildTest extends ProjectBuilder {
 
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getBuild().getStatus().equals(BuildCoordinationStatus.BUILDING)) {
+            if (event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
@@ -117,7 +117,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new ArrayList<>();
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getBuild().getBuildConfigurationRevision().getId().equals(2) && event.getBuild().getStatus().equals(BuildCoordinationStatus.BUILDING)) {
+            if (event.getBuild().getBuildConfigurationRevision().getId().equals(2) && event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start

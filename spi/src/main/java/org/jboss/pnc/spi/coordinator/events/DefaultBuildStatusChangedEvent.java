@@ -24,18 +24,26 @@ import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusChangedEvent {
 
     private final BuildCoordinationStatus oldStatus;
+    private final BuildCoordinationStatus newStatus;
     private final Build build;
 
     public DefaultBuildStatusChangedEvent(
             Build build,
-            BuildCoordinationStatus oldStatus) {
+            BuildCoordinationStatus oldStatus,
+            BuildCoordinationStatus newStatus) {
         this.build = build;
         this.oldStatus = oldStatus;
+        this.newStatus = newStatus;
     }
 
     @Override
     public BuildCoordinationStatus getOldStatus() {
         return oldStatus;
+    }
+
+    @Override
+    public BuildCoordinationStatus getNewStatus() {
+        return newStatus;
     }
 
     @Override
@@ -48,6 +56,7 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
 
         return "DefaultBuildStatusChangedEvent{" +
                 "oldStatus=" + oldStatus +
+                "newStatus=" + newStatus +
                 "build=" + build +
                 '}';
     }

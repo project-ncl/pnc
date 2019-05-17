@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.SystemImageType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,7 +86,7 @@ public class NotificationTest {
                 .environment(buildEnvironment)
                 .user(user)
                 .buildConfigurationRevision(buildConfigurationRevisionRef)
-                .status(BuildCoordinationStatus.BUILDING)
+                .status(BuildStatus.BUILDING)
                 .buildContentId("build-42")
                 .temporaryBuild(true)
                 .dependencyBuildIds(Arrays.asList(new Integer[]{1,2,3}))

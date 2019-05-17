@@ -57,7 +57,7 @@ public class BuildStatusMQNotifications {
     }
 
     private void send(MessageSender ms, BuildCoordinationStatusChangedEvent event) {
-        Status newStatus = toMqStatus(event.getBuild().getStatus());
+        Status newStatus = toMqStatus(event.getNewStatus());
         if (newStatus != null) {
 
             Message message = BuildStatusChanged.builder()
@@ -90,7 +90,7 @@ public class BuildStatusMQNotifications {
         headers.put("configurationId", buildConfigurationAudited.getId().toString());
         headers.put("configurationRevision", buildConfigurationAudited.getRev().toString());
         headers.put("oldStatus", toStringStatus(getOldStatus(event.getOldStatus())));
-        headers.put("newStatus", toStringStatus(toMqStatus(event.getBuild().getStatus())));
+        headers.put("newStatus", toStringStatus(toMqStatus(event.getNewStatus())));
         return headers;
     }
 

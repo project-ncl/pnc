@@ -18,18 +18,18 @@
 package org.jboss.pnc.mock.dto;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class BuildMock {
 
-    public static Build newBuild(BuildCoordinationStatus status, String buildConfigurationName) {
+    public static Build newBuild(BuildStatus status, String buildConfigurationName) {
         return newBuild(1, status, buildConfigurationName);
     }
 
-    public static Build newBuild(Integer id, BuildCoordinationStatus status, String buildConfigurationName) {
+    public static Build newBuild(Integer id, BuildStatus status, String buildConfigurationName) {
         return Build.builder()
                 .id(id)
                 .status(status)
