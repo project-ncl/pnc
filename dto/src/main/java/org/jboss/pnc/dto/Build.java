@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.dto;
 
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
+import org.jboss.pnc.enums.BuildStatus;
 
 /**
  *
@@ -53,7 +52,7 @@ public class Build extends BuildRef {
     private final List<Integer> dependencyBuildIds;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Build(ProjectRef project, SCMRepository repository, Environment environment, Map<String, String> attributes, User user, BuildConfigurationRevisionRef buildConfigurationRevision, List<Integer> dependentBuildIds, List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime, BuildCoordinationStatus status, String buildContentId, Boolean temporaryBuild) {
+    private Build(ProjectRef project, SCMRepository repository, Environment environment, Map<String, String> attributes, User user, BuildConfigurationRevisionRef buildConfigurationRevision, List<Integer> dependentBuildIds, List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime, BuildStatus status, String buildContentId, Boolean temporaryBuild) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild);
         this.project = project;
         this.repository = repository;

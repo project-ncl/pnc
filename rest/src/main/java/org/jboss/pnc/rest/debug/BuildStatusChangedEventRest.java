@@ -28,10 +28,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class BuildStatusChangedEventRest implements BuildCoordinationStatusChangedEvent {
 
     private BuildCoordinationStatus oldStatus;
+    private BuildCoordinationStatus newStatus;
     private Build build;
 
     public void setOldStatus(BuildCoordinationStatus oldStatus) {
         this.oldStatus = oldStatus;
+    }
+
+    public void setNewStatus(BuildCoordinationStatus newStatus) {
+        this.newStatus = newStatus;
     }
 
     public void setBuild(Build build) {
@@ -41,6 +46,11 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     @Override
     public BuildCoordinationStatus getOldStatus() {
         return oldStatus;
+    }
+
+    @Override
+    public BuildCoordinationStatus getNewStatus() {
+        return newStatus;
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.jboss.pnc.notifications;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.dto.BuildConfigurationRevisionMock;
 import org.jboss.pnc.mock.dto.BuildEnvironmentMock;
 import org.jboss.pnc.mock.dto.ProjectMock;
@@ -49,7 +50,7 @@ public class NotificationFactoryForBuildTest {
         Instant endTime = new Date(1453122000000L).toInstant();
         Build build = Build.builder()
                 .id(1)
-                .status(BuildCoordinationStatus.DONE)
+                .status(BuildStatus.SUCCESS)
                 .buildContentId("build-42")
                 .temporaryBuild(true)
                 .project(ProjectMock.newProjectRef())
@@ -61,7 +62,7 @@ public class NotificationFactoryForBuildTest {
                 .endTime(endTime)
                 .build();
 
-        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(build, BuildCoordinationStatus.NEW);
+        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(build, BuildCoordinationStatus.NEW, BuildCoordinationStatus.fromBuildStatus(build.getStatus()));
 
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
@@ -71,7 +72,7 @@ public class NotificationFactoryForBuildTest {
         //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStatus()).isEqualTo(BuildCoordinationStatus.DONE);
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStatus()).isEqualTo(BuildStatus.SUCCESS);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationRevision().getId()).isEqualTo(1);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getBuildConfigurationRevision().getName()).isEqualTo(buildConfigurationName);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuild().getStartTime()).isEqualTo(startTime);

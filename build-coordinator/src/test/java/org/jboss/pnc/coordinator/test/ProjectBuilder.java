@@ -307,7 +307,7 @@ public class ProjectBuilder {
         boolean received = false;
         for (BuildCoordinationStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
             if (receivedStatusEvent.getBuild().getId().equals(buildTaskId) &&
-                    receivedStatusEvent.getBuild().getStatus().equals(status)) {
+                    receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;
             }

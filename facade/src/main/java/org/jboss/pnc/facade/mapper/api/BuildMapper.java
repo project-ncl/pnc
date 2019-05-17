@@ -21,10 +21,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.facade.mapper.api.BuildMapper.StatusMapper;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -34,7 +31,7 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class,
-        uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class, SCMRepositoryMapper.class, ProjectMapper.class,BuildConfigurationRevisionMapper.class, EnvironmentMapper.class })
+        uses = {BuildConfigurationMapper.class, UserMapper.class, BuildMapper.IDMapper.class, SCMRepositoryMapper.class, ProjectMapper.class,BuildConfigurationRevisionMapper.class, EnvironmentMapper.class })
 public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
     @Override
@@ -100,16 +97,6 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "buildRecordPushResults", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"project", "repository"})
     BuildRecord toEntity(Build dtoEntity);
-
-    public static class StatusMapper {
-        public static BuildCoordinationStatus toBuildCoordinationStatus(BuildStatus status) {
-            return BuildCoordinationStatus.fromBuildStatus(status);
-        }
-
-        public static BuildStatus toBuildStatus(BuildCoordinationStatus status) {
-            return BuildStatus.fromBuildCoordinationStatus(status);
-        }
-    }
 
     public static class IDMapper {
         public static BuildRecord toIdEntity(Integer id) {
