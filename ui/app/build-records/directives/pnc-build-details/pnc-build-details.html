@@ -45,23 +45,23 @@
     </dd>
     <!-- repository configuration -->
 
-    <dt class="lh-1-6 m-t-5">
+    <dt class="lh-1-5 m-t-10">
       Pre-alignment<br>SCM Revision
       <a uib-popover="SCM Revision before Alignment is executed"
          popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
          href><span class="fa fa-info-circle"></span></a> :
     </dt>
-    <dd class="m-t-5">
+    <dd class="m-t-10">
       <span ng-show="ctrl.record.buildConfigurationAudited.scmRevision">{{ ctrl.record.buildConfigurationAudited.scmRevision }}</span>
     </dd>
 
-    <dt class="lh-1-6 m-t-5 m-b-5">
+    <dt class="lh-1-5 m-t-10">
       Post-alignment<br>SCM Revision
       <a uib-popover="SCM Revision after Alignment is executed"
          popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
          href><span class="fa fa-info-circle"></span></a> :
     </dt>
-    <dd class="m-t-5 m-b-5">
+    <dd class="m-t-10">
       <span ng-show="ctrl.record.scmRevision">{{ ctrl.record.scmRevision }}</span>
       <span ng-hide="ctrl.record.scmRevision">
         <span class="pficon pficon-warning-triangle-o" ng-if="ctrl.record.status !== 'BUILDING'" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
@@ -69,13 +69,13 @@
       </span>
     </dd>
 
-    <dt class="lh-1-6 m-t-5 m-b-5">
+    <dt class="lh-1-5 m-t-10 m-b-5">
       Post-alignment<br>SCM Tag
       <a uib-popover="SCM Tag after Alignment is executed"
          popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
          href><span class="fa fa-info-circle"></span></a> :
     </dt>
-    <dd class="m-t-5 m-b-5">
+    <dd class="m-t-10 m-b-5">
       <span ng-show="ctrl.record.scmTag">{{ ctrl.record.scmTag }}</span>
       <span ng-hide="ctrl.record.scmTag">
         Not available
