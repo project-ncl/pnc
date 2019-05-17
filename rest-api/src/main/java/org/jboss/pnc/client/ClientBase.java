@@ -42,9 +42,15 @@ public abstract class ClientBase<T> {
     protected Configuration configuration;
 
     protected ClientBase(Configuration configuration, Class<T> clazz) {
+
+        ApacheHttpClient43EngineWithRetry engine = new ApacheHttpClient43EngineWithRetry();
+        // allow redirects for NCL-3766
+        engine.setFollowRedirects(true);
+
         this.configuration = configuration;
+
         client = new ResteasyClientBuilder()
-                .httpEngine(new ApacheHttpClient43EngineWithRetry())
+                .httpEngine(engine)
                 .build();
         client.register(ResteasyJackson2ProviderWithDateISO8601.class);
         target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
