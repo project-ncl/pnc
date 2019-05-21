@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
@@ -29,6 +26,8 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 import java.util.Optional;
 
 @Stateless
@@ -64,5 +63,15 @@ public class ArtifactEndpointImpl extends AbstractEndpoint<Artifact, ArtifactRef
     @Override
     public Artifact getSpecific(int id) {
         return super.getSpecific(id);
+    }
+
+    @Override
+    public Artifact create(Artifact artifact) {
+        return super.create(artifact);
+    }
+
+    @Override
+    public void update(Integer id, Artifact artifact){
+        super.update(id, artifact);
     }
 }

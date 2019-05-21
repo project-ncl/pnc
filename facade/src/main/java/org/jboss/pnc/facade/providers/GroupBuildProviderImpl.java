@@ -29,23 +29,22 @@ import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ValidationException;
-import org.jboss.pnc.spi.notifications.Notifier;
 
+import javax.annotation.security.PermitAll;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
-
 import java.util.function.Consumer;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
+
+@PermitAll
 @Stateless
 public class GroupBuildProviderImpl extends AbstractProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef> implements GroupBuildProvider {
 

@@ -20,6 +20,8 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.validation.DTOValidationException;
+
 import java.util.Optional;
 
 public interface ArtifactProvider extends Provider<org.jboss.pnc.model.Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
@@ -29,4 +31,8 @@ public interface ArtifactProvider extends Provider<org.jboss.pnc.model.Artifact,
     Page<Artifact> getBuiltArtifactsForBuild(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildId);
 
     Page<Artifact> getDependantArtifactsForBuild(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildId);
+
+    Artifact store(Artifact restEntity) throws DTOValidationException;
+
+    void update(Integer id, Artifact restEntity) throws DTOValidationException;
 }

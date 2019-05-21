@@ -29,11 +29,13 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
+@PermitAll
 @Stateless
 public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Product, Product, ProductRef> implements ProductProvider {
 

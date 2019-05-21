@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
 
+import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,6 +37,7 @@ import java.util.Set;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
+@PermitAll
 @ApplicationScoped
 public class BuildConfigurationSupportedGenericParametersProviderImpl implements BuildConfigurationSupportedGenericParametersProvider {
 

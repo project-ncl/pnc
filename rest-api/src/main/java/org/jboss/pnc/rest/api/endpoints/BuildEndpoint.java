@@ -32,6 +32,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -46,12 +47,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -61,6 +64,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_C
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
@@ -79,6 +84,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface BuildEndpoint{
     static final String B_ID = "ID of the build";
+    static final String BUILD_STATUS = "Status of the build";
 
     @Operation(summary = "Gets all builds.",
             responses = {
@@ -93,6 +99,22 @@ public interface BuildEndpoint{
     Page<Build> getAll(@BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams,
             @BeanParam BuildAttributeParameters attributes);
+
+    @Operation(summary = "Gets the Build Records produced from the BuildConfiguration by name.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/with-status-and-log")
+    Page<Build> getAllByStatusAndLogContaining(
+            @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
+            @Parameter(description = "Log search string") @QueryParam("search") String search,
+            @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Gets specific build.",
             responses = {
@@ -118,6 +140,20 @@ public interface BuildEndpoint{
     @Path("/{id}")
     void delete(@Parameter(description = B_ID) @PathParam("id") int id);
 
+    @Operation(summary = "Updates an existing build.",
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PUT
+    @Path("/{id}")
+    void update(@Parameter(description = B_ID) @PathParam("id") int id, Build build);
+
     @Operation(summary = "Gets artifacts built in a specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
@@ -133,20 +169,48 @@ public interface BuildEndpoint{
             @Parameter(description = B_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
 
+    @Operation(summary= "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PUT
+    @Path("/{id}/artifacts/built")
+    void setBuiltArtifacts(@Parameter(description = B_ID) @PathParam("id") int id,
+                      @Parameter(description = "List of artifact ids") List<Integer> artifactIds);
+
     @Operation(summary = "Gets dependency artifacts for specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
     @GET
     @Path("/{id}/artifacts/dependencies")
     Page<Artifact> getDependencyArtifacts(
             @Parameter(description = B_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
+
+    @Operation(summary= "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PUT
+    @Path("/{id}/artifacts/dependencies")
+    void setDependentArtifacts(@Parameter(description = B_ID) @PathParam("id") int id,
+            @Parameter(description = "List of artifact ids") List<Integer> artifactIds);
 
     @Operation(summary = "Redirects to the SCM archive link",
             responses = {

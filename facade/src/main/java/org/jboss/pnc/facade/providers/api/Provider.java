@@ -22,7 +22,8 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
- /**
+
+/**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @param <DB> The database entity type

@@ -84,25 +84,20 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @NotNull
     @Size(max=1024)
-    @Column(updatable=false)
     private String identifier;
 
     @NotNull
     @Size(max=32)
-    @Column(updatable=false)
     private String md5;
 
     @NotNull
     @Size(max=40)
-    @Column(updatable=false)
     private String sha1;
 
     @NotNull
     @Size(max=64)
-    @Column(updatable=false)
     private String sha256;
 
-    @Column(updatable = false)
     private Long size;
 
     @NotNull
@@ -119,14 +114,13 @@ public class Artifact implements GenericEntity<Integer> {
     private TargetRepository targetRepository;
 
     @Size(max=255)
-    @Column(updatable=false)
     private String filename;
 
     /**
      * Repository URL where the artifact file is available.
      */
     @Size(max=500)
-    @Column(updatable=false, length=500)
+    @Column(length=500)
     private String deployPath;
 
     /**
@@ -149,13 +143,12 @@ public class Artifact implements GenericEntity<Integer> {
      * The location from which this artifact was originally downloaded for import
      */
     @Size(max=500)
-    @Column(unique=false, updatable=false, length=500)
+    @Column(unique=false, length=500)
     private String originUrl;
 
     /**
      * The date when this artifact was originally imported
      */
-    @Column(updatable=false)
     private Date importDate;
 
     /**
@@ -259,11 +252,6 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public void setArtifactQuality(ArtifactQuality artifactQuality) {
-        if (ArtifactQuality.DELETED.equals(artifactQuality)) {
-            if (!ArtifactQuality.TEMPORARY.equals(this.artifactQuality)) {
-                throw new PersistenceException("Deleted quality can be set only to temporary artifacts.");
-            }
-        }
         this.artifactQuality = artifactQuality;
     }
 

@@ -17,20 +17,19 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenDeleting;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.facade.mapper.api.EntityMapper;
 import org.jboss.pnc.facade.providers.api.Provider;
+import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
-
-import com.google.common.collect.ObjectArrays;
-
+import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -38,15 +37,12 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
+import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.jboss.pnc.facade.mapper.api.EntityMapper;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
-
-import javax.inject.Inject;
-
-import org.jboss.pnc.facade.rsql.RSQLProducer;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 /**
  * Abstract provider with common functionality.
@@ -57,6 +53,7 @@ import org.jboss.pnc.facade.rsql.RSQLProducer;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
+@PermitAll //required to allow all non explicitly restricted operations in EJB that use other restrictions
 public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO extends REF, REF extends DTOEntity> implements Provider<DB, DTO, REF> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractProvider.class);

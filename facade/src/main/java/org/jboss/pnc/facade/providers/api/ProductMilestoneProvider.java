@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 

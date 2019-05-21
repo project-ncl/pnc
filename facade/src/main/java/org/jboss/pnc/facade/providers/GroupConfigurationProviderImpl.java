@@ -27,17 +27,19 @@ import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
+@PermitAll
 @Stateless
 public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> implements GroupConfigurationProvider {
 

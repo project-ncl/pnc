@@ -17,10 +17,13 @@
  */
 package org.jboss.pnc.rest;
 
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
 import org.jboss.pnc.rest.endpoints.EnvironmentEndpointImpl;
+import org.jboss.pnc.rest.endpoints.GroupBuildEndpointImpl;
+import org.jboss.pnc.rest.endpoints.GroupConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProductEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProductMilestoneEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProductReleaseEndpointImpl;
@@ -29,18 +32,14 @@ import org.jboss.pnc.rest.endpoints.ProjectEndpointImpl;
 import org.jboss.pnc.rest.endpoints.SCMRepositoryEndpointImpl;
 import org.jboss.pnc.rest.endpoints.UserEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
+import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import org.jboss.pnc.rest.endpoints.GroupBuildEndpointImpl;
-import org.jboss.pnc.rest.endpoints.GroupConfigurationEndpointImpl;
 
 @ApplicationPath("/rest-new")
 public class JaxRsActivatorNew extends Application {
@@ -48,6 +47,7 @@ public class JaxRsActivatorNew extends Application {
     private Set<Object> singletons = new HashSet<Object>();
 
     public JaxRsActivatorNew() throws IOException {
+        singletons.add(new RequestLoggingFilter());
         configureSwagger();
         configureCors();
     }
@@ -103,6 +103,7 @@ public class JaxRsActivatorNew extends Application {
     }
 
     private void addExceptionMappers(Set<Class<?>> resources) {
+        resources.add(AllOtherExceptionsMapper.class);
     }
 
 

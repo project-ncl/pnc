@@ -23,14 +23,21 @@ import org.jboss.pnc.facade.mapper.api.ArtifactMapper;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.Optional;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
@@ -39,17 +46,26 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
 /**
  * @author Jan Michalov <jmichalo@redhat.com>
  */
+@PermitAll
 @Stateless
 public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
 
+    private static Logger logger = LoggerFactory.getLogger(ArtifactProviderImpl.class);
+
     private BuildRecordRepository buildRecordRepository;
 
-    @Inject
-    public ArtifactProviderImpl(ArtifactRepository repository, ArtifactMapper mapper, BuildRecordRepository buildRecordRepository) {
-        super(repository, mapper, Artifact.class);
+    private final TargetRepositoryRepository targetRepositoryRepository;
 
+    @Inject
+    public ArtifactProviderImpl(
+            ArtifactRepository repository,
+            ArtifactMapper mapper,
+            BuildRecordRepository buildRecordRepository,
+            TargetRepositoryRepository targetRepositoryRepository) {
+        super(repository, mapper, Artifact.class);
         this.buildRecordRepository = buildRecordRepository;
+        this.targetRepositoryRepository = targetRepositoryRepository;
     }
 
 
@@ -60,16 +76,27 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
     }
 
     @Override
+    @RolesAllowed(SYSTEM_USER)
     public org.jboss.pnc.dto.Artifact store(org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
-        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+//        return super.store(restEntity); //TODO is this specific impl really required ?
+        validateBeforeSaving(restEntity);
+        logger.debug("Storing entity: " + restEntity.toString());
+        Artifact artifact = repository.save(mapper.toEntity(restEntity));
+        TargetRepository targetRepository = targetRepositoryRepository.queryById(artifact.getTargetRepository().getId());
+        artifact.setTargetRepository(targetRepository);
+        logger.debug("Pre-fetched targetRepository: {}", artifact.getTargetRepository());
+        logger.debug("Pre-fetched targetRepository.repositoryType: {}", artifact.getTargetRepository().getRepositoryType());
+        return mapper.toDTO(artifact);
     }
 
     @Override
+    @RolesAllowed(SYSTEM_USER)
     public void update(Integer id, org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
-        throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
+        super.update(id, restEntity);
     }
 
     @Override
+    @DenyAll
     public void delete(Integer id) throws DTOValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }

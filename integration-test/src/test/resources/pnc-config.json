@@ -12,11 +12,25 @@
           "executorThreadPoolSize": "1",
           "builderThreadPoolSize": "1",
           "coordinatorThreadPoolSize": "1",
-          "coordinatorMaxConcurrentBuilds": "10"
+          "coordinatorMaxConcurrentBuilds": "10",
+          "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
+          "temporaryBuildsLifeSpan" : "14"
         },
         {
           "@module-config": "demo-data-config",
-          "importDemoData": true
+          "importDemoData": true,
+          "internalRepos": ["ssh://git@github.com:22/project-ncl/pnc.git",
+            "ssh://git@github.com:22/project-ncl/termd.git",
+            "ssh://git@github.com:22/project-ncl/pnc-build-agent.git",
+            "ssh://git@github.com:22/project-ncl/dependency-analysis.git",
+            "ssh://git@github.com:22/project-ncl/causeway.git"
+          ]
+        },
+        {
+          "@module-config": "indy-repo-driver",
+          "baseUrl": "${env.PNC_APROX_URL}",
+          "internalRepositoryMvnPath": "http://localhost/indy-internal/",
+          "externalRepositoryMvnPath": "http://localhost/indy-external/"
         }
       ]
     }

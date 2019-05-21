@@ -28,11 +28,13 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
+@PermitAll
 @Stateless
 public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> implements ProductVersionProvider {
 

@@ -101,6 +101,11 @@
             <artifactId>jboss-servlet-api_4.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- 3rd party dependencies -->
         <dependency>
