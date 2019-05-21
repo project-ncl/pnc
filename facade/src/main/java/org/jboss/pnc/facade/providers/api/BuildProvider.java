@@ -23,10 +23,17 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 
 import java.net.URI;
+import java.util.List;
 
 public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
+
+    void delete(Integer id) throws DTOValidationException;
+
+    void update(Integer id, Build restEntity) throws DTOValidationException;
 
     /**
      * Get the internal scm archive link for a build record. If the scm revision is not specified in the build record
@@ -67,7 +74,7 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
                                                String sortingRsql,
                                                String query,
                                                Integer buildConfigurationId);
- 
+
     Page<Build> getBuildsForUser(int pageIndex,
                                  int pageSize,
                                  String sortingRsql,
@@ -79,4 +86,15 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
     Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId);
 
     Graph<Build> getGroupBuildGraph(int id);
+
+    Page<Build> getAllByStatusAndLogContaining(int pageIndex,
+                                               int pageSize,
+                                               String sortingRsql,
+                                               String query,
+                                               BuildStatus status,
+                                               String search);
+
+    void setBuiltArtifacts(int id, List<Integer> artifactIds);
+
+    void setDependentArtifacts(int id, List<Integer> artifactIds);
 }

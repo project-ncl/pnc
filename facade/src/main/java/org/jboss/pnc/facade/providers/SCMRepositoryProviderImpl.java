@@ -42,6 +42,7 @@ import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -59,6 +60,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+@PermitAll
 @Stateless
 public class SCMRepositoryProviderImpl
         extends AbstractProvider<RepositoryConfiguration, SCMRepository, SCMRepository> implements SCMRepositoryProvider {

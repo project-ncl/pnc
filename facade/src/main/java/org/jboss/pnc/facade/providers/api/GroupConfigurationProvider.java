@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 
 public interface GroupConfigurationProvider extends Provider<org.jboss.pnc.model.BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {

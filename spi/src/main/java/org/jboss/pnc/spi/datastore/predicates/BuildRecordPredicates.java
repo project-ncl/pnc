@@ -68,6 +68,18 @@ public class BuildRecordPredicates {
             );
     }
 
+    public static Predicate<BuildRecord> withStatus(BuildStatus status) {
+        return (root, query, cb) -> (
+                cb.equal(root.get(BuildRecord_.status), status)
+            );
+    }
+
+    public static Predicate<BuildRecord> withBuildLogContains(String search) {
+        return (root, query, cb) -> (
+                cb.like(root.get(BuildRecord_.buildLog), "%" + search + "%")
+        );
+    }
+
     public static Predicate<BuildRecord> withBuildConfigurationIds(Set<Integer> configurationIds) {
         return (root, query, cb) -> root.get(BuildRecord_.buildConfigurationId).in(configurationIds);
     }

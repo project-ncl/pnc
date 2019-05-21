@@ -34,12 +34,14 @@ import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
+@PermitAll
 @Stateless
 public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> implements ProductMilestoneProvider {
 

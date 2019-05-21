@@ -18,14 +18,6 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.dto.Artifact;
-
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import javax.enterprise.context.ApplicationScoped;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushResult;
@@ -34,6 +26,7 @@ import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
@@ -43,6 +36,13 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.util.List;
 
 /**
  *
@@ -73,6 +73,17 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     }
 
     @Override
+    public Page<Build> getAllByStatusAndLogContaining(BuildStatus status, String search, PageParameters pageParameters) {
+        return provider.getAllByStatusAndLogContaining(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                status,
+                search);
+    }
+
+    @Override
     public Build getSpecific(int id) {
         return super.getSpecific(id);
     }
@@ -80,6 +91,11 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     @Override
     public void delete(int id) {
         super.delete(id);
+    }
+
+    @Override
+    public void update(int id, Build build) {
+        super.update(id, build);
     }
 
     @Override
@@ -97,12 +113,22 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     }
 
     @Override
+    public void setBuiltArtifacts(int id, List<Integer> artifactIds) {
+        provider.setBuiltArtifacts(id, artifactIds);
+    }
+
+    @Override
     public Page<Artifact> getDependencyArtifacts(int id, PageParameters pageParameters) {
         return artifactProvider.getDependantArtifactsForBuild(pageParameters.getPageIndex(),
                                                       pageParameters.getPageSize(),
                                                       pageParameters.getSort(),
                                                       pageParameters.getQ(),
                                                       id);
+    }
+
+    @Override
+    public void setDependentArtifacts(int id, List<Integer> artifactIds) {
+        provider.setDependentArtifacts(id, artifactIds);
     }
 
     @Override

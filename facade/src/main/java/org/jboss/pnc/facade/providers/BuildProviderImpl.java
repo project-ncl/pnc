@@ -25,35 +25,41 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
-import org.jboss.pnc.facade.providers.api.BuildPageInfo;
-import org.jboss.pnc.facade.providers.api.BuildProvider;
-
+@PermitAll
 @Stateless
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
@@ -75,6 +81,18 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.gerrit = gerrit;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
+    }
+
+    @RolesAllowed(SYSTEM_USER)
+    @Override
+    public void delete(Integer id) {
+        super.delete(id);
+    }
+
+    @RolesAllowed(SYSTEM_USER)
+    @Override
+    public void update(Integer id, Build restEntity) {
+        super.update(id, restEntity);
     }
 
     @Override
@@ -216,5 +234,41 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         } else {
             return buildRecord;
         }
+    }
+
+    @Override
+    public Page<Build> getAllByStatusAndLogContaining(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            BuildStatus status,
+            String search) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query,
+                BuildRecordPredicates.withStatus(status),
+                BuildRecordPredicates.withBuildLogContains(search)
+        );
+    }
+
+    @RolesAllowed(SYSTEM_USER)
+    @Override
+    public void setBuiltArtifacts(int id, List<Integer> artifactIds) {
+        BuildRecord buildRecord = repository.queryById(id);
+        Set<Artifact> artifacts = artifactIds.stream()
+                .map(aId -> Artifact.Builder.newBuilder().id(aId).build())
+                .collect(Collectors.toSet());
+        buildRecord.setBuiltArtifacts(artifacts);
+        repository.save(buildRecord);
+    }
+
+    @RolesAllowed(SYSTEM_USER)
+    @Override
+    public void setDependentArtifacts(int id, List<Integer> artifactIds) {
+        BuildRecord buildRecord = repository.queryById(id);
+        Set<Artifact> artifacts = artifactIds.stream()
+                .map(aId -> Artifact.Builder.newBuilder().id(aId).build())
+                .collect(Collectors.toSet());
+        buildRecord.setDependencies(artifacts);
+        repository.save(buildRecord);
     }
 }

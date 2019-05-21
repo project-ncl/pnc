@@ -40,6 +40,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -72,6 +73,7 @@ import org.jboss.pnc.spi.notifications.Notifier;
 
 import java.util.HashSet;
 
+@PermitAll
 @Stateless
 public class BuildConfigurationProviderImpl
         extends AbstractProvider<org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> implements BuildConfigurationProvider {

@@ -1,22 +1,20 @@
-<!--
-
-    JBoss, Home of Professional Open Source.
-    Copyright 2014-2019 Red Hat, Inc., and individual contributors
-    as indicated by the @author tags.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
+<!--~
+  ~ JBoss, Home of Professional Open Source.
+  ~ Copyright 2014-2019 Red Hat, Inc., and individual contributors
+  ~ as indicated by the @author tags.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
@@ -27,14 +25,14 @@
     <security-constraint>
        <web-resource-collection>
          <web-resource-name>All Access for api docs</web-resource-name>
-         <url-pattern>/rest/api-docs/*</url-pattern>
+         <url-pattern>/rest-new/api-docs/*</url-pattern>
        </web-resource-collection>
     </security-constraint>
 
     <security-constraint>
        <web-resource-collection>
          <web-resource-name>All Access for api docs</web-resource-name>
-         <url-pattern>/rest/api-docs</url-pattern>
+         <url-pattern>/rest-new/api-docs</url-pattern>
        </web-resource-collection>
     </security-constraint>
 
@@ -42,7 +40,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Authorized users access to debug data</web-resource-name>
-            <url-pattern>/rest/builds/ssh-credentials/*</url-pattern>
+            <url-pattern>/rest-new/builds/ssh-credentials/*</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -54,7 +52,7 @@
     <security-constraint>
        <web-resource-collection>
          <web-resource-name>All Access for users on GET</web-resource-name>
-         <url-pattern>/rest/*</url-pattern>
+         <url-pattern>/rest-new/*</url-pattern>
          <http-method>GET</http-method>
          <http-method>OPTIONS</http-method>
        </web-resource-collection>
@@ -64,7 +62,7 @@
     <security-constraint>
        <web-resource-collection>
          <web-resource-name>Authorized users Access</web-resource-name>
-         <url-pattern>/rest/*</url-pattern>
+         <url-pattern>/rest-new/*</url-pattern>
          <http-method>DELETE</http-method>
          <http-method>PUT</http-method>
          <http-method>HEAD</http-method>

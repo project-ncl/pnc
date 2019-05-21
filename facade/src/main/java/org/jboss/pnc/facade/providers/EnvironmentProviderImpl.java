@@ -23,9 +23,11 @@ import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+@PermitAll
 @Stateless
 public class EnvironmentProviderImpl
         extends AbstractProvider<BuildEnvironment, Environment, Environment> implements EnvironmentProvider {

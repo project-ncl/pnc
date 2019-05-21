@@ -24,11 +24,13 @@ import org.jboss.pnc.facade.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.withProductVersionId;
 
+@PermitAll
 @Stateless
 public class ProductReleaseProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef> implements ProductReleaseProvider {
 

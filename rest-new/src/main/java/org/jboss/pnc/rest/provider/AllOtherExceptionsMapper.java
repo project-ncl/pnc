@@ -17,10 +17,13 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.resteasy.spi.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBAccessException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -29,8 +32,6 @@ import javax.ws.rs.ext.Provider;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.NotFoundException;
-import org.jboss.pnc.dto.response.ErrorResponse;
 
 /**
  * Mapper that catches all exception and extracts the http status code from the JAXRS/RESTEASY runtime exception.
@@ -62,6 +63,10 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
             }
             response = failure.getResponse();
             logger.debug("An exception occurred when processing REST response", e);
+        } else if (e instanceof EJBAccessException) {
+            status = Response.Status.FORBIDDEN.getStatusCode();
+            response = Response.status(status).build();
+            logger.info("A user is trying to access restricted resource", e);
         } else {
             logger.error("An exception occurred when processing REST response", e);
         }

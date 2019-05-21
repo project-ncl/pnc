@@ -24,11 +24,13 @@ import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
+@PermitAll
 @Stateless
 public class UserProviderImpl
         extends AbstractProvider<org.jboss.pnc.model.User, User, User> implements UserProvider {

@@ -161,6 +161,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
@@ -239,6 +244,11 @@
 
                     <echo file="${test.server.unpack.dir}/${app.server}-${jboss.version}/standalone/configuration/application-users.properties" append="true">user=03fe1faad605609791524ce0b2c0ca30${line.separator}</echo> <!-- pass is pass.1234 -->
                     <echo file="${test.server.unpack.dir}/${app.server}-${jboss.version}/standalone/configuration/application-roles.properties" append="true">user=user${line.separator}</echo>
+
+                    <echo file="${test.server.unpack.dir}/${app.server}-${jboss.version}/standalone/configuration/application-users.properties" append="true">system=2a1410b11545f3c5f4f6bfbdefb70eb0${line.separator}</echo> <!-- pass is system.1234 -->
+                    <echo file="${test.server.unpack.dir}/${app.server}-${jboss.version}/standalone/configuration/application-roles.properties" append="true">system=user,system-user${line.separator}</echo>
+
+                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.unpack.dir}/${app.server}-${jboss.version}/pnc-config.json"/>
 
                   </target>
                 </configuration>
@@ -416,22 +426,29 @@
                         /subsystem=logging/logger=javax:add(level=INFO)
                       </command>
                       <command>
-                        /subsystem=logging/logger=org.jboss.pnc:add(level=DEBUG)
+                        /subsystem=logging/logger=org.jboss.pnc:add(level=TRACE)
                       </command>
                       <command>
-                        /subsystem=logging/console-handler=CONSOLE:change-log-level(level=DEBUG)
+                        /subsystem=logging/console-handler=CONSOLE:change-log-level(level=TRACE)
                       </command>
                       <command>
                         /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
                       </command>
 
                       <!--log sql queries and parameter bindings-->
-                      <!--command>
+                      <command>
                         /subsystem=logging/logger=org.hibernate.SQL:add(level=DEBUG)
                       </command>
                       <command>
                         /subsystem=logging/logger=org.hibernate.type:add(level=TRACE)
-                      </command-->
+                      </command>
+
+                      <command>
+                        /subsystem=logging/logger=org.springframework.data:add(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.as.jpa:add(level=DEBUG)
+                      </command>
                     </commands>
                   </execute-commands>
                 </configuration>
