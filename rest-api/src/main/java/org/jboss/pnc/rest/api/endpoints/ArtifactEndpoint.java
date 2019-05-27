@@ -93,6 +93,7 @@ public interface ArtifactEndpoint {
 
 
     @Operation(summary = "[role:admin] Creates a new Artifact",
+            tags = "internal",
             responses = {
                     @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = Artifact.class))),
@@ -107,6 +108,7 @@ public interface ArtifactEndpoint {
     Artifact create(Artifact artifactRest);
 
     @Operation(summary = "[role:admin] Updates an existing Artifact",
+            tags = "internal",
             responses = {
                     @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
