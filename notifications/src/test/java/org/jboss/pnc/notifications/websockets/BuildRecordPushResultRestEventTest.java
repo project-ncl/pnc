@@ -15,18 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.serialization;
+package org.jboss.pnc.notifications.websockets;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.rest.notifications.websockets.BuildRecordPushResultRestEvent;
+import org.jboss.pnc.notification.BuildRecordPushResultRestEvent;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import org.jboss.pnc.enums.BuildPushStatus;
+import org.junit.Ignore;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -34,6 +34,8 @@ import org.jboss.pnc.enums.BuildPushStatus;
 public class BuildRecordPushResultRestEventTest {
 
     @Test
+    @Ignore
+    @Deprecated
     public void shouldHaveEventType() {
         //given
         BuildRecordPushResultRest buildRecordPushResultRest = new BuildRecordPushResultRest(

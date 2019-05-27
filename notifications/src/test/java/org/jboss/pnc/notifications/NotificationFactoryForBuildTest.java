@@ -24,7 +24,7 @@ import org.jboss.pnc.mock.dto.BuildEnvironmentMock;
 import org.jboss.pnc.mock.dto.ProjectMock;
 import org.jboss.pnc.mock.dto.SCMRepositoryMock;
 import org.jboss.pnc.mock.dto.UserMock;
-import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
+import org.jboss.pnc.notification.DefaultNotificationFactory;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;

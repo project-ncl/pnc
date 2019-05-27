@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.notifications;
 
-import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
+import org.jboss.pnc.notification.DefaultNotificationFactory;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildSetChangedPayload;

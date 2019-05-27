@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.notification;
 
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Deprecated
 public class BuildRecordPushResultRestEvent extends BuildRecordPushResultRest {
 
     public BuildRecordPushResultRestEvent(BuildRecordPushResultRest buildRecordPushResultRest) {

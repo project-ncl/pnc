@@ -24,7 +24,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.notifications.websockets.DefaultNotifier;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -45,6 +44,7 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import org.jboss.pnc.spi.notifications.Notifier;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,6 +72,8 @@ public class BuildRecordEndpointTest {
     private EndpointAuthenticationProvider authProvider;
     @Mock
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
+    @Mock
+    private Notifier notifier;
 
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
@@ -93,7 +95,7 @@ public class BuildRecordEndpointTest {
                 artifactProvider,
                 authProvider,
                 temporaryBuildsCleanerAsyncInvoker,
-                new DefaultNotifier());
+                notifier);
 
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);

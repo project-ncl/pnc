@@ -30,14 +30,11 @@
     </parent>
 
     <artifactId>notifications</artifactId>
-    <packaging>war</packaging>
-  
+
     <name>PNC :: notifications</name>
     <description>Websocket notification service.</description>
-  
-  
+
     <dependencies>
-      
         <!-- Project dependencies -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
@@ -47,12 +44,57 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>spi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>build-coordinator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>rest-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>model</artifactId>
+        </dependency>
+        
+        <!-- Java EE dependencies -->
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.websocket</groupId>
+            <artifactId>jboss-websocket-api_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.ws.rs</groupId>
+            <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
     
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>test-common</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-mock</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
   

@@ -154,6 +154,10 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>facade</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>notifications</artifactId>
+    </dependency>
     <dependency><!-- TODO: This can be removed after old rest module is deleted-->
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations</artifactId>
@@ -336,6 +340,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>facade</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>notifications</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
