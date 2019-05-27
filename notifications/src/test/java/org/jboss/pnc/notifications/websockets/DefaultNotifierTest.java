@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.notifications.websockets;
 
+import org.jboss.pnc.notification.DefaultNotifier;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -97,7 +97,7 @@ public class DefaultNotifierTest {
         notifier.sendMessage(new Object());
 
         // then
-        verify(attachedClient).sendMessage(anyObject(), messageCallback.capture());
+        verify(attachedClient).sendMessage(any(), messageCallback.capture());
 
         messageCallback.getValue().successful(attachedClient);
         assertThat(notifier.getAttachedClientsCount()).isEqualTo(1);
@@ -138,7 +138,7 @@ public class DefaultNotifierTest {
         notifier.sendMessage(new Object());
 
         // then
-        verify(attachedClient).sendMessage(anyObject(), messageCallback.capture());
+        verify(attachedClient).sendMessage(any(), messageCallback.capture());
 
         messageCallback.getValue().failed(attachedClient, new Throwable());
         assertThat(notifier.getAttachedClientsCount()).isEqualTo(0);

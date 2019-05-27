@@ -84,7 +84,6 @@ public class ProcessProgressNotificationTest {
         restWar.addClass(NotificationCollector.class);
         restWar.addPackages(true, BuildMock.class.getPackage());
         restWar.addPackage(NotificationsEndpoint.class.getPackage());
-        restWar.addPackage(Notifier.class.getPackage());
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }

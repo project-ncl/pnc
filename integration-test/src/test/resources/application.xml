@@ -61,6 +61,9 @@
     <java>model.jar</java>
   </module>
   <module>
+    <java>notifications.jar</java>
+  </module>
+  <module>
     <java>rest-model.jar</java>
   </module>
   <module>
