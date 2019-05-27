@@ -52,7 +52,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
         MDCUtils.addRequestContext(logContext);
         UriInfo uriInfo = context.getUriInfo();
         Request request = context.getRequest();
-        logger.info("Log context {} for request: {} {}", logContext, request.getMethod(), uriInfo.getRequestUri().toString());
+        logger.info("Log context {} for request: {} {}", logContext, request.getMethod(), uriInfo.getRequestUri());
         if (logger.isTraceEnabled()) {
             MultivaluedMap<String, String> headers = context.getHeaders();
             logger.trace("Headers: " + MapUtils.toString(headers));

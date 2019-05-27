@@ -24,16 +24,11 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.facade.validation.DTOValidationException;
 
 import java.net.URI;
 import java.util.List;
 
 public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
-
-    void delete(Integer id) throws DTOValidationException;
-
-    void update(Integer id, Build restEntity) throws DTOValidationException;
 
     /**
      * Get the internal scm archive link for a build record. If the scm revision is not specified in the build record

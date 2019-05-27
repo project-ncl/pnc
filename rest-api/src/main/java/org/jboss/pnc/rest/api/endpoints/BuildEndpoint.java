@@ -170,6 +170,7 @@ public interface BuildEndpoint{
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary= "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!",
+            tags = "internal",
             responses = {
                     @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
@@ -199,6 +200,7 @@ public interface BuildEndpoint{
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary= "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!",
+            tags = "internal",
             responses = {
                     @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ArtifactPage.class))),

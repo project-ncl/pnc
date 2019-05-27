@@ -31,9 +31,9 @@ public class RestClientConfiguration {
 
     public static Configuration getConfiguration(AuthenticateAs authAs) {
         Configuration.ConfigurationBuilder builder = Configuration.builder();
-        if (authAs.equals(AuthenticateAs.SYSTEM_USER)) {
+        if (AuthenticateAs.SYSTEM_USER.equals(authAs)) {
             builder.basicAuth(new Configuration.BasicAuth("system", "system.1234"));
-        } else if (authAs.equals(AuthenticateAs.USER)) {
+        } else if (AuthenticateAs.USER.equals(authAs)) {
             builder.basicAuth(new Configuration.BasicAuth("user", "pass.1234"));
         }
         builder.protocol("http");
