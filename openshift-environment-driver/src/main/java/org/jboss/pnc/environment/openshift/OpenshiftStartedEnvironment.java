@@ -107,10 +107,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private static final String BUILDER_POD_MEMORY = "BUILDER_POD_MEMORY";
 
-    private boolean serviceCreated = false;
-    private boolean podCreated = false;
-    private boolean routeCreated = false;
-
     private final IClient client;
     private final RepositorySession repositorySession;
     private final OpenshiftBuildAgentConfig openshiftBuildAgentConfig;
@@ -228,7 +224,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         Runnable createPod = () -> {
             try {
                 client.create(pod, pod.getNamespace());
-                podCreated = true;
             } catch (Throwable e) {
                 logger.error("Cannot create pod.", e);
                 throw e;
@@ -243,7 +238,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         Runnable createService = () -> {
             try {
                 client.create(service, service.getNamespace());
-                serviceCreated = true;
             } catch (Throwable e) {
                 logger.error("Cannot create service.", e);
                 throw e;
@@ -259,7 +253,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             Runnable createRoute = () -> {
                 try {
                     client.create(route, route.getNamespace());
-                    routeCreated = true;
                 } catch (Throwable e) {
                     logger.error("Cannot create route.", e);
                     throw e;
@@ -417,24 +410,28 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         cancelHook = () -> onComplete.accept(null);
 
-        addMonitors(
-                pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD),
-                        (t) -> this.retryPod(t, onComplete, onError, retries), this::isPodRunning));
+        creatingPod.ifPresent((f) -> f.thenRunAsync(() -> {
+            addMonitors(
+                    pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD),
+                            (t) -> this.retryPod(t, onComplete, onError, retries), this::isPodRunning));
+        }));
 
-        addMonitors(pullingMonitor.monitor(
-                onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE),
-                onErrorInternal,
-                this::isServiceRunning));
+        creatingService.ifPresent((f) -> f.thenRunAsync(() -> {
+            addMonitors(pullingMonitor.monitor(
+                    onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE),
+                    onErrorInternal,
+                    this::isServiceRunning));
+        }));
 
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
 
-        if (createRoute) {
+        creatingRoute.ifPresent((f) -> f.thenRunAsync(() -> {
             addMonitors(pullingMonitor.monitor(
-                            onEnvironmentInitComplete(onCompleteInternal, Selector.ROUTE),
-                            onErrorInternal,
-                            this::isRouteRunning));
+                    onEnvironmentInitComplete(onCompleteInternal, Selector.ROUTE),
+                    onErrorInternal,
+                    this::isRouteRunning));
             logger.info("Route [{}].", route.getName());
-        }
+        }));
 
         // monitor creation errors after all other monitors to make sure we cancel all of them on failure
         addMonitors(pullingMonitor.monitor(
@@ -549,9 +546,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * @return boolean: is pod running?
      */
     private boolean isPodRunning() {
-        if (!podCreated) { //avoid Caused by: java.io.FileNotFoundException: https://<host>:8443/api/v1/namespaces/project-ncl/services/pnc-ba-pod-552c
-            return false;
-        }
 
         pod = client.get(pod.getKind(), pod.getName(), environmentConfiguration.getPncNamespace());
 
@@ -572,9 +566,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private boolean isServiceRunning() {
-        if (!serviceCreated) { //avoid Caused by: java.io.FileNotFoundException: https://<host>:8443/api/v1/namespaces/project-ncl/services/pnc-ba-service-552c
-            return false;
-        }
+
         service = client.get(service.getKind(), service.getName(), environmentConfiguration.getPncNamespace());
         boolean isRunning = service.getPods().size() > 0;
         if (isRunning) {
@@ -585,9 +577,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private boolean isRouteRunning() {
-        if (!routeCreated) {
-            return false;
-        }
+
         try {
             if (connectToPingUrl(new URL(getPublicEndpointUrl()))) {
                 route = client.get(route.getKind(), route.getName(), environmentConfiguration.getPncNamespace());
