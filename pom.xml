@@ -108,8 +108,8 @@
     <version.javax.enterprise>1.2.0.redhat-2</version.javax.enterprise>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.0.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final-redhat-3</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
-    <atlasVersion>1.0.0</atlasVersion>
-    <indyVersion>1.7.5</indyVersion>
+    <atlasVersion>1.0.1</atlasVersion>
+    <indyVersion>1.8.0-SNAPSHOT</indyVersion>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.assertj-core>3.8.0</version.assertj-core>
     <version.mockito>2.8.47</version.mockito>

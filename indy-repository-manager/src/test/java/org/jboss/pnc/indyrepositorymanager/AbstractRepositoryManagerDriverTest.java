@@ -20,10 +20,10 @@ package org.jboss.pnc.indyrepositorymanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.commonjava.indy.boot.BootStatus;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.test.fixture.core.CoreServerFixture;
+import org.commonjava.propulsor.boot.BootStatus;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.PNCModuleGroup;
@@ -146,8 +146,8 @@ public class AbstractRepositoryManagerDriverTest {
     {
         final CoreServerFixture fixture = new CoreServerFixture( temp );
 
-        etcDir = new File( fixture.getBootOptions().getIndyHome(), "etc/indy" );
-        dataDir = new File( fixture.getBootOptions().getIndyHome(), "var/lib/indy/data" );
+        etcDir = new File( fixture.getBootOptions().getHomeDir(), "etc/indy" );
+        dataDir = new File( fixture.getBootOptions().getHomeDir(), "var/lib/indy/data" );
 
         initBaseTestConfig( fixture );
         initTestConfig( fixture );
