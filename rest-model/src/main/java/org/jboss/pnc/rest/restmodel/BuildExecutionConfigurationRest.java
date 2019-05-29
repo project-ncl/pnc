@@ -244,11 +244,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.user = user;
     }
 
-    /**
-     * This is no longer used so it does nothing, for more info see NCL-1778
-     */
-    @Deprecated
-    public void setBuildType(String buildType) {
+    public void setBuildType(BuildType buildType) {
+        this.buildType = buildType;
     }
 
     @Override
