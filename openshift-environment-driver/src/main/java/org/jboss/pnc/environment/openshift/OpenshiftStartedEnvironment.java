@@ -261,6 +261,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             creatingRoute = Optional.of(CompletableFuture.runAsync(createRoute, executor));
             trackCreationFutures.add(creatingRoute.get());
         }
+
+        creationCompletableFutures = CompletableFuture.allOf(trackCreationFutures.toArray(new CompletableFuture[0]));
         gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_ATTEMPTED_KEY));
     }
 
