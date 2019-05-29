@@ -65,7 +65,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
  * @author Jakub Bartecek
  */
 @Tag(name = "SCM Repositories")
-@Path("/repository-configurations")
+@Path("/scm-repositories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
