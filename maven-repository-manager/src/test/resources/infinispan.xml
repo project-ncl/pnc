@@ -25,6 +25,9 @@
 
     <cache-container default-cache="dont-use" name="IndyCacheManager" shutdown-hook="DEFAULT">
         <jmx duplicate-domains="true"/>
+
+        <local-cache name="dont-use"/>
+
         <local-cache name="folo-in-progress">
             <eviction size="100000" type="COUNT"/>
             <persistence passivation="false">

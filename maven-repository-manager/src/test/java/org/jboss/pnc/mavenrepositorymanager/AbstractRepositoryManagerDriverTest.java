@@ -20,10 +20,10 @@ package org.jboss.pnc.mavenrepositorymanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.commonjava.indy.boot.BootStatus;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.test.fixture.core.CoreServerFixture;
+import org.commonjava.propulsor.boot.BootStatus;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.PNCModuleGroup;
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertThat;
 public class AbstractRepositoryManagerDriverTest {
 
     protected static final String CONFIG_SYSPROP = "pnc-config-file";
-    
+
     protected static final String PNC_BUILDS = "pnc-builds";
 
     @Rule
@@ -94,8 +94,8 @@ public class AbstractRepositoryManagerDriverTest {
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider = 
-                new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class);
+        PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider =
+                new PncConfigProvider<>(MavenRepoDriverModuleConfig.class);
         pncProvider.registerProvider(mapper);
         mapper.writeValue(configFile, moduleConfigJson);
 
@@ -144,8 +144,8 @@ public class AbstractRepositoryManagerDriverTest {
     {
         final CoreServerFixture fixture = new CoreServerFixture( temp );
 
-        etcDir = new File( fixture.getBootOptions().getIndyHome(), "etc/indy" );
-        dataDir = new File( fixture.getBootOptions().getIndyHome(), "var/lib/indy/data" );
+        etcDir = new File( fixture.getBootOptions().getHomeDir(), "etc/indy" );
+        dataDir = new File( fixture.getBootOptions().getHomeDir(), "var/lib/indy/data" );
 
         initBaseTestConfig( fixture );
         initTestConfig( fixture );
