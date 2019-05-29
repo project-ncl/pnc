@@ -69,14 +69,14 @@
       <artifactId>test-common</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxrs</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.maven.atlas</groupId>
+      <groupId>org.commonjava.atlas</groupId>
       <artifactId>atlas-identities</artifactId>
     </dependency>
     <dependency>
@@ -84,7 +84,7 @@
       <artifactId>lombok</artifactId>
     </dependency>
   </dependencies>
-  
+
   <build>
     <testResources>
       <testResource>
@@ -93,5 +93,5 @@
       </testResource>
     </testResources>
   </build>
-  
+
 </project>

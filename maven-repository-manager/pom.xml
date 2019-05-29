@@ -33,8 +33,10 @@
   <description>Logic to operate with remote Indy repository manager (Implementation of spi:org.jboss.pnc.spi.repositorymanager).</description>
 
   <properties>
-    <version.hibernate-search>5.6.0.Beta1</version.hibernate-search>
+    <version.hibernate-search>5.8.1.Final</version.hibernate-search>
+    <version.infinispan>9.4.7.Final</version.infinispan>
     <version.weld>2.4.6.Final</version.weld>
+    <version.indy-resteasy>3.0.12.Final</version.indy-resteasy>
   </properties>
 
   <dependencies>
@@ -173,12 +175,32 @@
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
-        <version>3.0.9.Final</version>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>jaxrs-api</artifactId>
-        <version>3.0.9.Final</version>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-multipart-provider</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-client</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxb-provider</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.derby</groupId>
@@ -200,8 +222,20 @@
       </dependency>
       <dependency>
         <groupId>org.infinispan</groupId>
+        <artifactId>infinispan-client-hotrod</artifactId>
+        <version>${version.infinispan}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.infinispan</groupId>
         <artifactId>infinispan-core</artifactId>
-        <version>8.2.4.Final</version>
+        <version>${version.infinispan}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.infinispan</groupId>
+        <artifactId>infinispan-directory-provider</artifactId>
+        <version>${version.infinispan}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
