@@ -56,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 @Stateless
@@ -98,8 +99,8 @@ public class SCMRepositoryProviderImpl
 
         List<Predicate<RepositoryConfiguration>> predicates = new ArrayList<>();
 
-        addToListIfStringNotNullAndNotEmpty(predicates, matchUrl, matchByScmUrl(matchUrl));
-        addToListIfStringNotNullAndNotEmpty(predicates, searchUrl, searchByScmUrl(searchUrl));
+        addToListIfStringNotNullAndNotEmpty(predicates, matchUrl, () -> matchByScmUrl(matchUrl));
+        addToListIfStringNotNullAndNotEmpty(predicates, searchUrl, () -> searchByScmUrl(searchUrl));
 
         // transform list to array for 'predicates' varargs in 'queryForCollection' method
         Predicate<RepositoryConfiguration>[] predicatesArray = new Predicate[predicates.size()];
@@ -116,9 +117,9 @@ public class SCMRepositoryProviderImpl
      * @param item
      * @param <T>
      */
-    private <T> void addToListIfStringNotNullAndNotEmpty(List<T> list, String str, T item) {
+    private <T> void addToListIfStringNotNullAndNotEmpty(List<T> list, String str, Supplier<T> item) {
         if (str != null && !str.isEmpty()) {
-            list.add(item);
+            list.add(item.get());
         }
     }
 
