@@ -134,8 +134,7 @@ public interface GroupConfigurationEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
-            @NotNull GroupConfiguration groupConfiguration);
+            @Parameter(description = GC_ID) @PathParam("id") int id, GroupConfiguration groupConfiguration);
 
     @Operation(summary = "Removes a specific group config.",
             responses = {
