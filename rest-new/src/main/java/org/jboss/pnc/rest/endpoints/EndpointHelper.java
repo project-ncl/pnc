@@ -18,39 +18,36 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.dto.DTOEntity;
-
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.ws.rs.NotFoundException;
 
-public abstract class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
+public class EndpointHelper<DTO extends REF, REF extends DTOEntity> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Class<DTO> dtoClass;
+    private final Provider<?, DTO, REF> provider;
 
-    protected AbstractEndpoint(Class<DTO> dtoClass){
+    protected EndpointHelper(Class<DTO> dtoClass, Provider<?, DTO, REF> provider){
         this.dtoClass = dtoClass;
+        this.provider = provider;
     }
-
-    protected abstract Provider<?, DTO, REF> provider();
 
     protected DTO create(DTO dto) {
         logger.debug("Creating an entity with body: " + dto);
-        dto = provider().store(dto);
+        dto = provider.store(dto);
         logger.debug("Entity with id: " + dto.getId() + " successfully created");
         return dto;
     }
 
     protected DTO getSpecific(int id) {
         logger.debug("Getting " + dtoClass.getSimpleName() + " with id: " + id);
-        DTO dto = provider().getSpecific(id);
+        DTO dto = provider.getSpecific(id);
         if (dto == null) {
             logger.debug("Entity of type " + dtoClass.getSimpleName() + " with id: " + id + " not found.");
             throw new NotFoundException("Entity of type " + dtoClass.getSimpleName() + " with id: " + id + " not found.");
@@ -61,17 +58,17 @@ public abstract class AbstractEndpoint<DTO extends REF, REF extends DTOEntity> {
 
     protected Page<DTO> getAll(PageParameters pageParameters) {
         logger.debug("Retrieving " + dtoClass.getSimpleName() + "s with these " + pageParameters);
-        return provider().getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
+        return provider.getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
     };
 
     protected void update(int id, DTO dto) {
         logger.debug("Updating " + dtoClass.getSimpleName() + " with id: " + id);
-        provider().update(id, dto);
+        provider.update(id, dto);
     }
 
     protected void delete(int id) {
         logger.debug("Deleting " + dtoClass.getSimpleName() + " with id: " + id);
-        provider().delete(id);
+        provider.delete(id);
         logger.debug("Deletion of " + dtoClass.getSimpleName() + " with id: " + id + " was successful");
     }
 }

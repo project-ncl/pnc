@@ -24,33 +24,30 @@ import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class EnvironmentEndpointImpl
-        extends AbstractEndpoint<Environment, Environment>
-        implements EnvironmentEndpoint {
+public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
 
     @Inject
     private EnvironmentProvider environmentProvider;
 
-    public EnvironmentEndpointImpl() {
-        super(Environment.class);
-    }
+    private EndpointHelper<Environment, Environment> endpointHelper;
 
-    @Override
-    protected Provider<?, Environment, Environment> provider() {
-        return environmentProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(Environment.class, environmentProvider);
     }
 
     @Override
     public Page<Environment> getAll(PageParameters pageParameters) {
-        return super.getAll(pageParameters);
+        return endpointHelper.getAll(pageParameters);
     }
 
     @Override
     public Environment getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 }

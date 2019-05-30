@@ -26,11 +26,12 @@ import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class ProductEndpointImpl extends AbstractEndpoint<Product, ProductRef> implements ProductEndpoint {
+public class ProductEndpointImpl implements ProductEndpoint {
 
     @Inject
     private ProductProvider productProvider;
@@ -38,13 +39,11 @@ public class ProductEndpointImpl extends AbstractEndpoint<Product, ProductRef> i
     @Inject
     private ProductVersionProvider productVersionProvider;
 
-    public ProductEndpointImpl() {
-        super(Product.class);
-    }
+    private EndpointHelper<Product, ProductRef> endpointHelper;
 
-    @Override
-    protected ProductProvider provider() {
-        return productProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(Product.class, productProvider);
     }
 
     @Override
@@ -54,22 +53,21 @@ public class ProductEndpointImpl extends AbstractEndpoint<Product, ProductRef> i
                 pageParameters.getPageSize(),
                 pageParameters.getSort(),
                 pageParameters.getQ());
-
     }
 
     @Override
     public Product createNew(Product product) {
-        return super.create(product);
+        return endpointHelper.create(product);
     }
 
     @Override
     public Product getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, Product product) {
-        super.update(id, product);
+        endpointHelper.update(id, product);
     }
 
     @Override

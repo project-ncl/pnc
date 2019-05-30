@@ -28,15 +28,14 @@ import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
 @Stateless
-public class ProductMilestoneEndpointImpl
-        extends AbstractEndpoint<ProductMilestone, ProductMilestoneRef>
-        implements ProductMilestoneEndpoint {
+public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private ProductMilestoneProvider productMilestoneProvider;
@@ -50,28 +49,26 @@ public class ProductMilestoneEndpointImpl
     @Context
     private HttpServletRequest httpServletRequest;
 
-    public ProductMilestoneEndpointImpl() {
-        super(ProductMilestone.class);
-    }
+    private EndpointHelper<ProductMilestone, ProductMilestoneRef> endpointHelper;
 
-    @Override
-    protected ProductMilestoneProvider provider() {
-        return productMilestoneProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(ProductMilestone.class, productMilestoneProvider);
     }
 
     @Override
     public ProductMilestone createNew(ProductMilestone productMilestone) {
-        return super.create(productMilestone);
+        return endpointHelper.create(productMilestone);
     }
 
     @Override
     public ProductMilestone getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, ProductMilestone productMilestone) {
-        super.update(id, productMilestone);
+        endpointHelper.update(id, productMilestone);
     }
 
     @Override

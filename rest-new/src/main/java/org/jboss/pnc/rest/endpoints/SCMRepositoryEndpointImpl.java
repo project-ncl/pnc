@@ -27,24 +27,21 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class SCMRepositoryEndpointImpl
-        extends AbstractEndpoint<SCMRepository, SCMRepository>
-        implements SCMRepositoryEndpoint {
+public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
 
     @Inject
     private SCMRepositoryProvider scmRepositoryProvider;
 
-    public SCMRepositoryEndpointImpl() {
-        super(SCMRepository.class);
-    }
+    private EndpointHelper<SCMRepository, SCMRepository> endpointHelper;
 
-    @Override
-    protected SCMRepositoryProvider provider() {
-        return scmRepositoryProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(SCMRepository.class, scmRepositoryProvider);
     }
 
     @Override
@@ -61,12 +58,12 @@ public class SCMRepositoryEndpointImpl
 
     @Override
     public SCMRepository getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, SCMRepository repositoryConfiguration) {
-        super.update(id, repositoryConfiguration);
+        endpointHelper.update(id, repositoryConfiguration);
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints;
 
 import java.lang.invoke.MethodHandles;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -47,7 +48,7 @@ import javax.ws.rs.NotFoundException;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class GroupBuildEndpointImpl extends AbstractEndpoint<GroupBuild, GroupBuildRef> implements GroupBuildEndpoint {
+public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -63,28 +64,26 @@ public class GroupBuildEndpointImpl extends AbstractEndpoint<GroupBuild, GroupBu
     @Inject
     private BrewPusher brewPusher;
 
-    public GroupBuildEndpointImpl() {
-        super(GroupBuild.class);
-    }
+    private EndpointHelper<GroupBuild, GroupBuildRef> endpointHelper;
 
-    @Override
-    protected GroupBuildProvider provider() {
-        return provider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(GroupBuild.class, provider);
     }
 
     @Override
     public Page<GroupBuild> getAll(PageParameters pageParameters) {
-        return super.getAll(pageParameters);
+        return endpointHelper.getAll(pageParameters);
     }
 
     @Override
     public GroupBuild getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void delete(int id) {
-        super.delete(id);
+        endpointHelper.delete(id);
     }
 
     @Override
