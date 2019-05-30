@@ -263,6 +263,15 @@ public class DatastoreAdapter {
                     errorLog.append(r.getLog());
                     errorLog.append("\n---- End Environment Driver Log ----\n");
             });
+
+            // store scm information of failed build if present
+            result.getBuildExecutionConfiguration().ifPresent(
+                r -> {
+                    buildRecordBuilder.scmRepoURL(r.getScmRepoURL());
+                    buildRecordBuilder.scmRevision(r.getScmRevision());
+                    buildRecordBuilder.scmTag(r.getScmTag());
+
+                });
         });
 
         errorLog.append("Build status: ").append(getBuildStatus(buildResult)).append("\n");
