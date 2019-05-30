@@ -51,7 +51,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -164,8 +163,7 @@ public interface GroupConfigurationEndpoint{
     GroupBuild trigger(
             @Parameter(description = GC_ID) @PathParam("id") int id,
             @BeanParam GroupBuildParameters buildParams,
-            GroupBuildRequest request,
-            @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
+            GroupBuildRequest request);
 
     @Operation(summary = "Gets the build configs for the group config.",
             responses = {
