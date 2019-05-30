@@ -23,6 +23,7 @@ import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductReleaseEndpoint;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -31,35 +32,31 @@ import java.util.List;
 import java.util.Set;
 
 @Stateless
-public class ProductReleaseEndpointImpl
-        extends AbstractEndpoint<ProductRelease, ProductReleaseRef>
-        implements ProductReleaseEndpoint {
+public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {
 
     @Inject
     private ProductReleaseProvider productReleaseProvider;
 
-    public ProductReleaseEndpointImpl() {
-        super(ProductRelease.class);
-    }
+    private EndpointHelper<ProductRelease, ProductReleaseRef> endpointHelper;
 
-    @Override
-    protected ProductReleaseProvider provider() {
-        return productReleaseProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(ProductRelease.class, productReleaseProvider);
     }
 
     @Override
     public ProductRelease createNew(ProductRelease productRelease) {
-        return super.create(productRelease);
+        return endpointHelper.create(productRelease);
     }
 
     @Override
     public ProductRelease getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, ProductRelease productRelease) {
-        super.update(id, productRelease);
+        endpointHelper.update(id, productRelease);
     }
 
     @Override

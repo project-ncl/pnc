@@ -26,25 +26,24 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Optional;
 
 @Stateless
-public class ArtifactEndpointImpl extends AbstractEndpoint<Artifact, ArtifactRef> implements ArtifactEndpoint {
+public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
+
+    private EndpointHelper<Artifact, ArtifactRef> endpointHelper;
     
     @Inject
     private ArtifactProvider artifactProvider;
 
-    public ArtifactEndpointImpl(){
-        super(Artifact.class);
-    }
-
-    @Override
-    protected ArtifactProvider provider() {
-        return artifactProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(Artifact.class, artifactProvider);
     }
 
     @Override
@@ -62,16 +61,16 @@ public class ArtifactEndpointImpl extends AbstractEndpoint<Artifact, ArtifactRef
 
     @Override
     public Artifact getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public Artifact create(Artifact artifact) {
-        return super.create(artifact);
+        return endpointHelper.create(artifact);
     }
 
     @Override
     public void update(Integer id, Artifact artifact){
-        super.update(id, artifact);
+        endpointHelper.update(id, artifact);
     }
 }

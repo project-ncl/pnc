@@ -29,13 +29,12 @@ import org.jboss.pnc.rest.api.endpoints.ProjectEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class ProjectEndpointImpl
-        extends AbstractEndpoint<Project, ProjectRef>
-        implements ProjectEndpoint {
+public class ProjectEndpointImpl implements ProjectEndpoint {
 
     @Inject
     private ProjectProvider projectProvider;
@@ -46,38 +45,36 @@ public class ProjectEndpointImpl
     @Inject
     private BuildProvider buildProvider;
 
-    public ProjectEndpointImpl() {
-        super(Project.class);
-    }
+    private EndpointHelper<Project, ProjectRef> endpointHelper;
 
-    @Override
-    protected ProjectProvider provider() {
-        return projectProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(Project.class, projectProvider);
     }
 
     @Override
     public Page<Project> getAll(PageParameters pageParameters) {
-        return super.getAll(pageParameters);
+        return endpointHelper.getAll(pageParameters);
     }
 
     @Override
     public Project createNew(Project project) {
-        return super.create(project);
+        return endpointHelper.create(project);
     }
 
     @Override
     public Project getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, Project project) {
-        super.update(id, project);
+        endpointHelper.update(id, project);
     }
 
     @Override
     public void deleteSpecific(int id) {
-        super.delete(id);
+        endpointHelper.delete(id);
     }
 
     @Override

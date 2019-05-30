@@ -32,13 +32,12 @@ import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductVersionEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class ProductVersionEndpointImpl
-        extends AbstractEndpoint<ProductVersion, ProductVersionRef>
-        implements ProductVersionEndpoint {
+public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
 
     @Inject
     private ProductVersionProvider productVersionProvider;
@@ -55,28 +54,26 @@ public class ProductVersionEndpointImpl
     @Inject
     private ProductReleaseProvider productReleaseProvider;
 
-    public ProductVersionEndpointImpl() {
-        super(ProductVersion.class);
-    }
+    private EndpointHelper<ProductVersion, ProductVersionRef> endpointHelper;
 
-    @Override
-    protected ProductVersionProvider provider() {
-        return productVersionProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(ProductVersion.class, productVersionProvider);
     }
 
     @Override
     public ProductVersion createNewProductVersion(ProductVersion productVersion) {
-        return super.create(productVersion);
+        return endpointHelper.create(productVersion);
     }
 
     @Override
     public ProductVersion getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, ProductVersion productVersion) {
-        super.update(id, productVersion);
+        endpointHelper.update(id, productVersion);
     }
 
     @Override

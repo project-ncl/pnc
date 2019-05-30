@@ -37,6 +37,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -49,7 +50,7 @@ import java.util.List;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> implements BuildEndpoint {
+public class BuildEndpointImpl implements BuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -63,13 +64,11 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
     @Inject
     private ArtifactProvider artifactProvider;
 
-    public BuildEndpointImpl() {
-        super(Build.class);
-    }
+    private EndpointHelper<Build, BuildRef> endpointHelper;
 
-    @Override
-    protected BuildProvider provider() {
-        return provider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(Build.class, provider);
     }
 
     @Override
@@ -85,17 +84,17 @@ public class BuildEndpointImpl extends AbstractEndpoint<Build, BuildRef> impleme
 
     @Override
     public Build getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void delete(int id) {
-        super.delete(id);
+        endpointHelper.delete(id);
     }
 
     @Override
     public void update(int id, Build build) {
-        super.update(id, build);
+        endpointHelper.update(id, build);
     }
 
     @Override

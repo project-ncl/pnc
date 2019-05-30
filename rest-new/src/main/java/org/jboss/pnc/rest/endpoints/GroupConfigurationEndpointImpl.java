@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoints;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.jboss.pnc.dto.Build;
@@ -55,7 +56,7 @@ import org.jboss.pnc.spi.exception.CoreException;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class GroupConfigurationEndpointImpl extends AbstractEndpoint<GroupConfiguration, GroupConfigurationRef> implements GroupConfigurationEndpoint{
+public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoint {
     
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     
@@ -74,38 +75,36 @@ public class GroupConfigurationEndpointImpl extends AbstractEndpoint<GroupConfig
     @Inject
     private BuildTriggerer buildTriggerer;
 
-    public GroupConfigurationEndpointImpl() {
-        super(GroupConfiguration.class);
-    }
+    private EndpointHelper<GroupConfiguration, GroupConfigurationRef> endpointHelper;
 
-    @Override
-    protected GroupConfigurationProvider provider() {
-        return provider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(GroupConfiguration.class, provider);
     }
 
     @Override
     public Page<GroupConfiguration> getAll(PageParameters pageParams) {
-        return super.getAll(pageParams);
+        return endpointHelper.getAll(pageParams);
     }
 
     @Override
     public GroupConfiguration createNew(GroupConfiguration groupConfiguration) {
-        return super.create(groupConfiguration);
+        return endpointHelper.create(groupConfiguration);
     }
 
     @Override
     public GroupConfiguration getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, GroupConfiguration buildConfigurationSet) {
-        super.update(id, buildConfigurationSet);
+        endpointHelper.update(id, buildConfigurationSet);
     }
 
     @Override
     public void deleteSpecific(int id) {
-        super.delete(id);
+        endpointHelper.delete(id);
     }
 
     @Override

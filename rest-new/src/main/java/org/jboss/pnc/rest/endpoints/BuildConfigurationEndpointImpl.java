@@ -35,6 +35,7 @@ import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -51,7 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfiguration, BuildConfigurationRef> implements BuildConfigurationEndpoint {
+public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildConfigurationEndpointImpl.class);
 
@@ -70,38 +71,36 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
     @Inject
     private BuildTriggerer buildTriggerer;
 
-    public BuildConfigurationEndpointImpl() {
-        super(BuildConfiguration.class);
-    }
+    private EndpointHelper<BuildConfiguration, BuildConfigurationRef> endpointHelper;
 
-    @Override
-    protected BuildConfigurationProvider provider() {
-        return buildConfigurationProvider;
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(BuildConfiguration.class, buildConfigurationProvider);
     }
 
     @Override
     public Page<BuildConfiguration> getAll(PageParameters pageParams) {
-        return super.getAll(pageParams);
+        return endpointHelper.getAll(pageParams);
     }
 
     @Override
     public BuildConfiguration createNew(BuildConfiguration buildConfiguration) {
-        return super.create(buildConfiguration);
+        return endpointHelper.create(buildConfiguration);
     }
 
     @Override
     public BuildConfiguration getSpecific(int id) {
-        return super.getSpecific(id);
+        return endpointHelper.getSpecific(id);
     }
 
     @Override
     public void update(int id, BuildConfiguration buildConfiguration) {
-        super.update(id, buildConfiguration);
+        endpointHelper.update(id, buildConfiguration);
     }
 
     @Override
     public void deleteSpecific(int id) {
-        super.delete(id);
+        endpointHelper.delete(id);
     }
 
     @Override

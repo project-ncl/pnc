@@ -33,9 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
 @Stateless
-public class UserEndpointImpl
-        extends AbstractEndpoint<User, User>
-        implements UserEndpoint {
+public class UserEndpointImpl implements UserEndpoint {
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -48,15 +46,6 @@ public class UserEndpointImpl
 
     @Inject
     private BuildProvider buildProvider;
-
-    public UserEndpointImpl() {
-        super(User.class);
-    }
-
-    @Override
-    protected UserProvider provider() {
-        return userProvider;
-    }
 
     @Override
     public User getCurrentUser() {
