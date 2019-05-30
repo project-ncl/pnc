@@ -51,16 +51,14 @@
 
       $stateProvider.state('projects.list', {
         url: '',
-        templateUrl: 'projects/views/projects.list.html',
+        component: 'pncProjectsListPage',
         data: {
           displayName: 'Projects',
           title: 'Projects'
         },
-        controller: 'ProjectListController',
-        controllerAs: 'listCtrl',
         resolve: {
-          projectList: ['ProjectDAO', function(ProjectDAO) {
-            return ProjectDAO.getAll().$promise;
+          projects: ['Project', function(Project) {
+            return Project.query().$promise;
           }]
         }
       });

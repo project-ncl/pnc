@@ -31,7 +31,7 @@
     'restConfig',
     'PROJECT_PATH',
     function($resource, restConfig, PROJECT_PATH) {
-      var ENDPOINT = restConfig.getPncUrl() + PROJECT_PATH;
+      var ENDPOINT = restConfig.getPncRestUrl() + PROJECT_PATH;
 
       var resource = $resource(ENDPOINT, {
         id: '@id'

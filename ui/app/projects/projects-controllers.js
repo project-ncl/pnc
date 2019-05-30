@@ -20,13 +20,6 @@
 
   var module = angular.module('pnc.projects');
 
-  module.controller('ProjectListController', [
-    'projectList',
-    function(projectList) {
-      this.projects = projectList;
-    }
-  ]);
-
   module.controller('ProjectDetailController', [
     '$log',
     '$state',
