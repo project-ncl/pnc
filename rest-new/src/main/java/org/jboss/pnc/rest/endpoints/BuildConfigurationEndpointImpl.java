@@ -39,10 +39,21 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
+
+import org.jboss.pnc.facade.BuildTriggerer;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfiguration, BuildConfigurationRef> implements BuildConfigurationEndpoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(BuildConfigurationEndpointImpl.class);
 
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
@@ -55,6 +66,9 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
 
     @Inject
     private GroupConfigurationProvider groupConfigurationProvider;
+
+    @Inject
+    private BuildTriggerer buildTriggerer;
 
     public BuildConfigurationEndpointImpl() {
         super(BuildConfiguration.class);
@@ -91,9 +105,8 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
     }
 
     @Override
-    public Build trigger(int id, BuildParameters buildParams, String callbackUrl) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+    public Build trigger(int id, BuildParameters buildParams) {
+        return triggerBuild(id, OptionalInt.empty(), buildParams);
     }
 
     @Override
@@ -171,9 +184,8 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
     }
 
     @Override
-    public Build triggerRevision(int id, int rev, BuildParameters buildParams, String callbackUrl) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+    public Build triggerRevision(int id, int rev, BuildParameters buildParams) {
+        return triggerBuild(id, OptionalInt.of(rev), buildParams);
     }
 
     @Override
@@ -191,4 +203,37 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
     public Set<Parameter> getSupportedParameters() {
         return bcSupportedGenericParametersProvider.getSupportedGenericParameters();
     }
+
+    private Build triggerBuild(int id, OptionalInt rev, BuildParameters buildParams) {
+        try {
+            logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, parameters: {}",
+                    id, rev, buildParams);
+
+            BuildOptions buildOptions = toBuildOptions(buildParams);
+            int buildId = buildTriggerer.triggerBuild(id, rev, buildOptions);
+
+            return buildProvider.getSpecific(buildId);
+        } catch (BuildConflictException | CoreException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private BuildOptions toBuildOptions(BuildParameters buildParams) {
+        BuildOptions buildOptions = new BuildOptions(
+                buildParams.isTemporaryBuild(),
+                buildParams.isBuildDependencies(),
+                buildParams.isKeepPodOnFailure(),
+                buildParams.isTimestampAlignment(),
+                buildParams.getRebuildMode());
+        checkBuildOptionsValidity(buildOptions);
+        return buildOptions;
+    }
+
+    public static void checkBuildOptionsValidity(BuildOptions buildOptions) {
+        if(!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
+            // Combination timestampAlignment + standard build is not allowed
+            throw new InvalidEntityException("Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
+        }
+    }
+
 }

@@ -52,7 +52,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import java.util.Set;
@@ -166,8 +165,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/build")
     Build trigger(
             @Parameter(description = BC_ID) @PathParam("id") int id,
-            @BeanParam BuildParameters buildParams,
-            @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
+            @BeanParam BuildParameters buildParams);
 
     @Operation(summary = "Get all builds associated with this build config.",
             responses = {
@@ -317,8 +315,7 @@ public interface BuildConfigurationEndpoint {
     Build triggerRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @Parameter(description = REV) @PathParam("rev") int rev,
-            @BeanParam BuildParameters buildParams,
-            @Parameter(description = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl);
+            @BeanParam BuildParameters buildParams);
 
     @Operation(summary = "Restores a build config to a specific audited revision",
             responses = {

@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.endpoints;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -43,6 +44,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import org.jboss.pnc.facade.BuildTriggerer;
+import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
+import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
 
 /**
  *
@@ -64,6 +70,9 @@ public class GroupConfigurationEndpointImpl extends AbstractEndpoint<GroupConfig
 
     @Inject
     private GroupBuildProvider groupBuildProvider;
+
+    @Inject
+    private BuildTriggerer buildTriggerer;
 
     public GroupConfigurationEndpointImpl() {
         super(GroupConfiguration.class);
@@ -100,8 +109,8 @@ public class GroupConfigurationEndpointImpl extends AbstractEndpoint<GroupConfig
     }
 
     @Override
-    public GroupBuild trigger(int id, GroupBuildParameters buildParams, GroupBuildRequest request, String callbackUrl) {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    public GroupBuild trigger(int id, GroupBuildParameters buildParams, GroupBuildRequest request) {
+        return triggerBuild(id, Optional.ofNullable(request), buildParams);
     }
 
     @Override
@@ -135,6 +144,33 @@ public class GroupConfigurationEndpointImpl extends AbstractEndpoint<GroupConfig
                 pageParams.getSort(),
                 pageParams.getQ(),
                 id);
+    }
+
+    private GroupBuild triggerBuild(
+            int groupConfigId,
+            Optional<GroupBuildRequest> buildConfigRevisions,
+            GroupBuildParameters buildParams) {
+
+        try {
+            BuildOptions buildOptions = toBuildOptions(buildParams);
+
+            int groupBuildId = buildTriggerer.triggerGroupBuild(groupConfigId, buildConfigRevisions, buildOptions);
+
+            return groupBuildProvider.getSpecific(groupBuildId);
+        } catch (BuildConflictException | CoreException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private BuildOptions toBuildOptions(GroupBuildParameters buildParams) {
+        BuildOptions buildOptions = new BuildOptions(
+                buildParams.isTemporaryBuild(),
+                false,
+                false,
+                buildParams.isTimestampAlignment(),
+                buildParams.getRebuildMode());
+        checkBuildOptionsValidity(buildOptions);
+        return buildOptions;
     }
 
 }
