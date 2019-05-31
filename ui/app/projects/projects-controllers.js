@@ -20,38 +20,6 @@
 
   var module = angular.module('pnc.projects');
 
-  module.controller('ProjectDetailController', [
-    '$log',
-    '$state',
-    '$rootScope',
-    'projectDetail',
-    function($log, $state, $rootScope, projectDetail) {
-      var that = this;
-      that.project = projectDetail;
-
-      function reload() {
-        $state.go('projects.detail', {
-          projectId: that.project.id
-        }, {
-          reload: true
-        });
-      }
-
-      // Update a project after editing
-      that.update = function () {
-        $log.debug('Updating project: %O', that.project);
-
-        that.project.$update().then(reload);
-      };
-
-      $rootScope.$on('BCC_BPM_NOTIFICATION', function (event, payload) {
-        if (payload.eventType === 'BCC_CREATION_SUCCESS') {
-          reload();
-        }
-      });
-    }
-  ]);
-
   module.controller('ProjectCreateController', [
     '$scope',
     '$state',
@@ -100,14 +68,6 @@
           }
         );
       });
-    }
-  ]);
-
-  module.controller('CreateBCController', [
-    'projectDetail',
-    function(projectDetail) {
-      // To be passed as parameter to the directive
-      this.fixedProject = projectDetail;
     }
   ]);
 

@@ -27,14 +27,7 @@
 
   module.config([
     '$stateProvider',
-    '$urlRouterProvider',
-    function($stateProvider, $urlRouterProvider) {
-
-      // NCL-2402 changed the module base URL, this redirect should
-      // be removed at some point in the future.
-      $urlRouterProvider.when(/^\/project\/.*/, ['$location', function ($location) {
-        return $location.url().replace('/project/', '/projects');
-      }]);
+    function($stateProvider) {
 
       $stateProvider.state('projects', {
         abstract: true,
@@ -65,35 +58,16 @@
 
       $stateProvider.state('projects.detail', {
         url: '/{projectId:int}',
-        templateUrl: 'projects/views/projects.detail.html',
+        component: 'pncProjectDetailPage',
         data: {
-           displayName: '{{ projectDetail.name }}',
-           title: '{{ projectDetail.name }} | Project'
+          displayName: '{{ project.name }}',
+          title: '{{ project.name }} | Project'
         },
-        controller: 'ProjectDetailController',
-        controllerAs: 'detailCtrl',
         resolve: {
-          projectDetail: ['ProjectDAO', '$stateParams', function(ProjectDAO, $stateParams) {
-            return ProjectDAO.get({
-              projectId: $stateParams.projectId}).$promise;
-          }]
-        }
-      });
-
-      $stateProvider.state('projects.detail.create-bc', {
-        url: '/create-bc',
-        templateUrl: 'projects/views/projects.detail.create-bc.html',
-        data: {
-            displayName: 'Create Build Config',
-            title: '{{ projectDetail.name }} | Create Build Config',
-            requireAuth: true
-          },
-        controller: 'CreateBCController',
-        controllerAs: 'ctrl',
-        resolve: {
-          projectDetail: ['ProjectDAO', '$stateParams', function(ProjectDAO, $stateParams) {
-            return ProjectDAO.get({
-              projectId: $stateParams.projectId}).$promise;
+          project: ['Project', '$stateParams', function(Project, $stateParams) {
+            return Project.get({
+              id: $stateParams.projectId
+            }).$promise;
           }]
         }
       });
@@ -109,6 +83,7 @@
         controller: 'ProjectCreateController',
         controllerAs: 'createCtrl'
       });
+      
     }
   ]);
 
