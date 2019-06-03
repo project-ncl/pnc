@@ -18,31 +18,38 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.projects');
+  angular.module('pnc.projects').component('pncProjectCreatePage', {
+    bindings: {
+    },
+    templateUrl: 'projects/create/pnc-project-create-page.html',
+    controller: ['$state', 'Project', Controller]
+  });
 
-  module.controller('ConfigurationListController', [
-    '$log',
-    '$state',
-    'configurationList',
-    'ProjectDAO',
-    function($log, $state, configurationList, ProjectDAO) {
-      var that = this;
+  function Controller($state, Project) {
+    const $ctrl = this;
 
-      this.configurations = configurationList;
-      this.projects = [];
+    // -- Controller API --
+    $ctrl.create = create;
+    $ctrl.reset = reset;
 
-      angular.forEach(this.configurations.data, function(configuration) {
-        ProjectDAO.get({
-          projectId: configuration.projectId
-        }).$promise.then(
-          function(result) {
-            if (result) {
-              that.projects.push(result);
-            }
-          }
-        );
+    // --------------------
+
+    function create(project) {
+      new Project(angular.copy(project)).$save().then(function(result) {
+        $state.go('projects.detail', {
+          projectId: result.id
+        });
       });
     }
-  ]);
+
+    function reset(form) {
+      if (form) {
+        form.$setPristine();
+        form.$setUntouched();
+        $ctrl.project = new Project();
+      }
+    }
+
+  }
 
 })();

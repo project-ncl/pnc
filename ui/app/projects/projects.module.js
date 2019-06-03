@@ -74,14 +74,12 @@
 
       $stateProvider.state('projects.create', {
         url: '/create',
-        templateUrl: 'projects/views/projects.create.html',
+        component: 'pncProjectCreatePage',
         data: {
           displayName: 'Create Project',
           title: 'Create Project',
           requireAuth: true
-        },
-        controller: 'ProjectCreateController',
-        controllerAs: 'createCtrl'
+        }
       });
       
     }
