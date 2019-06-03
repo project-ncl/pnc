@@ -43,6 +43,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionP
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -110,7 +111,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    BuildConfiguration createNew(BuildConfiguration buildConfiguration);
+    BuildConfiguration createNew(@NotNull BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Gets a specific build config.",
             responses = {
@@ -137,7 +138,7 @@ public interface BuildConfigurationEndpoint {
     @PUT
     @Path("/{id}")
     void update(@Parameter(description = BC_ID) @PathParam("id") int id,
-            BuildConfiguration buildConfiguration);
+                @NotNull BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Removes a specific build config.",
             responses = {

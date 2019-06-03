@@ -30,6 +30,7 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -105,7 +106,7 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     @POST
-    Artifact create(Artifact artifactRest);
+    Artifact create(@NotNull Artifact artifactRest);
 
     @Operation(summary = "[role:admin] Updates an existing Artifact",
             tags = "internal",
@@ -120,5 +121,5 @@ public interface ArtifactEndpoint {
             })
     @PUT
     @Path("/{id}")
-    void update(@PathParam("id") Integer id, Artifact artifact);
+    void update(@PathParam("id") Integer id, @NotNull Artifact artifact);
 }

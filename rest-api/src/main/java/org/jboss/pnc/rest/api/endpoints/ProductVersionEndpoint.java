@@ -38,6 +38,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestonePage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductReleasePage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -83,7 +84,7 @@ public interface ProductVersionEndpoint{
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     @POST
-    ProductVersion createNewProductVersion(ProductVersion productVersion);
+    ProductVersion createNewProductVersion(@NotNull ProductVersion productVersion);
 
     @Operation(summary = "Gets a specific product version.",
             responses = {
@@ -111,7 +112,7 @@ public interface ProductVersionEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = PV_ID) @PathParam("id") int id,
-            ProductVersion productVersion);
+            @NotNull ProductVersion productVersion);
 
     @Operation(summary = "Gets all build configs in a specific product version.",
             responses = {

@@ -33,6 +33,7 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -115,7 +116,7 @@ public interface SCMRepositoryEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = SCM_ID) @PathParam("id") int id,
-            SCMRepository repositoryConfiguration);
+            @NotNull SCMRepository repositoryConfiguration);
 
     @Operation(summary = "Creates a new SCM repository.",
             description = "If the given URL is external, it does create the repository in the scm server.",
@@ -131,5 +132,5 @@ public interface SCMRepositoryEndpoint{
     })
     @POST
     @Path("/create-and-sync")
-    RepositoryCreationResponse createNew(CreateAndSyncSCMRequest request);
+    RepositoryCreationResponse createNew(@NotNull CreateAndSyncSCMRequest request);
 }

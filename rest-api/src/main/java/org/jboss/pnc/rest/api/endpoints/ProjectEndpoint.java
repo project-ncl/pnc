@@ -35,6 +35,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -96,7 +97,7 @@ public interface ProjectEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Project createNew(Project project);
+    Project createNew(@NotNull Project project);
 
     @Operation(summary = "Gets a specific project.",
             responses = {
@@ -124,7 +125,7 @@ public interface ProjectEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = P_ID) @PathParam("id") int id,
-            Project project);
+            @NotNull Project project);
 
     @Operation(summary = "Removes a specific project and associated build configs.",
             responses = {
