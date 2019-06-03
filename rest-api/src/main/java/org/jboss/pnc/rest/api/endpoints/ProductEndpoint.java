@@ -34,6 +34,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductVersionPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -91,7 +92,7 @@ public interface ProductEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    Product createNew(Product product);
+    Product createNew(@NotNull Product product);
 
     @Operation(summary = "Gets a specific product.",
             responses = {
@@ -119,7 +120,7 @@ public interface ProductEndpoint {
     @Path("/{id}")
     void update(
             @Parameter(description = P_ID) @PathParam("id") int id,
-            Product product);
+            @NotNull Product product);
 
     @Operation(summary = "Get all versions for a specific product.",
             responses = {

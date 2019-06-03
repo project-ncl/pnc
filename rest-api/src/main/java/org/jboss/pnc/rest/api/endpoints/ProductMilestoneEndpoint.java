@@ -31,6 +31,7 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -79,7 +80,7 @@ public interface ProductMilestoneEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    ProductMilestone createNew(ProductMilestone productMilestone);
+    ProductMilestone createNew(@NotNull ProductMilestone productMilestone);
 
     @Operation(summary = "Gets a specific product milestone.",
             responses = {
@@ -107,7 +108,7 @@ public interface ProductMilestoneEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = PM_ID) @PathParam("id") int id,
-            ProductMilestone productMilestone);
+            @NotNull ProductMilestone productMilestone);
 
     @Operation(summary = "Gets builds performed during a product milestone cycle.",
             responses = {

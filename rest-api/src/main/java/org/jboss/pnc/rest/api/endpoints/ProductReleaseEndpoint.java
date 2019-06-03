@@ -29,6 +29,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.processor.annotation.Client;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -75,7 +76,7 @@ public interface ProductReleaseEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    ProductRelease createNew(ProductRelease productRelease);
+    ProductRelease createNew(@NotNull ProductRelease productRelease);
 
     @Operation(summary = "Gets a specific product release.",
             responses = {
@@ -103,7 +104,7 @@ public interface ProductReleaseEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = PR_ID) @PathParam("id") int id,
-            ProductRelease productRelease);
+            @NotNull ProductRelease productRelease);
 
     @Operation(summary = "Gets all product releases support levels.",
             responses = {

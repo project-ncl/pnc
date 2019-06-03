@@ -42,6 +42,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushResultPage;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -152,7 +153,7 @@ public interface BuildEndpoint{
             })
     @PUT
     @Path("/{id}")
-    void update(@Parameter(description = B_ID) @PathParam("id") int id, Build build);
+    void update(@Parameter(description = B_ID) @PathParam("id") int id, @NotNull Build build);
 
     @Operation(summary = "Gets artifacts built in a specific build.",
             responses = {
