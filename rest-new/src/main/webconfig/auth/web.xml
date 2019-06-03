@@ -39,11 +39,12 @@
        </web-resource-collection>
     </security-constraint>
 
-    <!-- Allow logged users to access debug data -->
+    <!-- Allow logged users to access their data -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Authorized users access to debug data</web-resource-name>
             <url-pattern>/rest-new/builds/ssh-credentials/*</url-pattern>
+            <url-pattern>/rest-new/users/current</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
         <auth-constraint>
