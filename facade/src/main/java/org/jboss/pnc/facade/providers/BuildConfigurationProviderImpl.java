@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
@@ -68,10 +67,10 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.notifications.Notifier;
 
 import java.util.HashSet;
+import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
 @PermitAll
 @Stateless
@@ -126,10 +125,10 @@ public class BuildConfigurationProviderImpl
         super.validateBeforeUpdating(id, buildConfigurationRest);
 
         validateIfItsNotConflicted(buildConfigurationRest);
-        validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
+        validateDependencies(id, buildConfigurationRest.getDependencyIds());
     }
 
-    private void validateDependencies(Integer buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
+    private void validateDependencies(int buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
 
         if (dependenciesIds == null || dependenciesIds.isEmpty()) {
             return;
@@ -172,6 +171,31 @@ public class BuildConfigurationProviderImpl
             }
             return null;
         });
+    }
+    
+    @Override
+    public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
+        super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
+        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
+        validateDependencies(id, buildConfiguration.getDependencyIds());
+        org.jboss.pnc.model.BuildConfiguration bc = repository.queryById(id);
+        if (bc == null) {
+            throw new RepositoryViolationException("Entity should exist in the DB");
+        }
+        
+        org.jboss.pnc.model.BuildConfiguration bcEntity = mapper.toEntity(buildConfiguration);
+        bcEntity.setCreationTime(bc.getCreationTime());
+        repository.save(bcEntity);
+        
+        
+        return buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(id)
+                .stream()
+                .filter(bca -> equalValues(bca, bcEntity))
+                .findFirst()
+                .map(buildConfigurationRevisionMapper::toDTO)
+                .orElseThrow(() -> new IllegalStateException("Couldn't find updated BuildConfigurationAudited entity. " +
+                                                        "BuildConfiguration to be stored: " + buildConfiguration));
     }
 
     @Override
@@ -282,36 +306,25 @@ public class BuildConfigurationProviderImpl
         return buildConfigurationRevisionMapper.toDTO(auditedBuildConfig);
     }
 
-    @Override
-    public Optional<BuildConfigurationRevision> getLatestAuditedMatchingBCRest(BuildConfiguration buildConfigurationRest) {
+    private boolean equalValues(BuildConfigurationAudited audited, org.jboss.pnc.model.BuildConfiguration query) {
 
-        return buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(buildConfigurationRest.getId())
-                .stream()
-                .filter(bca -> equalValues(bca, buildConfigurationRest))
-                .findFirst()
-                .map(buildConfigurationRevisionMapper::toDTO);
+        return audited.getName().equals(query.getName()) &&
+                Objects.equals(audited.getBuildScript(), query.getBuildScript()) &&
+                equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration()) &&
+                Objects.equals(audited.getScmRevision(), query.getScmRevision()) &&
+                Objects.equals(audited.getDescription(), query.getDescription()) &&
+                equalsId(audited.getProject(), query.getProject()) &&
+                equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment()) &&
+                audited.getGenericParameters().equals(query.getGenericParameters());
     }
 
-    private boolean equalValues(BuildConfigurationAudited audited, BuildConfiguration rest) {
+    private boolean equalsId(GenericEntity<Integer> dbEntity, GenericEntity<Integer> query) {
 
-        return audited.getName().equals(rest.getName()) &&
-                Objects.equals(audited.getBuildScript(), rest.getBuildScript()) &&
-                equalsId(audited.getRepositoryConfiguration(), rest.getRepository()) &&
-                Objects.equals(audited.getScmRevision(), rest.getScmRevision()) &&
-                Objects.equals(audited.getDescription(), rest.getDescription()) &&
-                equalsId(audited.getProject(), rest.getProject()) &&
-                equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
-                audited.getGenericParameters().equals(rest.getGenericParameters());
-    }
-
-    private boolean equalsId(GenericEntity<Integer> dbEntity, DTOEntity restEntity) {
-
-        if(dbEntity == null || restEntity == null){
-            return dbEntity == restEntity;
+        if(dbEntity == null || query == null){
+            return dbEntity == query;
         }
 
-        return dbEntity.getId().equals(restEntity.getId());
+        return dbEntity.getId().equals(query.getId());
     }
 
     @Override

@@ -59,7 +59,7 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
 
     BuildConfigurationRevision getRevision(Integer id, Integer rev);
 
-    Optional<BuildConfigurationRevision> getLatestAuditedMatchingBCRest(BuildConfiguration buildConfigurationRest);
+    BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration);
 
     BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request);
 }

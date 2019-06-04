@@ -168,14 +168,7 @@ public class BuildConfigurationEndpointImpl extends AbstractEndpoint<BuildConfig
 
     @Override
     public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
-        buildConfigurationProvider.update(id, buildConfiguration);
-
-        Optional<BuildConfigurationRevision> buildConfigurationRevision =
-                buildConfigurationProvider.getLatestAuditedMatchingBCRest(buildConfiguration);
-
-        return buildConfigurationRevision
-                .orElseThrow(() -> new RuntimeException("Couldn't find updated BuildConfigurationAudited entity. " +
-                                                        "BuildConfiguration to be stored: " + buildConfiguration));
+        return buildConfigurationProvider.createRevision(id, buildConfiguration);
     }
 
     @Override
