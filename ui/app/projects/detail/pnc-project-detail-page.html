@@ -25,35 +25,35 @@
 </pnc-header>
 
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-11 col-lg-10">
     <form editable-form class="form-horizontal" name="projectForm" onbeforesave="$ctrl.update()" novalidate>
 
       <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && projectForm.name.$touched, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
-        <label for="input-name" class="col-sm-1 control-label" ng-class="{ 'required': projectForm.$visible }">Name</label>
-        <div class="col-sm-11">
+        <label for="input-name" class="col-sm-3 col-lg-2 control-label" ng-class="{ 'required': projectForm.$visible }">Name</label>
+        <div class="col-sm-9 col-lg-7">
           <p id="input-name" e-class="form-control" editable-text="$ctrl.project.name" e-name="name" e-maxlength="255" e-required>{{ $ctrl.project.name || 'Empty' }}</p>
           <span class="help-block" ng-show="projectForm.name.$error.required && projectForm.name.$touched">Required field.</span>
         </div>
       </div>
 
       <div class="form-group" ng-class="{ 'has-error': projectForm.description.$invalid && projectForm.description.$touched, 'has-success': projectForm.description.$valid && projectForm.description.$touched }">
-        <label for="input-description" class="col-sm-1 control-label">Description</label>
-        <div class="col-sm-11">
-          <p id="input-description" e-class="form-control" editable-text="$ctrl.project.description" e-name="description">{{ $ctrl.project.description || 'Empty' }}</p>
+        <label for="input-description" class="col-sm-3 col-lg-2 control-label">Description</label>
+        <div class="col-sm-9 col-lg-7">
+          <p id="input-description" e-class="form-control" editable-textarea="$ctrl.project.description" e-name="description">{{ $ctrl.project.description || 'Empty' }}</p>
         </div>
       </div>
 
       <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid && projectForm.projectUrl.$touched, 'has-success': projectForm.projectUrl.$valid && projectForm.projectUrl.$touched }">
-        <label for="input-url" class="col-sm-1 control-label">URL</label>
-        <div class="col-sm-11">
+        <label for="input-url" class="col-sm-3 col-lg-2 control-label">Project URL</label>
+        <div class="col-sm-9 col-lg-7">
           <p id="input-url" e-type="url" e-class="form-control" editable-text="$ctrl.project.projectUrl" e-name="projectUrl" e-maxlength="255">{{ $ctrl.project.projectUrl || 'Empty' }}</p>
           <span class="help-block" ng-show="projectForm.projectUrl.$invalid && projectForm.projectUrl.$touched">Malformed URL.</span>
         </div>
       </div>
 
       <div class="form-group" ng-class="{ 'has-error': projectForm.issueTrackerUrl.$invalid && projectForm.issueTrackerUrl.$touched, 'has-success': projectForm.issueTrackerUrl.$valid && projectForm.issueTrackerUrl.$touched }">
-        <label for="input-issue-tracker" class="col-sm-1 control-label">Issue tracker</label>
-        <div class="col-sm-11">
+        <label for="input-issue-tracker" class="col-sm-3 col-lg-2 control-label">Issue Tracker URL</label>
+        <div class="col-sm-9 col-lg-7">
           <p id="input-issue-tracker" e-type="url" e-class="form-control" editable-text="$ctrl.project.issueTrackerUrl" e-name="issueTrackerUrl" e-maxlength="255">{{ $ctrl.project.issueTrackerUrl || 'Empty' }}</p>
           <span class="help-block" ng-show="projectForm.issueTrackerUrl.$invalid && projectForm.issueTrackerUrl.$touched">Malformed URL.</span>
         </div>
@@ -61,7 +61,7 @@
 
     
       <div class="form-group" ng-show="projectForm.$visible">
-        <div class="col-sm-offset-1 col-sm-11">
+        <div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
           <button type="submit" class="btn btn-primary" ng-disabled="projectForm.$waiting || projectForm.$invalid">
             Save
           </button>
