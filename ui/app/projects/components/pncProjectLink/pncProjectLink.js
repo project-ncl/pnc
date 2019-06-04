@@ -31,16 +31,14 @@
   });
 
   function Controller() {
-    var $ctrl = this;
+    const $ctrl = this;
     
     // -- Controller API --
     
 
     // --------------------
-  
+    $ctrl.$onInit = () => {};
 
-    $ctrl.$onInit = function () {
-    };
   }
 
 })();

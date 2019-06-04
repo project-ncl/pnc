@@ -40,8 +40,8 @@
   });
 
   function Controller() {
-    var $ctrl = this;
-    var DEFAULT_FIELDS = ['name', 'description'];
+    const $ctrl = this;
+    const DEFAULT_FIELDS = ['name', 'description'];
 
     // -- Controller API --
 
@@ -50,12 +50,12 @@
 
     // --------------------
 
-    $ctrl.$onInit = function() {
+    $ctrl.$onInit = () => {
       $ctrl.items = $ctrl.projects;  
       $ctrl.fields = $ctrl.displayFields || DEFAULT_FIELDS;
     };
 
-    $ctrl.$onChanges = function(changedBindings) {
+    $ctrl.$onChanges = (changedBindings) => {
       if (changedBindings.projects) {
         $ctrl.items = $ctrl.projects;
       }
