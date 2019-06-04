@@ -119,7 +119,7 @@ button.debutton {
 /* angular xeditable override */
 form .editable-wrap {
   width: 100%;
-  max-width: 500px;
+  
 }
 
 #loading-bar .bar {
