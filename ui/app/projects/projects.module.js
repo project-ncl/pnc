@@ -50,9 +50,7 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['Project', function(Project) {
-            return Project.query().$promise;
-          }]
+          projects: ['Project', (Project) => Project.query().$promise]
         }
       });
 
@@ -64,11 +62,9 @@
           title: '{{ project.name }} | Project'
         },
         resolve: {
-          project: ['Project', '$stateParams', function(Project, $stateParams) {
-            return Project.get({
-              id: $stateParams.projectId
-            }).$promise;
-          }]
+          project: ['Project', '$stateParams', (Project, $stateParams) => Project.get({
+            id: $stateParams.projectId
+          }).$promise]
         }
       });
 

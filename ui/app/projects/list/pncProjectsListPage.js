@@ -30,13 +30,13 @@
   });
 
   function Controller(paginator) {
-    var $ctrl = this;
+    const $ctrl = this;
 
     // -- Controller API --
     
     // --------------------
 
-    $ctrl.$onInit = function () {
+    $ctrl.$onInit = () => {
       $ctrl.page = paginator($ctrl.projects);
     };
 

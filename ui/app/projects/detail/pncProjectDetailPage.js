@@ -45,7 +45,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      Project.queryBuildConfigurations({ id: $ctrl.project.id }).$promise.then(function (page) { 
+      Project.queryBuildConfigurations({ id: $ctrl.project.id }).$promise.then((page) => { 
         $ctrl.buildConfigurations.page = paginator(page); 
       });
     };
@@ -58,7 +58,7 @@
       });
     }
 
-    $rootScope.$on('BCC_BPM_NOTIFICATION', function (event, payload) {
+    $rootScope.$on('BCC_BPM_NOTIFICATION', (event, payload) => {
       if (payload.eventType === 'BCC_CREATION_SUCCESS') {
         reload();
       }
