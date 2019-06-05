@@ -54,6 +54,14 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
         data.add(entity);
         return entity;
     }
+    
+    public BuildConfigurationAudited findLatestById(int buildConfigurationId){
+        return data.stream()
+                .filter(c -> c.getId().equals(buildConfigurationId))
+                .sorted((c1, c2) -> c2.getRev().compareTo(c1.getRev()))
+                .findFirst()
+                .orElse(null);
+    }
 
     public List<BuildConfigurationAudited> queryAll() {
         return data;

@@ -28,6 +28,13 @@ import java.util.List;
 public interface BuildConfigurationAuditedRepository {
     List<BuildConfigurationAudited> findAllByIdOrderByRevDesc(Integer id);
 
+    /**
+     * Finds latest revision of a Build Config with given ID.
+     * @param buildConfigurationId ID of the Build Config.
+     * @return Latest audited revision of the BC or null if the BC such exists.
+     */
+    BuildConfigurationAudited findLatestById(int buildConfigurationId);
+
     BuildConfigurationAudited queryById(IdRev idRev);
 
     List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName);
