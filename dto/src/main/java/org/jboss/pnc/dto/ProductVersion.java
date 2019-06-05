@@ -20,7 +20,6 @@ package org.jboss.pnc.dto;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +27,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = ProductVersion.Builder.class)
 public class ProductVersion extends ProductVersionRef {
 
