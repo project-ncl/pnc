@@ -76,6 +76,25 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         return result.stream().map(o -> createAudited(o[0], o[1], buildRecords)).collect(Collectors.toList());
     }
 
+    @Override
+    public BuildConfigurationAudited findLatestById(int buildConfigurationId) {
+        Object result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.id().eq(buildConfigurationId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .setMaxResults(1)
+                .getSingleResult();
+        if(result == null){
+            return null;
+        }
+
+        List<BuildRecord> buildRecords = getBuildRecords(buildConfigurationId);
+
+        Object[] parts = (Object[]) result;
+        return createAudited(parts[0], parts[1], buildRecords);
+    }
+
     private BuildConfigurationAudited createAudited(Object entity, Object revision, List<BuildRecord> buildRecords) {
         BuildConfiguration buildConfiguration = (BuildConfiguration) entity;
         DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) revision;

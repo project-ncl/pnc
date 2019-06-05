@@ -45,7 +45,6 @@ import javax.inject.Inject;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -172,30 +171,32 @@ public class BuildConfigurationProviderImpl
             return null;
         });
     }
-    
+
     @Override
     public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
         super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
         validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
         validateDependencies(id, buildConfiguration.getDependencyIds());
-        org.jboss.pnc.model.BuildConfiguration bc = repository.queryById(id);
-        if (bc == null) {
+        BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(id);
+        if (latestRevision == null) {
             throw new RepositoryViolationException("Entity should exist in the DB");
         }
-        
+
         org.jboss.pnc.model.BuildConfiguration bcEntity = mapper.toEntity(buildConfiguration);
-        bcEntity.setCreationTime(bc.getCreationTime());
+        if (equalValues(latestRevision, bcEntity)) {
+            return buildConfigurationRevisionMapper.toDTO(latestRevision);
+        }
+        bcEntity.setCreationTime(latestRevision.getCreationTime());
         repository.save(bcEntity);
-        
-        
+
         return buildConfigurationAuditedRepository
                 .findAllByIdOrderByRevDesc(id)
                 .stream()
                 .filter(bca -> equalValues(bca, bcEntity))
                 .findFirst()
                 .map(buildConfigurationRevisionMapper::toDTO)
-                .orElseThrow(() -> new IllegalStateException("Couldn't find updated BuildConfigurationAudited entity. " +
-                                                        "BuildConfiguration to be stored: " + buildConfiguration));
+                .orElseThrow(() -> new IllegalStateException("Couldn't find updated BuildConfigurationAudited entity. "
+                + "BuildConfiguration to be stored: " + buildConfiguration));
     }
 
     @Override
