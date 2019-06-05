@@ -37,6 +37,8 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -67,6 +69,9 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private Gerrit gerrit;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
+    private BuildMapper buildMapper;
+
+    private BuildCoordinator buildCoordinator;
 
     @Inject
     public BuildProviderImpl(BuildRecordRepository repository,
@@ -74,13 +79,16 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                              BuildConfigurationRepository buildConfigurationRepository,
                              BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
                              Gerrit gerrit,
-                             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper) {
+                             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
+                             BuildCoordinator buildCoordinator) {
         super(repository, mapper, BuildRecord.class);
 
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.gerrit = gerrit;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
+        this.buildMapper = mapper;
+        this.buildCoordinator = buildCoordinator;
     }
 
     @RolesAllowed(SYSTEM_USER)
@@ -102,7 +110,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @Override
     public void removeAttribute(int id, String key) {
-            getBuildRecord(id).removeAttribute(key);
+        getBuildRecord(id).removeAttribute(key);
     }
 
     @Override
@@ -234,6 +242,25 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         } else {
             return buildRecord;
         }
+    }
+
+    @Override
+    public Build getSpecific(Integer id) {
+
+        List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
+
+        Build build = runningBuilds.stream()
+                .filter(buildTask -> id.equals(buildTask.getId()))
+                .findAny()
+                .map(buildMapper::fromBuildTask)
+                .orElse(null);
+
+        // if build not in runningBuilds, check the database
+        if (build == null) {
+            build = super.getSpecific(id);
+        }
+
+        return build;
     }
 
     @Override

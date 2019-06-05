@@ -25,16 +25,24 @@ import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.facade.mapper.api.BuildMapper.StatusMapper;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class,
-        uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class, SCMRepositoryMapper.class, ProjectMapper.class,BuildConfigurationRevisionMapper.class, EnvironmentMapper.class })
+        uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
+                SCMRepositoryMapper.class, ProjectMapper.class,BuildConfigurationRevisionMapper.class,
+                EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class })
+
 public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
     @Override
@@ -101,6 +109,21 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @BeanMapping(ignoreUnmappedSourceProperties = {"project", "repository"})
     BuildRecord toEntity(Build dtoEntity);
 
+
+
+    @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
+    @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
+    @Mapping(target = "buildConfigurationRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
+    @Mapping(target = "dependentBuildIds", source = "dependants")
+    @Mapping(target = "dependencyBuildIds", source = "dependencies")
+    @Mapping(target = "buildContentId", source = "contentId")
+    @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
+    @BeanMapping(ignoreUnmappedSourceProperties = {
+            "productMilestone", "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions"})
+    @Mapping(target = "attributes", ignore = true)
+    Build fromBuildTask(BuildTask buildTask);
+
     public static class StatusMapper {
         public static BuildCoordinationStatus toBuildCoordinationStatus(BuildStatus status) {
             return BuildCoordinationStatus.fromBuildStatus(status);
@@ -120,6 +143,14 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
         public static Integer toId(BuildRecord buildRecord){
             return buildRecord.getId();
+        }
+    }
+
+    public static class BuildTaskIdMapper {
+        public static List<Integer> toBuildIds(Set<BuildTask> buildTasks) {
+            return buildTasks.stream()
+                    .map(BuildTask::getId)
+                    .collect(Collectors.toList());
         }
     }
 }
