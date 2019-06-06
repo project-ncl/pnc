@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
     @Override
-    @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
+    @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "dependentBuildIds", source = "dependentBuildRecordIds")
     @Mapping(target = "dependencyBuildIds", source = "dependencyBuildRecordIds")
     @Mapping(target = "buildConfigurationRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
@@ -57,7 +57,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-            "buildConfigurationAuditedIdRev"
+            "buildConfigurationAuditedIdRev", "buildEnvironment"
     })
     Build toDTO(BuildRecord dbEntity);
 
