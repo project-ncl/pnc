@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import java.util.Collections;
@@ -76,8 +78,14 @@ public class TemporaryBuildsCleaner {
      * @param authToken
      * @return true if success
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Result deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
+
+        if (buildRecord == null) {
+            throw new ValidationException("Cannot delete temporary build with id " + buildRecordId + " as no build with this id exists");
+        }
+
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
@@ -136,10 +144,16 @@ public class TemporaryBuildsCleaner {
      *  @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
      * @param authToken
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Result deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken)
             throws ValidationException {
-
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
+
+        if (buildConfigSetRecord == null) {
+            throw new ValidationException("Cannot delete temporary BuildConfigSetRecord with id " + buildConfigSetRecordId
+                    + " as no BuildConfigSetRecord with this id exists");
+        }
+
         if (!buildConfigSetRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
