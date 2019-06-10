@@ -47,44 +47,16 @@ import java.util.List;
 public class TemporaryBuildsCleanupScheduler {
     private final Logger log = LoggerFactory.getLogger(TemporaryBuildsCleanupScheduler.class);
 
-    private final int DEFAULT_LIFESPAN = 14;
-
-    private final int TEMPORARY_BUILD_LIFESPAN;
-
-    private BuildRecordRepository buildRecordRepository;
-
-    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
-
-    private TemporaryBuildsCleaner temporaryBuildsCleaner;
-
-    private KeycloakServiceClient serviceClient;
+    private TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker;
 
     @Deprecated
     public TemporaryBuildsCleanupScheduler() {
-        log.warn("Deprecated constructor used to init TemporaryBuildsCleanupScheduler. Default values will be used.");
-        TEMPORARY_BUILD_LIFESPAN = DEFAULT_LIFESPAN;
     }
 
     @Inject
     public TemporaryBuildsCleanupScheduler(
-            Configuration configuration,
-            BuildRecordRepository buildRecordRepository,
-            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            TemporaryBuildsCleaner temporaryBuildsCleaner,
-            KeycloakServiceClient serviceClient) {
-        int _temporaryBuildLifeSpan;
-        try {
-            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-            _temporaryBuildLifeSpan = systemConfig.getTemporaryBuildsLifeSpan();
-        } catch (ConfigurationParseException e) {
-            log.warn("TemporaryBuildsCleanupScheduler initialization from config file failed! Default values will be used.");
-            _temporaryBuildLifeSpan = DEFAULT_LIFESPAN;
-        }
-        this.TEMPORARY_BUILD_LIFESPAN = _temporaryBuildLifeSpan;
-        this.buildRecordRepository = buildRecordRepository;
-        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
-        this.temporaryBuildsCleaner = temporaryBuildsCleaner;
-        this.serviceClient = serviceClient;
+            TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker) {
+        this.temporaryBuildsCleanupScheduleWorker = temporaryBuildsCleanupScheduleWorker;
     }
 
     /**
@@ -92,30 +64,8 @@ public class TemporaryBuildsCleanupScheduler {
      */
     @Schedule
     public void cleanupExpiredTemporaryBuilds() throws ValidationException {
-        log.info("Regular cleanup of expired temporary builds started. Removing builds older than " + TEMPORARY_BUILD_LIFESPAN
-                + " days.");
-
-        Date expirationThreshold = TimeUtils.getDateXDaysAgo(TEMPORARY_BUILD_LIFESPAN);
-
-        String authToken = serviceClient.getAuthToken();
-        deleteExpiredBuildConfigSetRecords(expirationThreshold, authToken);
-        deleteExpiredBuildRecords(expirationThreshold, authToken);
-
-        log.info("Regular cleanup of expired temporary builds finished.");
+        log.info("Regular deletion of temporary builds triggered by clock.");
+        temporaryBuildsCleanupScheduleWorker.cleanupExpiredTemporaryBuilds();
+        log.info("Regular deletion of temporary builds successfully initiated.");
     }
-
-    private void deleteExpiredBuildConfigSetRecords(Date expirationThreshold, String authToken) throws ValidationException {
-        List<BuildConfigSetRecord> expiredBCSRecords = buildConfigSetRecordRepository.findTemporaryBuildConfigSetRecordsOlderThan(expirationThreshold);
-        for (BuildConfigSetRecord bcsr : expiredBCSRecords) {
-            temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(bcsr.getId(), authToken);
-        }
-    }
-
-    private void deleteExpiredBuildRecords(Date expirationThreshold, String authToken) throws ValidationException {
-        List<BuildRecord> expiredBuilds = buildRecordRepository.findTemporaryBuildsOlderThan(expirationThreshold);
-        for (BuildRecord br : expiredBuilds) {
-            temporaryBuildsCleaner.deleteTemporaryBuild(br.getId(), authToken);
-        }
-    }
-
 }
