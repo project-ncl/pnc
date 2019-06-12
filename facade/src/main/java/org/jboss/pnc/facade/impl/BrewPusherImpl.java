@@ -76,7 +76,8 @@ public class BrewPusherImpl implements BrewPusher {
                     buildRecordsIds,
                     currentUserToken(),
                     getCompleteCallbackUrl(),
-                    tagPrefix);
+                    tagPrefix,
+                    false);
         } catch (ProcessException ex) {
             throw new RuntimeException(ex);
         }

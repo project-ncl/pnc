@@ -36,4 +36,5 @@ public class BuildImportRequest {
     @NonNull
     private final Build build;
 
+    private final boolean reimport;
 }
