@@ -43,6 +43,10 @@ public class BuildRecordPushRequestRest {
     @Getter
     @NotNull
     private Integer buildRecordId;
+    
+    @Getter
+    @Builder.Default
+    private boolean reimport = false;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class BuildRecordPushRequestRestBuilder {
