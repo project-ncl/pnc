@@ -152,7 +152,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 buildRecordsIds.keySet(),
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),
-                buildRecordPushRequestRest.getTagPrefix());
+                buildRecordPushRequestRest.getTagPrefix(),
+                buildRecordPushRequestRest.isReimport());
         logger.info("Push Results {}.", pushed.stream().map(r -> r.getId()).collect(Collectors.joining(",")));
         Set<ResultRest> pushedResponse = toResultRests(pushed, buildRecordsIds);
 
@@ -188,7 +189,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 buildRecordsIds.keySet(),
                 loginInUser.getTokenString(),
                 getCompleteCallbackUrl(),
-                buildConfigSetRecordPushRequestRest.getTagPrefix());
+                buildConfigSetRecordPushRequestRest.getTagPrefix(),
+                false);
 
         Set<ResultRest> pushedResponse = toResultRests(pushed, buildRecordsIds);
 

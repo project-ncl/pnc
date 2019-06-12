@@ -109,13 +109,15 @@ public class BuildResultPushManager {
      * @param authToken
      * @param callBackUrlTemplate %d in the template will be replaced with BuildRecord.id
      * @param tagPrefix
+     * @param reimport Wherather the build should be reimported with new revision number if it already exists in Brew
      * @return
      * @throws ProcessException
      */
     public Set<Result> push(
             Set<Integer> buildRecordIds,
             String authToken,
-            String callBackUrlTemplate, String tagPrefix) throws ProcessException {
+            String callBackUrlTemplate, String tagPrefix,
+            boolean reimport) throws ProcessException {
 
         Set<Result> result = new HashSet<>();
         for (Integer buildRecordId : buildRecordIds) {
@@ -139,14 +141,15 @@ public class BuildResultPushManager {
                         authToken,
                         pushBuildRecordId,
                         String.format(callBackUrlTemplate, buildRecordId),
-                        tagPrefix);
+                        tagPrefix,
+                        reimport);
                 result.add(pushResult);
             }
         }
         return result;
     }
 
-    private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix) throws ProcessException {
+    private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix, boolean reimport) throws ProcessException {
         logger.info("Pushing to causeway BR.id: {}", buildRecordId);
 
         if (!inProgress.add(buildRecordId, tagPrefix)) {
@@ -165,7 +168,7 @@ public class BuildResultPushManager {
             return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Cannot push failed build.");
         }
 
-        BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken);
+        BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
         boolean successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
         if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
@@ -180,7 +183,8 @@ public class BuildResultPushManager {
             BuildRecord buildRecord,
             String tagPrefix,
             String callBackUrl,
-            String authToken) {
+            String authToken,
+            boolean reimport) {
         BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
         logger.debug("BuildRecord: {}", buildRecord.getId());
         logger.debug("BuildEnvironment: {}", buildEnvironment);
@@ -242,7 +246,7 @@ public class BuildResultPushManager {
                 tagPrefix
         );
 
-        return new BuildImportRequest(callbackTarget, build);
+        return new BuildImportRequest(callbackTarget, build, reimport);
     }
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {

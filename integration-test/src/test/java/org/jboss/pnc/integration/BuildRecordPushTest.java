@@ -93,7 +93,7 @@ public class BuildRecordPushTest extends AbstractTest {
         BuildRecordPushRestClient pushRestClient = new BuildRecordPushRestClient();
 
         //when push BR
-        BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId);
+        BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId, false);
         RestResponse<ResultRest[]> restResponse = pushRestClient.push(pushRequest);
 
         //then make sure the request has been accepted
