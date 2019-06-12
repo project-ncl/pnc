@@ -17,6 +17,16 @@
     limitations under the License.
 
 -->
+<style>
+.dl-horizontal.left > dt, .dl-horizontal.left > dd {
+  line-height: 1.66666667;
+}
+
+.dl-horizontal.left > dt {
+  text-align: left;
+}
+</style>
+
 <div class="row">
   <div class="col-md-12">
     <pnc-header>
@@ -26,9 +36,14 @@
 </div> <!-- /row -->
 
 <div class="row">
-  <dl class="dl-horizontal">
-    <lh>General</lh>
-    <dt>Quality</dt>
-    <dd>artifactQuality</dd>
-  </dl>
+  <div class="col-md-6">
+    <dl class="dl-horizontal left">
+      <dt>Filename:</dt>
+      <dd>{{ $ctrl.artifact.identifier }}</dd>
+      <dt>Quality:</dt>
+      <dd>{{ $ctrl.artifact.artifactQuality }}</dd>
+      <dt>Size:</dt>
+      <dd> {{ $ctrl.artifact.size | fileSize }}</dd>
+    </dl>
+  </div>
 </div>
