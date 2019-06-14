@@ -65,8 +65,10 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withU
 @Stateless
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
+    private BuildRecordRepository buildRecordRepository;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
     private Gerrit gerrit;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
     private BuildMapper buildMapper;
@@ -83,6 +85,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                              BuildCoordinator buildCoordinator) {
         super(repository, mapper, BuildRecord.class);
 
+        this.buildRecordRepository = repository;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.gerrit = gerrit;
@@ -257,7 +260,8 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
         // if build not in runningBuilds, check the database
         if (build == null) {
-            build = super.getSpecific(id);
+            // use findByIdFetchProperties instead of super.getSpecific to get 'BuildConfigurationAudited' object
+            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(id));
         }
 
         return build;
