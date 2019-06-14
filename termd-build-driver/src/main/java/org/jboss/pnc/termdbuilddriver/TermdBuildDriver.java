@@ -331,7 +331,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         String name = termdRunningBuild.getName();
         if (debugData.isEnableDebugOnFailure()) {
             String projectDirectory = (workingDirectory.endsWith("/") ? workingDirectory : workingDirectory + "/") + name;
-            String enterProjectDirCommand = "echo 'cd " + projectDirectory + "' >> /home/worker/.bashrc";
+            String enterProjectDirCommand = "echo 'cd " + projectDirectory + "' >> \"${HOME}/.bashrc\"";
             buildScript.append(enterProjectDirCommand).append("\n");
         }
 
