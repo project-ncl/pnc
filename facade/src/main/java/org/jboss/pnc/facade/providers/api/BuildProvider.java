@@ -19,11 +19,14 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 
 import java.net.URI;
 import java.util.List;
@@ -92,4 +95,12 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
     void setBuiltArtifacts(int id, List<Integer> artifactIds);
 
     void setDependentArtifacts(int id, List<Integer> artifactIds);
+
+    Page<BuildPushResult> brewPush(BuildPushRequest buildPushRequest, String callbackUrl) throws ProcessException;
+
+    boolean brewPushCancel(int buildId);
+
+    BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException;
+
+    BuildPushResult getBrewPushResult(int buildId);
 }

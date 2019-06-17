@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -34,6 +37,7 @@ import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +70,22 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     private EndpointHelper<Build, BuildRef> endpointHelper;
 
+    @Inject
+    private Configuration configuration;
+
+    private String pncRestBaseUrl;
+
     @PostConstruct
     public void init() {
+
         endpointHelper = new EndpointHelper<>(Build.class, provider);
+
+        try {
+            String pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
+            pncRestBaseUrl = StringUtils.stripEndingSlash(pncBaseUrl);
+        } catch (ConfigurationParseException e) {
+            logger.error("There is a problem while parsing system configuration. Using defaults.", e);
+        }
     }
 
     @Override
@@ -153,22 +170,32 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public BuildPushResult getPushResult(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return provider.getBrewPushResult(id);
     }
 
     @Override
-    public Page<BuildPushResult> push(BuildPushRequest buildRecordPushRequest) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Page<BuildPushResult> push(BuildPushRequest buildPushRequest) {
+
+        try {
+            return provider.brewPush(buildPushRequest, getCompleteCallbackUrl());
+        } catch (ProcessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void cancelPush(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        provider.brewPushCancel(id);
     }
 
     @Override
-    public BuildPushResult completePush(int id, BuildPushResult buildRecordPushResult) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public BuildPushResult completePush(int id, BuildPushResult buildPushResult) {
+
+        try {
+            return provider.brewPushComplete(id, buildPushResult);
+        } catch (ProcessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -201,4 +228,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
         return provider.getSshCredentials(id);
     }
 
+    private String getCompleteCallbackUrl() {
+        // TODO: can we improve this?
+        return pncRestBaseUrl + "/builds/%d/brew-push/complete";
+    }
 }

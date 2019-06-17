@@ -278,7 +278,7 @@ public interface BuildEndpoint{
     })
     @POST
     @Path("/{id}/brew-push")
-    Page<BuildPushResult> push(BuildPushRequest buildRecordPushRequest);
+    Page<BuildPushResult> push(BuildPushRequest buildPushRequest);
 
     @Operation(summary = "Cancels push of build to Brew.",
             responses = {
@@ -307,7 +307,7 @@ public interface BuildEndpoint{
     @Path("/{id}/brew-push/complete")
     BuildPushResult completePush(
             @Parameter(description = B_ID) @PathParam("id") int id,
-            BuildPushResult buildRecordPushResult);
+            BuildPushResult buildPushResult);
 
     @Operation(summary = "Gets the build config revision for specific build.",
             responses = {

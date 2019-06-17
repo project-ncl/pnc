@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import org.jboss.pnc.enums.BuildPushStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -30,11 +31,11 @@ public class Result {
 
     private final String id;
 
-    private final Status status;
+    private final BuildPushStatus status;
 
     private final String message;
 
-    public Result(String id, Status status) {
+    public Result(String id, BuildPushStatus status) {
         this.id = id;
         this.status = status;
         message = "";
@@ -43,7 +44,7 @@ public class Result {
     @JsonCreator
     public Result(
             @JsonProperty("id") String id,
-            @JsonProperty("status") Status status,
+            @JsonProperty("status") BuildPushStatus status,
             @JsonProperty("message") String message) {
         this.id = id;
         this.status = status;
@@ -53,23 +54,5 @@ public class Result {
     @JsonIgnore
     public boolean isSuccess() {
         return status.isSuccess();
-    }
-
-    public enum Status {
-        ACCEPTED(true),
-        SUCCESS(true),
-        REJECTED(false),
-        FAILED(false),
-        SYSTEM_ERROR(false);
-
-        private boolean success;
-
-        Status(boolean success) {
-            this.success = success;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
     }
 }

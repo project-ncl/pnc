@@ -17,39 +17,53 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
+import org.jboss.pnc.facade.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
+import org.jboss.pnc.managers.BuildResultPushManager;
+import org.jboss.pnc.managers.Result;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,11 +77,14 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withU
 
 @PermitAll
 @Stateless
+@Slf4j
 public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
     private BuildRecordRepository buildRecordRepository;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
     private Gerrit gerrit;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
@@ -75,23 +92,41 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     private BuildCoordinator buildCoordinator;
 
+    private BuildResultPushManager buildResultPushManager;
+    private BuildPushResultMapper buildPushResultMapper;
+
+    private AuthenticationProvider authenticationProvider;
+
+    @Context
+    private HttpServletRequest httpServletRequest;
+
+
     @Inject
     public BuildProviderImpl(BuildRecordRepository repository,
                              BuildMapper mapper,
+                             AuthenticationProvider authenticationProvider,
                              BuildConfigurationRepository buildConfigurationRepository,
                              BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                             BuildRecordPushResultRepository buildRecordPushResultRepository,
                              Gerrit gerrit,
                              BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
-                             BuildCoordinator buildCoordinator) {
+                             BuildCoordinator buildCoordinator,
+                             BuildResultPushManager buildResultPushManager,
+                             BuildPushResultMapper buildPushResultMapper) {
         super(repository, mapper, BuildRecord.class);
+
+        this.authenticationProvider = authenticationProvider;
 
         this.buildRecordRepository = repository;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.gerrit = gerrit;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
+        this.buildResultPushManager = buildResultPushManager;
+        this.buildPushResultMapper = buildPushResultMapper;
     }
 
     @RolesAllowed(SYSTEM_USER)
@@ -301,5 +336,66 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                 .collect(Collectors.toSet());
         buildRecord.setDependencies(artifacts);
         repository.save(buildRecord);
+    }
+
+    public Page<BuildPushResult> brewPush(BuildPushRequest buildPushRequest, String callbackUrl) throws ProcessException {
+
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+
+        Integer buildId = buildPushRequest.getBuildId();
+        BuildRecord buildRecord = buildRecordRepository.queryById(buildId);
+
+        if (buildRecord == null) {
+            return null;
+        }
+
+        log.debug("Pushing BuildRecord {}.", buildId);
+        Set<Integer> toPush = new HashSet<>();
+        toPush.add(buildId);
+
+        Set<Result> pushed = buildResultPushManager.push(
+                toPush,
+                loginInUser.getTokenString(),
+                callbackUrl,
+                buildPushRequest.getTagPrefix(),
+                buildPushRequest.isReimport());
+
+        log.info("Push Results {}.", pushed.stream().map(r -> r.getId()).collect(Collectors.joining(",")));
+
+        Set<BuildPushResult> pushedResponse = pushed.stream()
+                .map(r -> BuildPushResult.builder()
+                                         .id(Integer.parseInt(r.getId()))
+                                         .buildId(buildId)
+                                         .status(r.getStatus())
+                                         .log(r.getMessage())
+                                         .build())
+                .collect(Collectors.toSet());
+
+        return new Page<BuildPushResult>(0, pushedResponse.size(), 1, pushedResponse.size(), pushedResponse);
+    }
+
+    public boolean brewPushCancel(int buildId) {
+        return buildResultPushManager.cancelInProgressPush(buildId);
+    }
+
+    public BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException {
+
+        log.info("Received completion notification for BuildRecord.id: {}. Object received: {}.",
+                 buildId,
+                 buildPushResult);
+
+        Integer id = buildResultPushManager.complete(buildId, buildPushResultMapper.toEntity(buildPushResult));
+        return buildPushResult;
+    }
+
+    public BuildPushResult getBrewPushResult(int buildId) {
+
+        BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildId);
+
+        if (latestForBuildRecord != null) {
+            return buildPushResultMapper.toDTO(latestForBuildRecord);
+        } else {
+            return null;
+        }
     }
 }

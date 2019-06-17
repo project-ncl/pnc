@@ -79,6 +79,7 @@ public class BuildResultPushManager {
 
     private CausewayClient causewayClient;
 
+    // TODO: Use BuildPushResult in the future
     private Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent;
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
@@ -156,27 +157,27 @@ public class BuildResultPushManager {
 
         if (!inProgress.add(buildRecordId, tagPrefix)) {
             logger.warn("Push for BR.id {} already running.", buildRecordId);
-            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "A push for this buildRecord is already running.");
+            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "A push for this buildRecord is already running.");
         }
 
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
         if (buildRecord == null) {
             logger.warn("Did not find build record by id: " + buildRecordId);
-            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Did not find build record by given id.");
+            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "Did not find build record by given id.");
         }
 
         if (!buildRecord.getStatus().completedSuccessfully()) {
             logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
-            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Cannot push failed build.");
+            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "Cannot push failed build.");
         }
 
         BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
         boolean successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
         if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
-            return new Result(buildRecordId.toString(), Result.Status.REJECTED, "Failed to push to Causeway.");
+            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "Failed to push to Causeway.");
         } else {
-            return new Result(buildRecordId.toString(), Result.Status.ACCEPTED);
+            return new Result(buildRecordId.toString(), BuildPushStatus.ACCEPTED);
         }
 
     }
