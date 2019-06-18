@@ -601,6 +601,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.name = retrieveCloneName(name, now);
         clone.productVersion = productVersion;
         clone.project = project;
+        clone.buildType = buildType;
         clone.repositoryConfiguration = repositoryConfiguration;
         clone.scmRevision = scmRevision;
         return clone;
