@@ -15,32 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 (function () {
   'use strict';
 
-  angular.module('pnc.artifacts').component('pncArtifactsDetailPage', {
+  angular.module('pnc.build-records').component('pncBuildRecordsDataTable', {
     bindings: {
-     artifact: '<',
-     buildRecord: '<',
-     usages: '<'
+      page: '<',
+      displayFields: '<',
     },
-    templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
-    controller: [Controller]
+    templateUrl: 'build-records/directives/pnc-build-records-data-table/pnc-build-records-data-table.html',
+    controller: ['paginator', Controller]
   });
 
 
-  function Controller() {
-    const $ctrl = this;
+  function Controller(paginator) {
+    var $ctrl = this;
+    var DEFAULT_FIELDS = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username'];
 
     // -- Controller API --
-
-    $ctrl.buildRecordListDisplayFields = ['id', 'statusIcon', 'configurationName', 'endTime', 'pushStatus'];
+    
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
+      // set if bindings are empty
+      $ctrl.displayFields = $ctrl.displayFields || DEFAULT_FIELDS;
+      $ctrl.paginator = paginator($ctrl.page);
     };
 
   }
