@@ -19,13 +19,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.artifacts').component('pncArtifactsDetailPage', {
+  angular.module('pnc.artifacts').component('pncArtifactLink', {
     bindings: {
-     artifact: '<',
-     buildRecord: '<',
-     usages: '<'
+     artifact: '<'
     },
-    templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
+    transclude: true,
+    templateUrl: 'artifacts/components/pnc-artifact-link/pnc-artifact-link.html',
     controller: [Controller]
   });
 
@@ -35,13 +34,11 @@
 
     // -- Controller API --
 
-    $ctrl.buildRecordListDisplayFields = ['statusIcon', 'canonicalName', 'endTime', 'pushStatus'];
 
     // --------------------
 
 
-    $ctrl.$onInit = function () {
-    };
+    $ctrl.$onInit = () => {};
 
   }
 

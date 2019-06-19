@@ -24,6 +24,7 @@
       buildRecord: '<',
       shortLink: '@'
     },
+    transclude: true, 
     templateUrl: 'build-records/directives/pnc-build-record-link/pnc-build-record-link.html',
     controller: [Controller]
   });
@@ -33,18 +34,17 @@
 
     // -- Controller API --
 
-    $ctrl.getLinkText = getLinkText;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
-      
+      $ctrl.linkText = getLinkText();
     };
 
     function getLinkText() {
       if ($ctrl.shortLink === 'true') {
-        return $ctrl.buildRecord.id;
+        return '#' + $ctrl.buildRecord.id;
       } else {
         return $ctrl.buildRecord.$canonicalName();
       }
