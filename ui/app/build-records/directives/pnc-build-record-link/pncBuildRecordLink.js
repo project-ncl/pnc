@@ -19,30 +19,36 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.artifacts').component('pncArtifactsDetailPage', {
+  angular.module('pnc.build-records').component('pncBuildRecordLink', {
     bindings: {
-     artifact: '<',
-     buildRecord: '<',
-     usages: '<'
+      buildRecord: '<',
+      shortLink: '@'
     },
-    templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
+    templateUrl: 'build-records/directives/pnc-build-record-link/pnc-build-record-link.html',
     controller: [Controller]
   });
 
-
   function Controller() {
-    const $ctrl = this;
+    var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.buildRecordListDisplayFields = ['id', 'statusIcon', 'configurationName', 'endTime', 'pushStatus'];
+    $ctrl.getLinkText = getLinkText;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
+      
     };
 
+    function getLinkText() {
+      if ($ctrl.shortLink === 'true') {
+        return $ctrl.buildRecord.id;
+      } else {
+        return $ctrl.buildRecord.$canonicalName();
+      }
+    }
   }
 
 })();

@@ -231,7 +231,12 @@
   vertical-align: middle !important;
 }
 
-.pnc-build-records-list .push-status, th {
+.pnc-build-records-list th {
+  text-align: center;
+  
+}
+
+.pnc-build-records-list .push-status {
   text-align: center;
 }
 
@@ -385,10 +390,32 @@ table.build-status-table tr > td {
   height: 300px;
 }
 
-
-
-
 pf-toolbar.hide-result-count .toolbar-pf-results h5 {
   visibility: hidden;
   display:none;
+}
+
+td.status-icon {
+  padding: 0 !important;
+  text-align: center !important;
+  
+}
+
+.dl-horizontal.properties-list > dt, .dl-horizontal.properties-list > dd {
+  line-height: 2 /*1.66666667*/;
+  margin-left: 0;
+  text-align: left;
+}
+
+.dl-horizontal.properties-list > dt::after {
+  content: ":";
+}
+
+.dl-horizontal.properties-list.artifact-properties > dt {
+  width: 100px;
+}
+
+.resource-details h3 {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }

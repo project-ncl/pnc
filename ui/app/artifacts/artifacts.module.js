@@ -70,6 +70,19 @@
               function ($stateParams, Artifact) {
                 return Artifact.get({ id: $stateParams.id }).$promise;
               }
+            ],
+            buildRecord: [
+              'artifact',
+              'BuildRecord',
+              function(artifact, BuildRecord) {
+                return BuildRecord.get({ id: artifact.buildRecordIds[0] }).$promise;
+              }
+            ],
+            usages: [ 
+              'artifact',
+              function (artifact) {
+                return artifact.$getDependantBuildRecords({ pageSize:  10 });
+              }
             ]
           }
         });
