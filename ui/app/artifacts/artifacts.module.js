@@ -75,6 +75,9 @@
               'artifact',
               'BuildRecord',
               function(artifact, BuildRecord) {
+                if (artifact.buildRecordIds.length === 0) {
+                  return null;
+                }
                 return BuildRecord.get({ id: artifact.buildRecordIds[0] }).$promise;
               }
             ],
