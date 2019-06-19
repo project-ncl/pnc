@@ -35,7 +35,7 @@
        */
       hideHead: '<?'
     },
-    templateUrl: 'projects/components/pncProjectsList/pnc-projects-list.html',
+    templateUrl: 'projects/components/pnc-projects-list/pnc-projects-list.html',
     controller: [Controller]
   });
 
