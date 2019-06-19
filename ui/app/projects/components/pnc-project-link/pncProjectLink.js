@@ -26,7 +26,7 @@
        */
       project: '<'
     },
-    templateUrl: 'projects/components/pncProjectLink/pnc-project-link.html',
+    templateUrl: 'projects/components/pnc-project-link/pnc-project-link.html',
     controller: [Controller]
   });
 
