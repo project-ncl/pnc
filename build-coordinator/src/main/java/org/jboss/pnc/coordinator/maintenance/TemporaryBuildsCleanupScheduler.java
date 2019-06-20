@@ -54,8 +54,7 @@ public class TemporaryBuildsCleanupScheduler {
     }
 
     @Inject
-    public TemporaryBuildsCleanupScheduler(
-            TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker) {
+    public TemporaryBuildsCleanupScheduler(TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker) {
         this.temporaryBuildsCleanupScheduleWorker = temporaryBuildsCleanupScheduleWorker;
     }
 
