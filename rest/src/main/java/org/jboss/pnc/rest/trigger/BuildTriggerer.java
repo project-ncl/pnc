@@ -44,7 +44,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -111,8 +111,8 @@ public class BuildTriggerer {
                             BuildOptions buildOptions,
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            if (statusChangedEvent.getNewStatus().isCompleted()) {
+        Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
+            if (statusChangedEvent.getNewStatus().isFinal()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
                 bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }

@@ -18,12 +18,11 @@
 package org.jboss.pnc.coordinator.notifications.buildTask;
 
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.BuildStatusChanged;
 import org.jboss.pnc.messaging.spi.Message;
 import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.messaging.spi.Status;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,18 +49,17 @@ public class BuildStatusMQNotifications {
         this.messageSender = messageSenderProvider.getMessageSender();
     }
 
-    public void observeEvent(@Observes BuildCoordinationStatusChangedEvent event) {
+    public void observeEvent(@Observes BuildStatusChangedEvent event) {
         logger.debug("Observed new status changed event {}.", event);
         messageSender.ifPresent(ms -> send(ms, event));
         logger.debug("Status changed event processed {}.", event);
     }
 
-    private void send(MessageSender ms, BuildCoordinationStatusChangedEvent event) {
-        Status newStatus = toMqStatus(event.getNewStatus());
-        if (newStatus != null) {
+    private void send(MessageSender ms, BuildStatusChangedEvent event) {
+        if (event.getNewStatus() != null) {
 
             Message message = BuildStatusChanged.builder()
-                    .oldStatus(toStringStatus(getOldStatus(event.getOldStatus())))
+                    .oldStatus(toStringStatus(event.getOldStatus()))
                     .build(event.getBuild())
                     .buildMe();
 
@@ -69,19 +67,7 @@ public class BuildStatusMQNotifications {
         }
     }
 
-    private Status getOldStatus(BuildCoordinationStatus oldStatus) {
-        Status mqOldStatus;
-        if (BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.equals(oldStatus)) {
-            mqOldStatus = Status.ACCEPTED;
-        } else if (BuildCoordinationStatus.BUILD_COMPLETED.equals(oldStatus)) {
-            mqOldStatus = Status.BUILDING;
-        } else {
-            mqOldStatus = toMqStatus(oldStatus);
-        }
-        return mqOldStatus;
-    }
-
-    private Map<String, String> prepareHeaders(BuildCoordinationStatusChangedEvent event) {
+    private Map<String, String> prepareHeaders(BuildStatusChangedEvent event) {
         BuildConfigurationRevisionRef buildConfigurationAudited = event.getBuild().getBuildConfigurationRevision();
         Map<String, String> headers = new HashMap<>();
         headers.put("type", "BuildStateChange");
@@ -89,50 +75,17 @@ public class BuildStatusMQNotifications {
         headers.put("name", buildConfigurationAudited.getName());
         headers.put("configurationId", buildConfigurationAudited.getId().toString());
         headers.put("configurationRevision", buildConfigurationAudited.getRev().toString());
-        headers.put("oldStatus", toStringStatus(getOldStatus(event.getOldStatus())));
-        headers.put("newStatus", toStringStatus(toMqStatus(event.getNewStatus())));
+        headers.put("oldStatus", toStringStatus(event.getOldStatus()));
+        headers.put("newStatus", toStringStatus(event.getNewStatus()));
         return headers;
     }
 
-    private String toStringStatus(Status status) {
+    private String toStringStatus(BuildStatus status) {
+
         if (status == null) {
             return "";
         } else {
-            return status.lowercase();
+            return status.toString();
         }
-    }
-
-    /**
-     *
-     * @return Status or null is status is ignored
-     */
-    private Status toMqStatus(BuildCoordinationStatus status) {
-        switch (status) {
-            case NEW:
-                return null;
-            case ENQUEUED:
-                return Status.ACCEPTED;
-            case WAITING_FOR_DEPENDENCIES:
-                return null;
-            case BUILDING:
-                return Status.BUILDING;
-            case BUILD_COMPLETED:
-                return null;
-            case DONE:
-                return Status.SUCCESS;
-            case REJECTED:
-                return Status.REJECTED;
-            case REJECTED_FAILED_DEPENDENCIES:
-                return Status.REJECTED;
-            case REJECTED_ALREADY_BUILT:
-                return Status.REJECTED;
-            case SYSTEM_ERROR:
-                return Status.FAILED;
-            case DONE_WITH_ERRORS:
-                return Status.FAILED;
-            case CANCELLED:
-                return Status.CANCELED;
-        }
-        throw new IllegalArgumentException("Invalid status " + status);
     }
 }

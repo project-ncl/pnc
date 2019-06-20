@@ -21,11 +21,10 @@ import io.swagger.v3.oas.annotations.Hidden;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -57,7 +56,7 @@ public class DebugEndpoint {
     private MessageSenderProvider messageSenderProvider;
 
     @Inject
-    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
 
     @GET
@@ -83,7 +82,7 @@ public class DebugEndpoint {
         } else {
             if (type != null && type.equals("status")) {
                 buildStatusChangedEventNotifier.fire(new DefaultBuildStatusChangedEvent(
-                        newBuild(),BuildCoordinationStatus.CANCELLED, BuildCoordinationStatus.CANCELLED));
+                        newBuild(),BuildStatus.CANCELLED, BuildStatus.CANCELLED));
             } else {
                 messageSender.get().sendToTopic("Test Message.");
             }

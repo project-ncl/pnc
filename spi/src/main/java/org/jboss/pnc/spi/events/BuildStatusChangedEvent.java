@@ -18,12 +18,12 @@
 package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
 
-public interface BuildCoordinationStatusChangedEvent {
+public interface BuildStatusChangedEvent {
 
-    BuildCoordinationStatus getOldStatus();
-    BuildCoordinationStatus getNewStatus();
+    BuildStatus getOldStatus();
+    BuildStatus getNewStatus();
 
     Build getBuild();
 

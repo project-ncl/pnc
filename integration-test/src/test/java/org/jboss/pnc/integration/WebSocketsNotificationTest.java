@@ -32,7 +32,7 @@ import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -66,7 +66,7 @@ public class WebSocketsNotificationTest {
     private static NotificationCollector notificationCollector;
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusNotificationEvent;
+    Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusNotificationEvent;
@@ -104,10 +104,10 @@ public class WebSocketsNotificationTest {
         // given
         Build build = BuildMock.newBuild(BuildStatus.SUCCESS, "Build1");
 
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
                 build,
-                BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.fromBuildStatus(build.getStatus()));
+                BuildStatus.NEW,
+                build.getStatus());
 
         String buildString = JsonOutputConverterMapper.apply(build);
         String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"oldStatus\":\"NEW\",\"build\":" + buildString + "}}";

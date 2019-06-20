@@ -28,7 +28,7 @@ import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -68,9 +68,9 @@ public class CancelledBuildTest extends ProjectBuilder {
 
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
 
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new ArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new ArrayList<>();
 
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
+        Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
             if (event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
@@ -114,8 +114,8 @@ public class CancelledBuildTest extends ProjectBuilder {
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
         BuildConfigurationSet configurationSet = configurationBuilder.buildConfigurationSetForCancel(1);
 
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new ArrayList<>();
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (event) -> {
+        List<BuildStatusChangedEvent> receivedStatuses = new ArrayList<>();
+        Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
             if (event.getBuild().getBuildConfigurationRevision().getId().equals(2) && event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {

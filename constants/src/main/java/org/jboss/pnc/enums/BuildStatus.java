@@ -20,21 +20,21 @@ package org.jboss.pnc.enums;
 import java.util.Arrays;
 
 /**
- * Status of a running or completed build.
+ * Status of a running or isFinal build.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public enum BuildStatus {
     /**
-     * Build completed successfully
+     * Build isFinal successfully
      */
     SUCCESS (true),
 
     /**
      * Build failed
      */
-    FAILED,
+    FAILED(false),
 
     /**
      * A build has been requested (possibly via dependencies) but no actual build happened as it was
@@ -55,30 +55,39 @@ public enum BuildStatus {
     /**
      * Build rejected due to conflict with another build, or failed dependency build
      */
-    REJECTED,
+    REJECTED(false),
 
     /**
      * User cancelled the build
      */
-    CANCELLED,
+    CANCELLED(true),
 
     /**
      * A system error prevented the build from completing
      */
-    SYSTEM_ERROR,
+    SYSTEM_ERROR(false),
 
     /**
      * It is not known what the build status is at this time
      */
     NEW;
 
+    // isFinal means it's in the final state, it could also have failed
+    private final boolean isFinal;
+
     private final boolean completedSuccessfully;
 
     BuildStatus() {
-        this(false);
+        this(false, false);
     }
 
-    BuildStatus(boolean completedSuccessfully) {
+    BuildStatus(boolean isFinalStateSuccessful) {
+
+        this(true, isFinalStateSuccessful);
+    }
+
+    private BuildStatus(boolean isFinal, boolean completedSuccessfully) {
+        this.isFinal = isFinal;
         this.completedSuccessfully = completedSuccessfully;
     }
 
@@ -86,14 +95,17 @@ public enum BuildStatus {
         return completedSuccessfully;
     }
 
+    public boolean isFinal() {
+        return isFinal;
+    }
+
     @Deprecated
     public static BuildStatus fromBuildCoordinationStatus(BuildCoordinationStatus buildCoordinationStatus) {
         BuildCoordinationStatus[] success = {BuildCoordinationStatus.DONE};
         BuildCoordinationStatus[] failed = {BuildCoordinationStatus.DONE_WITH_ERRORS};
         BuildCoordinationStatus[] cancelled = {BuildCoordinationStatus.CANCELLED};
-        BuildCoordinationStatus[] building = {BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING,
-                BuildCoordinationStatus.BUILD_COMPLETED};
+        BuildCoordinationStatus[] newBuild = {BuildCoordinationStatus.NEW};
+        BuildCoordinationStatus[] building = {BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING, BuildCoordinationStatus.BUILD_COMPLETED};
         BuildCoordinationStatus[] waitingForDependencies = {BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES};
         BuildCoordinationStatus[] notRequired = {BuildCoordinationStatus.REJECTED_ALREADY_BUILT};
         BuildCoordinationStatus[] rejected = { BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES, BuildCoordinationStatus.REJECTED};
@@ -104,6 +116,8 @@ public enum BuildStatus {
             return FAILED;
         } else if (Arrays.asList(cancelled).contains(buildCoordinationStatus)) {
             return CANCELLED;
+        } else if (Arrays.asList(newBuild).contains(buildCoordinationStatus)) {
+            return NEW;
         } else if (Arrays.asList(building).contains(buildCoordinationStatus)) {
             return BUILDING;
         } else if (Arrays.asList(waitingForDependencies).contains(buildCoordinationStatus)) {

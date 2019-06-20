@@ -29,7 +29,7 @@ import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -58,7 +58,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
     private BuildQueue buildQueue;
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Test
     public void createDependenciesTestCase() throws DatastoreException {

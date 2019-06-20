@@ -18,31 +18,31 @@
 package org.jboss.pnc.spi.coordinator.events;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
-public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusChangedEvent {
+public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
 
-    private final BuildCoordinationStatus oldStatus;
-    private final BuildCoordinationStatus newStatus;
+    private final BuildStatus oldStatus;
+    private final BuildStatus newStatus;
     private final Build build;
 
     public DefaultBuildStatusChangedEvent(
             Build build,
-            BuildCoordinationStatus oldStatus,
-            BuildCoordinationStatus newStatus) {
+            BuildStatus oldStatus,
+            BuildStatus newStatus) {
         this.build = build;
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
     }
 
     @Override
-    public BuildCoordinationStatus getOldStatus() {
+    public BuildStatus getOldStatus() {
         return oldStatus;
     }
 
     @Override
-    public BuildCoordinationStatus getNewStatus() {
+    public BuildStatus getNewStatus() {
         return newStatus;
     }
 

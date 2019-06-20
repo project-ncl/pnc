@@ -22,7 +22,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
@@ -33,7 +32,7 @@ import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.rest.notifications.websockets.ProgressUpdatesRequest;
 import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -67,7 +66,7 @@ public class ProcessProgressNotificationTest {
     NotificationCollector notificationCollector;
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusNotificationEvent;
+    Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusNotificationEvent;
@@ -108,10 +107,10 @@ public class ProcessProgressNotificationTest {
 
         Build build = BuildMock.newBuild(taskId, BuildStatus.SUCCESS, "Build1");
 
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(
                 build,
-                BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.fromBuildStatus(build.getStatus()));
+                BuildStatus.NEW,
+                build.getStatus());
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);

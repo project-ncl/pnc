@@ -18,7 +18,6 @@
 package org.jboss.pnc.notifications;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.dto.BuildConfigurationRevisionMock;
 import org.jboss.pnc.mock.dto.BuildEnvironmentMock;
@@ -27,7 +26,7 @@ import org.jboss.pnc.mock.dto.SCMRepositoryMock;
 import org.jboss.pnc.mock.dto.UserMock;
 import org.jboss.pnc.notification.DefaultNotificationFactory;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
 import org.jboss.pnc.spi.notifications.model.EventType;
 import org.jboss.pnc.spi.notifications.model.Notification;
@@ -62,7 +61,7 @@ public class NotificationFactoryForBuildTest {
                 .endTime(endTime)
                 .build();
 
-        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(build, BuildCoordinationStatus.NEW, BuildCoordinationStatus.fromBuildStatus(build.getStatus()));
+        BuildStatusChangedEvent event = new DefaultBuildStatusChangedEvent(build, BuildStatus.NEW, build.getStatus());
 
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 

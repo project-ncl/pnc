@@ -32,7 +32,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
@@ -231,7 +231,7 @@ public class DefaultNotifier implements Notifier {
     }
 
 
-    public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
+    public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
         sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
         logger.trace("Status changed event processed {}.", buildStatusChangedEvent);
