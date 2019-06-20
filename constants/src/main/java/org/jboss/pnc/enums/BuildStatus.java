@@ -43,9 +43,9 @@ public enum BuildStatus {
     NO_REBUILD_REQUIRED (true),
 
     /**
-     * Build completed with test failures
+     * Build is waiting for dependencies to finish
      */
-    UNSTABLE (true),
+    WAITING_FOR_DEPENDENCIES,
 
     /**
      * Build currently running
@@ -70,13 +70,7 @@ public enum BuildStatus {
     /**
      * It is not known what the build status is at this time
      */
-    UNKNOWN,
-
-    /**
-     * There have not been any builds of this configuration, essentially the same meaning
-     * as a null status
-     */
-    NONE;
+    NEW;
 
     private final boolean completedSuccessfully;
 
@@ -98,8 +92,9 @@ public enum BuildStatus {
         BuildCoordinationStatus[] failed = {BuildCoordinationStatus.DONE_WITH_ERRORS};
         BuildCoordinationStatus[] cancelled = {BuildCoordinationStatus.CANCELLED};
         BuildCoordinationStatus[] building = {BuildCoordinationStatus.NEW,
-                BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES,BuildCoordinationStatus.BUILDING,
+                BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING,
                 BuildCoordinationStatus.BUILD_COMPLETED};
+        BuildCoordinationStatus[] waitingForDependencies = {BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES};
         BuildCoordinationStatus[] notRequired = {BuildCoordinationStatus.REJECTED_ALREADY_BUILT};
         BuildCoordinationStatus[] rejected = { BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES, BuildCoordinationStatus.REJECTED};
 
@@ -111,6 +106,8 @@ public enum BuildStatus {
             return CANCELLED;
         } else if (Arrays.asList(building).contains(buildCoordinationStatus)) {
             return BUILDING;
+        } else if (Arrays.asList(waitingForDependencies).contains(buildCoordinationStatus)) {
+            return WAITING_FOR_DEPENDENCIES;
         } else if (Arrays.asList(notRequired).contains(buildCoordinationStatus)) {
             return NO_REBUILD_REQUIRED;
         } else if (Arrays.asList(rejected).contains(buildCoordinationStatus)) {
