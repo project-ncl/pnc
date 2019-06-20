@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.facade;
 
+import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.spi.coordinator.ProcessException;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -25,4 +30,11 @@ public interface BrewPusher {
 
     public void pushGroup(int id, String tagPrefix);
 
+    BuildPushResult brewPush(BuildPushRequest buildPushRequest) throws ProcessException;
+
+    boolean brewPushCancel(int buildId);
+
+    BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException;
+
+    BuildPushResult getBrewPushResult(int buildId);
 }
