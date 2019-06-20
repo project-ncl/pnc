@@ -52,7 +52,7 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -91,7 +91,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private SystemConfig systemConfig;
     private DatastoreAdapter datastoreAdapter;
-    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     private BuildScheduler buildScheduler;
@@ -110,7 +110,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     @Inject
     public DefaultBuildCoordinator(
             DatastoreAdapter datastoreAdapter,
-            Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
             BuildSchedulerFactory buildSchedulerFactory,
             BuildQueue buildQueue,
@@ -533,10 +533,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .temporaryBuild(task.getBuildOptions().isTemporaryBuild())
                 .build();
 
-        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
                 build,
-                oldStatus,
-                status);
+                BuildStatus.fromBuildCoordinationStatus(oldStatus),
+                BuildStatus.fromBuildCoordinationStatus(status));
 
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
         if (status.isCompleted()) {

@@ -45,7 +45,7 @@ import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -130,7 +130,7 @@ public class DefaultBuildCoordinatorTest {
     @Mock
     private SystemConfig systemConfig;
     @Mock
-    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @InjectMocks
     private DatastoreAdapter datastoreAdapter;

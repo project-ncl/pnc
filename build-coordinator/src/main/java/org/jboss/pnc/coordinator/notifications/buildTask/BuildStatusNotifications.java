@@ -21,7 +21,7 @@ package org.jboss.pnc.coordinator.notifications.buildTask;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +49,9 @@ public class BuildStatusNotifications {
         subscribers.add(buildCallBack);
     }
 
-    public void observeEvent(@Observes BuildCoordinationStatusChangedEvent event) {
+    public void observeEvent(@Observes BuildStatusChangedEvent event) {
         log.debug("Observed new status changed event {}.", event);
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
+        BuildStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
         Predicate<BuildCallBack> filterSubscribersMatchingTaskId =
                 (callBackUrl) -> callBackUrl.getBuildTaskId().equals(buildStatusChangedEvent.getBuild().getId());
 
@@ -62,8 +62,8 @@ public class BuildStatusNotifications {
         log.debug("Status changed event processed {}.", event);
     }
 
-    private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
-        if (buildStatusChangedEvent.getNewStatus().isCompleted()) {
+    private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildStatusChangedEvent buildStatusChangedEvent) {
+        if (buildStatusChangedEvent.getNewStatus().isFinal()) {
             log.debug("Subscribing new status update listener {}.", buildCallBack);
             subscribers.remove(buildCallBack);
         }

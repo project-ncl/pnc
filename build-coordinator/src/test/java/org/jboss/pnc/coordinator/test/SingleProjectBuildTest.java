@@ -27,7 +27,7 @@ import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         //given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //when
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
@@ -77,7 +77,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildRecord.getStartTime());
         Assert.assertNotNull(buildRecord.getEndTime());
 
-        receivedStatuses.stream().filter(e -> e.getNewStatus().isCompleted()).forEach(e -> {
+        receivedStatuses.stream().filter(e -> e.getNewStatus().isFinal()).forEach(e -> {
             Assert.assertNotNull("Final event " + e + " should have end build time.", e.getBuild().getEndTime());
         });
     }
@@ -87,7 +87,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         //given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //when
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
@@ -105,7 +105,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         BuildOptions originalBuildOptions = new BuildOptions(true, true, true, true, RebuildMode.FORCE);
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //when
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;

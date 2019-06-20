@@ -46,7 +46,7 @@ import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -90,7 +90,7 @@ public class StatusUpdatesTest {
     BuildSetStatusNotifications buildSetStatusNotifications;
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Inject
     TestProjectConfigurationBuilder configurationBuilder;
@@ -138,7 +138,7 @@ public class StatusUpdatesTest {
         Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
-        Consumer<BuildCoordinationStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
+        Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
             receivedUpdatesForId.add(statusChangedEvent.getBuild().getId());
         };
 

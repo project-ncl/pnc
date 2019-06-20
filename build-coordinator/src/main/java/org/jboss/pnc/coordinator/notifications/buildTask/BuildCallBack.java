@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.coordinator.notifications.buildTask;
 
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import java.util.function.Consumer;
 
@@ -27,9 +27,9 @@ import java.util.function.Consumer;
 public class BuildCallBack {
 
     private final Integer buildTaskId;
-    private final Consumer<BuildCoordinationStatusChangedEvent> callback;
+    private final Consumer<BuildStatusChangedEvent> callback;
 
-    public BuildCallBack(int buildTaskId, Consumer<BuildCoordinationStatusChangedEvent> callback) {
+    public BuildCallBack(int buildTaskId, Consumer<BuildStatusChangedEvent> callback) {
         this.buildTaskId = buildTaskId;
         this.callback = callback;
     }
@@ -38,7 +38,7 @@ public class BuildCallBack {
         return buildTaskId;
     }
 
-    public void callback(BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
+    public void callback(BuildStatusChangedEvent buildStatusChangedEvent) {
         callback.accept(buildStatusChangedEvent);
     }
 

@@ -34,7 +34,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -96,7 +96,7 @@ public class ProjectBuilder {
     BuildTask buildProject(
             BuildConfiguration buildConfiguration,
             BuildCoordinator buildCoordinator,
-            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate)
+            Consumer<BuildStatusChangedEvent> onStatusUpdate)
             throws BuildConflictException, InterruptedException, CoreException {
         return buildProject(buildConfiguration, buildCoordinator, onStatusUpdate, new BuildOptions());
     }
@@ -104,14 +104,14 @@ public class ProjectBuilder {
     BuildTask buildProject(
             BuildConfiguration buildConfiguration,
             BuildCoordinator buildCoordinator,
-            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate,
+            Consumer<BuildStatusChangedEvent> onStatusUpdate,
             BuildOptions buildOptions)
             throws BuildConflictException, InterruptedException, CoreException {
 
         log.debug("Building project {}", buildConfiguration.getName());
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
+        Consumer<BuildStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
             receivedStatuses.add(statusUpdate);
             onStatusUpdate.accept(statusUpdate);
         };
@@ -132,7 +132,7 @@ public class ProjectBuilder {
 
     void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator)
             throws BuildConflictException, InterruptedException, CoreException {
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         BuildTask buildTask = buildProject(buildConfiguration, buildCoordinator, receivedStatuses::add);
         assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
@@ -143,12 +143,12 @@ public class ProjectBuilder {
         buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifySuccessfulBuild);
     }
 
-    BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate) throws InterruptedException, CoreException, DatastoreException {
+    BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, Consumer<BuildStatusChangedEvent> onStatusUpdate) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
         return buildProjects(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate);
     }
 
-    BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate, int skippedUpdates) throws InterruptedException, CoreException, DatastoreException {
+    BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, Consumer<BuildStatusChangedEvent> onStatusUpdate, int skippedUpdates) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet) - skippedUpdates;
         return buildProjects(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate);
     }
@@ -161,7 +161,7 @@ public class ProjectBuilder {
                 + numBuildsWithDependencies * N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES;
     }
 
-    private void verifySuccessfulBuild(List<BuildCoordinationStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask) {
+    private void verifySuccessfulBuild(List<BuildStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask) {
         buildSetTask.getBuildTasks().forEach(bt -> assertAllStatusUpdateReceived(receivedStatuses, bt.getId()));
     }
 
@@ -175,7 +175,7 @@ public class ProjectBuilder {
         buildProjectsAndVerifyResult(buildConfigurationSet, buildCoordinator, nStatusUpdates, this::verifyFailingProject);
     }
 
-    private void verifyFailingProject(List<BuildCoordinationStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask) {
+    private void verifyFailingProject(List<BuildStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask) {
         buildSetTask.getBuildTasks().stream()
                 .filter(b -> BuildCoordinationStatus.DONE_WITH_ERRORS.equals(b.getStatus()))
                 .forEach(bt -> ProjectBuilder.this.assertAllStatusUpdateReceivedForFailedBuild(receivedStatuses, bt.getId()));
@@ -186,10 +186,10 @@ public class ProjectBuilder {
 
     int i=0;
     private BuildSetTask buildProjectsAndWaitForUpdates(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates,
-            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate,
-            List<BuildCoordinationStatusChangedEvent> receivedStatuses, List<BuildSetStatusChangedEvent> receivedSetStatuses)
+                                                        Consumer<BuildStatusChangedEvent> onStatusUpdate,
+                                                        List<BuildStatusChangedEvent> receivedStatuses, List<BuildSetStatusChangedEvent> receivedSetStatuses)
             throws InterruptedException, CoreException {
-        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
+        Consumer<BuildStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
             log.debug("Received status change event [" + (i++) + "]: " + statusUpdate);
             receivedStatuses.add(statusUpdate);
             onStatusUpdate.accept(statusUpdate);
@@ -214,10 +214,10 @@ public class ProjectBuilder {
         return buildSetTask;
     }
 
-    private BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate)
+    private BuildSetTask buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Consumer<BuildStatusChangedEvent> onStatusUpdate)
             throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
         List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
 
         return buildProjectsAndWaitForUpdates(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate, receivedStatuses, receivedSetStatuses);
@@ -225,7 +225,7 @@ public class ProjectBuilder {
 
     private void buildProjectsAndVerifyResult(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator, int nStatusUpdates, Verifier verifier) throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
-        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
         List<BuildSetStatusChangedEvent> receivedSetStatuses = new CopyOnWriteArrayList<>();
         BuildSetTask buildSetTask = buildProjectsAndWaitForUpdates(buildConfigurationSet, buildCoordinator, nStatusUpdates, x ->{}, receivedStatuses, receivedSetStatuses);
 
@@ -234,7 +234,7 @@ public class ProjectBuilder {
     }
 
     private Semaphore registerReleaseListenersAndAcquireSemaphore(
-            Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate,
+            Consumer<BuildStatusChangedEvent> onStatusUpdate,
             int nStatusUpdates)
             throws InterruptedException {
 
@@ -287,25 +287,25 @@ public class ProjectBuilder {
         }
     }
 
-    private void assertAllStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE, buildTaskId);
     }
 
-    private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+    private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE_WITH_ERRORS, buildTaskId);
     }
 
-    private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+    private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.REJECTED, buildTaskId);
     }
 
-    void assertStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatusEvents, BuildCoordinationStatus status, Integer buildTaskId) {
+    void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildCoordinationStatus status, Integer buildTaskId) {
         boolean received = false;
-        for (BuildCoordinationStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
+        for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
             if (receivedStatusEvent.getBuild().getId().equals(buildTaskId) &&
                     receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
@@ -327,6 +327,6 @@ public class ProjectBuilder {
     }
 
     interface Verifier {
-        void verify(List<BuildCoordinationStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask);
+        void verify(List<BuildStatusChangedEvent> receivedStatuses, BuildSetTask buildSetTask);
     }
 }

@@ -18,24 +18,24 @@
 package org.jboss.pnc.rest.debug;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Deprecated
-public class BuildStatusChangedEventRest implements BuildCoordinationStatusChangedEvent {
+public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
 
-    private BuildCoordinationStatus oldStatus;
-    private BuildCoordinationStatus newStatus;
+    private BuildStatus oldStatus;
+    private BuildStatus newStatus;
     private Build build;
 
-    public void setOldStatus(BuildCoordinationStatus oldStatus) {
+    public void setOldStatus(BuildStatus oldStatus) {
         this.oldStatus = oldStatus;
     }
 
-    public void setNewStatus(BuildCoordinationStatus newStatus) {
+    public void setNewStatus(BuildStatus newStatus) {
         this.newStatus = newStatus;
     }
 
@@ -44,12 +44,12 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     }
 
     @Override
-    public BuildCoordinationStatus getOldStatus() {
+    public BuildStatus getOldStatus() {
         return oldStatus;
     }
 
     @Override
-    public BuildCoordinationStatus getNewStatus() {
+    public BuildStatus getNewStatus() {
         return newStatus;
     }
 

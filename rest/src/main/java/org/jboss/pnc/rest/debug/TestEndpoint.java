@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.debug;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,7 +41,7 @@ import javax.ws.rs.core.Response;
 public class TestEndpoint {
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventEvent;
+    Event<BuildStatusChangedEvent> buildStatusChangedEventEvent;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventEvent;

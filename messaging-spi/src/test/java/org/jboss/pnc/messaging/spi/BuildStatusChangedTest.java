@@ -46,10 +46,10 @@ public class BuildStatusChangedTest {
 
         Build build = getBuild();
 
-        Status oldStatus = Status.ACCEPTED;
+        BuildStatus oldStatus = BuildStatus.NEW;
 
         BuildStatusChanged buildStatusChanged = BuildStatusChanged.builder()
-                .oldStatus(oldStatus.lowercase())
+                .oldStatus(oldStatus.toString())
                 .build(build)
                 .buildMe();
 

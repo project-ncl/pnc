@@ -28,7 +28,7 @@ import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import javax.enterprise.event.Event;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 public class BuildCoordinatorFactory {
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
