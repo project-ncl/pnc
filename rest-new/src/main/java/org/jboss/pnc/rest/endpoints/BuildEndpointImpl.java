@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.common.logging.BuildTaskContext;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -27,6 +29,7 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
@@ -34,20 +37,25 @@ import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @ApplicationScoped
 public class BuildEndpointImpl implements BuildEndpoint {
@@ -63,6 +71,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private ArtifactProvider artifactProvider;
+
+    @Inject
+    private BuildTriggerer buildTriggerer;
 
     private EndpointHelper<Build, BuildRef> endpointHelper;
 
@@ -177,8 +188,26 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public void cancel(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void cancel(int buildId) {
+        try {
+            logger.debug("Received cancel request for buildTaskId: {}.", buildId);
+
+            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildId);
+            if (mdcMeta.isPresent()) {
+                MDCUtils.addContext(mdcMeta.get());
+            } else {
+                logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
+            }
+
+            if (!buildTriggerer.cancelBuild(buildId)) {
+                throw new NotFoundException();
+            }
+        } catch (CoreException e) {
+            logger.error("Unable to cancel the build [" + buildId + "].", e);
+            throw new RuntimeException("Unable to cancel the build [" + buildId + "].");
+        }
+
+        logger.debug("Cancel request for buildTaskId {} successfully processed.", buildId);
     }
 
     @Override
