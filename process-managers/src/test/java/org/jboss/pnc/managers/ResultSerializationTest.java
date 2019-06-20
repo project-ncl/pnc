@@ -18,6 +18,7 @@
 package org.jboss.pnc.managers;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.enums.BuildPushStatus;
 import org.junit.Test;
 
 /**
@@ -27,7 +28,7 @@ public class ResultSerializationTest {
 
     @Test
     public void shouldSerializeAndDeserialize() throws Exception {
-        Result result = new Result("1", Result.Status.SUCCESS, "");
+        Result result = new Result("1", BuildPushStatus.SUCCESS, "");
         String json = JsonOutputConverterMapper.apply(result);
         JsonOutputConverterMapper.readValue(json, Result.class);
     }

@@ -29,6 +29,7 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
@@ -37,7 +38,7 @@ import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private BuildTriggerer buildTriggerer;
+
+    @Inject
+    private BrewPusher brewPusher;
 
     private EndpointHelper<Build, BuildRef> endpointHelper;
 
@@ -164,22 +168,32 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public BuildPushResult getPushResult(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return brewPusher.getBrewPushResult(id);
     }
 
     @Override
-    public Page<BuildPushResult> push(BuildPushRequest buildRecordPushRequest) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public BuildPushResult push(BuildPushRequest buildPushRequest) {
+
+        try {
+            return brewPusher.brewPush(buildPushRequest);
+        } catch (ProcessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void cancelPush(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        brewPusher.brewPushCancel(id);
     }
 
     @Override
-    public BuildPushResult completePush(int id, BuildPushResult buildRecordPushResult) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public BuildPushResult completePush(int id, BuildPushResult buildPushResult) {
+
+        try {
+            return brewPusher.brewPushComplete(id, buildPushResult);
+        } catch (ProcessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -229,5 +243,4 @@ public class BuildEndpointImpl implements BuildEndpoint {
     public SSHCredentials getSshCredentials(int id) {
         return provider.getSshCredentials(id);
     }
-
 }

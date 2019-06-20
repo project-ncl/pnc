@@ -39,6 +39,8 @@ public class BuildPushRequest {
     @NotNull
     private final Integer buildId;
 
+    private final boolean reimport;
+
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
     }
