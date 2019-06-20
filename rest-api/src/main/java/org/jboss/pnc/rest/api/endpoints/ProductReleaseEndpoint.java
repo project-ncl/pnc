@@ -32,6 +32,7 @@ import org.jboss.pnc.processor.annotation.Client;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -103,6 +104,23 @@ public interface ProductReleaseEndpoint{
     @PUT
     @Path("/{id}")
     void update(
+            @Parameter(description = PR_ID) @PathParam("id") int id,
+            @NotNull ProductRelease productRelease);
+
+    @Operation(summary = "Patch an existing product release.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ProductRelease.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
+    ProductRelease patchSpecific(
             @Parameter(description = PR_ID) @PathParam("id") int id,
             @NotNull ProductRelease productRelease);
 

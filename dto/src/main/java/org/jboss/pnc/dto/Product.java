@@ -17,16 +17,19 @@
  */
 package org.jboss.pnc.dto;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
+import java.util.Set;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -38,6 +41,7 @@ import lombok.ToString;
 @JsonDeserialize(builder = Product.Builder.class)
 public class Product extends ProductRef {
 
+    @PatchSupport({ADD, REPLACE})
     @Getter
     @Setter
     private final Set<ProductVersionRef> productVersions;

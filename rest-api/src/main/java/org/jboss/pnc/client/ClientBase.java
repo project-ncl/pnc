@@ -17,18 +17,28 @@
  */
 package org.jboss.pnc.client;
 
+import org.jboss.pnc.client.patch.PatchBase;
+import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.Path;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public abstract class ClientBase<T> {
+
+    private Logger logger = LoggerFactory.getLogger(ClientBase.class);
 
     // TODO: change it when the endpoint is updated
     protected final String BASE_PATH = "/pnc-rest-new/rest-new";
@@ -41,7 +51,10 @@ public abstract class ClientBase<T> {
 
     protected Configuration configuration;
 
-    protected ClientBase(Configuration configuration, Class<T> clazz) {
+    protected Class<T> iface;
+
+    protected ClientBase(Configuration configuration, Class<T> iface) {
+        this.iface = iface;
 
         ApacheHttpClient43EngineWithRetry engine = new ApacheHttpClient43EngineWithRetry();
         // allow redirects for NCL-3766
@@ -53,6 +66,7 @@ public abstract class ClientBase<T> {
                 .httpEngine(engine)
                 .build();
         client.register(ResteasyJackson2ProviderWithDateISO8601.class);
+        client.register(RequestLoggingFilter.class);
         target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
         if (basicAuth != null) {
@@ -62,7 +76,7 @@ public abstract class ClientBase<T> {
         if (bearerToken != null && !bearerToken.equals("")) {
             target.register(new BearerAuthentication(bearerToken));
         }
-        proxy = target.proxy(clazz);
+        proxy = target.proxy(iface);
     }
 
     protected T getEndpoint() {
@@ -80,6 +94,29 @@ public abstract class ClientBase<T> {
     protected void setSortAndQuery(PageParameters pageParameters, Optional<String> sort, Optional<String> q) {
         sort.ifPresent(s -> pageParameters.setSort(s));
         q.ifPresent(query -> pageParameters.setQ(query));
+    }
+
+    public <S> S patch(Integer id, String jsonPatch, Class<S> clazz) {
+        Path path = iface.getAnnotation(Path.class);
+        ResteasyWebTarget patchTarget;
+        if (!path.value().equals("") && !path.value().equals("/")) {
+            patchTarget = target.path(path.value() + "/" + id);
+        } else {
+            patchTarget = target.path(Integer.toString(id));
+        }
+
+        logger.debug("Json patch: {}", jsonPatch);
+
+        S result = patchTarget.request()
+                .build(HttpMethod.PATCH, Entity.entity(jsonPatch, MediaType.APPLICATION_JSON_PATCH_JSON))
+                .invoke(clazz);
+
+        return (S) result;
+    }
+
+    public <S> S patch(Integer id, PatchBase patchBase) throws PatchBuilderException {
+        String jsonPatch = patchBase.getJsonPatch();
+        return patch(id, jsonPatch, (Class<S>)patchBase.getClazz());
     }
 
 }

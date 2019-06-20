@@ -24,16 +24,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -48,13 +47,13 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
 import java.util.Set;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -123,6 +122,7 @@ public interface BuildConfigurationEndpoint {
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) //workaround for PATCH support
     BuildConfiguration getSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing build config.",
@@ -139,6 +139,23 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}")
     void update(@Parameter(description = BC_ID) @PathParam("id") int id,
                 @NotNull BuildConfiguration buildConfiguration);
+
+    @Operation(summary = "Patch a specific build config.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildConfiguration.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
+    BuildConfiguration patchSpecific(
+            @Parameter(description = BC_ID) @PathParam("id") int id,
+            BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Removes a specific build config.",
             responses = {

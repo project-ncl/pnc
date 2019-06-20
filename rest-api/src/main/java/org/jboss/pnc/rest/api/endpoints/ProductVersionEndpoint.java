@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.api.endpoints;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,6 +41,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -111,6 +111,23 @@ public interface ProductVersionEndpoint{
     @PUT
     @Path("/{id}")
     void update(
+            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @NotNull ProductVersion productVersion);
+
+    @Operation(summary = "Patch an existing product version.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ProductVersion.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
+    ProductVersion patchSpecific(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @NotNull ProductVersion productVersion);
 

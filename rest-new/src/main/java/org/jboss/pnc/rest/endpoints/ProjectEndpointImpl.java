@@ -73,6 +73,11 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     }
 
     @Override
+    public Project patchSpecific(int id, Project project) {
+        return endpointHelper.update(id, project);
+    }
+
+    @Override
     public void deleteSpecific(int id) {
         endpointHelper.delete(id);
     }

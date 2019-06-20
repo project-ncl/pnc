@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -40,6 +41,7 @@ import lombok.ToString;
 @JsonDeserialize(builder = ProductMilestone.Builder.class)
 public class ProductMilestone extends ProductMilestoneRef {
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class})
     private final ProductVersionRef productVersion;
 
@@ -47,6 +49,7 @@ public class ProductMilestone extends ProductMilestoneRef {
 
     private final Set<Integer> distributedArtifactIds;
 
+    @PatchSupport({REPLACE})
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

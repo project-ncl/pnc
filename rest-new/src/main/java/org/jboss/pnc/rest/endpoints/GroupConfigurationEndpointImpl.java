@@ -17,12 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -31,6 +25,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
@@ -39,17 +34,20 @@ import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import org.jboss.pnc.facade.BuildTriggerer;
-import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.Optional;
+
+import static org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl.checkBuildOptionsValidity;
+import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 /**
  *
@@ -100,6 +98,11 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     @Override
     public void update(int id, GroupConfiguration buildConfigurationSet) {
         endpointHelper.update(id, buildConfigurationSet);
+    }
+
+    @Override
+    public GroupConfiguration patchSpecific(int id, GroupConfiguration groupConfiguration) {
+        return endpointHelper.update(id, groupConfiguration);
     }
 
     @Override

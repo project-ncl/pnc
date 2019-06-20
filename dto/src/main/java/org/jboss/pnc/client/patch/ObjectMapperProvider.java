@@ -15,35 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.jackson;
+package org.jboss.pnc.client.patch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
+import java.util.HashMap;
+import java.util.Map;
 
-@Provider
-@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON})
-@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON})
-public class JacksonProvider implements ContextResolver<ObjectMapper> {
-    private ObjectMapper objectMapper;
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class ObjectMapperProvider {
 
+    private static Map<String, ObjectMapper> instance = new HashMap<>();
 
-    public JacksonProvider() throws Exception {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+    public static ObjectMapper getInstance() {
+        return instance.computeIfAbsent("INSTANCE", (key) -> createMapper());
+    }
 
+    private static ObjectMapper createMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
         // write dates in ISO8601 format
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        return mapper;
     }
 
-
-    public ObjectMapper getContext(Class<?> objectType) {
-        return objectMapper;
-    }
 }

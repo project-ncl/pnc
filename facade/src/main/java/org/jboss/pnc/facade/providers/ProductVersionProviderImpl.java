@@ -36,7 +36,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.wi
 
 @PermitAll
 @Stateless
-public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> implements ProductVersionProvider {
+public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> implements
+        ProductVersionProvider {
 
     private ProductRepository productRepository;
     private SystemConfig systemConfig;
@@ -71,7 +72,7 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
     }
 
     @Override
-    public void update(Integer id, ProductVersion restEntity) {
+    public ProductVersion update(Integer id, ProductVersion restEntity) {
 
         ProductVersion current = super.getSpecific(id);
 
@@ -82,7 +83,7 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
             throw new InvalidEntityException("Cannot change version id due to having closed milestone. Product version id: " + id);
         }
 
-        super.update(id, restEntity);
+        return super.update(id, restEntity);
     }
 
     @Override

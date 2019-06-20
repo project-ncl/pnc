@@ -23,9 +23,12 @@ import lombok.Builder;
 import lombok.Data;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -39,12 +42,16 @@ public class ProjectRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
+    @PatchSupport({REPLACE})
     protected final String name;
 
+    @PatchSupport({REPLACE})
     protected final String description;
 
+    @PatchSupport({REPLACE})
     protected final String issueTrackerUrl;
 
+    @PatchSupport({REPLACE})
     protected final String projectUrl;
 
     @JsonPOJOBuilder(withPrefix = "")

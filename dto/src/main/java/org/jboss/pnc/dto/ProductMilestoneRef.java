@@ -25,12 +25,15 @@ import lombok.Data;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 
 import java.time.Instant;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -44,18 +47,24 @@ public class ProductMilestoneRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
+    @PatchSupport({REPLACE})
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_MILESTONE_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     protected final String version;
 
+    @PatchSupport({REPLACE})
     protected final Instant endDate;
 
+    @PatchSupport({REPLACE})
     protected final Instant startingDate;
 
+    @PatchSupport({REPLACE})
     protected final Instant plannedEndDate;
 
+    @PatchSupport({REPLACE})
     protected final String downloadUrl;
 
+    @PatchSupport({REPLACE})
     protected final String issueTrackerUrl;
 
     @JsonPOJOBuilder(withPrefix = "")

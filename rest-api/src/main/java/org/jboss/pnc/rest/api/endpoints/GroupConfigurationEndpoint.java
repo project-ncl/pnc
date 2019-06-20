@@ -46,6 +46,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -134,6 +135,23 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}")
     void update(
             @Parameter(description = GC_ID) @PathParam("id") int id, @NotNull GroupConfiguration groupConfiguration);
+
+    @Operation(summary = "Patch a specific group config.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = GroupConfiguration.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
+    GroupConfiguration patchSpecific(
+            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @NotNull GroupConfiguration groupConfiguration);
 
     @Operation(summary = "Removes a specific group config.",
             responses = {

@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
@@ -37,6 +36,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -117,6 +117,24 @@ public interface SCMRepositoryEndpoint{
     void update(
             @Parameter(description = SCM_ID) @PathParam("id") int id,
             @NotNull SCMRepository repositoryConfiguration);
+
+    @Operation(summary = "Patch an existing SCM repository.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = SCMRepository.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
+    SCMRepository patchSpecific(
+            @Parameter(description = SCM_ID) @PathParam("id") int id,
+            @NotNull SCMRepository scmRepository);
+
 
     @Operation(summary = "Creates a new SCM repository.",
             description = "If the given URL is external, it does create the repository in the scm server.",

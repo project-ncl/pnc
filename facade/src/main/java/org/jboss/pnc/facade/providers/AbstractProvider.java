@@ -97,10 +97,11 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     }
 
     @Override
-    public void update(Integer id, DTO restEntity) {
+    public DTO update(Integer id, DTO restEntity) {
         validateBeforeUpdating(id, restEntity);
         log.debug("Updating entity: " + restEntity.toString());
-        repository.save(mapper.toEntity(restEntity));
+        DB saved = repository.save(mapper.toEntity(restEntity));
+        return mapper.toDTO(saved);
     }
 
     @Override

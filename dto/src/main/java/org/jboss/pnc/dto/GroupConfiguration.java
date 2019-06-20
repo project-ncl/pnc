@@ -17,17 +17,20 @@
  */
 package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.validation.constraints.RefHasId;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-
-import java.util.List;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.dto.validation.constraints.RefHasId;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
+import java.util.List;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -39,9 +42,11 @@ import lombok.ToString;
 @JsonDeserialize(builder = GroupConfiguration.Builder.class)
 public class GroupConfiguration extends GroupConfigurationRef {
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
+    @PatchSupport({ADD, REPLACE})
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

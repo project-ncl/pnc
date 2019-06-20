@@ -1,1 +1,2 @@
 org.jboss.pnc.processor.ClientGenerator
+org.jboss.pnc.processor.PatchDtoGenerator

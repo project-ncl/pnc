@@ -60,6 +60,11 @@ public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {
     }
 
     @Override
+    public ProductRelease patchSpecific(int id, ProductRelease productRelease) {
+        return endpointHelper.update(id, productRelease);
+    }
+
+    @Override
     public Set<SupportLevel> getAllSupportLevel() {
         List<SupportLevel> supportLevels = Arrays.asList(SupportLevel.values());
         return new HashSet<>(supportLevels);

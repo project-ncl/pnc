@@ -71,6 +71,11 @@ public class ProductEndpointImpl implements ProductEndpoint {
     }
 
     @Override
+    public Product patchSpecific(int id, Product product) {
+        return endpointHelper.update(id, product);
+    }
+
+    @Override
     public Page<ProductVersion> getProductVersions(int id, PageParameters pageParameters) {
         return productVersionProvider.getAllForProduct(pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),

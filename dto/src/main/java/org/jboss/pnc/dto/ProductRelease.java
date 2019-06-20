@@ -17,33 +17,37 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SupportLevel;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = ProductRelease.Builder.class)
 public class ProductRelease extends ProductReleaseRef {
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private final ProductVersionRef productVersion;
 
+    @PatchSupport({REPLACE})
     private final ProductMilestoneRef productMilestone;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

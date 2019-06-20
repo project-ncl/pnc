@@ -25,11 +25,14 @@ import lombok.Data;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SupportLevel;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import java.time.Instant;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -43,14 +46,19 @@ public class ProductReleaseRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
+    @PatchSupport({REPLACE})
     protected final String version;
 
+    @PatchSupport({REPLACE})
     protected final SupportLevel supportLevel;
 
+    @PatchSupport({REPLACE})
     protected final Instant releaseDate;
 
+    @PatchSupport({REPLACE})
     protected final String downloadUrl;
 
+    @PatchSupport({REPLACE})
     protected final String issueTrackerUrl;
 
     @JsonPOJOBuilder(withPrefix = "")
