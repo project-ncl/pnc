@@ -116,7 +116,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     @Override
-    public Optional<BuildTaskContext> getMdcMeta(Integer buildId) {
+    public Optional<BuildTaskContext> getMdcMeta(int buildId) {
         return buildCoordinator.getMDCMeta(buildId);
     }
 
