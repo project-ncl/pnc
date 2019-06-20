@@ -217,7 +217,12 @@
   vertical-align: middle !important;
 }
 
-.pnc-build-records-list .push-status, th {
+.pnc-build-records-list th {
+  text-align: center;
+  
+}
+
+.pnc-build-records-list .push-status {
   text-align: center;
 }
 
@@ -289,4 +294,114 @@
 
 .grafana-widget-body {
   margin: -15px;
+}
+
+.build-script {
+  display: block;
+}
+
+@media (min-width: 1200px) {
+  .build-script {
+    display: inline-block; 
+    min-width: 650px;
+  }
+}
+
+.build-status-table .pnc-build-status {
+  min-width: 310px;
+  height: 28px;
+}
+
+
+table.build-status-table tr > td {
+  vertical-align: middle;
+}
+
+.actions-table tr > td:last-child {
+  width: 1%;
+  padding: 0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.actions-table tr > td:last-child .btn-group {
+  display: flex;
+}
+
+.actions-table tr > td:last-child .btn-block + .btn-block {
+  margin-top: 0;
+}
+
+.build-status-table.actions-table tr > td:last-child .btn-block {
+  height: 34px;
+}
+
+
+.master-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+
+@media (min-width: 768px) {
+  .master-detail {
+    flex-direction: row;
+  }
+
+  .master-detail > * {
+    padding: 0 20px;
+  }
+
+  .master-detail > nav {
+    border-right: 1px solid var(--main-section-border-color);
+    white-space: nowrap;
+  }
+
+  .master-detail > main,
+  .master-detail > section,
+  .master-detail > div {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .revisions-tab {
+    min-height: calc(100vh - 2 * var(--pf-col-padding) - var(--masthead-height) - var(--breadcrumbs-height) - var(--footer-height) - var(--page-header-height) - var(--tabs-height));
+    padding-bottom: 0;
+    margin-left: -20px;
+  }
+}
+
+.build-config-edit-form #build-config-build-script {
+  height: 300px;
+}
+
+pf-toolbar.hide-result-count .toolbar-pf-results h5 {
+  visibility: hidden;
+  display:none;
+}
+
+td.status-icon {
+  padding: 0 !important;
+  text-align: center !important;
+  
+}
+
+.dl-horizontal.properties-list > dt, .dl-horizontal.properties-list > dd {
+  line-height: 2 /*1.66666667*/;
+  margin-left: 0;
+  text-align: left;
+}
+
+.dl-horizontal.properties-list > dt::after {
+  content: ":";
+}
+
+.dl-horizontal.properties-list.artifact-properties > dt {
+  width: 100px;
+}
+
+.resource-details h3 {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }

@@ -20,8 +20,10 @@
 <table class="table table-bordered table-striped table-hover pnc-build-records-list" ng-show="$ctrl.showTable()">
   <thead ng-hide="::$ctrl.hideHead">
     <th ng-if="::$ctrl.showColumn('status')">Status</th>
+    <th ng-if="::$ctrl.showColumn('statusIcon')">&nbsp;</th>
     <th ng-if="::$ctrl.showColumn('id')">Id</th>
     <th ng-if="::$ctrl.showColumn('configurationName')">Build Config</th>
+    <th ng-if="::$ctrl.showColumn('canonicalName')">Build</th>
     <th ng-if="::$ctrl.showColumn('startTime')">Start Time</th>
     <th ng-if="::$ctrl.showColumn('endTime')">End Time</th>
     <th ng-if="::$ctrl.showColumn('username')">User</th>
@@ -33,14 +35,18 @@
         <pnc-build-status-icon build-record="item"></pnc-build-status-icon>
         {{ item.status }}
       </td>
+      <td ng-if="::$ctrl.showColumn('statusIcon')" class="status-icon">
+          <pnc-build-status-icon build-record="item"></pnc-build-status-icon>
+      </td>
       <td ng-if="::$ctrl.showColumn('id')">
-        <a ng-if="::$ctrl.buildRecords" href ui-sref="projects.detail.build-configs.detail.build-records.detail.default({ projectId: item.projectId, configurationId: item.buildConfigurationId, recordId: item.id })"># {{ item.id }}</a>
+        <pnc-build-record-link ng-if="::$ctrl.buildRecords" build-record="item" short-link="true"></pnc-build-record-link>
         <a ng-if="::$ctrl.buildGroupRecords" href ui-sref="configuration-set-record.detail.info({ recordId: item.id })"># {{ item.id }}</a>
       </td>
       <td ng-if="::$ctrl.showColumn('configurationName')">
         <a ng-if="::$ctrl.buildRecords" href ui-sref="projects.detail.build-configs.detail({ projectId: item.projectId, configurationId: item.buildConfigurationId })">{{ item.buildConfigurationName }}</a>
         <a ng-if="::$ctrl.buildGroupRecords" href ui-sref="build-groups.detail.build-configs({ configurationSetId: item.buildConfigurationSetId })">{{ item.buildConfigurationSetName }}</a>
       </td>
+      <td ng-if="::$ctrl.showColumn('canonicalName')"><pnc-build-record-link build-record="item"></pnc-build-record-link></td>
       <td ng-if="::$ctrl.showColumn('startTime')">{{ item.startTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('endTime')">{{ item.endTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('username')">{{ item.username }}</td>

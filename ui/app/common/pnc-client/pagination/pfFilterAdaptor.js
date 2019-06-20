@@ -34,12 +34,15 @@
         var that = {};
 
         that.onFilterChange = function (filters) {
+          var filterDefinitions = this.fields;
           paginator.clearFilters();
+
           filters.forEach(function (filter) {
+            var filterDef = filterDefinitions.find(function(fd) { return fd.id === filter.id; });
             paginator.addFilter({
               field: filter.id,
               value: filter.value,
-              comparator: PF_FILTER_TYPES[filter.type]
+              comparator: PF_FILTER_TYPES[filterDef.filterType]
             });
           });
           paginator.apply();
