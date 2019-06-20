@@ -18,16 +18,6 @@
 package org.jboss.pnc.coordinator.maintenance;
 
 
-import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.util.TimeUtils;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Executes regular cleanup of old temporary builds after expiration.
@@ -47,16 +35,8 @@ import java.util.List;
 public class TemporaryBuildsCleanupScheduler {
     private final Logger log = LoggerFactory.getLogger(TemporaryBuildsCleanupScheduler.class);
 
-    private TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker;
-
-    @Deprecated
-    public TemporaryBuildsCleanupScheduler() {
-    }
-
     @Inject
-    public TemporaryBuildsCleanupScheduler(TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker) {
-        this.temporaryBuildsCleanupScheduleWorker = temporaryBuildsCleanupScheduleWorker;
-    }
+    private TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker;
 
     /**
      * Cleanup old temporary builds every midnight
