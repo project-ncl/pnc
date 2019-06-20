@@ -89,6 +89,7 @@ public class TemporaryBuildsCleanupScheduleWorker {
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.temporaryBuildsCleaner = temporaryBuildsCleaner;
         this.serviceClient = serviceClient;
+        log.debug("TemporaryBuildsCleanupScheduleWorker successfully initialized.");
     }
 
     /**
