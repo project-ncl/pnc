@@ -49,6 +49,13 @@ public interface BuildCoordinator {
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
+    /**
+     * Cancels a running build
+     *
+     * @param buildTaskId ID of a running build
+     * @return True if the cancel request is successfully accepted, otherwise false.
+     * @throws CoreException Thrown if cancellation fails due to any internal error
+     */
     boolean cancel(int buildTaskId) throws CoreException;
 
     boolean cancelSet(int buildSetTaskId) throws CoreException;
