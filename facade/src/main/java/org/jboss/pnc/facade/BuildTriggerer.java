@@ -43,11 +43,11 @@ public interface BuildTriggerer {
      * Cancels a running build
      *
      * @param buildId ID of a running build
-     * @return True if the cancel request is successfully accepted, otherwise false.
+     * @return True if the cancel request is successfully accepted, false if if there is no running build with such ID
      * @throws CoreException Thrown if cancellation fails due to any internal error
      */
     boolean cancelBuild(int buildId) throws CoreException;
 
-    Optional<BuildTaskContext> getMdcMeta(Integer buildId);
+    Optional<BuildTaskContext> getMdcMeta(int buildId);
 
 }

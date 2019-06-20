@@ -53,7 +53,7 @@ public interface BuildCoordinator {
      * Cancels a running build
      *
      * @param buildTaskId ID of a running build
-     * @return True if the cancel request is successfully accepted, otherwise false.
+     * @return True if the cancel request is successfully accepted, false if if there is no running build with such ID
      * @throws CoreException Thrown if cancellation fails due to any internal error
      */
     boolean cancel(int buildTaskId) throws CoreException;

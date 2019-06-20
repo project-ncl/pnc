@@ -261,7 +261,7 @@ public class BuildTriggerer {
          return buildConfigurationAuditedsMap;
     }
 
-    public Optional<BuildTaskContext> getMdcMeta(Integer buildTaskId) {
+    public Optional<BuildTaskContext> getMdcMeta(int buildTaskId) {
         return buildCoordinator.getMDCMeta(buildTaskId);
     }
 
