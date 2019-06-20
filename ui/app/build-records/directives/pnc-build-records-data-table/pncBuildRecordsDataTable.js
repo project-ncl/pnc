@@ -18,19 +18,32 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common', [
-    'pnc.common.authentication',
-    'pnc.common.components',
-    'pnc.common.da-client',
-    'pnc.common.directives',
-    'pnc.common.events',
-    'pnc.common.notifications',
-    'pnc.common.pnc-client',
-    'pnc.common.restclient',
-    'pnc.common.select-modals',
-    'pnc.common.util',
-    'pnc.common.filters',
-    'pnc-ui-extras.uiBreadcrumbs'
-  ]);
+  angular.module('pnc.build-records').component('pncBuildRecordsDataTable', {
+    bindings: {
+      page: '<',
+      displayFields: '<',
+    },
+    templateUrl: 'build-records/directives/pnc-build-records-data-table/pnc-build-records-data-table.html',
+    controller: ['paginator', Controller]
+  });
+
+
+  function Controller(paginator) {
+    var $ctrl = this;
+    var DEFAULT_FIELDS = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username'];
+
+    // -- Controller API --
+    
+
+    // --------------------
+
+
+    $ctrl.$onInit = function () {
+      // set if bindings are empty
+      $ctrl.displayFields = $ctrl.displayFields || DEFAULT_FIELDS;
+      $ctrl.paginator = paginator($ctrl.page);
+    };
+
+  }
 
 })();

@@ -18,19 +18,29 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common', [
-    'pnc.common.authentication',
-    'pnc.common.components',
-    'pnc.common.da-client',
-    'pnc.common.directives',
-    'pnc.common.events',
-    'pnc.common.notifications',
-    'pnc.common.pnc-client',
-    'pnc.common.restclient',
-    'pnc.common.select-modals',
-    'pnc.common.util',
-    'pnc.common.filters',
-    'pnc-ui-extras.uiBreadcrumbs'
-  ]);
+  angular.module('pnc.artifacts').component('pncArtifactLink', {
+    bindings: {
+     artifact: '<'
+    },
+    transclude: true,
+    templateUrl: 'artifacts/components/pnc-artifact-link/pnc-artifact-link.html',
+    controller: [Controller]
+  });
+
+
+  function Controller() {
+    var $ctrl = this;
+
+    // -- Controller API --
+
+
+    // --------------------
+
+
+    $ctrl.$onInit = function () {
+      
+    };
+
+  }
 
 })();

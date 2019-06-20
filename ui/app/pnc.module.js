@@ -36,7 +36,8 @@
     'pnc.configuration-set-record',
     'pnc.report',
     'pnc.properties',
-    'pnc.repository-configurations'
+    'pnc.repository-configurations',
+    'pnc.artifacts'
   ]);
 
   app.config([
