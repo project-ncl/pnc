@@ -31,6 +31,7 @@ import javax.ejb.Stateless;
 
 import javax.inject.Inject;
 
+import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
@@ -58,6 +59,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author jbrazdil
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Stateless
 public class BuildTriggererImpl implements BuildTriggerer {
@@ -106,6 +108,16 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
         return result.getId();
+    }
+
+    @Override
+    public boolean cancelBuild(int buildId) throws CoreException {
+        return buildCoordinator.cancel(buildId);
+    }
+
+    @Override
+    public Optional<BuildTaskContext> getMdcMeta(Integer buildId) {
+        return buildCoordinator.getMDCMeta(buildId);
     }
 
     private BuildSetTask doTriggerBuild(final int buildConfigId,

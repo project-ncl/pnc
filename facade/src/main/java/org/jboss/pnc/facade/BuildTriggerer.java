@@ -20,6 +20,7 @@ package org.jboss.pnc.facade;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -28,6 +29,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 public interface BuildTriggerer {
 
@@ -36,5 +38,16 @@ public interface BuildTriggerer {
 
     int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
-    
+
+    /**
+     * Cancels a running build
+     *
+     * @param buildId ID of a running build
+     * @return True if the cancel request is successfully accepted, otherwise false.
+     * @throws CoreException Thrown if cancellation fails due to any internal error
+     */
+    boolean cancelBuild(int buildId) throws CoreException;
+
+    Optional<BuildTaskContext> getMdcMeta(Integer buildId);
+
 }
