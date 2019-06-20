@@ -59,8 +59,6 @@ public class TemporaryBuildsCleanupScheduleWorker {
 
     private TemporaryBuildsCleaner temporaryBuildsCleaner;
 
-    private TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker;
-
     private KeycloakServiceClient serviceClient;
 
     @Deprecated
@@ -74,23 +72,21 @@ public class TemporaryBuildsCleanupScheduleWorker {
             Configuration configuration,
             BuildRecordRepository buildRecordRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            TemporaryBuildsCleanupScheduleWorker temporaryBuildsCleanupScheduleWorker,
             TemporaryBuildsCleaner temporaryBuildsCleaner,
             KeycloakServiceClient serviceClient) {
-        int _temporaryBuildLifeSpan;
 
+        int temporaryBuildLifeSpan;
         try {
             SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-            _temporaryBuildLifeSpan = systemConfig.getTemporaryBuildsLifeSpan();
+            temporaryBuildLifeSpan = systemConfig.getTemporaryBuildsLifeSpan();
         } catch (ConfigurationParseException e) {
             log.warn("TemporaryBuildsCleanupScheduler initialization from config file failed! Default values will be used.");
-            _temporaryBuildLifeSpan = DEFAULT_LIFESPAN;
+            temporaryBuildLifeSpan = DEFAULT_LIFESPAN;
         }
 
-        this.TEMPORARY_BUILD_LIFESPAN = _temporaryBuildLifeSpan;
+        this.TEMPORARY_BUILD_LIFESPAN = temporaryBuildLifeSpan;
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
-        this.temporaryBuildsCleanupScheduleWorker = temporaryBuildsCleanupScheduleWorker;
         this.temporaryBuildsCleaner = temporaryBuildsCleaner;
         this.serviceClient = serviceClient;
     }
