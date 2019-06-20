@@ -21,16 +21,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
-
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
-
 import java.util.Map;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -44,10 +47,12 @@ public class ProductVersionRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
+    @PatchSupport({REPLACE})
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp=Patterns.PRODUCT_STREAM_VERSION, groups = {WhenCreatingNew.class, WhenUpdating.class})
     protected final String version;
 
+    @PatchSupport({ADD, REMOVE, REPLACE})
     protected final Map<String, String> attributes;
 
     @JsonPOJOBuilder(withPrefix = "")

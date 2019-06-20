@@ -67,6 +67,11 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     }
 
     @Override
+    public SCMRepository patchSpecific(int id, SCMRepository scmRepository) {
+        return endpointHelper.update(id, scmRepository);
+    }
+
+    @Override
     public RepositoryCreationResponse createNew(CreateAndSyncSCMRequest request) {
         ValidationBuilder.validateObject(request, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();

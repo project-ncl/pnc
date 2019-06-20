@@ -23,33 +23,30 @@ import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Parameter;
-import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
+import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
-
-import org.jboss.pnc.facade.BuildTriggerer;
-import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.OptionalInt;
+import java.util.Set;
 
 @ApplicationScoped
 public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {
@@ -96,6 +93,11 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     @Override
     public void update(int id, BuildConfiguration buildConfiguration) {
         endpointHelper.update(id, buildConfiguration);
+    }
+
+    @Override
+    public BuildConfiguration patchSpecific(int id, BuildConfiguration buildConfiguration) {
+        return endpointHelper.update(id, buildConfiguration);
     }
 
     @Override

@@ -72,6 +72,11 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
+    public ProductMilestone patchSpecific(int id, ProductMilestone productMilestone) {
+        return endpointHelper.update(id, productMilestone);
+    }
+
+    @Override
     public Page<Build> getPerformedBuilds(int id, PageParameters pageParameters) {
 
         return buildProvider.getPerformedBuildsForMilestone(

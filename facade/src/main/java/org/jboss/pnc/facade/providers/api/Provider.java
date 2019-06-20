@@ -38,7 +38,7 @@ public interface Provider<DB extends GenericEntity<Integer>, DTO extends REF, RE
 
     Page<DTO> getAll(int pageIndex, int pageSize, String sortingRsql, String query);
 
-    void update(Integer id, DTO restEntity) throws DTOValidationException;
+    DTO update(Integer id, DTO restEntity) throws DTOValidationException;
 
     void delete(Integer id) throws DTOValidationException;
 

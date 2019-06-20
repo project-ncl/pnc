@@ -42,6 +42,10 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>dto</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>test-common</artifactId>
     </dependency>
     <dependency>
@@ -168,6 +172,17 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.fge</groupId>
+      <artifactId>json-patch</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

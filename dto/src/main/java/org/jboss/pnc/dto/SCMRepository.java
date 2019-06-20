@@ -21,20 +21,22 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
-
 import org.hibernate.validator.constraints.NotBlank;
+import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import org.jboss.pnc.dto.validation.constraints.SCMUrl;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = SCMRepository.Builder.class)
@@ -48,9 +50,11 @@ public class SCMRepository implements DTOEntity {
     @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
     protected final String internalUrl;
 
+    @PatchSupport({REPLACE})
     @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
     protected final String externalUrl;
 
+    @PatchSupport({REPLACE})
     protected final Boolean preBuildSyncEnabled;
 
     @JsonPOJOBuilder(withPrefix = "")

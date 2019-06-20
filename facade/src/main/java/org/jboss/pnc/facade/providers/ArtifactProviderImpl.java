@@ -83,8 +83,8 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
 
     @Override
     @RolesAllowed(SYSTEM_USER)
-    public void update(Integer id, org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
-        super.update(id, restEntity);
+    public org.jboss.pnc.dto.Artifact update(Integer id, org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
+        return super.update(id, restEntity);
     }
 
     @Override

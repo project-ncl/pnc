@@ -17,25 +17,30 @@
  */
 package org.jboss.pnc.dto;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
+import java.util.List;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = Project.Builder.class)
 public class Project extends ProjectRef {
 
+    @PatchSupport({ADD, REPLACE})
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

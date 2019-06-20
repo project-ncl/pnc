@@ -17,48 +17,58 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = BuildConfiguration.Builder.class)
 public class BuildConfiguration extends BuildConfigurationRef {
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private final SCMRepository repository;
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = WhenCreatingNew.class)
     private final ProjectRef project;
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
     protected final Environment environment;
 
+    @PatchSupport({ADD, REPLACE})
     private final Set<BuildConfigurationRef> dependencies;
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
     private final Set<GroupConfigurationRef> groupConfigs;
 
+    @PatchSupport({ADD, REMOVE, REPLACE})
     private final Map<String, String> genericParameters;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

@@ -21,14 +21,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
-
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
@@ -42,16 +44,21 @@ public class ProductRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final Integer id;
 
+    @PatchSupport({REPLACE})
     protected final String name;
 
+    @PatchSupport({REPLACE})
     protected final String description;
 
+    @PatchSupport({REPLACE})
     @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String abbreviation;
 
+    @PatchSupport({REPLACE})
     protected final String productCode;
 
+    @PatchSupport({REPLACE})
     protected final String pgmSystemName;
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -77,6 +77,11 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
+    public ProductVersion patchSpecific(int id, ProductVersion productVersion) {
+        return endpointHelper.update(id, productVersion);
+    }
+
+    @Override
     public Page<BuildConfiguration> getBuildConfigurations(int id, PageParameters pageParams) {
 
         return buildConfigurationProvider.getBuildConfigurationsForProductVersion(

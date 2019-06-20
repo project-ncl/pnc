@@ -60,7 +60,7 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
     }
 
     @Override
-    public void update(Integer id, ProductMilestone restEntity) {
+    public ProductMilestone update(Integer id, ProductMilestone restEntity) {
 
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(id);
         org.jboss.pnc.model.ProductMilestone milestoneRestDb = mapper.toEntity(restEntity);
@@ -80,7 +80,7 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
 
         validateBeforeUpdating(id, mapper.toDTO(milestoneRestDb));
 
-        repository.save(milestoneRestDb);
+        return mapper.toDTO(repository.save(milestoneRestDb));
     }
 
     @Override

@@ -17,40 +17,49 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = ProductVersion.Builder.class)
 public class ProductVersion extends ProductVersionRef {
 
+    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class})
     private final ProductRef product;
 
+    @PatchSupport({REPLACE})
     private final ProductMilestoneRef currentProductMilestone;
 
+    @PatchSupport({ADD, REPLACE})
     private final List<ProductMilestoneRef> productMilestones;
 
+    @PatchSupport({ADD, REPLACE})
     private final List<ProductReleaseRef> productReleases;
 
+    @PatchSupport({ADD, REPLACE})
     private final List<GroupConfigurationRef> groupConfigurations;
 
+    @PatchSupport({ADD, REPLACE})
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

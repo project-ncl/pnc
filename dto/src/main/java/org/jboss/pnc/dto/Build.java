@@ -17,22 +17,27 @@
  */
 package org.jboss.pnc.dto;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.processor.annotation.PatchSupport;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -45,6 +50,7 @@ public class Build extends BuildRef {
 
     private final Environment environment;
 
+    @PatchSupport({ADD, REMOVE, REPLACE})
     private final Map<String, String> attributes;
 
     private final User user;

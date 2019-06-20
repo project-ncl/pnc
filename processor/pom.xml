@@ -39,6 +39,11 @@
       <artifactId>resteasy-jaxrs</artifactId>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>common</artifactId>
+      <scope>compile</scope>
+    </dependency>
 
   </dependencies>
   <build>

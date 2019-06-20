@@ -103,8 +103,8 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @RolesAllowed(SYSTEM_USER)
     @Override
-    public void update(Integer id, Build restEntity) {
-        super.update(id, restEntity);
+    public Build update(Integer id, Build restEntity) {
+        return super.update(id, restEntity);
     }
 
     @Override
