@@ -58,7 +58,7 @@ import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
 import static org.jboss.pnc.enums.BuildStatus.FAILED;
 import static org.jboss.pnc.enums.BuildStatus.REJECTED;
 import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
-import static org.jboss.pnc.enums.BuildStatus.UNKNOWN;
+import static org.jboss.pnc.enums.BuildStatus.NEW;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
@@ -120,7 +120,7 @@ public class DatastoreAdapter {
 
     public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
-            BuildStatus buildRecordStatus = UNKNOWN;
+            BuildStatus buildRecordStatus = NEW;
 
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
             buildRecordBuilder.buildContentId(buildTask.getContentId());
@@ -177,7 +177,7 @@ public class DatastoreAdapter {
                 return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
             }
 
-            if (UNKNOWN.equals(buildRecordStatus)) {
+            if (NEW.equals(buildRecordStatus)) {
                 if (buildResult.getCompletionStatus().equals(CompletionStatus.CANCELLED)) {
                     buildRecordStatus = CANCELLED;
                 } else if (buildResult.getCompletionStatus().equals(CompletionStatus.TIMED_OUT)) {
