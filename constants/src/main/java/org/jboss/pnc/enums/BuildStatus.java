@@ -53,9 +53,14 @@ public enum BuildStatus {
     BUILDING,
 
     /**
-     * Build rejected due to conflict with another build, or failed dependency build
+     * Build rejected due to conflict with another build
      */
     REJECTED(false),
+
+    /**
+     * Build rejected due to failed dependency build
+     */
+    REJECTED_FAILED_DEPENDENCIES(false),
 
     /**
      * User cancelled the build
@@ -108,7 +113,8 @@ public enum BuildStatus {
         BuildCoordinationStatus[] building = {BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING, BuildCoordinationStatus.BUILD_COMPLETED};
         BuildCoordinationStatus[] waitingForDependencies = {BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES};
         BuildCoordinationStatus[] notRequired = {BuildCoordinationStatus.REJECTED_ALREADY_BUILT};
-        BuildCoordinationStatus[] rejected = { BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES, BuildCoordinationStatus.REJECTED};
+        BuildCoordinationStatus[] rejected = {BuildCoordinationStatus.REJECTED};
+        BuildCoordinationStatus[] rejectedFailedDependencies = {BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES};
 
         if (Arrays.asList(success).contains(buildCoordinationStatus)) {
             return SUCCESS;
@@ -126,6 +132,8 @@ public enum BuildStatus {
             return NO_REBUILD_REQUIRED;
         } else if (Arrays.asList(rejected).contains(buildCoordinationStatus)) {
             return REJECTED;
+        } else if (Arrays.asList(rejectedFailedDependencies).contains(buildCoordinationStatus)) {
+            return REJECTED_FAILED_DEPENDENCIES;
         } else {
             return SYSTEM_ERROR;
         }
