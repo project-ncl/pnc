@@ -27,7 +27,7 @@ import java.util.Arrays;
  */
 public enum BuildStatus {
     /**
-     * Build isFinal successfully
+     * Build completed successfully
      */
     SUCCESS (true),
 

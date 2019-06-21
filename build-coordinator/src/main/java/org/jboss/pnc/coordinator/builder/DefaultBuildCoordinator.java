@@ -538,7 +538,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 BuildStatus.fromBuildCoordinationStatus(oldStatus),
                 BuildStatus.fromBuildCoordinationStatus(status));
 
-        log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
+        log.debug("Updating build task {} status to {}; old coord status: {}, new coord status: {}",
+                  task.getId(), buildStatusChanged, oldStatus, status);
+
         if (status.isCompleted()) {
             markFinished(task, status, statusDescription);
         } else {
@@ -548,7 +550,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         userLog.info("Build status updated to {}; previous: {}", status, oldStatus);
 
-        buildStatusChangedEventNotifier.fire(buildStatusChanged);
+        if (BuildStatus.fromBuildCoordinationStatus(oldStatus) != BuildStatus.fromBuildCoordinationStatus(status)) {
+            // only fire notification when BuildStatus changes
+            buildStatusChangedEventNotifier.fire(buildStatusChanged);
+        }
+
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
 
