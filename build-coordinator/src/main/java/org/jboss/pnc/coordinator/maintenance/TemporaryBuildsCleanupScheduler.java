@@ -41,7 +41,7 @@ public class TemporaryBuildsCleanupScheduler {
     /**
      * Cleanup old temporary builds every midnight
      */
-    @Schedule(hour = "*")
+    @Schedule
     public void cleanupExpiredTemporaryBuilds() throws ValidationException {
         log.info("Regular deletion of temporary builds triggered by clock.");
         temporaryBuildsCleanupScheduleWorker.cleanupExpiredTemporaryBuilds();
