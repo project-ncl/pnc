@@ -98,7 +98,9 @@ public enum BuildCoordinationStatus {
     public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) { // TODO
 
         BuildStatus[] done = {BuildStatus.SUCCESS};
-        BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.REJECTED};
+        BuildStatus[] doneWithErrors = {BuildStatus.FAILED};
+        BuildStatus[] rejected = {BuildStatus.REJECTED};
+        BuildStatus[] rejectedFailedDependencies = {BuildStatus.REJECTED_FAILED_DEPENDENCIES};
         BuildStatus[] cancelled = {BuildStatus.CANCELLED};
         BuildStatus[] newBuild = {BuildStatus.NEW};
         BuildStatus[] building = {BuildStatus.BUILDING};
@@ -109,6 +111,10 @@ public enum BuildCoordinationStatus {
             return DONE;
         } else if (Arrays.asList(doneWithErrors).contains(buildStatus)) {
             return DONE_WITH_ERRORS;
+        } else if (Arrays.asList(rejected).contains(buildStatus)) {
+            return REJECTED;
+        } else if (Arrays.asList(rejectedFailedDependencies).contains(buildStatus)) {
+            return REJECTED_FAILED_DEPENDENCIES;
         } else if (Arrays.asList(newBuild).contains(buildStatus)) {
             return NEW;
         } else if (Arrays.asList(building).contains(buildStatus)) {
