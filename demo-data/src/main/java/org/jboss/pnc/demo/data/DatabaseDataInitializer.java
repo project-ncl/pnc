@@ -493,7 +493,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
-                .deployPath("http://google.pl/imported1").build();
+                .deployPath("/imported1").build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact2:jar:1.0")
                 .targetRepository(targetRepository)
@@ -504,7 +504,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
-                .deployPath("http://google.pl/imported2").build();
+                .deployPath("/imported2").build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
@@ -554,7 +554,7 @@ public class DatabaseDataInitializer {
                 .sha1("61dad16e14438d2d8c8cbd18b267d62944f37898")
                 .sha256("1660168483cb8a05d1cc2e77c861682a42ed9517ba945159d5538950c5db00fa")
                 .size(10L)
-                .deployPath("http://google.pl/built3")
+                .deployPath("/built3")
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact4:jar:1.0")
@@ -564,7 +564,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
-                .deployPath("http://google.pl/built4")
+                .deployPath("/built4")
                 .build();
 
         builtArtifact3 = artifactRepository.save(builtArtifact3);
