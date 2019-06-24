@@ -17,19 +17,4 @@
     limitations under the License.
 
 -->
-<pnc-header>
-  <pnc-header-title>Projects</pnc-header-title>
-  <pnc-header-buttons>
-    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Project" ui-sref="projects.create">
-      <i class="fa fa-file-text-o"></i> Create
-    </button>
-  </pnc-header-buttons>
-</pnc-header>
-
-<div class="row">
-  <pnc-toolbar filtering-page="$ctrl.filteringPage" filtering-fields="$ctrl.filteringFields"></pnc-toolbar>
-</div>
-<div>
-  <pnc-projects-list projects="$ctrl.filteringPage.data"></pnc-projects-list>
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.filteringPage" ng-if="$ctrl.filteringPage"></pnc-page-controls>
-</div>
+<pf-toolbar class="hide-result-count" config="$ctrl.pfToolbarConfig"></pf-toolbar>
