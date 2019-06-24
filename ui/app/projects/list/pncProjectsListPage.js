@@ -26,18 +26,29 @@
       projects: '<'
     },
     templateUrl: 'projects/list/pnc-projects-list-page.html',
-    controller: ['paginator', Controller]
+    controller: ['filteringPaginator', Controller]
   });
 
-  function Controller(paginator) {
+  function Controller(filteringPaginator) {
     const $ctrl = this;
 
     // -- Controller API --
+    $ctrl.filteringFields = [{
+      id: 'name',
+      title: 'Name',
+      placeholder: 'Filter by Name',
+      filterType: 'text'
+    }, {
+      id: 'description',
+      title:  'Description',
+      placeholder: 'Filter by Description',
+      filterType: 'text'
+    }];
     
     // --------------------
 
     $ctrl.$onInit = () => {
-      $ctrl.page = paginator($ctrl.projects);
+      $ctrl.filteringPage = filteringPaginator($ctrl.projects);
     };
 
   }
