@@ -81,6 +81,7 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
         validateBeforeSaving(restEntity);
         log.debug("Storing entity: " + restEntity.toString());
         DB storedEntity = repository.save(mapper.toEntity(restEntity));
+        repository.flushAndRefresh(storedEntity);
         return mapper.toDTO(storedEntity);
     }
 

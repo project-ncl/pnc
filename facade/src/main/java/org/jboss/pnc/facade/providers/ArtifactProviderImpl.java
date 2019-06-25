@@ -78,15 +78,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
     @Override
     @RolesAllowed(SYSTEM_USER)
     public org.jboss.pnc.dto.Artifact store(org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
-//        return super.store(restEntity); //TODO is this specific impl really required ?
-        validateBeforeSaving(restEntity);
-        logger.debug("Storing entity: " + restEntity.toString());
-        Artifact artifact = repository.save(mapper.toEntity(restEntity));
-        TargetRepository targetRepository = targetRepositoryRepository.queryById(artifact.getTargetRepository().getId());
-        artifact.setTargetRepository(targetRepository);
-        logger.debug("Pre-fetched targetRepository: {}", artifact.getTargetRepository());
-        logger.debug("Pre-fetched targetRepository.repositoryType: {}", artifact.getTargetRepository().getRepositoryType());
-        return mapper.toDTO(artifact);
+        return super.store(restEntity);
     }
 
     @Override
