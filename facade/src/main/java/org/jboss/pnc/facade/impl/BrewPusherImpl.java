@@ -120,7 +120,7 @@ public class BrewPusherImpl implements BrewPusher {
 
         log.info("Push Results {}.", pushed.stream().map(r -> r.getId()).collect(Collectors.joining(",")));
 
-        Set<BuildPushResult> pushedResponse = pushed.stream()
+        List<BuildPushResult> pushedResponse = pushed.stream()
                 .map(r -> BuildPushResult.builder()
                         .id(Integer.parseInt(r.getId()))
                         .buildId(buildId)
