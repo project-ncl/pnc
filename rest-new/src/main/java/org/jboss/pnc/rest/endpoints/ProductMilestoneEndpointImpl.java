@@ -23,15 +23,18 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.core.Context;
 
 @Stateless
@@ -77,19 +80,13 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public Page<Build> getPerformedBuilds(int id, PageParameters pageParameters) {
-
-        return buildProvider.getPerformedBuildsForMilestone(
-                pageParameters.getPageIndex(),
-                pageParameters.getPageSize(),
-                pageParameters.getSort(),
-                pageParameters.getQ(),
-                id);
+    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
+        return buildProvider.getBuildsForMilestone(pageInfo, id);
     }
 
     @Override
     public void closeMilestone(int id, ProductMilestone productMilestone) {
-
         if (httpServletRequest != null) {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
             productMilestoneProvider.closeMilestone(id, productMilestone, loginInUser.getTokenString());

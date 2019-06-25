@@ -29,6 +29,7 @@ import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -111,14 +112,9 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters pageParams, BuildsFilterParameters buildsFilter) {
-        // TODO: handle buildsFilter
-        return buildProvider.getBuildsForBuildConfiguration(
-                pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                pageParams.getSort(),
-                pageParams.getQ(),
-                id);
+    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
+        return buildProvider.getBuildsForBuildConfiguration(pageInfo, id);
     }
 
     @Override
@@ -128,7 +124,6 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public Page<GroupConfiguration> getGroupConfigs(int id, PageParameters pageParams) {
-
         return groupConfigurationProvider.getGroupConfigurationsForBuildConfiguration(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),
@@ -139,7 +134,6 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public Page<BuildConfiguration> getDependencies(int id, PageParameters pageParams) {
-
         return buildConfigurationProvider.getDependencies(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),

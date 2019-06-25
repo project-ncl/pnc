@@ -23,11 +23,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 
@@ -77,6 +79,7 @@ public interface UserEndpoint{
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = "ID of the user") @PathParam("id") int id,
-            @BeanParam PageParameters pageParameters);
+            @BeanParam PageParameters pageParameters,
+            @BeanParam BuildsFilterParameters buildsFilter);
 
 }
