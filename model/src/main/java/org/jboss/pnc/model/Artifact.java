@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.jboss.pnc.enums.ArtifactQuality;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -110,7 +111,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     private TargetRepository targetRepository;
 
     @Size(max=255)
