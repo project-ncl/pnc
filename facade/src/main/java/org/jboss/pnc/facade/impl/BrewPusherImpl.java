@@ -129,7 +129,7 @@ public class BrewPusherImpl implements BrewPusher {
                         .build())
                 .collect(Collectors.toSet());
 
-        return pushedResponse.toArray(new BuildPushResult[pushedResponse.size()])[0];
+        return pushedResponse.get(0);
     }
 
     public boolean brewPushCancel(int buildId) {
