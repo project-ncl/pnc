@@ -52,29 +52,15 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
 
     SSHCredentials getSshCredentials(Integer id);
 
-    Page<Build> getPerformedBuildsForMilestone(int pageIndex,
-                                               int pageSize,
-                                               String sortingRsql,
-                                               String query,
-                                               Integer milestoneId);
+    Page<Build> getBuilds(BuildPageInfo pageInfo);
 
-    Page<Build> getBuildsForProject(int pageIndex,
-                                    int pageSize,
-                                    String sortingRsql,
-                                    String query,
-                                    Integer projectId);
+    Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, int milestoneId);
 
-    Page<Build> getBuildsForBuildConfiguration(int pageIndex,
-                                               int pageSize,
-                                               String sortingRsql,
-                                               String query,
-                                               Integer buildConfigurationId);
+    Page<Build> getBuildsForProject(BuildPageInfo pageInfo, int projectId);
 
-    Page<Build> getBuildsForUser(int pageIndex,
-                                 int pageSize,
-                                 String sortingRsql,
-                                 String query,
-                                 Integer userId);
+    Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, int buildConfigurationId);
+
+    Page<Build> getBuildsForUser(BuildPageInfo pageInfo, int userId);
 
     Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId);
 
