@@ -19,6 +19,8 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
@@ -48,6 +50,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -56,11 +59,29 @@ import java.util.stream.Collectors;
 import org.jboss.pnc.constants.Attributes;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import org.jboss.pnc.facade.util.MergeIterator;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+
+import static java.lang.Math.min;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.TreeSet;
+import java.util.stream.StreamSupport;
 
 @PermitAll
 @Stateless
@@ -75,6 +96,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     private BuildMapper buildMapper;
 
     private BuildCoordinator buildCoordinator;
+    private SortInfoProducer sortInfoProducer;
 
     @Inject
     public BuildProviderImpl(BuildRecordRepository repository,
@@ -83,7 +105,8 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                              BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
                              Gerrit gerrit,
                              BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
-                             BuildCoordinator buildCoordinator) {
+                             BuildCoordinator buildCoordinator,
+                             SortInfoProducer sortInfoProducer) {
         super(repository, mapper, BuildRecord.class);
 
         this.buildRecordRepository = repository;
@@ -93,6 +116,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
+        this.sortInfoProducer = sortInfoProducer;
     }
 
     @RolesAllowed(SYSTEM_USER)
@@ -181,22 +205,25 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public Page<Build> getPerformedBuildsForMilestone(int pageIndex,
-                                                      int pageSize,
-                                                      String sortingRsql,
-                                                      String query,
-                                                      Integer milestoneId) {
-
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withPerformedInMilestone(milestoneId));
+    public Page<Build> getAll(int pageIndex, int pageSize, String sort, String query) {
+        BuildPageInfo pageInfo = new BuildPageInfo(pageIndex, pageSize, sort, query, false, false);
+        return getBuilds(pageInfo);
     }
 
     @Override
-    public Page<Build> getBuildsForProject(int pageIndex,
-                                           int pageSize,
-                                           String sortingRsql,
-                                           String query,
-                                           Integer projectId) {
+    public Page<Build> getBuilds(BuildPageInfo pageInfo) {
+        return getBuildList(pageInfo,  _t -> true, (_r, _q, cb) -> cb.conjunction());
+    }
 
+    @Override
+    public Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, int milestoneId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getProductMilestone().getId() == milestoneId;
+        return getBuildList(pageInfo, predicate, withPerformedInMilestone(milestoneId));
+    }
+
+    @Override
+    public Page<Build> getBuildsForProject(BuildPageInfo pageInfo,
+                                           int projectId) {
         @SuppressWarnings("unchecked")
         Set<Integer> buildConfigIds = buildConfigurationRepository
                 .queryWithPredicates(withProjectId(projectId))
@@ -204,32 +231,26 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                 .map(BuildConfiguration::getId)
                 .collect(Collectors.toSet());
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationIds(buildConfigIds));
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigurationAudited().getProject().getId() == projectId;
+        return getBuildList(pageInfo, predicate, withBuildConfigurationIds(buildConfigIds));
     }
 
     @Override
-    public Page<Build> getBuildsForBuildConfiguration(int pageIndex,
-                                                      int pageSize,
-                                                      String sortingRsql,
-                                                      String query,
-                                                      Integer buildConfigurationId) {
-
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
+    public Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, int buildConfigurationId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigurationAudited().getId() == buildConfigurationId;
+        return getBuildList(pageInfo, predicate, withBuildConfigurationId(buildConfigurationId));
     }
 
     @Override
-    public Page<Build> getBuildsForUser(int pageIndex,
-                                        int pageSize,
-                                        String sortingRsql,
-                                        String query,
-                                        Integer userId) {
-
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withUserId(userId));
+    public Page<Build> getBuildsForUser(BuildPageInfo pageInfo, int userId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getUser().getId() == userId;
+        return getBuildList(pageInfo, predicate, withUserId(userId));
     }
 
     @Override
     public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> gc.getId() == groupConfigurationId).orElse(false);
+        return getBuildList(pageInfo, predicate, withBuildConfigSetId(groupConfigurationId));
     }
 
     @Override
@@ -329,5 +350,193 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                 .collect(Collectors.toSet());
         buildRecord.setDependencies(artifacts);
         repository.save(buildRecord);
+    }
+
+    /**
+     * Returns the page of builds filtered by given BuildPageInfo parameters and predicate.
+     */
+    private Page<Build> getBuildList(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate, Predicate<BuildRecord> dbPredicate) {
+        if (pageInfo.isRunning()) {
+            if (pageInfo.isLatest()) {
+                return getLatestRunningBuild(predicate);
+            } else {
+                return getRunningBuilds(pageInfo, predicate);
+            }
+        } else {
+            if (pageInfo.isLatest()) {
+                return getLatestBuild(predicate, dbPredicate);
+            } else {
+                return getBuilds(pageInfo, predicate, dbPredicate);
+            }
+        }
+    }
+
+    /**
+     * Returns the page of Latest Running build filtered by given predicate.
+     */
+    private Page<Build> getLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate) {
+        List<Build> build = readLatestRunningBuild(predicate)
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
+        return new Page<>(0, 1, build.size(), build.size(), build);
+    }
+
+    /**
+     * Returns the page of Running builds filtered by given BuildPageInfo and predicate.
+     */
+    private Page<Build> getRunningBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate) {
+        List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
+
+        List<Build> builds = runningBuilds.stream()
+                .skip(pageInfo.getPageIndex() * pageInfo.getPageSize())
+                .limit(pageInfo.getPageSize())
+                .collect(Collectors.toList());
+        return new Page<>(
+                pageInfo.getPageIndex(),
+                pageInfo.getPageSize(),
+                (int) Math.ceil((double) runningBuilds.size() / pageInfo.getPageSize()),
+                runningBuilds.size(),
+                builds);
+    }
+
+    /**
+     * Returns the page of Latest build (running or finished) filtered by given predicate.
+     */
+    private Page<Build> getLatestBuild(java.util.function.Predicate<BuildTask> predicate, Predicate<BuildRecord> dbPredicate) {
+        TreeSet<Build> sorted = new TreeSet<>(Comparator.comparing(Build::getSubmitTime).reversed());
+        readLatestRunningBuild(predicate).ifPresent(sorted::add);
+        readLatestFinishedBuild(dbPredicate).ifPresent(sorted::add);
+        if(sorted.size() > 1){
+            sorted.pollLast();
+        }
+
+        return new Page<>(0, 1, sorted.size(), sorted.size(), sorted);
+    }
+
+    /**
+     * Returns the page of builds (running or finished) filtered by given BuildPageInfo and
+     * predicate.
+     */
+    private Page<Build> getBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate, Predicate<BuildRecord> dbPredicate) {
+        List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
+
+        int firstPossibleDBIndex = pageInfo.getPageIndex() * pageInfo.getPageSize() - runningBuilds.size();
+        int lastPossibleDBIndex = (pageInfo.getPageIndex() + 1) * pageInfo.getPageSize() - 1;
+        int toSkip = min(runningBuilds.size(), pageInfo.getPageIndex() * pageInfo.getPageSize());
+
+        Comparator<Build> comparing = Comparator.comparing(Build::getSubmitTime).reversed();
+        if (!StringUtils.isEmpty(pageInfo.getSort())) {
+            comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
+        }
+
+        SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
+        MergeIterator<Build> builds = new MergeIterator(
+                runningBuilds.iterator(),
+                new BuildIterator(firstPossibleDBIndex, lastPossibleDBIndex, pageInfo.getPageSize(), dbPredicate, sortInfo),
+                comparing
+        );
+        List<Build> resultList = StreamSupport.stream(Spliterators.spliteratorUnknownSize(builds, Spliterator.ORDERED | Spliterator.SORTED), false)
+                .skip(toSkip)
+                .limit(pageInfo.getPageSize())
+                .collect(Collectors.toList());
+
+        int hits = repository.count(dbPredicate) + runningBuilds.size();
+
+        return new Page<>(
+                pageInfo.getPageIndex(),
+                pageInfo.getPageSize(),
+                (int) Math.ceil((double) hits / pageInfo.getPageSize()),
+                hits,
+                resultList);
+    }
+
+    private List<Build> readRunningBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate) {
+        java.util.function.Predicate<Build> streamPredicate = (f) -> true;
+        if (!StringUtils.isEmpty(pageInfo.getQ())) {
+            streamPredicate = rsqlPredicateProducer.getStreamPredicate(pageInfo.getQ());
+        }
+        Comparator<Build> comparing = Comparator.comparing(Build::getSubmitTime).reversed();
+        if (!StringUtils.isEmpty(pageInfo.getSort())) {
+            comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
+        }
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .filter(t -> t != null)
+                .filter(predicate)
+                .map(buildMapper::fromBuildTask)
+                .filter(streamPredicate)
+                .sorted(comparing)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate) {
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .filter(t -> t != null)
+                .filter(predicate)
+                .sorted(Comparator.comparing(BuildTask::getSubmitTime).reversed())
+                .findFirst()
+                .map(buildMapper::fromBuildTask);
+    }
+
+    private Optional<Build> readLatestFinishedBuild(Predicate<BuildRecord> predicate) {
+        PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
+        SortInfo sortInfo = this.sortInfoProducer.getSortInfo(SortInfo.SortingDirection.DESC, "submitTime");
+        List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, predicate);
+
+        return buildRecords.stream().map(mapper::toDTO).findFirst();
+    }
+
+    class BuildIterator implements Iterator<Build> {
+
+        private List<BuildRecord> builds;
+        private Iterator<BuildRecord> it;
+        private final int maxPageSize;
+        private int firstIndex;
+        private final int lastIndex;
+        private final SortInfo sortInfo;
+        private final Predicate<BuildRecord> predicate;
+
+        public BuildIterator(int firstIndex, int lastIndex, int pageSize, Predicate<BuildRecord> predicate, SortInfo sortInfo) {
+            this.maxPageSize = pageSize > 10 ? pageSize : 10;
+            this.firstIndex = firstIndex > 0 ? firstIndex : 0;
+            this.lastIndex = lastIndex;
+            this.predicate = predicate;
+            this.sortInfo = sortInfo;
+            nextPage();
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (it.hasNext()) {
+                return true;
+            }
+            if (firstIndex > lastIndex) {
+                return false;
+            }
+            nextPage();
+            return it.hasNext();
+        }
+
+        @Override
+        public Build next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return mapper.toDTO(it.next());
+        }
+
+        private void nextPage() {
+            int size = lastIndex - firstIndex + 1;
+            if (size > maxPageSize) {
+                size = maxPageSize;
+            }
+            PageInfo pageInfo = new DefaultPageInfo(firstIndex, size);
+            builds = ((BuildRecordRepository) BuildProviderImpl.this.repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicate);
+            it = builds.iterator();
+            if (builds.size() < size) {
+                firstIndex = lastIndex + 1;
+            } else {
+                firstIndex += size;
+            }
+        }
     }
 }
