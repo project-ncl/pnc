@@ -1467,6 +1467,7 @@
           </properties>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.DebugTest</excludedGroups>
+          <trimStackTrace>false</trimStackTrace>
         </configuration>
         <executions>
           <execution>
