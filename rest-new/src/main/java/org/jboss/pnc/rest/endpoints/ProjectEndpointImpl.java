@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProjectProvider;
 import org.jboss.pnc.rest.api.endpoints.ProjectEndpoint;
@@ -84,7 +85,6 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
 
     @Override
     public Page<BuildConfiguration> getBuildConfigurations(int id, PageParameters pageParameters) {
-
         return buildConfigurationProvider.getBuildConfigurationsForProject(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
@@ -94,16 +94,8 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters pageParams, BuildsFilterParameters buildsFilter) {
-
-        // TODO: handle buildsFilter
-
-        return buildProvider.getBuildsForProject(
-                pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                pageParams.getSort(),
-                pageParams.getQ(),
-                id);
-
+    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
+        return buildProvider.getBuildsForProject(pageInfo, id);
     }
 }

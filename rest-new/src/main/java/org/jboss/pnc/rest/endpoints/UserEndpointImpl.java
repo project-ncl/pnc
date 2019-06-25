@@ -22,9 +22,11 @@ import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.UserProvider;
 import org.jboss.pnc.rest.api.endpoints.UserEndpoint;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.ejb.Stateless;
@@ -49,19 +51,13 @@ public class UserEndpointImpl implements UserEndpoint {
 
     @Override
     public User getCurrentUser() {
-
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         return userProvider.getOrCreateNewUser(loginInUser.getUserName());
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters pageParameters) {
-
-        return buildProvider.getBuildsForUser(
-                pageParameters.getPageIndex(),
-                pageParameters.getPageSize(),
-                pageParameters.getSort(),
-                pageParameters.getQ(),
-                id);
+    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+        BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
+        return buildProvider.getBuildsForUser(pageInfo, id);
     }
 }
