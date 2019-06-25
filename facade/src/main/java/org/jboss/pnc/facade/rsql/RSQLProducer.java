@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade.rsql;
 
+import java.util.Comparator;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
@@ -41,14 +43,14 @@ public interface RSQLProducer {
     /**
      * Creates a predicate from RSQL query for stream search. The predicate can throw a runtime
      * exception when used if the query is bad.
-     * @param <DB> Type of the entity.
+     * @param <DTO> Type of the entity.
      * @param rsql The query RSQL.
      * @return Predicate representing the RSQL query.
      */
-    <DB> java.util.function.Predicate<DB> getStreamPredicate(String rsql);
+    <DTO> java.util.function.Predicate<DTO> getStreamPredicate(String rsql);
 
     /**
-     * Gets sort info based RSQL query.
+     * Gets sort info based on RSQL query.
      *
      * @param <DB> Type of the entity.
      * @param type Entity type.
@@ -56,4 +58,13 @@ public interface RSQLProducer {
      * @return Sort Info object.
      */
     <DB extends GenericEntity<Integer>> SortInfo getSortInfo(Class<DB> type, String rsql);
+
+    /**
+     * Gets comparator based on RSQL query.
+     *
+     * @param <DTO> Type of the entity.
+     * @param rsql query for sorting, e.g. <code>"=asc=id"</code>.
+     * @return Comparator baset of the RSQL query.
+     */
+    <DTO> Comparator<DTO> getComparator(String rsql);
 }

@@ -43,6 +43,7 @@ import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
+import java.util.Comparator;
 
 /**
  *
@@ -143,6 +144,11 @@ public class RSQLProducerImpl implements RSQLProducer {
 
             return rootNode.accept(visitor);
         };
+    }
+
+    @Override
+    public <DTO> Comparator<DTO> getComparator(String rsql) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
