@@ -127,7 +127,7 @@ public class BrewPusherImpl implements BrewPusher {
                         .status(r.getStatus())
                         .log(r.getMessage())
                         .build())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         return pushedResponse.get(0);
     }
