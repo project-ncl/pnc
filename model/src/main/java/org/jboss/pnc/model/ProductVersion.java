@@ -49,6 +49,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.jboss.pnc.constants.Attributes.ATTRIBUTE_KEY_BREW_TAG_PREFIX;
+
 /**
  * Class that contains all the versions for a Product
  *
@@ -63,8 +65,6 @@ public class ProductVersion implements GenericEntity<Integer> {
     private static final long serialVersionUID = 6314079319551264379L;
 
     public static final String SEQUENCE_NAME = "product_version_id_seq";
-    
-    public static final String ATTRIBUTE_KEY_BREW_TAG_PREFIX = "BREW_TAG_PREFIX";
 
     @Id
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1, initialValue = 100)
