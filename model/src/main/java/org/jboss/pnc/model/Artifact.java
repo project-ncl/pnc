@@ -117,7 +117,7 @@ public class Artifact implements GenericEntity<Integer> {
     private String filename;
 
     /**
-     * Repository URL where the artifact file is available.
+     * Path to repository where the artifact file is available.
      */
     @Size(max=500)
     @Column(length=500)
