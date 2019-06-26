@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.enums.RepositoryType;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -28,7 +29,6 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.RollbackException;
 
 import java.time.Instant;
 import java.util.Date;
@@ -293,7 +293,7 @@ public class BasicModelTest extends AbstractModelTest {
         tx.commit();
 
         ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
-        Assert.assertEquals("tp1-" + version + "-pnc", productVersionLoaded.getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
+        Assert.assertEquals("tp1-" + version + "-pnc", productVersionLoaded.getAttributes().get(Attributes.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
 
 
     }

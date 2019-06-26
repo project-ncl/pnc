@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.ProductMilestoneRestClient;
 import org.jboss.pnc.integration.client.ProductRestClient;
@@ -26,7 +27,6 @@ import org.jboss.pnc.integration.client.ProductVersionRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.restmodel.ProductRest;
@@ -221,7 +221,7 @@ public class ProductVersionRestTest {
         //then
         assertTrue(clientResponse.hasValue());
         assertEquals(product.getAbbreviation().toLowerCase() + "-98.0" + "-pnc",
-                clientResponse.getValue().getAttributes().get(ProductVersion.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
+                clientResponse.getValue().getAttributes().get(Attributes.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
     }
 
     @Test

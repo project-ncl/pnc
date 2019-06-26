@@ -53,5 +53,5 @@ public class Patterns {
      * the repository URL.
      */
     public static final String INTERNAL_REPOSITORY_NAME = "(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$";
-    
+
 }
