@@ -26,6 +26,3 @@ insert into TargetRepository (temporaryRepo, identifier, repositoryPath, reposit
 insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (true, 'indy-npm', '/api/content/npm/group/temporary-builds', 'NPM');
 insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/hosted/shared-imports', 'NPM');
 
--- add buildtype field and set it to MVN by default
-alter table BuildConfiguration add column buildtype varchar(255);
-update BuildConfiguration set buildtype = 'MVN';
