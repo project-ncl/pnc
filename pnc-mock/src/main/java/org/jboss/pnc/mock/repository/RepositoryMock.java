@@ -102,6 +102,10 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
         data.removeIf(e -> id.equals(e.getId()));
     }
 
+    @Override
+    public void flushAndRefresh(EntityType entity) {
+    }
+
     public void clear() {
         data.clear();
     }

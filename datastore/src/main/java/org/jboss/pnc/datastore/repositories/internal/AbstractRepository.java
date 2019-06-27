@@ -25,14 +25,21 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
 public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializable> implements Repository<T, ID> {
 
+    @Inject
+    protected EntityManager entityManager;
+
     protected JpaRepository<T, ID> springRepository;
+    
     protected JpaSpecificationExecutor<T> springSpecificationsExecutor;
+
 
     public AbstractRepository() {
     }
@@ -51,6 +58,13 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
     public void delete(ID id) {
         springRepository.delete(id);
     }
+
+    @Override
+    public void flushAndRefresh(T entity) {
+                springRepository.flush();
+                entityManager.refresh(entity);
+           }
+
 
     @Override
     public List<T> queryAll() {
