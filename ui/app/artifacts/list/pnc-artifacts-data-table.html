@@ -18,9 +18,9 @@
 
 -->
 <div class="row">
-  <pf-toolbar class="hide-result-count" config="$ctrl.toolbarConfig"></pf-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.artifactsFilteringPage" filtering-fields="$ctrl.artifactsFilteringFields"></pnc-toolbar>
 </div>
 <div>
-  <pnc-artifacts-list artifacts="$ctrl.paginator.data"></pnc-artifacts-list>
-  <pnc-page-controls pnc-page="$ctrl.paginator" class="pull-right"></pnc-page-controls>
+  <pnc-artifacts-list artifacts="$ctrl.artifactsFilteringPage.data"></pnc-artifacts-list>
+  <pnc-page-controls pnc-page="$ctrl.artifactsFilteringPage" class="pull-right"></pnc-page-controls>
 </div>

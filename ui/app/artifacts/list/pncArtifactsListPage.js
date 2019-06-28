@@ -21,7 +21,10 @@
 
   angular.module('pnc.artifacts').component('pncArtifactsListPage', {
     bindings: {
-     artifacts: '<',
+      /**
+       * Promise: resolved Artifact Page Promise.
+       */
+      artifacts: '<',
     },
     templateUrl: 'artifacts/list/pnc-artifacts-list-page.html',
     controller: [Controller]
@@ -37,7 +40,7 @@
     // --------------------
 
 
-    $ctrl.$onInit = function () {
+    $ctrl.$onInit = () => {
     };
 
   }
