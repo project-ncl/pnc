@@ -24,7 +24,6 @@ import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -72,7 +71,7 @@ public class CancelledBuildTest extends ProjectBuilder {
 
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
+            if (event.getNewStatus().equals(BuildStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
@@ -101,9 +100,8 @@ public class CancelledBuildTest extends ProjectBuilder {
         Assert.assertEquals(BuildStatus.CANCELLED, buildRecord.getStatus());
 
         Integer buildTaskId = buildTask.getId();
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.CANCELLED, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
     }
 
     @Test (timeout = 5_000)
@@ -117,7 +115,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         List<BuildStatusChangedEvent> receivedStatuses = new ArrayList<>();
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getBuild().getBuildConfigurationRevision().getId().equals(2) && event.getNewStatus().equals(BuildCoordinationStatus.BUILDING)) {
+            if (event.getBuild().getBuildConfigurationRevision().getId().equals(2) && event.getNewStatus().equals(BuildStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
@@ -132,7 +130,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         };
 
         //when
-        BuildSetTask buildSetTask = buildProjects(configurationSet,coordinator,onStatusUpdate,2);
+        BuildSetTask buildSetTask = buildProjects(configurationSet,coordinator,onStatusUpdate,1);
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
@@ -165,22 +163,17 @@ public class CancelledBuildTest extends ProjectBuilder {
             switch (buildTask.getBuildConfigurationAudited().getId()) {
                 case 1:
                     //Building status is skipped (cancelled before it can start building)
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.CANCELLED, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
                     break;
                 case 2:
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.ENQUEUED, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.CANCELLED, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
                     break;
                 case 3:
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.ENQUEUED, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-                    assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.SUCCESS, buildTaskId);
                     break;
                 default:
                     break;
