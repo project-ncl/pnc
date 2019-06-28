@@ -553,9 +553,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         if (BuildStatus.fromBuildCoordinationStatus(oldStatus) != BuildStatus.fromBuildCoordinationStatus(status)) {
             // only fire notification when BuildStatus changes
             buildStatusChangedEventNotifier.fire(buildStatusChanged);
+            log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
         }
-
-        log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
 
     private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status) {
@@ -681,8 +680,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
         int buildTaskId = buildTask.getId();
 
-        updateBuildTaskStatus(buildTask, BuildCoordinationStatus.BUILD_COMPLETED);
-
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
             if (buildResult.hasFailed()) {
@@ -742,11 +739,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
                 }
             }
+
+            updateBuildTaskStatus(buildTask, coordinationStatus);
+
         } catch (Throwable e ) {
             log.error("[buildTaskId: "+buildTaskId+"] Cannot store results to datastore.", e);
-            coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
-        } finally {
-            updateBuildTaskStatus(buildTask, coordinationStatus);
+            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.SYSTEM_ERROR);
         }
     }
 

@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
@@ -68,8 +69,8 @@ public class ProjectBuilder {
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
 
     private static final int BUILD_SET_STATUS_UPDATES = 2;
-    public static final int N_STATUS_UPDATES_PER_TASK = 4;
-    public static final int N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES = 5; // additional WAITING_FOR_DEPENDENCIES
+    public static final int N_STATUS_UPDATES_PER_TASK = 2;
+    public static final int N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES = 3; // additional WAITING_FOR_DEPENDENCIES
     public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 2; //only REJECTED_FAILED_DEPENDENCIES and WAITING_FOR_DEPENDENCIES
 
     @Inject
@@ -288,22 +289,20 @@ public class ProjectBuilder {
     }
 
     private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.SUCCESS, buildTaskId);
     }
 
     private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE_WITH_ERRORS, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.FAILED, buildTaskId);
     }
 
     private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.REJECTED, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REJECTED, buildTaskId);
     }
 
-    void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildCoordinationStatus status, Integer buildTaskId) {
+    void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer buildTaskId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
             if (receivedStatusEvent.getBuild().getId().equals(buildTaskId) &&

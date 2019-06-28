@@ -130,7 +130,7 @@ public class BuildExecutorMock implements BuildExecutor {
             } catch (InterruptedException e) {
                 log.warn("Build mock has been interrupted.", e);
             }
-            driverResult = BuildDriverResultMock.mockResult(BuildStatus.SUCCESS);
+            driverResult = BuildDriverResultMock.mockResult(BuildStatus.CANCELLED);
             buildPassed = false;
         } else {
             log.debug("Marking build {} as Success.", buildExecutionSession.getId());
