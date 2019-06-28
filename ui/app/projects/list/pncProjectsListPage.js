@@ -21,7 +21,7 @@
   angular.module('pnc.projects').component('pncProjectsListPage', {
     bindings: {
       /**
-       * array of Projects: The list of Projects to display.
+       * Promise: resolved Projects Page Promise.
        */
       projects: '<'
     },
@@ -33,7 +33,7 @@
     const $ctrl = this;
 
     // -- Controller API --
-    $ctrl.filteringFields = [{
+    $ctrl.projectsFilteringFields = [{
       id: 'name',
       title: 'Name',
       placeholder: 'Filter by Name',
@@ -48,7 +48,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      $ctrl.filteringPage = filteringPaginator($ctrl.projects);
+      $ctrl.projectsFilteringPage = filteringPaginator($ctrl.projects);
     };
 
   }

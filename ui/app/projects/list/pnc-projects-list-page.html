@@ -27,9 +27,9 @@
 </pnc-header>
 
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.filteringPage" filtering-fields="$ctrl.filteringFields"></pnc-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.projectsFilteringPage" filtering-fields="$ctrl.projectsFilteringFields"></pnc-toolbar>
 </div>
 <div>
-  <pnc-projects-list projects="$ctrl.filteringPage.data"></pnc-projects-list>
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.filteringPage" ng-if="$ctrl.filteringPage"></pnc-page-controls>
+  <pnc-projects-list projects="$ctrl.projectsFilteringPage.data"></pnc-projects-list>
+  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.projectsFilteringPage" ng-if="$ctrl.projectsFilteringPage"></pnc-page-controls>
 </div>

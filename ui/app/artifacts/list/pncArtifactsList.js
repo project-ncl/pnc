@@ -21,7 +21,10 @@
 
   angular.module('pnc.artifacts').component('pncArtifactsList', {
     bindings: {
-     artifacts: '<',
+      /**
+       * Array: The list of Artifacts to display.
+       */
+      artifacts: '<',
     },
     templateUrl: 'artifacts/list/pnc-artifacts-list.html',
     controller: [Controller]
