@@ -124,18 +124,20 @@ public class BuildConfigurationProviderImpl
         super.validateBeforeUpdating(id, buildConfigurationRest);
 
         validateIfItsNotConflicted(buildConfigurationRest);
-        validateDependencies(id, buildConfigurationRest.getDependencyIds());
+        validateDependencies(id, buildConfigurationRest.getDependencies());
     }
 
-    private void validateDependencies(int buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
+    private void validateDependencies(int buildConfigId, Set<BuildConfigurationRef> dependencies) throws InvalidEntityException {
 
-        if (dependenciesIds == null || dependenciesIds.isEmpty()) {
+        if (dependencies == null || dependencies.isEmpty()) {
             return;
         }
 
         org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(buildConfigId);
 
-        for (Integer dependencyId : dependenciesIds) {
+        for (BuildConfigurationRef buildConfigurationRef : dependencies) {
+
+            Integer dependencyId = buildConfigurationRef.getId();
 
             ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
                     !buildConfig.getId().equals(dependencyId),
@@ -176,7 +178,7 @@ public class BuildConfigurationProviderImpl
     public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
         super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
         validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
-        validateDependencies(id, buildConfiguration.getDependencyIds());
+        validateDependencies(id, buildConfiguration.getDependencies());
         BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(id);
         if (latestRevision == null) {
             throw new RepositoryViolationException("Entity should exist in the DB");
