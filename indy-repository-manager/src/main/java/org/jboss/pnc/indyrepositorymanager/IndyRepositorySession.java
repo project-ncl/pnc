@@ -381,7 +381,7 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     private String getGenericTargetRepositoryPath(StoreKey source) {
-        return "/api/content/generic-http/" + getGenericHostedRepoName(source.getName());
+        return "/api/content/generic-http/hosted/" + getGenericHostedRepoName(source.getName());
     }
 
     private TargetRepository getUploadsTargetRepository(RepositoryType repoType,
