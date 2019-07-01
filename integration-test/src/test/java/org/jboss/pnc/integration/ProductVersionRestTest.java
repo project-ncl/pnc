@@ -221,7 +221,7 @@ public class ProductVersionRestTest {
         //then
         assertTrue(clientResponse.hasValue());
         assertEquals(product.getAbbreviation().toLowerCase() + "-98.0" + "-pnc",
-                clientResponse.getValue().getAttributes().get(Attributes.ATTRIBUTE_KEY_BREW_TAG_PREFIX));
+                clientResponse.getValue().getAttributes().get(Attributes.BREW_TAG_PREFIX));
     }
 
     @Test

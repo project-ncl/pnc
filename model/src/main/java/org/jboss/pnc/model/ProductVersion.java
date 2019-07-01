@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.jboss.pnc.constants.Attributes.ATTRIBUTE_KEY_BREW_TAG_PREFIX;
+import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
 
 /**
  * Class that contains all the versions for a Product
@@ -217,7 +217,7 @@ public class ProductVersion implements GenericEntity<Integer> {
         properties.put("product_version", version);
         String replaced = StringPropertyReplacer.replaceProperties(tagPattern, properties);
 
-        this.attributes.put(ATTRIBUTE_KEY_BREW_TAG_PREFIX, replaced);
+        this.attributes.put(BREW_TAG_PREFIX, replaced);
     }
 
     @Override
@@ -341,7 +341,7 @@ public class ProductVersion implements GenericEntity<Integer> {
             properties.put("product_version", version);
             String replaced = StringPropertyReplacer.replaceProperties(tagPattern, properties);
 
-            this.attributes.put(ATTRIBUTE_KEY_BREW_TAG_PREFIX, replaced);
+            this.attributes.put(BREW_TAG_PREFIX, replaced);
             return this;
         }
     }
