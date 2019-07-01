@@ -83,7 +83,7 @@
       if (utils.isEmpty(url)) {
         return $q.when();
       }
-      return RepositoryConfiguration.match({ 'search-url': url }).$promise.then(function (result) {
+      return RepositoryConfiguration.match({ 'search': url }).$promise.then(function (result) {
         var repos = result.data;
 
         if (repos.length === 1) {
