@@ -44,6 +44,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.List;
@@ -53,8 +54,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import static org.jboss.pnc.model.TargetRepository.Type.MAVEN;
+
 import static org.jboss.pnc.model.TargetRepository.Type.GENERIC_PROXY;
+import static org.jboss.pnc.model.TargetRepository.Type.MAVEN;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
