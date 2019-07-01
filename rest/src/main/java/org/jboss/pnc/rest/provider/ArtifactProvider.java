@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.apache.commons.lang.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.UrlUtils;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
@@ -51,8 +52,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.enums.RepositoryType.GENERIC_PROXY;
+import static org.jboss.pnc.enums.RepositoryType.MAVEN;
+import static org.jboss.pnc.enums.RepositoryType.NPM;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
@@ -132,12 +135,12 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         RepositoryType repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)) {
+        if (repositoryType.equals(MAVEN) || repositoryType.equals(NPM)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
                 try {
-                    if (repositoryType.equals(RepositoryType.MAVEN)) {
+                    if (repositoryType.equals(MAVEN)) {
                         return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
@@ -158,28 +161,36 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         RepositoryType repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)) {
-            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
-                return "";
+        String repositoryPath = artifact.getTargetRepository().getRepositoryPath();
+        String result;
+        if ((repositoryType == MAVEN) || (repositoryType == NPM) || ((repositoryType == GENERIC_PROXY)
+                && !(StringUtils.isEmpty(repositoryPath) || "/not-available/".equals(repositoryPath)))) {
+            if (StringUtils.isEmpty(artifact.getDeployPath())) {
+                result = "";
             } else {
                 try {
-                    if (repositoryType.equals(RepositoryType.MAVEN)) {
-                        return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
+                    if ((repositoryType == MAVEN) || (repositoryType == GENERIC_PROXY)) {
+                        result = UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
+                                artifact.getTargetRepository().getRepositoryPath(),
+                                artifact.getDeployPath());
+                    } else if (repositoryType == NPM) {
+                        result = UrlUtils.buildUrl(moduleConfig.getExternalRepositoryNpmPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
                     } else {
-                        return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryNpmPath(),
-                                artifact.getTargetRepository().getRepositoryPath(),
-                                artifact.getDeployPath());
+                        logger.error("Unknown repository type {}. Cannot construct public artifact URL.",
+                                repositoryType);
+                        result = null;
                     }
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct public artifact URL.", e);
-                    return null;
+                    result = null;
                 }
             }
         } else {
-            return artifact.getOriginUrl();
+            result = artifact.getOriginUrl();
         }
+        return result;
     }
 
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,

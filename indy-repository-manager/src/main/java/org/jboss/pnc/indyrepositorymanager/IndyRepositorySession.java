@@ -262,14 +262,7 @@ public class IndyRepositorySession implements RepositorySession {
 
                         case GENERIC_PKG_KEY:
                             String remoteName = source.getName();
-                            String hostedName;
-                            if (remoteName.startsWith("r-")) {
-                                hostedName = "h-" + remoteName.substring(2);
-                            } else {
-                                logger.warn("Unexpected generic http remote repo name {}. Using it for hosted repo "
-                                        + "without change, but it probably doesn't exist.", remoteName);
-                                hostedName = remoteName;
-                            }
+                            String hostedName = getGenericHostedRepoName(remoteName);
                             target = new StoreKey(source.getPackageType(), StoreType.hosted, hostedName);
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
@@ -336,14 +329,14 @@ public class IndyRepositorySession implements RepositorySession {
     private TargetRepository getDownloadsTargetRepository(TrackedContentEntryDTO download, IndyContentClientModule content) throws RepositoryManagerException {
         String identifier;
         String repoPath;
-        StoreKey sk = download.getStoreKey();
-        RepositoryType repoType = toRepoType(sk.getPackageType());
+        StoreKey source = download.getStoreKey();
+        RepositoryType repoType = toRepoType(source.getPackageType());
         if (repoType == RepositoryType.MAVEN || repoType == RepositoryType.NPM) {
                 identifier = "indy-" + repoType.name().toLowerCase();
                 repoPath = getTargetRepositoryPath(download, content);
         } else if (repoType == RepositoryType.GENERIC_PROXY) {
-                identifier = "indy-http:" + sk.getName();
-                repoPath = "/not-available/"; //TODO set the path for http cache
+                identifier = "indy-http";
+                repoPath = getGenericTargetRepositoryPath(source);
         } else {
             throw new RepositoryManagerException("Repository type " + repoType
                     + " is not supported by Indy repo manager driver.");
@@ -367,6 +360,28 @@ public class IndyRepositorySession implements RepositorySession {
             result = "/api/" + content.contentPath(sk);
         }
         return result;
+    }
+
+    /**
+     * For a remote generic http repo computes matching hosted repo name.
+     *
+     * @param remoteName the remote repo name
+     * @return computed hosted repo name
+     */
+    private String getGenericHostedRepoName(String remoteName) {
+        String hostedName;
+        if (remoteName.startsWith("r-")) {
+            hostedName = "h-" + remoteName.substring(2);
+        } else {
+            logger.warn("Unexpected generic http remote repo name {}. Using it for hosted repo "
+                    + "without change, but it probably doesn't exist.", remoteName);
+            hostedName = remoteName;
+        }
+        return hostedName;
+    }
+
+    private String getGenericTargetRepositoryPath(StoreKey source) {
+        return "/api/content/generic-http/" + getGenericHostedRepoName(source.getName());
     }
 
     private TargetRepository getUploadsTargetRepository(RepositoryType repoType,
