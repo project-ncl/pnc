@@ -346,7 +346,7 @@ public class MavenRepositorySession implements RepositorySession {
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
             StoreKey source = download.getStoreKey();
             targetRepository = TargetRepository.newBuilder()
-                    .identifier("indy-http:" + source.getName())
+                    .identifier("indy-http")
                     .repositoryType(repoType)
                     .repositoryPath(getGenericTargetRepositoryPath(source))
                     .temporaryRepo(false)
