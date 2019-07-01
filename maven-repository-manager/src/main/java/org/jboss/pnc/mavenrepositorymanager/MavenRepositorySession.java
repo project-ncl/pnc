@@ -264,14 +264,7 @@ public class MavenRepositorySession implements RepositorySession {
 
                         case GENERIC_PROXY:
                             String remoteName = source.getName();
-                            String hostedName;
-                            if (remoteName.startsWith("r-")) {
-                                hostedName = "h-" + remoteName.substring(2);
-                            } else {
-                                logger.warn("Unexpected generic http remote repo name {}. Using it for hosted repo "
-                                        + "without change, but it probably doesn't exist.", remoteName);
-                                hostedName = remoteName;
-                            }
+                            String hostedName = getGenericHostedRepoName(remoteName);
                             target = new StoreKey(source.getPackageType(), StoreType.hosted, hostedName);
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
@@ -351,11 +344,11 @@ public class MavenRepositorySession implements RepositorySession {
                     .temporaryRepo(false)
                     .build();
         } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
-            StoreKey sk = download.getStoreKey();
+            StoreKey source = download.getStoreKey();
             targetRepository = TargetRepository.newBuilder()
-                    .identifier("indy-http:" + sk.getName())
+                    .identifier("indy-http:" + source.getName())
                     .repositoryType(repoType)
-                    .repositoryPath("/not-available/") //TODO set the path for http cache
+                    .repositoryPath(getGenericTargetRepositoryPath(source))
                     .temporaryRepo(false)
                     .build();
         } else {
@@ -375,6 +368,28 @@ public class MavenRepositorySession implements RepositorySession {
             result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
         }
         return result;
+    }
+
+    /**
+     * For a remote generic http repo computes matching hosted repo name.
+     *
+     * @param remoteName the remote repo name
+     * @return computed hosted repo name
+     */
+    private String getGenericHostedRepoName(String remoteName) {
+        String hostedName;
+        if (remoteName.startsWith("r-")) {
+            hostedName = "h-" + remoteName.substring(2);
+        } else {
+            logger.warn("Unexpected generic http remote repo name {}. Using it for hosted repo "
+                    + "without change, but it probably doesn't exist.", remoteName);
+            hostedName = remoteName;
+        }
+        return hostedName;
+    }
+
+    private String getGenericTargetRepositoryPath(StoreKey source) {
+        return "/api/content/generic-http/" + getGenericHostedRepoName(source.getName());
     }
 
     private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {

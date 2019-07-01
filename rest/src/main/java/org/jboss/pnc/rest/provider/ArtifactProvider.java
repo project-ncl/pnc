@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.apache.commons.lang.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -52,7 +53,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import static org.jboss.pnc.model.TargetRepository.Type.MAVEN;
+import static org.jboss.pnc.model.TargetRepository.Type.GENERIC_PROXY;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
@@ -154,9 +156,12 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getPublicUrl(Artifact artifact) {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
-            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
-                return "";
+        String repositoryPath = artifact.getTargetRepository().getRepositoryPath();
+        String result;
+        if ((repositoryType == MAVEN) || ((repositoryType == GENERIC_PROXY)
+                && !(StringUtils.isEmpty(repositoryPath) || "/not-available/".equals(repositoryPath)))) {
+            if (StringUtils.isEmpty(artifact.getDeployPath())) {
+                result = "";
             } else {
                 try {
                     return UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
@@ -164,12 +169,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
                             artifact.getDeployPath());
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct public artifact URL.", e);
-                    return null;
+                    result = null;
                 }
             }
         } else {
-            return artifact.getOriginUrl();
+            result = artifact.getOriginUrl();
         }
+        return result;
     }
 
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
