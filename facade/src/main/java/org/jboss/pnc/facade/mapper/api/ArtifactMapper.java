@@ -19,9 +19,6 @@ package org.jboss.pnc.facade.mapper.api;
 
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.model.Artifact;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  *

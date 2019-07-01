@@ -33,6 +33,7 @@ import org.mapstruct.Mapping;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jboss.pnc.facade.mapper.BrewNameWorkaround;
 
 /**
  *
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
 @Mapper(config = MapperCentralConfig.class,
         uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
                 SCMRepositoryMapper.class, ProjectMapper.class,BuildConfigurationRevisionMapper.class,
-                EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class })
+                EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class })
 
 public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
@@ -54,6 +55,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "scmRepositoryURL", source = "scmRepoURL")
+    @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
@@ -108,6 +110,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "repourLogSha256", ignore = true)
     @Mapping(target = "repourLogSize", ignore = true)
     @Mapping(target = "buildRecordPushResults", ignore = true)
+    @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"project", "repository"})
     BuildRecord toEntity(Build dtoEntity);
 

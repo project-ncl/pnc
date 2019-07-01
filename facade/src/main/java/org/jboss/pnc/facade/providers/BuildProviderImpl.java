@@ -53,6 +53,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jboss.pnc.constants.Attributes;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
@@ -108,12 +109,39 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @Override
     public void addAttribute(int id, String key, String value) {
-        getBuildRecord(id).putAttribute(key, value);
+        BuildRecord buildRecord = getBuildRecord(id);
+        if(null == key){
+            throw new IllegalArgumentException("Attribute key must not be null");
+        }
+        switch (key) {
+            case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
+                buildRecord.setExecutionRootName(value);
+                break;
+            case Attributes.BUILD_BREW_VERSION: // workaround for NCL-4889
+                buildRecord.setExecutionRootVersion(value);
+                break;
+            default:
+                buildRecord.putAttribute(key, value);
+                break;
+        }
+        repository.save(buildRecord);
     }
 
     @Override
     public void removeAttribute(int id, String key) {
-        getBuildRecord(id).removeAttribute(key);
+        BuildRecord buildRecord = getBuildRecord(id);
+        switch (key) {
+            case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
+                buildRecord.setExecutionRootName(null);
+                break;
+            case Attributes.BUILD_BREW_VERSION: // workaround for NCL-4889
+                buildRecord.setExecutionRootVersion(null);
+                break;
+            default:
+                buildRecord.removeAttribute(key);
+                break;
+        }
+        repository.save(buildRecord);
     }
 
     @Override
