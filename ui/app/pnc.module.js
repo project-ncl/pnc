@@ -30,7 +30,7 @@
     'pnc.projects',
     'pnc.build-configs',
     'pnc.build-records',
-    'pnc.build-groups',
+    'pnc.group-configs',
     'pnc.milestone',
     'pnc.release',
     'pnc.build-group-records',
