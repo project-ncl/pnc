@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.repository-configurations', [
+  var module = angular.module('pnc.scm-repositories', [
     'ui.router',
     'ui.bootstrap',
     'pnc.common.authentication',
@@ -27,8 +27,8 @@
 
   module.config(['$stateProvider', function($stateProvider) {
     
-    $stateProvider.state('repository-configurations', {
-      url: '/repository-configurations',
+    $stateProvider.state('scm-repositories', {
+      url: '/scm-repositories',
       abstract: true,
       views: {
         'content@': {
@@ -36,35 +36,35 @@
         }
       },
       data: {
-        proxy: 'repository-configurations.list'
+        proxy: 'scm-repositories.list'
       }
     });
 
-    $stateProvider.state('repository-configurations.list', {
+    $stateProvider.state('scm-repositories.list', {
       url: '',
-      component: 'pncRepositoryConfigurationsListPage',
+      component: 'pncScmRepositoriesListPage',
       data: {
-        displayName: 'Repository Configurations',
-        title: 'Repository Configurations'
+        displayName: 'SCM Repositories',
+        title: 'SCM Repositories'
       },
       resolve: {
-        repositoryConfigurations: ['RepositoryConfiguration', function(RepositoryConfiguration) {
-          return RepositoryConfiguration.query().$promise;
+        scmRepositories: ['ScmRepositoryResource', function(ScmRepositoryResource) {
+          return ScmRepositoryResource.query().$promise;
         }]
       }
     });
 
-    $stateProvider.state('repository-configurations.detail', {
-      url: '/{repositoryConfigurationId:int}',
-      component: 'pncRepositoryConfigurationDetailPage',
+    $stateProvider.state('scm-repositories.detail', {
+      url: '/{scmRepositoryId:int}',
+      component: 'pncScmRepositoryDetailPage',
       data: {
-        displayName: '{{ repositoryConfiguration.getName() }}',
-        title: '{{ repositoryConfiguration.getName() }} | Repository Configuration'
+        displayName: '{{ scmRepository.getName() }}',
+        title: '{{ scmRepository.getName() }} | SCM Repository'
       },
       resolve: {
-        repositoryConfiguration: ['RepositoryConfiguration', '$stateParams', function(RepositoryConfiguration, $stateParams) {
-          return RepositoryConfiguration.get({
-            id: $stateParams.repositoryConfigurationId
+        scmRepository: ['ScmRepositoryResource', '$stateParams', function(ScmRepositoryResource, $stateParams) {
+          return ScmRepositoryResource.get({
+            id: $stateParams.scmRepositoryId
           }).$promise;
         }]
       }

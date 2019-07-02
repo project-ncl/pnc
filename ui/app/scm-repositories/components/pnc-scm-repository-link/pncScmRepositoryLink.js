@@ -15,31 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 (function () {
   'use strict';
 
-  angular.module('pnc.repository-configurations').component('pncRepositoryConfigurationsListPage', {
+  angular.module('pnc.scm-repositories').component('pncScmRepositoryLink', {
     bindings: {
       /**
-       * array of Repository Configurations: The list of Repository Configurations to display.
+       * object representing SCM Repository
        */
-      repositoryConfigurations: '<'
+      scmRepository: '<'
     },
-    templateUrl: 'repository-configurations/list/pnc-repository-configurations-list-page.html',
-    controller: ['paginator', Controller]
+    templateUrl: 'scm-repositories/components/pnc-scm-repository-link/pnc-scm-repository-link.html',
+    controller: ['ScmRepositoryResource', Controller]
   });
 
-  function Controller(paginator) {
+  function Controller(ScmRepositoryResource) {
     var $ctrl = this;
-
+    
     // -- Controller API --
     
+
     // --------------------
+  
 
     $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.repositoryConfigurations);
+      if (!angular.isFunction($ctrl.scmRepository.getName)) {
+        $ctrl.scmRepository = new ScmRepositoryResource($ctrl.scmRepository);
+      }
     };
-
   }
 
 })();

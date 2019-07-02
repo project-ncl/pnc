@@ -26,10 +26,10 @@
 
           <pnc-create-build-config-general-form ng-model="$ctrl.formData.general"></pnc-create-build-config-general-form>
 
-          <div class="form-group" ng-class="{ 'has-error' : editBuildConfigForm.repositoryConfiguration.$invalid && editBuildConfigForm.repositoryConfiguration.$touched, 'has-success': editBuildConfigForm.repositoryConfiguration.$valid && editBuildConfigForm.repositoryConfiguration.$touched }">
-            <label class="control-label required">Repository Configuration</label>
-            <pnc-repository-configuration-combobox name="repositoryConfiguration" ng-model="$ctrl.formData.repositoryConfiguration" required></pnc-repository-configuration-combobox>
-            <span class="help-block" ng-show="editBuildConfigForm.repositoryConfiguration.$invalid && editBuildConfigForm.repositoryConfiguration.$touched">Required field.</span>
+          <div class="form-group" ng-class="{ 'has-error' : editBuildConfigForm.scmRepository.$invalid && editBuildConfigForm.scmRepository.$touched, 'has-success': editBuildConfigForm.scmRepository.$valid && editBuildConfigForm.scmRepository.$touched }">
+            <label class="control-label required">SCM Repository</label>
+            <pnc-scm-repository-combobox name="scmRepository" ng-model="$ctrl.formData.scmRepository" required></pnc-scm-repository-combobox>
+            <span class="help-block" ng-show="editBuildConfigForm.scmRepository.$invalid && editBuildConfigForm.scmRepository.$touched">Required field.</span>
           </div>
 
           <div class="form-group" ng-class="{ 'has-error' : editBuildConfigForm.scmRevision.$invalid && editBuildConfigForm.scmRevision.$touched, 'has-success': editBuildConfigForm.scmRevision.$valid && editBuildConfigForm.scmRevision.$touched }">

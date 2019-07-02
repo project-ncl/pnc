@@ -19,12 +19,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.repository-configurations').component('pncRepositoryConfigurationsList', {
+  angular.module('pnc.scm-repositories').component('pncScmRepositoriesList', {
     bindings: {
       /**
-       * array of Repository Configurations: The list of Repository Configurations to display.
+       * array of SCM Repositories: The list of SCM Repositories to display.
        */
-      repositoryConfigurations: '<',
+      scmRepositories: '<',
       /**
        * array of strings: Names of table columns to display (see template for possible options).
        * Default fields will be used if omitted.
@@ -35,7 +35,7 @@
        */
       hideHead: '<?'
     },
-    templateUrl: 'repository-configurations/components/pncRepositoryConfigurationsList/pnc-repository-configurations-list.html',
+    templateUrl: 'scm-repositories/components/pnc-scm-repositories-list/pnc-scm-repositories-list.html',
     controller: [Controller]
   });
 
@@ -51,13 +51,13 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      $ctrl.items = $ctrl.repositoryConfigurations;  
+      $ctrl.items = $ctrl.scmRepositories;  
       $ctrl.fields = $ctrl.displayFields || DEFAULT_FIELDS;
     };
 
     $ctrl.$onChanges = function(changedBindings) {
-      if (changedBindings.repositoryConfigurations) {
-        $ctrl.items = $ctrl.repositoryConfigurations;
+      if (changedBindings.scmRepositories) {
+        $ctrl.items = $ctrl.scmRepositories;
       }
     };
 

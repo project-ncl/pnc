@@ -18,14 +18,14 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.repository-configurations').component('pncRepositoryConfigurationDetailPage', {
+  angular.module('pnc.scm-repositories').component('pncScmRepositoryDetailPage', {
     bindings: {
       /**
-       * object representing Repository Configuration
+       * object representing SCM Repository
        */
-      repositoryConfiguration: '<'
+      scmRepository: '<'
     },
-    templateUrl: 'repository-configurations/detail/pnc-repository-configuration-detail-page.html',
+    templateUrl: 'scm-repositories/detail/pnc-scm-repository-detail-page.html',
     controller: ['$state', 'BuildConfiguration', 'rsqlQuery', 'paginator', Controller]
   });
 
@@ -45,12 +45,12 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      getBuildConfigurationsPageByRepositoryConfiguration($ctrl.repositoryConfiguration.id);
+      getBuildConfigurationsPageByScmRepository($ctrl.scmRepository.id);
     };
 
     function reload() {
-      $state.go('repository-configurations.detail', {
-        repositoryConfigurationId: $ctrl.repositoryConfiguration.id
+      $state.go('scm-repositories.detail', {
+        scmRepositoryId: $ctrl.scmRepository.id
       }, {
         reload: true
       });
@@ -61,11 +61,11 @@
     }
 
     function update() {
-      $ctrl.repositoryConfiguration.$update().finally(reload);
+      $ctrl.scmRepository.$update().finally(reload);
     }
 
-    function getBuildConfigurationsPageByRepositoryConfiguration(repositoryConfigurationId) {
-      var q = rsqlQuery().where('repositoryConfiguration.id').eq(repositoryConfigurationId).end();
+    function getBuildConfigurationsPageByScmRepository(scmRepositoryId) {
+      var q = rsqlQuery().where('scmRepository.id').eq(scmRepositoryId).end();
     
       return BuildConfiguration.query({ q: q }).$promise.then(function (page) { 
         $ctrl.buildConfigurations.page = paginator(page); 

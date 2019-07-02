@@ -23,10 +23,10 @@
       ngModel: 'ngModel'
     },
     templateUrl: 'build-configs/directives/pnc-select-repository/pnc-select-repository.html',
-    controller: ['$log', '$q', 'utils', 'pncNotify', 'RepositoryConfiguration', 'pncProperties', Controller]
+    controller: ['$log', '$q', 'utils', 'pncNotify', 'ScmRepositoryResource', 'pncProperties', Controller]
   });
 
-  function Controller($log, $q, utils, pncNotify, RepositoryConfiguration, pncProperties) {
+  function Controller($log, $q, utils, pncNotify, ScmRepositoryResource, pncProperties) {
     var $ctrl = this,
         loading = false,
         previousDigest;
@@ -83,7 +83,7 @@
       if (utils.isEmpty(url)) {
         return $q.when();
       }
-      return RepositoryConfiguration.match({ 'search-url': url }).$promise.then(function (result) {
+      return ScmRepositoryResource.match({ 'search-url': url }).$promise.then(function (result) {
         var repos = result.data;
 
         if (repos.length === 1) {

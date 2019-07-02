@@ -27,7 +27,7 @@
   <tbody>
     <tr ng-repeat="item in $ctrl.items">
       <td ng-if="::$ctrl.showColumn('name')">
-        <pnc-repository-configuration-link repository-configuration="item"></pnc-repository-configuration-link>
+        <pnc-scm-repository-link scm-repository="item"></pnc-scm-repository-link>
       </td>
       <td ng-if="::$ctrl.showColumn('internalScmUrl')">
         {{ item.internalUrl }}

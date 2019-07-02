@@ -18,12 +18,12 @@
 
 -->
 <px-combobox 
-  px-expression="repositoryConfiguration 
-    as $ctrl.generateLabel(repositoryConfiguration) 
-    for repositoryConfiguration 
+  px-expression="scmRepository 
+    as $ctrl.generateLabel(scmRepository) 
+    for scmRepository 
     in $ctrl.search($viewValue)" 
   ng-model="$ctrl.input" 
   debounce-ms=500 
-  placeholder="Select or search for a Repository Configuration"
-  class="pnc-repository-configuration-combobox">
+  placeholder="Select or search for a SCM Repository"
+  class="pnc-scm-repository-combobox">
 </px-combobox>

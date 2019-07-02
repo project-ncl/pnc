@@ -20,7 +20,7 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigWizard', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-wizard/pnc-create-build-config-wizard.html',
-    controller: ['$log', '$uibModal', '$scope', '$timeout', 'eventTypes', 'RepositoryConfiguration', 'BuildConfiguration', Controller],
+    controller: ['$log', '$uibModal', '$scope', '$timeout', 'eventTypes', 'ScmRepositoryResource', 'BuildConfiguration', Controller],
     bindings: {
       modalInstance: '<',
       project: '<',
@@ -29,7 +29,7 @@
     }
   });
 
-  function Controller($log, $uibModal, $scope, $timeout, eventTypes, RepositoryConfiguration, BuildConfiguration) {
+  function Controller($log, $uibModal, $scope, $timeout, eventTypes, ScmRepositoryResource, BuildConfiguration) {
     var $ctrl = this,
         emptyWizardData = {
           general: {},
@@ -107,7 +107,7 @@
       var bc = new BuildConfiguration(parseBuildConfig($ctrl.wizardData));
 
       if ($ctrl.wizardData.repoConfig.useExistingRepoConfig) {
-        bc.repositoryConfiguration = { id: $ctrl.wizardData.repoConfig.repoConfig.id };
+        bc.scmRepository = { id: $ctrl.wizardData.repoConfig.repoConfig.id };
         bc.$save()
           .then(function (result) {
             $ctrl.createdBuildConfigId = result.id;
@@ -154,7 +154,7 @@
           }
 
         });
-        RepositoryConfiguration.autoCreateRepoConfig({
+        ScmRepositoryResource.autoCreateRepoConfig({
           url: $ctrl.wizardData.repoConfig.scmUrl,
           preBuildSync: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
           buildConfiguration: bc
