@@ -296,7 +296,7 @@ public class DatastoreAdapter {
 
     public void storeRejected(BuildTask buildTask) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
-        buildRecordBuilder.status(REJECTED);
+        buildRecordBuilder.status(BuildStatus.fromBuildCoordinationStatus(buildTask.getStatus()));
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
 
         userLog.warn(buildTask.getStatusDescription());

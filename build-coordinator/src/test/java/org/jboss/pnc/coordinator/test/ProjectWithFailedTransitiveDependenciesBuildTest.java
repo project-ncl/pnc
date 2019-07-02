@@ -66,7 +66,7 @@ public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBui
 
         Assert.assertEquals("Wrong datastore results count. Got records: " + buildRecords, 3, buildRecords.size());
         Assert.assertEquals(BuildStatus.FAILED, buildRecords.get(0).getStatus());
-        Assert.assertEquals(BuildStatus.REJECTED, buildRecords.get(1).getStatus());
+        Assert.assertEquals(BuildStatus.REJECTED_FAILED_DEPENDENCIES, buildRecords.get(1).getStatus());
 
         BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecords().get(0);
         Assert.assertNotNull("End time is null.", buildConfigSetRecord.getEndTime());
