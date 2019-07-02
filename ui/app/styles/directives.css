@@ -247,9 +247,9 @@
 
 
 /**
- * pnc-repository-configuration-combobox
+ * pnc-scm-repository-combobox
  */
-.pnc-repository-configuration-combobox .px-combobox-dropdown > .px-combobox-option a {
+.pnc-scm-repository-combobox .px-combobox-dropdown > .px-combobox-option a {
   white-space: pre;
 }
 

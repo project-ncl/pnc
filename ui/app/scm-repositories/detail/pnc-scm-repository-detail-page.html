@@ -18,9 +18,9 @@
 
 -->
 <pnc-header>
-  <pnc-header-title>{{ ::$ctrl.repositoryConfiguration.getName() }}</pnc-header-title>
+  <pnc-header-title>{{ ::$ctrl.scmRepository.getName() }}</pnc-header-title>
   <pnc-header-buttons>
-    <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Repository Configuration" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="repositoryConfigurationForm.$show()" ng-class="{ 'active': repositoryConfigurationForm.$visible }" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
+    <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit SCM Repository" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="repositoryConfigurationForm.$show()" ng-class="{ 'active': repositoryConfigurationForm.$visible }" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
   </pnc-header-buttons>
 </pnc-header>
 
@@ -31,14 +31,14 @@
       <div class="form-group">
         <label for="internal-url" class="col-sm-1 control-label">Internal SCM URL</label>
         <div class="col-sm-11">
-          <p id="internal-url" class="form-control-static">{{ $ctrl.repositoryConfiguration.internalUrl || 'Empty' }}</p>
+          <p id="internal-url" class="form-control-static">{{ $ctrl.scmRepository.internalUrl || 'Empty' }}</p>
         </div>
       </div>
 
       <div class="form-group" ng-class="{ 'has-error': repositoryConfigurationForm.externalUrl.$invalid && repositoryConfigurationForm.externalUrl.$touched, 'has-success': repositoryConfigurationForm.externalUrl.$valid && repositoryConfigurationForm.externalUrl.$touched }">
         <label for="external-url" class="col-sm-1 control-label" ng-class="{ 'required': configurationForm.$visible }">External SCM URL</label>
         <div class="col-sm-11">
-          <p id="external-url" class="form-control-static" e-class="form-control" editable-text="$ctrl.repositoryConfiguration.externalUrl" e-name="externalUrl" e-maxlength="255" e-ng-required="repositoryConfigurationForm.preBuildSync.$modelValue">{{ $ctrl.repositoryConfiguration.externalUrl || 'Empty' }}</p>
+          <p id="external-url" class="form-control-static" e-class="form-control" editable-text="$ctrl.scmRepository.externalUrl" e-name="externalUrl" e-maxlength="255" e-ng-required="repositoryConfigurationForm.preBuildSync.$modelValue">{{ $ctrl.scmRepository.externalUrl || 'Empty' }}</p>
           <span class="help-block" ng-show="repositoryConfigurationForm.externalUrl.$error.required && repositoryConfigurationForm.externalUrl.$touched">Required field.</span>
         </div>
       </div>
@@ -46,7 +46,7 @@
       <div class="form-group"  ng-class="{ 'has-error': repositoryConfigurationForm.preBuildSync.$invalid && repositoryConfigurationForm.preBuildSync.$touched, 'has-success': repositoryConfigurationForm.preBuildSync.$valid && repositoryConfigurationForm.preBuildSync.$touched }">
         <label for="pre-build-sync" class="col-sm-1 control-label">Pre-build Sync</label>
         <div class="col-sm-11">
-          <p id="pre-build-sync" class="form-control-static" e-class="checkbox" editable-checkbox="$ctrl.repositoryConfiguration.preBuildSyncEnabled" e-name="preBuildSync">{{ $ctrl.repositoryConfiguration.preBuildSyncEnabled ? 'enabled' : 'disabled' }}</p>
+          <p id="pre-build-sync" class="form-control-static" e-class="checkbox" editable-checkbox="$ctrl.scmRepository.preBuildSyncEnabled" e-name="preBuildSync">{{ $ctrl.scmRepository.preBuildSyncEnabled ? 'enabled' : 'disabled' }}</p>
         </div>
       </div>
 

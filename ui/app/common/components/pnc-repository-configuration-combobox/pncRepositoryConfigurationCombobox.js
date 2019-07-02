@@ -22,21 +22,21 @@
   angular.module('pnc.common.components').component('pncRepositoryConfigurationCombobox', {
     bindings: {
       /**
-       * model-value {String} [Optional]: The property on the RepositoryConfiguration object
+       * model-value {String} [Optional]: The property on the ScmRepositoryResource object
        * to use as the modelValue for ng-model. If not present the environment
        * object itself will be used. Example:
-       * <pnc-repository-configuration-combobox ng-model="ngModel" model-value="modelValue"></pnc-repository-configuration-combobox>
+       * <pnc-scm-repository-combobox ng-model="ngModel" model-value="modelValue"></pnc-scm-repository-combobox>
        */
       modelProperty: '@modelValue'
     },
     require: {
       ngModel: '?ngModel'
     },
-    templateUrl: 'common/components/pnc-repository-configuration-combobox/pnc-repository-configuration-combobox.html',
-    controller: ['$log', '$scope', '$element', 'RepositoryConfiguration', 'utils', 'rsqlQuery', '$timeout', Controller]
+    templateUrl: 'common/components/pnc-scm-repository-combobox/pnc-scm-repository-combobox.html',
+    controller: ['$log', '$scope', '$element', 'ScmRepositoryResource', 'utils', 'rsqlQuery', '$timeout', Controller]
   });
 
-  function Controller($log, $scope, $element, RepositoryConfiguration, utils, rsqlQuery, $timeout) {
+  function Controller($log, $scope, $element, ScmRepositoryResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
         initialValues;
 
@@ -70,7 +70,7 @@
       // changes back to the combobox's displayed value.
       $ctrl.ngModel.$render = function () {
         if (!$ctrl.ngModel.$isEmpty($ctrl.ngModel.$viewValue) && angular.isDefined($ctrl.modelProperty)) {
-          $log.warn('pnc-repository-configuration-combobox: programatic changing of the ng-model value is not fully supported when model-value parameter is used. The display value of the combobox will not be correctly mapped');
+          $log.warn('pnc-scm-repository-combobox: programatic changing of the ng-model value is not fully supported when model-value parameter is used. The display value of the combobox will not be correctly mapped');
         }
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
@@ -82,7 +82,7 @@
       }); 
 
       // TODO: change pageSize to 20 once NCL-3307 is done
-      initialValues = RepositoryConfiguration.query({ pageSize: 200 }).$promise.then(function (page) {
+      initialValues = ScmRepositoryResource.query({ pageSize: 200 }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -110,7 +110,7 @@
                 .where('externalUrl').like('*' + $viewValue + '*')
                 .end();
 
-      return RepositoryConfiguration.query({ q: q }).$promise.then(function (page) {
+      return ScmRepositoryResource.query({ q: q }).$promise.then(function (page) {
         return page.data;
       });
     }
@@ -123,18 +123,18 @@
       return doSearch($viewValue);
     }
 
-    function generateLabel(repositoryConfiguration) {
+    function generateLabel(scmRepository) {
       var result = '';
 
-      if (!repositoryConfiguration) {
+      if (!scmRepository) {
         return result;
       }
 
-      result += repositoryConfiguration.internalUrl;
+      result += scmRepository.internalUrl;
 
-      if (repositoryConfiguration.externalUrl) {
+      if (scmRepository.externalUrl) {
         result += '\n\t';
-        result += '(external url: ' + repositoryConfiguration.externalUrl + ' )';
+        result += '(external url: ' + scmRepository.externalUrl + ' )';
       }
 
       return result;

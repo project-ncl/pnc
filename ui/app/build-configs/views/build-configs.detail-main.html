@@ -64,8 +64,8 @@
           <label for="input-scm-repo-url" class="col-sm-2 control-label">Internal SCM URL</label>
           <div class="col-sm-10">
             <p id="input-scm-repo-url" class="form-control-static">
-              <span ng-show="detailCtrl.configuration.repositoryConfiguration.internalUrl">{{ detailCtrl.configuration.repositoryConfiguration.internalUrl }}</span>
-              <span ng-hide="detailCtrl.configuration.repositoryConfiguration.internalUrl">&mdash;</span>
+              <span ng-show="detailCtrl.configuration.scmRepository.internalUrl">{{ detailCtrl.configuration.scmRepository.internalUrl }}</span>
+              <span ng-hide="detailCtrl.configuration.scmRepository.internalUrl">&mdash;</span>
             </p>
           </div>
         </div>
@@ -74,8 +74,8 @@
           <label for="input-external-scm-repo-url" class="col-sm-2 control-label">External SCM URL</label>
           <div class="col-sm-10">
             <p id="input-external-scm-repo-url" class="form-control-static">
-              <span ng-show="detailCtrl.configuration.repositoryConfiguration.externalUrl">{{ detailCtrl.configuration.repositoryConfiguration.externalUrl }}</span>
-              <span ng-hide="detailCtrl.configuration.repositoryConfiguration.externalUrl">&mdash;</span>
+              <span ng-show="detailCtrl.configuration.scmRepository.externalUrl">{{ detailCtrl.configuration.scmRepository.externalUrl }}</span>
+              <span ng-hide="detailCtrl.configuration.scmRepository.externalUrl">&mdash;</span>
             </p>
           </div>
         </div>
@@ -83,24 +83,24 @@
         <div class="form-group" ng-hide="configurationForm.$visible">
           <label for="input-prebuild-sync" class="col-sm-2 control-label">Pre-build sync</label>
           <div class="col-sm-10">
-            <p id="input-prebuild-sync" class="form-control-static">{{ detailCtrl.configuration.repositoryConfiguration.preBuildSyncEnabled ? 'enabled' : 'disabled' }}</p>
+            <p id="input-prebuild-sync" class="form-control-static">{{ detailCtrl.configuration.scmRepository.preBuildSyncEnabled ? 'enabled' : 'disabled' }}</p>
           </div>
         </div>
 
         <div class="form-group" ng-hide="configurationForm.$visible">
-          <label class="col-sm-2 control-label">Repository Configuration</label>
+          <label class="col-sm-2 control-label">SCM Repository</label>
           <div class="col-sm-10">
             <p class="form-control-static">
-              <pnc-repository-configuration-link repository-configuration="detailCtrl.configuration.repositoryConfiguration"></pnc-repository-configuration-link>
+              <pnc-scm-repository-link scm-repository="detailCtrl.configuration.scmRepository"></pnc-scm-repository-link>
             </p>
           </div>
         </div>
 
-        <div class="form-group" ng-if="configurationForm.$visible" ng-class="{ 'has-error' : configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched, 'has-success': configurationForm.repositoryConfiguration.$valid && configurationForm.repositoryConfiguration.$touched }">
-          <label for="input-repository-configuration-id" class="col-sm-2 control-label required">Repository Configuration</label>
+        <div class="form-group" ng-if="configurationForm.$visible" ng-class="{ 'has-error' : configurationForm.scmRepository.$invalid && configurationForm.scmRepository.$touched, 'has-success': configurationForm.scmRepository.$valid && configurationForm.scmRepository.$touched }">
+          <label for="input-scm-repository-id" class="col-sm-2 control-label required">SCM Repository</label>
           <div class="col-sm-10">
-            <pnc-repository-configuration-combobox name="repositoryConfiguration" ng-model="detailCtrl.configuration.repositoryConfiguration" required></pnc-repository-configuration-combobox>
-            <span class="help-block" ng-show="configurationForm.repositoryConfiguration.$invalid && configurationForm.repositoryConfiguration.$touched">Required field.</span>
+            <pnc-scm-repository-combobox name="scmRepository" ng-model="detailCtrl.configuration.scmRepository" required></pnc-scm-repository-combobox>
+            <span class="help-block" ng-show="configurationForm.scmRepository.$invalid && configurationForm.scmRepository.$touched">Required field.</span>
           </div>
         </div>
         <!-- repository configuration -->

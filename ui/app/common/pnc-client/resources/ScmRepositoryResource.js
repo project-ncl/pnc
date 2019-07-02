@@ -20,18 +20,18 @@
 
   var module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('REPOSITORY_CONFIGURATION_PATH', '/repository-configurations/:id');
+  module.value('SCM_REPOSITORY_PATH', '/scm-repositories/:id');
 
   /**
    *
    */
-  module.factory('RepositoryConfiguration', [
+  module.factory('ScmRepositoryResource', [
     '$resource',
     '$http',
     'restConfig',
-    'REPOSITORY_CONFIGURATION_PATH',
-    function($resource, $http, restConfig, REPOSITORY_CONFIGURATION_PATH) {
-      var ENDPOINT = restConfig.getPncUrl() + REPOSITORY_CONFIGURATION_PATH;
+    'SCM_REPOSITORY_PATH',
+    function($resource, $http, restConfig, SCM_REPOSITORY_PATH) {
+      var ENDPOINT = restConfig.getPncRestUrl() + SCM_REPOSITORY_PATH;
 
       var resource = $resource(ENDPOINT, {
         id: '@id'
@@ -41,7 +41,7 @@
           isPaged: true,
         },
         /**
-         * Get Repository Configuration by id.
+         * Get SCM Repository by id.
          */
         get: {
           method: 'GET'
@@ -59,12 +59,12 @@
         search: {
           method: 'GET',
           isPaged: true,
-          url: restConfig.getPncUrl() + '/repository-configurations/search-by-scm-url'
+          url: restConfig.getPncUrl() + '/scm-repositories/search-by-scm-url'
         },
         match : {
           method: 'GET',
           isPaged: true,
-          url: restConfig.getPncUrl() + '/repository-configurations/match-by-scm-url'
+          url: restConfig.getPncUrl() + '/scm-repositories/match-by-scm-url'
         }
       });
 

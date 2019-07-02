@@ -40,7 +40,7 @@
       <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.scmRepoURL }}</span>
       <span ng-hide="ctrl.record.scmRepoURL">
         <span class="pficon pficon-warning-triangle-o" ng-if="ctrl.record.status !== 'BUILDING' && ctrl.record.status !== 'ENQUEUED' && ctrl.record.status !== 'WAITING_FOR_DEPENDENCIES' && ctrl.record.status !== 'NEW'" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
-        Not available, based on <code>{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}</code>
+        Not available, based on <code>{{ ctrl.record.buildConfigurationAudited.scmRepository.internalUrl }}</code>
       </span>
     </dd>
     <!-- repository configuration -->

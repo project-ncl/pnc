@@ -85,7 +85,7 @@
       var formData = {
         general: {},
         buildParameters: {},
-        repositoryConfiguration: {}
+        scmRepository: {}
       };
 
       formData.general.name = buildConfig.name;
@@ -95,7 +95,7 @@
       formData.general.buildScript = buildConfig.buildScript;
       formData.general.scmRevision = buildConfig.scmRevision;
 
-      formData.repositoryConfiguration = buildConfig.repositoryConfiguration;
+      formData.scmRepository = buildConfig.scmRepository;
       formData.buildParameters = buildConfig.genericParameters;
 
       return formData;
@@ -104,7 +104,7 @@
     function toBuildConfig(formData, buildConfig) {
       var newBc = angular.extend(angular.copy(buildConfig), formData.general);
 
-      newBc.repositoryConfiguration = formData.repositoryConfiguration;
+      newBc.scmRepository = formData.scmRepository;
       newBc.genericParameters = formData.buildParameters;
 
       return newBc;
