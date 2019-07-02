@@ -19,6 +19,7 @@ package org.jboss.pnc.rest;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
+import org.jboss.pnc.rest.endpoints.BpmEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
 import org.jboss.pnc.rest.endpoints.EnvironmentEndpointImpl;
@@ -90,6 +91,8 @@ public class JaxRsActivatorNew extends Application {
 
     private void addEndpoints(Set<Class<?>> resources) {
         resources.add(ArtifactEndpointImpl.class);
+
+        resources.add(BpmEndpointImpl.class);
 
         resources.add(BuildEndpointImpl.class);
 
