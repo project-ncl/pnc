@@ -28,11 +28,6 @@
     <version>24</version>
     <relativePath />
   </parent>
-  <!--<parent> TODO: use EAP parent -->
-    <!--<groupId>org.jboss.eap</groupId>-->
-    <!--<artifactId>jboss-eap-parent</artifactId>-->
-    <!--<version>7.0.7.GA-redhat-3</version>-->
-  <!--</parent>-->
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
@@ -105,34 +100,33 @@
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
-    <version.javax.enterprise>1.2.0.redhat-2</version.javax.enterprise>
-    <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.0.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
-    <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final-redhat-3</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
+    <version.javax.enterprise>2.0.SP1</version.javax.enterprise>
+    <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
+    <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.0.1</atlasVersion>
     <indyVersion>1.8.0-SNAPSHOT</indyVersion>
-    <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.assertj-core>3.8.0</version.assertj-core>
     <version.mockito>2.8.47</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
-    <version.guava>17.0</version.guava>
-    <version.org.apache.httpcomponents.httpclient>4.5.4</version.org.apache.httpcomponents.httpclient>
-    <version.org.apache.httpcomponents.httpcore>4.4.5</version.org.apache.httpcomponents.httpcore>
+    <version.guava>25.0-jre</version.guava>
+    <version.org.apache.httpcomponents.httpclient>4.5.2</version.org.apache.httpcomponents.httpclient>
+    <version.org.apache.httpcomponents.httpcore>4.4.4</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.org.json>20141113</version.org.json>
     <version.jclouds>1.8.1</version.jclouds>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
     <version.keycloak>4.5.0.Final</version.keycloak>
-    <version.undertow>2.0.15.Final</version.undertow>
+    <version.undertow>2.0.20.Final</version.undertow>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
     <version.swagger2>2.0.7</version.swagger2>
     <version.buildagent>0.5.0-SNAPSHOT</version.buildagent>
-    <version.jackson.core>2.9.5</version.jackson.core>
+    <version.jackson.core>2.9.8</version.jackson.core>
     <version.lombok>1.18.6</version.lombok>
     <!-- needed because of a CVE in databind -->
-    <version.jackson.databind>2.9.5</version.jackson.databind>
-    <version.org.jboss.resteasy>3.6.2.Final</version.org.jboss.resteasy>
-    <version.hibernate>5.3.7.Final</version.hibernate>
+    <version.jackson.databind>2.9.8</version.jackson.databind>
+    <version.org.jboss.resteasy>3.6.1.SP5</version.org.jboss.resteasy>
+    <version.hibernate>5.3.10.Final</version.hibernate>
     <version.mapstruct>1.3.0.Final</version.mapstruct>
     <version.junit>4.12</version.junit>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
@@ -156,7 +150,7 @@
 
     <!-- Integration tests -->
     <app.server>jboss-eap</app.server>
-    <jboss.version>7.3</jboss.version>
+    <jboss.version>7.2</jboss.version>
     <default.management.port>9999</default.management.port>
     <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
@@ -203,7 +197,7 @@
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-javaee8</artifactId>
-        <version>7.2.0.GA</version>
+        <version>7.2.2.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -640,8 +634,8 @@
 
       <dependency>
         <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-core</artifactId>
-        <version>1.1.32.Final</version>
+        <artifactId>weld-core-impl</artifactId>
+        <version>3.0.6.Final</version>
       </dependency>
 
       <dependency>
@@ -798,7 +792,6 @@
           <version>${version.mapstruct}</version>
       </dependency>
 
-      <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -976,34 +969,34 @@
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-jaxrs</artifactId>
-        <version>1.9.13</version>
+        <version>1.9.13.redhat-4</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-xc</artifactId>
-        <version>1.9.13</version>
+        <version>1.9.13.redhat-4</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.5</version>
+        <version>2.5.0.redhat-3</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
+        <version>2.6.0.redhat-7</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.3</version>
+        <version>1.9.3.redhat-1</version>
         <scope>provided</scope>
       </dependency>
 
@@ -1017,21 +1010,21 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.10</version>
+        <version>1.11.0.redhat-00001</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.2.redhat-2</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.6</version>
+        <version>3.8.0.redhat-00001</version>
         <scope>provided</scope>
       </dependency>
 
