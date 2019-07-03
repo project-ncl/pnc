@@ -32,9 +32,9 @@
     function ($stateProvider, $urlRouterProvider) {
 
       // NCL-4200 renamed build-groups to group-configs, this forwarder should be removed at some point in the future
-      // $urlRouterProvider.when(/^\/build-groups\/.*/, ['$location', function ($location) {
-      //   return $location.url().replace('/build-groups/', '/group-configs/');
-      // }]);
+      $urlRouterProvider.when(/^\/build-groups\/.*/, ['$location', function ($location) {
+        return $location.url().replace('/build-groups/', '/group-configs/');
+      }]);
 
       $stateProvider.state('group-configs', {
         url: '/group-configs',
@@ -45,7 +45,7 @@
           }
         },
         data: {
-          displaName: false
+          displayName: false
         }
       });
 
@@ -53,9 +53,9 @@
         url: '',
         component: 'pncGroupConfigsListPage',
         resolve: {
-          groupConfigs: [
-            'GroupConfig',
-            GroupConfig => GroupConfig.query().$promise
+          groupConfigsPage: [
+            'GroupConfigResource',
+            GroupConfigResource => GroupConfigResource.query().$promise
           ]
         },
         data: {

@@ -21,13 +21,13 @@
 
   angular.module('pnc.group-configs').component('pncGroupConfigsListPage', {
     bindings: {
-      page: '<'
+      groupConfigsPage: '<'
     },
     templateUrl: 'group-configs/list/pnc-group-configs-list-page.html',
-    controller: [Controller]
+    controller: ['filteringPaginator', Controller]
   });
 
-  function Controller() {
+  function Controller(filteringPaginator) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -36,6 +36,18 @@
     // --------------------
 
     $ctrl.$onInit = () => {
+      console.log($ctrl.groupConfigsPage);
+
+      $ctrl.paginator = filteringPaginator($ctrl.groupConfigsPage);
+
+      console.log($ctrl.paginator);
+
+      $ctrl.filterFields = [{
+        id: 'name',
+        title: 'Name',
+        placeholder: 'Filter by Name',
+        filterType: 'text'
+      }];
     };
   }
 

@@ -24,19 +24,17 @@
       <th ng-if="::$ctrl.actionsTemplateUrl">Actions</th>
     </thead>
     <tbody>
-      <tr ng-repeat="buildGroup in $ctrl.buildGroups">
+      <tr ng-repeat="groupConfig in $ctrl.groupConfigs">
         <td ng-if="::$ctrl.showColumn('name')">
-          <a ui-sref="build-groups.detail.build-configs({ configurationSetId: buildGroup.id})" href>
-            {{ buildGroup.name }}
-          </a>
+          <pnc-group-config-link group-config="groupConfig"></pnc-group-config-link>
         </td>
         <td ng-if="$ctrl.showColumn('buildStatus')">
-            <pnc-latest-build build-group="buildGroup"></pnc-latest-build>
+            <pnc-latest-build build-group="groupConfig"></pnc-latest-build>
           </td>
         <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
       </tr>
     </tbody>
   </table>
-  <p ng-hide="$ctrl.showTable()" class="text-center"><em>There are no Build Groups to display</em></p>
+  <p ng-hide="$ctrl.showTable()" class="text-center"><em>There are no Group Configs to display</em></p>
   
   

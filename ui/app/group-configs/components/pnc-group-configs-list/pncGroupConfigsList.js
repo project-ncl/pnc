@@ -18,19 +18,19 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-groups').component('pncBuildGroupsList', {
+  angular.module('pnc.group-configs').component('pncGroupConfigsList', {
     bindings: {
       /**
-       * array of Build Groups: The list of Build Groups to display.
+       * array of Group Configs: The list of Group Configs to display.
        */
-      buildGroups: '<',
+      groupConfigs: '<',
       /**
        * array of strings: Names of table columns to display (see template for possible options)
        */
       displayFields: '<',
       /**
        * string URL: template to display in actions column, column will not be shown if omitted.
-       * The specific BuildCGroup will be available to the template on the scope as `buildGroup`
+       * The specific Group Config will be available to the template on the scope as `groupConfig`
        */
       actionsTemplateUrl: '@',
       /**
@@ -40,13 +40,15 @@
        */
       actionsData: '<'
     },
-    templateUrl: 'build-groups/directives/pnc-build-groups-list/pnc-build-groups-list.html',
+    templateUrl: 'group-configs/components/pnc-group-configs-list/pnc-group-configs-list.html',
     controller: ['$scope', Controller]
   });
 
 
   function Controller($scope) {
-    var $ctrl = this;
+    const $ctrl = this;
+
+    let displayFields;
 
     // -- Controller API --
 
@@ -57,15 +59,16 @@
 
 
     $ctrl.$onInit = function () {
+      displayFields = $ctrl.displayFields || ['name'];
       $scope.actions = $ctrl.actionsData;
     };
 
     function showTable() {
-      return $ctrl.buildGroups && $ctrl.buildGroups.length > 0;
+      return $ctrl.groupConfigs && $ctrl.groupConfigs.length > 0;
     }
 
     function showColumn(property) {
-      return $ctrl.displayFields.includes(property);
+      return displayFields.includes(property);
     }
   }
 
