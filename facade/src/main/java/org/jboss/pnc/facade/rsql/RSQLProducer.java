@@ -65,6 +65,7 @@ public interface RSQLProducer {
      * @param <DTO> Type of the entity.
      * @param rsql query for sorting, e.g. <code>"=asc=id"</code>.
      * @return Comparator baset of the RSQL query.
+     * @throws IllegalArgumentException when the rsql query is null or empty.
      */
     <DTO> Comparator<DTO> getComparator(String rsql);
 }

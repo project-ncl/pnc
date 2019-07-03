@@ -117,6 +117,19 @@ public class RSQLProducerImpl implements RSQLProducer {
         return (SortInfo) rootNode.accept(new SortRSQLNodeTraveller(toPath));
     }
 
+    @Override
+    public <DTO> Comparator<DTO> getComparator(String rsql) {
+        if (rsql == null || rsql.isEmpty()) {
+            throw new IllegalArgumentException("RSQL sort query must be non-empty and non-null.");
+        }
+        if(!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
+            rsql = FIXED_START_OF_SORTING_EXPRESSION + rsql;
+        }
+        Node rootNode = sortParser.parse(preprocessRSQL(rsql));
+
+        return rootNode.accept(new ComparatorRSQLNodeTraveller<>());
+    }
+
     private String preprocessRSQL(String rsql) {
         String result = rsql;
         Matcher matcher = likePattern.matcher(rsql);
@@ -144,11 +157,6 @@ public class RSQLProducerImpl implements RSQLProducer {
 
             return rootNode.accept(visitor);
         };
-    }
-
-    @Override
-    public <DTO> Comparator<DTO> getComparator(String rsql) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -45,6 +45,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -166,6 +167,42 @@ public class RSQLPredicateProducerTest {
                     .collect(Collectors.toList());
             fail("Exception expected");
         }catch(RuntimeException ex){
+            // ok
+        }
+    }
+
+    @Test
+    public void testComparator(){
+        Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=id");
+
+        BuildConfiguration foo = BuildConfiguration.builder().id(3).name("FooBC").build();
+        BuildConfiguration bar = BuildConfiguration.builder().id(5).name("BarBC").build();
+        BuildConfiguration baz = BuildConfiguration.builder().id(7).name("BazBC").build();
+
+        List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz).stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
+
+        assertEquals(3, sorted.size());
+        assertEquals("BazBC", sorted.get(0).getName());
+        assertEquals("BarBC", sorted.get(1).getName());
+        assertEquals("FooBC", sorted.get(2).getName());
+    }
+
+    @Test
+    public void testComparatorUnknownQuery(){
+        Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=fieldThatDoesNotExists");
+
+        BuildConfiguration foo = BuildConfiguration.builder().id(3).name("FooBC").build();
+        BuildConfiguration bar = BuildConfiguration.builder().id(5).name("BarBC").build();
+        BuildConfiguration baz = BuildConfiguration.builder().id(7).name("BazBC").build();
+
+        try {
+            List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz).stream()
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+            fail("Exception expected");
+        } catch (RuntimeException ex) {
             // ok
         }
     }
