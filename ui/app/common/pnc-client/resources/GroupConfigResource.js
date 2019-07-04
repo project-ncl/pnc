@@ -20,7 +20,7 @@
 
   const module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('GROUP_CONFIGS_PATH', '/group-configurations/:id');
+  module.value('GROUP_CONFIG_PATH', '/group-configurations/:id');
 
   /**
    *
@@ -28,10 +28,11 @@
    */
   module.factory('GroupConfigResource', [
     '$resource',
+    '$http',
     'restConfig',
-    'GROUP_CONFIGS_PATH',
-    ($resource, restConfig, GROUP_CONFIGS_PATH) => {
-      const ENDPOINT = restConfig.getPncRestUrl() + GROUP_CONFIGS_PATH;
+    'GROUP_CONFIG_PATH',
+    ($resource, $http, restConfig, GROUP_CONFIG_PATH) => {
+      const ENDPOINT = restConfig.getPncRestUrl() + GROUP_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
         id: '@id'
@@ -39,6 +40,10 @@
         query: {
           method: 'GET',
           isPaged: true
+        },
+        save: {
+          method: 'POST',
+          successNotification: false
         },
         update: {
           method: 'PUT',
@@ -61,7 +66,7 @@
         },
         deleteBuildConfig: {
           method: 'DELETE',
-          url: ENDPOINT + '/build-configurations/{buildConfigId}',
+          url: ENDPOINT + '/build-configurations/:buildConfigId',
         },
         queryBuilds: {
           method: 'GET',

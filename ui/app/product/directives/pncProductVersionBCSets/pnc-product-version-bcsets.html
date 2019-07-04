@@ -20,7 +20,7 @@
 <pnc-header sub-header="true">
   <pnc-header-title>Build Groups</pnc-header-title>
   <pnc-header-buttons>
-    <button type="button" class="btn btn-default" uib-tooltip="Create a new build group and add it to this product version" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ui-sref="build-groups.create({ productId: product.id, versionId: version.id })">
+    <button type="button" class="btn btn-default" uib-tooltip="Create a new build group and add it to this product version" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ui-sref=".create-group-config">
       <i class="fa fa-file-text-o"></i>&nbsp;Create
     </button>
     <button type="button" class="btn btn-default" uib-tooltip="Create a new build group and add it to this product version" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="ctrl.edit()" pnc-requires-auth>

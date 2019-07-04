@@ -108,6 +108,24 @@
       }
     });
 
+    $stateProvider.state('product.detail.version.create-group-config', {
+      url: '/create-group-config',
+      views: {
+        'content@': {
+          component: 'pncGroupConfigCreatePage',
+          bindings: {
+            productVersion: 'versionDetail'
+          },
+        }
+      },
+      data: {
+        requireAuth: true,
+        displayName: 'Create Group Config',
+        title: 'Create Group Config | {{ versionDetail.version }} | {{ productDetail.name }}'
+     },
+
+    });
+
     $stateProvider.state('product.create', {
       url: '/create',
       templateUrl: 'product/views/product.create.html',

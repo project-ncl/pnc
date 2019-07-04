@@ -1,0 +1,95 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014-2019 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row m-b-20">
+  <div class="col-md-12">
+    <pnc-header>
+      <pnc-header-title>{{ $ctrl.groupConfig.name }}</pnc-header-title>
+      <pnc-header-buttons>
+        <div class="btn-group" role="group" aria-label="Build controls">
+          <pnc-build-start build-group="$ctrl.groupConfig"></pnc-build-start>
+        </div>
+
+        <div class="btn-group" role="group" aria-label="Other controls">
+          <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Build Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="groupConfigEditForm.$show()" ng-class="{ 'active': groupConfigEditForm.$visible }" pnc-requires-auth>
+            <i class="pficon pficon-edit"></i> Edit
+          </button>
+        <!--
+        <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Build Group" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="$ctrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + $ctrl.groupConfig.name + ' ?'}}" pnc-requires-auth>
+          <i class="pficon pficon-delete"></i> Delete
+        </button>
+          <div class="btn-group dropdown dropdown-kebab-pf">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownKebab" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" pnc-requires-auth>
+              <span class="fa fa-ellipsis-v"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownKebab">
+              <li><a ng-click="$ctrl.linkWithProductVersion()" ng-hide="$ctrl.groupConfig.productVersionId" href><i class="fa fa-link" aria-hidden="true"></i> Link With Product Version</a></li>
+              <li><a ng-show="$ctrl.groupConfig.productVersionId" pnc-confirm-click="$ctrl.unlinkFromProductVersion()" pnc-confirm-message="{{ 'Are you sure you want to unlink ' + $ctrl.groupConfig.name + ' from its product version?' }}" href><i class="fa fa-chain-broken" aria-hidden="true"></i> Unlink From Product Version</a></li>
+            </ul>
+          </div> -->
+        </div>
+      </pnc-header-buttons>
+    </pnc-header>
+
+    <form editable-form class="form-horizontal" name="groupConfigEditForm" onbeforesave="$ctrl.update()" novalidate>
+      <div class="form-group" ng-class="{ 'has-error': groupConfigEditForm.name.$invalid && !groupConfigEditForm.name.$pristine, 'has-success': groupConfigEditForm.name.$valid && groupConfigEditForm.name.$touched }">
+        <label for="input-name" class="col-sm-1 control-label" ng-class="{ 'required': groupConfigEditForm.$visible }">Name</label>
+        <div class="col-sm-11">
+          <p id="input-name" class="form-control-static" e-class="form-control" editable-text="$ctrl.groupConfig.name" e-name="name" e-maxlength="255" e-required>{{ $ctrl.groupConfig.name || 'Empty' }}</p>
+          <span class="help-block" ng-show="groupConfigEditForm.name.$error.required && !groupConfigEditForm.name.$pristine">Required field.</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="product-version-name" class="col-sm-1 control-label">Product Version</label>
+        <div class="col-sm-11">
+          <p id="product-version-name" class="form-control-static" ><pnc-product-version-link product-version="$ctrl.productVersion"></pnc-product-version-link></p>
+        </div>
+      </div>
+      <div class="form-group" ng-show="groupConfigEditForm.$visible">
+        <div class="col-sm-offset-1 col-sm-11">
+          <button type="submit" class="btn btn-primary" ng-disabled="groupConfigEditForm.$waiting || groupConfigEditForm.name.$invalid">
+            Save
+          </button>
+          <button type="button" class="btn btn-default" ng-disabled="groupConfigEditForm.$waiting" ng-click="groupConfigEditForm.$cancel(); groupConfigEditForm.$setPristine(); groupConfigEditForm.$setUntouched();">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </form>
+  </div> <!-- /col -->
+</div> <!-- /row -->
+
+<div class="row">
+  <div class="col-md-12">
+    <ul class="nav nav-tabs">
+      <li role="presentation" ui-sref-active="active">
+        <a href ui-sref="build-groups.detail.build-configs">Build Configs</a>
+      </li>
+      <li role="presentation" ui-sref-active="active">
+          <a href ui-sref="build-groups.detail.build-history">Build History</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="m-t-20" ui-view></div>
+  </div>
+</div>
