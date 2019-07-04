@@ -23,6 +23,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.junit.Assert;
 import org.junit.Test;
@@ -104,44 +105,52 @@ public class BuildConfigurationPatchTest {
 
     @Test
     public void shouldAddToCollection() throws PatchBuilderException, IOException, JsonPatchException {
-        Set<Integer> dependencies = new HashSet<>();
-        dependencies.add(1);
+        Set<BuildConfigurationRef> dependencies = new HashSet<>();
+        BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id(1).build();
+        dependencies.add(dependency1);
+
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id(1)
-                .dependencyIds(dependencies)
+                .dependencies(dependencies)
                 .build();
 
-        Set<Integer> addDependencies = new HashSet<>();
-        addDependencies.add(2);
+        Set<BuildConfigurationRef> addDependencies = new HashSet<>();
+        BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id(2).build();
+        addDependencies.add(dependency2);
         String patchString = new BuildConfigurationPatchBuilder()
-            .addDependencyIds(addDependencies)
+            .addDependencies(addDependencies)
             .getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
         dependencies.addAll(addDependencies);
-        Assertions.assertThat(updatedBuildConfiguration.getDependencyIds()).contains(dependencies.toArray(new Integer[2]));
+        Assertions.assertThat(updatedBuildConfiguration.getDependencies()).contains(dependency1, dependency2);
     }
 
     @Test
     public void shouldReplaceCollection() throws PatchBuilderException, IOException, JsonPatchException {
-        Set<Integer> dependencies = new HashSet<>();
-        dependencies.add(1);
-        dependencies.add(2);
+        BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id(1).build();
+        BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id(2).build();
+        BuildConfigurationRef dependency2a = BuildConfigurationRef.refBuilder().id(2).build();
+        BuildConfigurationRef dependency3 = BuildConfigurationRef.refBuilder().id(3).build();
+        BuildConfigurationRef dependency4 = BuildConfigurationRef.refBuilder().id(4).build();
+        Set<BuildConfigurationRef> dependencies = new HashSet<>();
+        dependencies.add(dependency1);
+        dependencies.add(dependency2);
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id(1)
-                .dependencyIds(dependencies)
+                .dependencies(dependencies)
                 .build();
 
-        Set<Integer> newDependencies = new HashSet<>();
-        newDependencies.add(2);
-        newDependencies.add(3);
-        newDependencies.add(4);
+        Set<BuildConfigurationRef> newDependencies = new HashSet<>();
+        newDependencies.add(dependency2a);
+        newDependencies.add(dependency3);
+        newDependencies.add(dependency4);
         String patchString = new BuildConfigurationPatchBuilder()
-            .replaceDependencyIds(newDependencies)
+            .replaceDependencies(newDependencies)
             .getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
-        Assertions.assertThat(updatedBuildConfiguration.getDependencyIds()).contains(newDependencies.toArray(new Integer[2]));
+        Assertions.assertThat(updatedBuildConfiguration.getDependencies()).containsExactly(newDependencies.toArray(new BuildConfigurationRef[3]));
     }
 
     private BuildConfiguration applyPatch(BuildConfiguration buildConfiguration, String patchString)
