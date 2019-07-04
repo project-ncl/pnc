@@ -30,8 +30,6 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -43,11 +41,9 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonDeserialize(builder = ProductRelease.Builder.class)
 public class ProductRelease extends ProductReleaseRef {
 
-    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private final ProductVersionRef productVersion;
 
-    @PatchSupport({REPLACE})
     private final ProductMilestoneRef productMilestone;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

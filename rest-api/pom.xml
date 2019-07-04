@@ -44,6 +44,12 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
+            <artifactId>dto</artifactId>
+            <classifier>patch-builders</classifier>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
             <artifactId>test-common</artifactId>
             <scope>test</scope>
         </dependency>
@@ -52,15 +58,17 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson2-provider</artifactId>
+            <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- REST dependencies -->

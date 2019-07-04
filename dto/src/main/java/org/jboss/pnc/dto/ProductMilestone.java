@@ -29,19 +29,17 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 import java.time.Instant;
 import java.util.Set;
 
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = ProductMilestone.Builder.class)
 public class ProductMilestone extends ProductMilestoneRef {
 
-    @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class})
     private final ProductVersionRef productVersion;
 
@@ -49,7 +47,6 @@ public class ProductMilestone extends ProductMilestoneRef {
 
     private final Set<Integer> distributedArtifactIds;
 
-    @PatchSupport({REPLACE})
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
