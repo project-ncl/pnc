@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration_new;
 
 import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -26,11 +27,13 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.patch.BuildConfigurationPatchBuilder;
 import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -79,6 +82,28 @@ public class BuildConfigurationEndpointTest {
                 .replaceDescription(newDescription2);
         BuildConfiguration updated2 = client.patch(id, builder2.getJsonPatch(), BuildConfiguration.class);
         Assert.assertEquals(newDescription2, updated2.getDescription());
+    }
+
+    @Test
+    public void shouldCreateBuildConfigRevision() throws ClientException {
+        final String description = "Updated description.";
+        final String buildScript = "mvn deploy # Updated script";
+        final int id = 100;
+
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        BuildConfiguration bc = client.getSpecific(id);
+
+        BuildConfiguration newBC1 = bc.toBuilder().description(description).build();
+        BuildConfiguration newBC2 = bc.toBuilder().buildScript(buildScript).build();
+
+        BuildConfigurationRevision newRevision1 = client.createRevision(id, newBC1);
+        BuildConfigurationRevision newRevision2 = client.createRevision(id, newBC2);
+
+        assertEquals(description, newRevision1.getDescription());
+        assertEquals(bc.getBuildScript(), newRevision1.getBuildScript());
+        assertEquals(bc.getDescription(), newRevision2.getDescription());
+        assertEquals(buildScript, newRevision2.getBuildScript());
+        assertThat(newRevision1.getRev()).isLessThan(newRevision2.getRev());
     }
 
 }

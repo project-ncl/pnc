@@ -78,8 +78,13 @@ public class BuildConfigurationProviderImpl
 
     private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProviderImpl.class);
 
+    @Inject
     private ProductVersionRepository productVersionRepository;
+
+    @Inject
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
+
+    @Inject
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
@@ -94,19 +99,15 @@ public class BuildConfigurationProviderImpl
     @Inject
     private SCMRepositoryProvider scmRepositoryProvider;
 
+    @Inject
+    private BuildConfigRevisionHelper buildConfigRevisionHelper;
+
     private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id(-1).build();
 
     @Inject
     public BuildConfigurationProviderImpl(BuildConfigurationRepository repository,
-                                          BuildConfigurationMapper mapper,
-                                          ProductVersionRepository productVersionRepository,
-                                          BuildConfigurationRevisionMapper buildConfigRevisionMapper,
-                                          BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
+                                          BuildConfigurationMapper mapper) {
         super(repository, mapper, org.jboss.pnc.model.BuildConfiguration.class);
-
-        this.productVersionRepository = productVersionRepository;
-        this.buildConfigurationRevisionMapper = buildConfigRevisionMapper;
-        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
     }
 
 
@@ -189,16 +190,9 @@ public class BuildConfigurationProviderImpl
             return buildConfigurationRevisionMapper.toDTO(latestRevision);
         }
         bcEntity.setCreationTime(latestRevision.getCreationTime());
-        repository.save(bcEntity);
 
-        return buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(id)
-                .stream()
-                .filter(bca -> equalValues(bca, bcEntity))
-                .findFirst()
-                .map(buildConfigurationRevisionMapper::toDTO)
-                .orElseThrow(() -> new IllegalStateException("Couldn't find updated BuildConfigurationAudited entity. "
-                + "BuildConfiguration to be stored: " + buildConfiguration));
+        buildConfigRevisionHelper.updateBuildConfiguration(bcEntity);
+        return buildConfigRevisionHelper.findRevision(id, bcEntity);
     }
 
     @Override
