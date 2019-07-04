@@ -17,21 +17,4 @@
     limitations under the License.
 
 -->
-<div>
-  <pnc-header>
-    <pnc-header-title>Group Configs</pnc-header-title>
-    <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Group Config" ui-sref="group-configs.create">
-        <i class="fa fa-file-text-o"></i> Create
-      </button>
-    </pnc-header-buttons>
-  </pnc-header>
-
-  <div class="row">
-    <pnc-toolbar filtering-page="$ctrl.paginator" filtering-fields="$ctrl.filterFields"></pnc-toolbar>
-  </div>
-  <div>
-    <pnc-group-configs-list group-configs="$ctrl.paginator.data"></pnc-group-configs-list>
-    <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.paginator" ng-if="$ctrl.paginator"></pnc-page-controls>
-  </div>
-</div>
+<a ui-sref="product.detail.version({ productId: $ctrl.productVersion.product.id, versionId: $ctrl.productVersion.id })" ng-transclude href>{{ ::$ctrl.productVersion.product.name }} v{{ ::$ctrl.productVersion.version }}</a>

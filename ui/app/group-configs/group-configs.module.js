@@ -37,6 +37,7 @@
       }]);
 
       $stateProvider.state('group-configs', {
+        abstract: true,
         url: '/group-configs',
         redirectTo: 'group-configs.list',
         views: {
@@ -45,7 +46,7 @@
           }
         },
         data: {
-          displayName: false
+          proxy: 'group-configs.list'
         }
       });
 
@@ -64,23 +65,73 @@
         }
       });
 
-
-      $stateProvider.state('build-groups', {
-        abstract: true,
-        url: '/build-groups',
-        views: {
-          'content@': {
-            templateUrl: 'common/templates/single-col.tmpl.html'
-          }
+      $stateProvider.state('group-configs.detail', {
+        url: '/{groupConfigId:int}',
+        component: 'pncGroupConfigDetailPage',
+        resolve: {
+          groupConfig: [
+            '$stateParams',
+            'GroupConfigResource',
+            ($stateParams, GroupConfigResource) => GroupConfigResource.get({ id: $stateParams.groupConfigId }).$promise
+          ],
+          productVersion: [
+            'groupConfig',
+            'ProductVersion',
+            (groupConfig, ProductVersion) => ProductVersion.get({ id: groupConfig.productVersion.id }).$promise
+          ]
         },
         data: {
-          proxy: 'build-groups.list',
+          displayName: '{{ groupConfig.name }}',
+          title: '{{ groupConfig.name }} | Group Configs'
         }
       });
 
-      $stateProvider.state('build-groups.detail', {
+      $stateProvider.state('group-configs.create', {
+        url: '/create',
+        component: 'pncGroupConfigCreatePage',
+        // resolve: {
+        //   productVersion: [
+        //     '$stateParams',
+        //     'ProductVersion',
+        //     ($stateParams, ProductVersion) => {
+        //       if (!$stateParams.productVersionId) {
+        //         return null;
+        //       }
+
+        //       return ProductVersion.get({ id: $stateParams.productVersionId }).$promise;
+        //     }
+        //   ],
+        // },
+        data: {
+          requireAuth: true,
+          displayName: false,
+          title: 'Create | Group Configs'
+        }
+      });
+
+
+      /*
+       *       $stateProvider.state('build-groups.create', {
+        url: '/create/:productId/:versionId',
+        templateUrl: 'build-groups/views/build-groups.create.html',
+        data: {
+          displayName: 'Create Build Group',
+          title: 'Create Build Group',
+          requireAuth: true
+        },
+        controller: 'ConfigurationSetCreateController',
+        controllerAs: 'createSetCtrl',
+        resolve: {
+          products: ['ProductDAO', function(ProductDAO) {
+            return ProductDAO.getAll();
+          }],
+        },
+      });
+       */
+      /*
+            $stateProvider.state('build-groups.detail', {
         abstract: true,
-        url: '/{configurationSetId}',
+        url: '/{configurationSetId:int}',
         templateUrl: 'build-groups/views/build-groups.detail.html',
         data: {
           displayName: '{{ configurationSetDetail.name }}',
@@ -119,67 +170,9 @@
           }]
         }
       });
+      */
 
-      $stateProvider.state('build-groups.detail.build-configs', {
-        url: '',
-        component: 'pncBuildGroupBuildConfigs',
-        bindings: {
-          buildGroup: 'configurationSetDetail',
-          page: 'buildConfigsPage'
-        }
-      });
 
-      $stateProvider.state('build-groups.detail.build-history', {
-        url: '/build-history',
-        component: 'pncBuildGroupBuildHistory',
-        resolve: {
-          buildGroupRecords: ['$stateParams', 'BuildConfigurationSet', function ($stateParams, BuildConfigurationSet) {
-            var buildGroupRecords = BuildConfigurationSet.queryBuildConfigSetRecords({ id: $stateParams.configurationSetId });
-            return buildGroupRecords.$promise.then(function () { return buildGroupRecords; });
-          }]
-        },
-        bindings: {
-          buildGroup: 'configurationSetDetail'
-        }
-      });
-
-      $stateProvider.state('build-groups.create', {
-        url: '/create/:productId/:versionId',
-        templateUrl: 'build-groups/views/build-groups.create.html',
-        data: {
-          displayName: 'Create Build Group',
-          title: 'Create Build Group',
-          requireAuth: true
-        },
-        controller: 'ConfigurationSetCreateController',
-        controllerAs: 'createSetCtrl',
-        resolve: {
-          products: ['ProductDAO', function(ProductDAO) {
-            return ProductDAO.getAll();
-          }],
-        },
-      });
-
-      $stateProvider.state('build-groups.add-configuration', {
-        url: '/build-groups/{configurationSetId}/add-configuration',
-        templateUrl: 'build-groups/views/build-groups.add.configuration.html',
-        data: {
-          displayName: 'Add Build Config',
-          title: 'Add Build Config',
-          requireAuth: true
-        },
-        controller: 'ConfigurationSetAddConfigurationController',
-        controllerAs: 'addConfigurationSetCtrl',
-        resolve: {
-          configurationSetDetail: ['BuildConfigurationSetDAO', '$stateParams', function(BuildConfigurationSetDAO, $stateParams) {
-            return BuildConfigurationSetDAO.get({
-              configurationSetId: $stateParams.configurationSetId }).$promise;
-          }],
-          projects: ['ProjectDAO', function(ProjectDAO) {
-            return ProjectDAO.query();
-          }]
-        }
-      });
     }
   ]);
 
