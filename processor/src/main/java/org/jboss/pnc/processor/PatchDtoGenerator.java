@@ -146,7 +146,6 @@ public class PatchDtoGenerator extends AbstractProcessor {
 
         String methodName = "add" + StringUtils.firstCharToUpperCase(fieldName);
         MethodSpec.Builder methodBuilder = beginMethod(methodName);
-//        ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Collection.class), getGenericTypeNames(dtoField)), "collection").build();
         ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(dtoField.asType()), "elements").build();
         methodBuilder.addParameter(parameterSpec);
         methodBuilder.returns(ClassName.get("org.jboss.pnc.client.patch", patchBuilderClassName));

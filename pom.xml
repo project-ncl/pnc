@@ -94,6 +94,7 @@
     <module>bpm</module>
     <module>process-managers</module>
     <module>processor</module>
+    <module>rest-client</module>
   </modules>
 
   <properties>
@@ -340,6 +341,13 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>dto</artifactId>
+        <classifier>patch-builders</classifier>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>facade</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -354,6 +362,12 @@
         <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-api</artifactId>
         <classifier>java-client</classifier>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-client</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -1032,6 +1046,12 @@
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${version.org.json}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.fge</groupId>
+        <artifactId>json-patch</artifactId>
+        <version>1.9</version>
       </dependency>
 
       <dependency>

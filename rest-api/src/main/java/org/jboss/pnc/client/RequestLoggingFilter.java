@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.common.util.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +24,7 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -36,7 +36,11 @@ public class RequestLoggingFilter implements ClientRequestFilter {
     @Override
     public void filter(ClientRequestContext requestContext) throws IOException {
         MultivaluedMap<String, String> headers = requestContext.getStringHeaders();
-        logger.debug("Requesting: {} {} Headers: {}.", requestContext.getMethod(), requestContext.getUri(), MapUtils.toString(headers));
+        logger.debug("Requesting: {} {} Headers: {}.", requestContext.getMethod(), requestContext.getUri(), toString(headers));
+    }
+
+    public static String toString(MultivaluedMap<String, String> map) {
+        return map.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining("; "));
     }
 
 }

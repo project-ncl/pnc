@@ -24,7 +24,6 @@ import lombok.Data;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.MilestoneReleaseStatus;
-import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -34,7 +33,6 @@ import java.time.Instant;
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
-@PatchSupport
 @Data
 @Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = ProductMilestoneRelease.Builder.class)
