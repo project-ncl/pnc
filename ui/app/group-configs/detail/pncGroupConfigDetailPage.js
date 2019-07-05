@@ -21,49 +21,75 @@
 
   angular.module('pnc.group-configs').component('pncGroupConfigDetailPage', {
     bindings: {
-      originalGroupConfig: '<groupConfig',
-      originalProductVersion: '<productVersion'
+      /**
+       * Object GroupConfigResource: The GroupConfig resource object to display info for
+       */
+      groupConfig: '<',
+      /**
+       * The product version associated with GroupConfig
+       */
+      productVersion: '<'
     },
     templateUrl: 'group-configs/detail/pnc-group-config-detail-page.html',
-    controller: [Controller]
+    controller: ['$log', '$state', 'modalSelectService', 'GroupConfigResource', Controller]
   });
 
-  function Controller() {
+  function Controller($log, $state, modalSelectService, GroupConfigResource) {
     const $ctrl = this;
 
     // -- Controller API --
 
     $ctrl.update = update;
+    $ctrl.delete = deleteGroupConfig;
+    $ctrl.linkWithProductVersion = linkWithProductVersion;
+    $ctrl.unlinkFromProductVersion = unlinkFromProductVersion;
 
     // --------------------
 
     $ctrl.$onInit = () => {
-      $ctrl.groupConfig = angular.copy($ctrl.originalGroupConfig);
-      $ctrl.productVersion = angular.copy($ctrl.originalProductVersion);
-
-      console.log('$ctrl.groupConfig == %O', $ctrl.groupConfig);
-      console.log('$ctrl.productVersion == %O', $ctrl.productVersion);
+      $ctrl.formModel = $ctrl.groupConfig.toJSON();
     };
 
 
-    function update() {
-      $ctrl.groupConfig.$update()
-          .catch(() => $ctrl.groupConfig = angular.copy($ctrl.originalGroupConfig));
-
-      // update = function() {
-      //   $log.debug('Updating BuildConfigurationSet: %s', JSON.stringify(self.set));
-      //   self.set.$update(
-      //   ).then(
-      //     function() {
-      //       $state.go('build-groups.detail.build-configs', {
-      //         configurationSetId: self.set.id
-      //       }, {
-      //         reload: true
-      //       });
-      //     }
-      //   )
+    function resetState(groupConfig, productVersion) {
+      $log.debug('pncGroupConfigDetailPage::resetState [groupConfig: %O | productVersion: %O]', groupConfig, productVersion);
+      $ctrl.groupConfig = groupConfig;
+      $ctrl.productVersion = productVersion;
+      $ctrl.formModel = groupConfig.toJSON();
     }
 
+    function update(data) {
+      return GroupConfigResource.safePatch($ctrl.groupConfig, data)
+          .$promise
+          .catch(
+            // String retval signals to x-editable lib that the request failed and to rollback the changes in the view.
+            error => error.data.errorMessage
+          );
+    }
+
+    function deleteGroupConfig() {
+      $ctrl.groupConfig
+          .$delete()
+          .then(() => $state.go('group-configs.list'));
+    }
+
+    function linkWithProductVersion() {
+
+      modalSelectService.openForProductVersion({
+        title: 'Link ' + $ctrl.groupConfig.name + ' with a product version'
+      })
+          .result
+          .then(productVersion => {
+              GroupConfigResource
+                  .linkWithProductVersion($ctrl.groupConfig, productVersion)
+                  .then(patchedGroupConfig => resetState(patchedGroupConfig, productVersion));
+      });
+    }
+
+    function unlinkFromProductVersion() {
+      GroupConfigResource.unlinkFromProductVersion($ctrl.groupConfig)
+          .then(patchedGroupConfig => resetState(patchedGroupConfig, null));
+    }
   }
 
 })();

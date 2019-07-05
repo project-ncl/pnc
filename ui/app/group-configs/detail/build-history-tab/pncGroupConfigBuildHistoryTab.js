@@ -19,20 +19,16 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.group-configs').component('pncGroupConfigLink', {
+  angular.module('pnc.group-configs').component('pncGroupConfigBuildHistoryTab', {
     bindings: {
-      /**
-       * GroupConfig resource object to link to, or alternatively pass an object literal
-       * with the id of the GroupConfig to link to... e.g. { id: 5 }
-       */
-      groupConfig: '<'
+      groupConfig: '<',
+      groupBuilds: '<'
     },
-    transclude: true,
-    templateUrl: 'group-configs/components/pnc-group-config-link/pnc-group-config-link.html',
-    controller: [Controller]
+    templateUrl: 'group-configs/detail/build-history-tab/pnc-group-config-build-history-tab.html',
+    controller: ['$log', 'paginator', Controller]
   });
 
-  function Controller() {
+  function Controller($log, paginator) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -40,9 +36,11 @@
 
     // --------------------
 
-
     $ctrl.$onInit = () => {
+      $ctrl.paginator = paginator($ctrl.groupBuilds);
+      $log.debug('pncGroupConfigBuildHistoryTab::$onInit [groupConfig: %O | groupBuilds: %O]', $ctrl.groupConfig, $ctrl.groupBuilds);
     };
+
   }
 
 })();

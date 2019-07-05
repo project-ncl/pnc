@@ -36,7 +36,7 @@
     'rsqlQuery',
     function ($log, $page, paginator, rsqlQuery) {
 
-      var SEARCH_WILDCARD_CHAR = '%';
+      var SEARCH_WILDCARD_CHAR = '*';
 
       function filteringPaginator(page, search) {
         var prototype = paginator(page);

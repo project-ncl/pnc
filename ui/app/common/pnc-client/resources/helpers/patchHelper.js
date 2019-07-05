@@ -21,7 +21,6 @@
   angular.module('pnc.common.pnc-client.resources').factory('patchHelper', [
     '$log',
     'resourceHelper',
-    '$http',
     function ($log, resourceHelper) {
 
       const { normalize } = resourceHelper;

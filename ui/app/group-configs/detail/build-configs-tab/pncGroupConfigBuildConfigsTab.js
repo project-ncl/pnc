@@ -19,39 +19,37 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-groups').component('pncBuildGroupBuildHistory', {
+  angular.module('pnc.group-configs').component('pncGroupConfigBuildConfigsTab', {
     bindings: {
-      buildGroup: '<',
-      buildGroupRecords: '<'
+      groupConfig: '<',
+      buildConfigs: '<'
     },
-    templateUrl: 'build-groups/directives/pnc-build-group-build-history/pnc-build-group-build-history.html',
-    controller: ['$scope', 'eventTypes', 'paginator', Controller]
+    templateUrl: 'group-configs/detail/build-configs-tab/pnc-group-config-build-configs-tab.html',
+    controller: ['$log', 'paginator', Controller]
   });
 
-
-  function Controller($scope, eventTypes, paginator) {
-    var $ctrl = this;
+  function Controller($log, paginator) {
+    const $ctrl = this;
 
     // -- Controller API --
 
+    $ctrl.onEdit = onEdit;
+    $ctrl.onRemove = onRemove;
 
     // --------------------
 
-    
-    $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.buildGroupRecords);
-      $scope.$on(eventTypes.BUILD_SET_STARTED, handleEvent);
-      $scope.$on(eventTypes.BUILD_SET_FINISHED, handleEvent);
+    $ctrl.$onInit = () => {
+      $ctrl.paginator = paginator($ctrl.buildConfigs);
     };
 
-    function handleEvent(event, payload) {
-      if (payload.buildSetConfigurationId === $ctrl.buildGroup.id) {
-        $scope.$applyAsync(function () {
-          $ctrl.page.refresh();
-        });
-      }
+    function onEdit(buildConfigs) {
+      $log.error('Batch update of Build Configs not yet implemented. Build Configs: %O', buildConfigs);
     }
 
+    function onRemove(buildConfig) {
+      $log.info('remove BuildConfig: %O', buildConfig);
+      return $ctrl.groupConfig.$removeBuildConfig({ buildConfigId: buildConfig.id });
+    }
   }
 
 })();

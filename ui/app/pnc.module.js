@@ -93,6 +93,7 @@
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
     $httpProvider.interceptors.push('httpAuthenticationInterceptor');
+    $httpProvider.defaults.headers.patch = { 'Content-Type': 'application/json-patch+json; charset=utf-8' };
 
     $animateProvider.classNameFilter(/pnc-animate/);
   }]);
