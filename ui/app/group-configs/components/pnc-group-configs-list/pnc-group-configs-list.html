@@ -17,7 +17,8 @@
     limitations under the License.
 
 -->
-<table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
+<div>
+  <table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
     <thead>
       <th ng-if="::$ctrl.showColumn('name')">Name</th>
       <th ng-if="::$ctrl.showColumn('buildStatus')">Build Status</th>
@@ -36,5 +37,5 @@
     </tbody>
   </table>
   <p ng-hide="$ctrl.showTable()" class="text-center"><em>There are no Group Configs to display</em></p>
-  
-  
+</div>
+

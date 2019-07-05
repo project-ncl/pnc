@@ -17,7 +17,7 @@
  */
 (function () {
     'use strict';
-  
+
     /**
      * The component representing toolbar (see https://patternfly.github.io/angular-patternfly/#!/api/patternfly.toolbars.directive:pfToolbar)
      * compatible with pnc-client library.
@@ -31,12 +31,30 @@
         /**
          * Array: The fields representing individual select box filtering options, this configuration will extend PatternFly Toolbar configuration
          */
-        filteringFields: '<'
+        filteringFields: '<',
+        /**
+         * Object: Optional config object for toolbar level action buttons:
+         *
+         * Valid properties:
+         * .primaryActions - (Array<Object>) List of primary actions to display on the toolbar. Valid object properties:
+         *    .name - (String) The name of the action, displayed on the button
+         *    .title - (String) Optional title, used for the tooltip
+         *    .actionFn - (function(action)) Function to invoke when the action selected
+         *    .isDisabled - (Boolean) set to true to disable the action
+         * .moreActions - (Array<Object>) List of secondary actions to display on the toolbar action pulldown menu. Valid object properties:
+         *    .name - (String) The name of the action, displayed on the button
+         *    .title - (String) Optional title, used for the tooltip
+         *    .actionFn - (function(action)) Function to invoke when the action selected
+         *    .isDisabled - (Boolean) set to true to disable the action
+         *    .isSeparator - (Boolean) set to true if this is a placehodler for a separator rather than an action
+         * .actionsInclude - (Boolean) set to true if using the actions transclude to add custom action buttons (only available if using Angular 1.5 or later)
+         */
+        actionsConfig: '<?'
       },
       templateUrl: 'common/components/pnc-toolbar/pnc-toolbar.html',
       controller: ['pfFilterAdaptor', Controller]
     });
-  
+
     function Controller(pfFilterAdaptor) {
       var $ctrl = this;
 
@@ -47,7 +65,7 @@
 
       $ctrl.$onInit = () => {
         $ctrl.adaptor = pfFilterAdaptor($ctrl.filteringPage);
-    
+
         $ctrl.pfToolbarConfig = {
           isTableView: true,
           filterConfig: {
@@ -57,6 +75,10 @@
             onFilterChange: $ctrl.adaptor.onFilterChange
           }
         };
+
+        if ($ctrl.actionsConfig) {
+          $ctrl.pfToolbarConfig.actionsConfig = $ctrl.actionsConfig;
+        }
       };
 
     }

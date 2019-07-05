@@ -20,7 +20,7 @@
 
   const module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('GROUP_CONFIG_PATH', '/group-configurations/:id');
+  module.value('GROUP_CONFIG_PATH', '/group-configs/:id');
 
   /**
    *
@@ -28,10 +28,10 @@
    */
   module.factory('GroupConfigResource', [
     '$resource',
-    '$http',
     'restConfig',
     'GROUP_CONFIG_PATH',
-    ($resource, $http, restConfig, GROUP_CONFIG_PATH) => {
+    'patchHelper',
+    ($resource, restConfig, GROUP_CONFIG_PATH, patchHelper) => {
       const ENDPOINT = restConfig.getPncRestUrl() + GROUP_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
@@ -61,18 +61,29 @@
         },
         queryBuildConfigs: {
           method: 'GET',
-          url: ENDPOINT + '/build-configurations',
+          url: ENDPOINT + '/build-configs',
           isPaged: true
         },
-        deleteBuildConfig: {
+        removeBuildConfig: {
           method: 'DELETE',
-          url: ENDPOINT + '/build-configurations/:buildConfigId',
+          url: ENDPOINT + '/build-configs/:buildConfigId',
+          successNotification: false
         },
         queryBuilds: {
           method: 'GET',
           url: ENDPOINT + '/builds'
         }
       });
+
+      patchHelper.assignPatchMethods(resource);
+
+      resource.linkWithProductVersion = function (groupConfig, productVersion) {
+        return resource.safePatch(groupConfig, { productVersion: { id: productVersion.id }}).$promise;
+      };
+
+      resource.unlinkFromProductVersion = function (groupConfig) {
+        return resource.safePatch(groupConfig, { productVersion: null }).$promise;
+      };
 
       return resource;
     }

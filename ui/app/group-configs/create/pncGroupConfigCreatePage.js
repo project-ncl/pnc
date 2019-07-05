@@ -24,10 +24,10 @@
       productVersion: '<'
     },
     templateUrl: 'group-configs/create/pnc-group-config-create-page.html',
-    controller: ['$state', 'GroupConfigResource', Controller]
+    controller: ['$log', '$state', 'GroupConfigResource', Controller]
   });
 
-  function Controller($state, GroupConfigResource) {
+  function Controller($log, $state, GroupConfigResource) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -37,9 +37,9 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      console.log('$ctrl.productVersion == %O', $ctrl.productVersion);
+      $log.debug('pncGroupConfigCreatePage::$onInit [productVersion: %O]', $ctrl.productVersion);
     };
-    
+
 
     function create(formValues) {
       console.log('create -> %O', formValues);
@@ -53,9 +53,6 @@
       }
 
       groupConfig.$save().then(() => $state.go('group-configs.detail', { groupConfigId: groupConfig.id }));
-      // new GroupConfigResource(formValues)
-      //     .$save()
-      //     .then(groupConfig => $state.go('group-configs.detail', { groupConfigId: groupConfig.id }));
     }
   }
 

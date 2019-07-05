@@ -233,7 +233,7 @@
 
 .pnc-build-records-list th {
   text-align: center;
-  
+
 }
 
 .pnc-build-records-list .push-status {
@@ -316,7 +316,7 @@
 
 @media (min-width: 1200px) {
   .build-script {
-    display: inline-block; 
+    display: inline-block;
     min-width: 650px;
   }
 }
@@ -398,7 +398,7 @@ pf-toolbar.hide-result-count .toolbar-pf-results h5 {
 td.status-icon {
   padding: 0 !important;
   text-align: center !important;
-  
+
 }
 
 .dl-horizontal.properties-list > dt, .dl-horizontal.properties-list > dd {
@@ -418,4 +418,13 @@ td.status-icon {
 .resource-details h3 {
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
+}
+
+/*
+ * Fixes annoying misalignement of pf-toolbar filter box.
+ */
+@media (min-width: 768px) {
+  pnc-toolbar div.input-group.form-group {
+    margin-left: -20px;
+  }
 }
