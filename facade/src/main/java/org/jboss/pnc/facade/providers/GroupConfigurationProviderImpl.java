@@ -34,6 +34,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
@@ -66,6 +67,15 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
             return null;
         }
         return mapper.toDTO(dbEntity);
+    }
+
+    @Override
+    public GroupConfiguration update(Integer id, GroupConfiguration restEntity) {
+        BuildConfigurationSet dbEntity = repository.queryById(id);
+        if (dbEntity != null && dbEntity.isArchived()) {
+            throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
+        }
+        return super.update(id, restEntity);
     }
 
     @Override

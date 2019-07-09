@@ -44,7 +44,7 @@ public interface GroupConfigurationMapper extends EntityMapper<BuildConfiguratio
     }
 
     @Override
-    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "active", constant = "true")
     @Mapping(target = "buildConfigSetRecords", ignore = true)
     @Mapping(target = "archived", ignore = true)
     BuildConfigurationSet toEntity(GroupConfiguration dtoEntity);
