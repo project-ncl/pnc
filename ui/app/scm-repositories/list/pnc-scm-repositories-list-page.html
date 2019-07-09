@@ -21,7 +21,10 @@
   <pnc-header-title>SCM Repositories</pnc-header-title>
 </pnc-header>
 
+<div class="row">
+  <pnc-toolbar filtering-page="$ctrl.scmRepositoriesFilteringPage" filtering-fields="$ctrl.scmRepositoriesFilteringFields"></pnc-toolbar>
+</div>
 <div>
-  <pnc-scm-repositories-list scm-repositories="$ctrl.page.data"></pnc-scm-repositories-list>
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.page" ng-if="$ctrl.page"></pnc-page-controls>
+  <pnc-scm-repositories-list scm-repositories="$ctrl.scmRepositoriesFilteringPage.data"></pnc-scm-repositories-list>
+  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.scmRepositoriesFilteringPage" ng-if="$ctrl.scmRepositoriesFilteringPage"></pnc-page-controls>
 </div>
