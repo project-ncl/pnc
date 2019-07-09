@@ -26,18 +26,29 @@
       scmRepositories: '<'
     },
     templateUrl: 'scm-repositories/list/pnc-scm-repositories-list-page.html',
-    controller: ['paginator', Controller]
+    controller: ['filteringPaginator', Controller]
   });
 
-  function Controller(paginator) {
+  function Controller(filteringPaginator) {
     var $ctrl = this;
 
     // -- Controller API --
+    $ctrl.scmRepositoriesFilteringFields = [{
+      id: 'internalUrl',
+      title: 'Internal URL',
+      placeholder: 'Filter by Internal URL',
+      filterType: 'text'
+    }, {
+      id: 'externalUrl',
+      title: 'External URL',
+      placeholder: 'Filter by External URL',
+      filterType: 'text'
+    }];
     
     // --------------------
 
     $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.scmRepositories);
+      $ctrl.scmRepositoriesFilteringPage = filteringPaginator($ctrl.scmRepositories);
     };
 
   }
