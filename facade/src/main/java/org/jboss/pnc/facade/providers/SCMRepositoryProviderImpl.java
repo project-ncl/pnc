@@ -183,7 +183,7 @@ public class SCMRepositoryProviderImpl
         if (internalUrl != null) {
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(internalUrl);
             if (repositoryConfiguration != null) {
-                String message = "{ \"repositoryId\" : " + repositoryConfiguration.getId() + "}";
+                String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
                 throw new ConflictedEntryException(message, RepositoryConfiguration.class, repositoryConfiguration.getId());
             }
         }
@@ -193,7 +193,7 @@ public class SCMRepositoryProviderImpl
         if (externalUrl != null) {
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(externalUrl);
             if (repositoryConfiguration != null) {
-                String message = "{ \"repositoryId\" : " + repositoryConfiguration.getId() + "}";
+                String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
                 throw new ConflictedEntryException(message, RepositoryConfiguration.class, repositoryConfiguration.getId());
             }
         }
