@@ -33,7 +33,6 @@ import javax.ws.rs.ext.Provider;
 public class JacksonProvider implements ContextResolver<ObjectMapper> {
     private ObjectMapper objectMapper;
 
-
     public JacksonProvider() throws Exception {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());

@@ -36,6 +36,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
