@@ -15,38 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.messaging;
+package org.jboss.pnc.mock.auth;
 
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Dependent
-public class SysConfigProducer {
+@ApplicationScoped
+public class KeycloakServiceClientMock implements KeycloakServiceClient {
 
-    @Produces
-    public SystemConfig createSystemConfig() {
-//        SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
-//        Mockito.when(systemConfig.getMessagingInternalQueueSize()).thenReturn(2);
-//        return systemConfig;
-
-        return new SystemConfig(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "10",
-                null,
-                null,
-                null,
-                "",
-                "2");
+    @Override
+    public String getAuthToken() {
+        return "mocked-token";
     }
 }

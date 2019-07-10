@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.causewayclient;
 
+import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
@@ -44,7 +45,7 @@ public class CausewayClientRemoteTest {
 
     public CausewayClientRemoteTest() throws IOException, ConfigurationParseException {
         SystemConfig systemConfig = SystemConfigMock.withKeycloakServiceAccount();
-        serviceClient = new KeycloakServiceClient(systemConfig);
+        serviceClient = new DefaultKeycloakServiceClient(systemConfig);
 
         BpmModuleConfig config = BpmModuleConfigMock.get();
         causewayClient = new DefaultCausewayClient(config);
