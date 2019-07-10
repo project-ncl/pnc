@@ -15,12 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.auth;
+package org.jboss.pnc.mock.auth;
+
+import org.jboss.pnc.auth.KeycloakServiceClient;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface KeycloakServiceClient {
+@ApplicationScoped
+public class KeycloakServiceClientMock implements KeycloakServiceClient {
 
-    String getAuthToken();
+    @Override
+    public String getAuthToken() {
+        return "mocked-token";
+    }
 }

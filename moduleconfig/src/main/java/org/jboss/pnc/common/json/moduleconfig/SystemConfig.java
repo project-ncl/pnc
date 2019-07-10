@@ -17,15 +17,10 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 public class SystemConfig extends AbstractModuleConfig {
 
@@ -64,6 +59,8 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private KeycloakClientConfig keycloakServiceAccountConfig;
 
+    private long serviceTokenRefreshIfExpiresInSeconds;
+
     /**
      * Temporary builds life span set as number of days. After the expiration the temporary builds gets deleted.
      * Defaults to 14 days.
@@ -84,6 +81,7 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("brewTagPattern") String brewTagPattern,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
             @JsonProperty("keycloakServiceAccountConfig") KeycloakClientConfig keycloakServiceAccountConfig,
+            @JsonProperty("serviceTokenRefreshIfExpiresInSeconds") String serviceTokenRefreshIfExpiresInSeconds,
             @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan,
             @JsonProperty("messageSenderId") String messageSenderId,
             @JsonProperty("messagingInternalQueueSize") String messagingInternalQueueSize) {
@@ -96,6 +94,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
         this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
+        this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault("serviceTokenRefreshIfExpiresInSeconds", serviceTokenRefreshIfExpiresInSeconds, 3600);
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
         this.messageSenderId = messageSenderId;
         this.messagingInternalQueueSize = toIntWithDefault("messagingInternalQueueSize", messagingInternalQueueSize, 1000);
@@ -139,6 +138,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public KeycloakClientConfig getKeycloakServiceAccountConfig() {
         return keycloakServiceAccountConfig;
+    }
+
+    public long getServiceTokenRefreshIfExpiresInSeconds() {
+        return serviceTokenRefreshIfExpiresInSeconds;
     }
 
     public String getMessageSenderId() {
