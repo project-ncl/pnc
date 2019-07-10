@@ -18,9 +18,11 @@
 package org.jboss.pnc.integration.deployments;
 
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.integration.client.RestClient;
 import org.jboss.pnc.integration.env.IntegrationTestEnv;
+import org.jboss.pnc.mock.auth.KeycloakServiceClientMock;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
@@ -53,6 +55,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
+import static org.jboss.pnc.AbstractTest.AUTH_JAR;
 import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
 
 public class Deployments {
@@ -77,6 +80,8 @@ public class Deployments {
         addTestPersistenceXml(ear);
         addTestApplicaitonXml(ear);
 
+        addKeycloakServiceClientMock(ear);
+
         logger.info("Ear archive listing: {}", ear.toString(true));
 
         return ear;
@@ -92,6 +97,19 @@ public class Deployments {
         jar.addClass(RepositoryManagerResultMock.class);
         jar.addClass(ArtifactBuilder.class);
 
+        jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+
+        logger.info(jar.toString(true));
+
+        enterpriseArchive.addAsModule(jar);
+
+    }
+
+    public static void addKeycloakServiceClientMock(EnterpriseArchive enterpriseArchive) {
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, AUTH_JAR);
+
+        jar.deleteClass(DefaultKeycloakServiceClient.class);
+        jar.addClass(KeycloakServiceClientMock.class);
 
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
@@ -126,6 +144,8 @@ public class Deployments {
         if (arquillianDeploymentFactory.isCreateArchiveCopy()) {
             arquillianDeploymentFactory.writeArchiveToFile(ear, new File("target", ArquillianDeploymentFactory.INTEGRATION_TEST_MODULE_DIR + ".ear"));
         }
+
+        addKeycloakServiceClientMock(ear);
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 

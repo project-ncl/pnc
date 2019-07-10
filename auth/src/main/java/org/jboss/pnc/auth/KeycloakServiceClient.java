@@ -17,34 +17,10 @@
  */
 package org.jboss.pnc.auth;
 
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.keycloak.representations.AccessTokenResponse;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Dependent
-public class KeycloakServiceClient {
+public interface KeycloakServiceClient {
 
-    private final KeycloakClientConfig keycloakServiceAccountConfig;
-
-    @Inject
-    public KeycloakServiceClient(SystemConfig systemConfig) throws ConfigurationParseException {
-        keycloakServiceAccountConfig = systemConfig.getKeycloakServiceAccountConfig();
-    }
-
-    public String getAuthToken() {
-        AccessTokenResponse keycloakToken = KeycloakClient.getAuthTokensBySecret(
-                keycloakServiceAccountConfig.getAuthServerUrl(),
-                keycloakServiceAccountConfig.getRealm(),
-                keycloakServiceAccountConfig.getResource(),
-                keycloakServiceAccountConfig.getSecret(),
-                keycloakServiceAccountConfig.getSslRequired());
-        return keycloakToken.getToken();
-    }
+    String getAuthToken();
 }

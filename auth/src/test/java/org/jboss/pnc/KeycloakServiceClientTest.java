@@ -18,6 +18,7 @@
 package org.jboss.pnc;
 
 import org.assertj.core.api.Assertions;
+import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -37,7 +38,7 @@ public class KeycloakServiceClientTest {
     @Test
     public void shouldObtainAuthToken() throws ConfigurationParseException, IOException {
         SystemConfig systemConfig = SystemConfigMock.withKeycloakServiceAccount();
-        KeycloakServiceClient keycloakServiceClient = new KeycloakServiceClient(systemConfig);
+        KeycloakServiceClient keycloakServiceClient = new DefaultKeycloakServiceClient(systemConfig);
         String authToken = keycloakServiceClient.getAuthToken();
 
         Assertions.assertThat(authToken).isNotEmpty();
