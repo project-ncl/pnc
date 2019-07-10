@@ -40,6 +40,9 @@ public interface BuildConfigurationRevisionMapper {
      BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
 
      default BuildConfigurationAudited toIDEntity(BuildConfigurationRevisionRef dtoEntity) {
+          if (dtoEntity == null) {
+               return null;
+          }
          BuildConfigurationAudited entity = new BuildConfigurationAudited();
          entity.setId(dtoEntity.getId());
          entity.setRev(dtoEntity.getRev());

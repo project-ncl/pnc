@@ -36,6 +36,9 @@ public interface ProductReleaseMapper extends EntityMapper<ProductRelease, org.j
 
     @Override
     default ProductRelease toIDEntity(ProductReleaseRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         ProductRelease release = new ProductRelease();
         release.setId(dtoEntity.getId());
         return release;

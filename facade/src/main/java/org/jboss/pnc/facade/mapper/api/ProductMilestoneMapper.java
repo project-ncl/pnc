@@ -38,6 +38,9 @@ public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, o
 
     @Override
     default ProductMilestone toIDEntity(ProductMilestoneRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         ProductMilestone milestone = new ProductMilestone();
         milestone.setId(dtoEntity.getId());
         return milestone;

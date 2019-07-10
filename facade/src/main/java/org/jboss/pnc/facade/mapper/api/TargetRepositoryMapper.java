@@ -35,6 +35,9 @@ public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, o
 
     @Override
     default TargetRepository toIDEntity(TargetRepositoryRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         TargetRepository repository = new TargetRepository();
         repository.setId(dtoEntity.getId());
         return repository;

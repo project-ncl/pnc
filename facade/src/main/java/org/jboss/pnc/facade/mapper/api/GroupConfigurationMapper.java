@@ -35,6 +35,9 @@ public interface GroupConfigurationMapper extends EntityMapper<BuildConfiguratio
 
     @Override
     default BuildConfigurationSet toIDEntity(GroupConfigurationRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         BuildConfigurationSet entity = new BuildConfigurationSet();
         entity.setId(dtoEntity.getId());
         return entity;

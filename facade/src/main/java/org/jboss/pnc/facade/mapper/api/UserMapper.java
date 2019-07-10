@@ -40,6 +40,9 @@ public interface UserMapper extends EntityMapper<User, org.jboss.pnc.dto.User, o
     @Override
     @IdEntity
     default User toIDEntity(org.jboss.pnc.dto.User dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         User entity = new User();
         entity.setId(dtoEntity.getId());
         return entity;
