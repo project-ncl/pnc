@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.integration_new.setup;
 
+import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.mock.auth.KeycloakServiceClientMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
+import static org.jboss.pnc.AbstractTest.AUTH_JAR;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -45,6 +48,7 @@ public class Deployments {
                 .asSingleFile();
 
         EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, earArchive);
+
         WebArchive restWar = prepareRestArchive(ear);
         ear.addAsModule(archiveToTest(restWar));
         //remove the old rest
@@ -52,6 +56,9 @@ public class Deployments {
 
         addTestPersistenceXml(ear);
         ear.setApplicationXML("application-new.xml");
+
+        addKeycloakServiceClientMock(ear);
+
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
@@ -69,5 +76,18 @@ public class Deployments {
         restWar.addAsWebInfResource("WEB-INF/jboss-web.xml");
         logger.info("REST archive listing: {}", restWar.toString(true));
         return restWar;
+    }
+
+    public static void addKeycloakServiceClientMock(EnterpriseArchive enterpriseArchive) {
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, AUTH_JAR);
+
+        jar.deleteClass(DefaultKeycloakServiceClient.class);
+        jar.addClass(KeycloakServiceClientMock.class);
+
+        jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+
+        logger.info(jar.toString(true));
+
+        enterpriseArchive.addAsModule(jar);
     }
 }
