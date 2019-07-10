@@ -34,6 +34,9 @@ public interface EnvironmentMapper extends EntityMapper<BuildEnvironment, Enviro
     @Override
     @IdEntity
     default BuildEnvironment toIDEntity(Environment dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         BuildEnvironment entity = new BuildEnvironment();
         entity.setId(dtoEntity.getId());
         return entity;

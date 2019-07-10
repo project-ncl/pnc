@@ -49,6 +49,9 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
 
     @Override
     default BuildConfiguration toIDEntity(BuildConfigurationRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         BuildConfiguration entity = new BuildConfiguration();
         entity.setId(dtoEntity.getId());
         return entity;

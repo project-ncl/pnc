@@ -23,8 +23,9 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.facade.mapper.BrewNameWorkaround;
 import org.jboss.pnc.facade.mapper.api.BuildMapper.StatusMapper;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -33,7 +34,6 @@ import org.mapstruct.Mapping;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jboss.pnc.facade.mapper.BrewNameWorkaround;
 
 /**
  *
@@ -66,6 +66,9 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
     @Override
     default BuildRecord toIDEntity(BuildRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         BuildRecord entity = new BuildRecord();
         entity.setId(dtoEntity.getId());
         return entity;

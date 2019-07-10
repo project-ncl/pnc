@@ -37,6 +37,9 @@ public interface ProductVersionMapper extends EntityMapper<ProductVersion, org.j
 
     @Override
     default ProductVersion toIDEntity(ProductVersionRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         ProductVersion entity = new ProductVersion();
         entity.setId(dtoEntity.getId());
         return entity;

@@ -41,6 +41,9 @@ public interface GroupBuildMapper extends EntityMapper<BuildConfigSetRecord, Gro
 
     @Override
     default BuildConfigSetRecord toIDEntity(GroupBuildRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         BuildConfigSetRecord bcsr = new BuildConfigSetRecord();
         bcsr.setId(dtoEntity.getId());
         return bcsr;

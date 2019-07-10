@@ -38,6 +38,9 @@ public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.P
 
     @Override
     default Project toIDEntity(ProjectRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
         Project entity = new Project();
         entity.setId(dtoEntity.getId());
         return entity;
