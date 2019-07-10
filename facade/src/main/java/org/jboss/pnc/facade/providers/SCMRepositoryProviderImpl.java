@@ -223,7 +223,7 @@ public class SCMRepositoryProviderImpl
         for (Consumer<Integer> consumer : consumers) {
             repositoryCreationTask.addListener(
                     BpmEventType.RC_CREATION_SUCCESS,
-                    n -> consumer.accept(((RepositoryCreationSuccess) n).getRepositoryConfigurationId()));
+                    n -> consumer.accept(((RepositoryCreationSuccess) n).getData().getRepositoryConfigurationId()));
         }
 
         try {

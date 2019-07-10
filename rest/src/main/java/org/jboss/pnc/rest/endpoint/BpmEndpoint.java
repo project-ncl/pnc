@@ -199,7 +199,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
         RepositoryCreationSuccess repositoryCreationTaskResult = (RepositoryCreationSuccess) notification;
 
-        int repositoryConfigurationId = repositoryCreationTaskResult.getRepositoryConfigurationId();
+        int repositoryConfigurationId = repositoryCreationTaskResult.getData().getRepositoryConfigurationId();
         int buildConfigurationSavedId = -1;
 
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
