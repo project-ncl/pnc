@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -77,6 +78,7 @@ public interface ProductReleaseEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     ProductRelease createNew(@NotNull ProductRelease productRelease);
 
     @Operation(summary = "Gets a specific product release.",

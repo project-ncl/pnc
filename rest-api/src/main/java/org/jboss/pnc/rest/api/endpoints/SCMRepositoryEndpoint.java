@@ -29,6 +29,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
 
@@ -149,6 +150,7 @@ public interface SCMRepositoryEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/create-and-sync")
     RepositoryCreationResponse createNew(@NotNull CreateAndSyncSCMRequest request);
 }

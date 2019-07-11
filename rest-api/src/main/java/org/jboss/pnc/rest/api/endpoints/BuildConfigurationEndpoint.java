@@ -34,6 +34,7 @@ import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -110,6 +111,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     BuildConfiguration createNew(@NotNull BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Gets a specific build config.",
@@ -180,6 +182,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/build")
     Build trigger(
             @Parameter(description = BC_ID) @PathParam("id") int id,
@@ -210,6 +213,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     @Path("/{id}/clone")
     BuildConfiguration clone(@Parameter(description = BC_ID) @PathParam("id") int id);
 
@@ -298,6 +302,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     @Path("/{id}/revisions")
     BuildConfigurationRevision createRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
@@ -329,6 +334,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/revisions/{rev}/build")
     Build triggerRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
@@ -364,6 +370,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/create-with-scm")
     BuildConfigCreationResponse createWithSCM(BuildConfigWithSCMRequest request);
 

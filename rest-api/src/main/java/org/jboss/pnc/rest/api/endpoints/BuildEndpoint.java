@@ -34,6 +34,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -233,6 +234,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     @Path("/{id}/attributes")
     void addAttribute(
             @Parameter(description = B_ID) @PathParam("id") int id,
@@ -277,6 +279,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/brew-push")
     BuildPushResult push(BuildPushRequest buildPushRequest);
 
@@ -304,6 +307,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     @Path("/{id}/brew-push/complete")
     BuildPushResult completePush(
             @Parameter(description = B_ID) @PathParam("id") int id,
