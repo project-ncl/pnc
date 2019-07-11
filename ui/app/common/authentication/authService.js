@@ -95,17 +95,11 @@
           },
           successNotification: false
         })
-        .then(() => {
+        .finally(() => {
           keycloak.clearToken();
           pncUser = undefined;
         });
       };
-
-
-      keycloak.onAuthSuccess = () => {
-        authService.getPncUser();
-      };
-
 
       return authService;
     }
