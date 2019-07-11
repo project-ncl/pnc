@@ -33,6 +33,7 @@ import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -107,6 +108,7 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     GroupConfiguration createNew(@NotNull GroupConfiguration buildConfigurationSet);
 
     @Operation(summary = "Gets a specific group config.",
@@ -176,6 +178,7 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/build")
     @Consumes(MediaType.APPLICATION_JSON)
     GroupBuild trigger(

@@ -31,6 +31,7 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
@@ -84,6 +85,7 @@ public interface ProductVersionEndpoint{
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     @POST
+    @RespondWithStatus(ENTITY_CREATED_CODE)
     ProductVersion createNewProductVersion(@NotNull ProductVersion productVersion);
 
     @Operation(summary = "Gets a specific product version.",
