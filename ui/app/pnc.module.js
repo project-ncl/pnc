@@ -131,6 +131,10 @@
     'onBootNotifications',
     function($log, authService, messageBus, restConfig, pncNotify, onBootNotifications) {
 
+      if (authService.isAuthenticated()) {
+        authService.getPncUser();
+      }
+
       Object.keys(onBootNotifications).forEach(function (key) {
         onBootNotifications[key].forEach(function (notification) {
           if(angular.isString(notification)) {
