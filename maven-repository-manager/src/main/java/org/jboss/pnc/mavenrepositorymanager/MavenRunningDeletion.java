@@ -20,7 +20,6 @@ package org.jboss.pnc.mavenrepositorymanager;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.module.IndyStoresClientModule;
-import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;

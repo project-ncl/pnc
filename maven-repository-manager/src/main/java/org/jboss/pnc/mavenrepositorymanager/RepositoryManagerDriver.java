@@ -20,7 +20,6 @@ package org.jboss.pnc.mavenrepositorymanager;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
-import org.commonjava.indy.client.core.IndyClientHttp;
 import org.commonjava.indy.client.core.IndyClientModule;
 import org.commonjava.indy.client.core.auth.IndyClientAuthenticator;
 import org.commonjava.indy.client.core.auth.OAuth20BearerTokenAuthenticator;
