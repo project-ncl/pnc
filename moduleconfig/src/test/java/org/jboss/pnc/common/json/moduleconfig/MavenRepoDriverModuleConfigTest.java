@@ -56,10 +56,11 @@ public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
             MavenRepoDriverModuleConfig mavenConfig = configuration
                     .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
 
-            if (backupConfigPath != null)
+            if (backupConfigPath != null) {
                 System.setProperty("pnc-config-file", backupConfigPath);
-            else
+            } else {
                 System.getProperties().remove("pnc-config-file");
+            }
 
             assertNotNull(mavenConfig);
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());

@@ -19,8 +19,7 @@ package org.jboss.pnc.spi.repositorymanager.model;
 
 import java.util.Map;
 
-public interface RepositoryConnectionInfo
-{
+public interface RepositoryConnectionInfo {
 
     String getDependencyUrl();
 

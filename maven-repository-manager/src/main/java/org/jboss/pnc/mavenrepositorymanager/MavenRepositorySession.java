@@ -24,7 +24,6 @@ import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
 import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
-import org.commonjava.indy.client.core.module.IndyContentClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
@@ -93,7 +92,6 @@ public class MavenRepositorySession implements RepositorySession {
     private List<String> internalRepoPatterns;
 
     private final RepositoryConnectionInfo connectionInfo;
-    private boolean isSetBuild;
 
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -106,7 +104,6 @@ public class MavenRepositorySession implements RepositorySession {
                                   MavenRepositoryConnectionInfo info) {
         this.indy = indy;
         this.buildContentId = buildContentId;
-        this.isSetBuild = isSetBuild;
         this.connectionInfo = info;
     }
 
@@ -118,7 +115,6 @@ public class MavenRepositorySession implements RepositorySession {
         this.buildContentId = buildContentId;
         this.internalRepoPatterns = internalRepoPatterns;
         this.ignoredPathSuffixes = ignoredPathSuffixes;
-        this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
         this.buildPromotionTarget = buildPromotionTarget;
         this.isTempBuild = isTempBuild; //TODO define based on buildPromotionGroup
@@ -214,13 +210,6 @@ public class MavenRepositorySession implements RepositorySession {
      */
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
         Logger logger = LoggerFactory.getLogger(getClass());
-
-        IndyContentClientModule content;
-        try {
-            content = indy.content();
-        } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
-        }
 
         List<Artifact> deps = new ArrayList<>();
 
