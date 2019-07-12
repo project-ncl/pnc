@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
@@ -55,12 +54,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +95,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private final String TEMP_BUILD_PROMOTION_GROUP;
 
     private String baseUrl;
-    private Map<String, Indy> indyMap = new HashMap<>();
 
     private List<String> internalRepoPatterns;
 
@@ -143,39 +141,26 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
-    private Indy init(String accessToken) {
-        Indy indy = indyMap.get(accessToken);
-        if (indy == null) { //TODO use indyConcurrentMap.computeIfAbsent
-            IndyClientAuthenticator authenticator = null;
-            if (accessToken != null) {
-                authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
-            }
-            try {
-                SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
-                        .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT)
-                        .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
-                        .build();
-
-                IndyClientModule[] modules = new IndyClientModule[] {
-                        new IndyFoloAdminClientModule(),
-                        new IndyFoloContentClientModule(),
-                        new IndyPromoteClientModule() };
-
-                indy = new Indy(siteConfig, authenticator, new IndyObjectMapper(true), modules);
-
-                indyMap.put(accessToken, indy);
-            } catch (IndyClientException e) {
-                throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
-            }
+    private synchronized Indy init(String accessToken) {
+        IndyClientAuthenticator authenticator = null;
+        if (accessToken != null) {
+            authenticator = new OAuth20BearerTokenAuthenticator(accessToken);
         }
-        return indy;
-    }
+        try {
+            SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
+                    .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT)
+                    // this client is used in single build, we don't need more than 1 connection at a time
+                    .withMaxConnections(1)
+                    .build();
 
-    @Override
-    public void close(String accessToken) {
-        if (indyMap.containsKey(accessToken)) {
-            IOUtils.closeQuietly(indyMap.get(accessToken));
-            indyMap.remove(accessToken);
+            IndyClientModule[] modules = new IndyClientModule[] {
+                    new IndyFoloAdminClientModule(),
+                    new IndyFoloContentClientModule(),
+                    new IndyPromoteClientModule() };
+
+            return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), modules);
+        } catch (IndyClientException e) {
+            throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }
     }
 

@@ -58,7 +58,7 @@ public class RepositorySessionMock implements RepositorySession {
 
             @Override
             public Map<String, String> getProperties() {
-                Map<String, String> props = new HashMap<String, String>();
+                Map<String, String> props = new HashMap<>();
                 props.put("altDeploymentRepository", "test::default::" + repo);
 
                 return props;
@@ -115,6 +115,10 @@ public class RepositorySessionMock implements RepositorySession {
             .id(i)
             .identifier(ArtifactBuilder.IDENTIFIER_PREFIX + i)
             .build();
+    }
+
+    @Override
+    public void close() {
     }
 
 }
