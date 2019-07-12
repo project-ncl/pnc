@@ -26,14 +26,14 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.enums.BuildExecutionStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
-import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -43,7 +43,6 @@ import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
-import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
@@ -69,8 +68,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-
-import org.jboss.pnc.enums.RepositoryType;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -394,6 +391,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void completeExecution(DefaultBuildExecutionSession buildExecutionSession, Throwable e) {
+        Integer buildExecutionId = buildExecutionSession.getId();
         try {
             userLog.info("Finalizing build execution.");
             if (e != null) {
@@ -427,16 +425,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 buildExecutionSession.setEndTime(new Date());
             }
 
-            String accessToken = buildExecutionSession.getAccessToken();
-            log.debug("Closing Maven repository manager [" + buildExecutionSession.getId() + "].");
-            try {
-                RepositoryType repoType = BuildTypeToRepositoryType.getRepositoryType(
-                        buildExecutionSession.getBuildExecutionConfiguration().getBuildType());
-                repositoryManagerFactory.getRepositoryManager(repoType).close(accessToken);
-            } catch (ExecutorException executionException) {
-                buildExecutionSession.setException(executionException);
-            }
-
             //check if any of previous statuses indicated "failed" state
             if (buildExecutionSession.isCanceled()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED, true);
@@ -449,8 +437,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 userLog.info("Build execution completed successfully.");
             }
 
-            log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] from list of running tasks.");
-            runningExecutions.remove(buildExecutionSession.getId());
+            log.debug("Removing buildExecutionTask [" + buildExecutionId + "] from list of running tasks.");
+            runningExecutions.remove(buildExecutionId);
 
             userLog.info("Build execution completed.");
         } catch (Throwable t) {
@@ -465,7 +453,22 @@ public class DefaultBuildExecutor implements BuildExecutor {
             buildExecutionSession.setException(new ExecutorException(executorException));
             buildExecutionSession.setEndTime(new Date());
             buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR, true);
-            runningExecutions.remove(buildExecutionSession.getId());
+            runningExecutions.remove(buildExecutionId);
+        } finally {
+            RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
+            if (runningEnvironment == null) {
+                log.warn("Could not close Maven repository session [" + buildExecutionId
+                        + "]. Running environment was not set!");
+            } else {
+                RepositorySession repositorySession = runningEnvironment.getRepositorySession();
+                if (repositorySession == null) {
+                    log.warn("Could not close Maven repository session [" + buildExecutionId
+                            + "]. Repository session was not set!");
+                } else {
+                    log.debug("Closing Maven repository session [" + buildExecutionId + "].");
+                    repositorySession.close();
+                }
+            }
         }
         return null;
     }

@@ -78,12 +78,6 @@ public interface RepositoryManager {
     RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pakageType, String accessToken)
             throws RepositoryManagerException;
 
-    /**
-     * Closes connection to the repository driver for the given accessToken.
-     * @param accessToken The access token to use
-     */
-    void close(String accessToken);
-
     boolean canManage(RepositoryType managerType);
 
 }

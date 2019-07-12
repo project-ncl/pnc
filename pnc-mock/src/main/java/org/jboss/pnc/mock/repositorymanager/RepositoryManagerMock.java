@@ -94,11 +94,6 @@ public class RepositoryManagerMock implements RepositoryManager {
         return new RunningRepositoryDeletionMock(deletionSuccess, deletionError);
     }
 
-    @Override
-    public void close(String accessToken) {
-        // do nothing
-    }
-
     public static final class RunningRepositoryPromotionMock implements RunningRepositoryPromotion {
 
         private Boolean status;

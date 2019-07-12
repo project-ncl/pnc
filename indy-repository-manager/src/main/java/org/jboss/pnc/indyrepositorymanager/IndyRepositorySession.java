@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.indyrepositorymanager;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.atlas.maven.ident.ref.ArtifactRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
@@ -41,6 +42,8 @@ import org.commonjava.indy.promote.model.PromoteRequest;
 import org.commonjava.indy.promote.model.ValidationResult;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -67,8 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.RepositoryType;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
@@ -780,6 +781,12 @@ public class IndyRepositorySession implements RepositorySession {
         } else {
             return ArtifactQuality.NEW;
         }
+    }
+
+    @Override
+    public void close() {
+        IOUtils.closeQuietly(indy);
+        IOUtils.closeQuietly(serviceAccountIndy);
     }
 
 }
