@@ -41,4 +41,6 @@ public interface RepositorySession {
      * @throws RepositoryManagerException if there is a problem extracting build artifacts
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
+
+    void close();
 }

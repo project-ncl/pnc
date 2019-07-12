@@ -238,6 +238,10 @@ public class OpenshiftEnvironmentDriverRemoteTest {
             return null;
         }
 
+        @Override
+        public void close() {
+        }
+
     }
 
 }
