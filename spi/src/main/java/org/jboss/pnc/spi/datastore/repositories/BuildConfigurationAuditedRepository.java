@@ -35,6 +35,12 @@ public interface BuildConfigurationAuditedRepository {
      */
     BuildConfigurationAudited findLatestById(int buildConfigurationId);
 
+    /**
+     * Lookups a BuildConfigurationAudited entity
+     *
+     * @param idRev Id and Revision of a desired BuildConfigurationAudited entity
+     * @return BuildConfigurationAudited or null if there is no such entity
+     */
     BuildConfigurationAudited queryById(IdRev idRev);
 
     List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName);
