@@ -119,6 +119,7 @@ public interface GroupConfigurationEndpoint{
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) //workaround for PATCH support
     GroupConfiguration getSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
 
     @Operation(summary = "Updates an existing group config.",
