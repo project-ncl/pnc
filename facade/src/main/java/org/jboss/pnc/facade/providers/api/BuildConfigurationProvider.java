@@ -62,4 +62,6 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
     BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration);
 
     BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request);
+
+    Optional<BuildConfiguration> restoreRevision(int id, int rev);
 }

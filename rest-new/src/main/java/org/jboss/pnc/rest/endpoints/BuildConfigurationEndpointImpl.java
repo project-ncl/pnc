@@ -46,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 
@@ -178,8 +180,12 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration restoreRevision(int id, int rev) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+         Optional<BuildConfiguration> buildConfiguration = buildConfigurationProvider.restoreRevision(id, rev);
+         if (buildConfiguration.isPresent()) {
+             return buildConfiguration.get();
+         } else {
+             throw new NotFoundException("BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists");
+         }
     }
 
     @Override

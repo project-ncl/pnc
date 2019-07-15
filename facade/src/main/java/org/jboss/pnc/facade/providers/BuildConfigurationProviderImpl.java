@@ -45,6 +45,7 @@ import javax.inject.Inject;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -348,6 +349,30 @@ public class BuildConfigurationProviderImpl
         }else{
             return new BuildConfigCreationResponse(rcResponse.getTaskId());
         }
+    }
+
+    @Override
+    public Optional<BuildConfiguration> restoreRevision(int id, int rev) {
+        IdRev idRev = new IdRev(id, rev);
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
+        org.jboss.pnc.model.BuildConfiguration originalBC = repository.queryById(id);
+
+        if (buildConfigurationAudited == null || originalBC == null) {
+            return Optional.empty();
+        }
+
+        originalBC.setName(buildConfigurationAudited.getName());
+        originalBC.setBuildScript(buildConfigurationAudited.getBuildScript());
+        originalBC.setRepositoryConfiguration(buildConfigurationAudited.getRepositoryConfiguration());
+        originalBC.setScmRevision(buildConfigurationAudited.getScmRevision());
+        originalBC.setDescription(buildConfigurationAudited.getDescription());
+        originalBC.setBuildType(buildConfigurationAudited.getBuildType());
+        originalBC.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
+        originalBC.setGenericParameters(buildConfigurationAudited.getGenericParameters());
+
+        org.jboss.pnc.model.BuildConfiguration newBc = repository.save(originalBC);
+
+        return Optional.of(mapper.toDTO(newBc));
     }
 
     private void onRCCreationSuccess(int repositoryConfigurationId, BuildConfiguration configuration) {
