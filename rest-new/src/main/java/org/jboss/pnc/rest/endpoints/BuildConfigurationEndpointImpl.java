@@ -180,12 +180,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration restoreRevision(int id, int rev) {
-         Optional<BuildConfiguration> buildConfiguration = buildConfigurationProvider.restoreRevision(id, rev);
-         if (buildConfiguration.isPresent()) {
-             return buildConfiguration.get();
-         } else {
-             throw new NotFoundException("BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists");
-         }
+        return buildConfigurationProvider.restoreRevision(id, rev).orElseThrow(
+                () -> new NotFoundException("BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists"));
     }
 
     @Override
