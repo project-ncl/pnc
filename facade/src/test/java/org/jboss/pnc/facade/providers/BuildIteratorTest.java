@@ -18,7 +18,6 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.facade.mapper.BuildMapperImpl;
 import org.jboss.pnc.facade.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -35,10 +34,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +76,7 @@ public class BuildIteratorTest {
         BuildProviderImpl.BuildIterator bit;
         List<Integer> ret;
 
-        bit = provider.new BuildIterator(1, 10, 1, predicate, sortInfo);
+        bit = provider.new BuildIterator(1, 10, 1, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             Build next = bit.next();
@@ -88,21 +85,21 @@ public class BuildIteratorTest {
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
-        bit = provider.new BuildIterator(1, 10, 10, predicate, sortInfo);
+        bit = provider.new BuildIterator(1, 10, 10, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             ret.add(bit.next().getId());
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
-        bit = provider.new BuildIterator(1, 10, 100, predicate, sortInfo);
+        bit = provider.new BuildIterator(1, 10, 100, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             ret.add(bit.next().getId());
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
-        bit = provider.new BuildIterator(7, 12, 100, predicate, sortInfo);
+        bit = provider.new BuildIterator(7, 12, 100, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             ret.add(bit.next().getId());

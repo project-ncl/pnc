@@ -424,6 +424,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         int lastPossibleDBIndex = (pageInfo.getPageIndex() + 1) * pageInfo.getPageSize() - 1;
         int toSkip = min(runningBuilds.size(), pageInfo.getPageIndex() * pageInfo.getPageSize());
 
+        Predicate<BuildRecord>[] predicates = preparePredicates(dbPredicate, pageInfo.getQ());
         Comparator<Build> comparing = Comparator.comparing(Build::getSubmitTime).reversed();
         if (!StringUtils.isEmpty(pageInfo.getSort())) {
             comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
@@ -432,7 +433,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
         MergeIterator<Build> builds = new MergeIterator(
                 runningBuilds.iterator(),
-                new BuildIterator(firstPossibleDBIndex, lastPossibleDBIndex, pageInfo.getPageSize(), dbPredicate, sortInfo),
+                new BuildIterator(firstPossibleDBIndex, lastPossibleDBIndex, pageInfo.getPageSize(), sortInfo, predicates),
                 comparing
         );
         List<Build> resultList = StreamSupport.stream(Spliterators.spliteratorUnknownSize(builds, Spliterator.ORDERED | Spliterator.SORTED), false)
@@ -440,7 +441,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                 .limit(pageInfo.getPageSize())
                 .collect(Collectors.toList());
 
-        int hits = repository.count(dbPredicate) + runningBuilds.size();
+        int hits = repository.count(predicates) + runningBuilds.size();
 
         return new Page<>(
                 pageInfo.getPageIndex(),
@@ -448,6 +449,18 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                 (int) Math.ceil((double) hits / pageInfo.getPageSize()),
                 hits,
                 resultList);
+    }
+
+    private Predicate<BuildRecord>[] preparePredicates(Predicate<BuildRecord> dbPredicate, String query) {
+        Predicate<BuildRecord>[] predicates;
+        if (StringUtils.isEmpty(query)){
+            predicates = new Predicate[1];
+        }else{
+            predicates = new Predicate[2];
+            predicates[1] = rsqlPredicateProducer.getCriteriaPredicate(BuildRecord.class, query);
+        }
+        predicates[0] = dbPredicate;
+        return predicates;
     }
 
     private List<Build> readRunningBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate) {
@@ -493,13 +506,13 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         private int firstIndex;
         private final int lastIndex;
         private final SortInfo sortInfo;
-        private final Predicate<BuildRecord> predicate;
+        private final Predicate<BuildRecord>[] predicates;
 
-        public BuildIterator(int firstIndex, int lastIndex, int pageSize, Predicate<BuildRecord> predicate, SortInfo sortInfo) {
+        public BuildIterator(int firstIndex, int lastIndex, int pageSize, SortInfo sortInfo, Predicate<BuildRecord>... predicate) {
             this.maxPageSize = pageSize > 10 ? pageSize : 10;
             this.firstIndex = firstIndex > 0 ? firstIndex : 0;
             this.lastIndex = lastIndex;
-            this.predicate = predicate;
+            this.predicates = predicate;
             this.sortInfo = sortInfo;
             nextPage();
         }
@@ -530,7 +543,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
                 size = maxPageSize;
             }
             PageInfo pageInfo = new DefaultPageInfo(firstIndex, size);
-            builds = ((BuildRecordRepository) BuildProviderImpl.this.repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicate);
+            builds = ((BuildRecordRepository) BuildProviderImpl.this.repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicates);
             it = builds.iterator();
             if (builds.size() < size) {
                 firstIndex = lastIndex + 1;

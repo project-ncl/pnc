@@ -114,7 +114,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public Page<Build> getAll(PageParameters pageParams, BuildsFilterParameters filterParams, BuildAttributeParameters attributes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return provider.getBuilds(toBuildPageInfo(pageParams, filterParams));
     }
 
     @Override
