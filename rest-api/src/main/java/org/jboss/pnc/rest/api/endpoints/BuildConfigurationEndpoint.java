@@ -347,8 +347,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/revisions/{rev}/restore")
     BuildConfiguration restoreRevision(
             @Parameter(description = BC_ID) @PathParam("id") int id,
-            @Parameter(description = REV) @PathParam("rev") int rev
-    );
+            @Parameter(description = REV) @PathParam("rev") int rev);
 
     @Operation(summary = "Starts a task of creating a new build config with a given SCM URL.",
             description = "The given SCM URL is automatically analyzed and if it's an external URL"
