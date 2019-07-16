@@ -64,7 +64,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsFilterParameters builds) {
-        return new BuildPageInfo(page.getPageIndex(), page.getPageSize(), page.getSort(), page.getSort(), builds.isLatest(), builds.isRunning());
+        return new BuildPageInfo(page.getPageIndex(), page.getPageSize(), page.getSort(), page.getQ(), builds.isLatest(), builds.isRunning());
     }
 
     @Inject
