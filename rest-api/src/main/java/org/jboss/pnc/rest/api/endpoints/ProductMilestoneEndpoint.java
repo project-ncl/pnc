@@ -159,6 +159,7 @@ public interface ProductMilestoneEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/close")
     void closeMilestone(
             @Parameter(description = PM_ID) @PathParam("id") int id,
@@ -173,6 +174,7 @@ public interface ProductMilestoneEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/close")
     void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") int id);
 
