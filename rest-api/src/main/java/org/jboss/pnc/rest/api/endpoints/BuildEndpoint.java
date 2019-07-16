@@ -139,6 +139,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}")
     void delete(@Parameter(description = B_ID) @PathParam("id") int id);
 
@@ -291,6 +292,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/brew-push")
     void cancelPush(@Parameter(description = B_ID) @PathParam("id") int id);
 
@@ -333,12 +335,13 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/cancel")
     void cancel(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Gets dependency graph for a build.",
             responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildsGraph.class))),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                 @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,

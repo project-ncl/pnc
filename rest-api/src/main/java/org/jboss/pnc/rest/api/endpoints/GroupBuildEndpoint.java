@@ -30,6 +30,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
@@ -100,6 +101,7 @@ public interface GroupBuildEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}")
     void delete(@Parameter(description = GB_ID) @PathParam("id") int id);
 
@@ -130,6 +132,7 @@ public interface GroupBuildEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/brew-push")
     void brewPush(
             @Parameter(description = GB_ID) @PathParam("id") int id,
@@ -143,6 +146,7 @@ public interface GroupBuildEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
+    @RespondWithStatus(ACCEPTED_CODE)
     @Path("/{id}/cancel")
     void cancel(@Parameter(description = GB_ID) @PathParam("id") int id);
 
