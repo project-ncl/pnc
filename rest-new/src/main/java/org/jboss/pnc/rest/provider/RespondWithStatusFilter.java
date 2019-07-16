@@ -33,8 +33,12 @@ public class RespondWithStatusFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
 
         // for any 2xx status code, this gets activated
-        if (containerResponseContext.getStatus() / 100 == 2) {
+        // Skip filter for Http Method OPTIONS to not break CORS
+        if (containerResponseContext.getStatus() / 100 == 2 &&
+            !containerRequestContext.getRequest().getMethod().equals("OPTIONS") &&
+            containerResponseContext.getEntityAnnotations() != null) {
             for (Annotation annotation : containerResponseContext.getEntityAnnotations()) {
+
                 if (annotation instanceof RespondWithStatus) {
                     containerResponseContext.setStatus(Integer.parseInt(((RespondWithStatus) annotation).value()));
                     break;
