@@ -58,6 +58,8 @@ public interface GroupBuildMapper extends EntityMapper<BuildConfigSetRecord, Gro
     GroupBuild toDTO(BuildConfigSetRecord dbEntity);
 
     @Override
+    //Workaround for NCL-4228
+    @Reference
     @BeanMapping(ignoreUnmappedSourceProperties = {"attributes", "buildRecords", "buildConfigurationSet", "user", "productVersion"})
     GroupBuildRef toRef(BuildConfigSetRecord dbEntity);
 }

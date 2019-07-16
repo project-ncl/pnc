@@ -32,6 +32,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,8 +42,9 @@ import java.util.stream.Collectors;
  */
 @Mapper(config = MapperCentralConfig.class,
         uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
-                SCMRepositoryMapper.class, ProjectMapper.class,BuildConfigurationRevisionMapper.class,
-                EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class })
+                SCMRepositoryMapper.class, ProjectMapper.class, BuildConfigurationRevisionMapper.class,
+                EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class,
+                GroupBuildMapper.class})
 
 public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
 
@@ -53,12 +55,13 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "buildConfigurationRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
     @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "scmRepositoryURL", source = "scmRepoURL")
     @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-            "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
+            "dependencies", "productMilestone", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
             "buildConfigurationAuditedIdRev", "buildEnvironment"
     })
@@ -90,6 +93,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "dependentBuildRecordIds", source = "dependentBuildIds")
     @Mapping(target = "dependencyBuildRecordIds", source = "dependencyBuildIds")
     @Mapping(target = "buildConfigurationAudited", source = "buildConfigurationRevision")
+    @Mapping(target = "buildConfigSetRecord", source = "groupBuild")
     @Mapping(target = "scmRepoURL", source = "scmRepositoryURL")
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     @Mapping(target = "scmRevision", ignore = true)
@@ -101,7 +105,6 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "buildConfigurationId", ignore = true)
     @Mapping(target = "buildConfigurationRev", ignore = true)
     @Mapping(target = "productMilestone", ignore = true)
-    @Mapping(target = "buildConfigSetRecord", ignore = true)
     @Mapping(target = "buildLogMd5", ignore = true)
     @Mapping(target = "buildLogSha256", ignore = true)
     @Mapping(target = "buildLogSize", ignore = true)
@@ -123,15 +126,22 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "buildConfigurationRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
+    //Workaround for [NCL-4228]
+    //Use of Reference class was needed here because resultType=GroupBuildRef.class along with unwrapping of Optional resulted in NPE in Mapstruct processor
+    @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "dependentBuildIds", source = "dependants")
     @Mapping(target = "dependencyBuildIds", source = "dependencies")
     @Mapping(target = "buildContentId", source = "contentId")
     @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
     @Mapping(target = "scmRepositoryURL", ignore = true)
+    @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {
             "productMilestone", "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions"})
-    @Mapping(target = "attributes", ignore = true)
     Build fromBuildTask(BuildTask buildTask);
+
+    public static <T> T unwrap(Optional<T> optional) {
+        return (optional != null && optional.isPresent()) ? optional.get() : null;
+    }
 
     public static class StatusMapper {
         public static BuildCoordinationStatus toBuildCoordinationStatus(BuildStatus status) {

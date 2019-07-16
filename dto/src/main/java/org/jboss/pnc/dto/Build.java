@@ -61,8 +61,14 @@ public class Build extends BuildRef {
 
     private final List<Integer> dependencyBuildIds;
 
+    private final GroupBuildRef groupBuild;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Build(ProjectRef project, SCMRepository repository, Environment environment, Map<String, String> attributes, User user, BuildConfigurationRevisionRef buildConfigurationRevision, List<Integer> dependentBuildIds, List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime, BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmRepositoryURL) {
+    private Build(ProjectRef project, SCMRepository repository, Environment environment, Map<String, String> attributes,
+            User user, BuildConfigurationRevisionRef buildConfigurationRevision, List<Integer> dependentBuildIds,
+            List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime,
+            BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmRepositoryURL,
+            GroupBuildRef groupBuild) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmRepositoryURL);
         this.project = project;
         this.repository = repository;
@@ -72,6 +78,7 @@ public class Build extends BuildRef {
         this.buildConfigurationRevision = buildConfigurationRevision;
         this.dependentBuildIds = dependentBuildIds;
         this.dependencyBuildIds = dependencyBuildIds;
+        this.groupBuild = groupBuild;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
