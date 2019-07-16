@@ -72,6 +72,7 @@
          <http-method>HEAD</http-method>
          <http-method>TRACE</http-method>
          <http-method>POST</http-method>
+         <http-method>PATCH</http-method>
        </web-resource-collection>
         <auth-constraint>
             <role-name>user</role-name>
