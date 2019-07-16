@@ -64,6 +64,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -249,13 +250,14 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @Override
     public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> gc.getId() == groupConfigurationId).orElse(false);
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> gc.getBuildConfigurationSet().getId() == groupConfigurationId).orElse(false);
         return getBuildList(pageInfo, predicate, withBuildConfigSetId(groupConfigurationId));
     }
 
     @Override
     public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> gc.getId() == groupBuildId).orElse(false);
+        return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(groupBuildId));
     }
 
     @Override
