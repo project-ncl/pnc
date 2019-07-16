@@ -132,6 +132,9 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     }
 
     public void setExternalUrl(String externalUrl) {
+        if (externalUrl != null && externalUrl.isEmpty()) {
+            externalUrl = null;
+        }
         this.externalUrl = externalUrl;
     }
 
