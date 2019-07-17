@@ -41,6 +41,7 @@
         query: {
           method: 'GET',
           isPaged: true,
+          url: restConfig.getPncRestUrl() + BUILD_CONFIGURATION_PATH // new rest 2.0, so NCL-4947 is included
         },
         update: {
           method: 'PUT',
@@ -89,6 +90,16 @@
         return $http.get(restConfig.getPncUrl() + '/build-configurations/supported-generic-parameters').then(function (r) {
           return r.data;
         });
+      };
+
+      resource.createWithScm = function(options) {
+        var dto = {
+          scmUrl: options.url,
+          preBuildSyncEnabled: options.preBuildSync,
+          buildConfiguration: options.buildConfiguration
+        };
+
+        return $http.post(restConfig.getPncRestUrl() + '/build-configurations/create-with-scm', dto);
       };
 
       return resource;

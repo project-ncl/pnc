@@ -83,7 +83,7 @@
       if (utils.isEmpty(url)) {
         return $q.when();
       }
-      return ScmRepositoryResource.match({ 'search-url': url }).$promise.then(function (result) {
+      return ScmRepositoryResource.query({ 'search-url': url }).$promise.then(function (result) {
         var repos = result.data;
 
         if (repos.length === 1) {

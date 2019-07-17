@@ -64,8 +64,9 @@
       $ctrl.scmRepository.$update().finally(reload);
     }
 
+    // New rest endpoint instead of RSQL will be used once NCL-4946 is implemented
     function getBuildConfigurationsPageByScmRepository(scmRepositoryId) {
-      var q = rsqlQuery().where('scmRepository.id').eq(scmRepositoryId).end();
+      var q = rsqlQuery().where('repository.id').eq(scmRepositoryId).end();
     
       return BuildConfiguration.query({ q: q }).$promise.then(function (page) { 
         $ctrl.buildConfigurations.page = paginator(page); 
