@@ -56,6 +56,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withScmRepositoryId;
+
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreationError;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreationSuccess;
@@ -215,6 +217,15 @@ public class BuildConfigurationProviderImpl
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
 
+    }
+
+    @Override
+    public Page<BuildConfiguration> getBuildConfigurationsForScmRepository(int pageIndex,
+                                                                                    int pageSize,
+                                                                                    String sortingRsql,
+                                                                                    String query,
+                                                                                    int scmRepositoryId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withScmRepositoryId(scmRepositoryId));
     }
 
     @Override

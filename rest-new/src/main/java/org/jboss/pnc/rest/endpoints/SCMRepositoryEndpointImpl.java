@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.SCMRepositoryEndpoint;
@@ -36,6 +38,9 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
 
     @Inject
     private SCMRepositoryProvider scmRepositoryProvider;
+
+    @Inject
+    private BuildConfigurationProvider buildConfigurationProvider;
 
     private EndpointHelper<SCMRepository, SCMRepository> endpointHelper;
 
@@ -76,5 +81,15 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
         ValidationBuilder.validateObject(request, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
         return scmRepositoryProvider.createSCMRepository(request.getScmUrl(), request.getPreBuildSyncEnabled());
+    }
+
+    @Override
+    public Page<BuildConfiguration> getBuildsConfigs(int id, PageParameters pageParameters) {
+        return buildConfigurationProvider.getBuildConfigurationsForScmRepository(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
     }
 }
