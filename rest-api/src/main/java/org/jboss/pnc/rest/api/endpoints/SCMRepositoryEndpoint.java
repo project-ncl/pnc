@@ -45,6 +45,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
@@ -150,7 +151,7 @@ public interface SCMRepositoryEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(ACCEPTED_CODE)
+    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/create-and-sync")
     RepositoryCreationResponse createNew(@NotNull CreateAndSyncSCMRequest request);
 }

@@ -49,6 +49,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -85,7 +86,7 @@ public interface ProductVersionEndpoint{
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     @POST
-    @RespondWithStatus(ENTITY_CREATED_CODE)
+    @RespondWithStatus(Response.Status.CREATED)
     ProductVersion createNewProductVersion(@NotNull ProductVersion productVersion);
 
     @Operation(summary = "Gets a specific product version.",

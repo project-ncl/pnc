@@ -40,7 +40,7 @@ public class RespondWithStatusFilter implements ContainerResponseFilter {
             for (Annotation annotation : containerResponseContext.getEntityAnnotations()) {
 
                 if (annotation instanceof RespondWithStatus) {
-                    containerResponseContext.setStatus(Integer.parseInt(((RespondWithStatus) annotation).value()));
+                    containerResponseContext.setStatus(((RespondWithStatus) annotation).value().getStatusCode());
                     break;
                 }
             }

@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.annotation;
 
 import javax.ws.rs.NameBinding;
+import javax.ws.rs.core.Response;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -25,5 +26,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RespondWithStatus {
 
-    String value();
+    Response.Status value();
 }
