@@ -48,13 +48,13 @@ public class GroupConfiguration extends GroupConfigurationRef {
     private final ProductVersionRef productVersion;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<BuildConfigurationRef> buildConfigurations;
+    private final List<BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    GroupConfiguration(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, Integer id, String name) {
+    GroupConfiguration(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigs, Integer id, String name) {
         super(id, name);
         this.productVersion = productVersion;
-        this.buildConfigurations = buildConfigurations;
+        this.buildConfigs = buildConfigs;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

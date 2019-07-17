@@ -46,7 +46,8 @@ public interface ProductVersionMapper extends EntityMapper<ProductVersion, org.j
     }
 
     @Override
-    @Mapping(target = "buildConfigurationSets", source = "groupConfigurations")
+    @Mapping(target = "buildConfigurationSets", source = "groupConfigs")
+    @Mapping(target = "buildConfigurations", source = "buildConfigs")
     @Mapping(target = "productReleases", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"productReleases"})
     ProductVersion toEntity(org.jboss.pnc.dto.ProductVersion dtoEntity);
@@ -57,11 +58,11 @@ public interface ProductVersionMapper extends EntityMapper<ProductVersion, org.j
     ProductVersionRef toRef(ProductVersion dbEntity);
 
     @Override
-    @Mapping(target = "groupConfigurations", source = "buildConfigurationSets", resultType = GroupConfigurationRef.class)
+    @Mapping(target = "groupConfigs", source = "buildConfigurationSets", resultType = GroupConfigurationRef.class)
     @Mapping(target = "product", resultType = ProductRef.class)
     @Mapping(target = "productReleases", resultType = ProductReleaseRef.class)
     @Mapping(target = "currentProductMilestone", resultType = ProductMilestoneRef.class)
-    @Mapping(target = "buildConfigurations", resultType = BuildConfigurationRef.class)
+    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
     @Mapping(target = "productMilestones", resultType = ProductMilestoneRef.class)
     org.jboss.pnc.dto.ProductVersion toDTO(ProductVersion dbEntity);
 }

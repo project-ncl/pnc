@@ -38,21 +38,21 @@ import lombok.ToString;
 @JsonDeserialize(builder = BuildConfigurationRevision.Builder.class)
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
-    private final SCMRepository repository;
+    private final SCMRepository scmRepository;
 
     private final ProjectRef project;
 
     private final Environment environment;
 
-    private final Map<String, String> genericParameters ;
+    private final Map<String, String> parameters;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private BuildConfigurationRevision(SCMRepository repository, ProjectRef project, Environment environment, Map<String, String> genericParameters, Integer id, Integer rev, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, BuildType buildType) {
+    private BuildConfigurationRevision(SCMRepository scmRepository, ProjectRef project, Environment environment, Map<String, String> parameters, Integer id, Integer rev, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, BuildType buildType) {
         super(id, rev, name, description, buildScript, scmRevision, creationTime, modificationTime, buildType);
-        this.repository = repository;
+        this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;
-        this.genericParameters = genericParameters;
+        this.parameters = parameters;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

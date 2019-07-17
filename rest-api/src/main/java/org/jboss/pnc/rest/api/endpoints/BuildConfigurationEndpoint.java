@@ -80,7 +80,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 @Tag(name = "Build Configs")
-@Path("/build-configurations")
+@Path("/build-configs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
@@ -228,7 +228,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/group-configurations")
+    @Path("/{id}/group-configs")
     Page<GroupConfiguration> getGroupConfigs(
             @Parameter(description = BC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);

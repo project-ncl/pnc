@@ -90,17 +90,17 @@ public class BuildConfigurationPatchTest {
         genericParameters.put("k", "v");
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id(1)
-                .genericParameters(genericParameters)
+                .parameters(genericParameters)
                 .build();
 
         Map<String, String> addParameters = Collections.singletonMap("k2", "v2");
         String patchString = new BuildConfigurationPatchBuilder()
-            .addGenericParameters(addParameters)
+            .addParameters(addParameters)
             .getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
         genericParameters.putAll(addParameters);
-        Assertions.assertThat(updatedBuildConfiguration.getGenericParameters()).contains(genericParameters.entrySet().toArray(new Map.Entry[2]));
+        Assertions.assertThat(updatedBuildConfiguration.getParameters()).contains(genericParameters.entrySet().toArray(new Map.Entry[2]));
     }
 
     @Test

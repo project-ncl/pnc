@@ -36,10 +36,10 @@ public class BuildMock {
                 .buildContentId("build-42")
                 .temporaryBuild(true)
                 .project(ProjectMock.newProjectRef())
-                .repository(SCMRepositoryMock.newScmRepository())
+                .scmRepository(SCMRepositoryMock.newScmRepository())
                 .environment(BuildEnvironmentMock.newBuildEnvironment())
                 .user(UserMock.newUser())
-                .buildConfigurationRevision(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
+                .buildConfigRevision(BuildConfigurationRevisionMock.newBuildConfigurationRevisionRef(buildConfigurationName))
                 .build();
     }
 

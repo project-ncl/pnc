@@ -57,20 +57,20 @@ public class ProductVersion extends ProductVersionRef {
     private final List<ProductReleaseRef> productReleases;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<GroupConfigurationRef> groupConfigurations;
+    private final List<GroupConfigurationRef> groupConfigs;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<BuildConfigurationRef> buildConfigurations;
+    private final List<BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigurations, List<BuildConfigurationRef> buildConfigurations, Integer id, String version, Map<String, String> attributes) {
+    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigs, List<BuildConfigurationRef> buildConfigs, Integer id, String version, Map<String, String> attributes) {
         super(id, version, attributes);
         this.product = product;
         this.currentProductMilestone = currentProductMilestone;
         this.productMilestones = productMilestones;
         this.productReleases = productReleases;
-        this.groupConfigurations = groupConfigurations;
-        this.buildConfigurations = buildConfigurations;
+        this.groupConfigs = groupConfigs;
+        this.buildConfigs = buildConfigs;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

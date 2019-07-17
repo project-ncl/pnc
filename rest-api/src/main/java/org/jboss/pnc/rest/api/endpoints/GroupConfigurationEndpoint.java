@@ -78,7 +78,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 @Tag(name = "Group Configs")
-@Path("/group-configurations")
+@Path("/group-configs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
@@ -198,7 +198,7 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-configurations")
+    @Path("/{id}/build-configs")
     Page<BuildConfiguration> getConfigurations(
             @Parameter(description = GC_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
@@ -212,7 +212,7 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @Path("/{id}/build-configurations")
+    @Path("/{id}/build-configs")
     void addConfiguration(
             @Parameter(description = GC_ID) @PathParam("id") int id,
             BuildConfigurationRef buildConfig);
@@ -226,7 +226,7 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
-    @Path("/{id}/build-configurations/{configId}")
+    @Path("/{id}/build-configs/{configId}")
     void removeConfiguration(
             @Parameter(description = GC_ID) @PathParam("id") int id,
             @Parameter(description = "ID of the build config") @PathParam("configId") int configId);

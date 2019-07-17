@@ -39,7 +39,7 @@ public class BuildConfigurationRSQLMapper extends AbstractRSQLMapper<BuildConfig
     protected SingularAttribute<BuildConfiguration, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
             case "project": return BuildConfiguration_.project;
-            case "repository": return BuildConfiguration_.repositoryConfiguration;
+            case "scmRepository": return BuildConfiguration_.repositoryConfiguration;
             case "environment": return BuildConfiguration_.buildEnvironment;
             case "productVersion": return BuildConfiguration_.productVersion;
             default: return null;

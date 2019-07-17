@@ -33,7 +33,7 @@ import org.mapstruct.Mapping;
 public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.Project, ProjectRef>{
 
     @Override
-    @Mapping(target = "buildConfigurations", resultType = BuildConfigurationRef.class)
+    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
     org.jboss.pnc.dto.Project toDTO(Project dbEntity);
 
     @Override
@@ -51,6 +51,7 @@ public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.P
     ProjectRef toRef(Project dbEntity);
     
     @Override
+    @Mapping(target = "buildConfigurations", source = "buildConfigs")
     Project toEntity(org.jboss.pnc.dto.Project dtoEntity);
 
 }

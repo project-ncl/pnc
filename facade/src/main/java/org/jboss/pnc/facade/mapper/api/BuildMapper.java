@@ -52,9 +52,9 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "dependentBuildIds", source = "dependentBuildRecordIds")
     @Mapping(target = "dependencyBuildIds", source = "dependencyBuildRecordIds")
-    @Mapping(target = "buildConfigurationRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
+    @Mapping(target = "buildConfigRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
-    @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "scmRepository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "scmRepositoryURL", source = "scmRepoURL")
@@ -92,7 +92,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
     @Mapping(target = "dependentBuildRecordIds", source = "dependentBuildIds")
     @Mapping(target = "dependencyBuildRecordIds", source = "dependencyBuildIds")
-    @Mapping(target = "buildConfigurationAudited", source = "buildConfigurationRevision")
+    @Mapping(target = "buildConfigurationAudited", source = "buildConfigRevision")
     @Mapping(target = "buildConfigSetRecord", source = "groupBuild")
     @Mapping(target = "scmRepoURL", source = "scmRepositoryURL")
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
@@ -117,15 +117,15 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
     @Mapping(target = "repourLogSize", ignore = true)
     @Mapping(target = "buildRecordPushResults", ignore = true)
     @Mapping(target = "attributes", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"project", "repository"})
+    @BeanMapping(ignoreUnmappedSourceProperties = {"project", "scmRepository"})
     BuildRecord toEntity(Build dtoEntity);
 
 
 
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
-    @Mapping(target = "repository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "scmRepository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
-    @Mapping(target = "buildConfigurationRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
+    @Mapping(target = "buildConfigRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
     //Workaround for [NCL-4228]
     //Use of Reference class was needed here because resultType=GroupBuildRef.class along with unwrapping of Optional resulted in NPE in Mapstruct processor
     @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord", qualifiedBy = Reference.class)

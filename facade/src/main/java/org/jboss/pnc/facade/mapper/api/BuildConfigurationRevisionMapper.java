@@ -32,34 +32,36 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperCentralConfig.class, uses = {ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class}, imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
 
-     @Mapping(target = "repository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
-     @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
-     @Mapping(target = "project", resultType = ProjectRef.class)
-     @Mapping(target = "modificationTime", source = "lastModificationTime")
-     @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration"})
-     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
+    @Mapping(target = "scmRepository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
+    @Mapping(target = "project", resultType = ProjectRef.class)
+    @Mapping(target = "modificationTime", source = "lastModificationTime")
+    @Mapping(target = "parameters", source = "genericParameters")
+    @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration"})
+    BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
 
-     default BuildConfigurationAudited toIDEntity(BuildConfigurationRevisionRef dtoEntity) {
-          if (dtoEntity == null) {
-               return null;
-          }
-         BuildConfigurationAudited entity = new BuildConfigurationAudited();
-         entity.setId(dtoEntity.getId());
-         entity.setRev(dtoEntity.getRev());
-         return entity;
-     };
+    default BuildConfigurationAudited toIDEntity(BuildConfigurationRevisionRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
+        BuildConfigurationAudited entity = new BuildConfigurationAudited();
+        entity.setId(dtoEntity.getId());
+        entity.setRev(dtoEntity.getRev());
+        return entity;
+    }
 
-     @Mapping(target = "repositoryConfiguration", source = "repository", qualifiedBy = IdEntity.class)
-     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
-     @Mapping(target = "idRev", expression = "java( new IdRev( dtoEntity.getId(), dtoEntity.getRev() ) )")
-     @Mapping(target = "buildRecords", ignore = true)
-     @Mapping(target = "buildConfiguration", ignore = true)
-     @Mapping(target = "lastModificationTime", source = "modificationTime")
-     BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);
+    @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)
+    @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
+    @Mapping(target = "idRev", expression = "java( new IdRev( dtoEntity.getId(), dtoEntity.getRev() ) )")
+    @Mapping(target = "buildRecords", ignore = true)
+    @Mapping(target = "buildConfiguration", ignore = true)
+    @Mapping(target = "lastModificationTime", source = "modificationTime")
+    @Mapping(target = "genericParameters", source = "parameters")
+    BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);
 
-     @Mapping(target = "modificationTime", source = "lastModificationTime")
-     @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration",
-             "repositoryConfiguration", "buildEnvironment", "project", "genericParameters"
-     })
-     BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
+    @Mapping(target = "modificationTime", source = "lastModificationTime")
+    @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration",
+        "repositoryConfiguration", "buildEnvironment", "project", "genericParameters"
+    })
+    BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
 }

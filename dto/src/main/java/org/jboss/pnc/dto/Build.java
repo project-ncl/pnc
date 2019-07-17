@@ -46,7 +46,7 @@ public class Build extends BuildRef {
 
     private final ProjectRef project;
 
-    private final SCMRepository repository;
+    private final SCMRepository scmRepository;
 
     private final Environment environment;
 
@@ -55,7 +55,7 @@ public class Build extends BuildRef {
 
     private final User user;
 
-    private final BuildConfigurationRevisionRef buildConfigurationRevision;
+    private final BuildConfigurationRevisionRef buildConfigRevision;
 
     private final List<Integer> dependentBuildIds;
 
@@ -64,18 +64,18 @@ public class Build extends BuildRef {
     private final GroupBuildRef groupBuild;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Build(ProjectRef project, SCMRepository repository, Environment environment, Map<String, String> attributes,
-            User user, BuildConfigurationRevisionRef buildConfigurationRevision, List<Integer> dependentBuildIds,
+    private Build(ProjectRef project, SCMRepository scmRepository, Environment environment, Map<String, String> attributes,
+            User user, BuildConfigurationRevisionRef buildConfigRevision, List<Integer> dependentBuildIds,
             List<Integer> dependencyBuildIds, Integer id, Instant submitTime, Instant startTime, Instant endTime,
             BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmRepositoryURL,
             GroupBuildRef groupBuild) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmRepositoryURL);
         this.project = project;
-        this.repository = repository;
+        this.scmRepository = scmRepository;
         this.environment = environment;
         this.attributes = attributes;
         this.user = user;
-        this.buildConfigurationRevision = buildConfigurationRevision;
+        this.buildConfigRevision = buildConfigRevision;
         this.dependentBuildIds = dependentBuildIds;
         this.dependencyBuildIds = dependencyBuildIds;
         this.groupBuild = groupBuild;

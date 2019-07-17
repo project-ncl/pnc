@@ -34,6 +34,7 @@ public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, o
 
     @Override
     @Mapping(target = "distributedArtifacts", source = "distributedArtifactIds")
+    @Mapping(target = "performedBuilds", source = "performedBuildIds")
     ProductMilestone toEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity);
 
     @Override
@@ -48,6 +49,7 @@ public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, o
 
     @Override
     @Mapping(target = "distributedArtifactIds", source = "distributedArtifacts")
+    @Mapping(target = "performedBuildIds", source = "performedBuilds")
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "productRelease", resultType = ProductReleaseRef.class)
     org.jboss.pnc.dto.ProductMilestone toDTO(ProductMilestone dbEntity);

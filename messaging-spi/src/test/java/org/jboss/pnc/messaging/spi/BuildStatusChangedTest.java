@@ -105,10 +105,10 @@ public class BuildStatusChangedTest {
 
         return Build.builder()
                 .project(projectRef)
-                .repository(scmRepository)
+                .scmRepository(scmRepository)
                 .environment(buildEnvironment)
                 .user(user)
-                .buildConfigurationRevision(buildConfigurationRevisionRef)
+                .buildConfigRevision(buildConfigurationRevisionRef)
                 .status(BuildStatus.BUILDING)
                 .buildContentId("build-42")
                 .temporaryBuild(true)
