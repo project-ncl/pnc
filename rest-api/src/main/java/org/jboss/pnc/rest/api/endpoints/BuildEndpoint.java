@@ -324,7 +324,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-configuration-revision")
+    @Path("/{id}/build-config-revision")
     BuildConfigurationRevision getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") int id);
 
     @Operation(summary = "Cancel running build.",

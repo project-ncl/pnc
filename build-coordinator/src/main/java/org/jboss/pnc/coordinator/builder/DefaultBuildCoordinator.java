@@ -518,10 +518,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         Build build = Build.builder()
                 .project(project)
-                .repository(repository)
+                .scmRepository(repository)
                 .environment(buildEnvironment)
                 .user(user)
-                .buildConfigurationRevision(buildConfigurationRevisionRef)
+                .buildConfigRevision(buildConfigurationRevisionRef)
                 .dependentBuildIds(dependants)
                 .dependencyBuildIds(dependencies)
                 .id(task.getId())

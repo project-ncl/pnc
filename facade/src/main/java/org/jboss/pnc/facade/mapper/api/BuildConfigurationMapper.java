@@ -40,11 +40,12 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
     @Mapping(target = "buildConfigurationSets", source = "groupConfigs")
-    @Mapping(target = "repositoryConfiguration", source = "repository", qualifiedBy = IdEntity.class)
+    @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "dependants", ignore = true)
     @Mapping(target = "indirectDependencies", ignore = true)
     @Mapping(target = "allDependencies", ignore = true)
+    @Mapping(target = "genericParameters", source = "parameters")
     BuildConfiguration toEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity);
 
     @Override
@@ -71,9 +72,10 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
     @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "groupConfigs", source = "buildConfigurationSets", resultType = GroupConfigurationRef.class)
     @Mapping(target = "dependencies", source = "dependencies", resultType = BuildConfigurationRef.class)
-    @Mapping(target = "repository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "scmRepository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
+    @Mapping(target = "parameters", source = "genericParameters")
     @BeanMapping(ignoreUnmappedSourceProperties = {"dependants", "active", "indirectDependencies",
         "allDependencies", "currentProductMilestone"})
     org.jboss.pnc.dto.BuildConfiguration toDTO(BuildConfiguration dbEntity);

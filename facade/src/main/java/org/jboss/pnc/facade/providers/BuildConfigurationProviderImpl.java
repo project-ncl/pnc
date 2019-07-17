@@ -346,7 +346,7 @@ public class BuildConfigurationProviderImpl
         ValidationBuilder.validateObject(request, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
         BuildConfiguration buildConfiguration = request.getBuildConfiguration();
-        validateBeforeSaving(buildConfiguration.toBuilder().repository(FAKE_REPOSITORY).build());
+        validateBeforeSaving(buildConfiguration.toBuilder().scmRepository(FAKE_REPOSITORY).build());
 
         RepositoryCreationResponse rcResponse = scmRepositoryProvider.createSCMRepository(
                 request.getScmUrl(),

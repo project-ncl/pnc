@@ -144,7 +144,7 @@ public interface ProductVersionEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-configurations")
+    @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParams);
@@ -159,7 +159,7 @@ public interface ProductVersionEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/group-configurations")
+    @Path("/{id}/group-configs")
     Page<GroupConfiguration> getGroupConfigurations(
             @Parameter(description = PV_ID) @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);

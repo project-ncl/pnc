@@ -49,7 +49,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
 
     @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private final SCMRepository repository;
+    private final SCMRepository scmRepository;
 
     @PatchSupport({REPLACE})
     @RefHasId(groups = WhenCreatingNew.class)
@@ -69,18 +69,18 @@ public class BuildConfiguration extends BuildConfigurationRef {
     private final Set<GroupConfigurationRef> groupConfigs;
 
     @PatchSupport({ADD, REMOVE, REPLACE})
-    private final Map<String, String> genericParameters;
+    private final Map<String, String> parameters;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private BuildConfiguration(SCMRepository repository, ProjectRef project, Environment environment, Set<BuildConfigurationRef> dependencies, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> genericParameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
+    private BuildConfiguration(SCMRepository scmRepository, ProjectRef project, Environment environment, Set<BuildConfigurationRef> dependencies, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> parameters, Integer id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
         super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, archived, buildType);
-        this.repository = repository;
+        this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;
         this.dependencies = dependencies;
         this.productVersion = productVersion;
         this.groupConfigs = groupConfigs;
-        this.genericParameters = genericParameters;
+        this.parameters = parameters;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -41,12 +41,12 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 public class Project extends ProjectRef {
 
     @PatchSupport({ADD, REPLACE})
-    private final List<BuildConfigurationRef> buildConfigurations;
+    private final List<BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Project(List<BuildConfigurationRef> buildConfigurations, Integer id, String name, String description, String issueTrackerUrl, String projectUrl) {
+    private Project(List<BuildConfigurationRef> buildConfigs, Integer id, String name, String description, String issueTrackerUrl, String projectUrl) {
         super(id, name, description, issueTrackerUrl, projectUrl);
-        this.buildConfigurations = buildConfigurations;
+        this.buildConfigs = buildConfigs;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -29,7 +29,6 @@ import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneRelease;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.Project;
@@ -56,7 +55,6 @@ public class SwaggerPages {
     public static class GroupConfigPage extends Page<GroupConfiguration>{};
     public static class ProductPage extends Page<Product>{};
     public static class ProductMilestonePage extends Page<ProductMilestone>{};
-    public static class ProductMilestoneReleasePage extends Page<ProductMilestoneRelease>{};
     public static class ProductReleasePage extends Page<ProductRelease>{};
     public static class ProductVersionPage extends Page<ProductVersion>{};
     public static class ProjectPage extends Page<Project>{};

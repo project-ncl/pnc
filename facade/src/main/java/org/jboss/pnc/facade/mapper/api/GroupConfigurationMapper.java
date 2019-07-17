@@ -47,6 +47,7 @@ public interface GroupConfigurationMapper extends EntityMapper<BuildConfiguratio
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "buildConfigSetRecords", ignore = true)
     @Mapping(target = "archived", ignore = true)
+    @Mapping(target = "buildConfigurations", source = "buildConfigs")
     BuildConfigurationSet toEntity(GroupConfiguration dtoEntity);
 
     @Override
@@ -56,7 +57,7 @@ public interface GroupConfigurationMapper extends EntityMapper<BuildConfiguratio
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
-    @Mapping(target = "buildConfigurations", resultType = BuildConfigurationRef.class)
+    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
     @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigSetRecords", "active", "currentProductMilestone", "archived"})
     GroupConfiguration toDTO(BuildConfigurationSet dbEntity);
 }

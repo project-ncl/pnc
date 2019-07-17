@@ -43,17 +43,17 @@ public class ProductMilestone extends ProductMilestoneRef {
     @RefHasId(groups = {WhenCreatingNew.class})
     private final ProductVersionRef productVersion;
 
-    private final Set<Integer> performedBuilds;
+    private final Set<Integer> performedBuildIds;
 
     private final Set<Integer> distributedArtifactIds;
 
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
+    private ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuildIds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
         super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
-        this.performedBuilds = performedBuilds;
+        this.performedBuildIds = performedBuildIds;
         this.distributedArtifactIds = distributedArtifactIds;
         this.productRelease = productRelease;
     }

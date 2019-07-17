@@ -71,11 +71,11 @@ public class BuildConfigurationEndpointTest {
         Map<String, String> addElements = Collections.singletonMap("newKey", "newValue");
         BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder()
                 .replaceDescription(newDescription)
-                .addGenericParameters(addElements);
+                .addParameters(addElements);
         BuildConfiguration updated = client.patch(id, builder);
 
         Assert.assertEquals(newDescription, updated.getDescription());
-        Assertions.assertThat(updated.getGenericParameters()).contains(addElements.entrySet().toArray(new Map.Entry[1]));
+        Assertions.assertThat(updated.getParameters()).contains(addElements.entrySet().toArray(new Map.Entry[1]));
 
         String newDescription2 = "Testing patch support 2.";
         BuildConfigurationPatchBuilder builder2 = new BuildConfigurationPatchBuilder()

@@ -115,7 +115,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         List<BuildStatusChangedEvent> receivedStatuses = new ArrayList<>();
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getBuild().getBuildConfigurationRevision().getId().equals(2) && event.getNewStatus().equals(BuildStatus.BUILDING)) {
+            if (event.getBuild().getBuildConfigRevision().getId().equals(2) && event.getNewStatus().equals(BuildStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start

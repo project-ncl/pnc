@@ -169,7 +169,7 @@ public interface ProjectEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    @Path("/{id}/build-configurations")
+    @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = "Project Id") @PathParam("id") int id,
             @BeanParam PageParameters pageParameters);
