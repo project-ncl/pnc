@@ -70,6 +70,16 @@
       }
     });
 
+    $stateProvider.state('scm-repositories.create', {
+      url: '/create',
+      component: 'pncScmRepositoryCreatePage',
+      data: {
+        displayName: 'Create SCM Repository',
+        title: 'Create SCM Repository',
+        requireAuth: true
+      }
+    });
+
   }]);
 
 })();
