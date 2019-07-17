@@ -40,6 +40,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Set;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -78,7 +79,7 @@ public interface ProductReleaseEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(ENTITY_CREATED_CODE)
+    @RespondWithStatus(Response.Status.CREATED)
     ProductRelease createNew(@NotNull ProductRelease productRelease);
 
     @Operation(summary = "Gets a specific product release.",

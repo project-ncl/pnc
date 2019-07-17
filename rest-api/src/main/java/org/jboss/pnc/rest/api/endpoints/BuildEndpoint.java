@@ -235,7 +235,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(ENTITY_CREATED_CODE)
+    @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/attributes")
     void addAttribute(
             @Parameter(description = B_ID) @PathParam("id") int id,
@@ -280,7 +280,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(ACCEPTED_CODE)
+    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     BuildPushResult push(BuildPushRequest buildPushRequest);
 
@@ -309,7 +309,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(ENTITY_CREATED_CODE)
+    @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/brew-push/complete")
     BuildPushResult completePush(
             @Parameter(description = B_ID) @PathParam("id") int id,
