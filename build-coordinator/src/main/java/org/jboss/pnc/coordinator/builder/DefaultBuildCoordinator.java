@@ -600,7 +600,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     record.getEndTime(),
                     String.valueOf(userId),
                     description);
-            String.valueOf("haha");
             log.debug("Notifying build set status update {}.", event);
             buildSetStatusChangedEventNotifier.fire(event);
         });
