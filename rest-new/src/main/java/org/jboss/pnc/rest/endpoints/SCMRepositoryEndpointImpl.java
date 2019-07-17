@@ -32,9 +32,15 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
+
+    @Context
+    private HttpServletResponse servletResponse;
 
     @Inject
     private SCMRepositoryProvider scmRepositoryProvider;
@@ -80,7 +86,22 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     public RepositoryCreationResponse createNew(CreateAndSyncSCMRequest request) {
         ValidationBuilder.validateObject(request, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
-        return scmRepositoryProvider.createSCMRepository(request.getScmUrl(), request.getPreBuildSyncEnabled());
+
+        RepositoryCreationResponse responseDTO = scmRepositoryProvider.createSCMRepository(request.getScmUrl(),
+                                                                                           request.getPreBuildSyncEnabled());
+
+        if (responseDTO.getRepository() == null) {
+            // not in database, it is being created
+            servletResponse.setStatus(Response.Status.ACCEPTED.getStatusCode());
+
+            try {
+                servletResponse.flushBuffer();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return responseDTO;
     }
 
     @Override

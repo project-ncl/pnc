@@ -143,8 +143,10 @@ public interface SCMRepositoryEndpoint{
     @Operation(summary = "Creates a new SCM repository.",
             description = "If the given URL is external, it does create the repository in the scm server.",
             responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = "SCM repository request is being created",
                     content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
+                @ApiResponse(responseCode = SUCCESS_CODE, description = "SCM repository is already present in PNC",
+                        content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
@@ -153,7 +155,6 @@ public interface SCMRepositoryEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/create-and-sync")
     RepositoryCreationResponse createNew(@NotNull CreateAndSyncSCMRequest request);
 
