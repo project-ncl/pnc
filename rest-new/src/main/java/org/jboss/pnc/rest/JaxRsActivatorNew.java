@@ -33,7 +33,11 @@ import org.jboss.pnc.rest.endpoints.SCMRepositoryEndpointImpl;
 import org.jboss.pnc.rest.endpoints.UserEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
+import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
+import org.jboss.pnc.rest.provider.EJBExceptionMapper;
 import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
+import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
+import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
 import javax.ws.rs.ApplicationPath;
@@ -106,6 +110,10 @@ public class JaxRsActivatorNew extends Application {
 
     private void addExceptionMappers(Set<Class<?>> resources) {
         resources.add(AllOtherExceptionsMapper.class);
+        resources.add(BuildConflictExceptionMapper.class);
+        resources.add(UnauthorizedExceptionMapper.class);
+        resources.add(ValidationExceptionExceptionMapper.class);
+        resources.add(EJBExceptionMapper.class);
     }
 
 
