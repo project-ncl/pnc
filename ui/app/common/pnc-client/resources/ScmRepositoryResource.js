@@ -23,7 +23,7 @@
   module.value('SCM_REPOSITORY_PATH', '/scm-repositories/:id');
 
   /**
-   *
+   * SCM Repository Resource
    */
   module.factory('ScmRepositoryResource', [
     '$resource',
@@ -55,28 +55,8 @@
             }
             return angular.toJson(data);
           }
-        },
-        search: {
-          method: 'GET',
-          isPaged: true,
-          url: restConfig.getPncUrl() + '/scm-repositories/search-by-scm-url'
-        },
-        match : {
-          method: 'GET',
-          isPaged: true,
-          url: restConfig.getPncUrl() + '/scm-repositories/match-by-scm-url'
         }
       });
-
-      resource.autoCreateRepoConfig = function (options) {
-        var dto = {
-          scmUrl: options.url,
-          preBuildSyncEnabled: options.preBuildSync,
-          buildConfigurationRest: options.buildConfiguration
-        };
-
-        return $http.post(restConfig.getPncUrl() + '/bpm/tasks/start-repository-configuration-creation-url-auto', dto);
-      };
 
       resource.prototype.getName = function () {
         return this.internalUrl.split('/').splice(3).join('/');

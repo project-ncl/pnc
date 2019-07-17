@@ -91,13 +91,30 @@
     function parseBuildConfig(wizardData) {
       var bc = angular.copy(wizardData.general);
       bc.genericParameters = angular.copy(wizardData.buildParameters);
-      bc.dependencyIds = wizardData.dependencies.map(function (d) { return d.id; });
+      /*
+       * New REST requires dependencies attribute instead of dependencyIds
+       *
+       * When new Build Configuration and SCM Repository is being created
+       *  - new rest endpoints are already used and this option is fully working
+       * 
+       * When new Build Configuration is created with already existing SCM repository
+       *  - this option won't temporarily work until Build Configuration rest refactor is implemented
+       */
+      bc.dependencies = wizardData.dependencies.map(function (d) { 
+        return { 
+          id: d.id 
+        }; 
+      });
       bc.scmRevision = wizardData.repoConfig.revision;
-      bc.project = $ctrl.wizardData.project;
-      bc.buildConfigurationSetIds = [];
+      bc.project = {
+        id: $ctrl.wizardData.project.id
+      };
+      bc.groupConfigs = [];
 
       if ($ctrl.wizardData.productVersion) {
-        bc.productVersionId = $ctrl.wizardData.productVersion.id;
+        bc.productVersion = {
+          id: $ctrl.wizardData.productVersion.id
+        };
       }
 
       return bc;
@@ -120,8 +137,8 @@
             $ctrl.wizardDone = true;
           });
       } else {
-        $scope.$on(eventTypes.RC_BPM_NOTIFICATION, function (event, payload) {
 
+        $scope.$on(eventTypes.RC_BPM_NOTIFICATION, function (event, payload) {
           switch (payload.eventType) {
             case 'RC_REPO_CREATION_SUCCESS':
               $ctrl.createStatusMessages.push(payload.data.message);
@@ -132,8 +149,9 @@
               $ctrl.wizardDone = true;
               $ctrl.createError = true;
               break;
+
             case 'RC_REPO_CLONE_SUCCESS':
-              $ctrl.createStatusMessages.push('Repository successfully cloned.');
+              $ctrl.createStatusMessages.push('SCM Repository successfully cloned.');
               break;
             case 'RC_REPO_CLONE_ERROR':
               $ctrl.createStatusMessages.push('Error cloning repository.');
@@ -141,11 +159,10 @@
               $ctrl.wizardDone = true;
               $ctrl.createError = true;
               break;
+
             case 'RC_CREATION_SUCCESS':
-              $ctrl.createStatusMessages.push('Build Config successfully created.');
-              $ctrl.createdBuildConfigId = payload.buildConfigurationId;
-              $ctrl.createdRepoConfigId = payload.repositoryId;
-              $ctrl.wizardDone = true;
+              $ctrl.createStatusMessages.push('SCM Repository successfully created.');
+              $ctrl.createdRepoConfigId = payload.repositoryConfigurationId;
               break;
             case 'RC_CREATION_ERROR':
               $ctrl.wizardDone = true;
@@ -154,7 +171,25 @@
           }
 
         });
-        ScmRepositoryResource.autoCreateRepoConfig({
+
+        $scope.$on(eventTypes.BC_NOTIFICATION, function (event, payload) {
+          switch (payload.eventType) {
+            case 'BC_CREATION_SUCCESS':
+              $ctrl.createStatusMessages.push('Build Config successfully created.');
+              $ctrl.createdBuildConfigId = payload.buildConfigurationId;
+              $ctrl.wizardDone = true;
+              break;
+            case 'BC_CREATION_ERROR':
+              $ctrl.createStatusMessages.push('Error creating Build Config.');
+              $ctrl.createStatusMessages.push(payload.data.message);
+              $ctrl.wizardDone = true;
+              $ctrl.createError = true;
+              break;
+          }
+
+        });
+
+        BuildConfiguration.createWithScm({
           url: $ctrl.wizardData.repoConfig.scmUrl,
           preBuildSync: $ctrl.wizardData.repoConfig.preBuildSyncEnabled,
           buildConfiguration: bc
@@ -162,6 +197,7 @@
           $ctrl.wizardDone = true;
           $ctrl.createError = true;
         });
+
       }
     }
   }

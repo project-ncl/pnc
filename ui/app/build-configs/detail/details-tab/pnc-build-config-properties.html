@@ -33,9 +33,9 @@
     <dd>{{ $ctrl.buildConfig.buildType }}</dd>
     <dt>Environment</dt>
     <dd>{{ $ctrl.buildConfig.environment.name }}</dd>
-    <dt>Repository Config</dt>
+    <dt>SCM Repository</dt>
     <dd>
-      <pnc-scm-repository-link scm-repository="$ctrl.buildConfig.scmRepository"></pnc-scm-repository-link>
+      <pnc-scm-repository-link scm-repository="$ctrl.buildConfig.repositoryConfiguration"></pnc-scm-repository-link>
     </dd>
     <dt>Revision</dt>
     <dd>{{ $ctrl.buildConfig.scmRevision }}</dd>
