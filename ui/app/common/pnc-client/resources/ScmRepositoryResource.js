@@ -82,6 +82,10 @@
         return this.internalUrl.split('/').splice(3).join('/');
       };
 
+      resource.createAndSync = function (scmRepository) {
+        return $http.post(restConfig.getPncRestUrl() + '/scm-repositories/create-and-sync', scmRepository);
+      };
+
       return resource;
     }
 

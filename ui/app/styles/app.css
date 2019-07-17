@@ -320,3 +320,10 @@ label.required::before {
   border-bottom: 0;
   margin-bottom: -10px !important;
 }
+
+.btn-spinner-xs {
+  display: inline-block;
+  position: relative;
+  top: 1px;
+  margin-right: 2px;
+};
