@@ -29,23 +29,23 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
 
     private final BuildSetStatus oldStatus;
     private final BuildSetStatus newStatus;
-    private final Integer buildSetTaskId;
-    private final Integer buildSetConfigurationId;
+    private final String buildSetTaskId;
+    private final String buildSetConfigurationId;
     private final String buildSetConfigurationName;
     private final Date buildSetStartTime;
     private final Date buildSetEndTime;
-    private final Integer userId;
+    private final String userId;
     private final String description;
 
     public DefaultBuildSetStatusChangedEvent(
             BuildSetStatus oldStatus,
             BuildSetStatus newStatus,
-            Integer buildSetTaskId,
-            Integer buildSetConfigurationId,
+            String buildSetTaskId,
+            String buildSetConfigurationId,
             String buildSetConfigurationName,
             Date buildSetStartTime,
             Date buildSetEndTime,
-            Integer userId,
+            String userId,
             String description) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
@@ -69,17 +69,17 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
     }
 
     @Override
-    public Integer getBuildSetTaskId() {
+    public String getBuildSetTaskId() {
         return buildSetTaskId;
     }
 
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
     @Override
-    public Integer getBuildSetConfigurationId() {
+    public String getBuildSetConfigurationId() {
         return buildSetConfigurationId;
     }
 

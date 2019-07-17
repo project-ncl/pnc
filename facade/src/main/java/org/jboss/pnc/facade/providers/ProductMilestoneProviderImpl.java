@@ -93,7 +93,7 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
             throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
             org.jboss.pnc.model.ProductMilestone milestoneFromDB = repository.queryByPredicates(
-                    withProductVersionIdAndVersion(restEntity.getProductVersion().getId(), restEntity.getVersion())
+                    withProductVersionIdAndVersion(Integer.valueOf(restEntity.getProductVersion().getId()), restEntity.getVersion())
             );
 
             // don't validate against myself

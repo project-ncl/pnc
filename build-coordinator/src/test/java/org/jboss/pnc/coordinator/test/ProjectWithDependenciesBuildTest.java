@@ -109,7 +109,7 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         log.info("Got: build set status changed event for build id: " + BUILD_SET_ID);
-        if (buildSetStatusChangedEvent.getBuildSetConfigurationId() == BUILD_SET_ID) {
+        if (buildSetStatusChangedEvent.getBuildSetConfigurationId().equals(String.valueOf(BUILD_SET_ID))) {
             log.info("correct id, saving {}", buildSetStatusChangedEvent);
             eventsReceived.add(buildSetStatusChangedEvent);
         }

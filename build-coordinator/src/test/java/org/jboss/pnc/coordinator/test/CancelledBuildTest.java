@@ -75,7 +75,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
-                        coordinator.cancel(event.getBuild().getId());
+                        coordinator.cancel(Integer.valueOf(event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -120,7 +120,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                     try {
                         Thread.sleep(250); //wait a bit for build execution to start
                         //we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class directly, so we need to dit it up from buildTaskId that event provides
-                        coordinator.cancelSet(getBuildConfigSetId(coordinator,event.getBuild().getId()));
+                        coordinator.cancelSet(getBuildConfigSetId(coordinator, event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -181,7 +181,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         }
     }
 
-    private Integer getBuildConfigSetId(BuildCoordinator coordinator, Integer buildTaskId) {
+    private Integer getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId) {
         return coordinator
                 .getSubmittedBuildTasks().stream()
                 .filter(t -> buildTaskId.equals(t.getId()))

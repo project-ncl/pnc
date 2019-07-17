@@ -39,7 +39,7 @@ import javax.validation.constraints.Null;
 public class TargetRepositoryRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    protected final String id;
 
     @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
     protected final Boolean temporaryRepo;

@@ -44,7 +44,7 @@ public class BuildConfigurationRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    protected final String id;
 
     @PatchSupport({REPLACE})
     @NotNull(groups = WhenCreatingNew.class)

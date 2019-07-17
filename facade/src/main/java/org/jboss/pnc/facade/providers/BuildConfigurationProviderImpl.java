@@ -103,7 +103,7 @@ public class BuildConfigurationProviderImpl
     @Inject
     private BuildConfigRevisionHelper buildConfigRevisionHelper;
 
-    private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id(-1).build();
+    private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id("-1").build();
 
     @Inject
     public BuildConfigurationProviderImpl(BuildConfigurationRepository repository,
@@ -139,7 +139,7 @@ public class BuildConfigurationProviderImpl
 
         for (BuildConfigurationRef buildConfigurationRef : dependencies) {
 
-            Integer dependencyId = buildConfigurationRef.getId();
+            Integer dependencyId = Integer.valueOf(buildConfigurationRef.getId());
 
             ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
                     !buildConfig.getId().equals(dependencyId),
@@ -179,7 +179,7 @@ public class BuildConfigurationProviderImpl
     @Override
     public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
         super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
-        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
+        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(String.valueOf(id)).build());
         validateDependencies(id, buildConfiguration.getDependencies());
         BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(id);
         if (latestRevision == null) {
@@ -390,7 +390,7 @@ public class BuildConfigurationProviderImpl
 
         Set<Integer> bcSetIds = configuration.getGroupConfigs()
                 .stream()
-                .map(c -> c.getId())
+                .map(c -> Integer.valueOf(c.getId()))
                 .collect(Collectors.toSet());
         try {
             if (bcSetIds != null) {

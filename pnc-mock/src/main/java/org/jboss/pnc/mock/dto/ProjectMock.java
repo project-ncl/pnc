@@ -26,7 +26,7 @@ public class ProjectMock {
 
     public static ProjectRef newProjectRef() {
         return ProjectRef.refBuilder()
-                .id(1)
+                .id("1")
                 .name("A")
                 .description("desc")
                 .projectUrl("url1")

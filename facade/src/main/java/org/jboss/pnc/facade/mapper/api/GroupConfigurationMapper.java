@@ -39,7 +39,7 @@ public interface GroupConfigurationMapper extends EntityMapper<BuildConfiguratio
             return null;
         }
         BuildConfigurationSet entity = new BuildConfigurationSet();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

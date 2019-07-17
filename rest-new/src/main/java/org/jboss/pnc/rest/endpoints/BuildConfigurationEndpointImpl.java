@@ -146,7 +146,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public void addDependency(int id, BuildConfigurationRef dependency) {
-        buildConfigurationProvider.addDependency(id, dependency.getId());
+        buildConfigurationProvider.addDependency(id, Integer.valueOf(dependency.getId()));
     }
 
     @Override

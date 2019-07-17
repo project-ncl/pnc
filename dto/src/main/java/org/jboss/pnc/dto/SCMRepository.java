@@ -44,7 +44,7 @@ public class SCMRepository implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    protected final String id;
 
     @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
     @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})

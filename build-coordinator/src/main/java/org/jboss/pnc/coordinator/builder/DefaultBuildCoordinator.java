@@ -470,7 +470,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildConfigurationAudited buildConfigurationAudited = task.getBuildConfigurationAudited();
         Project projectDb = task.getBuildConfigurationAudited().getProject();
         ProjectRef project = ProjectRef.refBuilder()
-                .id(projectDb.getId())
+                .id(String.valueOf(projectDb.getId()))
                 .name(projectDb.getName())
                 .description(projectDb.getDescription())
                 .issueTrackerUrl(projectDb.getIssueTrackerUrl())
@@ -480,7 +480,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         org.jboss.pnc.model.RepositoryConfiguration repositoryConfiguration = task.getBuildConfigurationAudited()
                 .getRepositoryConfiguration();
         SCMRepository repository = SCMRepository.builder()
-                .id(repositoryConfiguration.getId())
+                .id(String.valueOf(repositoryConfiguration.getId()))
                 .internalUrl(repositoryConfiguration.getInternalUrl())
                 .externalUrl(repositoryConfiguration.getExternalUrl())
                 .preBuildSyncEnabled(repositoryConfiguration.isPreBuildSyncEnabled())
@@ -488,7 +488,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         org.jboss.pnc.model.BuildEnvironment buildEnvironmentDb = buildConfigurationAudited.getBuildEnvironment();
         Environment buildEnvironment = Environment.builder()
-                .id(buildEnvironmentDb.getId())
+                .id(String.valueOf(buildEnvironmentDb.getId()))
                 .name(buildEnvironmentDb.getName())
                 .description(buildEnvironmentDb.getDescription())
                 .systemImageRepositoryUrl(buildEnvironmentDb.getSystemImageRepositoryUrl())
@@ -500,12 +500,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         User userDb = task.getUser();
         org.jboss.pnc.dto.User user = org.jboss.pnc.dto.User.builder()
-                .id(userDb.getId())
+                .id(String.valueOf(userDb.getId()))
                 .username(userDb.getUsername())
                 .build();
 
         BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
-                .id(buildConfigurationAudited.getId())
+                .id(String.valueOf(buildConfigurationAudited.getId()))
                 .rev(buildConfigurationAudited.getRev())
                 .name(buildConfigurationAudited.getName())
                 .description(buildConfigurationAudited.getDescription())
@@ -524,7 +524,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .buildConfigurationRevision(buildConfigurationRevisionRef)
                 .dependentBuildIds(dependants)
                 .dependencyBuildIds(dependencies)
-                .id(task.getId())
+                .id(String.valueOf(task.getId()))
                 .submitTime(TimeUtils.toInstant(task.getSubmitTime()))
                 .startTime(TimeUtils.toInstant(task.getStartTime()))
                 .endTime(TimeUtils.toInstant(task.getEndTime()))
@@ -593,13 +593,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             BuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(
                     oldStatus,
                     status,
-                    buildSetTask.getId(),
-                    record.getBuildConfigurationSet().getId(),
-                    record.getBuildConfigurationSet().getName(),
+                    String.valueOf(buildSetTask.getId()),
+                    String.valueOf(record.getBuildConfigurationSet().getId()),
+                    String.valueOf(record.getBuildConfigurationSet().getName()),
                     record.getStartTime(),
                     record.getEndTime(),
-                    userId,
+                    String.valueOf(userId),
                     description);
+            String.valueOf("haha");
             log.debug("Notifying build set status update {}.", event);
             buildSetStatusChangedEventNotifier.fire(event);
         });

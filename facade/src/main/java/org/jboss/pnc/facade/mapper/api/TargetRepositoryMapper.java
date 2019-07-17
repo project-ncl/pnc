@@ -39,7 +39,7 @@ public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, o
             return null;
         }
         TargetRepository repository = new TargetRepository();
-        repository.setId(dtoEntity.getId());
+        repository.setId(Integer.valueOf(dtoEntity.getId()));
         return repository;
     };
 

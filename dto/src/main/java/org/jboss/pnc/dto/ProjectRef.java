@@ -40,7 +40,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 public class ProjectRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    protected final String id;
 
     @PatchSupport({REPLACE})
     protected final String name;

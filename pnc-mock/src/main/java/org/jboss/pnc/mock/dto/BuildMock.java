@@ -26,10 +26,10 @@ import org.jboss.pnc.enums.BuildStatus;
 public class BuildMock {
 
     public static Build newBuild(BuildStatus status, String buildConfigurationName) {
-        return newBuild(1, status, buildConfigurationName);
+        return newBuild("1", status, buildConfigurationName);
     }
 
-    public static Build newBuild(Integer id, BuildStatus status, String buildConfigurationName) {
+    public static Build newBuild(String id, BuildStatus status, String buildConfigurationName) {
         return Build.builder()
                 .id(id)
                 .status(status)

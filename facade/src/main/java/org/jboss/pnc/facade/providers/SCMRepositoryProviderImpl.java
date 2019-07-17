@@ -133,7 +133,7 @@ public class SCMRepositoryProviderImpl
         if(scmUrl.contains(config.getInternalScmAuthority())){
             SCMRepository scmRepository = getInternalRepository(scmUrl);
             for (Consumer<Integer> consumer : consumers) {
-                consumer.accept(scmRepository.getId());
+                consumer.accept(Integer.valueOf(scmRepository.getId()));
             }
             return new RepositoryCreationResponse(scmRepository);
         }else{
