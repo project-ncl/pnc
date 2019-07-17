@@ -27,6 +27,8 @@ import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.Project_;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.RepositoryConfiguration_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
@@ -84,4 +86,12 @@ public class BuildConfigurationPredicates {
             return cb.equal(configurationBuildConfigurationSetSetJoin.get(BuildConfigurationSet_.id), buildConfigurationSetId);
         };
     }
+
+    public static Predicate<BuildConfiguration> withScmRepositoryId(Integer scmRepositoryId) {
+        return (root, query, cb) -> {
+            Join<BuildConfiguration, RepositoryConfiguration> repositoryConfigurations = root.join(BuildConfiguration_.repositoryConfiguration);
+            return cb.equal(repositoryConfigurations.get(RepositoryConfiguration_.id), scmRepositoryId);
+        };
+    }
 }
+

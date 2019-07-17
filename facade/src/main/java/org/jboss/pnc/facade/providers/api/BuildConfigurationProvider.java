@@ -46,6 +46,12 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
                                                             String query,
                                                             int groupConfigId);
 
+    Page<BuildConfiguration> getBuildConfigurationsForScmRepository(int pageIndex,
+                                                                   int pageSize,
+                                                                   String sortingRsql,
+                                                                   String query,
+                                                                   int scmRepositoryId);
+
     BuildConfiguration clone(Integer buildConfigurationId);
 
     void addDependency(Integer configId, Integer dependencyId);

@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
@@ -31,6 +32,7 @@ import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
 
 import javax.validation.constraints.NotNull;
@@ -154,4 +156,20 @@ public interface SCMRepositoryEndpoint{
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/create-and-sync")
     RepositoryCreationResponse createNew(@NotNull CreateAndSyncSCMRequest request);
+
+    @Operation(summary = "Gets all build configs associated with a specific SCM repository.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    @GET
+    @Path("/{id}/build-configs")
+    Page<BuildConfiguration> getBuildsConfigs(
+            @Parameter(description = SCM_ID) @PathParam("id") int id,
+            @BeanParam PageParameters pageParameters);
+
 }
