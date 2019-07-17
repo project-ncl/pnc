@@ -44,14 +44,14 @@ public interface BuildConfigurationRevisionMapper {
                return null;
           }
          BuildConfigurationAudited entity = new BuildConfigurationAudited();
-         entity.setId(dtoEntity.getId());
+         entity.setId(Integer.valueOf(dtoEntity.getId()));
          entity.setRev(dtoEntity.getRev());
          return entity;
      };
 
      @Mapping(target = "repositoryConfiguration", source = "repository", qualifiedBy = IdEntity.class)
      @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
-     @Mapping(target = "idRev", expression = "java( new IdRev( dtoEntity.getId(), dtoEntity.getRev() ) )")
+     @Mapping(target = "idRev", expression = "java( new IdRev( Integer.valueOf(dtoEntity.getId()), dtoEntity.getRev() ) )")
      @Mapping(target = "buildRecords", ignore = true)
      @Mapping(target = "buildConfiguration", ignore = true)
      @Mapping(target = "lastModificationTime", source = "modificationTime")

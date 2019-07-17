@@ -26,7 +26,7 @@ public class SCMRepositoryMock {
 
     public static SCMRepository newScmRepository() {
         return SCMRepository.builder()
-            .id(1)
+            .id("1")
             .internalUrl("url1")
             .externalUrl("url2")
             .preBuildSyncEnabled(true)

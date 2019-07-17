@@ -50,8 +50,8 @@ public class ProductMilestone extends ProductMilestoneRef {
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, Integer id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
-        super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
+    private ProductMilestone(ProductVersionRef productVersion, Set<Integer> performedBuilds, Set<Integer> distributedArtifactIds, ProductReleaseRef productRelease, String id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
+        super(id.toString(), version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
         this.performedBuilds = performedBuilds;
         this.distributedArtifactIds = distributedArtifactIds;

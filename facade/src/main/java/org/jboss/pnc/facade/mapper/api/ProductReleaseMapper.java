@@ -40,7 +40,7 @@ public interface ProductReleaseMapper extends EntityMapper<ProductRelease, org.j
             return null;
         }
         ProductRelease release = new ProductRelease();
-        release.setId(dtoEntity.getId());
+        release.setId(Integer.valueOf(dtoEntity.getId()));
         return release;
     }
 

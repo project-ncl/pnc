@@ -63,8 +63,8 @@ public class ProductVersion extends ProductVersionRef {
     private final List<BuildConfigurationRef> buildConfigurations;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigurations, List<BuildConfigurationRef> buildConfigurations, Integer id, String version, Map<String, String> attributes) {
-        super(id, version, attributes);
+    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigurations, List<BuildConfigurationRef> buildConfigurations, String id, String version, Map<String, String> attributes) {
+        super(id.toString(), version, attributes);
         this.product = product;
         this.currentProductMilestone = currentProductMilestone;
         this.productMilestones = productMilestones;

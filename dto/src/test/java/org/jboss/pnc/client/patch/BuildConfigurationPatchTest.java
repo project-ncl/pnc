@@ -48,7 +48,7 @@ public class BuildConfigurationPatchTest {
     @Test
     public void shouldReplaceSimpleValue() throws PatchBuilderException, IOException, JsonPatchException {
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id(1)
+                .id("1")
                 .description("Hello Tom!")
                 .build();
 
@@ -62,15 +62,15 @@ public class BuildConfigurationPatchTest {
     @Test
     public void shouldReplaceRef() throws PatchBuilderException, IOException, JsonPatchException {
         ProjectRef project = ProjectRef.refBuilder()
-                .id(1)
+                .id("1")
                 .name("Project 1")
                 .build();
         ProjectRef newProject = ProjectRef.refBuilder()
-                .id(2)
+                .id("2")
                 .name("Project 2")
                 .build();
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id(1)
+                .id("1")
                 .name("BC 1")
                 .project(project)
                 .build();
@@ -89,7 +89,7 @@ public class BuildConfigurationPatchTest {
         Map<String, String> genericParameters = new HashMap<>();
         genericParameters.put("k", "v");
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id(1)
+                .id("1")
                 .genericParameters(genericParameters)
                 .build();
 
@@ -106,16 +106,16 @@ public class BuildConfigurationPatchTest {
     @Test
     public void shouldAddToCollection() throws PatchBuilderException, IOException, JsonPatchException {
         Set<BuildConfigurationRef> dependencies = new HashSet<>();
-        BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id(1).build();
+        BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id("1").build();
         dependencies.add(dependency1);
 
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id(1)
+                .id("1")
                 .dependencies(dependencies)
                 .build();
 
         Set<BuildConfigurationRef> addDependencies = new HashSet<>();
-        BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id(2).build();
+        BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id("2").build();
         addDependencies.add(dependency2);
         String patchString = new BuildConfigurationPatchBuilder()
             .addDependencies(addDependencies)
@@ -128,16 +128,16 @@ public class BuildConfigurationPatchTest {
 
     @Test
     public void shouldReplaceCollection() throws PatchBuilderException, IOException, JsonPatchException {
-        BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id(1).build();
-        BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id(2).build();
-        BuildConfigurationRef dependency2a = BuildConfigurationRef.refBuilder().id(2).build();
-        BuildConfigurationRef dependency3 = BuildConfigurationRef.refBuilder().id(3).build();
-        BuildConfigurationRef dependency4 = BuildConfigurationRef.refBuilder().id(4).build();
+        BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id("1").build();
+        BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id("2").build();
+        BuildConfigurationRef dependency2a = BuildConfigurationRef.refBuilder().id("2").build();
+        BuildConfigurationRef dependency3 = BuildConfigurationRef.refBuilder().id("3").build();
+        BuildConfigurationRef dependency4 = BuildConfigurationRef.refBuilder().id("4").build();
         Set<BuildConfigurationRef> dependencies = new HashSet<>();
         dependencies.add(dependency1);
         dependencies.add(dependency2);
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id(1)
+                .id("1")
                 .dependencies(dependencies)
                 .build();
 

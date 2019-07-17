@@ -42,7 +42,7 @@ public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, o
             return null;
         }
         ProductMilestone milestone = new ProductMilestone();
-        milestone.setId(dtoEntity.getId());
+        milestone.setId(Integer.valueOf(dtoEntity.getId()));
         return milestone;
     };
 

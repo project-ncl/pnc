@@ -35,13 +35,13 @@ public class BuildChangedPayload implements NotificationPayload {
 
     @JsonIgnore
     @Override
-    public Integer getId() {
+    public String getId() {
         return build.getId();
     }
 
     @JsonIgnore
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return build.getUser().getId();
     }
 

@@ -41,7 +41,7 @@ public class NotificationTest {
     @Test
     public void shouldDeserialize() throws Exception {
         ProjectRef projectRef = ProjectRef.refBuilder()
-            .id(1)
+            .id("1")
             .name("A")
             .description("desc")
             .projectUrl("url1")
@@ -49,14 +49,14 @@ public class NotificationTest {
             .build();
 
         SCMRepository scmRepository = SCMRepository.builder()
-                .id(1)
+                .id("1")
                 .internalUrl("url1")
                 .externalUrl("url2")
                 .preBuildSyncEnabled(true)
                 .build();
 
         Environment buildEnvironment = Environment.builder()
-                .id(1)
+                .id("1")
                 .name("jdk8")
                 .description("desc")
                 .systemImageRepositoryUrl("url")
@@ -66,11 +66,11 @@ public class NotificationTest {
                 .build();
 
         User user = User.builder()
-                .id(1)
+                .id("1")
                 .username("user")
                 .build();
         BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
-                .id(1)
+                .id("1")
                 .rev(1)
                 .name("name")
                 .description("desc")
@@ -79,7 +79,7 @@ public class NotificationTest {
                 .build();
 
         Build build = Build.builder()
-                .id(1)
+                .id("1")
                 .submitTime(Instant.ofEpochMilli(1526473388394L))
                 .project(projectRef)
                 .repository(scmRepository)

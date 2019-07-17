@@ -48,7 +48,7 @@ public class NotificationFactoryForBuildTest {
         Instant startTime = new Date(1453118400000L).toInstant();
         Instant endTime = new Date(1453122000000L).toInstant();
         Build build = Build.builder()
-                .id(1)
+                .id("1")
                 .status(BuildStatus.SUCCESS)
                 .buildContentId("build-42")
                 .temporaryBuild(true)

@@ -42,7 +42,7 @@ public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.P
             return null;
         }
         Project entity = new Project();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

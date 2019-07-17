@@ -28,9 +28,9 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
 
     private BuildSetStatus oldStatus;
     private BuildSetStatus newStatus;
-    private Integer buildSetTaskId;
-    private Integer userId;
-    private Integer buildSetConfigurationId;
+    private String buildSetTaskId;
+    private String userId;
+    private String buildSetConfigurationId;
     private String buildSetConfigurationName;
     private Date buildSetStartTime;
     private Date buildSetEndTime;
@@ -44,15 +44,15 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
         this.newStatus = newStatus;
     }
 
-    public void setBuildSetTaskId(Integer buildSetTaskId) {
+    public void setBuildSetTaskId(String buildSetTaskId) {
         this.buildSetTaskId = buildSetTaskId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public void setBuildSetConfigurationId(Integer buildSetConfigurationId) {
+    public void setBuildSetConfigurationId(String buildSetConfigurationId) {
         this.buildSetConfigurationId = buildSetConfigurationId;
     }
 
@@ -83,17 +83,17 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
     }
 
     @Override
-    public Integer getBuildSetTaskId() {
+    public String getBuildSetTaskId() {
         return buildSetTaskId;
     }
 
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
     @Override
-    public Integer getBuildSetConfigurationId() {
+    public String getBuildSetConfigurationId() {
         return buildSetConfigurationId;
     }
 

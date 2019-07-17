@@ -38,7 +38,7 @@ public interface EnvironmentMapper extends EntityMapper<BuildEnvironment, Enviro
             return null;
         }
         BuildEnvironment entity = new BuildEnvironment();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

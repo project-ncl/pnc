@@ -33,7 +33,7 @@ import lombok.Data;
 @JsonDeserialize(builder = ArtifactRepository.Builder.class)
 public class ArtifactRepository {
 
-    private final Integer id;
+    private final String id;
 
     private final String name;
 

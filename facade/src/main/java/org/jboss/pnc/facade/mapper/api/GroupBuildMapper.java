@@ -45,7 +45,7 @@ public interface GroupBuildMapper extends EntityMapper<BuildConfigSetRecord, Gro
             return null;
         }
         BuildConfigSetRecord bcsr = new BuildConfigSetRecord();
-        bcsr.setId(dtoEntity.getId());
+        bcsr.setId(Integer.valueOf(dtoEntity.getId()));
         return bcsr;
     };
 

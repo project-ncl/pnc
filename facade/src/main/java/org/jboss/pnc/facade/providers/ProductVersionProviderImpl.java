@@ -61,7 +61,7 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
 
         org.jboss.pnc.model.ProductVersion productVersionRestDb = mapper.toEntity(restEntity);
 
-        Product product = productRepository.queryById(restEntity.getProduct().getId());
+        Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
 
         productVersionRestDb.generateBrewTagPrefix(product.getAbbreviation(),
                                                    restEntity.getVersion(),
@@ -91,7 +91,7 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
 
         super.validateBeforeSaving(restEntity);
 
-        Product product = productRepository.queryById(restEntity.getProduct().getId());
+        Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
 
         if (product == null) {
             throw new InvalidEntityException("Product with id: " + restEntity.getProduct().getId() + " does not exist.");

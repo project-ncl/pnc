@@ -33,9 +33,9 @@ public interface BuildSetStatusChangedEvent {
      */
     BuildSetStatus getOldStatus();
     BuildSetStatus getNewStatus();
-    Integer getBuildSetTaskId();
-    Integer getUserId();
-    Integer getBuildSetConfigurationId();
+    String getBuildSetTaskId();
+    String getUserId();
+    String getBuildSetConfigurationId();
     String getBuildSetConfigurationName();
     Date getBuildSetStartTime();
     Date getBuildSetEndTime();

@@ -23,22 +23,22 @@ import java.util.Date;
 
 public class BuildSetChangedPayload implements NotificationPayload {
 
-    private final Integer id;
+    private final String id;
     private final BuildSetStatus buildStatus;
-    private final Integer userId;
-    private final Integer buildSetConfigurationId;
+    private final String userId;
+    private final String buildSetConfigurationId;
     private final String buildSetConfigurationName;
     private final Date buildSetStartTime;
     private final Date buildSetEndTime;
     private final String description;
 
-    public BuildSetChangedPayload(Integer id,
+    public BuildSetChangedPayload(String id,
             BuildSetStatus newStatus,
-            Integer buildSetConfigurationId,
+            String buildSetConfigurationId,
             String buildSetConfigurationName,
             Date buildSetStartTime,
             Date buildSetEndTime,
-            Integer userId,
+            String userId,
             String description) {
         this.id = id;
         this.buildStatus = newStatus;
@@ -55,16 +55,16 @@ public class BuildSetChangedPayload implements NotificationPayload {
     }
 
     @Override
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public Integer getBuildSetConfigurationId() {
+    public String getBuildSetConfigurationId() {
         return buildSetConfigurationId;
     }
 

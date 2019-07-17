@@ -137,7 +137,7 @@ public class StatusUpdatesTest {
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
         Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
-        Set<Integer> receivedUpdatesForId = new HashSet<>();
+        Set<String> receivedUpdatesForId = new HashSet<>();
         Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
             receivedUpdatesForId.add(statusChangedEvent.getBuild().getId());
         };

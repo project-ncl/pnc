@@ -41,7 +41,7 @@ public interface ProductVersionMapper extends EntityMapper<ProductVersion, org.j
             return null;
         }
         ProductVersion entity = new ProductVersion();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

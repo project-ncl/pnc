@@ -39,7 +39,7 @@ import lombok.Data;
 @JsonDeserialize(builder = BuildExecutionConfiguration.Builder.class)
 public class BuildExecutionConfiguration {
 
-    private final Integer id;
+    private final String id;
     private final String buildContentId;
     private final User user;
     private final String buildScript;

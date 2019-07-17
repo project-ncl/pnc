@@ -73,7 +73,7 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
             return null;
         }
         BuildRecord entity = new BuildRecord();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 
