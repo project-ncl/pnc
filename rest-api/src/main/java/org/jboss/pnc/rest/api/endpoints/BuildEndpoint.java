@@ -139,7 +139,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
-    @RespondWithStatus(ACCEPTED_CODE)
+    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
     void delete(@Parameter(description = B_ID) @PathParam("id") int id);
 
@@ -292,7 +292,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DELETE
-    @RespondWithStatus(ACCEPTED_CODE)
+    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     void cancelPush(@Parameter(description = B_ID) @PathParam("id") int id);
 
@@ -335,7 +335,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @POST
-    @RespondWithStatus(ACCEPTED_CODE)
+    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/cancel")
     void cancel(@Parameter(description = B_ID) @PathParam("id") int id);
 
