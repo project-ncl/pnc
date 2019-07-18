@@ -53,7 +53,7 @@ public class BuildSetStatusNotifications {
         log.debug("Observed BuildSetStatusChangedEvent {}.", event);
         BuildSetStatusChangedEvent buildSetStatusChangedEvent = event; // Avoid CDI runtime issue NCL-1505
         Predicate<BuildSetCallBack> filterSubscribersMatchingTaskId =
-                (callBackUrl) -> callBackUrl.getBuildSetConfigurationId().equals(buildSetStatusChangedEvent.getBuildSetConfigurationId());
+                (callBackUrl) -> String.valueOf(callBackUrl.getBuildSetConfigurationId()).equals(buildSetStatusChangedEvent.getBuildSetConfigurationId());
 
         Set<BuildSetCallBack> matchingTask = subscribers.stream().filter(filterSubscribersMatchingTaskId).collect(Collectors.toSet());
 
