@@ -608,7 +608,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     description);
             log.debug("Notifying build set status update {}.", event);
             buildSetStatusChangedEventNotifier.fire(event);
+
+            throw new RuntimeException("I was triggered");
         });
+
+        throw new RuntimeException("I was not triggered!!!");
+
     }
 
     private void processBuildTask(BuildTask task) {
