@@ -69,7 +69,7 @@ public class Build extends BuildRef {
             List<Integer> dependencyBuildIds, String id, Instant submitTime, Instant startTime, Instant endTime,
             BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmRepositoryURL,
             GroupBuildRef groupBuild) {
-        super(id.toString(), submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmRepositoryURL);
+        super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmRepositoryURL);
         this.project = project;
         this.repository = repository;
         this.environment = environment;

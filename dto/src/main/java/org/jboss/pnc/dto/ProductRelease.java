@@ -48,7 +48,7 @@ public class ProductRelease extends ProductReleaseRef {
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private ProductRelease(ProductVersionRef productVersion, ProductMilestoneRef productMilestone, String id, String version, SupportLevel supportLevel, Instant releaseDate, String downloadUrl, String issueTrackerUrl) {
-        super(id.toString(), version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
+        super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
         this.productMilestone = productMilestone;
     }

@@ -48,7 +48,7 @@ public class Product extends ProductRef {
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Product(Set<ProductVersionRef> productVersions, String id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
-        super(id.toString(), name, description, abbreviation, productCode, pgmSystemName);
+        super(id, name, description, abbreviation, productCode, pgmSystemName);
         this.productVersions = productVersions;
     }
 

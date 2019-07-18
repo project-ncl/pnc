@@ -45,7 +45,7 @@ public class Project extends ProjectRef {
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Project(List<BuildConfigurationRef> buildConfigurations, String id, String name, String description, String issueTrackerUrl, String projectUrl) {
-        super(id.toString(), name, description, issueTrackerUrl, projectUrl);
+        super(id, name, description, issueTrackerUrl, projectUrl);
         this.buildConfigurations = buildConfigurations;
     }
 

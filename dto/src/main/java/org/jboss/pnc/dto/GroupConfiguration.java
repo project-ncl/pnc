@@ -52,7 +52,7 @@ public class GroupConfiguration extends GroupConfigurationRef {
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     GroupConfiguration(ProductVersionRef productVersion, List<BuildConfigurationRef> buildConfigurations, String id, String name) {
-        super(id.toString(), name);
+        super(id, name);
         this.productVersion = productVersion;
         this.buildConfigurations = buildConfigurations;
     }

@@ -48,7 +48,7 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private BuildConfigurationRevision(SCMRepository repository, ProjectRef project, Environment environment, Map<String, String> genericParameters, String id, Integer rev, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, BuildType buildType) {
-        super(id.toString(), rev, name, description, buildScript, scmRevision, creationTime, modificationTime, buildType);
+        super(id, rev, name, description, buildScript, scmRevision, creationTime, modificationTime, buildType);
         this.repository = repository;
         this.project = project;
         this.environment = environment;

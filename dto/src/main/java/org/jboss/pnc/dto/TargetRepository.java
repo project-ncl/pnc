@@ -42,7 +42,7 @@ public class TargetRepository extends TargetRepositoryRef {
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private TargetRepository(Set<Integer> artifactIds, String id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
-        super(id.toString(), temporaryRepo, identifier, repositoryType, repositoryPath);
+        super(id, temporaryRepo, identifier, repositoryType, repositoryPath);
         this.artifactIds = artifactIds;
     }
 
