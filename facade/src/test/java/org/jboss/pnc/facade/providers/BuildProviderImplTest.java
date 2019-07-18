@@ -184,7 +184,7 @@ public class BuildProviderImplTest {
 
         // Verify
         assertEquals(1, builds.getTotalHits());
-        assertEquals((Integer)latestRunning.getId(), builds.getContent().iterator().next().getId());
+        assertEquals(String.valueOf(latestRunning.getId()), builds.getContent().iterator().next().getId());
     }
 
     @Test
@@ -202,7 +202,7 @@ public class BuildProviderImplTest {
 
         // Verify
         assertEquals(1, builds.getTotalHits());
-        assertEquals(latestBuild.getId(), builds.getContent().iterator().next().getId());
+        assertEquals(String.valueOf(latestBuild.getId()), builds.getContent().iterator().next().getId());
     }
 
     @Test
@@ -225,8 +225,8 @@ public class BuildProviderImplTest {
         assertEquals(4, builds.getTotalHits());
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals((Integer)build1.getId(), it.next().getId());
-        assertEquals((Integer)build2.getId(), it.next().getId());
+        assertEquals(String.valueOf(build1.getId()), it.next().getId());
+        assertEquals(String.valueOf(build2.getId()), it.next().getId());
     }
 
     @Test
@@ -249,8 +249,8 @@ public class BuildProviderImplTest {
         assertEquals(8, builds.getTotalHits());
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals((Integer)build1.getId(), it.next().getId());
-        assertEquals(build2.getId(), it.next().getId());
+        assertEquals(String.valueOf(build1.getId()), it.next().getId());
+        assertEquals(String.valueOf(build2.getId()), it.next().getId());
     }
     
     
@@ -283,7 +283,7 @@ public class BuildProviderImplTest {
 
         Iterator<Build> it = builds.getContent().iterator();
         for (Integer id : ids) {
-            assertEquals(id, it.next().getId());
+            assertEquals(String.valueOf(id), it.next().getId());
         }
         assertFalse(it.hasNext());
     }
