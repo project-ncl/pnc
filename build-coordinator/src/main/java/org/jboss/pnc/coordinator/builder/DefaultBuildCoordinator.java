@@ -204,14 +204,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildSetTask build(
             BuildConfigurationSet buildConfigurationSet,
             User user, BuildOptions buildOptions) throws CoreException {
+
+        log.info(">>> Before buildset lock");
         synchronized (buildMethodLock) {
+            log.info(">>> Creating buildsettask");
             BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                     buildConfigurationSet,
                     user,
                     buildOptions,
                     this::buildRecordIdSupplier,
                     buildQueue.getUnfinishedTasks());
+            log.info(">>> Done creating buildsettask");
+            log.info(">>> Updating buildsettask status");
             updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
+            log.info(">>> Done pdating buildsettask status");
 
             validateAndEnqueueBuildConfigurationSetTasks(buildConfigurationSet, buildOptions, buildSetTask);
             return buildSetTask;
