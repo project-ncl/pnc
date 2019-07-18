@@ -54,12 +54,12 @@ public class NotificationFactoryForBuildSetTest {
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_SET_STATUS_CHANGED);
         assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildStatus()).isEqualTo(BuildSetStatus.DONE);
-        assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetConfigurationId()).isEqualTo(1);
+        assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetConfigurationId()).isEqualTo("1");
         assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetConfigurationName()).isEqualTo("BuildSet1");
         assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetStartTime()).isEqualTo(new Date(1453118400000L));
         assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetEndTime()).isEqualTo(new Date(1453122000000L));
         assertThat(notification.getPayload()).isNotNull();
-        assertThat(notification.getPayload().getId()).isEqualTo(1);
-        assertThat(notification.getPayload().getUserId()).isEqualTo(1);
+        assertThat(notification.getPayload().getId()).isEqualTo("1");
+        assertThat(notification.getPayload().getUserId()).isEqualTo("1");
     }
 }
