@@ -23,7 +23,11 @@
       /**
        * object representing SCM Repository
        */
-      scmRepository: '<'
+      scmRepository: '<',
+      /**
+       * object representing Build Configs
+       */
+      buildConfigs: '<'
     },
     templateUrl: 'scm-repositories/detail/pnc-scm-repository-detail-page.html',
     controller: ['$state', 'BuildConfiguration', 'rsqlQuery', 'paginator', Controller]
@@ -45,7 +49,7 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      getBuildConfigurationsPageByScmRepository($ctrl.scmRepository.id);
+      $ctrl.buildConfigurations.page = paginator($ctrl.buildConfigs); 
     };
 
     function reload() {
@@ -62,15 +66,6 @@
 
     function update() {
       $ctrl.scmRepository.$update().finally(reload);
-    }
-
-    // New rest endpoint instead of RSQL will be used once NCL-4946 is implemented
-    function getBuildConfigurationsPageByScmRepository(scmRepositoryId) {
-      var q = rsqlQuery().where('repository.id').eq(scmRepositoryId).end();
-    
-      return BuildConfiguration.query({ q: q }).$promise.then(function (page) { 
-        $ctrl.buildConfigurations.page = paginator(page); 
-      });
     }
 
   }

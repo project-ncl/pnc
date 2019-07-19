@@ -66,7 +66,12 @@
           return ScmRepositoryResource.get({
             id: $stateParams.scmRepositoryId
           }).$promise;
-        }]
+        }],
+        buildConfigs: ['ScmRepositoryResource', '$stateParams', function(ScmRepositoryResource, $stateParams) {
+          return ScmRepositoryResource.queryBuildConfigs({
+            id: $stateParams.scmRepositoryId
+          }).$promise;
+        }],
       }
     });
 
