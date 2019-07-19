@@ -25,11 +25,11 @@
       onAdd: '&'
     },
     templateUrl: 'common/select-modals/build-config-multi-select/add-build-config-widget.html',
-    controller: ['Project', '$scope', Controller]
+    controller: ['ProjectResource', '$scope', Controller]
   });
 
 
-  function Controller(Project, $scope) {
+  function Controller(ProjectResource, $scope) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -66,7 +66,7 @@
 
 
     function fetchBuildConfigs(projectId) {
-      Project.queryBuildConfigurations({ id: projectId }).$promise.then(function (page) {
+      ProjectResource.queryBuildConfigurations({ id: projectId }).$promise.then(function (page) {
         $ctrl.items = [];
         $ctrl.selectAllState = true;
         // keep buildConfig data separately from other item attributes as pf-list-view modifies item attributes (for example 'selected')
