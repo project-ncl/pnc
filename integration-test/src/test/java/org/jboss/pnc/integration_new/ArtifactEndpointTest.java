@@ -102,8 +102,8 @@ public class ArtifactEndpointTest {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
         Artifact inserted = client.create(artifact);
-        Integer id = inserted.getId();
-        Artifact retrieved = client.getSpecific(id);
+        String id = inserted.getId();
+        Artifact retrieved = client.getSpecific(Integer.valueOf(id));
         Assertions.assertThat(retrieved.getArtifactQuality()).isEqualTo(ArtifactQuality.NEW);
         Assertions.assertThat(retrieved.getMd5()).isEqualTo("insert-md5-2");
         Assertions.assertThat(retrieved.getSize()).isEqualTo(10L);
@@ -111,9 +111,9 @@ public class ArtifactEndpointTest {
         Artifact.Builder builder = inserted.toBuilder();
         builder.artifactQuality(ArtifactQuality.TESTED);
         Artifact update = builder.build();
-        client.update(id, update);
+        client.update(Integer.valueOf(id), update);
 
-        Artifact updated = client.getSpecific(id);
+        Artifact updated = client.getSpecific(Integer.valueOf(id));
         Assertions.assertThat(updated.getArtifactQuality()).isEqualTo(ArtifactQuality.TESTED);
     }
 }

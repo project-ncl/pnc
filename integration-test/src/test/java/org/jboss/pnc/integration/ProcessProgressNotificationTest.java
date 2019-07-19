@@ -103,7 +103,7 @@ public class ProcessProgressNotificationTest {
     public void shouldSubscribeToProcessUpdatesNotification() throws Exception {
 
         // given
-        Integer taskId = 1;
+        String taskId = "1";
 
         Build build = BuildMock.newBuild(taskId, BuildStatus.SUCCESS, "Build1");
 
@@ -116,7 +116,7 @@ public class ProcessProgressNotificationTest {
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
         ProgressUpdatesRequest progressUpdatesRequest = new ProgressUpdatesRequest(Action.SUBSCRIBE,
                 "component-build",
-                taskId.toString());
+                taskId);
         String text = JsonOutputConverterMapper.apply(new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES,
                 progressUpdatesRequest));
         logger.info("Sending test message:" + text);

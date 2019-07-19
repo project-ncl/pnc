@@ -79,8 +79,8 @@ public class ProjectRestTestNewClient {
         //when
         Project projectReturned = projectClient.createNew(project);
 
-        //than
-        Integer returnedId = projectReturned.getId();
+        //then
+        String returnedId = projectReturned.getId();
         Assert.assertNotNull(returnedId);
     }
 

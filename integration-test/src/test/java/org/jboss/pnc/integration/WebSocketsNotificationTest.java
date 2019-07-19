@@ -126,12 +126,12 @@ public class WebSocketsNotificationTest {
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
                 BuildSetStatus.NEW,
                 BuildSetStatus.DONE,
-                1,
-                1,
+                "1",
+                "1",
                 "BuildSet1",
                 new Date(1453118400000L),
                 new Date(1453122000000L),
-                1, "description");
+                "1", "description");
         String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\",\"buildSetStartTime\":1453118400000,\"buildSetEndTime\":1453122000000,\"description\":\"description\"}}";
 
         //when

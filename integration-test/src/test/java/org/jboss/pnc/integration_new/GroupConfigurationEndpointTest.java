@@ -64,13 +64,13 @@ public class GroupConfigurationEndpointTest {
                 RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
 
         GroupConfiguration groupConfiguration = client.getAll().iterator().next();
-        Integer id = groupConfiguration.getId();
+        String id = groupConfiguration.getId();
 
         ProductVersion newProductVersion = createProductVersion();
 
         GroupConfigurationPatchBuilder builder = new GroupConfigurationPatchBuilder()
                 .replaceProductVersion(newProductVersion);
-        GroupConfiguration updated = client.patch(id, builder);
+        GroupConfiguration updated = client.patch(Integer.valueOf(id), builder);
 
         Assert.assertEquals(newProductVersion.getVersion(), updated.getProductVersion().getVersion());
 

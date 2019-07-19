@@ -59,13 +59,13 @@ public class GroupConfigEndpointTest {
         final String name = "Testing 101";
         
         GroupConfiguration gc = GroupConfiguration.builder()
-                .productVersion(ProductVersionRef.refBuilder().id(101).build())
+                .productVersion(ProductVersionRef.refBuilder().id("101").build())
                 .name(name)
                 .build();
         
         GroupConfiguration created = client.createNew(gc);
         assertEquals(name, created.getName());
-        GroupConfiguration specific = client.getSpecific(created.getId());
+        GroupConfiguration specific = client.getSpecific(Integer.valueOf(created.getId()));
         assertEquals(created, specific);
     }
 

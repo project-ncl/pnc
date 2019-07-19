@@ -100,7 +100,7 @@ public class RemoteBuildTest {
         semaphore.acquire();
     }
 
-    private void notifyCompleted(Integer buildConfigurationId, BuildStatus buildStatus) {
+    private void notifyCompleted(String buildConfigurationId, BuildStatus buildStatus) {
         semaphore.release();
     }
 

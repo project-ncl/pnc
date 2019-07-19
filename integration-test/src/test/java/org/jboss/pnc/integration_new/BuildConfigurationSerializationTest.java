@@ -41,7 +41,7 @@ public class BuildConfigurationSerializationTest {
     public void shouldPatchBuildConfiguration() throws RemoteResourceException, PatchBuilderException, IOException {
         Instant now = Instant.now();
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id(1)
+                .id("1")
                 .name("name")
                 .creationTime(now)
                 .build();

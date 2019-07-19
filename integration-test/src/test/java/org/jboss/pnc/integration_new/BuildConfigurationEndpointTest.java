@@ -66,13 +66,13 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration buildConfiguration = client.getAll().iterator().next();
         String newDescription = "Testing patch support.";
 
-        Integer id = buildConfiguration.getId();
+        String id = buildConfiguration.getId();
 
         Map<String, String> addElements = Collections.singletonMap("newKey", "newValue");
         BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder()
                 .replaceDescription(newDescription)
                 .addGenericParameters(addElements);
-        BuildConfiguration updated = client.patch(id, builder);
+        BuildConfiguration updated = client.patch(Integer.valueOf(id), builder);
 
         Assert.assertEquals(newDescription, updated.getDescription());
         Assertions.assertThat(updated.getGenericParameters()).contains(addElements.entrySet().toArray(new Map.Entry[1]));
@@ -80,7 +80,7 @@ public class BuildConfigurationEndpointTest {
         String newDescription2 = "Testing patch support 2.";
         BuildConfigurationPatchBuilder builder2 = new BuildConfigurationPatchBuilder()
                 .replaceDescription(newDescription2);
-        BuildConfiguration updated2 = client.patch(id, builder2.getJsonPatch(), BuildConfiguration.class);
+        BuildConfiguration updated2 = client.patch(Integer.valueOf(id), builder2.getJsonPatch(), BuildConfiguration.class);
         Assert.assertEquals(newDescription2, updated2.getDescription());
     }
 
