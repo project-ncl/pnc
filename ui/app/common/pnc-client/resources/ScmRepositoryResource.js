@@ -55,6 +55,11 @@
             }
             return angular.toJson(data);
           }
+        },
+        queryBuildConfigs: {
+          method: 'GET',
+          url: ENDPOINT + '/build-configs',
+          isPaged: true
         }
       });
 
