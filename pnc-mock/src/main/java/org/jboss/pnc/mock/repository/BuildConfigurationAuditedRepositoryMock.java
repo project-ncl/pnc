@@ -68,7 +68,7 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     }
 
     public void delete(IdRev id) {
-        data.removeIf(c -> c.getId().equals(id));
+        data.removeIf(c -> c.getIdRev().equals(id));
     }
 
     @Override
@@ -81,7 +81,7 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
 
     private Optional<BuildConfigurationAudited> getOptionalById(IdRev id) {
         return data.stream()
-                .filter(m -> id.equals(m.getId()))
+                .filter(m -> id.equals(m.getIdRev()))
                 .findAny();
     }
 

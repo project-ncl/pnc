@@ -97,7 +97,7 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
             );
 
             // don't validate against myself
-            if (milestoneFromDB != null && !milestoneFromDB.getId().equals(restEntity.getId())) {
+            if (milestoneFromDB != null && !String.valueOf(milestoneFromDB.getId()).equals(restEntity.getId())) {
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         milestoneFromDB.getId(),
                         org.jboss.pnc.model.ProductMilestone.class,

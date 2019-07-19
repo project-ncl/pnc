@@ -167,7 +167,7 @@ public class BuildConfigurationProviderImpl
 
             // don't validate against myself
             if (buildConfigurationFromDB != null &&
-                !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
+                !String.valueOf(buildConfigurationFromDB.getId()).equals(buildConfigurationRest.getId())) {
 
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         buildConfigurationFromDB.getId(),

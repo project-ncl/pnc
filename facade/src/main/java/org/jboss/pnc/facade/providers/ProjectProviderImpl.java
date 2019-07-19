@@ -48,7 +48,7 @@ public class ProjectProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
         org.jboss.pnc.model.Project project = repository.queryByPredicates(withProjectName(projectRest.getName()));
 
         //don't validate against myself
-        if(project != null && !project.getId().equals(projectRest.getId())) {
+        if(project != null && !String.valueOf(project.getId()).equals(projectRest.getId())) {
 
             throw new ConflictedEntryException(
                     "Project of that name already exists",
