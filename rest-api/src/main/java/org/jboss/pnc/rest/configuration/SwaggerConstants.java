@@ -65,4 +65,9 @@ public interface SwaggerConstants {
     public static final String SEARCH_QUERY_PARAM = "search-url";
     public static final String MATCH_QUERY_PARAM = "url";
     public static final String SEARCH_DEFAULT_VALUE = "";
+
+    public static final String SCM_REPOSITORY_EXISTS = "SCM repository is already present in PNC. The 'repository' key "
+            + "is populated with the details of the SCM repository ('taskId' key is null)";
+    public static final String SCM_REPOSITORY_CREATING = "SCM repository is being created. The 'taskId' key has the id of "
+            + "the Maitai process instance creating the repository ('repository' key is null)";
 }
