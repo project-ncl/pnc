@@ -135,7 +135,11 @@ public class StatusUpdatesTest {
     public void BuildTaskCallbacksShouldBeCalled() throws DatastoreException, CoreException {
         User user = User.Builder.newBuilder().id(3).username("test-user-3").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
-        Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
+        Set<String> tasksIds = buildTasks
+                .stream()
+                .map((BuildTask::getId))
+                .map(String::valueOf)
+                .collect(Collectors.toSet());
 
         Set<String> receivedUpdatesForId = new HashSet<>();
         Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
