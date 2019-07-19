@@ -22,10 +22,10 @@
     bindings: {
     },
     templateUrl: 'projects/create/pnc-project-create-page.html',
-    controller: ['$state', 'Project', Controller]
+    controller: ['$state', 'ProjectResource', Controller]
   });
 
-  function Controller($state, Project) {
+  function Controller($state, ProjectResource) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -35,7 +35,7 @@
     // --------------------
 
     function create(project) {
-      new Project(angular.copy(project)).$save().then(function(result) {
+      new ProjectResource(angular.copy(project)).$save().then(function(result) {
         $state.go('projects.detail', {
           projectId: result.id
         });
@@ -46,7 +46,7 @@
       if (form) {
         form.$setPristine();
         form.$setUntouched();
-        $ctrl.project = new Project();
+        $ctrl.project = new ProjectResource();
       }
     }
 

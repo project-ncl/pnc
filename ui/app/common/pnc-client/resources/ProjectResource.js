@@ -26,7 +26,7 @@
    *
    * @author Alex Creasy
    */
-  module.factory('Project', [
+  module.factory('ProjectResource', [
     '$resource',
     'restConfig',
     'PROJECT_PATH',

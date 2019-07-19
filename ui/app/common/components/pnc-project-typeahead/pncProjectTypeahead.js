@@ -28,10 +28,10 @@
       ngModel: '?ngModel'
     },
     templateUrl: 'common/components/pnc-project-typeahead/pnc-project-typeahead.html',
-    controller: ['$scope', 'Project', 'rsqlQuery', Controller]
+    controller: ['$scope', 'ProjectResource', 'rsqlQuery', Controller]
   });
 
-  function Controller($scope, Project, rsqlQuery) {
+  function Controller($scope, ProjectResource, rsqlQuery) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -57,7 +57,7 @@
 
       q = rsqlQuery().where('name').like($viewValue + '%').end();
 
-      return Project.query({ q: q }).$promise.then(function (page) { return page.data; });
+      return ProjectResource.query({ q: q }).$promise.then(function (page) { return page.data; });
     }
 
     function select($item) {

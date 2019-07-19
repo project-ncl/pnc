@@ -50,7 +50,7 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['Project', (Project) => Project.query().$promise]
+          projects: ['ProjectResource', (ProjectResource) => ProjectResource.query().$promise]
         }
       });
 
@@ -62,7 +62,7 @@
           title: '{{ project.name }} | Project'
         },
         resolve: {
-          project: ['Project', '$stateParams', (Project, $stateParams) => Project.get({
+          project: ['ProjectResource', '$stateParams', (ProjectResource, $stateParams) => ProjectResource.get({
             id: $stateParams.projectId
           }).$promise]
         }

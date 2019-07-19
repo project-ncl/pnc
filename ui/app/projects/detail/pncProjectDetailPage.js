@@ -26,10 +26,10 @@
       project: '<'
     },
     templateUrl: 'projects/detail/pnc-project-detail-page.html',
-    controller: ['$state', 'Project', 'paginator', '$rootScope', Controller]
+    controller: ['$state', 'ProjectResource', 'paginator', '$rootScope', Controller]
   });
 
-  function Controller($state, Project, paginator, $rootScope) {
+  function Controller($state, ProjectResource, paginator, $rootScope) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -45,7 +45,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      Project.queryBuildConfigurations({ id: $ctrl.project.id }).$promise.then((page) => { 
+      ProjectResource.queryBuildConfigurations({ id: $ctrl.project.id }).$promise.then((page) => { 
         $ctrl.buildConfigurations.page = paginator(page); 
       });
     };
