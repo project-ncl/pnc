@@ -147,7 +147,7 @@ public class StatusUpdatesTest {
         };
 
         tasksIds.forEach((id) -> {
-            buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer));
+            buildStatusNotifications.subscribe(new BuildCallBack(Integer.valueOf(id), statusChangeEventConsumer));
         });
 
         buildTasks.forEach((bt) -> {
