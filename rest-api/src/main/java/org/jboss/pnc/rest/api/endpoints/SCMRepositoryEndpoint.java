@@ -30,7 +30,6 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.processor.annotation.Client;
-import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
@@ -60,6 +59,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.MATCH_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_CREATING;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_EXISTS;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SEARCH_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
@@ -143,9 +144,9 @@ public interface SCMRepositoryEndpoint{
     @Operation(summary = "Creates a new SCM repository.",
             description = "If the given URL is external, it does create the repository in the scm server.",
             responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = "SCM repository request is being created",
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = SCM_REPOSITORY_CREATING,
                     content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
-                @ApiResponse(responseCode = SUCCESS_CODE, description = "SCM repository is already present in PNC",
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SCM_REPOSITORY_EXISTS,
                         content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
