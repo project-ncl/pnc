@@ -29,11 +29,7 @@ import lombok.Data;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "eventType")
 @JsonSubTypes({
-    @JsonSubTypes.Type(BuildResult.class),
-    @JsonSubTypes.Type(MilestoneReleaseResult.class),
-    @JsonSubTypes.Type(ProcessProgressUpdate.class),
-    @JsonSubTypes.Type(RepositoryCreationError.class),
-    @JsonSubTypes.Type(RepositoryCreationSuccess.class)
+    @JsonSubTypes.Type(BuildResult.class)
 })
 @Data
 public abstract class BPMNotification {
