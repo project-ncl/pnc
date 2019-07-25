@@ -19,11 +19,10 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;

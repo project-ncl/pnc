@@ -24,7 +24,7 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.model.BuildConfigSetRecord;

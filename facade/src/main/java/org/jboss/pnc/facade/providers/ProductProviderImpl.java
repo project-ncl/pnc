@@ -21,7 +21,7 @@ import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.validation.groups.ValidationGroup;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.facade.mapper.api.ProductMapper;
+import org.jboss.pnc.mapper.api.ProductMapper;
 import org.jboss.pnc.facade.providers.api.ProductProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;

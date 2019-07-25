@@ -23,7 +23,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenDeleting;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.facade.mapper.api.EntityMapper;
+import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;

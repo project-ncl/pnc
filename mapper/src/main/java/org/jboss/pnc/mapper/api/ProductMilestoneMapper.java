@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
-import org.jboss.pnc.facade.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.model.ProductMilestone;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -30,7 +30,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, ProductReleaseMapper.class, BuildMapper.IDMapper.class, AbstractArtifactMapper.IDMapper.class})
-public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef>{
+public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
     @Override
     @Mapping(target = "distributedArtifacts", source = "distributedArtifactIds")

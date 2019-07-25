@@ -28,6 +28,9 @@
     <java>constants.jar</java>
   </module>
   <module>
+    <java>mapper.jar</java>
+  </module>
+  <module>
     <java>facade.jar</java>
   </module>
   <module>

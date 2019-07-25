@@ -15,9 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.mapper.api.EntityMapper;
+import org.jboss.pnc.mapper.api.IdEntity;
+import org.jboss.pnc.mapper.api.MapperCentralConfig;
+import org.jboss.pnc.mapper.api.Reference;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,35 +32,34 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class)
-public interface UserMapper extends EntityMapper<User, org.jboss.pnc.dto.User, org.jboss.pnc.dto.User> {
+public interface SCMRepositoryMapper extends EntityMapper<RepositoryConfiguration, SCMRepository, SCMRepository> {
 
     @Override
-    @Mapping(target="email", ignore = true)
-    @Mapping(target="firstName", ignore = true)
-    @Mapping(target="lastName", ignore = true)
-    @Mapping(target="loginToken", ignore = true)
-    @Mapping(target="buildRecords", ignore = true)
-    User toEntity(org.jboss.pnc.dto.User dtoEntity);
+    @Mapping(target="internalUrlNormalized", ignore = true)
+    @Mapping(target="externalUrlNormalized", ignore = true)
+    @Mapping(target="buildConfigurations", ignore = true)
+    RepositoryConfiguration toEntity(SCMRepository dtoEntity);
 
     @Override
     @IdEntity
-    default User toIDEntity(org.jboss.pnc.dto.User dtoEntity) {
+    default RepositoryConfiguration toIDEntity(SCMRepository dtoEntity) {
         if (dtoEntity == null) {
             return null;
         }
-        User entity = new User();
+        RepositoryConfiguration entity = new RepositoryConfiguration();
         entity.setId(dtoEntity.getId());
         return entity;
     }
 
     @Override
     @Reference
-    default org.jboss.pnc.dto.User toRef(User dbEntity){
+    default SCMRepository toRef(RepositoryConfiguration dbEntity){
         return toDTO(dbEntity);
     }
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"email", "firstName", "lastName", "loginToken", "buildRecords"})
-    org.jboss.pnc.dto.User toDTO(User dbEntity);
+    @BeanMapping(ignoreUnmappedSourceProperties = {"internalUrlNormalized", "externalUrlNormalized",
+        "buildConfigurations"})
+    SCMRepository toDTO(RepositoryConfiguration dbEntity);
 
 }

@@ -18,7 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.facade.mapper.api.EnvironmentMapper;
+import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;

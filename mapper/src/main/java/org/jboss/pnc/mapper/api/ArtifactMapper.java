@@ -15,21 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
-import org.mapstruct.Qualifier;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.mapper.api.EntityMapper;
+import org.jboss.pnc.model.Artifact;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Qualifier
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface IdEntity {
+public interface ArtifactMapper extends EntityMapper<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
+
+    @Override
+    org.jboss.pnc.dto.Artifact toDTO(Artifact dbEntity);
+
+    @Override
+    default Artifact toIDEntity(ArtifactRef dtoEntity) {
+        return dtoEntity == null ? null : Artifact.Builder.newBuilder().id(dtoEntity.getId()).build();
+    }
+
+    @Override
+    ArtifactRef toRef(Artifact dbEntity);
+    
+    @Override
+    Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
 }

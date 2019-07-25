@@ -15,40 +15,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.dto.BuildConfigurationRef;
+import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.model.Project;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class)
-public interface EnvironmentMapper extends EntityMapper<BuildEnvironment, Environment, Environment> {
+@Mapper(config = MapperCentralConfig.class,
+        uses = {BuildConfigurationMapper.class})
+public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.Project, ProjectRef> {
 
     @Override
-    BuildEnvironment toEntity(Environment dtoEntity);
+    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
+    org.jboss.pnc.dto.Project toDTO(Project dbEntity);
 
     @Override
-    @IdEntity
-    default BuildEnvironment toIDEntity(Environment dtoEntity) {
+    default Project toIDEntity(ProjectRef dtoEntity) {
         if (dtoEntity == null) {
             return null;
         }
-        BuildEnvironment entity = new BuildEnvironment();
+        Project entity = new Project();
         entity.setId(dtoEntity.getId());
         return entity;
     }
 
     @Override
-    @Reference
-    default Environment toRef(BuildEnvironment dbEntity) {
-        return toDTO(dbEntity);
-    };
-
+    @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigurations"})
+    ProjectRef toRef(Project dbEntity);
+    
     @Override
-    Environment toDTO(BuildEnvironment dbEntity);
+    @Mapping(target = "buildConfigurations", source = "buildConfigs")
+    Project toEntity(org.jboss.pnc.dto.Project dtoEntity);
 
 }

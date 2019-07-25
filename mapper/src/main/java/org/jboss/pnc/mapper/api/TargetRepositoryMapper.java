@@ -15,10 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.TargetRepositoryRef;
-import org.jboss.pnc.facade.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.EntityMapper;
+import org.jboss.pnc.mapper.api.MapperCentralConfig;
+import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
