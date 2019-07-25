@@ -45,7 +45,7 @@
         },
         queryBuildConfigurations: {
           method: 'GET',
-          url: ENDPOINT + '/build-configurations',
+          url: ENDPOINT + '/build-configs',
           isPaged: true
         }
       });

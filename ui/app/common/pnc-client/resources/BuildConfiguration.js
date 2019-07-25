@@ -21,6 +21,7 @@
   var module = angular.module('pnc.common.pnc-client.resources');
 
   module.value('BUILD_CONFIGURATION_PATH', '/build-configurations/:id');
+  module.value('BUILD_CONFIG_PATH', '/build-configs/:id');
 
   /**
    *
@@ -31,7 +32,8 @@
     '$http',
     'restConfig',
     'BUILD_CONFIGURATION_PATH',
-    function($resource, $http, restConfig, BUILD_CONFIGURATION_PATH) {
+    'BUILD_CONFIG_PATH',
+    function($resource, $http, restConfig, BUILD_CONFIGURATION_PATH, BUILD_CONFIG_PATH) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_CONFIGURATION_PATH;
 
       var resource = $resource(ENDPOINT, {
@@ -41,7 +43,7 @@
         query: {
           method: 'GET',
           isPaged: true,
-          url: restConfig.getPncRestUrl() + BUILD_CONFIGURATION_PATH // new rest 2.0, so NCL-4947 is included
+          url: restConfig.getPncRestUrl() + BUILD_CONFIG_PATH // new rest 2.0, so NCL-4947 is included
         },
         update: {
           method: 'PUT',
@@ -99,7 +101,7 @@
           buildConfiguration: options.buildConfiguration
         };
 
-        return $http.post(restConfig.getPncRestUrl() + '/build-configurations/create-with-scm', dto);
+        return $http.post(restConfig.getPncRestUrl() + '/build-configs/create-with-scm', dto);
       };
 
       return resource;
