@@ -90,7 +90,7 @@
 
     function parseBuildConfig(wizardData) {
       var bc = angular.copy(wizardData.general);
-      bc.genericParameters = angular.copy(wizardData.buildParameters);
+      bc.parameters = angular.copy(wizardData.buildParameters);
       /*
        * New REST requires dependencies attribute instead of dependencyIds
        *
