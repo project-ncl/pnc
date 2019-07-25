@@ -18,7 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.facade.mapper.api.UserMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.facade.providers.api.UserProvider;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;

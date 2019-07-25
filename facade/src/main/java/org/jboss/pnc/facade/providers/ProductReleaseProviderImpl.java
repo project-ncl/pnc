@@ -20,7 +20,7 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.mapper.api.ProductReleaseMapper;
+import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.facade.providers.api.ProductReleaseProvider;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 

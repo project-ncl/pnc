@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
@@ -29,7 +29,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductVersionMapper.class})
-public interface ProductReleaseMapper extends EntityMapper<ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef>{
+public interface ProductReleaseMapper extends EntityMapper<ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = {"productVersion"})
     ProductRelease toEntity(org.jboss.pnc.dto.ProductRelease dtoEntity);

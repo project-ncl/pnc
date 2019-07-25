@@ -15,43 +15,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.BuildConfigurationRef;
-import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.model.Project;
-import org.mapstruct.BeanMapping;
+import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.mapper.api.EntityMapper;
+import org.jboss.pnc.mapper.api.IdEntity;
+import org.jboss.pnc.mapper.api.MapperCentralConfig;
+import org.jboss.pnc.mapper.api.Reference;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class,
-        uses = {BuildConfigurationMapper.class})
-public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.Project, ProjectRef>{
+@Mapper(config = MapperCentralConfig.class)
+public interface EnvironmentMapper extends EntityMapper<BuildEnvironment, Environment, Environment> {
 
     @Override
-    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
-    org.jboss.pnc.dto.Project toDTO(Project dbEntity);
+    BuildEnvironment toEntity(Environment dtoEntity);
 
     @Override
-    default Project toIDEntity(ProjectRef dtoEntity) {
+    @IdEntity
+    default BuildEnvironment toIDEntity(Environment dtoEntity) {
         if (dtoEntity == null) {
             return null;
         }
-        Project entity = new Project();
+        BuildEnvironment entity = new BuildEnvironment();
         entity.setId(dtoEntity.getId());
         return entity;
     }
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigurations"})
-    ProjectRef toRef(Project dbEntity);
-    
+    @Reference
+    default Environment toRef(BuildEnvironment dbEntity) {
+        return toDTO(dbEntity);
+    };
+
     @Override
-    @Mapping(target = "buildConfigurations", source = "buildConfigs")
-    Project toEntity(org.jboss.pnc.dto.Project dtoEntity);
+    Environment toDTO(BuildEnvironment dbEntity);
 
 }

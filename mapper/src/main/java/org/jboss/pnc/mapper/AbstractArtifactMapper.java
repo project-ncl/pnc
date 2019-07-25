@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper;
+package org.jboss.pnc.mapper;
 
 import javax.inject.Inject;
 
@@ -27,12 +27,12 @@ import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.facade.mapper.api.ArtifactMapper;
-import org.jboss.pnc.facade.mapper.api.BuildConfigurationMapper;
-import org.jboss.pnc.facade.mapper.api.BuildMapper;
-import org.jboss.pnc.facade.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.facade.mapper.api.Reference;
-import org.jboss.pnc.facade.mapper.api.TargetRepositoryMapper;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.MapperCentralConfig;
+import org.jboss.pnc.mapper.api.Reference;
+import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;

@@ -19,7 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.facade.mapper.api.ProjectMapper;
+import org.jboss.pnc.mapper.api.ProjectMapper;
 import org.jboss.pnc.facade.providers.api.ProjectProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;

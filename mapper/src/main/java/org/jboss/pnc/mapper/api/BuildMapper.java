@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
@@ -23,8 +23,8 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.facade.mapper.BrewNameWorkaround;
-import org.jboss.pnc.facade.mapper.api.BuildMapper.StatusMapper;
+import org.jboss.pnc.mapper.BrewNameWorkaround;
+import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.mapstruct.BeanMapping;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
                 EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class,
                 GroupBuildMapper.class})
 
-public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef>{
+public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef> {
 
     @Override
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)

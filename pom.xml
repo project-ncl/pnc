@@ -95,6 +95,7 @@
     <module>process-managers</module>
     <module>processor</module>
     <module>rest-client</module>
+    <module>mapper</module>
   </modules>
 
   <properties>
@@ -343,6 +344,12 @@
         <groupId>org.jboss.pnc</groupId>
         <artifactId>dto</artifactId>
         <classifier>patch-builders</classifier>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>mapper</artifactId>
         <version>${project.version}</version>
       </dependency>
 

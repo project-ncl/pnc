@@ -20,7 +20,7 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.mapper.api.ProductVersionMapper;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.facade.validation.InvalidEntityException;

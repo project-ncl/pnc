@@ -18,7 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.facade.mapper.api.BuildConfigurationRevisionMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.GenericEntity;

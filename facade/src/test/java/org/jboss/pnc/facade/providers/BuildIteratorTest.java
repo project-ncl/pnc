@@ -18,7 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.facade.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;

@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.mapper.api;
+package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.facade.mapper.api.BuildConfigurationMapper.IDMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper.IDMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

@@ -21,7 +21,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.facade.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;

@@ -32,7 +32,7 @@ import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
-import org.jboss.pnc.facade.mapper.api.SCMRepositoryMapper;
+import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
