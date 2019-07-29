@@ -72,6 +72,7 @@ import org.jboss.pnc.spi.notifications.Notifier;
 
 import java.util.HashSet;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
+import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
 @PermitAll
@@ -354,6 +355,7 @@ public class BuildConfigurationProviderImpl
         RepositoryCreationResponse rcResponse = scmRepositoryProvider.createSCMRepository(
                 request.getScmUrl(),
                 request.getPreBuildSyncEnabled(),
+                JobNotificationType.BUILD_CONFIG_CREATION,
                 id -> onRCCreationSuccess(id, buildConfiguration));
 
         if(rcResponse.getTaskId() == null){
