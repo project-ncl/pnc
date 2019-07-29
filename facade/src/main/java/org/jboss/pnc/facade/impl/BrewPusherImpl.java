@@ -131,10 +131,12 @@ public class BrewPusherImpl implements BrewPusher {
         return pushedResponse.get(0);
     }
 
+    @Override
     public boolean brewPushCancel(int buildId) {
         return buildResultPushManager.cancelInProgressPush(buildId);
     }
 
+    @Override
     public BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException {
 
         log.info("Received completion notification for BuildRecord.id: {}. Object received: {}.",
@@ -145,6 +147,7 @@ public class BrewPusherImpl implements BrewPusher {
         return buildPushResult;
     }
 
+    @Override
     public BuildPushResult getBrewPushResult(int buildId) {
 
         BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildId);
