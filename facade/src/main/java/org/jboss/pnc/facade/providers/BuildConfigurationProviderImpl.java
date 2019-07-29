@@ -59,12 +59,11 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withScmRepositoryId;
 
 import org.jboss.pnc.dto.SCMRepository;
-import org.jboss.pnc.dto.notification.BuildConfigurationCreationError;
-import org.jboss.pnc.dto.notification.BuildConfigurationCreationSuccess;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -72,6 +71,7 @@ import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepositor
 import org.jboss.pnc.spi.notifications.Notifier;
 
 import java.util.HashSet;
+import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
 @PermitAll
@@ -88,13 +88,16 @@ public class BuildConfigurationProviderImpl
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
 
     @Inject
+    private SCMRepositoryMapper scmRepositoryMapper;
+
+    @Inject
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     private RepositoryConfigurationRepository repositoryConfigurationRepository;
 
     @Inject
-    BuildConfigurationSetRepository buildConfigurationSetRepository;
+    private BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     @Inject
     private Notifier notifier;
@@ -391,7 +394,7 @@ public class BuildConfigurationProviderImpl
         if (repositoryConfiguration == null) {
             String errorMessage = "Repository Configuration was not found in database.";
             logger.error(errorMessage);
-            sendErrorMessage(repositoryConfigurationId, null, errorMessage);
+            sendErrorMessage(SCMRepository.builder().id(repositoryConfigurationId).build(), null, errorMessage);
             return;
         }
 
@@ -403,20 +406,21 @@ public class BuildConfigurationProviderImpl
                 .stream()
                 .map(c -> c.getId())
                 .collect(Collectors.toSet());
+
+        SCMRepository scmRepository = scmRepositoryMapper.toDTO(repositoryConfiguration);
+        BuildConfiguration buildConfig = mapper.toDTO(buildConfigurationSaved);
         try {
             if (bcSetIds != null) {
                 addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
-            sendErrorMessage(repositoryConfigurationId, buildConfigurationSaved.getId(), e.getMessage());
+            sendErrorMessage(scmRepository, buildConfig, e.getMessage());
             return;
         }
 
-        BuildConfigurationCreationSuccess repositoryCreationResultRest
-                = new BuildConfigurationCreationSuccess(
-                        repositoryConfigurationId,
-                        buildConfigurationSaved.getId());
+        BuildConfigurationCreation repositoryCreationResultRest
+                = BuildConfigurationCreation.success(scmRepository, buildConfig);
 
         notifier.sendMessage(repositoryCreationResultRest); //TODO test me!
     }
@@ -443,9 +447,10 @@ public class BuildConfigurationProviderImpl
         }
     }
 
-    private void sendErrorMessage(Integer repositoryConfigurationId, Integer buildConfigurationId, String message) {
-        BuildConfigurationCreationError repositoryCreationResultRest
-                = new BuildConfigurationCreationError(
+    private void sendErrorMessage(SCMRepository repositoryConfigurationId,
+            BuildConfigurationRef buildConfigurationId, String message) {
+        BuildConfigurationCreation repositoryCreationResultRest
+                = BuildConfigurationCreation.error(
                         repositoryConfigurationId,
                         buildConfigurationId,
                         message);
