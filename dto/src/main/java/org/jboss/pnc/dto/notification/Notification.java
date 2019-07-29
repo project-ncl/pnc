@@ -17,28 +17,36 @@
  */
 package org.jboss.pnc.dto.notification;
 
-
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import lombok.Data;
+import org.jboss.pnc.enums.JobNotificationType;
+import org.jboss.pnc.enums.JobNotificationProgress;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "eventType")
-@JsonSubTypes({
-    @JsonSubTypes.Type(BuildConfigurationCreationError.class),
-    @JsonSubTypes.Type(BuildConfigurationCreationSuccess.class)
-})
 @Data
 public abstract class Notification {
 
-    private final String eventType;
+    private final JobNotificationType job;
 
-    protected Notification(String eventType) {
-        this.eventType = eventType;
+    private final String notificationType;
+
+    private final JobNotificationProgress progress;
+
+    private final String message;
+
+    protected Notification(JobNotificationType job, String notificationType, JobNotificationProgress progress, String message) {
+        this.job = job;
+        this.notificationType = notificationType;
+        this.progress = progress;
+        this.message = message;
+    }
+
+    protected Notification(JobNotificationType job, String notificationType, JobNotificationProgress progress) {
+        this.job = job;
+        this.notificationType = notificationType;
+        this.progress = progress;
+        this.message = null;
     }
 }
