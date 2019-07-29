@@ -15,31 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.notification;
-
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
-import lombok.Data;
-import lombok.Getter;
+package org.jboss.pnc.enums;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Data
-@JsonTypeName(value = BuildConfigurationCreationSuccess.BC_CREATION_SUCCESS)
-public class BuildConfigurationCreationSuccess extends Notification {
-    static final String BC_CREATION_SUCCESS = "BC_CREATION_SUCCESS";
 
-    public BuildConfigurationCreationSuccess(int repositoryId, int buildConfigurationId) {
-        super(BC_CREATION_SUCCESS);
-        this.repositoryId = repositoryId;
-        this.buildConfigurationId = buildConfigurationId;
-    }
-
-    @Getter
-    private final int repositoryId;
-
-    @Getter
-    private final int buildConfigurationId;
+public enum JobNotificationType {
+    BUILD,
+    BREW_PUSH,
+    SCM_REPOSIOTRY_CREATION,
+    BUILD_CONFIG_CREATION;
 }
