@@ -20,6 +20,10 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -33,5 +37,14 @@ public class TargetRepositoryRepositoryMock  extends RepositoryMock<TargetReposi
                         && tr.getRepositoryPath().equals(repositoryPath)
                 )
                 .findAny().orElse(null);
+    }
+
+    @Override
+    public List<TargetRepository> queryByIdentifiersAndPaths(Set<TargetRepository.IdentifierPath> identifiersAndPaths) {
+        return data.stream()
+                .filter(
+                        tr -> identifiersAndPaths.contains(tr.getIdentifierPath())
+                )
+                .collect(Collectors.toList());
     }
 }
