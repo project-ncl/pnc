@@ -25,6 +25,8 @@ import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -48,5 +50,10 @@ public class TargetRepositoryRepositoryImpl extends AbstractRepository<TargetRep
     @Override
     public TargetRepository queryByIdentifierAndPath(String identifier, String repositoryPath) {
         return queryByPredicates(TargetRepositoryPredicates.byIdentifierAndPath(identifier, repositoryPath));
+    }
+
+    @Override
+    public List<TargetRepository> queryByIdentifiersAndPaths(Set<TargetRepository.IdentifierPath> identifiersAndPaths) {
+        return queryWithPredicates(TargetRepositoryPredicates.withIdentifierAndPathIn(identifiersAndPaths));
     }
 }
