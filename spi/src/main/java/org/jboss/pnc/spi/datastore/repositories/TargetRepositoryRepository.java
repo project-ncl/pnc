@@ -20,10 +20,15 @@ package org.jboss.pnc.spi.datastore.repositories;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface TargetRepositoryRepository extends Repository<TargetRepository, Integer> {
 
     TargetRepository queryByIdentifierAndPath(String identifier, String repositoryPath);
+
+    List<TargetRepository> queryByIdentifiersAndPaths(Set<TargetRepository.IdentifierPath> identifiersAndPaths);
 }

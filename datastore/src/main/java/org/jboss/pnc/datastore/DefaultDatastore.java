@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2019 Red Hat, Inc., and individual contributors
+ * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
@@ -132,7 +133,7 @@ public class DefaultDatastore implements Datastore {
             logger.trace("Build Log: {}.", buildRecord.getBuildLog());
         }
 
-        Map<String, TargetRepository> repositoriesCache = new HashMap<>();
+        Map<TargetRepository.IdentifierPath, TargetRepository> repositoriesCache = new HashMap<>();
         Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
 
         /** Built artifacts must be saved before the dependencies.
@@ -173,17 +174,18 @@ public class DefaultDatastore implements Datastore {
      * @return Set of up to date JPA artifact entities
      */
     private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts,
-            Map<String, TargetRepository> repositoriesCache,
+            Map<TargetRepository.IdentifierPath, TargetRepository> storedTargetRepositories,
             Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
         logger.debug("Saving {} artifacts.", artifacts.size());
 
         Set<Artifact> savedArtifacts = new HashSet<>();
 
         Set<Artifact.IdentifierSha256> artifactConstraints = new HashSet<>();
-
         for (Artifact artifact : artifacts) {
             artifactConstraints.add(new Artifact.IdentifierSha256(artifact.getIdentifier(), artifact.getSha256()));
         }
+
+        fetchOrSaveRequiredTargetRepositories(artifacts, storedTargetRepositories);
 
         Set<Artifact> artifactsInDb = null;
         if (artifactConstraints.size() > 0) {
@@ -198,8 +200,8 @@ public class DefaultDatastore implements Datastore {
         }
 
         for (Artifact artifact : artifacts) {
-            TargetRepository targetRepository = artifact.getTargetRepository();
-            linkTargetRepository(repositoriesCache, artifact, targetRepository);
+            //link manged targetRepository
+            artifact.setTargetRepository(storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
 
             Artifact artifactFromDb;
             if (RepositoryType.GENERIC_PROXY.equals(targetRepository.getRepositoryType())) {
@@ -215,16 +217,26 @@ public class DefaultDatastore implements Datastore {
         return savedArtifacts;
     }
 
-    private void linkTargetRepository(
-            Map<String, TargetRepository> repositoriesCache,
-            Artifact artifact,
-            TargetRepository targetRepository) {
+    private void fetchOrSaveRequiredTargetRepositories(
+            Collection<Artifact> artifacts,
+            Map<TargetRepository.IdentifierPath, TargetRepository> storedTargetRepositories) {
 
-        String repositoriesCacheKey = targetRepository.getIdentifier() + "$$" + targetRepository.getRepositoryPath();
-        TargetRepository targetRepositoryFromDb =
-                repositoriesCache.computeIfAbsent(repositoriesCacheKey, k -> getOrSaveTargetRepository(targetRepository));
+        Map<TargetRepository.IdentifierPath, TargetRepository> requiredTargetRepositories = new HashMap<>();
+        for (Artifact artifact : artifacts) {
+            TargetRepository targetRepository = artifact.getTargetRepository();
+            requiredTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
+        }
 
-        artifact.setTargetRepository(targetRepositoryFromDb);
+        List<TargetRepository> targetRepositoriesInDB = targetRepositoryRepository.queryByIdentifiersAndPaths(
+                requiredTargetRepositories.keySet());
+        storedTargetRepositories.putAll(targetRepositoriesInDB.stream()
+                .collect(Collectors.toMap(TargetRepository::getIdentifierPath, tr -> tr)));
+
+        for (Map.Entry<TargetRepository.IdentifierPath, TargetRepository> entry : requiredTargetRepositories.entrySet()) {
+           TargetRepository.IdentifierPath identifierPath = entry.getKey();
+           TargetRepository targetRepository = entry.getValue();
+           storedTargetRepositories.computeIfAbsent(identifierPath, ip -> targetRepositoryRepository.save(targetRepository));
+       }
     }
 
     private TargetRepository getOrSaveTargetRepository(TargetRepository targetRepository) {
