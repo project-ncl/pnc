@@ -27,9 +27,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -153,6 +155,11 @@ public class TargetRepository implements GenericEntity<Integer> {
         this.artifacts = artifacts;
     }
 
+    @Transient
+    public IdentifierPath getIdentifierPath() {
+        return new IdentifierPath(identifier, repositoryPath);
+    }
+
     @Override
     public String toString() {
         return "TargetRepository{" +
@@ -272,6 +279,49 @@ public class TargetRepository implements GenericEntity<Integer> {
 
         public TargetRepository build() {
             return new TargetRepository(this);
+        }
+    }
+
+    public static class IdentifierPath {
+
+        public static final String TO_STRING_DELIMITER = "$$";
+
+        private String identifier;
+        private String repositoryPath;
+
+        public IdentifierPath(String identifier, String repositoryPath) {
+            this.identifier = identifier;
+            this.repositoryPath = repositoryPath;
+        }
+
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public String getRepositoryPath() {
+            return repositoryPath;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof IdentifierPath)) {
+                return false;
+            }
+            IdentifierPath that = (IdentifierPath) o;
+            return identifier.equals(that.identifier) && repositoryPath.equals(that.repositoryPath);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(identifier, repositoryPath);
+        }
+
+        @Override
+        public String toString() {
+            return identifier + TO_STRING_DELIMITER + repositoryPath;
         }
     }
 }
