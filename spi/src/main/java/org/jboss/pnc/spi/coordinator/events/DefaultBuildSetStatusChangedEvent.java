@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator.events;
 
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
@@ -29,33 +30,23 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
 
     private final BuildSetStatus oldStatus;
     private final BuildSetStatus newStatus;
-    private final Integer buildSetTaskId;
-    private final Integer buildSetConfigurationId;
-    private final String buildSetConfigurationName;
-    private final Date buildSetStartTime;
-    private final Date buildSetEndTime;
-    private final Integer userId;
+    private final GroupBuild groupBuild;
     private final String description;
 
     public DefaultBuildSetStatusChangedEvent(
             BuildSetStatus oldStatus,
             BuildSetStatus newStatus,
-            Integer buildSetTaskId,
-            Integer buildSetConfigurationId,
-            String buildSetConfigurationName,
-            Date buildSetStartTime,
-            Date buildSetEndTime,
-            Integer userId,
+            GroupBuild groupBuild,
             String description) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
-        this.buildSetTaskId = buildSetTaskId;
-        this.buildSetConfigurationId = buildSetConfigurationId;
-        this.buildSetConfigurationName = buildSetConfigurationName;
-        this.buildSetStartTime = buildSetStartTime;
-        this.buildSetEndTime = buildSetEndTime;
-        this.userId = userId;
+        this.groupBuild = groupBuild;
         this.description = description;
+    }
+
+    @Override
+    public GroupBuild getGroupBuild() {
+        return groupBuild;
     }
 
     @Override
@@ -70,32 +61,32 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
 
     @Override
     public Integer getBuildSetTaskId() {
-        return buildSetTaskId;
+        return groupBuild.getId();
     }
 
     @Override
     public Integer getUserId() {
-        return userId;
+        return groupBuild.getUser() == null ? null : groupBuild.getUser().getId();
     }
 
     @Override
     public Integer getBuildSetConfigurationId() {
-        return buildSetConfigurationId;
+        return groupBuild.getGroupConfig().getId();
     }
 
     @Override
     public String getBuildSetConfigurationName() {
-        return buildSetConfigurationName;
+        return groupBuild.getGroupConfig().getName();
     }
 
     @Override
     public Date getBuildSetStartTime() {
-        return buildSetStartTime;
+        return Date.from(groupBuild.getStartTime());
     }
 
     @Override
     public Date getBuildSetEndTime() {
-        return buildSetEndTime;
+        return Date.from(groupBuild.getEndTime());
     }
 
     @Override
@@ -105,9 +96,7 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
 
     @Override
     public String toString() {
-        return "DefaultBuildSetStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus
-                + ", buildSetTaskId=" + buildSetTaskId + ", buildSetConfigurationId=" + buildSetConfigurationId
-                + ", buildSetConfigurationName=" + buildSetConfigurationName + ", buildSetStartTime="
-                + buildSetStartTime + ", buildSetEndTime=" + buildSetEndTime + ", userId=" + userId + '}';
+        return "DefaultBuildSetStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus="
+                + newStatus + ", groupBuild=" + groupBuild + '}';
     }
 }

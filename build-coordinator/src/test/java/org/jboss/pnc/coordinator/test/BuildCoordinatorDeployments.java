@@ -133,7 +133,8 @@ public class BuildCoordinatorDeployments {
                         DefaultBuildExecutionSession.class.getPackage(),
                         MessageSender.class.getPackage(),
                         SystemConfig.class.getPackage(),
-                        ModuleConfigFactory.class.getPackage())
+                        ModuleConfigFactory.class.getPackage(),
+                        AbstractArtifactMapper.class.getPackage())
                 //TODO remove, no need to use default beans.xml
                 .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()), "beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");

@@ -66,8 +66,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -132,6 +134,9 @@ public class DefaultBuildCoordinatorTest {
     @Mock
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
+    @Mock
+    private GroupBuildMapper groupBuildMapper;
+
     @InjectMocks
     private DatastoreAdapter datastoreAdapter;
 
@@ -151,7 +156,8 @@ public class DefaultBuildCoordinatorTest {
                 buildSetStatusChangedEventNotifier,
                 buildSchedulerFactory,
                 buildQueue,
-                systemConfig);
+                systemConfig,
+                groupBuildMapper);
     }
 
     @Test

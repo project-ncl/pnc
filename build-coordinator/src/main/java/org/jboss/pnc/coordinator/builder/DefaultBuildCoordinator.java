@@ -34,6 +34,7 @@ import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -65,6 +66,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -102,6 +104,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     // Lock so that only one build method is active at any time
     private final Object buildMethodLock = new Object();
+    private GroupBuildMapper groupBuildMapper;
 
 
     @Deprecated
@@ -114,7 +117,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
             BuildSchedulerFactory buildSchedulerFactory,
             BuildQueue buildQueue,
-            SystemConfig systemConfig) {
+            SystemConfig systemConfig,
+            GroupBuildMapper groupBuildMapper) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -122,6 +126,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         this.systemConfig = systemConfig;
         this.buildQueue = buildQueue;
         this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, systemConfig.getTemporaryBuildsLifeSpan());
+        this.groupBuildMapper = groupBuildMapper;
     }
 
     /**
@@ -565,7 +570,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.info("Setting new status {} on buildSetTask.id {}. Description: {}.", status, buildSetTask.getId(), description);
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
-        sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord, description);
         
         // Rejected status needs to be propagated to the BuildConfigSetRecord in database. 
         // Completed BuildSets are updated using BuildSetTask#taskStatusUpdatedToFinalState()
@@ -577,32 +581,24 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 log.warn("Failed to update build config set record to REJECTED status: " + de);
             }
         }
+        buildConfigSetRecord.ifPresent(record -> sendSetStatusChangeEvent(buildSetTask, status, oldStatus, record, description));
         
         buildSetTask.setStatus(status);
         buildSetTask.setStatusDescription(description);
     }
 
     private void sendSetStatusChangeEvent(BuildSetTask buildSetTask,
-                                          BuildSetStatus status,
-                                          BuildSetStatus oldStatus,
-                                          Optional<BuildConfigSetRecord> maybeRecord,
-                                          String description) {
-        maybeRecord.ifPresent(record -> {
-            Integer userId = Optional.ofNullable(record.getUser()).map(User::getId).orElse(null);
-
-            BuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(
-                    oldStatus,
-                    status,
-                    buildSetTask.getId(),
-                    record.getBuildConfigurationSet().getId(),
-                    record.getBuildConfigurationSet().getName(),
-                    record.getStartTime(),
-                    record.getEndTime(),
-                    userId,
-                    description);
-            log.debug("Notifying build set status update {}.", event);
-            buildSetStatusChangedEventNotifier.fire(event);
-        });
+            BuildSetStatus status,
+            BuildSetStatus oldStatus,
+            BuildConfigSetRecord record,
+            String description) {
+        BuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(
+                oldStatus,
+                status,
+                groupBuildMapper.toDTO(record),
+                description);
+        log.debug("Notifying build set status update {}.", event);
+        buildSetStatusChangedEventNotifier.fire(event);
     }
 
     private void processBuildTask(BuildTask task) {

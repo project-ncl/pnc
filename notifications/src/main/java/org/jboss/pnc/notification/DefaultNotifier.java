@@ -31,6 +31,8 @@ import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.dto.notification.BuildPushResulNotification;
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.notification.BuildChangedNotification;
+import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -38,7 +40,6 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
-import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,9 +83,6 @@ public class DefaultNotifier implements Notifier {
             detachClient(attachedClient);
         }
     };
-
-    @Inject
-    private NotificationFactory notificationFactory;
 
     Optional<BpmManager> bpmManager;
 
@@ -234,13 +232,13 @@ public class DefaultNotifier implements Notifier {
 
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
-        sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
+        sendMessage(new BuildChangedNotification(buildStatusChangedEvent.getOldStatus(), buildStatusChangedEvent.getBuild()));
         logger.trace("Status changed event processed {}.", buildStatusChangedEvent);
     }
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         logger.trace("Observed new set status changed event {}.", buildSetStatusChangedEvent);
-        sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
+        sendMessage(new GroupBuildChangedNotification(buildSetStatusChangedEvent.getGroupBuild()));
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
     }
 

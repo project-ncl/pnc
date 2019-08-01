@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration.remote;
 
+import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.ConnectionInfo;
@@ -30,9 +31,6 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
-import org.jboss.pnc.spi.notifications.model.EventType;
-import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +43,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -54,6 +53,8 @@ public class RemoteBuildTest {
 
     private final String HOST = "localhost";
     private final String BEARER_TOKEN = "--valid-o-auth-token-goes-here-";
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;
 
@@ -76,13 +77,9 @@ public class RemoteBuildTest {
         String uri = "ws://" + HOST + "/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
         Consumer<String> onMessage = (message) -> {
             try {
-                Notification notification = new Notification(message);
-
-                if (EventType.BUILD_STATUS_CHANGED.equals(notification.getEventType())) {
-                    BuildChangedPayload buildStatusUpdate = (BuildChangedPayload) notification.getPayload();
-                    if (buildStatusUpdate.getBuild().getStatus().completedSuccessfully()) {
-                        notifyCompleted(buildStatusUpdate.getBuild().getBuildConfigRevision().getId(), buildStatusUpdate.getBuild().getStatus());
-                    }
+                BuildChangedNotification notification = mapper.readValue(message, BuildChangedNotification.class);
+                if (notification.getBuild().getStatus().completedSuccessfully()) {
+                    notifyCompleted(notification.getBuild().getBuildConfigRevision().getId(), notification.getBuild().getStatus());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
