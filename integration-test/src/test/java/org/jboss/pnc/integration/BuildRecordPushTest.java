@@ -20,8 +20,10 @@ package org.jboss.pnc.integration;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.notification.BuildPushResulNotification;
 import org.jboss.pnc.integration.client.BuildRecordPushRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -35,6 +37,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.ResultRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
+
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -55,6 +58,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.jboss.pnc.enums.BuildPushStatus;
+
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
 @RunWith(Arquillian.class)
@@ -81,8 +85,8 @@ public class BuildRecordPushTest extends AbstractTest {
     @Test
     @Ignore //TODO: unignore after NCL-4964, fails because of switching to BuildPushResult in BuildResultPushManager
     public void shouldPushBuildRecord() throws IOException, DeploymentException, TimeoutException, InterruptedException {
-        List<BuildRecordPushResultRest> results = new ArrayList<>();
-        Consumer<BuildRecordPushResultRest> onMessage = (result) -> {
+        List<BuildPushResulNotification> results = new ArrayList<>();
+        Consumer<BuildPushResulNotification> onMessage = (result) -> {
             logger.debug("Received notification result {}.", result);
             results.add(result);
         };
@@ -120,7 +124,7 @@ public class BuildRecordPushTest extends AbstractTest {
 
         //test the completion notification
         Wait.forCondition(() -> results.size() > 0, 5, ChronoUnit.SECONDS);
-        Assertions.assertThat(results.get(0).getLog()).isEqualTo(PUSH_LOG);
+        Assertions.assertThat(results.get(0).getBuildPushResult().getLog()).isEqualTo(PUSH_LOG);
 
         //test DB entry
         BuildRecordPushResultRest status = pushRestClient.getStatus(buildRecordId);
@@ -155,12 +159,12 @@ public class BuildRecordPushTest extends AbstractTest {
         pushRestClient.complete(pushResultRest);
     }
 
-    private void connectToWsNotifications(Integer buildRecordId, Consumer<BuildRecordPushResultRest> onMessage)
+    private void connectToWsNotifications(Integer buildRecordId, Consumer<BuildPushResulNotification> onMessage)
             throws IOException, DeploymentException {
 
         Consumer<String> onMessageInternal = (message) -> {
             try {
-                BuildRecordPushResultRest buildRecordPushResultRest = JsonOutputConverterMapper.readValue(message, BuildRecordPushResultRest.class);
+                BuildPushResulNotification buildRecordPushResultRest = JsonOutputConverterMapper.readValue(message, BuildPushResulNotification.class);
                 onMessage.accept(buildRecordPushResultRest);
             } catch (IOException e) {
                 throw new RuntimeException(e);

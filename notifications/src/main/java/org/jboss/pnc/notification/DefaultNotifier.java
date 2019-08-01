@@ -28,9 +28,10 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
-import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.bpm.model.BpmEvent;
-import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
+import org.jboss.pnc.dto.notification.BuildPushResulNotification;
+import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -38,6 +39,7 @@ import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,7 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
@@ -222,14 +225,12 @@ public class DefaultNotifier implements Notifier {
         sendToSubscribers(processProgressUpdate, Topic.COMPONENT_BUILD.getId(), buildTaskId);
     }
 
-    @Deprecated
-    public void collectBuildRecordPushResultRestEvent(@Observes BuildRecordPushResultRest buildRecordPushResultRest) {
-        logger.trace("Observed new BuildRecordPushResultRest event {}.", buildRecordPushResultRest);
-        BuildRecordPushResultRestEvent buildRecordPushResultRestEvent = new BuildRecordPushResultRestEvent(buildRecordPushResultRest);
-        sendToSubscribers(buildRecordPushResultRestEvent, Topic.CAUSEWAY_PUSH.getId(), buildRecordPushResultRest.getBuildRecordId().toString());
-        logger.trace("BuildRecordPushResultRest event processed {}.", buildRecordPushResultRest);
+    public void collectBuildPushResultEvent(@Observes BuildPushResult buildPushResult) {
+        logger.trace("Observed new BuildPushResult event {}.", buildPushResult);
+        BuildPushResulNotification buildPushResultEvent = new BuildPushResulNotification(buildPushResult);
+        sendToSubscribers(buildPushResultEvent, Topic.CAUSEWAY_PUSH.getId(), buildPushResult.getBuildId().toString());
+        logger.trace("BuildPushResult event processed {}.", buildPushResult);
     }
-
 
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
@@ -242,6 +243,5 @@ public class DefaultNotifier implements Notifier {
         sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
     }
-
 
 }
