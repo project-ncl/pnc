@@ -33,6 +33,7 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -52,13 +53,17 @@ public class BuildCoordinatorFactory {
     @Inject
     BuildSchedulerFactory buildSchedulerFactory;
 
+    @Inject
+    private GroupBuildMapper groupBuildMapper;
+
     public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) throws ConfigurationParseException {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         Configuration configuration = createConfiguration();
         BuildQueue queue = new BuildQueue(configuration);
         BuildCoordinator coordinator = new DefaultBuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
-                buildSchedulerFactory, queue, configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)));
+                buildSchedulerFactory, queue, configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)),
+                groupBuildMapper);
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);

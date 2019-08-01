@@ -24,6 +24,7 @@ package org.jboss.pnc.enums;
 
 public enum JobNotificationType {
     BUILD,
+    GROUP_BUILD,
     BREW_PUSH,
     SCM_REPOSIOTRY_CREATION,
     BUILD_CONFIG_CREATION;

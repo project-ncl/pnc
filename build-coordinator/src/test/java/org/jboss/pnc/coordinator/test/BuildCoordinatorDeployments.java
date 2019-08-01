@@ -30,6 +30,7 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
+import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -128,7 +129,8 @@ public class BuildCoordinatorDeployments {
                         BpmManager.class.getPackage(),
                         MessageSender.class.getPackage(),
                         SystemConfig.class.getPackage(),
-                        ModuleConfigFactory.class.getPackage())
+                        ModuleConfigFactory.class.getPackage(),
+                        AbstractArtifactMapper.class.getPackage())
                 //TODO remove, no need to use default beans.xml
                 .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()), "beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");

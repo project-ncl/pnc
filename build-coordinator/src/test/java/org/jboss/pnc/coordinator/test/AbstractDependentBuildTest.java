@@ -83,6 +83,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -170,7 +171,8 @@ public abstract class AbstractDependentBuildTest {
         coordinator = new DefaultBuildCoordinator(datastoreAdapter, mock(Event.class), mock(Event.class),
                 buildSchedulerFactory,
                 buildQueue,
-                systemConfig);
+                systemConfig,
+                mock(GroupBuildMapper.class));
         buildQueue.initSemaphore();
         coordinator.start();
     }
