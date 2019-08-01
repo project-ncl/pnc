@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014 Red Hat, Inc., and individual contributors
+ * Copyright 2014-2019 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -200,11 +200,11 @@ public class DefaultDatastore implements Datastore {
         }
 
         for (Artifact artifact : artifacts) {
-            //link manged targetRepository
+            //link managed targetRepository
             artifact.setTargetRepository(storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
 
             Artifact artifactFromDb;
-            if (RepositoryType.GENERIC_PROXY.equals(targetRepository.getRepositoryType())) {
+            if (RepositoryType.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType())) {
                 artifactFromDb = saveHttpArtifact(artifact);
             } else {
                 artifactFromDb = getOrSaveRepositoryArtifact(artifact, artifactCache);
@@ -239,25 +239,9 @@ public class DefaultDatastore implements Datastore {
        }
     }
 
-    private TargetRepository getOrSaveTargetRepository(TargetRepository targetRepository) {
-        logger.trace("Saving target repository {}.", targetRepository);
-        TargetRepository targetRepositoryFromDb = targetRepositoryRepository
-                .queryByIdentifierAndPath(targetRepository.getIdentifier(), targetRepository.getRepositoryPath());
-
-        if (targetRepositoryFromDb == null) {
-            logger.trace("Target repository is not in DB. Saving target repository {}.", targetRepository);
-            targetRepositoryFromDb = targetRepositoryRepository.save(targetRepository);
-            logger.debug("Target repository saved {}.", targetRepositoryFromDb);
-        } else {
-            logger.debug("Target repository already present in DB {}.", targetRepositoryFromDb);
-        }
-
-        return targetRepositoryFromDb;
-    }
-
     private Artifact getOrSaveRepositoryArtifact(Artifact artifact, Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
         logger.trace("Saving repository artifact {}.", artifact);
-        Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256()); //TODO http artifacts
+        Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256());
 
         if (artifactFromDb == null) {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);

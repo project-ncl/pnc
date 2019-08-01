@@ -19,10 +19,6 @@ package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.TargetRepositoryRef;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
-import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.mapper.api.EntityMapper;
-import org.jboss.pnc.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -49,11 +45,12 @@ public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, o
 
     @Override
     @Mapping(target = "artifactIds", source = "artifacts")
+    @BeanMapping(ignoreUnmappedSourceProperties = {"identifierPath"})
     org.jboss.pnc.dto.TargetRepository toDTO(TargetRepository dbEntity);
 
     @Override
     @Reference
-    @BeanMapping(ignoreUnmappedSourceProperties = {"artifacts"})
+    @BeanMapping(ignoreUnmappedSourceProperties = {"artifacts", "identifierPath"})
     TargetRepositoryRef toRef(TargetRepository dbEntity);
 
 
