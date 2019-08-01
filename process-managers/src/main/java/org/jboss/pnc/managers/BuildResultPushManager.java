@@ -28,15 +28,16 @@ import org.jboss.pnc.causewayclient.remotespi.Logfile;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -80,7 +82,9 @@ public class BuildResultPushManager {
     private CausewayClient causewayClient;
 
     // TODO: Use BuildPushResult in the future
-    private Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent;
+    private Event<BuildPushResult> buildPushResultEvent;
+
+    private BuildPushResultMapper mapper;
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
@@ -93,17 +97,19 @@ public class BuildResultPushManager {
             BuildRecordRepository buildRecordRepository,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             InProgress inProgress,
-            Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent,
+            Event<BuildPushResult> buildRecordPushResultRestEvent,
             ArtifactRepository artifactRepository,
-            CausewayClient causewayClient
+            CausewayClient causewayClient,
+            BuildPushResultMapper mapper
     ) {
         this.buildConfigurationRepository =  buildConfigurationRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.inProgress = inProgress;
-        this.buildRecordPushResultRestEvent = buildRecordPushResultRestEvent;
+        this.buildPushResultEvent = buildRecordPushResultRestEvent;
         this.artifactRepository = artifactRepository;
         this.causewayClient = causewayClient;
+        this.mapper = mapper;
     }
 
     /**
@@ -325,18 +331,18 @@ public class BuildResultPushManager {
         buildRecordPushResult.setTagPrefix(completedTag);
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
 
-        buildRecordPushResultRestEvent.fire(new BuildRecordPushResultRest(saved));
+        buildPushResultEvent.fire(mapper.toDTO(saved));
         return saved.getId();
     }
 
     public boolean cancelInProgressPush(Integer buildRecordId) {
-        BuildRecordPushResultRest buildRecordPushResultRest = BuildRecordPushResultRest.builder()
+        BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
-                .buildRecordId(buildRecordId)
+                .buildId(buildRecordId)
                 .log("Canceled.")
                 .build();
         boolean canceled = inProgress.remove(buildRecordId) != null;
-        buildRecordPushResultRestEvent.fire(buildRecordPushResultRest);
+        buildPushResultEvent.fire(buildRecordPushResultRest);
         return canceled;
     }
 
