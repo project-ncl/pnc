@@ -51,11 +51,15 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.jboss.pnc.dto.GroupBuild;
+import org.jboss.pnc.dto.GroupConfigurationRef;
+import org.jboss.pnc.dto.User;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -110,7 +114,7 @@ public class WebSocketsNotificationTest {
                 build.getStatus());
 
         String buildString = JsonOutputConverterMapper.apply(build);
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"oldStatus\":\"NEW\",\"build\":" + buildString + "}}";
+        String expectedJsonResponse = "{\"oldStatus\":\"NEW\",\"build\":" + buildString + ",\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\"}";
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
@@ -123,16 +127,19 @@ public class WebSocketsNotificationTest {
     @InSequence(3)
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
         // given
+        GroupBuild groupBuild = GroupBuild.builder()
+                .id(1)
+                .groupConfig(GroupConfigurationRef.refBuilder().id(1).name("BuildSet1").build())
+                .startTime(Instant.ofEpochMilli(1453118400000L))
+                .endTime(Instant.ofEpochMilli(1453122000000L))
+                .user(User.builder().id(1).username("user1").build())
+                .status(BuildStatus.SUCCESS)
+                .build();
+
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
-                BuildSetStatus.NEW,
-                BuildSetStatus.DONE,
-                1,
-                1,
-                "BuildSet1",
-                new Date(1453118400000L),
-                new Date(1453122000000L),
-                1, "description");
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\",\"buildSetStartTime\":1453118400000,\"buildSetEndTime\":1453122000000,\"description\":\"description\"}}";
+                BuildSetStatus.NEW, BuildSetStatus.DONE, groupBuild, "description");
+        String groupBuildString = JsonOutputConverterMapper.apply(groupBuild);
+        String expectedJsonResponse = "{\"groupBuild\":" + groupBuildString + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\"}";;
 
         //when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
