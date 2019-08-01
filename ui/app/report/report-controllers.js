@@ -25,9 +25,9 @@
     '$scope',
     '$state',
     '$log',
-    'ReportDAO',
+    'ReportResource',
     'whitelistProducts',
-    function($scope, $state, $log, ReportDAO, whitelistProducts) {
+    function($scope, $state, $log, ReportResource, whitelistProducts) {
 
     	var that = this;
     	that.reportResults = [];
@@ -69,7 +69,7 @@
         };
 
         that.search = function() {
-          ReportDAO.getWhitelistProductArtifacts(that.productSelection.selected[0]).then(function(result) {
+          ReportResource.getWhitelistProductArtifacts(that.productSelection.selected[0]).then(function(result) {
             that.reportResults = result;
             // Default sorting is ascending on gav.groupId
             that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result.gav.groupId; }).value();
@@ -92,8 +92,8 @@
     '$scope',
     '$state',
     '$log',
-    'ReportDAO',
-    function($scope, $state, $log, ReportDAO) {
+    'ReportResource',
+    function($scope, $state, $log, ReportResource) {
 
       var that = this;
 
@@ -119,7 +119,7 @@
       };
 
       that.search = function() {
-        ReportDAO.getProductsByGAV(that.gav.groupId, that.gav.artifactId, that.gav.version).then(function(result) {
+        ReportResource.getProductsByGAV(that.gav.groupId, that.gav.artifactId, that.gav.version).then(function(result) {
             that.reportResults = result;
             that.sortKey = that.defaultSortKey;
             that.reverse = that.defaultReverse;
@@ -146,8 +146,8 @@
     '$scope',
     '$state',
     '$log',
-    'ReportDAO',
-    function($scope, $state, $log, ReportDAO) {
+    'ReportResource',
+    function($scope, $state, $log, ReportResource) {
 
       var that = this;
 
@@ -165,7 +165,7 @@
       };
 
       that.search = function(scmUrl, revision, pomPath, additionalRepos) {
-        ReportDAO.getBlacklistedArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
+        ReportResource.getBlacklistedArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
 
           that.reportResults = [];
 
@@ -207,9 +207,9 @@
     '$scope',
     '$state',
     '$log',
-    'ReportDAO',
+    'ReportResource',
     'whitelistProducts',
-    function($scope, $state, $log, ReportDAO, whitelistProducts) {
+    function($scope, $state, $log, ReportResource, whitelistProducts) {
 
       var that = this;
       that.afterSearch = false;
@@ -291,7 +291,7 @@
       };
 
       that.search = function() {
-        ReportDAO.getDifferentArtifactsInProducts(that.productLeftSelection.selected[0], that.productRightSelection.selected[0]).then(function(result) {
+        ReportResource.getDifferentArtifactsInProducts(that.productLeftSelection.selected[0], that.productRightSelection.selected[0]).then(function(result) {
 
           that.reportLeftProductSearchFilter = that.productLeftSelection.selected[0];
           that.reportRightProductSearchFilter = that.productRightSelection.selected[0];
@@ -345,8 +345,8 @@
     '$scope',
     '$state',
     '$log',
-    'ReportDAO',
-    function($scope, $state, $log, ReportDAO) {
+    'ReportResource',
+    function($scope, $state, $log, ReportResource) {
 
       var that = this;
 
@@ -381,7 +381,7 @@
       };
 
       that.search = function(scmUrl, revision, pomPath, additionalRepos) {
-        ReportDAO.getBuiltArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
+        ReportResource.getBuiltArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
           that.reportResults = result;
           that.sortKey = that.defaultSortKey;
           that.reverse = that.defaultReverse;
@@ -411,9 +411,9 @@
   module.controller('ProjectProductDiff', [
     '$rootScope',
     '$timeout',
-    'ReportDAO',
+    'ReportResource',
     'productList',
-    function($rootScope, $timeout, ReportDAO, productList) {
+    function($rootScope, $timeout, ReportResource, productList) {
 
       var that = this;
 
@@ -477,7 +477,7 @@
         that.form.data.products = _(that.form.productId.selectedProducts).map(function(product) { return product.id; }).value();
         if(!that.validate()) { return; } // halt when invalid
         // execute request
-        ReportDAO.diffProjectProduct(that.form.data).then(function(res) {
+        ReportResource.diffProjectProduct(that.form.data).then(function(res) {
           that.tableData = transform(res); // process the received data into presentable form
           $timeout(function() {
             that.collapseAll();

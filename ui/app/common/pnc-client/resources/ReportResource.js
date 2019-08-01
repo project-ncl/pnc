@@ -15,34 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+  'use strict';
 
-  var module = angular.module('pnc.common.restclient');
-  module.factory('ReportDAO', [
+  var module = angular.module('pnc.common.pnc-client.resources');
+
+  module.factory('ReportResource', [
     '$http',
     'restConfig',
-    function ($http, restConfig) {
-
-      var DA_URL = restConfig.getDaUrl();
-      var WHITELIST_PRODUCT_ENDPOINT = DA_URL + '/listings/whitelist/products';
-      var WHITELIST_PRODUCT_ARTIFACTS_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/product';
-      var PRODUCTS_BY_GAV_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/gav';
-      var DA_REPORTS_ALIGN = DA_URL + '/reports/align';
-      var PRODUCTS_ARTIFACTS_DIFFERENCE_ENDPOINT = DA_URL + '/products/diff';
-      var DA_REPORTS_BUILT = DA_URL + '/reports/built';
+    function($http, restConfig) {
+      var ENDPOINT = restConfig.getDaUrl();
 
       var resource = {};
 
       resource.getWhitelistProducts = function () {
-        return $http.get(WHITELIST_PRODUCT_ENDPOINT).then(function (r) {
+        return $http.get(ENDPOINT + '/listings/whitelist/products').then(function (r) {
           return r.data;
         });
       };
 
       resource.getWhitelistProductArtifacts = function (product) {
-        return $http.get(WHITELIST_PRODUCT_ARTIFACTS_ENDPOINT, {
+        return $http.get(ENDPOINT + '/listings/whitelist/artifacts/product', {
           params: {
             name: product.name,
             version: product.version
@@ -53,19 +46,19 @@
       };
 
       resource.getProductsByGAV = function (groupId, artifactId, version) {
-          return $http.get(PRODUCTS_BY_GAV_ENDPOINT, {
-            params: {
-              groupid: groupId,
-              artifactid: artifactId,
-              version: version
-            }
-          }).then(function (r) {
+        return $http.get(ENDPOINT + '/listings/whitelist/artifacts/gav', {
+          params: {
+            groupid: groupId,
+            artifactid: artifactId,
+            version: version
+          }
+        }).then(function (r) {
           return r.data;
         });
       };
 
       resource.getBlacklistedArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
-        return $http.post(DA_REPORTS_ALIGN, {
+        return $http.post(ENDPOINT  + '/reports/align', {
           products: [],
           searchUnknownProducts: false,
           scmUrl: scmUrl,
@@ -78,19 +71,18 @@
       };
 
       resource.getDifferentArtifactsInProducts = function (product1, product2) {
-          return $http.get(PRODUCTS_ARTIFACTS_DIFFERENCE_ENDPOINT, {
-            params: {
-              leftProduct: product1.id,
-              rightProduct: product2.id
-            }
-          }).then(function (r) {
-            return r.data;
-          });
+        return $http.get(ENDPOINT + '/products/diff', {
+          params: {
+            leftProduct: product1.id,
+            rightProduct: product2.id
+          }
+        }).then(function (r) {
+          return r.data;
+        });
       };
 
-
       resource.getBuiltArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
-        return $http.post(DA_REPORTS_BUILT, {
+        return $http.post(ENDPOINT + '/reports/built', {
           scmUrl: scmUrl,
           revision: revision,
           pomPath: pomPath,
@@ -101,13 +93,14 @@
       };
 
       resource.diffProjectProduct = function (data) {
-        return $http.post(DA_REPORTS_ALIGN, data).then(function (r) {
+        return $http.post(ENDPOINT + '/reports/align', data).then(function (r) {
           return r.data;
         });
       };
 
       return resource;
     }
+
   ]);
 
 })();
