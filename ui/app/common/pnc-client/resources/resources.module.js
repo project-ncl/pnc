@@ -20,6 +20,36 @@
 
   angular.module('pnc.common.pnc-client.resources', [
     'ngResource'
-  ]);
+  ])
+
+    .config([
+      '$resourceProvider', 
+      ($resourceProvider) => {
+
+        $resourceProvider.defaults.actions = {
+          query: {
+            method: 'GET',
+            isArray: false,
+            isPaged: true
+          },
+          get: {
+            method: 'GET'
+          },
+          save: {
+            method: 'POST'
+          },
+          update: {
+            method: 'PUT'
+          },
+          patch: {
+            method: 'PATCH',
+            successNotification: false
+          },
+          delete: {
+            method: 'DELETE'
+          }
+        };
+        
+    }]);
 
 })();
