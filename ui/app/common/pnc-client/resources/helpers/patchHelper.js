@@ -51,6 +51,20 @@
         return resource.patch({ id: original.id }, patch);
       }
 
+      /**
+       * Assigns a safePatch and destructivePatch method to the given resource class.
+       * 
+       * 
+       * safePatch: Will only create delete operations in the output patch when they have been explicitly set to
+       * null in the modified method. This means that properties not present on the modified object will not cause a 
+       * delete operation to be included in the patch. This is useful if, for example, you have a form that is only
+       * used to edit a subset of fields of on an entity.
+       * 
+       * destructivePatch: Uses a standard JSON Patch comparison between original and modified objects, any fields that
+       * are not present on the modified object that are present on the original will cause a delete operation to be
+       * added to the patch. In most cases this is probably _NOT_ the method you're looking for. 
+       * 
+       */
       function assignPatchMethods(resource) {    
         resource.safePatch = function (original, modified) {
           return doPatch(resource, original, modified, false);
@@ -60,6 +74,7 @@
           return doPatch(resource, original, modified, true);
         };
       }
+
 
       return Object.freeze({
         assignPatchMethods
