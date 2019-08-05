@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import lombok.RequiredArgsConstructor;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -49,6 +50,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -61,6 +63,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.test.util.Wait;
+
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -83,7 +86,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -172,7 +177,8 @@ public abstract class AbstractDependentBuildTest {
                 buildSchedulerFactory,
                 buildQueue,
                 systemConfig,
-                mock(GroupBuildMapper.class));
+                mock(GroupBuildMapper.class),
+                mock(BuildMapper.class));
         buildQueue.initSemaphore();
         coordinator.start();
     }

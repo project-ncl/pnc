@@ -26,6 +26,7 @@ import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -33,6 +34,7 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 
 import static org.mockito.Matchers.any;
@@ -56,6 +58,9 @@ public class BuildCoordinatorFactory {
     @Inject
     private GroupBuildMapper groupBuildMapper;
 
+    @Inject
+    private BuildMapper buildMapper;
+
     public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) throws ConfigurationParseException {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
@@ -63,7 +68,7 @@ public class BuildCoordinatorFactory {
         BuildQueue queue = new BuildQueue(configuration);
         BuildCoordinator coordinator = new DefaultBuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
                 buildSchedulerFactory, queue, configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)),
-                groupBuildMapper);
+                groupBuildMapper, buildMapper);
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);
