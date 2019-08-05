@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.notification;
 
-import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
@@ -33,7 +32,6 @@ import org.jboss.pnc.dto.notification.BuildPushResulNotification;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
-import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -108,8 +106,6 @@ public class DefaultNotifier implements Notifier {
         if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) &&
                 !bpmManagerInstance.isUnsatisfied() && !bpmManagerInstance.isAmbiguous()) {
             bpmManager = Optional.of(bpmManagerInstance.get());
-            logger.debug("Subscribing listener for new tasks.");
-            bpmManagerInstance.get().subscribeToNewTasks(task -> onNewTaskCreated(task));
         } else {
             bpmManager = Optional.empty();
         }
@@ -203,24 +199,6 @@ public class DefaultNotifier implements Notifier {
                 detachClient(client);
             }
         }
-    }
-
-    private void onNewTaskCreated(BpmTask bpmTask) {
-        // subscribe WS clients to BpmBuildTask notifications
-        if (bpmTask instanceof BpmBuildTask) {
-            logger.debug("Adding listener for PROCESS_PROGRESS_UPDATEs to bpmTask {}.", bpmTask.getTaskId());
-            BpmBuildTask bpmBuildTask = (BpmBuildTask)bpmTask;
-            bpmTask.<ProcessProgressUpdate>addListener(BpmEventType.PROCESS_PROGRESS_UPDATE,
-                    (processProgressUpdate) -> {
-                        String buildTaskId = Integer.toString(bpmBuildTask.getBuildTask().getId());
-                        notifySubscribers(buildTaskId, processProgressUpdate);
-                    });
-        }
-    }
-
-    private void notifySubscribers(String buildTaskId, ProcessProgressUpdate processProgressUpdate) {
-        logger.trace("Sending update for buildTaskId: {}. processProgressUpdate: {}.", buildTaskId, processProgressUpdate.toString());
-        sendToSubscribers(processProgressUpdate, Topic.COMPONENT_BUILD.getId(), buildTaskId);
     }
 
     public void collectBuildPushResultEvent(@Observes BuildPushResult buildPushResult) {
