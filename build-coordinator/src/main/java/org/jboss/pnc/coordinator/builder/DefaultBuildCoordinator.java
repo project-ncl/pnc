@@ -24,23 +24,18 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
-import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
-import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
@@ -59,6 +54,7 @@ import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +73,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
@@ -105,6 +100,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     // Lock so that only one build method is active at any time
     private final Object buildMethodLock = new Object();
     private GroupBuildMapper groupBuildMapper;
+    private BuildMapper buildMapper;
 
 
     @Deprecated
@@ -118,7 +114,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             BuildSchedulerFactory buildSchedulerFactory,
             BuildQueue buildQueue,
             SystemConfig systemConfig,
-            GroupBuildMapper groupBuildMapper) {
+            GroupBuildMapper groupBuildMapper,
+            BuildMapper buildMapper) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -127,6 +124,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         this.buildQueue = buildQueue;
         this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, systemConfig.getTemporaryBuildsLifeSpan());
         this.groupBuildMapper = groupBuildMapper;
+        this.buildMapper = buildMapper;
     }
 
     /**
@@ -472,72 +470,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
         BuildCoordinationStatus oldStatus = task.getStatus();
 
-        BuildConfigurationAudited buildConfigurationAudited = task.getBuildConfigurationAudited();
-        Project projectDb = task.getBuildConfigurationAudited().getProject();
-        ProjectRef project = ProjectRef.refBuilder()
-                .id(projectDb.getId())
-                .name(projectDb.getName())
-                .description(projectDb.getDescription())
-                .issueTrackerUrl(projectDb.getIssueTrackerUrl())
-                .projectUrl(projectDb.getProjectUrl())
-                .build();
-
-        org.jboss.pnc.model.RepositoryConfiguration repositoryConfiguration = task.getBuildConfigurationAudited()
-                .getRepositoryConfiguration();
-        SCMRepository repository = SCMRepository.builder()
-                .id(repositoryConfiguration.getId())
-                .internalUrl(repositoryConfiguration.getInternalUrl())
-                .externalUrl(repositoryConfiguration.getExternalUrl())
-                .preBuildSyncEnabled(repositoryConfiguration.isPreBuildSyncEnabled())
-                .build();
-
-        org.jboss.pnc.model.BuildEnvironment buildEnvironmentDb = buildConfigurationAudited.getBuildEnvironment();
-        Environment buildEnvironment = Environment.builder()
-                .id(buildEnvironmentDb.getId())
-                .name(buildEnvironmentDb.getName())
-                .description(buildEnvironmentDb.getDescription())
-                .systemImageRepositoryUrl(buildEnvironmentDb.getSystemImageRepositoryUrl())
-                .systemImageId(buildEnvironmentDb.getSystemImageId())
-                .attributes(buildEnvironmentDb.getAttributes())
-                .systemImageType(buildEnvironmentDb.getSystemImageType())
-                .deprecated(buildEnvironmentDb.isDeprecated())
-                .build();
-
-        User userDb = task.getUser();
-        org.jboss.pnc.dto.User user = org.jboss.pnc.dto.User.builder()
-                .id(userDb.getId())
-                .username(userDb.getUsername())
-                .build();
-
-        BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
-                .id(buildConfigurationAudited.getId())
-                .rev(buildConfigurationAudited.getRev())
-                .name(buildConfigurationAudited.getName())
-                .description(buildConfigurationAudited.getDescription())
-                .buildScript(buildConfigurationAudited.getBuildScript())
-                .scmRevision(buildConfigurationAudited.getScmRevision())
-                .build();
-
-        List<Integer> dependants = task.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
-        List<Integer> dependencies = task.getDependencies().stream().map(t -> t.getId()).collect(Collectors.toList());
-
-        Build build = Build.builder()
-                .project(project)
-                .scmRepository(repository)
-                .environment(buildEnvironment)
-                .user(user)
-                .buildConfigRevision(buildConfigurationRevisionRef)
-                .dependentBuildIds(dependants)
-                .dependencyBuildIds(dependencies)
-                .id(task.getId())
-                .submitTime(TimeUtils.toInstant(task.getSubmitTime()))
-                .startTime(TimeUtils.toInstant(task.getStartTime()))
-                .endTime(TimeUtils.toInstant(task.getEndTime()))
-                .status(BuildStatus.fromBuildCoordinationStatus(status))
-                .buildContentId(task.getContentId())
-                .temporaryBuild(task.getBuildOptions().isTemporaryBuild())
-                .build();
-
+        Build build = buildMapper.fromBuildTask(task);
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
                 build,
                 BuildStatus.fromBuildCoordinationStatus(oldStatus),
