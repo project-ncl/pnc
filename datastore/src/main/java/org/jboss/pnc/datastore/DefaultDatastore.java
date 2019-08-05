@@ -227,10 +227,12 @@ public class DefaultDatastore implements Datastore {
             requiredTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
         }
 
-        List<TargetRepository> targetRepositoriesInDB = targetRepositoryRepository.queryByIdentifiersAndPaths(
-                requiredTargetRepositories.keySet());
-        storedTargetRepositories.putAll(targetRepositoriesInDB.stream()
-                .collect(Collectors.toMap(TargetRepository::getIdentifierPath, tr -> tr)));
+        if (requiredTargetRepositories.size() > 0) {
+            List<TargetRepository> targetRepositoriesInDB = targetRepositoryRepository.queryByIdentifiersAndPaths(
+                    requiredTargetRepositories.keySet());
+            storedTargetRepositories.putAll(targetRepositoriesInDB.stream()
+                    .collect(Collectors.toMap(TargetRepository::getIdentifierPath, tr -> tr)));
+        }
 
         for (Map.Entry<TargetRepository.IdentifierPath, TargetRepository> entry : requiredTargetRepositories.entrySet()) {
            TargetRepository.IdentifierPath identifierPath = entry.getKey();
