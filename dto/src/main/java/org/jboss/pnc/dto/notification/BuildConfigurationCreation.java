@@ -18,10 +18,15 @@
 package org.jboss.pnc.dto.notification;
 
 import lombok.Data;
+
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.SCMRepository;
+
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -43,8 +48,11 @@ public class BuildConfigurationCreation extends Notification {
         this.buildConfig = buildConfig;
     }
 
-    private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig, String errorMessage) {
-        super(BUILD_CONFIG_CREATION, BC_CREATION_ERROR, FINISHED, errorMessage);
+    @JsonCreator
+    private BuildConfigurationCreation(@JsonProperty("scmRepository") SCMRepository scmRepository,
+            @JsonProperty("buildConfig") BuildConfigurationRef buildConfig,
+            @JsonProperty("message") String message) {
+        super(BUILD_CONFIG_CREATION, BC_CREATION_ERROR, FINISHED, message);
         this.scmRepository = scmRepository;
         this.buildConfig = buildConfig;
     }

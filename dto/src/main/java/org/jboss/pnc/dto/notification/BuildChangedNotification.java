@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildStatus;
 
 import lombok.Data;
+
 import org.jboss.pnc.enums.JobNotificationProgress;
 
 import static org.jboss.pnc.enums.BuildStatus.NEW;
@@ -29,6 +30,9 @@ import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.JobNotificationProgress.PENDING;
 import static org.jboss.pnc.enums.JobNotificationType.BUILD;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -43,7 +47,8 @@ public class BuildChangedNotification extends Notification {
 
     private final Build build;
 
-    public BuildChangedNotification(BuildStatus oldStatus, Build build) {
+    @JsonCreator
+    public BuildChangedNotification(@JsonProperty("oldStatus") BuildStatus oldStatus, @JsonProperty("build") Build build) {
         super(BUILD, BUILD_STATUS_CHANGED, getProgress(build.getStatus()));
         this.oldStatus = oldStatus;
         this.build = build;

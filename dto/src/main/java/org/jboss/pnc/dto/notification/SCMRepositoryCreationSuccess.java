@@ -19,9 +19,14 @@ package org.jboss.pnc.dto.notification;
 
 
 import lombok.Data;
+
 import org.jboss.pnc.dto.SCMRepository;
+
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -34,7 +39,8 @@ public class SCMRepositoryCreationSuccess extends Notification {
 
     private final SCMRepository scmRepository;
 
-    public SCMRepositoryCreationSuccess(SCMRepository scmRepository) {
+    @JsonCreator
+    public SCMRepositoryCreationSuccess(@JsonProperty("scmRepository") SCMRepository scmRepository) {
         super(BUILD_CONFIG_CREATION, BC_CREATION_SUCCESS, FINISHED);
         this.scmRepository = scmRepository;
     }

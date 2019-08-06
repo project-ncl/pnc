@@ -28,6 +28,9 @@ import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.JobNotificationType.GROUP_BUILD;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -39,7 +42,8 @@ public class GroupBuildChangedNotification extends Notification {
 
     private final GroupBuild groupBuild;
 
-    public GroupBuildChangedNotification(GroupBuild groupBuild) {
+    @JsonCreator
+    public GroupBuildChangedNotification(@JsonProperty("groupBuild") GroupBuild groupBuild) {
         super(GROUP_BUILD, BUILD_SET_STATUS_CHANGED, getProgress(groupBuild.getStatus()));
         this.groupBuild = groupBuild;
     }

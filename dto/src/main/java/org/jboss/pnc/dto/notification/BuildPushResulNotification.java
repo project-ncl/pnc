@@ -20,8 +20,12 @@ package org.jboss.pnc.dto.notification;
 import lombok.Data;
 
 import org.jboss.pnc.dto.BuildPushResult;
+
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationType.BREW_PUSH;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -34,7 +38,8 @@ public class BuildPushResulNotification extends Notification {
 
     private final BuildPushResult buildPushResult;
 
-    public BuildPushResulNotification(BuildPushResult buildPushResult) {
+    @JsonCreator
+    public BuildPushResulNotification(@JsonProperty("buildPushResult") BuildPushResult buildPushResult) {
         super(BREW_PUSH, BREW_PUSH_RESULT, FINISHED);
         this.buildPushResult = buildPushResult;
     }

@@ -18,8 +18,11 @@
 package org.jboss.pnc.dto.notification;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
+
 import org.jboss.pnc.enums.JobNotificationType;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -31,8 +34,11 @@ public class RepositoryCreationFailure extends Notification {
 
     private final Object data;
 
-    public RepositoryCreationFailure(JobNotificationType jobType, String eventType, Object data) {
-        super(jobType, eventType, FINISHED);
+    @JsonCreator
+    public RepositoryCreationFailure(@JsonProperty("job") JobNotificationType job,
+            @JsonProperty("notificationType") String notificationType,
+            @JsonProperty("data") Object data) {
+        super(job, notificationType, FINISHED);
         this.data = data;
     }
 }
