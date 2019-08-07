@@ -36,16 +36,6 @@ public interface Notifier {
 
     MessageCallback getCallback();
 
-    /**
-     * Sends a mesage to clients that has subscribed to the topic.
-     * Messages from the topic can be optionally refined by qualifier which is topic specific
-     *
-     * @param message
-     * @param topic
-     * @param qualifier
-     */
-    void sendToSubscribers(Object message, String topic, String qualifier);
-
     void onBpmProcessClientSubscribe(AttachedClient client, String messagesId);
 
     enum Topic {

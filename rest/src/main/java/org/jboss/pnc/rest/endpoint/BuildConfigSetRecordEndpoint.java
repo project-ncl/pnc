@@ -113,12 +113,8 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             throws RepositoryViolationException {
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
 
-        Consumer<Result> onComplete = (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_CONFIG_SET_RECORDS_DELETE.getId(), result.getId().toString());
-        };
-
         try {
-            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(), onComplete);
+            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(), (t) -> {});
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
