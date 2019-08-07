@@ -15,22 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.bpm;
+package org.jboss.pnc.bpm.model;
 
 import lombok.Getter;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
- * Simple generic key-value BPM notification.
+ * Parent class of all BPM notifications.
+ * Subclasses are deserialized based on the {@link BpmNotificationRest#eventType}
+ * field, which must match one of the BpmEventType-s.
  *
  * @author Jakub Senko
  */
-@ToString(callSuper = true)
-public class BpmStringMapNotificationRest extends BpmNotificationRest implements Serializable {
+@ToString
+public abstract class BpmNotificationRest implements Serializable {
 
     @Getter
-    private Map<String, String> data;
+    private String eventType;
 }

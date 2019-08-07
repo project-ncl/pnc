@@ -22,7 +22,7 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
-import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
+import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;

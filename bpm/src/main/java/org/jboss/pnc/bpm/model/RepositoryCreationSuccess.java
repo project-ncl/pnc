@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.bpm.model;
 
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 
 import lombok.Data;
 
@@ -26,7 +25,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class RepositoryCreationSuccess extends BpmNotificationRest{
+public class RepositoryCreationSuccess extends BpmNotificationRest {
 
     private RepositoryCreationDataWrapper data;
 

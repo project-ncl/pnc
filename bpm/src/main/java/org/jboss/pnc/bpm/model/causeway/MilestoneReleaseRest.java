@@ -15,12 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.bpm.model.causeway;
 
-package org.jboss.pnc.rest.swagger.response;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
-import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+/**
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
+ * Date: 8/24/16
+ * Time: 3:42 PM
+ */
+@Data
+@NoArgsConstructor
+public class MilestoneReleaseRest {
+    private int milestoneId;
 
-public class BpmTaskRestSingleton extends Singleton<BpmTaskRest> {
+    public MilestoneReleaseRest(int milestoneId) {
+        this.milestoneId = milestoneId;
+    }
 
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
+    }
 }

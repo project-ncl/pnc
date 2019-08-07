@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.restmodel.serialization;
+package org.jboss.pnc.bpm.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.mock.spi.BuildExecutionConfigurationMock;
-import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
-import org.jboss.pnc.rest.restmodel.bpm.ComponentBuildParameters;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.junit.Assert;
 import org.junit.Test;

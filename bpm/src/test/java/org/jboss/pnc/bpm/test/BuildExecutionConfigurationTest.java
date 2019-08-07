@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.restmodel.serialization;
+package org.jboss.pnc.bpm.test;
 
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
-import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.junit.Assert;

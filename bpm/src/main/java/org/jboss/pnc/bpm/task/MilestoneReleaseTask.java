@@ -20,9 +20,9 @@ package org.jboss.pnc.bpm.task;
 import lombok.Getter;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.model.MilestoneReleaseParameters;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.rest.restmodel.bpm.MilestoneReleaseParameters;
-import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import java.io.Serializable;

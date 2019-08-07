@@ -15,50 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+package org.jboss.pnc.bpm.model.causeway;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 8/25/16
- * Time: 2:48 PM
- *
+ * Time: 2:22 PM
  */
-@Deprecated
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@NoArgsConstructor
-@AllArgsConstructor
-public class BuildImportResultRest {
+public enum BuildImportStatus {
     /**
-     * id of pnc build record
+     * setting up the import process failed
      */
-    private Integer buildRecordId;
-
+    ERROR,
     /**
-     * build id assigned by brew
+     * some of the artifacts failed to import
      */
-    private Integer brewBuildId;
-    /**
-     * link to brew
-     */
-    private String brewBuildUrl;
-
-    private BuildImportStatus status;
-    /**
-     * global errors
-     */
-    private String errorMessage;
-
-    /**
-     * list of errors for artifact imports
-     */
-    private List<ArtifactImportError> errors;
-
+    FAILED,
+    SUCCESSFUL
 }

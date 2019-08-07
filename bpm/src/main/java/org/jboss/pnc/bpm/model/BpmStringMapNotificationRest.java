@@ -15,28 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
+package org.jboss.pnc.bpm.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import lombok.Getter;
+import lombok.ToString;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Simple generic key-value BPM notification.
+ *
+ * @author Jakub Senko
  */
-@Data
-@NoArgsConstructor
-public class MilestoneReleaseRest {
-    private int milestoneId;
+@ToString(callSuper = true)
+public class BpmStringMapNotificationRest extends BpmNotificationRest implements Serializable {
 
-    public MilestoneReleaseRest(int milestoneId) {
-        this.milestoneId = milestoneId;
-    }
-
-    @Override
-    public String toString() {
-        return JsonOutputConverterMapper.apply(this);
-    }
+    @Getter
+    private Map<String, String> data;
 }

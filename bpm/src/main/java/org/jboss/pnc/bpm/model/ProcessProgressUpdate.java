@@ -15,15 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.bpm;
+package org.jboss.pnc.bpm.model;
+
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.jboss.pnc.enums.BPMTaskStatus;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,37 +34,38 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = RepositoryCreationResultRest.RepositoryCreationResultRestBuilder.class)
+@JsonDeserialize(builder = ProcessProgressUpdate.ProcessProgressUpdateBuilder.class)
 @AllArgsConstructor
 @Builder
-@XmlRootElement(name = "RepositoryCreationResultRest")
+@XmlRootElement
 @ToString
 @NoArgsConstructor
 @Setter(onMethod=@__({@Deprecated}))
-public class RepositoryCreationResultRest extends BpmNotificationRest {
+public class ProcessProgressUpdate extends BpmNotificationRest {
+
+    /**
+     * Name of the service managed by the BPM eg. Repour
+     */
+    @Getter
+    private String taskName;
+
+    @Getter
+    private BPMTaskStatus bpmTaskStatus;
+
+    /**
+     * Url to subscribe to detailed notification.
+     * Notifications can be a string stream of live log or an object with detailed statuses.
+     */
+    @Getter
+    private String detailedNotificationsEndpointUrl;
 
     @Override
     public String getEventType() {
-        return eventType.name();
+        return "PROCESS_PROGRESS_UPDATE";
     }
-
-    @Getter
-    private Integer repositoryId;
-
-    @Getter
-    private Integer buildConfigurationId;
-
-    @Getter
-    private EventType eventType;
-
-    @Getter
-    private String errorMessage;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static final class RepositoryCreationResultRestBuilder {
+    public static final class ProcessProgressUpdateBuilder {
     }
 
-    public enum EventType {
-        RC_CREATION_SUCCESS, RC_CREATION_ERROR;
-    }
 }

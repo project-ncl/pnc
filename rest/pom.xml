@@ -82,7 +82,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>process-managers</artifactId>
+      <artifactId>bpm</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>

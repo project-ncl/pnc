@@ -20,12 +20,11 @@ package org.jboss.pnc.bpm;
 import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
 
 import lombok.ToString;
-
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
-import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
-import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
-import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
-import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
+import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
+import org.jboss.pnc.bpm.model.BuildResultRest;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
+import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 
 import static java.util.Objects.requireNonNull;
 

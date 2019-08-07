@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.restmodel.serialization;
+package org.jboss.pnc.bpm.test;
 
+import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 import org.jboss.pnc.enums.BPMTaskStatus;
-import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.junit.Assert;
 import org.junit.Test;
