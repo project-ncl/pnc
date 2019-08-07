@@ -18,8 +18,11 @@
 package org.jboss.pnc.dto.notification;
 
 import lombok.Data;
+
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.JobNotificationProgress;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -28,12 +31,13 @@ import org.jboss.pnc.enums.JobNotificationProgress;
 @Data
 public abstract class Notification {
 
+    @JsonProperty("job")
     private final JobNotificationType job;
-
+    @JsonProperty("notificationType")
     private final String notificationType;
-
+    @JsonProperty("progress")
     private final JobNotificationProgress progress;
-
+    @JsonProperty("message")
     private final String message;
 
     protected Notification(JobNotificationType job, String notificationType, JobNotificationProgress progress, String message) {
