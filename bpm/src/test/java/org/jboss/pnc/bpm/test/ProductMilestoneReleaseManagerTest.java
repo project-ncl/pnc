@@ -15,10 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers;
+package org.jboss.pnc.bpm.test;
 
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
+import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
+import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
@@ -31,9 +35,6 @@ import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
-import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
-import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.enums.ReleaseStatus;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;

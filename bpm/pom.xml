@@ -51,8 +51,24 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>causeway-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>mapper</artifactId>
+    </dependency>
     <!-- Remote dependencies -->
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-jdk8</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -83,6 +99,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>fluent-hc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -104,7 +124,16 @@
       <artifactId>test-common</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

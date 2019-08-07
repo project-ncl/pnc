@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
+import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;

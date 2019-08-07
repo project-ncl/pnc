@@ -15,35 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.internal;
+package org.jboss.pnc.bpm.test;
 
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
-import lombok.Data;
+import org.jboss.pnc.bpm.causeway.Result;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.enums.BuildPushStatus;
+import org.junit.Test;
 
 /**
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = ArtifactRepository.Builder.class)
-public class ArtifactRepository {
+public class ResultSerializationTest {
 
-    private final Integer id;
-
-    private final String name;
-
-    private final String url;
-
-    private final Boolean releases;
-
-    private final Boolean snapshots;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
+    @Test
+    public void shouldSerializeAndDeserialize() throws Exception {
+        Result result = new Result("1", BuildPushStatus.SUCCESS, "");
+        String json = JsonOutputConverterMapper.apply(result);
+        JsonOutputConverterMapper.readValue(json, Result.class);
     }
 }

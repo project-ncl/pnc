@@ -78,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>process-managers</artifactId>
+            <artifactId>bpm</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
