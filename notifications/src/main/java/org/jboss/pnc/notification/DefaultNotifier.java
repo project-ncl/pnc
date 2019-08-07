@@ -153,22 +153,6 @@ public class DefaultNotifier implements Notifier {
     }
 
     @Override
-    public void sendToSubscribers(Object message, String topic, String qualifier) {
-        for (AttachedClient client : attachedClients ) {
-            if (client.isEnabled()) {
-                if (client.isSubscribed(topic, qualifier)) {
-                    try {
-                        client.sendMessage(message, messageCallback);
-                    } catch (Exception e) {
-                        logger.error("Unable to send message, detaching client.", e);
-                        detachClient(client);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public void onBpmProcessClientSubscribe(AttachedClient client, String messagesId) {
         if (bpmManager.isPresent()) {
             Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), Integer.valueOf(messagesId));
@@ -203,8 +187,7 @@ public class DefaultNotifier implements Notifier {
 
     public void collectBuildPushResultEvent(@Observes BuildPushResult buildPushResult) {
         logger.trace("Observed new BuildPushResult event {}.", buildPushResult);
-        BuildPushResulNotification buildPushResultEvent = new BuildPushResulNotification(buildPushResult);
-        sendToSubscribers(buildPushResultEvent, Topic.CAUSEWAY_PUSH.getId(), buildPushResult.getBuildId().toString());
+        sendMessage(new BuildPushResulNotification(buildPushResult));
         logger.trace("BuildPushResult event processed {}.", buildPushResult);
     }
 

@@ -114,14 +114,10 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     public Response delete(@PathParam("id") Integer id)
             throws RepositoryViolationException {
 
-        Consumer<Result> onComplete = (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_RECORDS_DELETE.getId(), result.getId().toString());
-        };
-
         User currentUser = authProvider.getCurrentUser(httpServletRequest);
         boolean found;
         try {
-            found = temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), onComplete);
+            found = temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), (t) -> {});
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
