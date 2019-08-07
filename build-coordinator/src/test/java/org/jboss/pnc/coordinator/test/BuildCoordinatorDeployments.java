@@ -19,6 +19,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
@@ -30,6 +31,7 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
+import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -111,8 +113,12 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
+                .addPackages(false, filter,
+                        BpmManager.class.getPackage(),
+                        BuildResultMapper.class.getPackage())
                 .addPackages(true, filter,
                         BuildCoordinator.class.getPackage(),
+                        AbstractArtifactMapper.class.getPackage(),
                         DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
                         TestProjectConfigurationBuilder.class.getPackage(),
@@ -125,7 +131,6 @@ public class BuildCoordinatorDeployments {
                         DefaultBuildStatusChangedEvent.class.getPackage(),
                         BuildExecutorMock.class.getPackage(),
                         DefaultBuildExecutionSession.class.getPackage(),
-                        BpmManager.class.getPackage(),
                         MessageSender.class.getPackage(),
                         SystemConfig.class.getPackage(),
                         ModuleConfigFactory.class.getPackage())

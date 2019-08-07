@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -44,7 +45,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     private int id;
     private String buildContentId;
-    private UserRest user;
+    private User user;
     private String buildScript;
     private String name;
 
@@ -69,6 +70,32 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String tempBuildTimestamp;
 
     public BuildExecutionConfigurationRest() {}
+
+    public BuildExecutionConfigurationRest(int id, String buildContentId, User user, String buildScript, String name,
+            String scmRepoURL, String scmRevision, String scmTag, String originRepoURL, boolean preBuildSyncEnabled,
+            BuildType buildType, String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType,
+            boolean podKeptOnFailure, List<ArtifactRepository> artifactRepositories, Map<String, String> genericParameters,
+            boolean tempBuild, String tempBuildTimestamp) {
+        this.id = id;
+        this.buildContentId = buildContentId;
+        this.user = user;
+        this.buildScript = buildScript;
+        this.name = name;
+        this.scmRepoURL = scmRepoURL;
+        this.scmRevision = scmRevision;
+        this.scmTag = scmTag;
+        this.originRepoURL = originRepoURL;
+        this.preBuildSyncEnabled = preBuildSyncEnabled;
+        this.buildType = buildType;
+        this.systemImageId = systemImageId;
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
+        this.systemImageType = systemImageType;
+        this.podKeptOnFailure = podKeptOnFailure;
+        this.artifactRepositories = artifactRepositories;
+        this.genericParameters = genericParameters;
+        this.tempBuild = tempBuild;
+        this.tempBuildTimestamp = tempBuildTimestamp;
+    }
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
         BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper.readValue(serialized, BuildExecutionConfigurationRest.class);
@@ -95,7 +122,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         systemImageId = buildExecutionConfiguration.getSystemImageId();
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
         systemImageType = buildExecutionConfiguration.getSystemImageType();
-        user = new UserRest(buildExecutionConfiguration.getUserId());
+        user = User.builder().id(buildExecutionConfiguration.getUserId()).build();
         podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
         genericParameters = buildExecutionConfiguration.getGenericParameters();
         tempBuild = buildExecutionConfiguration.isTempBuild();
@@ -236,11 +263,11 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return buildType;
     }
 
-    public UserRest getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserRest user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

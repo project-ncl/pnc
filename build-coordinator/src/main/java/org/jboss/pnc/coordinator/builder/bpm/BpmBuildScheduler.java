@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder.bpm;
 
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.bpm.model.BuildResultRest;
@@ -40,6 +41,8 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private BpmManager manager;
 
+    private BuildResultMapper mapper;
+
     public static final String schedulerId = "bpm-build-scheduler";
 
     @Override
@@ -52,15 +55,16 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(BpmManager manager) {
+    public BpmBuildScheduler(BpmManager manager, BuildResultMapper mapper) {
         this.manager = manager;
+        this.mapper = mapper;
     }
 
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
             BpmBuildTask task = new BpmBuildTask(buildTask);
-            task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(b.toBuildResult()));
+            task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(mapper.toEntity(b)));
             manager.startTask(task);
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
