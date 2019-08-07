@@ -35,7 +35,6 @@ import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.dto.internal.bpm.BPMTask;
 import org.jboss.pnc.dto.response.Page;
 
 /**
@@ -61,5 +60,4 @@ public class SwaggerPages {
     public static class SCMRepositoryPage extends Page<SCMRepository>{};
     public static class TargetRepositoryPage extends Page<TargetRepository>{};
     public static class UserPage extends Page<User>{};
-    public static class BPMTaskPage extends Page<BPMTask>{};
 }

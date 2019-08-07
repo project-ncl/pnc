@@ -73,9 +73,6 @@
     <java>spi.jar</java>
   </module>
   <module>
-    <java>process-managers.jar</java>
-  </module>
-  <module>
     <java>openshift-environment-driver.jar</java>
   </module>
   <module>

@@ -15,21 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers;
+package org.jboss.pnc.bpm.causeway;
 
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.enums.BuildPushStatus;
-import org.junit.Test;
+import javax.enterprise.context.ApplicationScoped;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class ResultSerializationTest {
+@ApplicationScoped
+public class InProgress {
+    private Map<Integer, String> inProgress = new ConcurrentHashMap<Integer, String>();
 
-    @Test
-    public void shouldSerializeAndDeserialize() throws Exception {
-        Result result = new Result("1", BuildPushStatus.SUCCESS, "");
-        String json = JsonOutputConverterMapper.apply(result);
-        JsonOutputConverterMapper.readValue(json, Result.class);
+    public boolean add(Integer id, String tagPrefix) {
+        return inProgress.put(id, tagPrefix) == null;
+    }
+
+    public String remove(Integer id) {
+        return inProgress.remove(id);
+    }
+
+    public Set<Integer> getAllIds() {
+        return Collections.unmodifiableSet(inProgress.keySet());
     }
 }

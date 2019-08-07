@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.managers;
+package org.jboss.pnc.bpm.causeway;
 
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
@@ -28,15 +28,16 @@ import org.jboss.pnc.causewayclient.remotespi.Logfile;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -74,13 +75,13 @@ public class BuildResultPushManager {
     private BuildRecordRepository buildRecordRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private ArtifactRepository artifactRepository;
+    private BuildPushResultMapper mapper;
 
     private InProgress inProgress;
 
     private CausewayClient causewayClient;
 
-    // TODO: Use BuildPushResult in the future
-    private Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent;
+    private Event<BuildPushResult> buildPushResultEvent;
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
@@ -90,18 +91,15 @@ public class BuildResultPushManager {
 
     @Inject
     public BuildResultPushManager(BuildConfigurationRepository buildConfigurationRepository,
-            BuildRecordRepository buildRecordRepository,
-            BuildRecordPushResultRepository buildRecordPushResultRepository,
-            InProgress inProgress,
-            Event<BuildRecordPushResultRest> buildRecordPushResultRestEvent,
-            ArtifactRepository artifactRepository,
-            CausewayClient causewayClient
-    ) {
+            BuildRecordRepository buildRecordRepository, BuildRecordPushResultRepository buildRecordPushResultRepository,
+            BuildPushResultMapper mapper, InProgress inProgress,
+            Event<BuildPushResult> buildPushResultEvent, ArtifactRepository artifactRepository, CausewayClient causewayClient) {
         this.buildConfigurationRepository =  buildConfigurationRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+        this.mapper = mapper;
         this.inProgress = inProgress;
-        this.buildRecordPushResultRestEvent = buildRecordPushResultRestEvent;
+        this.buildPushResultEvent = buildPushResultEvent;
         this.artifactRepository = artifactRepository;
         this.causewayClient = causewayClient;
     }
@@ -324,19 +322,18 @@ public class BuildResultPushManager {
 
         buildRecordPushResult.setTagPrefix(completedTag);
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
-
-        buildRecordPushResultRestEvent.fire(new BuildRecordPushResultRest(saved));
+        buildPushResultEvent.fire(mapper.toDTO(saved));
         return saved.getId();
     }
 
     public boolean cancelInProgressPush(Integer buildRecordId) {
-        BuildRecordPushResultRest buildRecordPushResultRest = BuildRecordPushResultRest.builder()
+        BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
-                .buildRecordId(buildRecordId)
+                .buildId(buildRecordId)
                 .log("Canceled.")
                 .build();
         boolean canceled = inProgress.remove(buildRecordId) != null;
-        buildRecordPushResultRestEvent.fire(buildRecordPushResultRest);
+        buildPushResultEvent.fire(buildRecordPushResultRest);
         return canceled;
     }
 

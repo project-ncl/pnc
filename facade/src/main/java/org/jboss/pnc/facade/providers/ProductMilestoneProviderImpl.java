@@ -29,7 +29,7 @@ import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.managers.ProductMilestoneReleaseManager;
+import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
