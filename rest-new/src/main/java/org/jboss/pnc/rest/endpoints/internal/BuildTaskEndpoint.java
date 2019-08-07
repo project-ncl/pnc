@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.api.endpoints;
+package org.jboss.pnc.rest.endpoints.internal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.dto.internal.BuildExecutionConfiguration;
-import org.jboss.pnc.dto.internal.bpm.BuildResult;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildResultRest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -58,7 +58,7 @@ public interface BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
             @Parameter(description = "Build task id") @PathParam("taskId") int buildId,
-            @Parameter(description = "Build result", required = true) @FormParam("buildResult") BuildResult buildResult);
+            @Parameter(description = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult);
 
     @Operation(summary = "Triggers the build execution for a given configuration.",
             responses = {
@@ -72,7 +72,7 @@ public interface BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED) //TODO accept single json
     public Response build(
             @Parameter(description = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
-            @FormParam("buildExecutionConfiguration") BuildExecutionConfiguration buildExecutionConfiguration,
+            @FormParam("buildExecutionConfiguration") BuildExecutionConfigurationRest buildExecutionConfiguration,
             @Parameter(description = "Username who triggered the build. If empty current user is used.")
             @FormParam("usernameTriggered") String usernameTriggered,
             @Parameter(description = "Optional Callback URL")
