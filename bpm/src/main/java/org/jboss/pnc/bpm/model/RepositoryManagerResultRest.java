@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.bpm.model;
 
+import lombok.AllArgsConstructor;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -25,34 +26,26 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@AllArgsConstructor
 @XmlRootElement(name = "repositoryManagerResult")
 public class RepositoryManagerResultRest implements Serializable {
-    private List<ArtifactRest> builtArtifacts;
-    private List<ArtifactRest> dependencies;
+    private List<org.jboss.pnc.dto.Artifact> builtArtifacts;
+    private List<org.jboss.pnc.dto.Artifact> dependencies;
     private String buildContentId;
     private String log;
     private CompletionStatus completionStatus;
 
     public RepositoryManagerResultRest() {}
 
-    public RepositoryManagerResultRest(RepositoryManagerResult result) {
-        builtArtifacts = result.getBuiltArtifacts().stream().map(artifact -> new ArtifactRest(artifact)).collect(Collectors.toList());
-        dependencies = result.getDependencies().stream().map(artifact -> new ArtifactRest(artifact)).collect(Collectors.toList());
-        buildContentId = result.getBuildContentId();
-        log = result.getLog();
-        completionStatus = result.getCompletionStatus();
-    }
-
-    public List<ArtifactRest> getBuiltArtifacts() {
+    public List<org.jboss.pnc.dto.Artifact> getBuiltArtifacts() {
         return builtArtifacts;
     }
 
-    public List<ArtifactRest> getDependencies() {
+    public List<org.jboss.pnc.dto.Artifact> getDependencies() {
         return dependencies;
     }
 
@@ -66,14 +59,6 @@ public class RepositoryManagerResultRest implements Serializable {
 
     public CompletionStatus getCompletionStatus() {
         return completionStatus;
-    }
-
-    public RepositoryManagerResult toRepositoryManagerResult() {
-        List<Artifact> builtArtifacts = getBuiltArtifacts().stream().map(artifactRest -> artifactRest.toDBEntityBuilder().build()).collect(Collectors.toList());
-        List<Artifact> dependencies = getDependencies().stream().map(artifactRest -> artifactRest.toDBEntityBuilder().build()).collect(Collectors.toList());
-        String buildContentId = getBuildContentId();
-
-        return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId, log, completionStatus);
     }
 
     @Override
@@ -94,7 +79,7 @@ public class RepositoryManagerResultRest implements Serializable {
                 '}';
     }
 
-    private class GenericRepositoryManagerResult implements RepositoryManagerResult {
+    public static class GenericRepositoryManagerResult implements RepositoryManagerResult {
         private final List<Artifact> builtArtifacts;
         private final List<Artifact> dependencies;
         private final String buildContentId;

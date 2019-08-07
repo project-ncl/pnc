@@ -19,38 +19,88 @@
 package org.jboss.pnc.bpm.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
+import org.jboss.pnc.bpm.model.RepositoryManagerResultRest;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
+import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
-import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Test serialization of Repository manager rest
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RepositoryManagerResultSerializationTest {
 
     private final Logger log = LoggerFactory.getLogger(RepositoryManagerResultSerializationTest.class);
 
+
+    @Mock
+    Configuration configuration;
+
+    @Spy
+    TargetRepositoryMapper targetRepositoryMapper;
+
+    @Spy
+    AbstractArtifactMapperImpl artifactMapper;
+
+    @Spy
+    @InjectMocks
+    RepositoryManagerResultMapper repositoryManagerResultMapper;
+
+    @Before
+    public void before() throws Exception{
+        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://url.com");
+        indyRepoDriverModuleConfig.setExternalRepositoryMvnPath("http://url.com");
+        indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
+        indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
+        indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
+        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class))).thenReturn(indyRepoDriverModuleConfig);
+        injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
+        injectMethod("targetRepositoryMapper", artifactMapper, targetRepositoryMapper, AbstractArtifactMapperImpl.class);
+    }
+
+    private void injectMethod(String fieldName, Object to, Object what, Class clazz) throws NoSuchFieldException, IllegalAccessException {
+        Field f = clazz.getDeclaredField(fieldName);
+        f.setAccessible(true);
+        f.set(to, what);
+    }
+
     @Test
-    public void serializeAndDeserializeRepositoryManagerResult() throws IOException, BuildDriverException {
+    public void serializeAndDeserializeRepositoryManagerResult() throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
 
         RepositoryManagerResult repoMngrResult = RepositoryManagerResultMock.mockResult();
-        RepositoryManagerResultRest repoMngrResultRest = new RepositoryManagerResultRest(repoMngrResult);
+        RepositoryManagerResultRest repoMngrResultRest = repositoryManagerResultMapper.toDTO(repoMngrResult);
 
         String repoMngrResultJson = JsonOutputConverterMapper.apply(repoMngrResultRest);
         log.debug("RepoManagerResultJson : {}", repoMngrResultJson);
 
         RepositoryManagerResultRest deserializedRepoManResultRest = mapper.readValue(repoMngrResultJson, RepositoryManagerResultRest.class);
-        RepositoryManagerResult deserializedRepoMngrResult = deserializedRepoManResultRest.toRepositoryManagerResult();
+        RepositoryManagerResult deserializedRepoMngrResult = repositoryManagerResultMapper.toEntity(deserializedRepoManResultRest);
         String message = "Deserialized object does not match the original.";
 
         Assert.assertEquals(message, repoMngrResult.getBuildContentId(), deserializedRepoMngrResult.getBuildContentId());

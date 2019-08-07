@@ -26,6 +26,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -55,13 +56,16 @@ public class BpmNotifier {
     private static final Logger log = LoggerFactory.getLogger(BpmNotifier.class);
     private BpmModuleConfig bpmConfig;
 
+    private BuildResultMapper mapper;
+
     @Deprecated
     public BpmNotifier() { //CDI workaround
     }
 
     @Inject
-    public BpmNotifier(Configuration configuration) throws ConfigurationParseException {
+    public BpmNotifier(Configuration configuration, BuildResultMapper mapper) throws ConfigurationParseException {
         bpmConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
+        this.mapper = mapper;
     }
 
     public void sendBuildExecutionCompleted(String uri, BuildResult buildResult) {
@@ -69,7 +73,7 @@ public class BpmNotifier {
         BuildResultRest buildResultRest = null;
         String errMessage = "";
         try {
-            buildResultRest = new BuildResultRest(buildResult);
+            buildResultRest = mapper.toDTO(buildResult);
             if (log.isTraceEnabled()) {
                 log.trace("Sending build result to BPM {}.", buildResultRest.toFullLogString());
             } else {

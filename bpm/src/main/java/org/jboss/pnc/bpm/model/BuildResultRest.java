@@ -18,24 +18,16 @@
 
 package org.jboss.pnc.bpm.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
-import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
-import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,16 +36,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Optional.ofNullable;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildResult")
 @NoArgsConstructor(onConstructor = @__({@Deprecated}))
+@AllArgsConstructor
 public class BuildResultRest extends BpmNotificationRest implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);
@@ -94,59 +83,6 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
         return JsonOutputConverterMapper.readValue(serialized, BuildResultRest.class);
     }
 
-    public BuildResultRest(BuildResult buildResult) {
-
-        completionStatus = buildResult.getCompletionStatus();
-        processException = buildResult.getProcessException().orElse(null);
-        processLog = buildResult.getProcessLog();
-
-        if (buildResult.getBuildExecutionConfiguration().isPresent()) {
-            BuildExecutionConfiguration bec = buildResult.getBuildExecutionConfiguration().get();
-            this.buildExecutionConfiguration = new BuildExecutionConfigurationRest(bec);
-        } else {
-            this.buildExecutionConfiguration = null;
-        }
-
-        if (buildResult.getBuildDriverResult().isPresent()) {
-            BuildDriverResult result = buildResult.getBuildDriverResult().get();
-            buildDriverResult = new BuildDriverResultRest(result);
-        } else {
-            this.buildDriverResult = null;
-        }
-
-        if (buildResult.getRepositoryManagerResult().isPresent()) {
-            RepositoryManagerResult result = buildResult.getRepositoryManagerResult().get();
-            repositoryManagerResult = new RepositoryManagerResultRest(result);
-        } else {
-            this.repositoryManagerResult = null;
-        }
-
-        if (buildResult.getEnvironmentDriverResult().isPresent()) {
-            environmentDriverResult = buildResult.getEnvironmentDriverResult().get();
-        } else {
-            environmentDriverResult = null;
-        }
-
-        repourResult = buildResult.getRepourResult().orElse(null);
-    }
-
-    public BuildResult toBuildResult() {
-        RepositoryManagerResult repositoryManagerResult = null;
-        if (getRepositoryManagerResult() != null) {
-            repositoryManagerResult = getRepositoryManagerResult().toRepositoryManagerResult();
-        }
-
-        return new BuildResult(
-                completionStatus,
-                ofNullable(processException),
-                processLog,
-                ofNullable(buildExecutionConfiguration),
-                ofNullable(buildDriverResult),
-                ofNullable(repositoryManagerResult),
-                ofNullable(environmentDriverResult),
-                ofNullable(repourResult));
-    }
-
     @Override
     public String getEventType() {
         return "BUILD_COMPLETE";
@@ -168,7 +104,6 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
 
     public String toFullLogString() {
         return JsonOutputConverterMapper.apply(this);
-
     }
 
 }
