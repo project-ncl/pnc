@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.bpm.model.causeway;
 
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.enums.ReleaseStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +33,7 @@ import java.util.List;
  * Time: 7:34 AM
  */
 @Data
-public class MilestoneReleaseResultRest extends BpmNotificationRest {
+public class MilestoneReleaseResultRest extends BpmEvent {
     private Integer milestoneId;
     private ReleaseStatus releaseStatus;
     private String errorMessage;

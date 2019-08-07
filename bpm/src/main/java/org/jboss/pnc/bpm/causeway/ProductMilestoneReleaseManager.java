@@ -21,7 +21,7 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.causeway.ArtifactImportError;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
@@ -135,7 +135,7 @@ public class ProductMilestoneReleaseManager {
         return latestRelease == null || latestRelease.getStatus() != MilestoneReleaseStatus.IN_PROGRESS;
     }
 
-    private <T extends BpmNotificationRest> ProductMilestoneRelease triggerRelease(ProductMilestone milestone, String accessToken) {
+    private <T extends BpmEvent> ProductMilestoneRelease triggerRelease(ProductMilestone milestone, String accessToken) {
         ProductMilestoneRelease release = new ProductMilestoneRelease();
         release.setStartingDate(new Date());
         release.setMilestone(milestone);

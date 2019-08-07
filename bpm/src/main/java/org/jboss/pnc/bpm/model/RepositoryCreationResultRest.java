@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @ToString
 @NoArgsConstructor
 @Setter(onMethod=@__({@Deprecated}))
-public class RepositoryCreationResultRest extends BpmNotificationRest {
+public class RepositoryCreationResultRest extends BpmEvent {
 
     @Override
     public String getEventType() {

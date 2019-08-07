@@ -38,7 +38,7 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
@@ -235,7 +235,7 @@ public class SCMRepositoryProviderImpl
     }
 
     private void addNotificationListeners(RepositoryCreationTask task) {
-        Consumer<? extends BpmNotificationRest> doNotify = (e) -> notifier.sendMessage(e);
+        Consumer<? extends BpmEvent> doNotify = (e) -> notifier.sendMessage(e);
         task.addListener(BpmEventType.RC_REPO_CREATION_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotify);
         task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, doNotify);

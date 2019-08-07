@@ -41,7 +41,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @ToString
 @NoArgsConstructor
 @Setter(onMethod=@__({@Deprecated}))
-public class ProcessProgressUpdate extends BpmNotificationRest {
+public class ProcessProgressUpdate extends BpmEvent {
 
     /**
      * Name of the service managed by the BPM eg. Repour

@@ -23,7 +23,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -212,7 +212,7 @@ public class BpmManager {
         }
     }
 
-    public void notify(int taskId, BpmNotificationRest notification) { //TODO do not use RestModel down here.
+    public void notify(int taskId, BpmEvent notification) { //TODO do not use RestModel down here.
         log.debug("Will process notification for taskId: {}; BpmNotificationRest: {}.", taskId, notification.toString());
         Optional<BpmTask> maybeTask = getTaskById(taskId);
         if (!maybeTask.isPresent()) {

@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Jakub Senko
  */
 @ToString(callSuper = true)
-public class BpmStringMapNotificationRest extends BpmNotificationRest implements Serializable {
+public class BpmStringMapNotificationRest extends BpmEvent implements Serializable {
 
     @Getter
     private Map<String, String> data;

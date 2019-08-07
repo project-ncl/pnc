@@ -160,22 +160,6 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         );
     }
 
-    //TODO was this used? couldn't find anything
-    /*public BuildConfigurationAuditedRest createBuildConfigurationAuditedRest() {
-        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest();
-        buildConfigAuditedRest.setId(id);
-        buildConfigAuditedRest.setRev(null);
-        buildConfigAuditedRest.setName(name);
-        buildConfigAuditedRest.setBuildScript(buildScript);
-
-        //TODO update to use also other parts or Repository Configuration
-        RepositoryConfigurationRest repoConfigRest = new RepositoryConfigurationRest();
-        repoConfigRest.setInternalUrl(scmRepoURL);
-        buildConfigAuditedRest.setRepositoryConfiguration(repoConfigRest);
-        buildConfigAuditedRest.setScmRevision(scmRevision);
-        return buildConfigAuditedRest;
-    }*/
-
     public void setId(int id) {
         this.id = id;
     }
