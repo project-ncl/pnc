@@ -114,7 +114,7 @@ public class WebSocketsNotificationTest {
                 build.getStatus());
 
         String buildString = JsonOutputConverterMapper.apply(build);
-        String expectedJsonResponse = "{\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldStatus\":\"NEW\",\"build\":" + buildString + "}";
+        String expectedJsonResponse = "{\"oldStatus\":\"NEW\",\"build\":" + buildString + ",\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\"}";
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
@@ -139,7 +139,7 @@ public class WebSocketsNotificationTest {
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
                 BuildSetStatus.NEW, BuildSetStatus.DONE, groupBuild, "description");
         String groupBuildString = JsonOutputConverterMapper.apply(groupBuild);
-        String expectedJsonResponse = "{\"job\":\"GROUP_BUILD\",\"notificationType\":\"BUILD_SET_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"groupBuild\":" + groupBuildString + "}";;
+        String expectedJsonResponse = "{\"groupBuild\":" + groupBuildString + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"BUILD_SET_STATUS_CHANGED\",\"progress\":\"FINISHED\"}";;
 
         //when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);

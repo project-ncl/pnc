@@ -126,7 +126,7 @@ public class ProcessProgressNotificationTest {
         //then
         logger.info("Received: " + notificationCollector.getMessages().get(0));
 
-        assertThat(notificationCollector.getMessages().get(0)).startsWith("{\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldStatus\":\"NEW\",\"build\":{\"id\":1,\"status\":\"SUCCESS\"");
+        assertThat(notificationCollector.getMessages().get(0)).startsWith("{\"oldStatus\":\"NEW\",\"build\":{\"id\":1,\"status\":\"SUCCESS\",");
     }
 
     private void waitForMessages(int numberOfMessages) {
