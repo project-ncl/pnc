@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 
@@ -29,6 +30,7 @@ import java.util.Map;
  */
 @Deprecated
 @Data
+@JsonDeserialize(builder = BuildConfigurationRevision.Builder.class)
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
     private final RepositoryConfiguration repositoryConfiguration;

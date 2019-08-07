@@ -17,26 +17,37 @@
  */
 package org.jboss.pnc.rest.configuration;
 
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @WebListener
-public class PNCStartupLogger implements ServletContextListener {
+public class PNCStartupLogger implements ServletContextListener, ServletContainerInitializer {
 
     public static final Logger log = Logger.getLogger(PNCStartupLogger.class.getName());
 
-    @Override public void contextInitialized(ServletContextEvent event) {
+    @Override
+    public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+
+    }
+
+    @Override
+    public void contextInitialized(ServletContextEvent event) {
         log.info("Starting up PNC " + getManifestInformation());
     }
 
-    @Override public void contextDestroyed(ServletContextEvent sce) {
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
         log.info("Shutting down PNC");
     }
 

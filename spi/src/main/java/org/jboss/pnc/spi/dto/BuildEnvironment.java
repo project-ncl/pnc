@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildEnvironment.Builder.class)
 public class BuildEnvironment implements DTOEntity {
 
     private final Integer id;

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,6 +37,7 @@ import java.util.Map;
 @Setter
 @Getter
 @AllArgsConstructor
+@JsonDeserialize(builder = Build.Builder.class)
 public class Build extends BuildRef {
 
     private ProjectRef project;
