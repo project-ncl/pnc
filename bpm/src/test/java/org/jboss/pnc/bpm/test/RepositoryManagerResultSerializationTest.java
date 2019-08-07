@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.restmodel.serialization;
+package org.jboss.pnc.bpm.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;

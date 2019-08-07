@@ -25,7 +25,6 @@ import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -35,15 +34,12 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
-import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
-import org.jboss.pnc.rest.restmodel.bpm.BpmStringMapNotificationRest;
-import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
+import org.jboss.pnc.bpm.model.BpmNotificationRest;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
-import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationResultRest;
+import org.jboss.pnc.bpm.model.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
@@ -62,13 +58,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -77,18 +70,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
 
 /**
  * This endpoint is used for starting and interacting
@@ -383,39 +366,5 @@ public class BpmEndpoint extends AbstractEndpoint {
         //clients are notified from callback in startRCreationTask
         //task.addListener(BpmEventType.RC_CREATION_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotify);
-    }
-
-    @GET
-    @Path("/tasks")
-    public Response getBPMTasks(
-            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize
-    ) {
-
-        Collection<BpmTask> tasks = bpmManager.getActiveTasks();
-        int totalPages = (tasks.size() / pageSize) + (tasks.size() % pageSize == 0 ? 0 : 1);
-        List<BpmTaskRest> pagedTasks = tasks.stream()
-                .sorted().skip(pageIndex * pageSize).limit(pageSize)
-                .map(mapTask).collect(Collectors.toList());
-        return fromCollection(new CollectionInfo<>(pageIndex, pageSize, totalPages, pagedTasks));
-    }
-
-    private static Function<BpmTask, BpmTaskRest> mapTask = (BpmTask t) -> new BpmTaskRest(
-            t.getTaskId(),
-            t.getProcessInstanceId(),
-            t.getProcessName(),
-            t.getEvents());
-
-    @GET
-    @Path("/tasks/{taskId}")
-    public Response getBPMTaskById(
-            @PathParam("taskId") int taskId
-    ) {
-        Optional<BpmTask> task = bpmManager.getTaskById(taskId);
-        if (task.isPresent()) {
-            return fromSingleton(mapTask.apply(task.get()));
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
     }
 }

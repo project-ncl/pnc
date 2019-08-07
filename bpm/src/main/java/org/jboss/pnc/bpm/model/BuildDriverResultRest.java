@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel;
+package org.jboss.pnc.bpm.model;
 
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.BuildStatus;

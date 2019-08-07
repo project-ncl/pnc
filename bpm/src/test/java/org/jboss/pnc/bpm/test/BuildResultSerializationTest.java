@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.restmodel.serialization;
+package org.jboss.pnc.bpm.test;
 
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;

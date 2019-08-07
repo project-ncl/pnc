@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel.bpm;
+package org.jboss.pnc.bpm.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

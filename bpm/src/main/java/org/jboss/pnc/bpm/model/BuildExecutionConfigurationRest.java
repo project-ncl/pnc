@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel;
+package org.jboss.pnc.bpm.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -133,7 +133,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         );
     }
 
-    public BuildConfigurationAuditedRest createBuildConfigurationAuditedRest() {
+    //TODO was this used? couldn't find anything
+    /*public BuildConfigurationAuditedRest createBuildConfigurationAuditedRest() {
         BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest();
         buildConfigAuditedRest.setId(id);
         buildConfigAuditedRest.setRev(null);
@@ -146,7 +147,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         buildConfigAuditedRest.setRepositoryConfiguration(repoConfigRest);
         buildConfigAuditedRest.setScmRevision(scmRevision);
         return buildConfigAuditedRest;
-    }
+    }*/
 
     public void setId(int id) {
         this.id = id;

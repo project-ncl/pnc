@@ -15,31 +15,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.bpm;
+package org.jboss.pnc.bpm.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseRest;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
- * Milestone release process input parameters
+ * Component Build process input parameters
  */
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class MilestoneReleaseParameters implements Serializable {
+public class ComponentBuildParameters implements Serializable {
 
-    @Getter
-    private MilestoneReleaseRest brewPush;
-
+    @NotNull
     @Getter
     private String pncBaseUrl;
 
+    @NotNull
     @Getter
-    private String causewayBaseUrl;
+    private String aproxBaseUrl;
+
+    @NotNull
+    @Getter
+    private String repourBaseUrl;
+
+    @NotNull
+    @Getter
+    private String daBaseUrl;
+
+    @NotNull
+    @Getter
+    private Boolean communityBuild;
+
+    @NotNull
+    @Getter
+    private Boolean versionAdjust;
+
+    @NotNull
+    @Getter
+    BuildExecutionConfigurationRest buildExecutionConfiguration;
 
 }

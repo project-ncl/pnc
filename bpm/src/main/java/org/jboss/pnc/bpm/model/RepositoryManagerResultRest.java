@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel;
+package org.jboss.pnc.bpm.model;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;

@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.restmodel.bpm;
+package org.jboss.pnc.bpm.test;
 
-import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
+import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.repour.RepourResult;

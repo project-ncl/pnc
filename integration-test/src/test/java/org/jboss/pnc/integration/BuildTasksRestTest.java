@@ -36,7 +36,7 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
-import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;

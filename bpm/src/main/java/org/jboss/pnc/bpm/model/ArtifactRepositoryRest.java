@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel;
+package org.jboss.pnc.bpm.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

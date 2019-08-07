@@ -27,7 +27,7 @@ import org.jboss.pnc.integration.client.ArtifactRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.endpoint.ArtifactEndpoint;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
-import org.jboss.pnc.rest.restmodel.ArtifactRepositoryRest;
+import org.jboss.pnc.bpm.model.ArtifactRepositoryRest;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;

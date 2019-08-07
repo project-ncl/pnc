@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel.causeway;
+package org.jboss.pnc.bpm.model.causeway;
 
+import org.jboss.pnc.bpm.model.BpmNotificationRest;
 import org.jboss.pnc.enums.ReleaseStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
-
-import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 
 import java.util.ArrayList;
 import java.util.List;

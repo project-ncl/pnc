@@ -15,12 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.bpm.model;
 
-package org.jboss.pnc.rest.swagger.response;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseRest;
 
-import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
+import java.io.Serializable;
 
-public class BpmTaskRestPage extends Page<BpmTaskRest> {
+/**
+ * Milestone release process input parameters
+ */
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+public class MilestoneReleaseParameters implements Serializable {
+
+    @Getter
+    private MilestoneReleaseRest brewPush;
+
+    @Getter
+    private String pncBaseUrl;
+
+    @Getter
+    private String causewayBaseUrl;
 
 }

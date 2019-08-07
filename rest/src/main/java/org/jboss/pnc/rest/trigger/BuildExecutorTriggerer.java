@@ -28,7 +28,7 @@ import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.enums.BPMTaskStatus;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.rest.executor.notifications.NotificationSender;
-import org.jboss.pnc.rest.restmodel.bpm.ProcessProgressUpdate;
+import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
