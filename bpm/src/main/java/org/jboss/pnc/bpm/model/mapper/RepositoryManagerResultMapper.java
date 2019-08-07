@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class RepositoryManagerResultMapper {
 
     @Inject
-    ArtifactMapper artifactMapper;
+    private ArtifactMapper artifactMapper;
 
     public RepositoryManagerResultRest toDTO(RepositoryManagerResult entity) {
         List<Artifact> builtArtifacts = entity.getBuiltArtifacts().stream().map(artifact -> artifactMapper.toDTO(artifact)).collect(Collectors.toList());

@@ -43,7 +43,7 @@ import java.io.Serializable;
 @XmlRootElement(name = "buildResult")
 @NoArgsConstructor(onConstructor = @__({@Deprecated}))
 @AllArgsConstructor
-public class BuildResultRest extends BpmNotificationRest implements Serializable {
+public class BuildResultRest extends BpmEvent implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);
 

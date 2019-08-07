@@ -22,7 +22,7 @@ import static java.util.Optional.ofNullable;
 public class BuildResultMapper {
 
     @Inject
-    RepositoryManagerResultMapper repositoryManagerResultMapper;
+    private RepositoryManagerResultMapper repositoryManagerResultMapper;
 
     public BuildResult toEntity(BuildResultRest buildResultRest) {
         RepositoryManagerResult repositoryManagerResult = null;

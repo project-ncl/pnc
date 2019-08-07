@@ -20,7 +20,7 @@ package org.jboss.pnc.bpm;
 import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
 
 import lombok.ToString;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
@@ -55,18 +55,18 @@ public enum BpmEventType { //TODO merge with org.jboss.pnc.spi.notifications.mod
     BCC_CONFIG_SET_ADDITION_SUCCESS(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_ERROR(BpmStringMapNotificationRest.class);
 
-    private final Class<? extends BpmNotificationRest> type;
+    private final Class<? extends BpmEvent> type;
 
     /**
      * @param type Type of the class containing event data received from the process.
      *             Usually named *Rest.
      */
-    BpmEventType(Class<? extends BpmNotificationRest> type) {
+    BpmEventType(Class<? extends BpmEvent> type) {
         requireNonNull(type);
         this.type = type;
     }
 
-    public <T extends BpmNotificationRest> Class<T> getType() {
+    public <T extends BpmEvent> Class<T> getType() {
         return (Class<T>) type;
     }
 

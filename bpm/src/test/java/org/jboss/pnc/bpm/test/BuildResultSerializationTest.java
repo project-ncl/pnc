@@ -56,20 +56,20 @@ public class BuildResultSerializationTest {
     private final Logger log = LoggerFactory.getLogger(BuildResultSerializationTest.class);
 
     @Mock
-    Configuration configuration;
+    private Configuration configuration;
 
     @Spy
-    TargetRepositoryMapper targetRepositoryMapper;
+    private TargetRepositoryMapper targetRepositoryMapper;
 
     @Spy
-    AbstractArtifactMapperImpl artifactMapper;
+    private AbstractArtifactMapperImpl artifactMapper;
 
     @Spy
-    RepositoryManagerResultMapper repositoryManagerResultMapper;// = new RepositoryManagerResultMapper();
+    private RepositoryManagerResultMapper repositoryManagerResultMapper;
 
     @Spy
     @InjectMocks
-    BuildResultMapper buildResultMapper;// = new BuildResultMapper();
+    private BuildResultMapper buildResultMapper;
 
 
     @Before

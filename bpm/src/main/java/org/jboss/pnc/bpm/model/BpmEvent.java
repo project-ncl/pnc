@@ -24,13 +24,13 @@ import java.io.Serializable;
 
 /**
  * Parent class of all BPM notifications.
- * Subclasses are deserialized based on the {@link BpmNotificationRest#eventType}
+ * Subclasses are deserialized based on the {@link BpmEvent#eventType}
  * field, which must match one of the BpmEventType-s.
  *
  * @author Jakub Senko
  */
 @ToString
-public abstract class BpmNotificationRest implements Serializable {
+public abstract class BpmEvent implements Serializable {
 
     @Getter
     private String eventType;

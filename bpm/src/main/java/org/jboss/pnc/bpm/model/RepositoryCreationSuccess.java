@@ -25,7 +25,7 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class RepositoryCreationSuccess extends BpmNotificationRest {
+public class RepositoryCreationSuccess extends BpmEvent {
 
     private RepositoryCreationDataWrapper data;
 

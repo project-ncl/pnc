@@ -57,17 +57,17 @@ public class RepositoryManagerResultSerializationTest {
 
 
     @Mock
-    Configuration configuration;
+    private Configuration configuration;
 
     @Spy
-    TargetRepositoryMapper targetRepositoryMapper;
+    private TargetRepositoryMapper targetRepositoryMapper;
 
     @Spy
-    AbstractArtifactMapperImpl artifactMapper;
+    private AbstractArtifactMapperImpl artifactMapper;
 
     @Spy
     @InjectMocks
-    RepositoryManagerResultMapper repositoryManagerResultMapper;
+    private RepositoryManagerResultMapper repositoryManagerResultMapper;
 
     @Before
     public void before() throws Exception{
@@ -90,16 +90,13 @@ public class RepositoryManagerResultSerializationTest {
     @Test
     public void serializeAndDeserializeRepositoryManagerResult() throws IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-
         RepositoryManagerResult repoMngrResult = RepositoryManagerResultMock.mockResult();
         RepositoryManagerResultRest repoMngrResultRest = repositoryManagerResultMapper.toDTO(repoMngrResult);
 
         String repoMngrResultJson = JsonOutputConverterMapper.apply(repoMngrResultRest);
         log.debug("RepoManagerResultJson : {}", repoMngrResultJson);
 
-        RepositoryManagerResultRest deserializedRepoManResultRest = mapper.readValue(repoMngrResultJson, RepositoryManagerResultRest.class);
+        RepositoryManagerResultRest deserializedRepoManResultRest = JsonOutputConverterMapper.readValue(repoMngrResultJson, RepositoryManagerResultRest.class);
         RepositoryManagerResult deserializedRepoMngrResult = repositoryManagerResultMapper.toEntity(deserializedRepoManResultRest);
         String message = "Deserialized object does not match the original.";
 

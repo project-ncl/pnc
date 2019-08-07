@@ -29,7 +29,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -177,10 +177,10 @@ public class DefaultNotifier implements Notifier {
             Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), Integer.valueOf(messagesId));
             if (maybeTask.isPresent()) {
                 BpmTask bpmTask = maybeTask.get();
-                Optional<BpmNotificationRest> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
+                Optional<BpmEvent> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
                 if (maybeLastEvent.isPresent()) {
-                    BpmNotificationRest lastBpmNotificationRest = maybeLastEvent.get();
-                    client.sendMessage(lastBpmNotificationRest, messageCallback);
+                    BpmEvent lastBpmEvent = maybeLastEvent.get();
+                    client.sendMessage(lastBpmEvent, messageCallback);
                 } else {
                     String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
                     String errorMessage = "No events for id: " + messagesId;

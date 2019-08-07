@@ -36,7 +36,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
 import org.jboss.pnc.bpm.model.RepositoryCreationResultRest;
@@ -145,7 +145,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         }
         String eventTypeName = node.get("eventType").asText();
         BpmEventType eventType = BpmEventType.valueOf(eventTypeName);
-        BpmNotificationRest notification;
+        BpmEvent notification;
         try {
             notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
@@ -177,7 +177,7 @@ public class BpmEndpoint extends AbstractEndpoint {
      * at least two REST requests for each BC Set ID. The process would become too complicated.
      * Notification listeners are ideal for these kind of operations.
      */
-    private void onRCCreationSuccess(BpmNotificationRest notification, BuildConfigurationRest buildConfigurationRest) {
+    private void onRCCreationSuccess(BpmEvent notification, BuildConfigurationRest buildConfigurationRest) {
         LOG.debug("Received BPM event RC_CREATION_SUCCESS: " + notification);
 
         RepositoryCreationSuccess repositoryCreationTaskResult = (RepositoryCreationSuccess) notification;
@@ -358,7 +358,7 @@ public class BpmEndpoint extends AbstractEndpoint {
      * and forward the event to WS clients.
      */
     private void addWebsocketForwardingListeners(RepositoryCreationTask task) {
-        Consumer<? extends BpmNotificationRest> doNotify = (e) -> wsNotifier.sendMessage(e);
+        Consumer<? extends BpmEvent> doNotify = (e) -> wsNotifier.sendMessage(e);
         task.addListener(BpmEventType.RC_REPO_CREATION_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotify);
         task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, doNotify);

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.jboss.pnc.bpm.model.BpmNotificationRest;
+import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     private Long processInstanceId;
 
     @Getter
-    private final List<BpmNotificationRest> events = new ArrayList<>();
+    private final List<BpmEvent> events = new ArrayList<>();
 
     private String processName;
 
@@ -134,13 +134,13 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      *
      * @param eventType event to follow
      */
-    public <T extends BpmNotificationRest> void addListener(BpmEventType eventType, Consumer<T> listener) {
+    public <T extends BpmEvent> void addListener(BpmEventType eventType, Consumer<T> listener) {
         List<Consumer<?>> consumers = listeners.computeIfAbsent(eventType, (k) -> new ArrayList<>());
         consumers.add(listener);
     }
 
 
-    public <T extends BpmNotificationRest> void notify(BpmEventType eventType, T data) {
+    public <T extends BpmEvent> void notify(BpmEventType eventType, T data) {
         List<Consumer<?>> listeners = this.listeners.computeIfAbsent(eventType, (k) -> new ArrayList<>());
         log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners, this.listeners);
         listeners.forEach(listener -> {
