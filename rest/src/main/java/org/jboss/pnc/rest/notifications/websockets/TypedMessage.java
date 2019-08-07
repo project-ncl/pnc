@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.notifications.websockets;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,7 +29,6 @@ import java.io.Serializable;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @JsonDeserialize(builder = TypedMessage.TypedMessageBuilder.class)
-@Builder
 @AllArgsConstructor
 @XmlRootElement
 public class TypedMessage<T> implements Serializable {

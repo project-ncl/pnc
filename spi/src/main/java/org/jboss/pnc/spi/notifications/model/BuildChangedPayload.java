@@ -17,18 +17,20 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.dto.Build;
 
 import java.util.Date;
 
-//@JsonDeserialize(builder = BuildChangedPayload.BuildChangedPayloadBuilder.class)
+@Data
+@Builder(buildMethodName = "buildMe")
+@JsonDeserialize(builder = BuildChangedPayload.BuildChangedPayloadBuilder.class)
 @AllArgsConstructor
-@Builder
-//TODO 2.0 unify with BuildStatusChanged
 public class BuildChangedPayload implements NotificationPayload {
 
     @Deprecated
@@ -117,7 +119,7 @@ public class BuildChangedPayload implements NotificationPayload {
         return build;
     }
 
-    @JsonPOJOBuilder(withPrefix = "")
+    @JsonPOJOBuilder(withPrefix = "", buildMethodName = "buildMe")
     public static final class BuildChangedPayloadBuilder {
     }
 

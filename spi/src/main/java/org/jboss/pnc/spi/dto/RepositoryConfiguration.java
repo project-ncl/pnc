@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,7 @@ import lombok.Data;
 @Data
 @Builder(builderClassName = "Builder")
 @AllArgsConstructor
+@JsonDeserialize(builder = RepositoryConfiguration.Builder.class)
 public class RepositoryConfiguration implements DTOEntity {
 
     protected final Integer id;
