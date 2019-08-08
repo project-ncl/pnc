@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+import java.util.stream.Collectors;
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -38,5 +40,28 @@ public class ArtifactImportError {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
+    }
+
+    public static String combineMessages(List<ArtifactImportError> artifactImportErrors) {
+        if (artifactImportErrors == null || artifactImportErrors.isEmpty()) {
+            return "";
+        }
+        return " --- artifact errors ---\n" +
+                artifactImportErrors.stream()
+                        .map(e -> e.getArtifactId() + ": " + e.getErrorMessage())
+                        .collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * @return append artifacts errors to the prefix and return combined string. When artifactImportErrors is empty only a prefix is returned.
+     */
+    public static String combineMessages(String prefix, List<ArtifactImportError> artifactImportErrors) {
+        String errors = ArtifactImportError.combineMessages(artifactImportErrors);
+        if (!errors.isEmpty()) {
+            return prefix + "\n\n" + errors;
+        } else {
+            return prefix;
+        }
+
     }
 }

@@ -28,7 +28,7 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.bpm.model.causeway.ArtifactImportError;
+import org.jboss.pnc.dto.ArtifactImportError;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
