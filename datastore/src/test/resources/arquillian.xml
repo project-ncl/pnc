@@ -25,6 +25,7 @@
     <container qualifier="jboss" default="true">
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
+            <!--<property name="javaVmArguments">-Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>-->
         </configuration>
     </container>
 

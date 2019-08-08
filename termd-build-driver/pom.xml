@@ -119,11 +119,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <!-- TODO only here as lombok is too eager to do everything-->
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -155,6 +150,7 @@
           </nonFilteredFileExtensions>
         </configuration>
       </plugin>
+
     </plugins>
   </build>
 

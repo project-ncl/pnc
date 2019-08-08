@@ -149,6 +149,19 @@
           </dependency>
         </dependencies>
         <configuration>
+          <archive>
+            <manifestEntries combine.children="append">
+              <Dependencies>
+                org.apache.commons.beanutils,
+                org.apache.commons.codec,
+                org.apache.commons.collections,
+                org.apache.commons.io,
+                org.apache.commons.lang,
+                org.apache.commons.lang3,
+                org.apache.httpcomponents.core
+              </Dependencies>
+            </manifestEntries>
+          </archive>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <fileNameMapping>no-version</fileNameMapping>
           <packagingExcludes>${excludeMessaging}</packagingExcludes>

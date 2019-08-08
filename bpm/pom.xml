@@ -111,10 +111,10 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
+        <artifactId>maven-ejb-plugin</artifactId>
         <configuration>
           <archive>
-            <manifestEntries>
+            <manifestEntries combine.children="append">
               <Dependencies>
                 org.jboss.resteasy.resteasy-jaxrs export meta-inf,
                 org.jboss.resteasy.resteasy-jaxb-provider export meta-inf,
