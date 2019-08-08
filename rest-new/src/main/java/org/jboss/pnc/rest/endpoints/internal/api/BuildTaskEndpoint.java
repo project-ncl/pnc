@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.endpoints.internal;
+package org.jboss.pnc.rest.endpoints.internal.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
