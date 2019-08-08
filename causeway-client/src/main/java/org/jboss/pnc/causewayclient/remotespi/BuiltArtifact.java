@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.causewayclient.remotespi;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.NonNull;
@@ -28,6 +29,9 @@ import lombok.NonNull;
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
         property = "@artifactType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(NpmBuiltArtifact.class),
+        @JsonSubTypes.Type(MavenBuiltArtifact.class)})
 public class BuiltArtifact {
     private final int id;
     @NonNull

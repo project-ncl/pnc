@@ -18,6 +18,7 @@
 package org.jboss.pnc.causewayclient.remotespi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.NonNull;
@@ -33,6 +34,9 @@ import java.util.Set;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
         property = "@buildType")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSubTypes(
+        {@JsonSubTypes.Type(MavenBuild.class),
+        @JsonSubTypes.Type(NpmBuild.class)})
 public abstract class Build {
 
     @NonNull
@@ -63,7 +67,7 @@ public abstract class Build {
     @NonNull
     private final String tagPrefix;
 
-    // We use IDE generated constructor instead of lombok.AllArgsConstrucotr because of nicer
+    // We use IDE generated constructor instead of lombok.AllArgsConstructor because of nicer
     // parametr names.
     protected Build(String buildName, String buildVersion, String externalBuildSystem,
             int externalBuildID, String externalBuildURL, Date startTime, Date endTime,
