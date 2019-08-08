@@ -31,6 +31,7 @@ import org.jboss.pnc.rest.endpoints.ProductVersionEndpointImpl;
 import org.jboss.pnc.rest.endpoints.ProjectEndpointImpl;
 import org.jboss.pnc.rest.endpoints.SCMRepositoryEndpointImpl;
 import org.jboss.pnc.rest.endpoints.UserEndpointImpl;
+import org.jboss.pnc.rest.endpoints.internal.BpmEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
 import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
@@ -91,6 +92,7 @@ public class JaxRsActivatorNew extends Application {
     private void addEndpoints(Set<Class<?>> resources) {
         resources.add(ArtifactEndpointImpl.class);
 
+        resources.add(BpmEndpointImpl.class);
         resources.add(BuildEndpointImpl.class);
 
         resources.add(BuildConfigurationEndpointImpl.class);
