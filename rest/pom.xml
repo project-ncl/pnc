@@ -263,9 +263,9 @@
       </resource>
     </resources>
 
-    <!-- required for integration tests -->
     <plugins>
       <plugin>
+        <!-- required for integration tests -->
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <attachClasses>true</attachClasses>

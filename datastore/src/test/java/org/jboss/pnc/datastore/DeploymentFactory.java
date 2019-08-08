@@ -42,7 +42,8 @@ public class DeploymentFactory {
         JavaArchive datastoreJar = ShrinkWrap.create(JavaArchive.class, "datastore.jar")
                 .addPackages(true, "org.jboss.pnc.datastore")
                 .addAsManifestResource("test-persistence.xml", "persistence.xml")
-                .addAsManifestResource("logback.xml");
+                .addAsManifestResource("logback.xml")
+                .addAsManifestResource("MANIFEST.MF");
 
         logger.info("Deployment datastoreJar: {}", datastoreJar.toString(true));
 

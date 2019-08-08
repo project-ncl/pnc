@@ -508,6 +508,7 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcore</artifactId>
         <version>${version.org.apache.httpcomponents.httpcore}</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -929,14 +930,14 @@
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>2.6</version>
-        <!--<scope>provided</scope>-->
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.9.3</version>
-        <!--<scope>provided</scope>-->
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -964,6 +965,7 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.8</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
