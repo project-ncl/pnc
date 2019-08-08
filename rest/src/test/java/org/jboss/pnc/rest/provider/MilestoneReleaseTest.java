@@ -23,7 +23,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
-import org.jboss.pnc.bpm.model.causeway.ArtifactImportError;
+import org.jboss.pnc.dto.ArtifactImportError;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
@@ -127,10 +127,10 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
                 .build();
         artifactRepository.save(artifact);
 
-        ArtifactImportError artifactImportError = new ArtifactImportError();
-        artifactImportError.setErrorMessage(randomAlphabetic(30));
-        artifactImportError.setArtifactId(artifactId);
-        return artifactImportError;
+        ArtifactImportError.Builder artifactImportErrorBuilder = ArtifactImportError.builder();
+        artifactImportErrorBuilder.errorMessage(randomAlphabetic(30));
+        artifactImportErrorBuilder.artifactId(artifactId);
+        return artifactImportErrorBuilder.build();
     }
 
     private String expectedDescription(BuildRecord buildRecord, BuildImportResultRest buildResult) {

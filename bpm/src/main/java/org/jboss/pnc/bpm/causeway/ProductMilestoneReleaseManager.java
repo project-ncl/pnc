@@ -20,7 +20,7 @@ package org.jboss.pnc.bpm.causeway;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.model.causeway.ArtifactImportError;
+import org.jboss.pnc.dto.ArtifactImportError;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;

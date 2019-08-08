@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jboss.pnc.dto.ArtifactImportError;
 
 import java.util.List;
 
