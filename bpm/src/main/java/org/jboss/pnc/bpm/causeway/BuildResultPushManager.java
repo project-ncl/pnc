@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.bpm.causeway;
 
+import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
 import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
@@ -27,10 +28,13 @@ import org.jboss.pnc.causewayclient.remotespi.Dependency;
 import org.jboss.pnc.causewayclient.remotespi.Logfile;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
+import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
+import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -203,8 +207,10 @@ public class BuildResultPushManager {
 
         logger.debug("Preparing BuildImportRequest containing {} built artifacts and {} dependencies.", builtArtifactEntities.size(), dependencyEntities.size());
 
+        BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
+
         Set<Dependency> dependencies = collectDependencies(dependencyEntities);
-        Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities);
+        Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities, buildType);
 
         CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken);
 
@@ -219,6 +225,26 @@ public class BuildResultPushManager {
             executionRootName = buildRecord.getExecutionRootName();
         }
 
+        Build build = getBuild(buildRecord, tagPrefix, buildRoot, dependencies, builtArtifacts, executionRootName, buildType);
+
+        return new BuildImportRequest(callbackTarget, build, reimport);
+    }
+
+    private Build getBuild(BuildRecord buildRecord, String tagPrefix, BuildRoot buildRoot, Set<Dependency> dependencies,
+            Set<BuiltArtifact> builtArtifacts, String executionRootName, BuildType buildType) {
+        switch (buildType) {
+            case MVN:
+            case GRADLE:
+                return getMavenBuild(buildRecord, tagPrefix, buildRoot, dependencies, builtArtifacts, executionRootName);
+            case NPM:
+                return getNpmBuild(buildRecord, tagPrefix, buildRoot, dependencies, builtArtifacts, executionRootName);
+            default:
+                throw new IllegalArgumentException("Unknown buildType: " + buildType);
+        }
+    }
+
+    private Build getMavenBuild(BuildRecord buildRecord, String tagPrefix, BuildRoot buildRoot, Set<Dependency> dependencies,
+            Set<BuiltArtifact> builtArtifacts, String executionRootName) {
         Gav rootGav = buildRootToGAV(
                 executionRootName,
                 buildRecord.getExecutionRootVersion());
@@ -226,7 +252,7 @@ public class BuildResultPushManager {
 
         addLogs(buildRecord, logs);
 
-        Build build = new MavenBuild(
+        return new MavenBuild(
                 rootGav.getGroupId(),
                 rootGav.getArtifactId(),
                 rootGav.getVersion(),
@@ -246,8 +272,34 @@ public class BuildResultPushManager {
                 builtArtifacts,
                 tagPrefix
         );
+    }
 
-        return new BuildImportRequest(callbackTarget, build, reimport);
+    private Build getNpmBuild(BuildRecord buildRecord, String tagPrefix, BuildRoot buildRoot, Set<Dependency> dependencies,
+            Set<BuiltArtifact> builtArtifacts, String executionRootName) {
+        NpmPackageRef nv = new NpmPackageRef(executionRootName, buildRecord.getExecutionRootVersion());
+        Set<Logfile> logs = new HashSet<>();
+
+        addLogs(buildRecord, logs);
+
+        return new NpmBuild(
+                nv.getName(),
+                nv.getVersionString(),
+                executionRootName,
+                buildRecord.getExecutionRootVersion(),
+                "PNC",
+                buildRecord.getId(),
+                String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()),
+                buildRecord.getStartTime(),
+                buildRecord.getEndTime(),
+                buildRecord.getScmRepoURL(),
+                buildRecord.getScmRevision(),
+                buildRecord.getScmTag(),
+                buildRoot,
+                logs,
+                dependencies,
+                builtArtifacts,
+                tagPrefix
+        );
     }
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {
@@ -284,23 +336,51 @@ public class BuildResultPushManager {
         return new Gav(splittedName[0], splittedName[1], executionRootVersion);
     }
 
-    private Set<BuiltArtifact> collectBuiltArtifacts(Collection<Artifact> builtArtifacts) {
+    private Set<BuiltArtifact> collectBuiltArtifacts(Collection<Artifact> builtArtifacts, BuildType buildType) {
+        switch (buildType) {
+            case MVN:
+            case GRADLE:
+                return getMavenArtifacts(builtArtifacts);
+            case NPM:
+                return getNpmArtifacts(builtArtifacts);
+            default:
+                throw new IllegalArgumentException("Unknown buildType: " + buildType);
+        }
+    }
+
+    private Set<BuiltArtifact> getNpmArtifacts(Collection<Artifact> builtArtifacts) {
         return builtArtifacts.stream().map(artifact -> {
-                Gav gav = Gav.parse(artifact.getIdentifier());
-                return new MavenBuiltArtifact(
-                        gav.getGroupId(),
-                        gav.getArtifactId(),
-                        gav.getVersion(),
-                        artifact.getId(),
-                        artifact.getFilename(),
-                        artifact.getTargetRepository().getRepositoryType().toString(),
-                        artifact.getMd5(),
-                        artifact.getDeployPath(),
-                        artifact.getTargetRepository().getRepositoryPath(),
-                        artifact.getSize().intValue()
-                        );
-                })
-            .collect(Collectors.toSet());
+            NpmPackageRef nv = NpmPackageRef.parse(artifact.getIdentifier());
+            return new NpmBuiltArtifact(
+                    nv.getName(),
+                    nv.getVersionString(),
+                    artifact.getId(),
+                    artifact.getFilename(),
+                    artifact.getTargetRepository().getRepositoryType().toString(),
+                    artifact.getMd5(),
+                    artifact.getDeployPath(),
+                    artifact.getTargetRepository().getRepositoryPath(),
+                    artifact.getSize().intValue()
+            );
+        }).collect(Collectors.toSet());
+    }
+
+    private Set<BuiltArtifact> getMavenArtifacts(Collection<Artifact> builtArtifacts) {
+        return builtArtifacts.stream().map(artifact -> {
+            Gav gav = Gav.parse(artifact.getIdentifier());
+            return new MavenBuiltArtifact(
+                    gav.getGroupId(),
+                    gav.getArtifactId(),
+                    gav.getVersion(),
+                    artifact.getId(),
+                    artifact.getFilename(),
+                    artifact.getTargetRepository().getRepositoryType().toString(),
+                    artifact.getMd5(),
+                    artifact.getDeployPath(),
+                    artifact.getTargetRepository().getRepositoryPath(),
+                    artifact.getSize().intValue()
+            );
+        }).collect(Collectors.toSet());
     }
 
     private Set<Dependency> collectDependencies(Collection<Artifact> dependencies) {
