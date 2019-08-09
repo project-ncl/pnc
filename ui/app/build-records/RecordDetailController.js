@@ -29,7 +29,8 @@
     'buildRecordPushResult',
     'messageBus',
     'utils',
-    function($scope, $state, $log, $uibModal, eventTypes, BuildRecord, recordDetail, buildRecordPushResult, messageBus, utils) {
+    'buildStatusHelper',
+    function($scope, $state, $log, $uibModal, eventTypes, BuildRecord, recordDetail, buildRecordPushResult, messageBus, utils, buildStatusHelper) {
       var hasPushResult = !utils.isEmpty(buildRecordPushResult);
       
       this.record = recordDetail;
@@ -37,6 +38,11 @@
 
       this.hasPushResults = function () {
         return hasPushResult;
+      };
+
+      this.buildStatusHelper = buildStatusHelper;
+      this.isFinished = function () {
+        return buildStatusHelper.isFinished(this.record);
       };
 
       $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {

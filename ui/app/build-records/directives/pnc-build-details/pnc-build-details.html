@@ -22,7 +22,7 @@
     <dt>Job Id:</dt>
     <dd>{{ ctrl.record.id }}</dd>
     <dt>Status:</dt>
-    <dd ng-class="ctrl.record.status === 'DONE' ? 'text-success' : 'text-danger'">{{ ctrl.record.status }} <span class="m-l-20">[ <a ng-href="{{ ctrl.record.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
+    <dd ng-class="ctrl.buildStatusHelper.isSuccess(ctrl.record.status) ? 'text-success' : 'text-danger'">{{ ctrl.record.status }} <span ng-show="ctrl.buildStatusHelper.isFinished(ctrl.record.status)" class="m-l-20">[ <a ng-href="{{ ctrl.record.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
     <dt>Build Config:</dt>
     <dd><a href ui-sref="build-configs.detail({ configurationId: ctrl.record.buildConfigurationId })">{{ ctrl.record.buildConfigurationName || '&mdash;' }}</a></dd>
     <dt>Started By:</dt>
@@ -39,7 +39,7 @@
     <dd>
       <span ng-show="ctrl.record.scmRepoURL">{{ ctrl.record.scmRepoURL }}</span>
       <span ng-hide="ctrl.record.scmRepoURL">
-        <span class="pficon pficon-warning-triangle-o" ng-if="ctrl.record.status !== 'BUILDING'" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
+        <span class="pficon pficon-warning-triangle-o" ng-if="ctrl.buildStatusHelper.isFailed(ctrl.record.status)" title="Something went wrong, probably during alignment process, you should check alignment logs for more details."></span>
         Not available, based on <code>{{ ctrl.record.buildConfigurationAudited.repositoryConfiguration.internalUrl }}</code>
       </span>
     </dd>
@@ -64,7 +64,7 @@
     <dd class="m-t-10">
       <span ng-show="ctrl.record.scmRevision">{{ ctrl.record.scmRevision }}</span>
       <span ng-hide="ctrl.record.scmRevision">
-        <span class="pficon pficon-warning-triangle-o" ng-if="ctrl.record.status !== 'BUILDING'" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
+        <span class="pficon pficon-warning-triangle-o" ng-if="ctrl.buildStatusHelper.isFailed(ctrl.record.status)" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
         Not available, based on <code>{{ ctrl.record.buildConfigurationAudited.scmRevision }}</code>
       </span>
     </dd>

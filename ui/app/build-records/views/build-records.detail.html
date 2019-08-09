@@ -38,16 +38,16 @@
   <div class="col-md-12">
     <ul class="nav nav-tabs">
       <li role="presentation" ui-sref-active="active"><a href ui-sref="projects.detail.build-configs.detail.build-records.detail.default">Details</a></li>
-      <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
+      <li role="presentation" ui-sref-active="active" ng-show="recordCtrl.isFinished()">
         <a href ui-sref="projects.detail.build-configs.detail.build-records.detail.result">Build Log</a>
       </li>
-      <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
+      <li role="presentation" ui-sref-active="active" ng-show="recordCtrl.isFinished()">
         <a href ui-sref="projects.detail.build-configs.detail.build-records.detail.repour-result">Alignment Log</a>
       </li>
-      <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
+      <li role="presentation" ui-sref-active="active" ng-show="recordCtrl.isFinished()">
         <a href ui-sref="projects.detail.build-configs.detail.build-records.detail.artifacts">Artifacts</a>
       </li>
-      <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
+      <li role="presentation" ui-sref-active="active" ng-show="recordCtrl.isFinished()">
         <a href ui-sref="projects.detail.build-configs.detail.build-records.detail.dependencies">Dependencies</a>
       </li>
       <li role="presentation" ui-sref-active="active" ng-show="recordCtrl.hasPushResults()">

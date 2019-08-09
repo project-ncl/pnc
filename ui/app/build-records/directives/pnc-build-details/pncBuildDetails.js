@@ -28,7 +28,8 @@
    * @author Alex Creasy
   */
   module.directive('pncBuildDetails', [
-    function() {
+    'buildStatusHelper',
+    function (buildStatusHelper) {
 
     var DEFAULT_TEMPLATE = 'build-records/directives/pnc-build-details/pnc-build-details.html';
 
@@ -44,7 +45,7 @@
       controller: ['$scope',
         function ($scope) {
           var self = this;
-
+          self.buildStatusHelper = buildStatusHelper;
           self.record = $scope.buildRecord;
 
           self.refresh = function () {
