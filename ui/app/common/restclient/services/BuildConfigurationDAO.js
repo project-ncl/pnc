@@ -114,7 +114,7 @@
         },
         _getByProject: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-configurations/projects/:projectId'
+          url: REST_BASE_URL + '/build-configurations/projects/:projectId' + qh.searchOnly(['name'])
         }
       });
 
