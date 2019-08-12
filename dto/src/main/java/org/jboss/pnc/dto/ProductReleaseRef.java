@@ -27,6 +27,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -41,6 +42,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = ProductReleaseRef.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductReleaseRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)

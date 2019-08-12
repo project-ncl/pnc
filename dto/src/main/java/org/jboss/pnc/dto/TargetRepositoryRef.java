@@ -26,6 +26,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.RepositoryType;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -36,6 +37,7 @@ import javax.validation.constraints.Null;
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = TargetRepositoryRef.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TargetRepositoryRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
