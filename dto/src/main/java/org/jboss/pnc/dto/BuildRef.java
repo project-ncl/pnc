@@ -30,7 +30,10 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
+
 import org.jboss.pnc.enums.BuildStatus;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  *
@@ -39,6 +42,7 @@ import org.jboss.pnc.enums.BuildStatus;
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = BuildRef.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)

@@ -21,10 +21,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -37,6 +39,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = ProjectRef.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectRef implements DTOEntity {
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)

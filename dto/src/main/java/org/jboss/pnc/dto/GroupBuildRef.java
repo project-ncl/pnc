@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildStatus;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -39,6 +40,7 @@ import lombok.Data;
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = GroupBuildRef.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupBuildRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
