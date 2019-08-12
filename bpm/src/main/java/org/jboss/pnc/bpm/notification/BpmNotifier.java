@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.utils;
+package org.jboss.pnc.bpm.notification;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -132,19 +132,5 @@ public class BpmNotifier {
     private String getAuthHeader() {
         byte[] encodedBytes = Base64.encodeBase64((bpmConfig.getUsername() + ":" + bpmConfig.getPassword()).getBytes());
         return "Basic " + new String(encodedBytes);
-    }
-
-    public void simpleHttpPostCallback(String uri) {
-        HttpPost request = new HttpPost(uri);
-        request.addHeader("Authorization", getAuthHeader());
-        log.info("Executing request " + request.getRequestLine());
-
-        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                log.info(response.getStatusLine().toString());
-            }
-        } catch (IOException e) {
-            log.error("Error occurred executing the callback.", e);
-        }
     }
 }

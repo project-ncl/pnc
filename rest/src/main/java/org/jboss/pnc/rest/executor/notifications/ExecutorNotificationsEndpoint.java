@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.executor.notifications;
 
+import org.jboss.pnc.bpm.notification.NotificationSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.executor.notifications;
+package org.jboss.pnc.bpm.notification;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
@@ -54,7 +54,7 @@ public class NotificationSender {
         }
     };
 
-    ConcurrentMap<String, Session> getSessions() {
+    public ConcurrentMap<String, Session> getSessions() {
         return sessions;
     }
 }

@@ -33,7 +33,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
-import org.jboss.pnc.rest.utils.BpmNotifier;
+import org.jboss.pnc.bpm.notification.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.spi.BuildOptions;
@@ -111,15 +111,8 @@ public class BuildTriggerer {
                             BuildOptions buildOptions,
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
-        Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            if (statusChangedEvent.getNewStatus().isFinal()) {
-                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
-            }
-        };
 
         BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, buildConfigurationRevision, currentUser, buildOptions);
-        result.getBuildTasks().forEach(t -> buildStatusNotifications.subscribe(new BuildCallBack(t.getId(), onStatusUpdate)));
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigurationId);
     }
 
@@ -178,10 +171,8 @@ public class BuildTriggerer {
             BuildOptions buildOptions,
             URL callBackUrl)
             throws CoreException {
-        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, buildOptions);
-        buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
         return result;
     }
 
@@ -208,10 +199,8 @@ public class BuildTriggerer {
             BuildOptions buildOptions,
             URL callBackUrl)
             throws CoreException, InvalidEntityException {
-        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetAuditedRest, currentUser, buildOptions);
-        buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
         return result;
     }
 
@@ -231,15 +220,6 @@ public class BuildTriggerer {
                 buildOptions);
 
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
-    }
-
-    private Consumer<BuildSetStatusChangedEvent> buildSetStatusChangedEventConsumer(URL callBackUrl) {
-        return (statusChangedEvent) -> {
-            if (statusChangedEvent.getNewStatus().isCompleted()) {
-                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
-            }
-        };
     }
 
     private Map<Integer, BuildConfigurationAudited> loadAuditedsFromDB(BuildConfigurationSet buildConfigurationSet,
