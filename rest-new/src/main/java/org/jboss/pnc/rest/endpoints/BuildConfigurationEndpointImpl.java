@@ -47,7 +47,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 
