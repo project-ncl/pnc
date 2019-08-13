@@ -23,6 +23,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import lombok.Data;
 
 import org.jboss.pnc.enums.JobNotificationProgress;
+import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.BuildStatus.NEW;
 import static org.jboss.pnc.enums.BuildStatus.WAITING_FOR_DEPENDENCIES;
@@ -35,7 +36,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- *
+ * Notification about change in Build.
+ *   
+ * <pre>
+ * Job: {@link JobNotificationType#BUILD}
+ * Notification type: {@code BUILD_STATUS_CHANGED}
+ * Progress:
+ *     {@link JobNotificationProgress#PENDING} - build is new or waiting for dependencies
+ *     {@link JobNotificationProgress#IN_PROGRESS} - build is not in a final state
+ *     {@link JobNotificationProgress#FINISHED} - build is in final state
+ * Message: no
+ * <pre>
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -43,8 +55,14 @@ public class BuildChangedNotification extends Notification {
 
     private static final String BUILD_STATUS_CHANGED = "BUILD_STATUS_CHANGED";
 
+    /**
+     * Previous status of the build.
+     */
     private final BuildStatus oldStatus;
 
+    /**
+     * Build entity in the new state.
+     */
     private final Build build;
 
     @JsonCreator

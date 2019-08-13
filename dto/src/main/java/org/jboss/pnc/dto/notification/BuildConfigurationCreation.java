@@ -21,6 +21,7 @@ import lombok.Data;
 
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
@@ -29,7 +30,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- *
+ * Notification about created Build Config.
+ *   
+ * <pre>
+ * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION}
+ * Notification type:
+ *     {@code BC_CREATION_SUCCESS} - The Build Config was created successfully.
+ *     {@code BC_CREATION_ERROR} - The Build Config was not created.
+ * Progress:{@link JobNotificationProgress#FINISHED}
+ * Message: In case of error it contains an error message.
+ * <pre>
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -38,8 +49,14 @@ public class BuildConfigurationCreation extends Notification {
     private static final String BC_CREATION_SUCCESS = "BC_CREATION_SUCCESS";
     private static final String BC_CREATION_ERROR = "BC_CREATION_ERROR";
 
+    /**
+     * SCM Repository that was created as part of the job.
+     */
     private final SCMRepository scmRepository;
 
+    /**
+     * Build configuration that was created by the job. Null in case of failure.
+     */
     private final BuildConfigurationRef buildConfig;
 
     private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig) {

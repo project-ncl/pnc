@@ -18,14 +18,28 @@
 package org.jboss.pnc.enums;
 
 /**
- *
+ * Enum describing asynchonous job types in notifications.
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-
 public enum JobNotificationType {
+    /**
+     * Job type representing single build.
+     */
     BUILD,
+    /**
+     * Job type representing group build.
+     */
     GROUP_BUILD,
+    /**
+     * Job type representing import of a build into Brew.
+     */
     BREW_PUSH,
+    /**
+     * Job type representing asynchronous creation of SCM Repository.
+     */
     SCM_REPOSIOTRY_CREATION,
+    /**
+     * Job type representing asynchronous creation of Build Config together with SCM Repository.
+     */
     BUILD_CONFIG_CREATION;
 }

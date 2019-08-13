@@ -20,6 +20,8 @@ package org.jboss.pnc.dto.notification;
 import lombok.Data;
 
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.enums.JobNotificationProgress;
+import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationType.BREW_PUSH;
@@ -28,7 +30,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- *
+ * Notification about Brew Push.
+ *   
+ * <pre>
+ * Job: {@link JobNotificationType#BREW_PUSH}
+ * Notification type: {@code BREW_PUSH_RESULT}
+ * Progress:{@link JobNotificationProgress#FINISHED}
+ * Message: no
+ * <pre>
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -36,6 +46,9 @@ public class BuildPushResulNotification extends Notification {
 
     private static final String BREW_PUSH_RESULT = "BREW_PUSH_RESULT";
 
+    /**
+     * The result of the Brew Push.
+     */
     private final BuildPushResult buildPushResult;
 
     @JsonCreator
