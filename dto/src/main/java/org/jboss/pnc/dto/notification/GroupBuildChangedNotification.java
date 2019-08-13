@@ -23,6 +23,7 @@ import lombok.Data;
 
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
+import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
@@ -32,7 +33,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- *
+ * Notification about change in Group Build.
+ *   
+ * <pre>
+ * Job: {@link JobNotificationType#GROUP_BUILD}
+ * Notification type: {@code GROUP_BUILD_STATUS_CHANGED}
+ * Progress:
+ *     {@link JobNotificationProgress#IN_PROGRESS} - build is not in a final state
+ *     {@link JobNotificationProgress#FINISHED} - build is in final state
+ * Message: no
+ * <pre>
+ * For other failure notifications see {@link RepositoryCreationFailure}.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -40,6 +52,9 @@ public class GroupBuildChangedNotification extends Notification {
 
     private static final String GROUP_BUILD_STATUS_CHANGED = "GROUP_BUILD_STATUS_CHANGED";
 
+    /**
+     * Group Build entity in the new state.
+     */
     private final GroupBuild groupBuild;
 
     @JsonCreator

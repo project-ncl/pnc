@@ -21,6 +21,8 @@ package org.jboss.pnc.dto.notification;
 import lombok.Data;
 
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.enums.JobNotificationProgress;
+import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
@@ -28,8 +30,18 @@ import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 /**
- *
+ * Notification about created SCM Repository.
+ *   
+ * <pre>
+ * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION}
+ * Notification type: {@code SCMR_CREATION_SUCCESS}
+ * Progress:{@link JobNotificationProgress#FINISHED}
+ * Message: no
+ * <pre>
+ * For notification about failure see {@link RepositoryCreationFailure}.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -37,6 +49,9 @@ public class SCMRepositoryCreationSuccess extends Notification {
 
     private static final String BC_CREATION_SUCCESS = "SCMR_CREATION_SUCCESS";
 
+    /**
+     * The created SCM Repository.
+     */
     private final SCMRepository scmRepository;
 
     @JsonCreator

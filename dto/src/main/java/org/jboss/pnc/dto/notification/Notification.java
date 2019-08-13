@@ -22,18 +22,30 @@ import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.JobNotificationProgress;
 
 /**
- *
+ * Notification about progress of asynchronous job.
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
 public abstract class Notification {
-
+    
+    /**
+     * Type of the asynchronous job.
+     */
     private final JobNotificationType job;
 
+    /**
+     * Specific type of the notification.
+     */
     private final String notificationType;
 
+    /**
+     * Progress of the asynchonous job.
+     */
     private final JobNotificationProgress progress;
 
+    /**
+     * Optional notification message.
+     */
     private final String message;
 
     protected Notification(JobNotificationType job, String notificationType, JobNotificationProgress progress, String message) {
