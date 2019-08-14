@@ -95,7 +95,9 @@
       formData.general.buildScript = buildConfig.buildScript;
       formData.general.scmRevision = buildConfig.scmRevision;
 
-      formData.scmRepository = buildConfig.scmRepository;
+      console.warn('pncBuildConfigDetailsEditor.js: Once NCL-4198 is done only buildConfig.scmRepository should be used');
+      formData.scmRepository = buildConfig.repositoryConfiguration || buildConfig.scmRepository;
+
       formData.buildParameters = buildConfig.genericParameters;
 
       return formData;
@@ -104,7 +106,8 @@
     function toBuildConfig(formData, buildConfig) {
       var newBc = angular.extend(angular.copy(buildConfig), formData.general);
 
-      newBc.scmRepository = formData.scmRepository;
+      // Once NCL-4198 is done, newBc.scmRepository will be used
+      newBc.repositoryConfiguration = formData.scmRepository;
       newBc.genericParameters = formData.buildParameters;
 
       return newBc;

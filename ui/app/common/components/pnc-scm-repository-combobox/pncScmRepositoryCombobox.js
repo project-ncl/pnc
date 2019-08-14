@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.components').component('pncRepositoryConfigurationCombobox', {
+  angular.module('pnc.common.components').component('pncScmRepositoryCombobox', {
     bindings: {
       /**
        * model-value {String} [Optional]: The property on the ScmRepositoryResource object
