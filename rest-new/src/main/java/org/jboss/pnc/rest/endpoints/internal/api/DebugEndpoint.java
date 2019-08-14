@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.api.endpoints;
+package org.jboss.pnc.rest.endpoints.internal.api;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -24,8 +24,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Date: 1/25/17
  * Time: 2:25 PM
  */
+@Hidden
 @Tag(name = "Internal")
 @Path("/debug")
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,7 +42,7 @@ public interface DebugEndpoint {
 
     @GET
     @Path("/build-queue")
-    public Response getBuildQueueInfo() ;
+    String getBuildQueueInfo() ;
 
     /**
      *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message
@@ -49,6 +50,6 @@ public interface DebugEndpoint {
      */
     @POST
     @Path("/mq-send-dummy-message")
-    public Response sendDummyMessageToQueue(@QueryParam("type") String type) ;
+    void sendDummyMessageToQueue(@QueryParam("type") String type) ;
 
 }
