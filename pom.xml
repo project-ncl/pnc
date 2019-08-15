@@ -31,7 +31,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>1.7.2-SNAPSHOT</version>
+  <version>1.7.2</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -51,7 +51,7 @@
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
     <url>https://github.com/project-ncl/pnc/</url>
-    <tag>HEAD</tag>
+    <tag>1.7.2</tag>
   </scm>
 
   <developers>
@@ -97,7 +97,7 @@
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.0.1</atlasVersion>
-    <indyVersion>1.8.3-SNAPSHOT</indyVersion>
+    <indyVersion>1.8.0</indyVersion>
     <version.assertj-core>3.8.0</version.assertj-core>
     <version.mockito>2.8.47</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
