@@ -470,21 +470,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
         BuildCoordinationStatus oldStatus = task.getStatus();
 
-        Build build = buildMapper.fromBuildTask(task);
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
-                build,
-                BuildStatus.fromBuildCoordinationStatus(oldStatus),
-                BuildStatus.fromBuildCoordinationStatus(status));
-
-        log.debug("Updating build task {} status to {}; old coord status: {}, new coord status: {}",
-                  task.getId(), buildStatusChanged, oldStatus, status);
-
         if (status.isCompleted()) {
             markFinished(task, status, statusDescription);
         } else {
             task.setStatus(status);
             task.setStatusDescription(statusDescription);
         }
+
+        Build build = buildMapper.fromBuildTask(task);
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
+                build,
+                BuildStatus.fromBuildCoordinationStatus(oldStatus),
+                BuildStatus.fromBuildCoordinationStatus(status));
+        log.debug("Updated build task {} status to {}; old coord status: {}, new coord status: {}",
+                  task.getId(), buildStatusChanged, oldStatus, status);
 
         userLog.info("Build status updated to {}; previous: {}", status, oldStatus);
 
