@@ -242,6 +242,6 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     }
 
     private String getCompleteCallbackUrl() {
-        return pncRestBaseUrl + "/build-record-push/%d/complete/";
+        return pncRestBaseUrl + "/builds/%d/brew-push/complete";
     }
 }
