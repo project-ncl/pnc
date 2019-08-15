@@ -159,7 +159,7 @@ public class BrewPusherImpl implements BrewPusher {
     private String getCompleteCallbackUrl() {
         try {
             String pncBaseUrl = StringUtils.stripEndingSlash(configuration.getGlobalConfig().getPncUrl());
-            return pncBaseUrl + "/builds/%d/complete";
+            return pncBaseUrl + "/builds/%d/brew-push/complete";
         } catch (ConfigurationParseException ex) {
             throw new IllegalStateException("Could not construct callback url.", ex);
         }
