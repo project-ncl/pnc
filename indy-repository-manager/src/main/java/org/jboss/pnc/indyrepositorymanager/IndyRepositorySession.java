@@ -34,6 +34,7 @@ import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
+import org.commonjava.indy.promote.model.AbstractPromoteResult;
 import org.commonjava.indy.promote.model.GroupPromoteRequest;
 import org.commonjava.indy.promote.model.GroupPromoteResult;
 import org.commonjava.indy.promote.model.PathsPromoteRequest;
@@ -669,21 +670,7 @@ public class IndyRepositorySession implements RepositorySession {
                 GroupPromoteRequest gpReq = (GroupPromoteRequest) request;
                 GroupPromoteResult result = promoter.promoteToGroup(gpReq);
                 if (!result.succeeded()) {
-                    String reason = result.getError();
-                    if (reason == null) {
-                        ValidationResult validations = result.getValidations();
-                        if (validations != null) {
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
-
-                            validations.getValidatorErrors().forEach((rule, error) -> {
-                                sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
-                            });
-
-                            reason = sb.toString();
-                        }
-                    }
-
+                    String reason = getValidationError(result);
                     throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s",
                             request.getSource(), gpReq.getTargetGroup(), reason);
                 }
@@ -697,10 +684,9 @@ public class IndyRepositorySession implements RepositorySession {
                 }
                 request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
                 PathsPromoteRequest ppReq = (PathsPromoteRequest) request;
-                // TODO request.setPurgeSource(true);
 
                 PathsPromoteResult result = promoter.promoteByPath(ppReq);
-                if (result.getError() == null) {
+                if (result.succeeded()) {
                     HostedRepository buildRepo = serviceAccountIndy.stores().load(buildRepoKey, HostedRepository.class);
                     buildRepo.setReadonly(true);
                     try {
@@ -712,21 +698,7 @@ public class IndyRepositorySession implements RepositorySession {
                                 ex.getMessage(), buildPromotionTarget);
                     }
                 } else {
-                    String reason = result.getError();
-                    if (reason == null) {
-                        ValidationResult validations = result.getValidations();
-                        if (validations != null) {
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
-
-                            validations.getValidatorErrors().forEach((rule, error) -> {
-                                sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
-                            });
-
-                            reason = sb.toString();
-                        }
-                    }
-
+                    String reason = getValidationError(result);
                     throw new RepositoryManagerException("Failed to promote files from %s to target %s. Reason given was: %s",
                             request.getSource(), ppReq.getTarget(), reason);
                 }
@@ -734,6 +706,31 @@ public class IndyRepositorySession implements RepositorySession {
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
         }
+    }
+
+    /**
+     * Computes error message from a failed promotion result. It means either error must not be empty
+     * or validations need to contain at least 1 validation error.
+     *
+     * @param result the promotion result
+     * @return the error message
+     */
+    private String getValidationError(AbstractPromoteResult<?> result) {
+        String errorMsg = result.getError();
+        if (errorMsg == null) {
+            ValidationResult validations = result.getValidations();
+            if (validations != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
+
+                validations.getValidatorErrors().forEach((rule, error) -> {
+                    sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
+                });
+
+                errorMsg = sb.toString();
+            }
+        }
+        return errorMsg;
     }
 
     private boolean ignoreContent(String packageType, String path) {
