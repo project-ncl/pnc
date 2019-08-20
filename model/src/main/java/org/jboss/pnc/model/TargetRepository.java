@@ -261,10 +261,16 @@ public class TargetRepository implements GenericEntity<Integer> {
 
         public static final String TO_STRING_DELIMITER = "$$";
 
-        private String identifier;
-        private String repositoryPath;
+        private final String identifier;
+        private final String repositoryPath;
 
         public IdentifierPath(String identifier, String repositoryPath) {
+            if (identifier == null) {
+                throw new NullPointerException("Identifier is null.");
+            }
+            if (repositoryPath == null) {
+                throw new NullPointerException("RepositoryPath is null.");
+            }
             this.identifier = identifier;
             this.repositoryPath = repositoryPath;
         }
