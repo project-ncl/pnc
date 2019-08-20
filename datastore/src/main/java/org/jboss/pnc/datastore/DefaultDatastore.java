@@ -224,6 +224,7 @@ public class DefaultDatastore implements Datastore {
         Map<TargetRepository.IdentifierPath, TargetRepository> requiredTargetRepositories = new HashMap<>();
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = artifact.getTargetRepository();
+            logger.trace("Adding repository for artifact: {}.", artifact.toString());
             requiredTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
         }
 
