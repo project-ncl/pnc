@@ -22,12 +22,14 @@ import org.apache.commons.lang.StringUtils;
 import org.commonjava.atlas.maven.ident.ref.ArtifactRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
 import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
+import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.commonjava.atlas.npm.ident.util.NpmPackagePathInfo;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.client.core.module.IndyContentClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.folo.dto.TrackedContentDTO;
 import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
-import org.commonjava.indy.model.core.AccessChannel;
 import org.commonjava.indy.model.core.HostedRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -67,6 +69,7 @@ import java.util.Set;
 
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
+import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 
 /**
@@ -213,16 +216,20 @@ public class MavenRepositorySession implements RepositorySession {
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
         Logger logger = LoggerFactory.getLogger(getClass());
 
+        IndyContentClientModule content;
+        try {
+            content = indy.content();
+        } catch (IndyClientException e) {
+            throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
+        }
+
         List<Artifact> deps = new ArrayList<>();
 
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
         if (downloads != null) {
-
             Map<StoreKey, Map<StoreKey, Set<String>>> toPromote = new HashMap<>();
 
-            StoreKey sharedImports = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID);
-//            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
-
+            Map<String, StoreKey> promotionTargets = new HashMap<>();
             for (TrackedContentEntryDTO download : downloads) {
                 String path = download.getPath();
                 StoreKey source = download.getStoreKey();
@@ -231,31 +238,33 @@ public class MavenRepositorySession implements RepositorySession {
                     continue;
                 }
 
-                // If the entry is from a hosted repository, it shouldn't be auto-promoted.
-                // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
+                // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
                 // New binary imports will be coming from a remote repository...
-                // TODO: Enterprise maven repository (product repo) handling...
-                if (isExternalOrigin(source) && StoreType.hosted != source.getType()) {
+                if (isExternalOrigin(source)) {
                     StoreKey target = null;
                     Map<StoreKey, Set<String>> sources = null;
                     Set<String> paths = null;
 
+                    String packageType = source.getPackageType();
                     // this has not been captured, so promote it.
-                    switch (download.getAccessChannel()) {
-                        case MAVEN_REPO:
-                            target = sharedImports;
+                    switch (packageType) {
+                        case MAVEN_PKG_KEY:
+                        case NPM_PKG_KEY:
+                            target = getPromotionTarget(packageType, promotionTargets);
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
                             paths.add(download.getPath());
-                            paths.add(download.getPath() + ".md5");
-                            paths.add(download.getPath() + ".sha1");
+                            if (MAVEN_PKG_KEY.equals(packageType)) {
+                                paths.add(download.getPath() + ".md5");
+                                paths.add(download.getPath() + ".sha1");
+                            }
                             break;
 
-                        case GENERIC_PROXY:
+                        case GENERIC_PKG_KEY:
                             String remoteName = source.getName();
                             String hostedName = getGenericHostedRepoName(remoteName);
-                            target = new StoreKey(source.getPackageType(), StoreType.hosted, hostedName);
+                            target = new StoreKey(packageType, StoreType.hosted, hostedName);
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
@@ -268,20 +277,7 @@ public class MavenRepositorySession implements RepositorySession {
                     }
                 }
 
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-
-                String identifier;
-                if (pathInfo == null) {
-                    identifier = download.getOriginUrl();
-                    if (identifier == null) {
-                        // this is from a hosted repository, either shared-imports or a build, or something like that.
-                        identifier = download.getLocalUrl();
-                    }
-                    identifier += '|' + download.getSha256();
-                } else {
-                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
-                    identifier = aref.toString();
-                }
+                String identifier = computeIdentifier(download);
 
                 logger.info("Recording download: {}", identifier);
 
@@ -291,7 +287,7 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                TargetRepository targetRepository = getDownloadsTargetRepository(download);
+                TargetRepository targetRepository = getDownloadsTargetRepository(download, content);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
                         .md5(download.getMd5())
@@ -323,39 +319,46 @@ public class MavenRepositorySession implements RepositorySession {
         return deps;
     }
 
-    private TargetRepository getDownloadsTargetRepository(TrackedContentEntryDTO download) throws RepositoryManagerException {
-        TargetRepository targetRepository;
-        TargetRepository.Type repoType = toRepoType(download.getAccessChannel());
-        if (repoType.equals(TargetRepository.Type.MAVEN)) {
-            targetRepository = TargetRepository.newBuilder()
-                    .identifier("indy-maven")
-                    .repositoryType(repoType)
-                    .repositoryPath(getMavenTargetRepositoryPath(download))
-                    .temporaryRepo(false)
-                    .build();
-        } else if (repoType.equals(TargetRepository.Type.GENERIC_PROXY)) {
-            StoreKey source = download.getStoreKey();
-            targetRepository = TargetRepository.newBuilder()
-                    .identifier("indy-http")
-                    .repositoryType(repoType)
-                    .repositoryPath(getGenericTargetRepositoryPath(source))
-                    .temporaryRepo(false)
-                    .build();
-        } else {
-            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+    private StoreKey getPromotionTarget(String packageType, Map<String, StoreKey> promotionTargets) {
+        if (!promotionTargets.containsKey(packageType)) {
+            StoreKey storeKey = new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID);
+            promotionTargets.put(packageType, storeKey);
         }
-        return targetRepository;
+        return promotionTargets.get(packageType);
     }
 
-    private String getMavenTargetRepositoryPath(TrackedContentEntryDTO download) {
+    private TargetRepository getDownloadsTargetRepository(TrackedContentEntryDTO download, IndyContentClientModule content) throws RepositoryManagerException {
+        String identifier;
+        String repoPath;
+        StoreKey source = download.getStoreKey();
+        TargetRepository.Type repoType = toRepoType(source.getPackageType());
+        if (repoType == TargetRepository.Type.MAVEN || repoType == TargetRepository.Type.NPM) {
+            identifier = "indy-" + repoType.name().toLowerCase();
+            repoPath = getTargetRepositoryPath(download, content);
+        } else if (repoType == TargetRepository.Type.GENERIC_PROXY) {
+            identifier = "indy-http";
+            repoPath = getGenericTargetRepositoryPath(source);
+        } else {
+            throw new RepositoryManagerException("Repository type " + repoType
+                    + " is not supported by Indy repo manager driver.");
+        }
+
+        return TargetRepository.newBuilder()
+                .identifier(identifier)
+                .repositoryType(repoType)
+                .repositoryPath(repoPath)
+                .temporaryRepo(false)
+                .build();
+    }
+
+    private String getTargetRepositoryPath(TrackedContentEntryDTO download, IndyContentClientModule content) {
         String result;
         StoreKey sk = download.getStoreKey();
+        String packageType = sk.getPackageType();
         if (isExternalOrigin(sk)) {
-            result = "/api/content/maven/hosted/" + SHARED_IMPORTS_ID + "/";
+            result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID));
         } else {
-            String localUrl = download.getLocalUrl();
-            String path = download.getPath();
-            result = localUrl.substring(localUrl.indexOf("/api/content/maven/"), localUrl.indexOf(path) + 1);
+            result = "/api/" + content.contentPath(sk);
         }
         return result;
     }
@@ -382,7 +385,8 @@ public class MavenRepositorySession implements RepositorySession {
         return "/api/content/generic-http/hosted/" + getGenericHostedRepoName(source.getName());
     }
 
-    private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType) throws RepositoryManagerException {
+    private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType,
+            IndyContentClientModule content) throws RepositoryManagerException {
         TargetRepository targetRepository;
         if (repoType.equals(TargetRepository.Type.MAVEN)) {
             String storePath;
@@ -398,16 +402,17 @@ public class MavenRepositorySession implements RepositorySession {
                     .temporaryRepo(isTempBuild)
                     .build();
         } else {
-            throw new RepositoryManagerException("Repository type " + repoType + " is not yet supported.");
+            throw new RepositoryManagerException("Repository type " + repoType
+                    + " is not supported for uploads by Indy repo manager driver.");
         }
         return targetRepository;
     }
 
-    private boolean isExternalOrigin(StoreKey sk) {
-        if (sk.getType() == StoreType.hosted) {
+    private boolean isExternalOrigin(StoreKey storeKey) {
+        if (storeKey.getType() == StoreType.hosted) {
             return false;
         } else {
-            String repoName = sk.getName();
+            String repoName = storeKey.getName();
             for (String pattern : internalRepoPatterns) {
 //                Logger logger = LoggerFactory.getLogger(getClass());
 //                logger.info( "Checking ")
@@ -439,32 +444,27 @@ public class MavenRepositorySession implements RepositorySession {
         if (uploads != null) {
             List<Artifact> builds = new ArrayList<>();
 
+            IndyContentClientModule content;
+            try {
+                content = indy.content();
+            } catch (IndyClientException e) {
+                throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
+            }
+
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
+                StoreKey storeKey = upload.getStoreKey();
                 if (ignoreContent(path)) {
-                    logger.debug("Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, upload.getStoreKey());
+                    logger.debug("Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, storeKey);
                     continue;
                 }
 
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-
-                String identifier;
-                if (pathInfo == null) {
-                    identifier = upload.getOriginUrl();
-                    if (identifier == null) {
-                        // this is to a hosted repository, either the build repo or something like that.
-                        identifier = upload.getLocalUrl();
-                    }
-                    identifier += '|' + upload.getSha256();
-                } else {
-                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
-                    identifier = aref.toString();
-                }
+                String identifier = computeIdentifier(upload);
 
                 logger.info("Recording upload: {}", identifier);
 
-                TargetRepository.Type repoType = toRepoType(upload.getAccessChannel());
-                TargetRepository targetRepository = getUploadsTargetRepository(repoType);
+                TargetRepository.Type repoType = toRepoType(storeKey.getPackageType());
+                TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
 
                 Artifact.Quality artifactQuality = getArtifactQuality(isTempBuild);
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -488,6 +488,70 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
+     * Computes identifier string for an artifact. If the download path is valid for a package-type specific artifact it
+     * creates the identifier accordingly.
+     *
+     * @param transfer the download or upload that we want to generate identifier for
+     * @return generated identifier
+     */
+    private String computeIdentifier(final TrackedContentEntryDTO transfer) {
+        String identifier = null;
+
+        switch (transfer.getStoreKey().getPackageType()) {
+            case MAVEN_PKG_KEY:
+                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(transfer.getPath());
+                if (pathInfo != null) {
+                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+                    identifier = aref.toString();
+                }
+                break;
+
+            case NPM_PKG_KEY:
+                NpmPackagePathInfo npmPathInfo = NpmPackagePathInfo.parse(transfer.getPath());
+                if (npmPathInfo != null) {
+                    NpmPackageRef packageRef = new NpmPackageRef(npmPathInfo.getName(), npmPathInfo.getVersion());
+                    identifier = packageRef.toString();
+                }
+                break;
+
+            case GENERIC_PKG_KEY:
+                // handle generic downloads along with other invalid download paths for other package types
+                break;
+
+            default:
+                // do not do anything by default
+                logger.warn("Package type {} is not handled by Indy repository session.", transfer.getStoreKey().getPackageType());
+                break;
+        }
+
+        if (identifier == null) {
+            identifier = computeGenericIdentifier(transfer.getOriginUrl(), transfer.getLocalUrl(), transfer.getSha256());
+        }
+
+        return identifier;
+    }
+
+    /**
+     * Compute the identifier string for a generic download, that does not match package type specific files structure.
+     * It prefers to use the origin URL if it is not empty. In case it is then it uses local URL, which can never be
+     * empty, it is the local file mirror in Indy. After that it attaches the sha256 separated by a pipe.
+     *
+     * @param originUrl the origin URL of the transfer, it can be null
+     * @param localUrl url where the artifact was backed up in Indy
+     * @param sha256 the SHA-256 of the transfer
+     * @return the generated identifier
+     */
+    private String computeGenericIdentifier(String originUrl, String localUrl, String sha256) {
+        String identifier = originUrl;
+        if (identifier == null) {
+            // this is from/to a hosted repository, either the build repo or something like that.
+            identifier = localUrl;
+        }
+        identifier += '|' + sha256;
+        return identifier;
+    }
+
+    /**
      * Check artifact for any validation errors.  If there are constraint violations, then a RepositoryManagerException is thrown.
      * Otherwise the artifact is returned.
      *
@@ -504,7 +568,7 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
-     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular AProx artifact store to
+     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular Indy artifact store to
      * another, and handle the various error conditions that may arise. If the promote call fails, attempt to rollback before
      * throwing an exception.
      *
@@ -660,11 +724,13 @@ public class MavenRepositorySession implements RepositorySession {
         return false;
     }
 
-    private TargetRepository.Type toRepoType(AccessChannel accessChannel) {
-        switch (accessChannel) {
-            case MAVEN_REPO:
+    private TargetRepository.Type toRepoType(String packageType) {
+        switch (packageType) {
+            case MAVEN_PKG_KEY:
                 return TargetRepository.Type.MAVEN;
-            case GENERIC_PROXY:
+            case NPM_PKG_KEY:
+                return TargetRepository.Type.NPM;
+            case GENERIC_PKG_KEY:
                 return TargetRepository.Type.GENERIC_PROXY;
             default:
                 return TargetRepository.Type.GENERIC_PROXY;
