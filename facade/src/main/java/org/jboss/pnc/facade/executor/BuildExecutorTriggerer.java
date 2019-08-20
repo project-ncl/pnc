@@ -11,7 +11,6 @@ import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.enums.BPMTaskStatus;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.bpm.notification.BpmNotifier;
-import org.jboss.pnc.bpm.notification.NotificationSender;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -40,8 +39,6 @@ public class BuildExecutorTriggerer {
 
     private SystemConfig systemConfig;
 
-    private NotificationSender notificationSender;
-
     @Deprecated //CDI workaround
     public BuildExecutorTriggerer() {}
 
@@ -49,13 +46,11 @@ public class BuildExecutorTriggerer {
     public BuildExecutorTriggerer(
             BuildExecutor buildExecutor,
             BpmNotifier bpmNotifier,
-            NotificationSender notificationSender,
             BpmManager bpmManager,
             SystemConfig systemConfig) {
 
         this.buildExecutor = buildExecutor;
         this.bpmNotifier = bpmNotifier;
-        this.notificationSender = notificationSender;
         this.bpmManager = bpmManager;
         this.systemConfig = systemConfig;
     }
@@ -74,7 +69,6 @@ public class BuildExecutorTriggerer {
 
             if (processProgressUpdate.isPresent()) {
 
-                notificationSender.send(processProgressUpdate.get());
                 //As there is a plan to split the Executor from Coordinator, the notification should be sent over http
                 //to the endpoint /bpm/tasks/{taskId}/notify
                 //bpmManager should be aupdated to accept notifications identified by buildTaskId
