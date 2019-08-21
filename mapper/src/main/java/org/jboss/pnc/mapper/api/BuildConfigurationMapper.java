@@ -54,7 +54,7 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
             return null;
         }
         BuildConfiguration entity = new BuildConfiguration();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

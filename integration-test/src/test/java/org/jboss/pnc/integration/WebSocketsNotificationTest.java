@@ -126,11 +126,11 @@ public class WebSocketsNotificationTest {
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
         // given
         GroupBuild groupBuild = GroupBuild.builder()
-                .id(1)
-                .groupConfig(GroupConfigurationRef.refBuilder().id(1).name("BuildSet1").build())
+                .id("1")
+                .groupConfig(GroupConfigurationRef.refBuilder().id("1").name("BuildSet1").build())
                 .startTime(Instant.ofEpochMilli(1453118400000L))
                 .endTime(Instant.ofEpochMilli(1453122000000L))
-                .user(User.builder().id(1).username("user1").build())
+                .user(User.builder().id("1").username("user1").build())
                 .status(BuildStatus.SUCCESS)
                 .build();
 

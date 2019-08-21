@@ -121,7 +121,7 @@ public class BrewPusherImpl implements BrewPusher {
 
         List<BuildPushResult> pushedResponse = pushed.stream()
                 .map(r -> BuildPushResult.builder()
-                        .id(Integer.parseInt(r.getId()))
+                        .id(r.getId())
                         .buildId(buildId)
                         .status(r.getStatus())
                         .log(r.getMessage())

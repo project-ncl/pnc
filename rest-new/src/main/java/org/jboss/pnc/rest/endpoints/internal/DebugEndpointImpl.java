@@ -69,7 +69,7 @@ public class DebugEndpointImpl implements DebugEndpoint {
 
     public static Build newBuild() {
         return Build.builder()
-                .id(1)
+                .id("1")
                 .status(BuildStatus.BUILDING)
                 .buildContentId("build-42")
                 .temporaryBuild(true)

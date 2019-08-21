@@ -66,7 +66,7 @@ public class BuildStatusChangedTest {
 
     private Build getBuild() {
         ProjectRef projectRef = ProjectRef.refBuilder()
-                .id(1)
+                .id("1")
                 .name("A")
                 .description("desc")
                 .projectUrl("url1")
@@ -74,14 +74,14 @@ public class BuildStatusChangedTest {
                 .build();
 
         SCMRepository scmRepository = SCMRepository.builder()
-                .id(1)
+                .id("1")
                 .internalUrl("url1")
                 .externalUrl("url2")
                 .preBuildSyncEnabled(true)
                 .build();
 
         Environment buildEnvironment = Environment.builder()
-                .id(1)
+                .id("1")
                 .name("jdk8")
                 .description("desc")
                 .systemImageRepositoryUrl("url")
@@ -91,11 +91,11 @@ public class BuildStatusChangedTest {
                 .build();
 
         User user = User.builder()
-                .id(1)
+                .id("1")
                 .username("user")
                 .build();
         BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
-                .id(1)
+                .id("1")
                 .rev(1)
                 .name("name")
                 .description("desc")

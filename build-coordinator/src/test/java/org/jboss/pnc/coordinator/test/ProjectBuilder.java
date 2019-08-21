@@ -305,7 +305,7 @@ public class ProjectBuilder {
     void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer buildTaskId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
-            if (receivedStatusEvent.getBuild().getId().equals(buildTaskId) &&
+            if (receivedStatusEvent.getBuild().getId().equals(buildTaskId.toString()) &&
                     receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;

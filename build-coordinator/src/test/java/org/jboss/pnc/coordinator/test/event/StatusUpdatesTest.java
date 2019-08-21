@@ -139,7 +139,7 @@ public class StatusUpdatesTest {
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
         Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
-            receivedUpdatesForId.add(statusChangedEvent.getBuild().getId());
+            receivedUpdatesForId.add(Integer.valueOf(statusChangedEvent.getBuild().getId()));
         };
 
         tasksIds.forEach((id) -> {

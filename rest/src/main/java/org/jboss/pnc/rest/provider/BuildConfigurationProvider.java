@@ -54,6 +54,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -338,7 +339,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private boolean equalsId(GenericEntity<Integer> dbEntity,  GenericRestEntity<Integer> restEntity) {
         if(dbEntity == null || restEntity == null){
-            return dbEntity == restEntity;
+            return Objects.equals(dbEntity.getId(), restEntity.getId());
         }
         return dbEntity.getId().equals(restEntity.getId());
     }

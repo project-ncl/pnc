@@ -94,7 +94,7 @@ public class BuildTasksRestTest extends AbstractTest{
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1,
                 "test-content-id",
-                1,
+                "1",
                 "mvn clean install",
                 "jboss-modules",
                 "scm-url",

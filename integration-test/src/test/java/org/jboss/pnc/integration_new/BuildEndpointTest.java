@@ -137,7 +137,7 @@ public class BuildEndpointTest {
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
         Set<Integer> artifactIds = new HashSet<>();
         for (Artifact a : artifacts) {
-            artifactIds.add(a.getId());
+            artifactIds.add(Integer.valueOf(a.getId()));
         }
         return artifactIds;
     }

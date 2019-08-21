@@ -75,7 +75,7 @@ public class BpmBuildTask extends BpmTask {
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
                 contentId,
-                buildTask.getUser().getId(),
+                buildTask.getUser().getId().toString(),
                 buildConfigurationAudited.getBuildScript(),
                 buildConfigurationAudited.getName(),
                 //TODO update to use also other parts or Repository Configuration

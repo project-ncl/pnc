@@ -199,7 +199,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     @JsonIgnore
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return user.getId();
     }
 

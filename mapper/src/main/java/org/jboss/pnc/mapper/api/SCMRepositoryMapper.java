@@ -47,7 +47,7 @@ public interface SCMRepositoryMapper extends EntityMapper<RepositoryConfiguratio
             return null;
         }
         RepositoryConfiguration entity = new RepositoryConfiguration();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

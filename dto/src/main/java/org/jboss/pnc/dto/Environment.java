@@ -43,7 +43,7 @@ public class Environment implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    private final Integer id;
+    private final String id;
 
     private final String name;
 

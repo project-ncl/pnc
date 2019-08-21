@@ -79,7 +79,7 @@ public class RemoteBuildTest {
             try {
                 BuildChangedNotification notification = mapper.readValue(message, BuildChangedNotification.class);
                 if (notification.getBuild().getStatus().completedSuccessfully()) {
-                    notifyCompleted(notification.getBuild().getBuildConfigRevision().getId(), notification.getBuild().getStatus());
+                    notifyCompleted(Integer.valueOf(notification.getBuild().getBuildConfigRevision().getId()), notification.getBuild().getStatus());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

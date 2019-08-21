@@ -64,7 +64,7 @@ public class GroupConfigurationEndpointTest {
                 RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
 
         GroupConfiguration groupConfiguration = client.getAll().iterator().next();
-        Integer id = groupConfiguration.getId();
+        Integer id = Integer.valueOf(groupConfiguration.getId());
 
         ProductVersion newProductVersion = createProductVersion();
 

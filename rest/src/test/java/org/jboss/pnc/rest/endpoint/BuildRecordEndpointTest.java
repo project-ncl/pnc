@@ -148,7 +148,7 @@ public class BuildRecordEndpointTest {
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 buildExecutionTaskId,
                 "build-content-id",
-                1,
+                "1",
                 "",
                 "build-1",
                 "",

@@ -150,7 +150,7 @@ public class BuildEnvironmentTest {
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 1,
                 "build-content-id",
-                1,
+                "1",
                 buildConfiguration.getBuildScript(),
                 buildConfiguration.getName(),
                 buildConfiguration.getRepositoryConfiguration().getInternalUrl(),

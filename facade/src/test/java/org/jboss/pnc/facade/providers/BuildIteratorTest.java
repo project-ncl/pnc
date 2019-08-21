@@ -63,7 +63,7 @@ public class BuildIteratorTest {
     public void prepareMock(){
         when(mapper.toDTO(any())).thenAnswer((InvocationOnMock invocation) -> {
             BuildRecord build = invocation.getArgument(0);
-            return Build.builder().id(build.getId()).build();
+            return Build.builder().id(build.getId().toString()).build();
         });
     }
 
@@ -81,28 +81,28 @@ public class BuildIteratorTest {
         while (bit.hasNext()) {
             Build next = bit.next();
             System.out.println("next: " + next);
-            ret.add(next.getId());
+            ret.add(Integer.valueOf(next.getId()));
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
         bit = provider.new BuildIterator(1, 10, 10, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
-            ret.add(bit.next().getId());
+            ret.add(Integer.valueOf(bit.next().getId()));
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
         bit = provider.new BuildIterator(1, 10, 100, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
-            ret.add(bit.next().getId());
+            ret.add(Integer.valueOf(bit.next().getId()));
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
 
         bit = provider.new BuildIterator(7, 12, 100, sortInfo, predicate);
         ret = new ArrayList<>();
         while (bit.hasNext()) {
-            ret.add(bit.next().getId());
+            ret.add(Integer.valueOf(bit.next().getId()));
         }
         assertEquals(Arrays.asList(7, 8, 9, 10, 11, 12), ret);
     }
