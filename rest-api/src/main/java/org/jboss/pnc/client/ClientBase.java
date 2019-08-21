@@ -111,7 +111,7 @@ public abstract class ClientBase<T> {
                 .build(HttpMethod.PATCH, Entity.entity(jsonPatch, MediaType.APPLICATION_JSON_PATCH_JSON))
                 .invoke(clazz);
 
-        return (S) result;
+        return result;
     }
 
     public <S> S patch(Integer id, PatchBase patchBase) throws PatchBuilderException {

@@ -108,8 +108,7 @@ public class BuildConfigurationEndpointTest {
         // then
         assertThat(response.getStatus()).isEqualTo(200);
         @SuppressWarnings("unchecked")
-        BuildConfigurationRest bcRest = (BuildConfigurationRest) 
-            ((Singleton<BuildConfigurationRest>) response.getEntity()).getContent();
+        BuildConfigurationRest bcRest = ((Singleton<BuildConfigurationRest>) response.getEntity()).getContent();
 
         Map<String, String> supportedParameters = bcRest.getGenericParameters();
         assertThat(supportedParameters).containsKey(KEY);
@@ -135,7 +134,7 @@ public class BuildConfigurationEndpointTest {
     @Test(expected = InvalidEntityException.class)
     public void invalidBuildOptionsRejectedTest() throws InvalidEntityException, MalformedURLException, CoreException, BuildConflictException {
         // when
-        bcEndpoint.trigger(1, null, false, false, false, false, true, (RebuildMode) null, null);
+        bcEndpoint.trigger(1, null, false, false, false, false, true, null, null);
     }
 
 }

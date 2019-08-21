@@ -534,7 +534,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public String getBuildRecordLog(Integer id) {
-        BuildRecord buildRecord = ((BuildRecordRepository) repository).findByIdFetchAllProperties(id);
+        BuildRecord buildRecord = repository.findByIdFetchAllProperties(id);
         if (buildRecord != null)
             return buildRecord.getBuildLog();
         else
@@ -542,7 +542,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public String getBuildRecordRepourLog(Integer id) {
-        BuildRecord buildRecord = ((BuildRecordRepository) repository).findByIdFetchAllProperties(id);
+        BuildRecord buildRecord = repository.findByIdFetchAllProperties(id);
         if (buildRecord != null) {
             return buildRecord.getRepourLog();
         } else {
@@ -725,7 +725,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sort);
 
 
-        List<BuildRecordRest> content = nullableStreamOf(((BuildRecordRepository) repository)
+        List<BuildRecordRest> content = nullableStreamOf(repository
                 .queryWithPredicatesUsingCursor(pageInfo, sortInfo, dbAndPredicates, dbOrPredicates))
                 .map(toRESTModel())
                 .collect(Collectors.toList());
