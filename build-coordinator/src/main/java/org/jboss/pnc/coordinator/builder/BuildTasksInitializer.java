@@ -144,7 +144,7 @@ public class BuildTasksInitializer {
             requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
 
         }
-        log.debug("Configuration {} requires rebuild: ", buildConfiguration.getId(), requiresRebuild);
+        log.debug("Configuration {} requires rebuild: {}", buildConfiguration.getId(), requiresRebuild);
         if (requiresRebuild) {
             toBuild.add(buildConfigurationAudited);
         }

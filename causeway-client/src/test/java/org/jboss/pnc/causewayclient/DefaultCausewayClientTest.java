@@ -23,7 +23,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
 

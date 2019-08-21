@@ -18,8 +18,6 @@
 
 package org.jboss.pnc.bpm.test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
 import org.jboss.pnc.bpm.model.RepositoryManagerResultRest;
 import org.jboss.pnc.common.Configuration;

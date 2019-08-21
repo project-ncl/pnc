@@ -19,7 +19,6 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.TargetRepository;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

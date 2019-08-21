@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.repositorymanager.model;
 
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 

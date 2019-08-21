@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoint;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import org.jboss.pnc.coordinator.maintenance.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
@@ -47,7 +46,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.function.Consumer;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;

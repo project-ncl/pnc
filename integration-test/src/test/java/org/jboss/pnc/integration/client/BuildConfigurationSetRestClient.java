@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -25,12 +24,9 @@ import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
-import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
 import org.jboss.pnc.spi.BuildOptions;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.format;

@@ -18,9 +18,7 @@
 package org.jboss.pnc.environment.openshift;
 
 import org.apache.commons.io.FileUtils;
-import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;

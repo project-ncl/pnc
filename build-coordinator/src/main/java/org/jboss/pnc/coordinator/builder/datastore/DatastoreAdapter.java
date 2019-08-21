@@ -56,7 +56,6 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
 import static org.jboss.pnc.enums.BuildStatus.FAILED;
-import static org.jboss.pnc.enums.BuildStatus.REJECTED;
 import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
 import static org.jboss.pnc.enums.BuildStatus.NEW;
 

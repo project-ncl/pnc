@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
-import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 

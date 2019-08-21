@@ -19,7 +19,6 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
