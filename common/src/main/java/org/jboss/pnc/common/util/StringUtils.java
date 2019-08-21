@@ -104,7 +104,7 @@ public class StringUtils {
             return null;
         }
         if (string.startsWith("/")) {
-            string = string.substring(1, string.length());
+            string = string.substring(1);
         }
         return string;
     }

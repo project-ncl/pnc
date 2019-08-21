@@ -85,7 +85,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
 
             byte[] requestEntity = out.toByteArray();
             if (requestEntity.length == 0) {
-                b.append("").append("\n");
+                b.append("\n");
             } else {
                 b.append(new String(requestEntity)).append("\n");
             }

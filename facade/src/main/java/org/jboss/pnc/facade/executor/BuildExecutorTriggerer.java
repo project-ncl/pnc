@@ -86,7 +86,7 @@ public class BuildExecutorTriggerer {
 
                 statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
 
-                    bpmNotifier.sendBuildExecutionCompleted(callbackUrl.toString(), buildResult);
+                    bpmNotifier.sendBuildExecutionCompleted(callbackUrl, buildResult);
                 });
             }
         };
