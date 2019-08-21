@@ -55,7 +55,7 @@ abstract class AbstractTransformer<Entity> implements Transformer<Entity> {
                 // Get the field declaration
                 Field field = currentClass.getDeclaredField(fields[i]);
                 // Is the field annotated with EmbeddedId class?
-                isFieldEmbedded = field.getAnnotation(EmbeddedId.class) != null ? true : false;
+                isFieldEmbedded = field.getAnnotation(EmbeddedId.class) != null;
                 // search the field class recursively
                 currentClass = field.getType();
             } catch (NoSuchFieldException e) {
