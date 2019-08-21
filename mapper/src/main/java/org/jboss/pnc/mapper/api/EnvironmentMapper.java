@@ -50,7 +50,7 @@ public interface EnvironmentMapper extends EntityMapper<BuildEnvironment, Enviro
     @Reference
     default Environment toRef(BuildEnvironment dbEntity) {
         return toDTO(dbEntity);
-    };
+    }
 
     @Override
     Environment toDTO(BuildEnvironment dbEntity);

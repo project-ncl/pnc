@@ -23,5 +23,5 @@ package org.jboss.pnc.causewayclient.remotespi;
  */
 public enum CallbackMethod {
     POST,
-    PUT;
+    PUT
 }

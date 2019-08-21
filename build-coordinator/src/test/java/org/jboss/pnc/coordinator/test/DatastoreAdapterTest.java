@@ -57,7 +57,7 @@ import static org.mockito.Mockito.when;
 public class DatastoreAdapterTest {
 
     private static final String REPOSITORY_MANAGER_LOG = "Repository manager log.";
-    private static final String BUILD_LOG = "Build Driver log.";;
+    private static final String BUILD_LOG = "Build Driver log.";
 
     @Test
     public void shouldStoreRepositoryManagerSuccessResult() throws DatastoreException {

@@ -45,7 +45,7 @@ public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, o
         ProductMilestone milestone = new ProductMilestone();
         milestone.setId(dtoEntity.getId());
         return milestone;
-    };
+    }
 
     @Override
     @Mapping(target = "distributedArtifactIds", source = "distributedArtifacts")

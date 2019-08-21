@@ -46,7 +46,7 @@ public interface Notifier {
 
         Topic(String id) {
             this.id = id;
-        };
+        }
 
         private String id;
 

@@ -59,7 +59,7 @@ public class EndpointHelper<DTO extends REF, REF extends DTOEntity> {
     protected Page<DTO> getAll(PageParameters pageParameters) {
         logger.debug("Retrieving " + dtoClass.getSimpleName() + "s with these " + pageParameters);
         return provider.getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
-    };
+    }
 
     protected DTO update(int id, DTO dto) {
         logger.debug("Updating " + dtoClass.getSimpleName() + " with id: " + id);

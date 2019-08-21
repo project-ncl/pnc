@@ -25,5 +25,5 @@ import java.util.concurrent.atomic.AtomicInteger;
 class Sequences {
     static AtomicInteger buildRecordSequence = new AtomicInteger(0);
 
-    static AtomicInteger buildConfigSetRecordSequence = new AtomicInteger(0);;
+    static AtomicInteger buildConfigSetRecordSequence = new AtomicInteger(0);
 }

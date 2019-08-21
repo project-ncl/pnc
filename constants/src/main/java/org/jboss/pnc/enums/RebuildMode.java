@@ -35,5 +35,5 @@ public enum RebuildMode {
     /**
      * Should we force the rebuild?
      */
-    FORCE;
+    FORCE
 }

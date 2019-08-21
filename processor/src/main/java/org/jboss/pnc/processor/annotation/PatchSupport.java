@@ -32,6 +32,6 @@ public @interface PatchSupport {
     Operation[] value() default {};
 
     public enum Operation {
-        ADD, REMOVE, REPLACE;
+        ADD, REMOVE, REPLACE
     }
 }

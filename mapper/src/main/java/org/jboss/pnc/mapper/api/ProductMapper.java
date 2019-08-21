@@ -40,7 +40,7 @@ public interface ProductMapper extends EntityMapper<Product, org.jboss.pnc.dto.P
         Product product = new Product();
         product.setId(dtoEntity.getId());
         return product;
-    };
+    }
 
     @Override
     @Mapping(target = "productVersions", resultType = ProductVersionRef.class)

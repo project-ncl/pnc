@@ -33,5 +33,5 @@ public enum JobNotificationProgress {
     /**
      * The job has finished. For example build failed.
      */
-    FINISHED;
+    FINISHED
 }
