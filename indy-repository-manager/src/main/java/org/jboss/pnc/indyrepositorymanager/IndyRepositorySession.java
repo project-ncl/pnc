@@ -265,7 +265,7 @@ public class IndyRepositorySession implements RepositorySession {
                         case GENERIC_PKG_KEY:
                             String remoteName = source.getName();
                             String hostedName = getGenericHostedRepoName(remoteName);
-                            target = new StoreKey(source.getPackageType(), StoreType.hosted, hostedName);
+                            target = new StoreKey(packageType, StoreType.hosted, hostedName);
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
@@ -334,11 +334,11 @@ public class IndyRepositorySession implements RepositorySession {
         StoreKey source = download.getStoreKey();
         RepositoryType repoType = toRepoType(source.getPackageType());
         if (repoType == RepositoryType.MAVEN || repoType == RepositoryType.NPM) {
-                identifier = "indy-" + repoType.name().toLowerCase();
-                repoPath = getTargetRepositoryPath(download, content);
+            identifier = "indy-" + repoType.name().toLowerCase();
+            repoPath = getTargetRepositoryPath(download, content);
         } else if (repoType == RepositoryType.GENERIC_PROXY) {
-                identifier = "indy-http";
-                repoPath = getGenericTargetRepositoryPath(source);
+            identifier = "indy-http";
+            repoPath = getGenericTargetRepositoryPath(source);
         } else {
             throw new RepositoryManagerException("Repository type " + repoType
                     + " is not supported by Indy repo manager driver.");
@@ -463,6 +463,13 @@ public class IndyRepositorySession implements RepositorySession {
         if (uploads != null) {
             List<Artifact> builds = new ArrayList<>();
 
+            IndyContentClientModule content;
+            try {
+                content = indy.content();
+            } catch (IndyClientException e) {
+                throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
+            }
+
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
                 StoreKey storeKey = upload.getStoreKey();
@@ -474,13 +481,6 @@ public class IndyRepositorySession implements RepositorySession {
                 String identifier = computeIdentifier(upload);
 
                 logger.info("Recording upload: {}", identifier);
-
-                IndyContentClientModule content;
-                try {
-                    content = indy.content();
-                } catch (IndyClientException e) {
-                    throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
-                }
 
                 RepositoryType repoType = toRepoType(storeKey.getPackageType());
                 TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
