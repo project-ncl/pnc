@@ -75,6 +75,7 @@ public class BuildExecutorTriggerer {
         this.systemConfig = systemConfig;
     }
 
+    @SuppressWarnings("StringOperationCanBeSimplified")
     public BuildExecutionSession executeBuild(
             BuildExecutionConfiguration buildExecutionConfig,
             String callbackUrl,
@@ -100,7 +101,7 @@ public class BuildExecutorTriggerer {
             }
             if (statusChangedEvent.isFinal() && callbackUrl != null && !callbackUrl.isEmpty()) {
                 statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
-                    bpmNotifier.sendBuildExecutionCompleted(callbackUrl.toString(), buildResult);
+                    bpmNotifier.sendBuildExecutionCompleted(callbackUrl, buildResult);
                 });
             }
         };
