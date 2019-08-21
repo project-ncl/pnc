@@ -22,9 +22,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -44,8 +42,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 
@@ -58,7 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
-import java.util.function.Consumer;
 
 @Stateless
 public class BuildTriggerer {

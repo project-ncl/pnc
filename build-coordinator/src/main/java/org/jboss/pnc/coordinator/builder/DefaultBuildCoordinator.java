@@ -588,7 +588,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 throw new BuildCoordinationException(String.format("Invalid status %s.", completionStatus));
             }
 
-            log.debug("Storing no build required result.", buildTaskId);
+            log.debug("Storing no build required result. Id: {}", buildTaskId);
             BuildRecord buildRecord = datastoreAdapter.storeRecordForNoRebuild(buildTask);
             if (buildRecord.getStatus().completedSuccessfully()) {
                 coordinationStatus = BuildCoordinationStatus.DONE;

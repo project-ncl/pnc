@@ -25,7 +25,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.jboss.pnc.model.TargetRepository;
 
 import java.util.Collections;
 

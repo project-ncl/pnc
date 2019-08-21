@@ -19,7 +19,6 @@ package org.jboss.pnc.facade;
 
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushRequest;
-import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 
 /**

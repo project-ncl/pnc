@@ -34,7 +34,6 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.core.Context;
 
 @Stateless

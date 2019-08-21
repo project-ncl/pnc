@@ -18,7 +18,6 @@
 package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;

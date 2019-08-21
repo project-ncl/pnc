@@ -19,7 +19,6 @@ package org.jboss.pnc.indyrepositorymanager;
 
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;

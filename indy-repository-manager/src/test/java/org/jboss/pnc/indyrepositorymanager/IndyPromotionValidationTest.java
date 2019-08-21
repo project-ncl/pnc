@@ -33,7 +33,6 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;

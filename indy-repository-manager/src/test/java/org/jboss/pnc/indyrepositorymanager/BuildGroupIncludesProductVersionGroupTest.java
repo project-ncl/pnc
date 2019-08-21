@@ -24,7 +24,6 @@ import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;

@@ -19,9 +19,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.AuthenticateAs.USER;

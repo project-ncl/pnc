@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.swagger.response;
 
-import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.rest.restmodel.response.Page;
 

@@ -22,7 +22,6 @@ import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;

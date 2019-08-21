@@ -59,7 +59,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.registerCustomDateFormat;
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
 

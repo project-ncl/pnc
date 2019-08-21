@@ -24,8 +24,6 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
-import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;

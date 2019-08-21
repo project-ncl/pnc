@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.notifications.websockets;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 import javax.xml.bind.annotation.XmlRootElement;
