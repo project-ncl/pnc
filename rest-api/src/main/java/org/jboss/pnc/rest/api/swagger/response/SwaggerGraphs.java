@@ -35,5 +35,5 @@ public class SwaggerGraphs {
         public BuildsGraph(Map<String, Vertex<Build>> vertices, List<Edge<Build>> edges, Map<String, String> metadata) {
             super(vertices, edges, metadata);
         }
-    };
+    }
 }

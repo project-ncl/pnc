@@ -35,8 +35,9 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getIdForType;
  */
 public class RoleOperations {
 
-    public static class LIST_OF_ROLES extends ArrayList<RoleRepresentation>{};
-    public static class LIST_OF_NODES extends ArrayList<ObjectNode>{};
+    public static class LIST_OF_ROLES extends ArrayList<RoleRepresentation>{}
+
+    public static class LIST_OF_NODES extends ArrayList<ObjectNode>{}
 
     public static String getIdFromRoleName(String adminRoot, String realm, String auth, String rname) {
         return getIdForType(adminRoot, realm, auth, "roles", "name", rname);

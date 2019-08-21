@@ -41,7 +41,7 @@ public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, o
         TargetRepository repository = new TargetRepository();
         repository.setId(dtoEntity.getId());
         return repository;
-    };
+    }
 
     @Override
     @Mapping(target = "artifactIds", source = "artifacts")

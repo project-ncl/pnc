@@ -26,7 +26,7 @@ import org.jboss.pnc.integration.env.IntegrationTestEnv;
 public class RestClientConfiguration {
 
     public enum AuthenticateAs {
-        NONE, USER, SYSTEM_USER;
+        NONE, USER, SYSTEM_USER
     }
 
     public static Configuration getConfiguration(AuthenticateAs authAs) {

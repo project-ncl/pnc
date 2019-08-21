@@ -21,5 +21,5 @@ package org.jboss.pnc.rest.notifications.websockets;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public enum Action {
-    SUBSCRIBE, UNSUBSCRIBE;
+    SUBSCRIBE, UNSUBSCRIBE
 }

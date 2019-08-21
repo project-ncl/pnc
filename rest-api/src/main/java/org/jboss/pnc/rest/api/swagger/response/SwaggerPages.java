@@ -42,22 +42,39 @@ import org.jboss.pnc.dto.response.Page;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public class SwaggerPages {
-    public static class ArtifactImportErrorPage extends Page<ArtifactImportError>{};
-    public static class ArtifactPage extends Page<Artifact>{};
-    public static class BuildConfigPage extends Page<BuildConfiguration>{};
-    public static class BuildConfigRevisionPage extends Page<BuildConfigurationRevision>{};
-    public static class BuildEnvironmentPage extends Page<Environment>{};
-    public static class BuildPage extends Page<Build>{};
-    public static class BuildPushResultPage extends Page<BuildPushResult>{};
-    public static class DTOEntityPage extends Page<DTOEntity>{};
-    public static class GroupBuildPage extends Page<GroupBuild>{};
-    public static class GroupConfigPage extends Page<GroupConfiguration>{};
-    public static class ProductPage extends Page<Product>{};
-    public static class ProductMilestonePage extends Page<ProductMilestone>{};
-    public static class ProductReleasePage extends Page<ProductRelease>{};
-    public static class ProductVersionPage extends Page<ProductVersion>{};
-    public static class ProjectPage extends Page<Project>{};
-    public static class SCMRepositoryPage extends Page<SCMRepository>{};
-    public static class TargetRepositoryPage extends Page<TargetRepository>{};
-    public static class UserPage extends Page<User>{};
+    public static class ArtifactImportErrorPage extends Page<ArtifactImportError>{}
+
+    public static class ArtifactPage extends Page<Artifact>{}
+
+    public static class BuildConfigPage extends Page<BuildConfiguration>{}
+
+    public static class BuildConfigRevisionPage extends Page<BuildConfigurationRevision>{}
+
+    public static class BuildEnvironmentPage extends Page<Environment>{}
+
+    public static class BuildPage extends Page<Build>{}
+
+    public static class BuildPushResultPage extends Page<BuildPushResult>{}
+
+    public static class DTOEntityPage extends Page<DTOEntity>{}
+
+    public static class GroupBuildPage extends Page<GroupBuild>{}
+
+    public static class GroupConfigPage extends Page<GroupConfiguration>{}
+
+    public static class ProductPage extends Page<Product>{}
+
+    public static class ProductMilestonePage extends Page<ProductMilestone>{}
+
+    public static class ProductReleasePage extends Page<ProductRelease>{}
+
+    public static class ProductVersionPage extends Page<ProductVersion>{}
+
+    public static class ProjectPage extends Page<Project>{}
+
+    public static class SCMRepositoryPage extends Page<SCMRepository>{}
+
+    public static class TargetRepositoryPage extends Page<TargetRepository>{}
+
+    public static class UserPage extends Page<User>{}
 }

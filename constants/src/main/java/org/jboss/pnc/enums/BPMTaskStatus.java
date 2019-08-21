@@ -23,5 +23,5 @@ package org.jboss.pnc.enums;
 public enum BPMTaskStatus {
     STARTING,
     STARTED,
-    COMPLETED;
+    COMPLETED
 }

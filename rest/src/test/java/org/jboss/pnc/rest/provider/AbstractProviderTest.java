@@ -93,7 +93,7 @@ public class AbstractProviderTest {
     public void shouldReturnSingleton() throws Exception {
         //given
         BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder()
-                .id(1).build();;
+                .id(1).build();
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(exampleConfiguration).when(repository).queryById(1);

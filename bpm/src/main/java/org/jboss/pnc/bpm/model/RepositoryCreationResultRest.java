@@ -62,6 +62,6 @@ public class RepositoryCreationResultRest extends BpmEvent {
     }
 
     public enum EventType {
-        RC_CREATION_SUCCESS, RC_CREATION_ERROR;
+        RC_CREATION_SUCCESS, RC_CREATION_ERROR
     }
 }

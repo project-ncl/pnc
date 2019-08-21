@@ -38,6 +38,6 @@ public enum SystemImageType {
      *  this should not be used in a production environment because allows
      *  for non reproducible builds if the local system changes.
      */
-    LOCAL_WORKSPACE;
+    LOCAL_WORKSPACE
 
 }
