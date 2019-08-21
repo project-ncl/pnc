@@ -148,7 +148,7 @@ public class SCMRepositoryProviderImpl
 
         if(scmUrl.contains(config.getInternalScmAuthority())){
             SCMRepository scmRepository = getInternalRepository(scmUrl);
-            consumer.accept(scmRepository.getId());
+            consumer.accept(Integer.valueOf(scmRepository.getId()));
             return new RepositoryCreationResponse(scmRepository);
         }else{
             RepositoryCreationTask task = getExternalRepository(scmUrl, preBuildSyncEnabled, jobType, consumer);

@@ -102,7 +102,7 @@ public class ArtifactEndpointTest {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
         Artifact inserted = client.create(artifact);
-        Integer id = inserted.getId();
+        Integer id = Integer.valueOf(inserted.getId());
         Artifact retrieved = client.getSpecific(id);
         Assertions.assertThat(retrieved.getArtifactQuality()).isEqualTo(ArtifactQuality.NEW);
         Assertions.assertThat(retrieved.getMd5()).isEqualTo("insert-md5-2");

@@ -43,7 +43,7 @@ public class BuildExecutionConfigurationTest {
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 1,
                 "condent-id",
-                1,
+                "1",
                 "mvn clean install",
                 "configuration name",
                 "https://pathToRepo.git",

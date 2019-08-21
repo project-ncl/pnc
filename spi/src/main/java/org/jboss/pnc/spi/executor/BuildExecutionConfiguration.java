@@ -35,7 +35,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     @Override
     int getId();
 
-    Integer getUserId();
+    String getUserId();
 
     String getBuildScript();
 
@@ -66,7 +66,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     static BuildExecutionConfiguration build(
             int id,
             String buildContentId,
-            Integer userId,
+            String userId,
             String buildScript,
             String name,
             String scmRepoURL,
@@ -90,7 +90,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     static BuildExecutionConfiguration build(
             int id,
             String buildContentId,
-            Integer userId,
+            String userId,
             String buildScript,
             String name,
             String scmRepoURL,
@@ -132,7 +132,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             }
 
             @Override
-            public Integer getUserId() {
+            public String getUserId() {
                 return userId;
             }
 

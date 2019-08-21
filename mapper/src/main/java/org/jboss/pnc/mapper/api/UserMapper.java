@@ -48,7 +48,7 @@ public interface UserMapper extends EntityMapper<User, org.jboss.pnc.dto.User, o
             return null;
         }
         User entity = new User();
-        entity.setId(dtoEntity.getId());
+        entity.setId(Integer.valueOf(dtoEntity.getId()));
         return entity;
     }
 

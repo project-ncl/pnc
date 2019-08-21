@@ -38,7 +38,7 @@ public interface ProductMapper extends EntityMapper<Product, org.jboss.pnc.dto.P
             return null;
         }
         Product product = new Product();
-        product.setId(dtoEntity.getId());
+        product.setId(Integer.valueOf(dtoEntity.getId()));
         return product;
     }
 

@@ -33,7 +33,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
 
     private final int id;
     private final String buildContentId;
-    private final Integer userId;
+    private final String userId;
     private final String buildScript;
     private final String name;
     private final String scmRepoURL;
@@ -54,7 +54,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     public DefaultBuildExecutionConfiguration(
             int id,
             String buildContentId,
-            Integer userId,
+            String userId,
             String buildScript,
             String name,
             String scmRepoURL,
@@ -104,7 +104,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     }
 
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 

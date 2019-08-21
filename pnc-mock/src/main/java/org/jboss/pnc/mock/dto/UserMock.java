@@ -26,7 +26,7 @@ public class UserMock {
 
     public static User newUser() {
         return User.builder()
-                .id(1)
+                .id("1")
                 .username("user")
                 .build();
     }

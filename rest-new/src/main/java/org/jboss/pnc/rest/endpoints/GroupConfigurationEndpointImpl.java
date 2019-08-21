@@ -126,7 +126,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
 
     @Override
     public void addConfiguration(int id, BuildConfigurationRef buildConfig) {
-        provider.addConfiguration(id, buildConfig.getId());
+        provider.addConfiguration(id, Integer.valueOf(buildConfig.getId()));
     }
 
     @Override

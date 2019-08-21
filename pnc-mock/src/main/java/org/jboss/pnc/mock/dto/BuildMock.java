@@ -31,7 +31,7 @@ public class BuildMock {
 
     public static Build newBuild(Integer id, BuildStatus status, String buildConfigurationName) {
         return Build.builder()
-                .id(id)
+                .id(id.toString())
                 .status(status)
                 .buildContentId("build-42")
                 .temporaryBuild(true)

@@ -180,7 +180,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
         Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
 
         for (BuildConfigurationRevisionRef bc : buildConfigurationAuditedRests) {
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), bc.getRev()));
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(Integer.valueOf(bc.getId()), bc.getRev()));
             Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());
             buildConfigurationAudited = hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited);
 

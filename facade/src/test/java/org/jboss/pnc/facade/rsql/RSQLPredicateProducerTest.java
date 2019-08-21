@@ -175,9 +175,9 @@ public class RSQLPredicateProducerTest {
     public void testComparator(){
         Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=id");
 
-        BuildConfiguration foo = BuildConfiguration.builder().id(3).name("FooBC").build();
-        BuildConfiguration bar = BuildConfiguration.builder().id(5).name("BarBC").build();
-        BuildConfiguration baz = BuildConfiguration.builder().id(7).name("BazBC").build();
+        BuildConfiguration foo = BuildConfiguration.builder().id("3").name("FooBC").build();
+        BuildConfiguration bar = BuildConfiguration.builder().id("5").name("BarBC").build();
+        BuildConfiguration baz = BuildConfiguration.builder().id("7").name("BazBC").build();
 
         List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz).stream()
                 .sorted(comparator)
@@ -193,9 +193,9 @@ public class RSQLPredicateProducerTest {
     public void testComparatorUnknownQuery(){
         Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=fieldThatDoesNotExists");
 
-        BuildConfiguration foo = BuildConfiguration.builder().id(3).name("FooBC").build();
-        BuildConfiguration bar = BuildConfiguration.builder().id(5).name("BarBC").build();
-        BuildConfiguration baz = BuildConfiguration.builder().id(7).name("BazBC").build();
+        BuildConfiguration foo = BuildConfiguration.builder().id("3").name("FooBC").build();
+        BuildConfiguration bar = BuildConfiguration.builder().id("5").name("BarBC").build();
+        BuildConfiguration baz = BuildConfiguration.builder().id("7").name("BazBC").build();
 
         try {
             List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz).stream()

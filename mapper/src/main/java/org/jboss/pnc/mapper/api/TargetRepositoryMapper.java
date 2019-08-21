@@ -33,7 +33,6 @@ public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, o
     @Mapping(target = "artifacts", source = "artifactIds")
     TargetRepository toEntity(org.jboss.pnc.dto.TargetRepository dtoEntity);
 
-    //Workaround for NCL-5077
     @Override
     @Mapping(target = "artifacts", ignore = true)
     TargetRepository toIDEntity(TargetRepositoryRef dtoEntity);

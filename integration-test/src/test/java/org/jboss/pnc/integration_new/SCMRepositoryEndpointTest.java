@@ -50,10 +50,10 @@ public class SCMRepositoryEndpointTest {
         BuildConfiguration buildConfiguration1 = allConfigsIterator.next().toBuilder().scmRepository(scmRepository).build();
         BuildConfiguration buildConfiguration2 = allConfigsIterator.next().toBuilder().scmRepository(scmRepository).build();
 
-        buildConfigurationClient.update(buildConfiguration1.getId(),buildConfiguration1);
-        buildConfigurationClient.update(buildConfiguration2.getId(),buildConfiguration2);
+        buildConfigurationClient.update(Integer.parseInt(buildConfiguration1.getId()), buildConfiguration1);
+        buildConfigurationClient.update(Integer.parseInt(buildConfiguration2.getId()), buildConfiguration2);
 
-        RemoteCollection<BuildConfiguration> buildConfigs = repositoryClient.getBuildsConfigs(scmRepository.getId());
+        RemoteCollection<BuildConfiguration> buildConfigs = repositoryClient.getBuildsConfigs(Integer.parseInt(scmRepository.getId()));
 
         assertThat(buildConfigs).usingElementComparatorIgnoringFields("modificationTime")
                 .contains(buildConfiguration1,buildConfiguration2)

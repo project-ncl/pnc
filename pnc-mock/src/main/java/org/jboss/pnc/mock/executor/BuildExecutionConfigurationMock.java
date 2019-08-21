@@ -34,7 +34,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     private int id;
     private String buildContentId;
-    private Integer userId;
+    private String userId;
     private String buildScript;
     private String name;
     private String scmRepoURL;
@@ -89,11 +89,11 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     }
 
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

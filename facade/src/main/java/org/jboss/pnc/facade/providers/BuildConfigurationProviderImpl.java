@@ -109,7 +109,7 @@ public class BuildConfigurationProviderImpl
     @Inject
     private BuildConfigRevisionHelper buildConfigRevisionHelper;
 
-    private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id(-1).build();
+    private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id("-1").build();
 
     @Inject
     public BuildConfigurationProviderImpl(BuildConfigurationRepository repository,
@@ -145,7 +145,7 @@ public class BuildConfigurationProviderImpl
 
         for (BuildConfigurationRef buildConfigurationRef : dependencies) {
 
-            Integer dependencyId = buildConfigurationRef.getId();
+            Integer dependencyId = Integer.valueOf(buildConfigurationRef.getId());
 
             ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
                     !buildConfig.getId().equals(dependencyId),
@@ -171,7 +171,7 @@ public class BuildConfigurationProviderImpl
 
             // don't validate against myself
             if (buildConfigurationFromDB != null &&
-                !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
+                !buildConfigurationFromDB.getId().equals(Integer.valueOf(buildConfigurationRest.getId()))) {
 
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         buildConfigurationFromDB.getId(),
@@ -185,7 +185,7 @@ public class BuildConfigurationProviderImpl
     @Override
     public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
         super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
-        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
+        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(Integer.toString(id)).build());
         validateDependencies(id, buildConfiguration.getDependencies());
         BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(id);
         if (latestRevision == null) {
@@ -396,7 +396,7 @@ public class BuildConfigurationProviderImpl
         if (repositoryConfiguration == null) {
             String errorMessage = "Repository Configuration was not found in database.";
             logger.error(errorMessage);
-            sendErrorMessage(SCMRepository.builder().id(repositoryConfigurationId).build(), null, errorMessage);
+            sendErrorMessage(SCMRepository.builder().id(Integer.toString(repositoryConfigurationId)).build(), null, errorMessage);
             return;
         }
 
@@ -406,7 +406,7 @@ public class BuildConfigurationProviderImpl
 
         Set<Integer> bcSetIds = configuration.getGroupConfigs()
                 .stream()
-                .map(c -> c.getId())
+                .map(c -> Integer.valueOf(c.getId()))
                 .collect(Collectors.toSet());
 
         SCMRepository scmRepository = scmRepositoryMapper.toDTO(repositoryConfiguration);

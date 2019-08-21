@@ -64,7 +64,7 @@ public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
 
                     org.jboss.pnc.model.Product product = repository.queryByPredicates(withName(productRest.getName()));
 
-                    if (product != null && !product.getId().equals(productRest.getId())) {
+                    if (product != null && !product.getId().equals(Integer.valueOf(productRest.getId()))) {
                         return new ConflictedEntryValidator.ConflictedEntryValidationError(
                                 product.getId(),
                                 org.jboss.pnc.model.Product.class,

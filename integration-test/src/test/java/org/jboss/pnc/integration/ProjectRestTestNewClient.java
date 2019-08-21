@@ -80,7 +80,7 @@ public class ProjectRestTestNewClient {
         Project projectReturned = projectClient.createNew(project);
 
         //than
-        Integer returnedId = projectReturned.getId();
+        Integer returnedId = Integer.valueOf(projectReturned.getId());
         Assert.assertNotNull(returnedId);
     }
 

@@ -45,7 +45,7 @@ public class GroupBuildRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    protected final Integer id;
+    protected final String id;
 
     protected final Instant startTime;
 

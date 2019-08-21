@@ -79,7 +79,7 @@ public class LocalBuildScheduler implements BuildScheduler {
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
                 contentId,
-                buildTask.getUser().getId(),
+                buildTask.getUser().getId().toString(),
                 configuration.getBuildScript(),
                 configuration.getName(),
                 configuration.getRepositoryConfiguration().getInternalUrl(),

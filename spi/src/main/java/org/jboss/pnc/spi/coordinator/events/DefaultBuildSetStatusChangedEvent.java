@@ -60,17 +60,17 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
     }
 
     @Override
-    public Integer getBuildSetTaskId() {
+    public String getBuildSetTaskId() {
         return groupBuild.getId();
     }
 
     @Override
-    public Integer getUserId() {
+    public String getUserId() {
         return groupBuild.getUser() == null ? null : groupBuild.getUser().getId();
     }
 
     @Override
-    public Integer getBuildSetConfigurationId() {
+    public String getBuildSetConfigurationId() {
         return groupBuild.getGroupConfig().getId();
     }
 

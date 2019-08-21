@@ -66,7 +66,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration buildConfiguration = client.getAll().iterator().next();
         String newDescription = "Testing patch support.";
 
-        Integer id = buildConfiguration.getId();
+        Integer id = Integer.valueOf(buildConfiguration.getId());
 
         Map<String, String> addElements = Collections.singletonMap("newKey", "newValue");
         BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder()

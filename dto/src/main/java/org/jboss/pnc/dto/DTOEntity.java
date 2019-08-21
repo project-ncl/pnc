@@ -28,6 +28,6 @@ public interface DTOEntity {
      *
      * @return Id
      */
-    Integer getId();
+    String getId();
 
 }

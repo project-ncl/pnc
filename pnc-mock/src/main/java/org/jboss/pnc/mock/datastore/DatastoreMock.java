@@ -69,7 +69,7 @@ public class DatastoreMock implements Datastore {
         BuildConfiguration buildConfiguration = buildRecord.getBuildConfigurationAudited().getBuildConfiguration();
         log.info("Storing build " + buildConfiguration);
         synchronized (this) {
-            boolean exists = getBuildRecords().stream().anyMatch(br -> br.equals(buildRecord.getId()));
+            boolean exists = getBuildRecords().stream().anyMatch(br -> br.equals(buildRecord));
             if (exists) {
                 throw new PersistenceException("Unique constraint violation, the record with id [" + buildRecord.getId()+ "] already exists.");
             }
