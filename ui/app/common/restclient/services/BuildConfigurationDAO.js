@@ -133,7 +133,7 @@
       PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
       PageFactory.decorateNonPaged(resource, '_getByProject', 'getAllForProject');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getAll', 'getAll', '=asc=name');
       PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
       PageFactory.decorate(resource, '_getByProject', 'getPagedByProject');
 

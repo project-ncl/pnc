@@ -86,7 +86,7 @@
       PageFactory.decorateNonPaged(resource, '_getRecords', 'getRecords');
       PageFactory.decorateNonPaged(resource, '_getLatestBuildConfigSetRecordsForConfigSet', 'getLatestBuildConfigSetRecordsForConfigSet');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getAll', 'getAll', '=asc=name');
       PageFactory.decorate(resource, '_getConfigurations', 'getPagedConfigurations');
 
       return resource;
