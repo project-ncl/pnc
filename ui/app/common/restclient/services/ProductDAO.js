@@ -54,7 +54,7 @@
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
       PageFactory.decorateNonPaged(resource, '_getVersions', 'getVersions');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getAll', 'getAll', '=asc=name');
 
       return resource;
     }

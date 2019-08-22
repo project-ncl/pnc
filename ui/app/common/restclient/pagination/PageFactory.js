@@ -217,7 +217,7 @@
        * must be false.
        * @param newMethodName decorated function name
        */
-      factory.decorate = function (resource, methodName, newMethodName) {
+      factory.decorate = function (resource, methodName, newMethodName, newSort) {
         var origMethod = resource[methodName];
         resource[newMethodName] = function (origArgs) {
           return factory.build(resource, function (pageIndex, pageSize, searchText, urlParameters) {
@@ -225,7 +225,7 @@
               pageIndex: pageIndex,
               pageSize: pageSize,
               search: searchText, // search must be done in backend, either via RSQL or directly
-              sort: 'sort=desc=id' // if the data are not sorted, pagination makes no sense
+              sort: newSort || 'sort=desc=id' // if the data are not sorted, pagination makes no sense
             };
 
             /**
