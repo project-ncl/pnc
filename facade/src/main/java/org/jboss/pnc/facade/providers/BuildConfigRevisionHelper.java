@@ -55,9 +55,9 @@ public class BuildConfigRevisionHelper {
         buildConfigurationRepository.save(bcEntity);
     }
 
-    public BuildConfigurationRevision findRevision(int id, BuildConfiguration bcEntity) {
+    public BuildConfigurationRevision findRevision(String id, BuildConfiguration bcEntity) {
         return buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(id)
+                .findAllByIdOrderByRevDesc(Integer.valueOf(id))
                 .stream()
                 .peek(p-> logger.warn("going through: " + p))
                 .filter(bca -> equalValues(bca, bcEntity))

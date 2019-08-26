@@ -128,7 +128,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}")
-    Build getSpecific(@Parameter(description = B_ID) @PathParam("id") int id);
+    Build getSpecific(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Delete specific temporary build.",
             description = "The operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
@@ -141,7 +141,7 @@ public interface BuildEndpoint{
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
-    void delete(@Parameter(description = B_ID) @PathParam("id") int id);
+    void delete(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing build.",
             responses = {
@@ -155,7 +155,7 @@ public interface BuildEndpoint{
             })
     @PUT
     @Path("/{id}")
-    void update(@Parameter(description = B_ID) @PathParam("id") int id, @NotNull Build build);
+    void update(@Parameter(description = B_ID) @PathParam("id") String id, @NotNull Build build);
 
     @Operation(summary = "Gets artifacts built in a specific build.",
             responses = {
@@ -169,7 +169,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/artifacts/built")
     Page<Artifact> getBuiltArtifacts(
-            @Parameter(description = B_ID) @PathParam("id") int id,
+            @Parameter(description = B_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary= "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!",
@@ -184,8 +184,8 @@ public interface BuildEndpoint{
     })
     @PUT
     @Path("/{id}/artifacts/built")
-    void setBuiltArtifacts(@Parameter(description = B_ID) @PathParam("id") int id,
-                      @Parameter(description = "List of artifact ids") List<Integer> artifactIds);
+    void setBuiltArtifacts(@Parameter(description = B_ID) @PathParam("id") String id,
+                      @Parameter(description = "List of artifact ids") List<String> artifactIds);
 
     @Operation(summary = "Gets dependency artifacts for specific build.",
             responses = {
@@ -199,7 +199,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/artifacts/dependencies")
     Page<Artifact> getDependencyArtifacts(
-            @Parameter(description = B_ID) @PathParam("id") int id,
+            @Parameter(description = B_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary= "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!",
@@ -214,8 +214,8 @@ public interface BuildEndpoint{
             })
     @PUT
     @Path("/{id}/artifacts/dependencies")
-    void setDependentArtifacts(@Parameter(description = B_ID) @PathParam("id") int id,
-            @Parameter(description = "List of artifact ids") List<Integer> artifactIds);
+    void setDependentArtifacts(@Parameter(description = B_ID) @PathParam("id") String id,
+            @Parameter(description = "List of artifact ids") List<String> artifactIds);
 
     @Operation(summary = "Redirects to the SCM archive link",
             responses = {
@@ -224,7 +224,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/scm-archive")
-    Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") int id);
+    Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Add attribute to a specific build.",
             responses = {
@@ -238,7 +238,7 @@ public interface BuildEndpoint{
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/attributes")
     void addAttribute(
-            @Parameter(description = B_ID) @PathParam("id") int id,
+            @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = "Attribute key", required = true) @QueryParam("key") String key,
             @Parameter(description = "Attribute value", required = true) @QueryParam("value") String value);
 
@@ -253,7 +253,7 @@ public interface BuildEndpoint{
     @DELETE
     @Path("/{id}/attributes")
     void removeAttribute(
-            @Parameter(description = B_ID) @PathParam("id") int id,
+            @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = "Attribute key", required = true) @QueryParam("key") String key);
 
     @Operation(summary = "Get Brew push result for specific build.",
@@ -266,7 +266,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/brew-push")
-    BuildPushResult getPushResult(@Parameter(description = B_ID) @PathParam("id") int id);
+    BuildPushResult getPushResult(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Push build to Brew.",
             responses = {
@@ -294,7 +294,7 @@ public interface BuildEndpoint{
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
-    void cancelPush(@Parameter(description = B_ID) @PathParam("id") int id);
+    void cancelPush(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Notifies that the Brew push finished.",
             tags = "Internal",
@@ -312,7 +312,7 @@ public interface BuildEndpoint{
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/brew-push/complete")
     BuildPushResult completePush(
-            @Parameter(description = B_ID) @PathParam("id") int id,
+            @Parameter(description = B_ID) @PathParam("id") String id,
             BuildPushResult buildPushResult);
 
     @Operation(summary = "Gets the build config revision for specific build.",
@@ -325,7 +325,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/build-config-revision")
-    BuildConfigurationRevision getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") int id);
+    BuildConfigurationRevision getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Cancel running build.",
             responses = {
@@ -337,7 +337,7 @@ public interface BuildEndpoint{
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/cancel")
-    void cancel(@Parameter(description = B_ID) @PathParam("id") int id);
+    void cancel(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets dependency graph for a build.",
             responses = {
@@ -349,7 +349,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/{id}/dependency-graph")
-    Graph<Build> getDependencyGraph(@Parameter(description = B_ID) @PathParam("id") int id);
+    Graph<Build> getDependencyGraph(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets alignment logs for specific build.",
             responses = {
@@ -362,7 +362,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/logs/align")
     @Produces(MediaType.TEXT_PLAIN)
-    String getAlignLogs(@Parameter(description = B_ID) @PathParam("id") int id);
+    String getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
 
     @Operation(summary = "Gets build logs for specific build.",
@@ -376,7 +376,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/logs/build")
     @Produces(MediaType.TEXT_PLAIN)
-    String getBuildLogs(@Parameter(description = B_ID) @PathParam("id") int id);
+    String getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets ssh credentials to log into the build pod.",
             description = "This GET requests require authentication",
@@ -391,7 +391,7 @@ public interface BuildEndpoint{
     })
     @GET
     @Path("/ssh-credentials/{id}") // TODO: Check that we can change to /{id}/ssh-credentials and keep auth: ("The path for the endpoint is not restful to be able to authenticate this GET request only.")
-    SSHCredentials getSshCredentials(@Parameter(description = B_ID) @PathParam("id") int id);
+    SSHCredentials getSshCredentials(@Parameter(description = B_ID) @PathParam("id") String id);
 
 
 }

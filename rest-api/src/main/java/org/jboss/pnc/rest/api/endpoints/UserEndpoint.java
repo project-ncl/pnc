@@ -78,7 +78,7 @@ public interface UserEndpoint{
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = "ID of the user") @PathParam("id") int id,
+            @Parameter(description = "ID of the user") @PathParam("id") String id,
             @BeanParam PageParameters pageParameters,
             @BeanParam BuildsFilterParameters buildsFilter);
 

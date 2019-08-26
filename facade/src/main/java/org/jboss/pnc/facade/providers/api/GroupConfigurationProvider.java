@@ -28,16 +28,16 @@ public interface GroupConfigurationProvider extends Provider<org.jboss.pnc.model
                                                                      int pageSize,
                                                                      String sortingRsql,
                                                                      String query,
-                                                                     Integer productVersionId);
+                                                                     String productVersionId);
 
 
     Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(int pageIndex,
                                                                          int pageSize,
                                                                          String sortingRsql,
                                                                          String query,
-                                                                         Integer bcId);
+                                                                         String bcId);
 
-    void addConfiguration(int id, int configId) throws DTOValidationException;
+    void addConfiguration(String id, String configId) throws DTOValidationException;
 
-    void removeConfiguration(int id, int configId) throws DTOValidationException;
+    void removeConfiguration(String id, String configId) throws DTOValidationException;
 }

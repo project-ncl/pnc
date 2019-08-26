@@ -98,17 +98,17 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Build getSpecific(int id) {
+    public Build getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(String id) {
         endpointHelper.delete(id);
     }
 
     @Override
-    public void update(int id, Build build) {
+    public void update(String id, Build build) {
         endpointHelper.update(id, build);
     }
 
@@ -118,7 +118,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Page<Artifact> getBuiltArtifacts(int id, PageParameters pageParameters) {
+    public Page<Artifact> getBuiltArtifacts(String id, PageParameters pageParameters) {
         return artifactProvider.getBuiltArtifactsForBuild(pageParameters.getPageIndex(),
                                                   pageParameters.getPageSize(),
                                                   pageParameters.getSort(),
@@ -127,12 +127,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public void setBuiltArtifacts(int id, List<Integer> artifactIds) {
+    public void setBuiltArtifacts(String id, List<String> artifactIds) {
         provider.setBuiltArtifacts(id, artifactIds);
     }
 
     @Override
-    public Page<Artifact> getDependencyArtifacts(int id, PageParameters pageParameters) {
+    public Page<Artifact> getDependencyArtifacts(String id, PageParameters pageParameters) {
         return artifactProvider.getDependantArtifactsForBuild(pageParameters.getPageIndex(),
                                                       pageParameters.getPageSize(),
                                                       pageParameters.getSort(),
@@ -141,12 +141,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public void setDependentArtifacts(int id, List<Integer> artifactIds) {
+    public void setDependentArtifacts(String id, List<String> artifactIds) {
         provider.setDependentArtifacts(id, artifactIds);
     }
 
     @Override
-    public Response getInternalScmArchiveLink(int id) {
+    public Response getInternalScmArchiveLink(String id) {
         URI toRedirect = provider.getInternalScmArchiveLink(id);
 
         if (toRedirect == null) {
@@ -157,18 +157,18 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public void addAttribute(int id, String key, String value) {
+    public void addAttribute(String id, String key, String value) {
         provider.addAttribute(id, key, value);
     }
 
     @Override
-    public void removeAttribute(int id, String key) {
+    public void removeAttribute(String id, String key) {
         provider.removeAttribute(id, key);
     }
 
     @Override
-    public BuildPushResult getPushResult(int id) {
-        return brewPusher.getBrewPushResult(id);
+    public BuildPushResult getPushResult(String id) {
+        return brewPusher.getBrewPushResult(Integer.parseInt(id));
     }
 
     @Override
@@ -182,38 +182,38 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public void cancelPush(int id) {
-        brewPusher.brewPushCancel(id);
+    public void cancelPush(String id) {
+        brewPusher.brewPushCancel(Integer.parseInt(id));
     }
 
     @Override
-    public BuildPushResult completePush(int id, BuildPushResult buildPushResult) {
+    public BuildPushResult completePush(String id, BuildPushResult buildPushResult) {
 
         try {
-            return brewPusher.brewPushComplete(id, buildPushResult);
+            return brewPusher.brewPushComplete(Integer.parseInt(id), buildPushResult);
         } catch (ProcessException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public BuildConfigurationRevision getBuildConfigurationRevision(int id) {
+    public BuildConfigurationRevision getBuildConfigurationRevision(String id) {
         return provider.getBuildConfigurationRevision(id);
     }
 
     @Override
-    public void cancel(int buildId) {
+    public void cancel(String buildId) {
         try {
             logger.debug("Received cancel request for buildTaskId: {}.", buildId);
 
-            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildId);
+            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(Integer.parseInt(buildId));
             if (mdcMeta.isPresent()) {
                 MDCUtils.addContext(mdcMeta.get());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
             }
 
-            if (!buildTriggerer.cancelBuild(buildId)) {
+            if (!buildTriggerer.cancelBuild(Integer.parseInt(buildId))) {
                 throw new NotFoundException();
             }
         } catch (CoreException e) {
@@ -225,22 +225,22 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Graph<Build> getDependencyGraph(int id) {
+    public Graph<Build> getDependencyGraph(String id) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String getAlignLogs(int id) {
+    public String getAlignLogs(String id) {
         return provider.getRepourLog(id);
     }
 
     @Override
-    public String getBuildLogs(int id) {
+    public String getBuildLogs(String id) {
         return provider.getBuildLog(id);
     }
 
     @Override
-    public SSHCredentials getSshCredentials(int id) {
+    public SSHCredentials getSshCredentials(String id) {
         return provider.getSshCredentials(id);
     }
 }

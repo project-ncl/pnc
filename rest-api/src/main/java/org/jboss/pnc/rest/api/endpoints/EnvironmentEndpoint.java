@@ -76,6 +76,6 @@ public interface EnvironmentEndpoint{
     })
     @GET
     @Path("/{id}")
-    Environment getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") int id);
+    Environment getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") String id);
 
 }

@@ -65,7 +65,7 @@ public class GroupConfigEndpointTest {
         
         GroupConfiguration created = client.createNew(gc);
         assertEquals(name, created.getName());
-        GroupConfiguration specific = client.getSpecific(Integer.parseInt(created.getId()));
+        GroupConfiguration specific = client.getSpecific(created.getId());
         assertEquals(created, specific);
     }
 
@@ -75,10 +75,10 @@ public class GroupConfigEndpointTest {
 
         final String name = "Testing 100 Updated";
         
-        GroupConfiguration specific = client.getSpecific(100);
+        GroupConfiguration specific = client.getSpecific("100");
         GroupConfiguration updating = specific.toBuilder().name(name).build();
-        client.update(100, updating);
-        GroupConfiguration updated = client.getSpecific(100);
+        client.update("100", updating);
+        GroupConfiguration updated = client.getSpecific("100");
         assertEquals(name, updated.getName());
     }
 

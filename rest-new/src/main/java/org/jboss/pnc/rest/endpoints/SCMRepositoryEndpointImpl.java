@@ -68,17 +68,17 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     }
 
     @Override
-    public SCMRepository getSpecific(int id) {
+    public SCMRepository getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, SCMRepository repositoryConfiguration) {
+    public void update(String id, SCMRepository repositoryConfiguration) {
         endpointHelper.update(id, repositoryConfiguration);
     }
 
     @Override
-    public SCMRepository patchSpecific(int id, SCMRepository scmRepository) {
+    public SCMRepository patchSpecific(String id, SCMRepository scmRepository) {
         return endpointHelper.update(id, scmRepository);
     }
 
@@ -105,7 +105,7 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     }
 
     @Override
-    public Page<BuildConfiguration> getBuildsConfigs(int id, PageParameters pageParameters) {
+    public Page<BuildConfiguration> getBuildsConfigs(String id, PageParameters pageParameters) {
         return buildConfigurationProvider.getBuildConfigurationsForScmRepository(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),

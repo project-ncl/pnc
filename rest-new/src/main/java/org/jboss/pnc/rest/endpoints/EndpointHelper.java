@@ -45,7 +45,7 @@ public class EndpointHelper<DTO extends REF, REF extends DTOEntity> {
         return dto;
     }
 
-    protected DTO getSpecific(int id) {
+    protected DTO getSpecific(String id) {
         logger.debug("Getting " + dtoClass.getSimpleName() + " with id: " + id);
         DTO dto = provider.getSpecific(id);
         if (dto == null) {
@@ -61,12 +61,12 @@ public class EndpointHelper<DTO extends REF, REF extends DTOEntity> {
         return provider.getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
     }
 
-    protected DTO update(int id, DTO dto) {
+    protected DTO update(String id, DTO dto) {
         logger.debug("Updating " + dtoClass.getSimpleName() + " with id: " + id);
         return provider.update(id, dto);
     }
 
-    protected void delete(int id) {
+    protected void delete(String id) {
         logger.debug("Deleting " + dtoClass.getSimpleName() + " with id: " + id);
         provider.delete(id);
         logger.debug("Deletion of " + dtoClass.getSimpleName() + " with id: " + id + " was successful");

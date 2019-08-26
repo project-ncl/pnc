@@ -70,12 +70,12 @@ public class BuildEndpointTest {
     public void shouldSetBuiltArtifacts() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
-        int buildRecordId = 1;
+        String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
         Assertions.assertThat(artifactIds).contains(100, 101);
 
-        client.setBuiltArtifacts(buildRecordId, Collections.singletonList(101));
+        client.setBuiltArtifacts(buildRecordId, Collections.singletonList("101"));
         RemoteCollection<Artifact> newBuiltArtifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> updatedArtifactIds = artifactIds(newBuiltArtifacts);
         Assertions.assertThat(updatedArtifactIds).contains(101);
@@ -85,12 +85,12 @@ public class BuildEndpointTest {
     public void shouldSetDependentArtifacts() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
-        int buildRecordId = 1;
+        String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getDependencyArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
         Assertions.assertThat(artifactIds).contains(102, 103);
 
-        client.setDependentArtifacts(buildRecordId, Collections.singletonList(102));
+        client.setDependentArtifacts(buildRecordId, Collections.singletonList("102"));
         RemoteCollection<Artifact> newDependencyArtifacts = client.getDependencyArtifacts(buildRecordId);
         Set<Integer> updatedArtifactIds = artifactIds(newDependencyArtifacts);
         Assertions.assertThat(updatedArtifactIds).contains(102);
@@ -100,7 +100,7 @@ public class BuildEndpointTest {
     public void shouldFailAsRegularUser() {
         BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
 
-        int buildRecordId = 1;
+        String buildRecordId = "1";
         Exception caught = null;
         try {
             client.setBuiltArtifacts(buildRecordId, Collections.emptyList());

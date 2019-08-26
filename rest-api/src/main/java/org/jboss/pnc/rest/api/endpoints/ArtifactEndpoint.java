@@ -92,7 +92,7 @@ public interface ArtifactEndpoint {
     @GET
     @Path("/{id}")
     Artifact getSpecific(
-            @Parameter(description = "ID of the Artifact") @PathParam("id") int id);
+            @Parameter(description = "ID of the Artifact") @PathParam("id") String id);
 
 
     @Operation(summary = "[role:admin] Creates a new Artifact",
@@ -124,5 +124,5 @@ public interface ArtifactEndpoint {
             })
     @PUT
     @Path("/{id}")
-    void update(@PathParam("id") Integer id, @NotNull Artifact artifact);
+    void update(@PathParam("id") String id, @NotNull Artifact artifact);
 }

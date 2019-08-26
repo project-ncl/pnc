@@ -24,8 +24,8 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 
 public interface GroupBuildProvider extends Provider<BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
-    public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, int groupConfigurationId);
+    public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, String groupConfigurationId);
 
-    public void cancel(int id);
+    public void cancel(String id);
     
 }

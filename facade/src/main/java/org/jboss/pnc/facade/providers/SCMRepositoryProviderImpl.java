@@ -137,7 +137,7 @@ public class SCMRepositoryProviderImpl
 
     @Override
     public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled) {
-        Consumer<Integer> successListener = i -> notifier.sendMessage(new SCMRepositoryCreationSuccess(getSpecific(i)));
+        Consumer<Integer> successListener = i -> notifier.sendMessage(new SCMRepositoryCreationSuccess(getSpecific(Integer.toString(i))));
         return createSCMRepository(scmUrl, preBuildSyncEnabled, SCM_REPOSIOTRY_CREATION, successListener);
     }
 

@@ -86,8 +86,8 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     }
 
     @Override
-    public DTO getSpecific(Integer id) {
-        DB dbEntity = repository.queryById(id);
+    public DTO getSpecific(String id) {
+        DB dbEntity = repository.queryById(Integer.valueOf(id));
         return mapper.toDTO(dbEntity);
     }
 
@@ -97,7 +97,7 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     }
 
     @Override
-    public DTO update(Integer id, DTO restEntity) {
+    public DTO update(String id, DTO restEntity) {
         validateBeforeUpdating(id, restEntity);
         log.debug("Updating entity: " + restEntity.toString());
         DB saved = repository.save(mapper.toEntity(restEntity));
@@ -105,9 +105,9 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(String id) {
         validateBeforeDeleting(id);
-        repository.delete(id);
+        repository.delete(Integer.valueOf(id));
     }
 
     @Override
@@ -125,11 +125,11 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }
 
-    protected void validateBeforeUpdating(Integer id, DTO restEntity) {
+    protected void validateBeforeUpdating(String id, DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations()
-                .validateAgainstRepository(repository, id, true);
+                .validateAgainstRepository(repository, Integer.valueOf(id), true);
     }
 
     protected void validateBeforeSaving(DTO restEntity) {
@@ -137,9 +137,9 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
                 .validateNotEmptyArgument().validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(Integer id) {
+    protected void validateBeforeDeleting(String id) {
         ValidationBuilder.validateObject(WhenDeleting.class)
-                .validateAgainstRepository(repository, id, true)
+                .validateAgainstRepository(repository, Integer.valueOf(id), true)
                 .validateAnnotations();
     }
 }

@@ -64,27 +64,27 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     }
 
     @Override
-    public Project getSpecific(int id) {
+    public Project getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, Project project) {
+    public void update(String id, Project project) {
         endpointHelper.update(id, project);
     }
 
     @Override
-    public Project patchSpecific(int id, Project project) {
+    public Project patchSpecific(String id, Project project) {
         return endpointHelper.update(id, project);
     }
 
     @Override
-    public void deleteSpecific(int id) {
+    public void deleteSpecific(String id) {
         endpointHelper.delete(id);
     }
 
     @Override
-    public Page<BuildConfiguration> getBuildConfigurations(int id, PageParameters pageParameters) {
+    public Page<BuildConfiguration> getBuildConfigurations(String id, PageParameters pageParameters) {
         return buildConfigurationProvider.getBuildConfigurationsForProject(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
@@ -94,7 +94,7 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+    public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
         BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForProject(pageInfo, id);
     }

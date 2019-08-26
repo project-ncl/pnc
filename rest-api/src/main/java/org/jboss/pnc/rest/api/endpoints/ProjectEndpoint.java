@@ -113,7 +113,7 @@ public interface ProjectEndpoint{
     })
     @GET
     @Path("/{id}")
-    Project getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    Project getSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing project.",
             responses = {
@@ -128,7 +128,7 @@ public interface ProjectEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = P_ID) @PathParam("id") int id,
+            @Parameter(description = P_ID) @PathParam("id") String id,
             @NotNull Project project);
 
     @Operation(summary = "Patch an existing project.",
@@ -145,7 +145,7 @@ public interface ProjectEndpoint{
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     Project patchSpecific(
-            @Parameter(description = P_ID) @PathParam("id") int id,
+            @Parameter(description = P_ID) @PathParam("id") String id,
             @NotNull Project project);
 
     @Operation(summary = "Removes a specific project and associated build configs.",
@@ -157,7 +157,7 @@ public interface ProjectEndpoint{
     })
     @DELETE
     @Path("/{id}")
-    void deleteSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    void deleteSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets all build configs associated with the specified project.",
             responses = {
@@ -171,7 +171,7 @@ public interface ProjectEndpoint{
     @GET
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
-            @Parameter(description = "Project Id") @PathParam("id") int id,
+            @Parameter(description = "Project Id") @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Get all builds associated with a specific project.",
@@ -186,7 +186,7 @@ public interface ProjectEndpoint{
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 

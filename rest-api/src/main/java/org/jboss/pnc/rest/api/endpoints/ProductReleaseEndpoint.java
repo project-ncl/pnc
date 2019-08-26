@@ -92,7 +92,7 @@ public interface ProductReleaseEndpoint{
     })
     @GET
     @Path("/{id}")
-    ProductRelease getSpecific(@Parameter(description = PR_ID) @PathParam("id") int id);
+    ProductRelease getSpecific(@Parameter(description = PR_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product release.",
             responses = {
@@ -107,7 +107,7 @@ public interface ProductReleaseEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = PR_ID) @PathParam("id") int id,
+            @Parameter(description = PR_ID) @PathParam("id") String id,
             @NotNull ProductRelease productRelease);
 
     @Operation(summary = "Patch an existing product release.",
@@ -124,7 +124,7 @@ public interface ProductReleaseEndpoint{
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     ProductRelease patchSpecific(
-            @Parameter(description = PR_ID) @PathParam("id") int id,
+            @Parameter(description = PR_ID) @PathParam("id") String id,
             @NotNull ProductRelease productRelease);
 
     @Operation(summary = "Gets all product releases support levels.",

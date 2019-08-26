@@ -106,7 +106,7 @@ public interface ProductEndpoint {
     })
     @GET
     @Path("/{id}")
-    Product getSpecific(@Parameter(description = P_ID) @PathParam("id") int id);
+    Product getSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product.",
             responses = {
@@ -121,7 +121,7 @@ public interface ProductEndpoint {
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = P_ID) @PathParam("id") int id,
+            @Parameter(description = P_ID) @PathParam("id") String id,
             @NotNull Product product);
 
     @Operation(summary = "Patch an existing product.",
@@ -138,7 +138,7 @@ public interface ProductEndpoint {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     Product patchSpecific(
-            @Parameter(description = P_ID) @PathParam("id") int id,
+            @Parameter(description = P_ID) @PathParam("id") String id,
             @NotNull Product product);
 
 
@@ -154,7 +154,7 @@ public interface ProductEndpoint {
     @GET
     @Path("/{id}/versions")
     Page<ProductVersion> getProductVersions(
-            @Parameter(description = P_ID) @PathParam("id") int id,
+            @Parameter(description = P_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
 }

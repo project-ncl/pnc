@@ -34,13 +34,13 @@ public interface Provider<DB extends GenericEntity<Integer>, DTO extends REF, RE
 
     DTO store(DTO restEntity) throws DTOValidationException;
 
-    DTO getSpecific(Integer id);
+    DTO getSpecific(String id);
 
     Page<DTO> getAll(int pageIndex, int pageSize, String sortingRsql, String query);
 
-    DTO update(Integer id, DTO restEntity) throws DTOValidationException;
+    DTO update(String id, DTO restEntity) throws DTOValidationException;
 
-    void delete(Integer id) throws DTOValidationException;
+    void delete(String id) throws DTOValidationException;
 
     Page<DTO> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query, Predicate<DB>... predicates);
 

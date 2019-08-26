@@ -98,7 +98,7 @@ public interface ProductMilestoneEndpoint{
     })
     @GET
     @Path("/{id}")
-    ProductMilestone getSpecific(@Parameter(description = PM_ID) @PathParam("id") int id);
+    ProductMilestone getSpecific(@Parameter(description = PM_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product milestone.",
             responses = {
@@ -113,7 +113,7 @@ public interface ProductMilestoneEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = PM_ID) @PathParam("id") int id,
+            @Parameter(description = PM_ID) @PathParam("id") String id,
             @NotNull ProductMilestone productMilestone);
 
     @Operation(summary = "Patch an existing product milestone.",
@@ -130,7 +130,7 @@ public interface ProductMilestoneEndpoint{
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     ProductMilestone patchSpecific(
-            @Parameter(description = PM_ID) @PathParam("id") int id,
+            @Parameter(description = PM_ID) @PathParam("id") String id,
             @NotNull ProductMilestone productMilestone);
 
     @Operation(summary = "Gets builds performed during a product milestone cycle.",
@@ -145,7 +145,7 @@ public interface ProductMilestoneEndpoint{
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = PM_ID) @PathParam("id") int id,
+            @Parameter(description = PM_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters,
             @BeanParam BuildsFilterParameters buildsFilter);
 
@@ -163,7 +163,7 @@ public interface ProductMilestoneEndpoint{
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
     void closeMilestone(
-            @Parameter(description = PM_ID) @PathParam("id") int id,
+            @Parameter(description = PM_ID) @PathParam("id") String id,
             ProductMilestone productMilestone);
 
     @Operation(summary = "Cancel product milestone close process.",
@@ -177,6 +177,6 @@ public interface ProductMilestoneEndpoint{
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
-    void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") int id);
+    void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") String id);
 
 }

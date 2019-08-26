@@ -126,7 +126,7 @@ public interface BuildConfigurationEndpoint {
     @GET
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) //workaround for PATCH support
-    BuildConfiguration getSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
+    BuildConfiguration getSpecific(@Parameter(description = BC_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing build config.",
             responses = {
@@ -140,7 +140,7 @@ public interface BuildConfigurationEndpoint {
     })
     @PUT
     @Path("/{id}")
-    void update(@Parameter(description = BC_ID) @PathParam("id") int id,
+    void update(@Parameter(description = BC_ID) @PathParam("id") String id,
                 @NotNull BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Patch a specific build config.",
@@ -157,7 +157,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     BuildConfiguration patchSpecific(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Removes a specific build config.",
@@ -169,7 +169,7 @@ public interface BuildConfigurationEndpoint {
     })
     @DELETE
     @Path("/{id}")
-    void deleteSpecific(@Parameter(description = BC_ID) @PathParam("id") int id);
+    void deleteSpecific(@Parameter(description = BC_ID) @PathParam("id") String id);
 
     @Operation(summary = "Triggers a build of a specific build config.",
             responses = {
@@ -186,7 +186,7 @@ public interface BuildConfigurationEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/build")
     Build trigger(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @BeanParam BuildParameters buildParams);
 
     @Operation(summary = "Get all builds associated with this build config.",
@@ -201,7 +201,7 @@ public interface BuildConfigurationEndpoint {
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
@@ -216,7 +216,7 @@ public interface BuildConfigurationEndpoint {
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/clone")
-    BuildConfiguration clone(@Parameter(description = BC_ID) @PathParam("id") int id);
+    BuildConfiguration clone(@Parameter(description = BC_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets group configs associated with the specified build config.",
             responses = {
@@ -230,7 +230,7 @@ public interface BuildConfigurationEndpoint {
     @GET
     @Path("/{id}/group-configs")
     Page<GroupConfiguration> getGroupConfigs(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Get the direct dependencies of the specified build config.",
@@ -245,7 +245,7 @@ public interface BuildConfigurationEndpoint {
     @GET
     @Path("/{id}/dependencies")
     Page<BuildConfiguration> getDependencies(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Adds a dependency to the specified build config.",
@@ -259,7 +259,7 @@ public interface BuildConfigurationEndpoint {
     @POST
     @Path("/{id}/dependencies")
     void addDependency(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             BuildConfigurationRef dependency);
 
     @Operation(summary = "Removes a dependency from the specified build config.",
@@ -272,8 +272,8 @@ public interface BuildConfigurationEndpoint {
     @DELETE
     @Path("/{id}/dependencies/{depId}")
     void removeDependency(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
-            @Parameter(description = "ID of the dependency") @PathParam("depId") int dependencyId);
+            @Parameter(description = BC_ID) @PathParam("id") String id,
+            @Parameter(description = "ID of the dependency") @PathParam("depId") String dependencyId);
     
     @Operation(summary = "Gets audited revisions of this build config.",
             responses = {
@@ -287,7 +287,7 @@ public interface BuildConfigurationEndpoint {
     @GET
     @Path("/{id}/revisions")
     Page<BuildConfigurationRevision> getRevisions(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Creates new build config revision.",
@@ -306,7 +306,7 @@ public interface BuildConfigurationEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/revisions")
     BuildConfigurationRevision createRevision(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             BuildConfiguration buildConfiguration);
 
     @Operation(summary = "Get specific audited revision of this build config.",
@@ -320,7 +320,7 @@ public interface BuildConfigurationEndpoint {
     @GET
     @Path("/{id}/revisions/{rev}")
     BuildConfigurationRevision getRevision(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @Parameter(description = REV) @PathParam("rev") int rev);
 
     @Operation(summary = "Triggers a build of a build config in a specific revision.",
@@ -338,7 +338,7 @@ public interface BuildConfigurationEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/revisions/{rev}/build")
     Build triggerRevision(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @Parameter(description = REV) @PathParam("rev") int rev,
             @BeanParam BuildParameters buildParams);
 
@@ -353,7 +353,7 @@ public interface BuildConfigurationEndpoint {
     @POST
     @Path("/{id}/revisions/{rev}/restore")
     BuildConfiguration restoreRevision(
-            @Parameter(description = BC_ID) @PathParam("id") int id,
+            @Parameter(description = BC_ID) @PathParam("id") String id,
             @Parameter(description = REV) @PathParam("rev") int rev);
 
     @Operation(summary = "Starts a task of creating a new build config with a given SCM URL.",

@@ -60,7 +60,7 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public Artifact getSpecific(int id) {
+    public Artifact getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
@@ -70,7 +70,7 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public void update(Integer id, Artifact artifact){
+    public void update(String id, Artifact artifact){
         endpointHelper.update(id, artifact);
     }
 }

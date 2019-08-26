@@ -91,7 +91,7 @@ public interface GroupBuildEndpoint {
     })
     @GET
     @Path("/{id}")
-    GroupBuild getSpecific(@Parameter(description = GB_ID) @PathParam("id") int id);
+    GroupBuild getSpecific(@Parameter(description = GB_ID) @PathParam("id") String id);
 
     @Operation(summary = "Delete specific temporary group build.",
             description = "The operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
@@ -104,7 +104,7 @@ public interface GroupBuildEndpoint {
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
-    void delete(@Parameter(description = GB_ID) @PathParam("id") int id);
+    void delete(@Parameter(description = GB_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets the builds associated with this group build.",
             responses = {
@@ -118,7 +118,7 @@ public interface GroupBuildEndpoint {
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = GB_ID) @PathParam("id") int id,
+            @Parameter(description = GB_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
@@ -136,7 +136,7 @@ public interface GroupBuildEndpoint {
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     void brewPush(
-            @Parameter(description = GB_ID) @PathParam("id") int id,
+            @Parameter(description = GB_ID) @PathParam("id") String id,
             GroupBuildPushRequest buildConfigSetRecordPushRequest);
 
     @Operation(summary = "Cancel all builds running in the build group.",
@@ -149,7 +149,7 @@ public interface GroupBuildEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/cancel")
-    void cancel(@Parameter(description = GB_ID) @PathParam("id") int id);
+    void cancel(@Parameter(description = GB_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets builds dependency graph for a build group.",
             responses = {
@@ -161,6 +161,6 @@ public interface GroupBuildEndpoint {
     })
     @GET
     @Path("/{id}/dependency-graph")
-    Graph<Build> getDependencyGraph(@Parameter(description = GB_ID) @PathParam("id") int id);
+    Graph<Build> getDependencyGraph(@Parameter(description = GB_ID) @PathParam("id") String id);
 
 }

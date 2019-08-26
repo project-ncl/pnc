@@ -60,9 +60,9 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
     }
 
     @Override
-    public ProductMilestone update(Integer id, ProductMilestone restEntity) {
+    public ProductMilestone update(String id, ProductMilestone restEntity) {
 
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(id);
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
         org.jboss.pnc.model.ProductMilestone milestoneRestDb = mapper.toEntity(restEntity);
 
         // we can't modify milestone if it's already released
@@ -72,7 +72,7 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
         }
 
         log.debug("Updating milestone for id: {}", id);
-        milestoneRestDb.setId(id);
+        milestoneRestDb.setId(Integer.valueOf(id));
 
         // make sure that user cannot set the 'endDate' via the REST API
         // this should only be set after the release process is successful
@@ -108,14 +108,14 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
     }
 
     @Override
-    public void closeMilestone(int id, ProductMilestone restEntity) {
+    public void closeMilestone(String id, ProductMilestone restEntity) {
         closeMilestone(id, restEntity, "");
     }
 
     @Override
-    public void closeMilestone(int id, ProductMilestone restEntity, String accessToken) {
+    public void closeMilestone(String id, ProductMilestone restEntity, String accessToken) {
 
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(id);
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {
 
@@ -137,10 +137,10 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
     }
 
     @Override
-    public void cancelMilestoneCloseProcess(Integer id)
+    public void cancelMilestoneCloseProcess(String id)
             throws RepositoryViolationException, EmptyEntityException {
 
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(id);
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         // If we want to close a milestone, make sure it's not already released (by checking end date)
         // and there are no release in progress
@@ -169,8 +169,8 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
                                                                         int pageSize,
                                                                         String sortingRsql,
                                                                         String query,
-                                                                        Integer productVersionId) {
+                                                                        String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
     }
 }

@@ -32,42 +32,42 @@ public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model
                                                                      int pageSize,
                                                                      String sortingRsql,
                                                                      String query,
-                                                                     Integer productVersionId);
+                                                                     String productVersionId);
 
     Page<BuildConfiguration> getBuildConfigurationsForProject(int pageIndex,
                                                               int pageSize,
                                                               String sortingRsql,
                                                               String query,
-                                                              Integer projectId);
+                                                              String projectId);
 
     Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex,
                                                             int pageSize,
                                                             String sortingRsql,
                                                             String query,
-                                                            int groupConfigId);
+                                                            String groupConfigId);
 
     Page<BuildConfiguration> getBuildConfigurationsForScmRepository(int pageIndex,
                                                                    int pageSize,
                                                                    String sortingRsql,
                                                                    String query,
-                                                                   int scmRepositoryId);
+                                                                   String scmRepositoryId);
 
-    BuildConfiguration clone(Integer buildConfigurationId);
+    BuildConfiguration clone(String buildConfigurationId);
 
-    void addDependency(Integer configId, Integer dependencyId);
+    void addDependency(String configId, String dependencyId);
 
-    void removeDependency(Integer configId, Integer dependencyId);
+    void removeDependency(String configId, String dependencyId);
 
-    Page<BuildConfiguration> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query, Integer configId);
+    Page<BuildConfiguration> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query, String configId);
 
 
-    Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, Integer id);
+    Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, String id);
 
-    BuildConfigurationRevision getRevision(Integer id, Integer rev);
+    BuildConfigurationRevision getRevision(String id, Integer rev);
 
-    BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration);
+    BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration);
 
     BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request);
 
-    Optional<BuildConfiguration> restoreRevision(int id, int rev);
+    Optional<BuildConfiguration> restoreRevision(String id, int rev);
 }

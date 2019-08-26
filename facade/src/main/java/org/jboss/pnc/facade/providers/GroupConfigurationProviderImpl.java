@@ -61,8 +61,8 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
     }
 
     @Override
-    public GroupConfiguration getSpecific(Integer id) {
-        BuildConfigurationSet dbEntity = repository.queryById(id);
+    public GroupConfiguration getSpecific(String id) {
+        BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
         if(dbEntity.isArchived()){
             return null;
         }
@@ -70,8 +70,8 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
     }
 
     @Override
-    public GroupConfiguration update(Integer id, GroupConfiguration restEntity) {
-        BuildConfigurationSet dbEntity = repository.queryById(id);
+    public GroupConfiguration update(String id, GroupConfiguration restEntity) {
+        BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
         if (dbEntity != null && dbEntity.isArchived()) {
             throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
         }
@@ -79,8 +79,8 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
     }
 
     @Override
-    public void delete(Integer id) {
-        if (hasLink(repository.queryById(id))) {
+    public void delete(String id) {
+        if (hasLink(repository.queryById(Integer.valueOf(id)))) {
             archive(id);
         } else {
             super.delete(id);
@@ -92,9 +92,9 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
                                                                             int pageSize,
                                                                             String sortingRsql,
                                                                             String query,
-                                                                            Integer productVersionId) {
+                                                                            String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId), isNotArchived());
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)), isNotArchived());
     }
 
     @Override
@@ -102,19 +102,19 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
                                                                                 int pageSize,
                                                                                 String sortingRsql,
                                                                                 String query,
-                                                                                Integer bcId) {
+                                                                                String bcId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(bcId), isNotArchived());
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(Integer.valueOf(bcId)), isNotArchived());
     }
 
     private boolean hasLink(BuildConfigurationSet buildConfigurationSet) {
         return !buildConfigurationSet.getBuildConfigSetRecords().isEmpty();
     }
 
-    private void archive(int groupConfigurationId) throws DTOValidationException {
+    private void archive(String groupConfigurationId) throws DTOValidationException {
         ValidationBuilder.validateObject(WhenUpdating.class)
-                .validateAgainstRepository(repository, groupConfigurationId, true);
-        BuildConfigurationSet buildConfigurationSet = repository.queryById(groupConfigurationId);
+                .validateAgainstRepository(repository, Integer.valueOf(groupConfigurationId), true);
+        BuildConfigurationSet buildConfigurationSet = repository.queryById(Integer.valueOf(groupConfigurationId));
         buildConfigurationSet.setArchived(true);
 
         // if a build group is archived, unlink the build group from the build configurations is associated with
@@ -128,9 +128,9 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
     }
 
     @Override
-    public void addConfiguration(int id, int configId) throws DTOValidationException {
-        BuildConfigurationSet buildConfigSet = repository.queryById(id);
-        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+    public void addConfiguration(String id, String configId) throws DTOValidationException {
+        BuildConfigurationSet buildConfigSet = repository.queryById(Integer.valueOf(id));
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(Integer.valueOf(configId));
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
                 .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
                 .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
@@ -141,9 +141,9 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
     }
 
     @Override
-    public void removeConfiguration(int id, int configId) {
-        BuildConfigurationSet buildConfigSet = repository.queryById(id);
-        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+    public void removeConfiguration(String id, String configId) {
+        BuildConfigurationSet buildConfigSet = repository.queryById(Integer.valueOf(id));
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(Integer.valueOf(configId));
         ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
                 .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + id)
                 .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);

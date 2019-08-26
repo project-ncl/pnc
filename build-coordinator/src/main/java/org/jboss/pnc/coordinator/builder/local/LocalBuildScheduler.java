@@ -110,7 +110,7 @@ public class LocalBuildScheduler implements BuildScheduler {
     @Override
     public boolean cancel(BuildTask buildTask) throws CoreException {
         try {
-            buildExecutor.cancel(Integer.valueOf(buildTask.getId()));
+            buildExecutor.cancel(buildTask.getId());
         } catch (ExecutorException e) {
             throw new CoreException("Cannot cancel buildTask " + buildTask.getId(), e);
         }

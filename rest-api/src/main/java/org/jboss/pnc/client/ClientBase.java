@@ -96,13 +96,13 @@ public abstract class ClientBase<T> {
         q.ifPresent(query -> pageParameters.setQ(query));
     }
 
-    public <S> S patch(Integer id, String jsonPatch, Class<S> clazz) {
+    public <S> S patch(String id, String jsonPatch, Class<S> clazz) {
         Path path = iface.getAnnotation(Path.class);
         ResteasyWebTarget patchTarget;
         if (!path.value().equals("") && !path.value().equals("/")) {
             patchTarget = target.path(path.value() + "/" + id);
         } else {
-            patchTarget = target.path(Integer.toString(id));
+            patchTarget = target.path(id);
         }
 
         logger.debug("Json patch: {}", jsonPatch);
@@ -114,7 +114,7 @@ public abstract class ClientBase<T> {
         return result;
     }
 
-    public <S> S patch(Integer id, PatchBase patchBase) throws PatchBuilderException {
+    public <S> S patch(String id, PatchBase patchBase) throws PatchBuilderException {
         String jsonPatch = patchBase.getJsonPatch();
         return patch(id, jsonPatch, (Class<S>)patchBase.getClazz());
     }

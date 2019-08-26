@@ -167,7 +167,7 @@ public class ArtifactEndpointTest {
     public void testGetSpecificArtifact() throws ClientException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
-        Artifact artifact = client.getSpecific(Integer.valueOf(artifactRest1.getId()));
+        Artifact artifact = client.getSpecific(artifactRest1.getId());
 
         assertThat(artifact.getId()).isEqualTo(artifactRest1.getId());
     }
@@ -210,7 +210,7 @@ public class ArtifactEndpointTest {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
         Artifact inserted = client.create(artifact);
-        Integer id = Integer.valueOf(inserted.getId());
+        String id = inserted.getId();
         Artifact retrieved = client.getSpecific(id);
         Assertions.assertThat(retrieved.getArtifactQuality()).isEqualTo(ArtifactQuality.NEW);
         Assertions.assertThat(retrieved.getMd5()).isEqualTo("insert-md5-2");
@@ -228,7 +228,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldUpdateArtifact() throws ClientException {
-        Integer id = Integer.valueOf(artifactRest1.getId());
+        String id = artifactRest1.getId();
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
 
         Artifact artifact = client.getSpecific(id);

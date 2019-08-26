@@ -45,8 +45,8 @@ public class ProductReleaseProviderImpl extends AbstractProvider<org.jboss.pnc.m
                                                                     int pageSize,
                                                                     String sortingRsql,
                                                                     String query,
-                                                                    Integer productVersionId) {
+                                                                    String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
 }
 }

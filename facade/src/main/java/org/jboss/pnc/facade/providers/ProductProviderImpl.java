@@ -51,7 +51,7 @@ public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
     }
 
     @Override
-    public void validateBeforeUpdating(Integer id, Product restEntity) {
+    public void validateBeforeUpdating(String id, Product restEntity) {
         super.validateBeforeUpdating(id, restEntity);
         validateIfNotConflicted(restEntity, WhenUpdating.class);
     }

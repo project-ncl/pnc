@@ -82,13 +82,13 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
 
     @Override
     @RolesAllowed(SYSTEM_USER)
-    public org.jboss.pnc.dto.Artifact update(Integer id, org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
+    public org.jboss.pnc.dto.Artifact update(String id, org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
         return super.update(id, restEntity);
     }
 
     @Override
     @DenyAll
-    public void delete(Integer id) throws DTOValidationException {
+    public void delete(String id) throws DTOValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
     }
 
@@ -97,9 +97,9 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
                                                                       int pageSize,
                                                                       String sortingRsql,
                                                                       String query,
-                                                                      Integer buildId) {
+                                                                      String buildId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(Integer.valueOf(buildId)));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.p
                                                                           int pageSize,
                                                                           String sortingRsql,
                                                                           String query,
-                                                                          Integer buildId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildId));
+                                                                          String buildId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(Integer.valueOf(buildId)));
     }
 }

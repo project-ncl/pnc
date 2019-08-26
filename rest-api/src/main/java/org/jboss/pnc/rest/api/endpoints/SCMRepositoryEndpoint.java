@@ -103,7 +103,7 @@ public interface SCMRepositoryEndpoint{
     })
     @GET
     @Path("/{id}")
-    SCMRepository getSpecific(@Parameter(description = SCM_ID) @PathParam("id") int id);
+    SCMRepository getSpecific(@Parameter(description = SCM_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing SCM repository.",
             responses = {
@@ -118,7 +118,7 @@ public interface SCMRepositoryEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = SCM_ID) @PathParam("id") int id,
+            @Parameter(description = SCM_ID) @PathParam("id") String id,
             @NotNull SCMRepository repositoryConfiguration);
 
     @Operation(summary = "Patch an existing SCM repository.",
@@ -135,7 +135,7 @@ public interface SCMRepositoryEndpoint{
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     SCMRepository patchSpecific(
-            @Parameter(description = SCM_ID) @PathParam("id") int id,
+            @Parameter(description = SCM_ID) @PathParam("id") String id,
             @NotNull SCMRepository scmRepository);
 
 
@@ -169,7 +169,7 @@ public interface SCMRepositoryEndpoint{
     @GET
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildsConfigs(
-            @Parameter(description = SCM_ID) @PathParam("id") int id,
+            @Parameter(description = SCM_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
 }
