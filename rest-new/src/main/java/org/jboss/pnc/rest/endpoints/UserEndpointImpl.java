@@ -56,7 +56,7 @@ public class UserEndpointImpl implements UserEndpoint {
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+    public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
         BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForUser(pageInfo, id);
     }

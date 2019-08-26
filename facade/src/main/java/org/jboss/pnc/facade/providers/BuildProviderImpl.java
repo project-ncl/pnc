@@ -128,18 +128,18 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @RolesAllowed(SYSTEM_USER)
     @Override
-    public void delete(Integer id) {
+    public void delete(String id) {
         super.delete(id);
     }
 
     @RolesAllowed(SYSTEM_USER)
     @Override
-    public Build update(Integer id, Build restEntity) {
+    public Build update(String id, Build restEntity) {
         return super.update(id, restEntity);
     }
 
     @Override
-    public void addAttribute(int id, String key, String value) {
+    public void addAttribute(String id, String key, String value) {
         BuildRecord buildRecord = getBuildRecord(id);
         if(null == key){
             throw new IllegalArgumentException("Attribute key must not be null");
@@ -159,7 +159,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public void removeAttribute(int id, String key) {
+    public void removeAttribute(String id, String key) {
         BuildRecord buildRecord = getBuildRecord(id);
         switch (key) {
             case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
@@ -176,7 +176,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public BuildConfigurationRevision getBuildConfigurationRevision(Integer id) {
+    public BuildConfigurationRevision getBuildConfigurationRevision(String id) {
 
         BuildRecord buildRecord = getBuildRecord(id);
 
@@ -191,17 +191,17 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public String getRepourLog(Integer id) {
+    public String getRepourLog(String id) {
         return getBuildRecord(id).getRepourLog();
     }
 
     @Override
-    public String getBuildLog(Integer id) {
+    public String getBuildLog(String id) {
         return getBuildRecord(id).getBuildLog();
     }
 
     @Override
-    public SSHCredentials getSshCredentials(Integer id) {
+    public SSHCredentials getSshCredentials(String id) {
         BuildRecord buildRecord = getBuildRecord(id);
 
         return SSHCredentials
@@ -223,58 +223,58 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, int milestoneId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getProductMilestone().getId() == milestoneId;
-        return getBuildList(pageInfo, predicate, withPerformedInMilestone(milestoneId));
+    public Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, String milestoneId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(milestoneId).equals(t.getProductMilestone().getId());
+        return getBuildList(pageInfo, predicate, withPerformedInMilestone(Integer.valueOf(milestoneId)));
     }
 
     @Override
     public Page<Build> getBuildsForProject(BuildPageInfo pageInfo,
-                                           int projectId) {
+                                           String projectId) {
         @SuppressWarnings("unchecked")
         Set<Integer> buildConfigIds = buildConfigurationRepository
-                .queryWithPredicates(withProjectId(projectId))
+                .queryWithPredicates(withProjectId(Integer.valueOf(projectId)))
                 .stream()
                 .map(BuildConfiguration::getId)
                 .collect(Collectors.toSet());
 
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigurationAudited().getProject().getId() == projectId;
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(projectId).equals(t.getBuildConfigurationAudited().getProject().getId());
         return getBuildList(pageInfo, predicate, withBuildConfigurationIds(buildConfigIds));
     }
 
     @Override
-    public Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, int buildConfigurationId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigurationAudited().getId() == buildConfigurationId;
-        return getBuildList(pageInfo, predicate, withBuildConfigurationId(buildConfigurationId));
+    public Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, String buildConfigurationId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(buildConfigurationId).equals(t.getBuildConfigurationAudited().getId());
+        return getBuildList(pageInfo, predicate, withBuildConfigurationId(Integer.valueOf(buildConfigurationId)));
     }
 
     @Override
-    public Page<Build> getBuildsForUser(BuildPageInfo pageInfo, int userId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getUser().getId() == userId;
-        return getBuildList(pageInfo, predicate, withUserId(userId));
+    public Page<Build> getBuildsForUser(BuildPageInfo pageInfo, String userId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(userId).equals(t.getUser().getId());
+        return getBuildList(pageInfo, predicate, withUserId(Integer.valueOf(userId)));
     }
 
     @Override
-    public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> gc.getBuildConfigurationSet().getId() == groupConfigurationId).orElse(false);
-        return getBuildList(pageInfo, predicate, withBuildConfigSetId(groupConfigurationId));
+    public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, String groupConfigurationId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> Integer.valueOf(groupConfigurationId).equals(gc.getBuildConfigurationSet().getId())).orElse(false);
+        return getBuildList(pageInfo, predicate, withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
     }
 
     @Override
-    public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> gc.getId() == groupBuildId).orElse(false);
-        return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(groupBuildId));
+    public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId) {
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> Integer.valueOf(groupBuildId).equals(gc.getId())).orElse(false);
+        return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(Integer.valueOf(groupBuildId)));
     }
 
     @Override
-    public Graph<Build> getGroupBuildGraph(int id) {
+    public Graph<Build> getGroupBuildGraph(String id) {
         throw new UnsupportedOperationException("Not supported yet."); // TODO
     }
 
     @Override
-    public URI getInternalScmArchiveLink(int id) {
+    public URI getInternalScmArchiveLink(String id) {
 
-        BuildRecord buildRecord = repository.queryById(id);
+        BuildRecord buildRecord = repository.queryById(Integer.valueOf(id));
 
         if (buildRecord.getScmRevision() == null) {
             return null;
@@ -294,8 +294,8 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
      * @return BuildRecord
      * @throws EmptyEntityException if build record with associated id does not exist
      */
-    private BuildRecord getBuildRecord(int id) {
-        BuildRecord buildRecord = repository.queryById(id);
+    private BuildRecord getBuildRecord(String id) {
+        BuildRecord buildRecord = repository.queryById(Integer.valueOf(id));
 
         if (buildRecord == null) {
             throw new EmptyEntityException("Build with id: " + id + " does not exist!");
@@ -305,12 +305,12 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
     }
 
     @Override
-    public Build getSpecific(Integer id) {
+    public Build getSpecific(String id) {
 
         List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
 
         Build build = runningBuilds.stream()
-                .filter(buildTask -> id.equals(buildTask.getId()))
+                .filter(buildTask -> id.equals(Integer.toString(buildTask.getId())))
                 .findAny()
                 .map(buildMapper::fromBuildTask)
                 .orElse(null);
@@ -318,7 +318,7 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         // if build not in runningBuilds, check the database
         if (build == null) {
             // use findByIdFetchProperties instead of super.getSpecific to get 'BuildConfigurationAudited' object
-            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(id));
+            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(Integer.valueOf(id)));
         }
 
         return build;
@@ -340,10 +340,10 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @RolesAllowed(SYSTEM_USER)
     @Override
-    public void setBuiltArtifacts(int id, List<Integer> artifactIds) {
-        BuildRecord buildRecord = repository.queryById(id);
+    public void setBuiltArtifacts(String id, List<String> artifactIds) {
+        BuildRecord buildRecord = repository.queryById(Integer.valueOf(id));
         Set<Artifact> artifacts = artifactIds.stream()
-                .map(aId -> Artifact.Builder.newBuilder().id(aId).build())
+                .map(aId -> Artifact.Builder.newBuilder().id(Integer.valueOf(aId)).build())
                 .collect(Collectors.toSet());
         buildRecord.setBuiltArtifacts(artifacts);
         repository.save(buildRecord);
@@ -351,10 +351,10 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
 
     @RolesAllowed(SYSTEM_USER)
     @Override
-    public void setDependentArtifacts(int id, List<Integer> artifactIds) {
-        BuildRecord buildRecord = repository.queryById(id);
+    public void setDependentArtifacts(String id, List<String> artifactIds) {
+        BuildRecord buildRecord = repository.queryById(Integer.valueOf(id));
         Set<Artifact> artifacts = artifactIds.stream()
-                .map(aId -> Artifact.Builder.newBuilder().id(aId).build())
+                .map(aId -> Artifact.Builder.newBuilder().id(Integer.valueOf(aId)).build())
                 .collect(Collectors.toSet());
         buildRecord.setDependencies(artifacts);
         repository.save(buildRecord);

@@ -72,7 +72,7 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
     }
 
     @Override
-    public ProductVersion update(Integer id, ProductVersion restEntity) {
+    public ProductVersion update(String id, ProductVersion restEntity) {
 
         ProductVersion current = super.getSpecific(id);
 
@@ -104,9 +104,9 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
                                                  int pageSize,
                                                  String sortingRsql,
                                                  String query,
-                                                 Integer productId){
+                                                 String productId){
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
     }
 }
 

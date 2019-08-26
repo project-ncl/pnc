@@ -88,43 +88,43 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public BuildConfiguration getSpecific(int id) {
+    public BuildConfiguration getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, BuildConfiguration buildConfiguration) {
+    public void update(String id, BuildConfiguration buildConfiguration) {
         endpointHelper.update(id, buildConfiguration);
     }
 
     @Override
-    public BuildConfiguration patchSpecific(int id, BuildConfiguration buildConfiguration) {
+    public BuildConfiguration patchSpecific(String id, BuildConfiguration buildConfiguration) {
         return endpointHelper.update(id, buildConfiguration);
     }
 
     @Override
-    public void deleteSpecific(int id) {
+    public void deleteSpecific(String id) {
         endpointHelper.delete(id);
     }
 
     @Override
-    public Build trigger(int id, BuildParameters buildParams) {
+    public Build trigger(String id, BuildParameters buildParams) {
         return triggerBuild(id, OptionalInt.empty(), buildParams);
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+    public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
         BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForBuildConfiguration(pageInfo, id);
     }
 
     @Override
-    public BuildConfiguration clone(int id) {
+    public BuildConfiguration clone(String id) {
         return buildConfigurationProvider.clone(id);
     }
 
     @Override
-    public Page<GroupConfiguration> getGroupConfigs(int id, PageParameters pageParams) {
+    public Page<GroupConfiguration> getGroupConfigs(String id, PageParameters pageParams) {
         return groupConfigurationProvider.getGroupConfigurationsForBuildConfiguration(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),
@@ -134,7 +134,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public Page<BuildConfiguration> getDependencies(int id, PageParameters pageParams) {
+    public Page<BuildConfiguration> getDependencies(String id, PageParameters pageParams) {
         return buildConfigurationProvider.getDependencies(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),
@@ -144,17 +144,17 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public void addDependency(int id, BuildConfigurationRef dependency) {
-        buildConfigurationProvider.addDependency(id, Integer.valueOf(dependency.getId()));
+    public void addDependency(String id, BuildConfigurationRef dependency) {
+        buildConfigurationProvider.addDependency(id, dependency.getId());
     }
 
     @Override
-    public void removeDependency(int id, int dependencyId) {
+    public void removeDependency(String id, String dependencyId) {
         buildConfigurationProvider.removeDependency(id, dependencyId);
     }
 
     @Override
-    public Page<BuildConfigurationRevision> getRevisions(int id, PageParameters pageParams) {
+    public Page<BuildConfigurationRevision> getRevisions(String id, PageParameters pageParams) {
 
         return buildConfigurationProvider.getRevisions(
                 pageParams.getPageIndex(),
@@ -163,22 +163,22 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
+    public BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration) {
         return buildConfigurationProvider.createRevision(id, buildConfiguration);
     }
 
     @Override
-    public BuildConfigurationRevision getRevision(int id, int rev) {
+    public BuildConfigurationRevision getRevision(String id, int rev) {
         return buildConfigurationProvider.getRevision(id, rev);
     }
 
     @Override
-    public Build triggerRevision(int id, int rev, BuildParameters buildParams) {
+    public Build triggerRevision(String id, int rev, BuildParameters buildParams) {
         return triggerBuild(id, OptionalInt.of(rev), buildParams);
     }
 
     @Override
-    public BuildConfiguration restoreRevision(int id, int rev) {
+    public BuildConfiguration restoreRevision(String id, int rev) {
         return buildConfigurationProvider.restoreRevision(id, rev).orElseThrow(
                 () -> new NotFoundException("BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists"));
     }
@@ -193,15 +193,15 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         return bcSupportedGenericParametersProvider.getSupportedGenericParameters();
     }
 
-    private Build triggerBuild(int id, OptionalInt rev, BuildParameters buildParams) {
+    private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) {
         try {
             logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, parameters: {}",
                     id, rev, buildParams);
 
             BuildOptions buildOptions = toBuildOptions(buildParams);
-            int buildId = buildTriggerer.triggerBuild(id, rev, buildOptions);
+            int buildId = buildTriggerer.triggerBuild(Integer.parseInt(id), rev, buildOptions);
 
-            return buildProvider.getSpecific(buildId);
+            return buildProvider.getSpecific(Integer.toString(buildId));
         } catch (BuildConflictException | CoreException ex) {
             throw new RuntimeException(ex);
         }

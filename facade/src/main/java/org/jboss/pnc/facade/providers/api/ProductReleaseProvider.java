@@ -27,5 +27,5 @@ public interface ProductReleaseProvider extends Provider<org.jboss.pnc.model.Pro
                                                              int pageSize,
                                                              String sortingRsql,
                                                              String query,
-                                                             Integer productVersionId);
+                                                             String productVersionId);
 }

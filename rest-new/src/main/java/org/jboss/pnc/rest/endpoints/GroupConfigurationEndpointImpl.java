@@ -91,32 +91,32 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     @Override
-    public GroupConfiguration getSpecific(int id) {
+    public GroupConfiguration getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, GroupConfiguration buildConfigurationSet) {
+    public void update(String id, GroupConfiguration buildConfigurationSet) {
         endpointHelper.update(id, buildConfigurationSet);
     }
 
     @Override
-    public GroupConfiguration patchSpecific(int id, GroupConfiguration groupConfiguration) {
+    public GroupConfiguration patchSpecific(String id, GroupConfiguration groupConfiguration) {
         return endpointHelper.update(id, groupConfiguration);
     }
 
     @Override
-    public void deleteSpecific(int id) {
+    public void deleteSpecific(String id) {
         endpointHelper.delete(id);
     }
 
     @Override
-    public GroupBuild trigger(int id, GroupBuildParameters buildParams, GroupBuildRequest request) {
+    public GroupBuild trigger(String id, GroupBuildParameters buildParams, GroupBuildRequest request) {
         return triggerBuild(id, Optional.ofNullable(request), buildParams);
     }
 
     @Override
-    public Page<BuildConfiguration> getConfigurations(int id, PageParameters pageParams) {
+    public Page<BuildConfiguration> getConfigurations(String id, PageParameters pageParams) {
         return buildConfigurationProvider.getBuildConfigurationsForGroup(pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),
@@ -125,22 +125,22 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     @Override
-    public void addConfiguration(int id, BuildConfigurationRef buildConfig) {
-        provider.addConfiguration(id, Integer.valueOf(buildConfig.getId()));
+    public void addConfiguration(String id, BuildConfigurationRef buildConfig) {
+        provider.addConfiguration(id, buildConfig.getId());
     }
 
     @Override
-    public void removeConfiguration(int id, int configId) {
+    public void removeConfiguration(String id, String configId) {
         provider.removeConfiguration(id, configId);
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters pageParams, BuildsFilterParameters filterParams) {
+    public Page<Build> getBuilds(String id, PageParameters pageParams, BuildsFilterParameters filterParams) {
         return buildProvider.getBuildsForGroupConfiguration(toBuildPageInfo(pageParams, filterParams), id);
     }
 
     @Override
-    public Page<GroupBuild> getAllGroupBuilds(int id, PageParameters pageParams) {
+    public Page<GroupBuild> getAllGroupBuilds(String id, PageParameters pageParams) {
         return groupBuildProvider.getGroupBuilds(pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),
@@ -149,16 +149,16 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     private GroupBuild triggerBuild(
-            int groupConfigId,
+            String groupConfigId,
             Optional<GroupBuildRequest> buildConfigRevisions,
             GroupBuildParameters buildParams) {
 
         try {
             BuildOptions buildOptions = toBuildOptions(buildParams);
 
-            int groupBuildId = buildTriggerer.triggerGroupBuild(groupConfigId, buildConfigRevisions, buildOptions);
+            int groupBuildId = buildTriggerer.triggerGroupBuild(Integer.parseInt(groupConfigId), buildConfigRevisions, buildOptions);
 
-            return groupBuildProvider.getSpecific(groupBuildId);
+            return groupBuildProvider.getSpecific(Integer.toString(groupBuildId));
         } catch (BuildConflictException | CoreException ex) {
             throw new RuntimeException(ex);
         }

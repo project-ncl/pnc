@@ -46,7 +46,7 @@ public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
     }
 
     @Override
-    public Environment getSpecific(int id) {
+    public Environment getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 }

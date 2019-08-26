@@ -99,7 +99,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}")
-    ProductVersion getSpecific(@Parameter(description = PV_ID) @PathParam("id") int id);
+    ProductVersion getSpecific(@Parameter(description = PV_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product version.",
             responses = {
@@ -114,7 +114,7 @@ public interface ProductVersionEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @Parameter(description = PV_ID) @PathParam("id") String id,
             @NotNull ProductVersion productVersion);
 
     @Operation(summary = "Patch an existing product version.",
@@ -131,7 +131,7 @@ public interface ProductVersionEndpoint{
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     ProductVersion patchSpecific(
-            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @Parameter(description = PV_ID) @PathParam("id") String id,
             @NotNull ProductVersion productVersion);
 
     @Operation(summary = "Gets all build configs in a specific product version.",
@@ -146,7 +146,7 @@ public interface ProductVersionEndpoint{
     @GET
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
-            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @Parameter(description = PV_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Gets group configs associated with a specific product version.",
@@ -161,7 +161,7 @@ public interface ProductVersionEndpoint{
     @GET
     @Path("/{id}/group-configs")
     Page<GroupConfiguration> getGroupConfigurations(
-            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @Parameter(description = PV_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Gets all product milestones of a specific product version.",
@@ -176,7 +176,7 @@ public interface ProductVersionEndpoint{
     @GET
     @Path("/{id}/milestones")
     Page<ProductMilestone> getMilestones(
-            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @Parameter(description = PV_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 
 
@@ -192,6 +192,6 @@ public interface ProductVersionEndpoint{
     @GET
     @Path("/{id}/releases")
     Page<ProductRelease> getReleases(
-            @Parameter(description = PV_ID) @PathParam("id") int id,
+            @Parameter(description = PV_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParameters);
 }

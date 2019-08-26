@@ -304,7 +304,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     public void testGetSpecificFinished(){
         BuildRecord record = mockBuildRecord();
 
-        Build specific = provider.getSpecific(record.getId());
+        Build specific = provider.getSpecific(Integer.toString(record.getId()));
         assertThat(specific.getId()).isEqualTo(record.getId().toString());
         assertThat(specific.getSubmitTime()).isEqualTo(record.getSubmitTime().toInstant());
     }
@@ -313,7 +313,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     public void testGetSpecificRunning(){
         BuildTask task = mockBuildTask();
 
-        Build specific = provider.getSpecific(task.getId());
+        Build specific = provider.getSpecific(Integer.toString(task.getId()));
         assertThat(specific.getId()).isEqualTo(Integer.toString(task.getId()));
         assertThat(specific.getSubmitTime()).isEqualTo(task.getSubmitTime().toInstant());
     }

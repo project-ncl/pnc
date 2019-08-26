@@ -132,7 +132,7 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
     public void testGetSpecific(){
         fillRepository(artifacts);
 
-        Artifact specific = provider.getSpecific(artifact1.getId());
+        Artifact specific = provider.getSpecific(Integer.toString(artifact1.getId()));
 
         assertThat(specific.getId()).isEqualTo(artifact1.getId().toString());
         assertThat(specific.getIdentifier()).isEqualTo(artifact1.getIdentifier());
@@ -165,7 +165,7 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
 
         assertThat(artifact1.getArtifactQuality()).isNotEqualTo(ArtifactQuality.BLACKLISTED); // assert that original is different
 
-        Artifact updated = provider.update(artifact1.getId(), toUpdate);
+        Artifact updated = provider.update(Integer.toString(artifact1.getId()), toUpdate);
 
         assertThat(updated.getId()).isEqualTo(artifact1.getId().toString());
         assertThat(updated.getArtifactQuality()).isEqualTo(ArtifactQuality.BLACKLISTED); // modified
@@ -178,7 +178,7 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
         fillRepository(artifacts);
 
         try{
-            provider.delete(artifact1.getId());
+            provider.delete(Integer.toString(artifact1.getId()));
             fail("Deleting artifact must be unsupported.");
         } catch(UnsupportedOperationException ex){
             //ok

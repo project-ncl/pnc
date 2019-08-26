@@ -50,17 +50,17 @@ public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {
     }
 
     @Override
-    public ProductRelease getSpecific(int id) {
+    public ProductRelease getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, ProductRelease productRelease) {
+    public void update(String id, ProductRelease productRelease) {
         endpointHelper.update(id, productRelease);
     }
 
     @Override
-    public ProductRelease patchSpecific(int id, ProductRelease productRelease) {
+    public ProductRelease patchSpecific(String id, ProductRelease productRelease) {
         return endpointHelper.update(id, productRelease);
     }
 

@@ -87,7 +87,7 @@ public class ProjectRestTestNewClient {
     @Test @Ignore //TODO enable
     public void shouldUpdateOnlySomeFields() throws Exception {
         //given
-        int id = 1; //TODO get id
+        String id = "1"; //TODO get id
 
         Project project = Project.builder()
                 .description("Amazing project!")

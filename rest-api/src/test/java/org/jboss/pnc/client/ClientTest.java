@@ -53,7 +53,7 @@ public class ClientTest {
                 .build();
         ProjectClient projectClient = new ProjectClient(connectionInfo);
         try {
-            projectClient.getSpecific(1);
+            projectClient.getSpecific("1");
         } catch (javax.ws.rs.ProcessingException | ClientException e) {
             //expected
         }

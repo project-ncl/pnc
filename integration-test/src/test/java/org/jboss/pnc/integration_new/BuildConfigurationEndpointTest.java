@@ -66,7 +66,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration buildConfiguration = client.getAll().iterator().next();
         String newDescription = "Testing patch support.";
 
-        Integer id = Integer.valueOf(buildConfiguration.getId());
+        String id = buildConfiguration.getId();
 
         Map<String, String> addElements = Collections.singletonMap("newKey", "newValue");
         BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder()
@@ -88,7 +88,7 @@ public class BuildConfigurationEndpointTest {
     public void shouldCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description.";
         final String buildScript = "mvn deploy # Updated script";
-        final int id = 100;
+        final String id = "100";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
         BuildConfiguration bc = client.getSpecific(id);

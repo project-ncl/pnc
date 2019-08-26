@@ -123,7 +123,7 @@ public interface GroupConfigurationEndpoint{
     @GET
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) //workaround for PATCH support
-    GroupConfiguration getSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
+    GroupConfiguration getSpecific(@Parameter(description = GC_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing group config.",
             responses = {
@@ -138,7 +138,7 @@ public interface GroupConfigurationEndpoint{
     @PUT
     @Path("/{id}")
     void update(
-            @Parameter(description = GC_ID) @PathParam("id") int id, @NotNull GroupConfiguration groupConfiguration);
+            @Parameter(description = GC_ID) @PathParam("id") String id, @NotNull GroupConfiguration groupConfiguration);
 
     @Operation(summary = "Patch a specific group config.",
             responses = {
@@ -154,7 +154,7 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     GroupConfiguration patchSpecific(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = GC_ID) @PathParam("id") String id,
             @NotNull GroupConfiguration groupConfiguration);
 
     @Operation(summary = "Removes a specific group config.",
@@ -166,7 +166,7 @@ public interface GroupConfigurationEndpoint{
     })
     @DELETE
     @Path("/{id}")
-    void deleteSpecific(@Parameter(description = GC_ID) @PathParam("id") int id);
+    void deleteSpecific(@Parameter(description = GC_ID) @PathParam("id") String id);
 
     @Operation(summary = "Builds the build configs in the group config.",
             responses = {
@@ -184,7 +184,7 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}/build")
     @Consumes(MediaType.APPLICATION_JSON)
     GroupBuild trigger(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = GC_ID) @PathParam("id") String id,
             @BeanParam GroupBuildParameters buildParams,
             GroupBuildRequest request);
 
@@ -200,7 +200,7 @@ public interface GroupConfigurationEndpoint{
     @GET
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getConfigurations(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = GC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Adds a build config to the group config.",
@@ -214,7 +214,7 @@ public interface GroupConfigurationEndpoint{
     @POST
     @Path("/{id}/build-configs")
     void addConfiguration(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = GC_ID) @PathParam("id") String id,
             BuildConfigurationRef buildConfig);
 
     @Operation(summary = "Removes a build config from the specified group config.",
@@ -228,8 +228,8 @@ public interface GroupConfigurationEndpoint{
     @DELETE
     @Path("/{id}/build-configs/{configId}")
     void removeConfiguration(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
-            @Parameter(description = "ID of the build config") @PathParam("configId") int configId);
+            @Parameter(description = GC_ID) @PathParam("id") String id,
+            @Parameter(description = "ID of the build config") @PathParam("configId") String configId);
 
     @Operation(summary = "Gets all builds associated with the contained build configs.",
             responses = {
@@ -243,7 +243,7 @@ public interface GroupConfigurationEndpoint{
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = GC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams);
 
@@ -259,7 +259,7 @@ public interface GroupConfigurationEndpoint{
     @GET
     @Path("/{id}/group-builds")
     Page<GroupBuild> getAllGroupBuilds(
-            @Parameter(description = GC_ID) @PathParam("id") int id,
+            @Parameter(description = GC_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
 }

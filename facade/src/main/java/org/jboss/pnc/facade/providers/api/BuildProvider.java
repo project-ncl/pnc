@@ -38,35 +38,35 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
      *
      * @return Uri of the internal scm archive link to download
      */
-    URI getInternalScmArchiveLink(int id);
+    URI getInternalScmArchiveLink(String id);
 
-    void addAttribute(int id, String key, String value);
+    void addAttribute(String id, String key, String value);
 
-    void removeAttribute(int id, String key);
+    void removeAttribute(String id, String key);
 
-    BuildConfigurationRevision getBuildConfigurationRevision(Integer id);
+    BuildConfigurationRevision getBuildConfigurationRevision(String id);
 
-    String getRepourLog(Integer id);
+    String getRepourLog(String id);
 
-    String getBuildLog(Integer id);
+    String getBuildLog(String id);
 
-    SSHCredentials getSshCredentials(Integer id);
+    SSHCredentials getSshCredentials(String id);
 
     Page<Build> getBuilds(BuildPageInfo pageInfo);
 
-    Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, int milestoneId);
+    Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, String milestoneId);
 
-    Page<Build> getBuildsForProject(BuildPageInfo pageInfo, int projectId);
+    Page<Build> getBuildsForProject(BuildPageInfo pageInfo, String projectId);
 
-    Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, int buildConfigurationId);
+    Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, String buildConfigurationId);
 
-    Page<Build> getBuildsForUser(BuildPageInfo pageInfo, int userId);
+    Page<Build> getBuildsForUser(BuildPageInfo pageInfo, String userId);
 
-    Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, int groupConfigurationId);
+    Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, String groupConfigurationId);
 
-    Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, int groupBuildId);
+    Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId);
 
-    Graph<Build> getGroupBuildGraph(int id);
+    Graph<Build> getGroupBuildGraph(String id);
 
     Page<Build> getAllByStatusAndLogContaining(int pageIndex,
                                                int pageSize,
@@ -75,7 +75,7 @@ public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord,
                                                BuildStatus status,
                                                String search);
 
-    void setBuiltArtifacts(int id, List<Integer> artifactIds);
+    void setBuiltArtifacts(String id, List<String> artifactIds);
 
-    void setDependentArtifacts(int id, List<Integer> artifactIds);
+    void setDependentArtifacts(String id, List<String> artifactIds);
 }

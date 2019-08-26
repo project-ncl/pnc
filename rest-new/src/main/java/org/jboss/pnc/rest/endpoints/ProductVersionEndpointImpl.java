@@ -67,22 +67,22 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public ProductVersion getSpecific(int id) {
+    public ProductVersion getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, ProductVersion productVersion) {
+    public void update(String id, ProductVersion productVersion) {
         endpointHelper.update(id, productVersion);
     }
 
     @Override
-    public ProductVersion patchSpecific(int id, ProductVersion productVersion) {
+    public ProductVersion patchSpecific(String id, ProductVersion productVersion) {
         return endpointHelper.update(id, productVersion);
     }
 
     @Override
-    public Page<BuildConfiguration> getBuildConfigurations(int id, PageParameters pageParams) {
+    public Page<BuildConfiguration> getBuildConfigurations(String id, PageParameters pageParams) {
 
         return buildConfigurationProvider.getBuildConfigurationsForProductVersion(
                 pageParams.getPageIndex(),
@@ -93,7 +93,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public Page<GroupConfiguration> getGroupConfigurations(int id, PageParameters pageParameters) {
+    public Page<GroupConfiguration> getGroupConfigurations(String id, PageParameters pageParameters) {
 
         return groupConfigurationProvider.getGroupConfigurationsForProductVersion(
                 pageParameters.getPageIndex(),
@@ -104,7 +104,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public Page<ProductMilestone> getMilestones(int id, PageParameters pageParameters) {
+    public Page<ProductMilestone> getMilestones(String id, PageParameters pageParameters) {
 
         return productMilestoneProvider.getProductMilestonesForProductVersion(
                 pageParameters.getPageIndex(),
@@ -115,7 +115,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public Page<ProductRelease> getReleases(int id, PageParameters pageParameters) {
+    public Page<ProductRelease> getReleases(String id, PageParameters pageParameters) {
 
         return productReleaseProvider.getProductReleasesForProductVersion(
                 pageParameters.getPageIndex(),

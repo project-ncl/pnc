@@ -77,27 +77,27 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     }
 
     @Override
-    public GroupBuild getSpecific(int id) {
+    public GroupBuild getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(String id) {
         endpointHelper.delete(id);
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters pageParams, BuildsFilterParameters filterParams) {
+    public Page<Build> getBuilds(String id, PageParameters pageParams, BuildsFilterParameters filterParams) {
         return buildProvider.getBuildsForGroupBuild(toBuildPageInfo(pageParams, filterParams), id);
     }
 
     @Override
-    public void brewPush(int id, GroupBuildPushRequest buildConfigSetRecordPushRequest) {
-        brewPusher.pushGroup(id, buildConfigSetRecordPushRequest.getTagPrefix());
+    public void brewPush(String id, GroupBuildPushRequest buildConfigSetRecordPushRequest) {
+        brewPusher.pushGroup(Integer.parseInt(id), buildConfigSetRecordPushRequest.getTagPrefix());
     }
 
     @Override
-    public void cancel(int id) {
+    public void cancel(String id) {
         logger.debug("Received cancel request fot Group Build {}.", id);
         if (provider.getSpecific(id) == null) {
             throw new NotFoundException("Unable to find Group Build {}." + id);
@@ -106,7 +106,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     }
 
     @Override
-    public Graph<Build> getDependencyGraph(int id) {
+    public Graph<Build> getDependencyGraph(String id) {
         return buildProvider.getGroupBuildGraph(id);
     }
 

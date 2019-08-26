@@ -25,16 +25,16 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
 public interface ProductMilestoneProvider extends Provider<org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
 
-    void closeMilestone(int id, ProductMilestone restEntity);
+    void closeMilestone(String id, ProductMilestone restEntity);
 
-    void closeMilestone(int id, ProductMilestone restEntity, String accessToken);
+    void closeMilestone(String id, ProductMilestone restEntity, String accessToken);
 
-    void cancelMilestoneCloseProcess(Integer id)
+    void cancelMilestoneCloseProcess(String id)
             throws RepositoryViolationException, EmptyEntityException;
 
     Page<ProductMilestone> getProductMilestonesForProductVersion(int pageIndex,
                                                                  int pageSize,
                                                                  String sortingRsql,
                                                                  String query,
-                                                                 Integer productVersionId);
+                                                                 String productVersionId);
 }

@@ -64,28 +64,28 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public ProductMilestone getSpecific(int id) {
+    public ProductMilestone getSpecific(String id) {
         return endpointHelper.getSpecific(id);
     }
 
     @Override
-    public void update(int id, ProductMilestone productMilestone) {
+    public void update(String id, ProductMilestone productMilestone) {
         endpointHelper.update(id, productMilestone);
     }
 
     @Override
-    public ProductMilestone patchSpecific(int id, ProductMilestone productMilestone) {
+    public ProductMilestone patchSpecific(String id, ProductMilestone productMilestone) {
         return endpointHelper.update(id, productMilestone);
     }
 
     @Override
-    public Page<Build> getBuilds(int id, PageParameters page, BuildsFilterParameters filter) {
+    public Page<Build> getBuilds(String id, PageParameters page, BuildsFilterParameters filter) {
         BuildPageInfo pageInfo = BuildEndpointImpl.toBuildPageInfo(page, filter);
         return buildProvider.getBuildsForMilestone(pageInfo, id);
     }
 
     @Override
-    public void closeMilestone(int id, ProductMilestone productMilestone) {
+    public void closeMilestone(String id, ProductMilestone productMilestone) {
         if (httpServletRequest != null) {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
             productMilestoneProvider.closeMilestone(id, productMilestone, loginInUser.getTokenString());
@@ -95,7 +95,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public void cancelMilestoneClose(int id) {
+    public void cancelMilestoneClose(String id) {
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
     }
 }

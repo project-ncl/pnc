@@ -75,27 +75,27 @@ public class GroupBuildProviderImpl extends AbstractProvider<BuildConfigSetRecor
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(String id) {
         Consumer<Result> onComplete = (result) -> {
             //notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_CONFIG_SET_RECORDS_DELETE.getId(), result.getId());
         };
 
         try {
-            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUserToken(), onComplete);
+            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(Integer.valueOf(id), currentUserToken(), onComplete);
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
     }
 
     @Override
-    public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, int groupConfigurationId) {
-        return queryForCollection(pageIndex, pageSize, sort, q, withBuildConfigSetId(groupConfigurationId));
+    public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, String groupConfigurationId) {
+        return queryForCollection(pageIndex, pageSize, sort, q, withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
     }
 
     @Override
-    public void cancel(int id) {
+    public void cancel(String id) {
         try {
-            buildCoordinator.cancelSet(id);
+            buildCoordinator.cancelSet(Integer.parseInt(id));
         } catch (CoreException e) {
             throw new RuntimeException("Error when canceling buildConfigSetRecord with id: " + id, e);
         }

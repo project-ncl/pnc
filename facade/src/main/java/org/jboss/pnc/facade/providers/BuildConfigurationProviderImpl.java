@@ -127,7 +127,7 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    protected void validateBeforeUpdating(Integer id, BuildConfiguration buildConfigurationRest) {
+    protected void validateBeforeUpdating(String id, BuildConfiguration buildConfigurationRest) {
 
         super.validateBeforeUpdating(id, buildConfigurationRest);
 
@@ -135,13 +135,13 @@ public class BuildConfigurationProviderImpl
         validateDependencies(id, buildConfigurationRest.getDependencies());
     }
 
-    private void validateDependencies(int buildConfigId, Set<BuildConfigurationRef> dependencies) throws InvalidEntityException {
+    private void validateDependencies(String buildConfigId, Set<BuildConfigurationRef> dependencies) throws InvalidEntityException {
 
         if (dependencies == null || dependencies.isEmpty()) {
             return;
         }
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(buildConfigId);
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(buildConfigId));
 
         for (BuildConfigurationRef buildConfigurationRef : dependencies) {
 
@@ -183,11 +183,11 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    public BuildConfigurationRevision createRevision(int id, BuildConfiguration buildConfiguration) {
+    public BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration) {
         super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
-        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(Integer.toString(id)).build());
+        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
         validateDependencies(id, buildConfiguration.getDependencies());
-        BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(id);
+        BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(Integer.parseInt(id));
         if (latestRevision == null) {
             throw new RepositoryViolationException("Entity should exist in the DB");
         }
@@ -207,9 +207,9 @@ public class BuildConfigurationProviderImpl
                                                                             int pageSize,
                                                                             String sortingRsql,
                                                                             String query,
-                                                                            Integer productVersionId) {
+                                                                            String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(productVersionId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
     }
 
     @Override
@@ -217,29 +217,29 @@ public class BuildConfigurationProviderImpl
                                                                      int pageSize,
                                                                      String sortingRsql,
                                                                      String query,
-                                                                     Integer projectId) {
+                                                                     String projectId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(Integer.valueOf(projectId)));
 
     }
 
     @Override
     public Page<BuildConfiguration> getBuildConfigurationsForScmRepository(int pageIndex,
-                                                                                    int pageSize,
-                                                                                    String sortingRsql,
-                                                                                    String query,
-                                                                                    int scmRepositoryId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withScmRepositoryId(scmRepositoryId));
+                                                                           int pageSize,
+                                                                           String sortingRsql,
+                                                                           String query,
+                                                                           String scmRepositoryId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withScmRepositoryId(Integer.valueOf(scmRepositoryId)));
     }
 
     @Override
-    public BuildConfiguration clone(Integer buildConfigurationId) {
+    public BuildConfiguration clone(String buildConfigurationId) {
 
         ValidationBuilder
                 .validateObject(WhenCreatingNew.class)
-                .validateAgainstRepository(repository, buildConfigurationId, true);
+                .validateAgainstRepository(repository, Integer.valueOf(buildConfigurationId), true);
 
-        org.jboss.pnc.model.BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
+        org.jboss.pnc.model.BuildConfiguration buildConfiguration = repository.queryById(Integer.valueOf(buildConfigurationId));
 
         org.jboss.pnc.model.BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
@@ -250,10 +250,10 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    public void addDependency(Integer configId, Integer dependencyId) {
+    public void addDependency(String configId, String dependencyId) {
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(configId);
-        org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(dependencyId);
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
+        org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
@@ -268,10 +268,10 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    public void removeDependency(Integer configId, Integer dependencyId) {
+    public void removeDependency(String configId, String dependencyId) {
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(configId);
-        org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(dependencyId);
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
+        org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
@@ -286,16 +286,16 @@ public class BuildConfigurationProviderImpl
                                                     int pageSize,
                                                     String sortingRsql,
                                                     String query,
-                                                    Integer configId) {
+                                                    String configId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantConfiguration(configId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantConfiguration(Integer.valueOf(configId)));
     }
 
     @Override
-    public Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, Integer id) {
+    public Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, String id) {
 
         List<BuildConfigurationAudited> auditedBuildConfigs =
-                buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(id);
+                buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(Integer.valueOf(id));
 
         List<BuildConfigurationRevision> toReturn =  nullableStreamOf(auditedBuildConfigs)
                 .map(buildConfigurationRevisionMapper::toDTO)
@@ -310,9 +310,9 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    public BuildConfigurationRevision getRevision(Integer id, Integer rev) {
+    public BuildConfigurationRevision getRevision(String id, Integer rev) {
 
-        IdRev idRev = new IdRev(id, rev);
+        IdRev idRev = new IdRev(Integer.valueOf(id), rev);
 
         BuildConfigurationAudited auditedBuildConfig = buildConfigurationAuditedRepository.queryById(idRev);
 
@@ -341,8 +341,8 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    public Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex, int pageSize, String sortingRsql, String query, int groupConfigId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(groupConfigId));
+    public Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex, int pageSize, String sortingRsql, String query, String groupConfigId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(Integer.valueOf(groupConfigId)));
     }
 
     @Override
@@ -368,10 +368,10 @@ public class BuildConfigurationProviderImpl
     }
 
     @Override
-    public Optional<BuildConfiguration> restoreRevision(int id, int rev) {
-        IdRev idRev = new IdRev(id, rev);
+    public Optional<BuildConfiguration> restoreRevision(String id, int rev) {
+        IdRev idRev = new IdRev(Integer.valueOf(id), rev);
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
-        org.jboss.pnc.model.BuildConfiguration originalBC = repository.queryById(id);
+        org.jboss.pnc.model.BuildConfiguration originalBC = repository.queryById(Integer.valueOf(id));
 
         if (buildConfigurationAudited == null || originalBC == null) {
             return Optional.empty();
