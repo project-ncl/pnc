@@ -49,6 +49,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
         if (logContext == null) {
             logContext = RandomUtils.randString(12);
         }
+        MDCUtils.clear();
         MDCUtils.addRequestContext(logContext);
         UriInfo uriInfo = context.getUriInfo();
         Request request = context.getRequest();
