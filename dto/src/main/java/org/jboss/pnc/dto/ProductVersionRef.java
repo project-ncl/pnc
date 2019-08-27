@@ -59,6 +59,7 @@ public class ProductVersionRef implements DTOEntity {
     protected final Map<String, String> attributes;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

@@ -75,6 +75,7 @@ public class BuildConfigurationRef implements DTOEntity {
     protected final BuildType buildType;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

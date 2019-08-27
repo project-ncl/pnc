@@ -56,6 +56,7 @@ public class TargetRepositoryRef implements DTOEntity {
     protected final String repositoryPath;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

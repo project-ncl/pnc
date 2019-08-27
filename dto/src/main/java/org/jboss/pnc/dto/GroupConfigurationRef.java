@@ -50,6 +50,7 @@ public class GroupConfigurationRef implements DTOEntity {
     protected final String name;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

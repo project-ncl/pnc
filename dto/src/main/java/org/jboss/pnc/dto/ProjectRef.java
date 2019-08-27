@@ -58,6 +58,7 @@ public class ProjectRef implements DTOEntity {
     protected final String projectUrl;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

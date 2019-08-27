@@ -64,6 +64,7 @@ public class BuildRef implements DTOEntity {
     protected final String scmRepositoryURL;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }
