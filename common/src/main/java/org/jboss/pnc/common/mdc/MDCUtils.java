@@ -57,4 +57,8 @@ public class MDCUtils {
         }
         return context;
     }
+
+    public static void clear() {
+        MDC.clear();
+    }
 }
