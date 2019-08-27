@@ -79,6 +79,7 @@ public class ArtifactRef implements DTOEntity {
     protected final String publicUrl;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

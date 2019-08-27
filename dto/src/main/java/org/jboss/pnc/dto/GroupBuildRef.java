@@ -56,6 +56,7 @@ public class GroupBuildRef implements DTOEntity {
     protected final Boolean temporaryBuild;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

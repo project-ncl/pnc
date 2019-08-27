@@ -64,6 +64,7 @@ public class ProductReleaseRef implements DTOEntity {
     protected final String issueTrackerUrl;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

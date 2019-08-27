@@ -65,6 +65,7 @@ public class ProductRef implements DTOEntity {
     protected final String pgmSystemName;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }
