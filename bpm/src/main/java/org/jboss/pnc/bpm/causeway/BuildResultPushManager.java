@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
 public class BuildResultPushManager {
 
     /** Generic parameter name for overriding the executionRootName value received from Repour. */
-    private static final String EXECUTION_ROOT_NAME_PARAM = "EXECUTION_ROOT_NAME";
+    private static final String BREW_BUILD_NAME = "BREW_BUILD_NAME";
 
     private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
     private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
@@ -218,8 +218,8 @@ public class BuildResultPushManager {
         // prefer execution root name from generic parameters
         BuildConfiguration bc = buildConfigurationRepository.queryById(buildRecord.getBuildConfigurationId());
         Map<String, String> genericParameters = bc.getGenericParameters();
-        if (genericParameters.containsKey(EXECUTION_ROOT_NAME_PARAM)) {
-            executionRootName = genericParameters.get(EXECUTION_ROOT_NAME_PARAM);
+        if (genericParameters.containsKey(BREW_BUILD_NAME)) {
+            executionRootName = genericParameters.get(BREW_BUILD_NAME);
         }
         if (executionRootName == null) {
             executionRootName = buildRecord.getExecutionRootName();
