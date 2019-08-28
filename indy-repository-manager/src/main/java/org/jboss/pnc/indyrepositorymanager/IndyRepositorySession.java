@@ -185,7 +185,6 @@ public class IndyRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
         }
 
-        Logger logger = LoggerFactory.getLogger(getClass());
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
@@ -215,7 +214,6 @@ public class IndyRepositorySession implements RepositorySession {
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
-        Logger logger = LoggerFactory.getLogger(getClass());
 
         IndyContentClientModule content;
         try {
@@ -434,8 +432,6 @@ public class IndyRepositorySession implements RepositorySession {
             }
 
             for (String pattern : patterns) {
-//                Logger logger = LoggerFactory.getLogger(getClass());
-//                logger.info( "Checking ")
                 if (pattern.equals(repoName)) {
                     return false;
                 }
@@ -458,7 +454,7 @@ public class IndyRepositorySession implements RepositorySession {
      */
     private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
-        Logger logger = LoggerFactory.getLogger(getClass());
+
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
