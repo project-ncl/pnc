@@ -57,16 +57,16 @@ public class Build extends BuildRef {
 
     private final BuildConfigurationRevisionRef buildConfigRevision;
 
-    private final List<Integer> dependentBuildIds;
+    private final List<String> dependentBuildIds;
 
-    private final List<Integer> dependencyBuildIds;
+    private final List<String> dependencyBuildIds;
 
     private final GroupBuildRef groupBuild;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Build(ProjectRef project, SCMRepository scmRepository, Environment environment, Map<String, String> attributes,
-            User user, BuildConfigurationRevisionRef buildConfigRevision, List<Integer> dependentBuildIds,
-            List<Integer> dependencyBuildIds, String id, Instant submitTime, Instant startTime, Instant endTime,
+            User user, BuildConfigurationRevisionRef buildConfigRevision, List<String> dependentBuildIds,
+            List<String> dependencyBuildIds, String id, Instant submitTime, Instant startTime, Instant endTime,
             BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmRepositoryURL,
             GroupBuildRef groupBuild) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmRepositoryURL);

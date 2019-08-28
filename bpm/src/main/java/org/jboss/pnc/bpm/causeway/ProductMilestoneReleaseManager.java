@@ -299,11 +299,11 @@ public class ProductMilestoneReleaseManager {
     }
 
     private void describeArtifactImportError(StringBuilder stringBuilder, ArtifactImportError e) {
-        Integer artifactId = e.getArtifactId();
-        Artifact artifact = artifactRepository.queryById(artifactId);
+        String artifactId = e.getArtifactId();
+        Artifact artifact = artifactRepository.queryById(Integer.valueOf(artifactId));
 
         stringBuilder.append(
-                String.format("Failed to import %s [artifactId:%d]. Error message: %s\n",
+                String.format("Failed to import %s [artifactId:%s]. Error message: %s\n",
                         orNull(artifact, Artifact::getIdentifier),
                         artifactId,
                         e.getErrorMessage())

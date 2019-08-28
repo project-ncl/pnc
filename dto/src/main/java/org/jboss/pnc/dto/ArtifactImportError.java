@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @JsonDeserialize(builder = ArtifactImportError.Builder.class)
 public class ArtifactImportError {
 
-    private final Integer artifactId;
+    private final String artifactId;
 
     private final String errorMessage;
 

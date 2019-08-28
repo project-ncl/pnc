@@ -125,7 +125,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         if (buildRecord == null) {
             return Response.noContent().entity("Cannot find a BuildRecord with given id.").build();
         }
-        Map<Integer, IdRev> buildRecordsIds = Collections.singletonMap(buildRecordId, buildRecord.getBuildConfigurationAuditedIdRev());
+        Map<String, IdRev> buildRecordsIds = Collections.singletonMap(String.valueOf(buildRecordId), buildRecord.getBuildConfigurationAuditedIdRev());
         logger.debug("Pushing BuildRecords {}.", buildRecordsIds);
         Set<Result> pushed = buildResultPushManager.push(
                 buildRecordsIds.keySet(),
@@ -133,7 +133,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
                 getCompleteCallbackUrl(),
                 buildRecordPushRequestRest.getTagPrefix(),
                 buildRecordPushRequestRest.isReimport());
-        logger.info("Push Results {}.", pushed.stream().map(r -> r.getId()).collect(Collectors.joining(",")));
+        logger.info("Push Results {}.", pushed.stream().map(Result::getId).collect(Collectors.joining(",")));
         Set<ResultRest> pushedResponse = toResultRests(pushed, buildRecordsIds);
 
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
@@ -151,9 +151,9 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
                 BuildRecordPredicates.withBuildConfigSetRecordId(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId()));
 
-        Map<Integer, IdRev> buildRecordsIds = buildRecords.stream()
+        Map<String, IdRev> buildRecordsIds = buildRecords.stream()
                 .collect(Collectors.toMap(
-                        BuildRecord::getId,
+                        a -> String.valueOf(a.getId()),
                         BuildRecord::getBuildConfigurationAuditedIdRev
                 ));
 
@@ -169,9 +169,9 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         return Response.ok().entity(JsonOutputConverterMapper.apply(pushedResponse)).build();
     }
 
-    private Set<ResultRest> toResultRests(Set<Result> pushed, Map<Integer, IdRev> buildRecordsIds) {
+    private Set<ResultRest> toResultRests(Set<Result> pushed, Map<String, IdRev> buildRecordsIds) {
         return pushed.stream()
-                    .map(r -> createResultRest(r, buildRecordsIds.get(Integer.parseInt(r.getId()))))
+                    .map(r -> createResultRest(r, buildRecordsIds.get(r.getId())))
                     .collect(Collectors.toSet());
     }
 

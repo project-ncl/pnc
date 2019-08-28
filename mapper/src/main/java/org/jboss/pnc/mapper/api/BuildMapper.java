@@ -166,9 +166,10 @@ public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef> 
     }
 
     public static class BuildTaskIdMapper {
-        public static List<Integer> toBuildIds(Set<BuildTask> buildTasks) {
+        public static List<String> toBuildIds(Set<BuildTask> buildTasks) {
             return buildTasks.stream()
                     .map(BuildTask::getId)
+                    .map(String::valueOf)
                     .collect(Collectors.toList());
         }
     }
