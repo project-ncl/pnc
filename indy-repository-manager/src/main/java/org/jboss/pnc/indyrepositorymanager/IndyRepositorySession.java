@@ -19,6 +19,7 @@ package org.jboss.pnc.indyrepositorymanager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.commonjava.atlas.maven.ident.ref.ArtifactRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
 import org.commonjava.atlas.maven.ident.util.ArtifactPathInfo;
@@ -71,6 +72,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
@@ -178,6 +180,9 @@ public class IndyRepositorySession implements RepositorySession {
         List<Artifact> downloads = processDownloads(report);
         Collections.sort(downloads, comp);
 
+        logger.info("BEGIN: Removing build aggregation group: {}", buildContentId);
+        StopWatch stopWatch = StopWatch.createStarted();
+
         try {
             StoreKey key = new StoreKey(packageType, StoreType.group, buildContentId);
             serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
@@ -185,11 +190,18 @@ public class IndyRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
         }
 
+        logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
+        stopWatch.reset();
+
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
         String log = "";
         CompletionStatus status = CompletionStatus.SUCCESS;
+
+        logger.info("BEGIN: promotion to build content set");
+        stopWatch.start();
+
         try {
             promoteToBuildContentSet(uploads);
         } catch (RepositoryManagerException rme) {
@@ -201,6 +213,9 @@ public class IndyRepositorySession implements RepositorySession {
             downloads = Collections.emptyList();
             uploads = Collections.emptyList();
         }
+
+        logger.info("END: promotion to build content set, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
+        stopWatch.reset();
 
         return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
     }
@@ -214,6 +229,9 @@ public class IndyRepositorySession implements RepositorySession {
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
+
+        logger.info("BEGIN: Process artifacts downloaded by build");
+        StopWatch stopWatch = StopWatch.createStarted();
 
         IndyContentClientModule content;
         try {
@@ -316,6 +334,7 @@ public class IndyRepositorySession implements RepositorySession {
             }
         }
 
+        logger.info("END: Process artifacts downloaded by build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
         return deps;
     }
 
@@ -455,6 +474,8 @@ public class IndyRepositorySession implements RepositorySession {
     private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
 
+        logger.info("BEGIN: Process artifacts uploaded from build");
+        StopWatch stopWatch = StopWatch.createStarted();
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
@@ -497,9 +518,10 @@ public class IndyRepositorySession implements RepositorySession {
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
             }
-
+            logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
             return builds;
         }
+        logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
         return Collections.emptyList();
     }
 
@@ -776,5 +798,4 @@ public class IndyRepositorySession implements RepositorySession {
         IOUtils.closeQuietly(indy);
         IOUtils.closeQuietly(serviceAccountIndy);
     }
-
 }
