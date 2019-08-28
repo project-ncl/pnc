@@ -113,9 +113,9 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
         assertLog(milestone).contains("Brew push FAILED")
                 .contains("Error message: " + errorMessage)
-                .contains(String.format("Failed to import %s [artifactId:%d]. Error message: %s",
+                .contains(String.format("Failed to import %s [artifactId:%s]. Error message: %s",
                         artifact1, artifactError1.getArtifactId(), artifactError1.getErrorMessage()))
-                .contains(String.format("Failed to import %s [artifactId:%d]. Error message: %s",
+                .contains(String.format("Failed to import %s [artifactId:%s]. Error message: %s",
                         artifact2, artifactError2.getArtifactId(), artifactError2.getErrorMessage()))
                 .contains(expectedDescription(record, buildResult));
     }
@@ -129,7 +129,7 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
         ArtifactImportError.Builder artifactImportErrorBuilder = ArtifactImportError.builder();
         artifactImportErrorBuilder.errorMessage(randomAlphabetic(30));
-        artifactImportErrorBuilder.artifactId(artifactId);
+        artifactImportErrorBuilder.artifactId(Integer.toString(artifactId));
         return artifactImportErrorBuilder.build();
     }
 

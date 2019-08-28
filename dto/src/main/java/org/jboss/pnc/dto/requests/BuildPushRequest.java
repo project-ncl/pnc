@@ -37,7 +37,7 @@ public class BuildPushRequest {
     private final String tagPrefix;
 
     @NotNull
-    private final Integer buildId;
+    private final String buildId;
 
     private final boolean reimport;
 

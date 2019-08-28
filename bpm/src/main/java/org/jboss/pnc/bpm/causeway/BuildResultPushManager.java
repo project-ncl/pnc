@@ -119,15 +119,15 @@ public class BuildResultPushManager {
      * @throws ProcessException
      */
     public Set<Result> push(
-            Set<Integer> buildRecordIds,
+            Set<String> buildRecordIds,
             String authToken,
             String callBackUrlTemplate, String tagPrefix,
             boolean reimport) throws ProcessException {
 
         Set<Result> result = new HashSet<>();
-        for (Integer buildRecordId : buildRecordIds) {
+        for (String buildRecordId : buildRecordIds) {
             //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
-            BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+            BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildRecordId));
             Integer pushBuildRecordId = null;
             if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
                 IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
@@ -139,7 +139,7 @@ public class BuildResultPushManager {
                             buildRecordId, idRev);
                 }
             } else {
-                pushBuildRecordId = buildRecordId;
+                pushBuildRecordId = Integer.valueOf(buildRecordId);
             }
             if (pushBuildRecordId != null) {
                 Result pushResult = pushToCauseway(
@@ -409,7 +409,7 @@ public class BuildResultPushManager {
     public boolean cancelInProgressPush(Integer buildRecordId) {
         BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
-                .buildId(buildRecordId)
+                .buildId(Integer.toString(buildRecordId))
                 .log("Canceled.")
                 .build();
         boolean canceled = inProgress.remove(buildRecordId) != null;

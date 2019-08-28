@@ -81,8 +81,9 @@ public class BrewPusherImpl implements BrewPusher {
         List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
                 BuildRecordPredicates.withBuildConfigSetRecordId(id));
 
-        Set<Integer> buildRecordsIds = buildRecords.stream()
+        Set<String> buildRecordsIds = buildRecords.stream()
                 .map(BuildRecord::getId)
+                .map(String::valueOf)
                 .collect(Collectors.toSet());
 
         try {
@@ -99,15 +100,15 @@ public class BrewPusherImpl implements BrewPusher {
 
     public BuildPushResult brewPush(BuildPushRequest buildPushRequest) throws ProcessException {
 
-        Integer buildId = buildPushRequest.getBuildId();
-        BuildRecord buildRecord = buildRecordRepository.queryById(buildId);
+        String buildId = buildPushRequest.getBuildId();
+        BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildId));
 
         if (buildRecord == null) {
             return null;
         }
 
         log.debug("Pushing BuildRecord {}.", buildId);
-        Set<Integer> toPush = new HashSet<>();
+        Set<String> toPush = new HashSet<>();
         toPush.add(buildId);
 
         Set<Result> pushed = buildResultPushManager.push(
@@ -117,7 +118,7 @@ public class BrewPusherImpl implements BrewPusher {
                 buildPushRequest.getTagPrefix(),
                 buildPushRequest.isReimport());
 
-        log.info("Push Results {}.", pushed.stream().map(r -> r.getId()).collect(Collectors.joining(",")));
+        log.info("Push Results {}.", pushed.stream().map(Result::getId).collect(Collectors.joining(",")));
 
         List<BuildPushResult> pushedResponse = pushed.stream()
                 .map(r -> BuildPushResult.builder()
