@@ -83,6 +83,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeSet;
 import java.util.stream.StreamSupport;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 
 @PermitAll
 @Stateless
@@ -118,6 +119,11 @@ public class BuildProviderImpl extends AbstractProvider<BuildRecord, Build, Buil
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
         this.sortInfoProducer = sortInfoProducer;
+    }
+
+    @Override
+    public Build store(Build restEntity) throws DTOValidationException {
+        throw new UnsupportedOperationException("Direct build creation is not available.");
     }
 
     @RolesAllowed(SYSTEM_USER)

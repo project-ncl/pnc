@@ -43,18 +43,20 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Condition;
 
-import org.jboss.pnc.facade.rsql.RSQLProducer;
-import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -62,7 +64,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BuildProviderImplTest {
+public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
     @Mock
     private BuildRecordRepository repository;
@@ -71,101 +73,62 @@ public class BuildProviderImplTest {
     private BuildCoordinator buildCoordinator;
 
     @Mock
-    private BuildMapper mapper;
-    
-    @Mock
-    private PageInfoProducer pageInfoProducer;
-    
-    @Mock
     private SortInfoProducer sortInfoProducer;
-
-    @Mock
-    protected RSQLProducer rsqlPredicateProducer;
 
     @InjectMocks
     private BuildProviderImpl provider;
 
-    private static int id = 1;
-
     private final List<BuildTask> runningBuilds = new ArrayList<>();
 
-    private final List<BuildRecord> finishedBuilds = new ArrayList<>();
-    
-    
+    @Override
+    protected AbstractProvider provider() {
+        return provider;
+    }
+
+    @Override
+    protected Repository repository() {
+        return repository;
+    }
 
     @Before
     public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
-        AbstractProvider.class.getDeclaredField("pageInfoProducer").set(provider, pageInfoProducer);
-        AbstractProvider.class.getDeclaredField("rsqlPredicateProducer").set(provider, rsqlPredicateProducer);
-        when(mapper.toDTO(any())).thenAnswer((InvocationOnMock invocation) -> {
-            BuildRecord build = invocation.getArgument(0);
-            return Build.builder().id(build.getId().toString()).submitTime(build.getSubmitTime().toInstant()).build();
+        when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any())).thenAnswer(new ListAnswer(repositoryList));
+        when(repository.findByIdFetchAllProperties(anyInt())).thenAnswer(inv -> {
+            Integer id = inv.getArgument(0);
+            return repositoryList.stream()
+                    .filter(a -> id.equals(a.getId()))
+                    .findFirst()
+                    .orElse(null);
         });
-        when(mapper.fromBuildTask(any())).thenAnswer((InvocationOnMock invocation) -> {
-            BuildTask build = invocation.getArgument(0);
-            return Build.builder()
-                    .id(Integer.toString(build.getId()))
-                    .submitTime(build.getSubmitTime().toInstant())
-                    .build();
+        when(repository.findByIdFetchProperties(anyInt())).thenAnswer(inv -> {
+            Integer id = inv.getArgument(0);
+            return repositoryList.stream()
+                    .filter(a -> id.equals(a.getId()))
+                    .findFirst()
+                    .orElse(null);
         });
+
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
-        when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any()))
-                .thenAnswer(this::withFinishedBuilds);
-        when(repository.queryWithPredicates(any(PageInfo.class), any(SortInfo.class), any()))
-                .thenAnswer(this::withFinishedBuilds);
-        when(repository.count(any())).thenAnswer(i -> finishedBuilds.size());
-        when(pageInfoProducer.getPageInfo(anyInt(), anyInt())).thenAnswer(this::withPageInfo);
         when(sortInfoProducer.getSortInfo(any(String.class))).thenAnswer(i -> mock(SortInfo.class));
         when(sortInfoProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
     }
 
-    private PageInfo withPageInfo(InvocationOnMock inv) {
-        int offset = inv.getArgument(0);
-        int size = inv.getArgument(1);
-        return new PageInfo() {
-            @Override
-            public int getPageSize() {
-                return size;
-            }
-            
-            @Override
-            public int getPageOffset() {
-                return offset;
-            }
-        };
-    }
-
-    private List<BuildRecord> withFinishedBuilds(InvocationOnMock invocation) {
-        PageInfo pageInfo = invocation.getArgument(0);
-        int first = pageInfo.getPageOffset();
-        int last = first + pageInfo.getPageSize();
-        if (last > finishedBuilds.size()) {
-            last = finishedBuilds.size();
-        }
-        if (first > last) {
-            first = last;
-        }
-        List<BuildRecord> ret = new ArrayList<>(finishedBuilds);
-        Collections.reverse(ret);
-        return ret.subList(first, last);
-    }
-
     private BuildTask mockBuildTask() {
         BuildTask bt = mock(BuildTask.class);
-        when(bt.getId()).thenReturn(id++);
-        when(bt.getSubmitTime()).thenReturn(new Date(id * 100));
+        when(bt.getId()).thenReturn(entityId++);
+        when(bt.getSubmitTime()).thenReturn(new Date(entityId * 100));
 
         runningBuilds.add(bt);
         return bt;
     }
 
     private BuildRecord mockBuildRecord() {
-        BuildRecord br = mock(BuildRecord.class);
-        when(br.getId()).thenReturn(id++);
-        when(br.getSubmitTime()).thenReturn(new Date(id * 100));
-
-        finishedBuilds.add(br);
+        BuildRecord br = BuildRecord.Builder.newBuilder()
+                .id(entityId++)
+                .submitTime(new Date(entityId * 100))
+                .build();
+        repositoryList.add(0, br);
         return br;
     }
 
@@ -252,8 +215,8 @@ public class BuildProviderImplTest {
         assertEquals(String.valueOf(build1.getId()), it.next().getId());
         assertEquals(String.valueOf(build2.getId()), it.next().getId());
     }
-    
-    
+
+
     @Test
     public void testGetBuildsPages() {
         // Prepare
@@ -287,7 +250,7 @@ public class BuildProviderImplTest {
         }
         assertFalse(it.hasNext());
     }
-    
+
     public void testBuildIterator() {
         SortInfo sortInfo = mock(SortInfo.class);
         Predicate<BuildRecord> predicate = mock(Predicate.class);
@@ -325,6 +288,48 @@ public class BuildProviderImplTest {
             ret.add(Integer.valueOf(bit.next().getId()));
         }
         assertEquals(Arrays.asList(7, 8, 9, 10, 11, 12), ret);
+    }
+
+    @Test
+    public void testStore(){
+        try{
+            provider.store(null);
+            fail("Creating build must be unsupported.");
+        } catch(UnsupportedOperationException ex){
+            //ok
+        }
+    }
+
+    @Test
+    public void testGetSpecificFinished(){
+        BuildRecord record = mockBuildRecord();
+
+        Build specific = provider.getSpecific(record.getId());
+        assertThat(specific.getId()).isEqualTo(record.getId().toString());
+        assertThat(specific.getSubmitTime()).isEqualTo(record.getSubmitTime().toInstant());
+    }
+
+    @Test
+    public void testGetSpecificRunning(){
+        BuildTask task = mockBuildTask();
+
+        Build specific = provider.getSpecific(task.getId());
+        assertThat(specific.getId()).isEqualTo(Integer.toString(task.getId()));
+        assertThat(specific.getSubmitTime()).isEqualTo(task.getSubmitTime().toInstant());
+    }
+
+    @Test
+    public void testGetAll() {
+        BuildRecord buildRecord1 = mockBuildRecord();
+        BuildRecord buildRecord2 = mockBuildRecord();
+        BuildRecord buildRecord3 = mockBuildRecord();
+        Page<Build> all = provider.getAll(0, 10, null, null);
+
+        assertThat(all.getContent())
+                .hasSize(3)
+                .haveExactly(1, new Condition<>(b -> buildRecord1.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"))
+                .haveExactly(1, new Condition<>(b -> buildRecord2.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"))
+                .haveExactly(1, new Condition<>(b -> buildRecord3.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"));
     }
 
     private void mockRepository(SortInfo sortInfo, Predicate<BuildRecord> predicate) {
