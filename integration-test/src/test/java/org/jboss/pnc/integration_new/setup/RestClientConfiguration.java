@@ -42,4 +42,12 @@ public class RestClientConfiguration {
         return builder.build();
     }
 
+    public static Configuration asAnonymous(){
+        return getConfiguration(AuthenticateAs.NONE);
+    }
+
+    public static Configuration asSystem(){
+        return getConfiguration(AuthenticateAs.SYSTEM_USER);
+    }
+
 }
