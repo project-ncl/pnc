@@ -138,6 +138,19 @@
             <artifactId>hibernate-envers</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>test</scope>
+        </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.el-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     </dependencies>
 
     <build>
