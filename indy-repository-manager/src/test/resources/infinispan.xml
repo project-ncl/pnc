@@ -20,7 +20,7 @@
 -->
 <infinispan
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="urn:infinispan:config:8.2 http://www.infinispan.org/schemas/infinispan-config-8.2.xsd"
+        xsi:schemaLocation="urn:infinispan:config:8.2 https://infinispan.org/schemas/infinispan-config-8.2.xsd"
         xmlns="urn:infinispan:config:8.2">
 
     <cache-container default-cache="dont-use" name="IndyCacheManager" shutdown-hook="DEFAULT">
