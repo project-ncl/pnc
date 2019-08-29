@@ -234,7 +234,7 @@ public class MavenRepositorySession implements RepositorySession {
                 String path = download.getPath();
                 StoreKey source = download.getStoreKey();
                 if (ignoreContent(path)) {
-                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), source);
+                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", path, source);
                     continue;
                 }
 
@@ -254,10 +254,19 @@ public class MavenRepositorySession implements RepositorySession {
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
-                            paths.add(download.getPath());
                             if (MAVEN_PKG_KEY.equals(packageType)) {
-                                paths.add(download.getPath() + ".md5");
-                                paths.add(download.getPath() + ".sha1");
+                                paths.add(path);
+                                paths.add(path + ".md5");
+                                paths.add(path + ".sha1");
+                            } else if (NPM_PKG_KEY.equals(packageType)) {
+                                if (path.matches("^/([^/]+)/-/\\1-.+\\.tgz$")) {
+                                    paths.add(path);
+                                } else if (path.matches("^/[^/]+$")) {
+                                    // skip metadata
+                                } else {
+                                    logger.warn("Unrecognized NPM download path: {}", path);
+                                    paths.add(path);
+                                }
                             }
                             break;
 
@@ -268,7 +277,7 @@ public class MavenRepositorySession implements RepositorySession {
                             sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
                             paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
-                            paths.add(download.getPath());
+                            paths.add(path);
                             break;
 
                         default:
@@ -294,7 +303,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .sha1(download.getSha1())
                         .sha256(download.getSha256())
                         .size(download.getSize())
-                        .deployPath(download.getPath())
+                        .deployPath(path)
                         .originUrl(originUrl)
                         .importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName())
@@ -472,7 +481,7 @@ public class MavenRepositorySession implements RepositorySession {
                         .sha1(upload.getSha1())
                         .sha256(upload.getSha256())
                         .size(upload.getSize())
-                        .deployPath(upload.getPath())
+                        .deployPath(path)
                         .filename(new File(path).getName())
                         .identifier(identifier)
                         .targetRepository(targetRepository)
