@@ -23,7 +23,7 @@
       buildRecord: '<',
       shortLink: '@'
     },
-    transclude: true, 
+    transclude: true,
     templateUrl: 'build-records/directives/pnc-build-record-link/pnc-build-record-link.html',
     controller: [Controller]
   });
@@ -45,7 +45,7 @@
       if ($ctrl.shortLink === 'true') {
         return '#' + $ctrl.buildRecord.id;
       } else {
-        return $ctrl.buildRecord.$canonicalName();
+        return $ctrl.buildRecord.buildConfigurationAudited.name + '#' + $ctrl.buildRecord.id;
       }
     }
   }
