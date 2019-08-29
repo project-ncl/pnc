@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -37,5 +38,20 @@ public class EnvironmentProviderImpl
     public EnvironmentProviderImpl(BuildEnvironmentRepository repository,
                                    EnvironmentMapper mapper) {
         super(repository, mapper, BuildEnvironment.class);
+    }
+
+    @Override
+    public Environment store(Environment restEntity) throws DTOValidationException {
+        throw new UnsupportedOperationException("Creating Environments is prohibited");
+    }
+
+    @Override
+    public Environment update(String id, Environment restEntity) {
+        throw new UnsupportedOperationException("Updating Environments is prohibited");
+    }
+
+    @Override
+    public void delete(String id) {
+        throw new UnsupportedOperationException("Deleting Environments is prohibited");
     }
 }
