@@ -20,12 +20,12 @@
 <div>
   <pnc-build-status-icon build-record="$ctrl.buildItem"></pnc-build-status-icon>
 
-  <a ng-if="$ctrl.buildRecord" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.buildRecord.buildConfigurationAudited.projectId, configurationId: $ctrl.buildRecord.buildConfigurationAudited.id })" ng-click="$event.stopPropagation()">{{$ctrl.buildRecord.buildConfigurationAudited.name}}</a> 
+  <a ng-if="$ctrl.buildRecord" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.buildRecord.buildConfigurationAudited.projectId, configurationId: $ctrl.buildRecord.buildConfigurationAudited.id })" ng-click="$event.stopPropagation()">{{$ctrl.buildRecord.buildConfigurationAudited.name}}</a>
   <a ng-if="$ctrl.buildGroupRecord" ui-sref="build-groups.detail.build-configs({ configurationSetId: $ctrl.buildGroupRecord.configurationSet.id })" ng-click="$event.stopPropagation()">{{$ctrl.buildGroupRecord.configurationSet.name}}</a>
 
   <span class="fa fa-angle-double-right"></span>
 
-  <a ng-if="$ctrl.buildRecord" ui-sref="build-records.detail.default({ recordId: $ctrl.buildRecord.id })" ng-click="$event.stopPropagation()"># {{ $ctrl.buildRecord.id }}</a>
+  <pnc-build-record-link ng-if="$ctrl.buildRecord" build-record="$ctrl.buildRecord" short-link="true"></pnc-build-record-link>
   <a ng-if="$ctrl.buildGroupRecord" ui-sref="configuration-set-record.detail.info({ recordId: $ctrl.buildGroupRecord.id })" ng-click="$event.stopPropagation()"># {{ $ctrl.buildGroupRecord.id }}</a>
 
 </div>
