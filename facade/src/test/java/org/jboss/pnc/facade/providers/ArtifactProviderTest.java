@@ -58,12 +58,6 @@ import org.mockito.Mockito;
 public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.model.Artifact> {
 
     @Mock
-    private RSQLProducer rsqlPredicateProducer;
-
-    @Mock
-    private PageInfoProducer pageInfoProducer;
-
-    @Mock
     private ArtifactRepository repository;
 
     @Mock

@@ -58,6 +58,8 @@ import org.mockito.ArgumentMatchers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
@@ -81,22 +83,30 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
 
     @Spy
     protected ArtifactMapper artifactMapper = new AbstractArtifactMapperImpl();
+
     @Spy
-    private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper = new BuildConfigurationRevisionMapperImpl();
+    protected BuildConfigurationRevisionMapper buildConfigurationRevisionMapper = new BuildConfigurationRevisionMapperImpl();
+
     @Spy
-    private BuildMapper buildMapper = new BuildMapperImpl();
+    protected BuildMapper buildMapper = new BuildMapperImpl();
+
     @Spy
-    private EnvironmentMapper environmentMapper = new EnvironmentMapperImpl();
+    protected EnvironmentMapper environmentMapper = new EnvironmentMapperImpl();
+
     @Spy
-    private GroupBuildMapper groupBuildMapper = new GroupBuildMapperImpl();
+    protected GroupBuildMapper groupBuildMapper = new GroupBuildMapperImpl();
+
     @Spy
-    private ProjectMapper projectMapper = new ProjectMapperImpl();
+    protected ProjectMapper projectMapper = new ProjectMapperImpl();
+
     @Spy
-    private SCMRepositoryMapper sCMRepositoryMapper = new SCMRepositoryMapperImpl();
+    protected SCMRepositoryMapper sCMRepositoryMapper = new SCMRepositoryMapperImpl();
+
     @Spy
     protected TargetRepositoryMapper targetRepositoryMapper = new TargetRepositoryMapperImpl();
+
     @Spy
-    private UserMapper userMapper = new UserMapperImpl();
+    protected UserMapper userMapper = new UserMapperImpl();
 
     protected int entityId = 1;
 
@@ -162,6 +172,15 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
                     .findFirst()
                     .orElse(null);
         });
+        doAnswer(inv -> {
+            Integer id = inv.getArgument(0);
+            Object object = repositoryList.stream()
+                    .filter(a -> id.equals(a.getId()))
+                    .findFirst()
+                    .orElse(null);
+            repositoryList.remove(object);
+            return null;
+        }).when(repository()).delete(anyInt());
     }
 
 
