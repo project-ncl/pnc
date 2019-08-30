@@ -56,6 +56,17 @@ public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
         validateIfNotConflicted(restEntity, WhenUpdating.class);
     }
 
+    /**
+     * Not allowed to delete a product
+     * @param id
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public void delete(String id) {
+        throw new UnsupportedOperationException("Deleting products is prohibited!");
+    }
+
     @SuppressWarnings("unchecked")
     private void validateIfNotConflicted(Product productRest, Class<? extends ValidationGroup> group)
             throws ConflictedEntryException {
@@ -64,7 +75,13 @@ public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
 
                     org.jboss.pnc.model.Product product = repository.queryByPredicates(withName(productRest.getName()));
 
-                    if (product != null && !product.getId().equals(Integer.valueOf(productRest.getId()))) {
+                    Integer productId = null;
+
+                    if (productRest.getId() != null) {
+                        productId = Integer.valueOf(productRest.getId());
+                    }
+
+                    if (product != null && !product.getId().equals(productId)) {
                         return new ConflictedEntryValidator.ConflictedEntryValidationError(
                                 product.getId(),
                                 org.jboss.pnc.model.Product.class,
