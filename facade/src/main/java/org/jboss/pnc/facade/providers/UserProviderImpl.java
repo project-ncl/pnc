@@ -57,4 +57,29 @@ public class UserProviderImpl
 
         return currentUser;
     }
+
+    /**
+     * Not allowed
+     * @param id
+     * @param user
+     *
+     * @return
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public User update(String id, User user) {
+        throw new UnsupportedOperationException("Updating users is prohibited");
+    }
+
+    /**
+     * Not allowed
+     * @param id
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public void delete(String id) {
+        throw new UnsupportedOperationException("Deleting users is prohibited");
+    }
 }
