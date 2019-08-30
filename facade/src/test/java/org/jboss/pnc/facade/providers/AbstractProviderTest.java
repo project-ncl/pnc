@@ -20,7 +20,10 @@ package org.jboss.pnc.facade.providers;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.jboss.pnc.mapper.ProductMapperImpl;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.ProductMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -98,6 +101,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
 
     @Spy
     protected ProjectMapper projectMapper = new ProjectMapperImpl();
+
+    @Spy
+    protected ProductMapper productMapper = new ProductMapperImpl();
 
     @Spy
     protected SCMRepositoryMapper sCMRepositoryMapper = new SCMRepositoryMapperImpl();
