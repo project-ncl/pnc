@@ -41,8 +41,9 @@ import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
 import org.commonjava.indy.promote.model.PromoteRequest;
 import org.commonjava.indy.promote.model.ValidationResult;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.PatternsList;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -91,8 +92,8 @@ public class IndyRepositorySession implements RepositorySession {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
-    /** PackageType-specific ignored suffixes. */
-    private IgnoredPathSuffixes ignoredPathSuffixes;
+    /** PackageType-specific ignored patterns. */
+    private IgnoredPathPatterns ignoredPathPatterns;
 
     private boolean isTempBuild;
 
@@ -113,13 +114,13 @@ public class IndyRepositorySession implements RepositorySession {
 
     public IndyRepositorySession(Indy indy, Indy serviceAccountIndy, String buildContentId, String packageType,
             IndyRepositoryConnectionInfo info, InternalRepoPatterns internalRepoPatterns,
-            IgnoredPathSuffixes ignoredPathSuffixes, String buildPromotionTarget, boolean isTempBuild) {
+            IgnoredPathPatterns ignoredPathPatterns, String buildPromotionTarget, boolean isTempBuild) {
         this.indy = indy;
         this.serviceAccountIndy = serviceAccountIndy;
         this.buildContentId = buildContentId;
         this.packageType = packageType;
         this.internalRepoPatterns = internalRepoPatterns;
-        this.ignoredPathSuffixes = ignoredPathSuffixes;
+        this.ignoredPathPatterns = ignoredPathPatterns;
         this.connectionInfo = info;
         this.buildPromotionTarget = buildPromotionTarget;
         this.isTempBuild = isTempBuild; //TODO define based on buildPromotionTarget
@@ -235,7 +236,7 @@ public class IndyRepositorySession implements RepositorySession {
                 StoreKey source = download.getStoreKey();
                 String packageType = source.getPackageType();
                 if (ignoreContent(packageType, path)) {
-                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), source);
+                    logger.debug("Ignoring download (matched in ignored patterns): {} (From: {})", download.getPath(), source);
                     continue;
                 }
 
@@ -474,7 +475,7 @@ public class IndyRepositorySession implements RepositorySession {
                 String path = upload.getPath();
                 StoreKey storeKey = upload.getStoreKey();
                 if (ignoreContent(storeKey.getPackageType(), path)) {
-                    logger.debug("Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, storeKey);
+                    logger.debug("Ignoring upload (matched in ignored patterns): {} (From: {})", path, storeKey);
                     continue;
                 }
 
@@ -734,29 +735,23 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     private boolean ignoreContent(String packageType, String path) {
-        List<String> suffixes;
+        PatternsList patterns;
         switch (packageType) {
             case MAVEN_PKG_KEY:
-                suffixes = ignoredPathSuffixes.getMavenWithShared();
+                patterns = ignoredPathPatterns.getMavenWithShared();
                 break;
             case NPM_PKG_KEY:
-                suffixes = ignoredPathSuffixes.getNpmWithShared();
+                patterns = ignoredPathPatterns.getNpmWithShared();
                 break;
             case GENERIC_PKG_KEY:
-                suffixes = ignoredPathSuffixes.getShared();
+                patterns = ignoredPathPatterns.getShared();
                 break;
             default:
                 throw new IllegalArgumentException("Package type " + packageType
                         + " is not supported by Indy repository manager driver.");
         }
 
-        for (String suffix : suffixes) {
-            if (path.endsWith(suffix)) {
-                return true;
-            }
-        }
-
-        return false;
+        return patterns.matchesOne(path);
     }
 
     private RepositoryType toRepoType(String packageType) {

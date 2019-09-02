@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
 import org.junit.Test;
@@ -49,12 +49,12 @@ public class ModuleConfigJsonTest {
                 new IndyRepoDriverModuleConfig("http://something/base");
         indyRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         indyRepoDriverModuleConfig.setDefaultRequestTimeout(100);
-        IgnoredPathSuffixes ignoredSuffixes = new IgnoredPathSuffixes();
-        List<String> ignoredSuffixesMaven = new ArrayList<>(2);
-        ignoredSuffixes.setMaven(ignoredSuffixesMaven);
-        ignoredSuffixesMaven.add("/maven-metadata.xml");
-        ignoredSuffixesMaven.add(".sha1");
-        indyRepoDriverModuleConfig.setIgnoredPathSuffixes(ignoredSuffixes);
+        IgnoredPathPatterns ignoredPatterns = new IgnoredPathPatterns();
+        List<String> ignoredPatternsMaven = new ArrayList<>(2);
+        ignoredPatternsMaven.add(".*/maven-metadata\\.xml$");
+        ignoredPatternsMaven.add(".*\\.sha1$");
+        ignoredPatterns.setMaven(ignoredPatternsMaven);
+        indyRepoDriverModuleConfig.setIgnoredPathPatterns(ignoredPatterns);
 
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(jenkinsBuildDriverModuleConfig);
