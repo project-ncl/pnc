@@ -31,6 +31,8 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @ToString
 public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
@@ -51,11 +53,11 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
     private InternalRepoPatterns internalRepoPatterns;
 
     /**
-     * Comma-separated list of path suffixes to be ignored from showing in UI and to be part of a promotion. This
+     * Comma-separated list of path patterns to be ignored from showing in UI and to be part of a promotion. This
      * applies for both downloads and uploads.
      */
-    @JsonProperty("ignored-path-suffixes")
-    private IgnoredPathSuffixes ignoredPathSuffixes;
+    @JsonProperty("ignored-path-patterns")
+    private IgnoredPathPatterns ignoredPathPatterns;
 
     /**
      * Internal network (cloud) maven repository path
@@ -133,12 +135,12 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
         this.internalRepoPatterns = internalRepoPatterns;
     }
 
-    public IgnoredPathSuffixes getIgnoredPathSuffixes() {
-        return ignoredPathSuffixes;
+    public IgnoredPathPatterns getIgnoredPathPatterns() {
+        return ignoredPathPatterns;
     }
 
-    public void setIgnoredPathSuffixes(IgnoredPathSuffixes ignoredPathSuffixes) {
-        this.ignoredPathSuffixes = ignoredPathSuffixes;
+    public void setIgnoredPathPatterns(IgnoredPathPatterns ignoredPathPatterns) {
+        this.ignoredPathPatterns = ignoredPathPatterns;
     }
 
     public String getInternalRepositoryMvnPath() {
@@ -174,7 +176,8 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
     }
 
 
-    private static class PackageTypeSpecificStringLists {
+    @ToString
+    public static class InternalRepoPatterns {
 
         @Setter
         @JsonProperty("maven")
@@ -264,54 +267,122 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
     }
 
 
-    @ToString
-    public static class InternalRepoPatterns extends PackageTypeSpecificStringLists {
+    public static class PatternsList {
 
-    }
+        @Getter
+        private List<Pattern> patterns;
 
-
-    @ToString
-    public static class IgnoredPathSuffixes extends PackageTypeSpecificStringLists {
-
-        @Setter
-        @JsonProperty("_shared")
-        @JsonInclude(Include.NON_EMPTY)
-        private List<String> shared;
-
-        @JsonIgnore
-        public List<String> getMavenWithShared() {
-            List<String> mavenWithShared = (maven == null ? new ArrayList<>() : new ArrayList<>(maven));
-            mavenWithShared.addAll(getShared());
-            return mavenWithShared;
-        }
-
-        @JsonIgnore
-        public List<String> getNpmWithShared() {
-            List<String> npmWithShared = (npm == null ? new ArrayList<>() : new ArrayList<>(npm));
-            npmWithShared.addAll(getShared());
-            return npmWithShared;
-        }
-
-        /**
-         * Gets the list of ignored path suffixes shared among all package types.
-         * @return the list of shared strings or empty list if no value is set (never {@code null})
-         */
-        public List<String> getShared() {
-            return shared == null ? Collections.emptyList() : shared;
-        }
-
-        /**
-         * Adds extra members to the list of shared strings.
-         * @param addition added strings
-         */
-        public void addShared(List<String> addition) {
-            if (addition != null) {
-                if (shared == null) {
-                    shared = new ArrayList<>(addition);
-                } else {
-                    shared.addAll(addition);
+        private PatternsList(List<String> strings) {
+            if (strings != null) {
+                patterns = new ArrayList<>(strings.size());
+                for (String string : strings) {
+                    patterns.add(Pattern.compile(string));
                 }
             }
+        }
+
+        private PatternsList(PatternsList patterns1, PatternsList patterns2) {
+            this.patterns = new ArrayList<>();
+            if (patterns1 != null) {
+                patterns.addAll(patterns1.patterns);
+            }
+            if (patterns2 != null) {
+                patterns.addAll(patterns2.patterns);
+            }
+        }
+
+        public boolean matchesOne(String string) {
+            if (patterns != null) {
+                for (Pattern pattern : patterns) {
+                    if (pattern.matcher(string).matches()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    @ToString
+    public static class IgnoredPathPatterns {
+
+        @JsonIgnore
+        private PatternsList maven;
+
+        @JsonIgnore
+        private PatternsList npm;
+
+        @JsonIgnore
+        private PatternsList shared;
+
+
+        @JsonProperty("maven")
+        public void setMaven(List<String> strPatterns) {
+            maven = new PatternsList(strPatterns);
+        }
+
+        @JsonProperty("npm")
+        public void setNpm(List<String> strPatterns) {
+            npm = new PatternsList(strPatterns);
+        }
+
+        @JsonProperty("_shared")
+        public void setShared(List<String> strPatterns) {
+            shared = new PatternsList(strPatterns);
+        }
+
+        @JsonIgnore
+        public PatternsList getMaven() {
+            return maven == null ? new PatternsList(Collections.emptyList()) : maven;
+        }
+
+        @JsonIgnore
+        public PatternsList getMavenWithShared() {
+            return new PatternsList(maven, shared);
+        }
+
+        public PatternsList getNpm() {
+            return npm == null ? new PatternsList(Collections.emptyList()) : npm;
+        }
+
+        @JsonIgnore
+        public PatternsList getNpmWithShared() {
+            return new PatternsList(npm, shared);
+        }
+
+        /**
+         * Gets the list of ignored path patterns shared among all package types.
+         * @return the list of shared strings or empty list if no value is set (never {@code null})
+         */
+        @JsonIgnore
+        public PatternsList getShared() {
+            return shared == null ? new PatternsList(Collections.emptyList()) : shared;
+        }
+
+        private List<String> genStringList(PatternsList patternsList) {
+            if (patternsList != null && patternsList.patterns != null) {
+                return patternsList.patterns.stream().map(p -> p.pattern()).collect(Collectors.toList());
+            } else {
+                return Collections.emptyList();
+            }
+        }
+
+        @JsonProperty("maven")
+        @JsonInclude(Include.NON_EMPTY)
+        public List<String> getMavenStrings() {
+            return genStringList(maven);
+        }
+
+        @JsonProperty("npm")
+        @JsonInclude(Include.NON_EMPTY)
+        public List<String> getNpmStrings() {
+            return genStringList(npm);
+        }
+
+        @JsonProperty("_shared")
+        @JsonInclude(Include.NON_EMPTY)
+        public List<String> getSharedStrings() {
+            return genStringList(shared);
         }
 
     }

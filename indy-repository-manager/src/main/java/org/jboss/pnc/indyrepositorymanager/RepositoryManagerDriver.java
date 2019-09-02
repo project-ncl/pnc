@@ -38,7 +38,7 @@ import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathSuffixes;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.enums.RepositoryType;
@@ -97,7 +97,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private InternalRepoPatterns internalRepoPatterns;
 
-    private IgnoredPathSuffixes ignoredPathSuffixes;
+    private IgnoredPathPatterns ignoredPathPatterns;
 
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
@@ -136,11 +136,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
             internalRepoPatterns.addNpm(extraInternalRepoPatterns.getNpm());
         }
 
-        IgnoredPathSuffixes ignoredPathSuffixes = config.getIgnoredPathSuffixes();
-        if (ignoredPathSuffixes == null) {
-            this.ignoredPathSuffixes = new IgnoredPathSuffixes();
+        IgnoredPathPatterns ignoredPathPatterns = config.getIgnoredPathPatterns();
+        if (ignoredPathPatterns == null) {
+            this.ignoredPathPatterns = new IgnoredPathPatterns();
         } else {
-            this.ignoredPathSuffixes = ignoredPathSuffixes; // TODO do we need a copy?
+            this.ignoredPathPatterns = ignoredPathPatterns; // TODO do we need a copy?
         }
     }
 
@@ -225,7 +225,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
         return new IndyRepositorySession(indy, serviceAccountIndy, buildId, packageType,
                 new IndyRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns, ignoredPathSuffixes, buildPromotionGroup, tempBuild);
+                internalRepoPatterns, ignoredPathPatterns, buildPromotionGroup, tempBuild);
     }
 
     private String getIndyPackageTypeKey(RepositoryType repoType) {

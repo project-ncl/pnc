@@ -25,6 +25,8 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -44,12 +46,13 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
             assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
             assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
             assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
-            assertEquals(0, mavenConfig.getIgnoredPathSuffixes().getNpm().size());
-            List<String> ignoredPathSuffixesMaven = mavenConfig.getIgnoredPathSuffixes().getMaven();
-            assertNotNull(ignoredPathSuffixesMaven);
-            assertEquals(2, ignoredPathSuffixesMaven.size());
-            assertTrue(ignoredPathSuffixesMaven.contains("/maven-metadata.xml"));
-            assertTrue(ignoredPathSuffixesMaven.contains(".sha1"));
+            assertEquals(0, mavenConfig.getIgnoredPathPatterns().getNpm().getPatterns().size());
+            List<Pattern> ignoredPathPatternsMaven = mavenConfig.getIgnoredPathPatterns().getMaven().getPatterns();
+            assertNotNull(ignoredPathPatternsMaven);
+            assertEquals(2, ignoredPathPatternsMaven.size());
+            List<String> strings = ignoredPathPatternsMaven.stream().map(p -> p.pattern()).collect(Collectors.toList());
+            assertTrue(strings.contains(".*/maven-metadata\\.xml$"));
+            assertTrue(strings.contains(".*\\.sha1$"));
     }
 
     @Test
