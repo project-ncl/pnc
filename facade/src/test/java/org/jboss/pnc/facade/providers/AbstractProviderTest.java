@@ -17,56 +17,57 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.jboss.pnc.mapper.ProductMapperImpl;
-import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.mapper.api.ProductMapper;
-import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
-import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
-
-import java.util.List;
-import javax.inject.Inject;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
+import org.jboss.pnc.mapper.BuildConfigurationMapperImpl;
 import org.jboss.pnc.mapper.BuildConfigurationRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildMapperImpl;
 import org.jboss.pnc.mapper.EnvironmentMapperImpl;
 import org.jboss.pnc.mapper.GroupBuildMapperImpl;
+import org.jboss.pnc.mapper.GroupConfigurationMapperImpl;
+import org.jboss.pnc.mapper.ProductMapperImpl;
+import org.jboss.pnc.mapper.ProductVersionMapperImpl;
 import org.jboss.pnc.mapper.ProjectMapperImpl;
 import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
 import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductMapper;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.mapper.api.ProjectMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
+import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.junit.Before;
-import org.mockito.ArgumentMatchers;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import org.mockito.Mock;
-
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -114,6 +115,15 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
     @Spy
     protected UserMapper userMapper = new UserMapperImpl();
 
+    @Spy
+    protected ProductVersionMapper productVersionMapper = new ProductVersionMapperImpl();
+
+    @Spy
+    protected GroupConfigurationMapper groupConfigurationMapper = new GroupConfigurationMapperImpl();
+
+    @Spy
+    protected BuildConfigurationMapper buildConfigurationMapper = new BuildConfigurationMapperImpl();
+
     protected int entityId = 1;
 
     protected final List<T> repositoryList = new ArrayList<>();
@@ -130,6 +140,15 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("sCMRepositoryMapper", buildMapper, sCMRepositoryMapper, BuildMapperImpl.class);
         injectMethod("userMapper", buildMapper, userMapper, BuildMapperImpl.class);
 
+        injectMethod("environmentMapper", buildConfigurationMapper, environmentMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("groupConfigurationMapper", buildConfigurationMapper, groupConfigurationMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("productVersionMapper", buildConfigurationMapper, productVersionMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("projectMapper", buildConfigurationMapper, projectMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("sCMRepositoryMapper", buildConfigurationMapper, sCMRepositoryMapper, BuildConfigurationMapperImpl.class);
+
+        injectMethod("environmentMapper", buildConfigurationRevisionMapper, environmentMapper, BuildConfigurationRevisionMapperImpl.class);
+        injectMethod("projectMapper", buildConfigurationRevisionMapper, projectMapper, BuildConfigurationRevisionMapperImpl.class);
+        injectMethod("sCMRepositoryMapper", buildConfigurationRevisionMapper, sCMRepositoryMapper, BuildConfigurationRevisionMapperImpl.class);
 
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
