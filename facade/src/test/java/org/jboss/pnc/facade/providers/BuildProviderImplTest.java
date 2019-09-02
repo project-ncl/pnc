@@ -19,7 +19,6 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -56,7 +55,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
 
 
 /**

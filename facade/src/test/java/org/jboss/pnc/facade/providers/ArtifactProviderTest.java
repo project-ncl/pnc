@@ -19,10 +19,8 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;

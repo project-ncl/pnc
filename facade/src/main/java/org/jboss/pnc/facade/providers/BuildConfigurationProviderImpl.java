@@ -20,60 +20,57 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
+import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
-import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
+import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
+import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
+import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
+import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withScmRepositoryId;
-
-import org.jboss.pnc.dto.SCMRepository;
-import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
-import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
-import org.jboss.pnc.dto.response.RepositoryCreationResponse;
-import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
-import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
-import org.jboss.pnc.spi.notifications.Notifier;
-
-import java.util.HashSet;
-import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
-import org.jboss.pnc.enums.JobNotificationType;
-import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
 @PermitAll
 @Stateless
