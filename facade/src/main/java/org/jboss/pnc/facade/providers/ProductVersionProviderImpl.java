@@ -73,6 +73,7 @@ public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.m
 
     @Override
     public ProductVersion update(String id, ProductVersion restEntity) {
+        validateBeforeUpdating(id, restEntity);
 
         ProductVersion current = super.getSpecific(id);
 

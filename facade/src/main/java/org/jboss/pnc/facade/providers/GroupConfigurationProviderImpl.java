@@ -71,6 +71,7 @@ public class GroupConfigurationProviderImpl extends AbstractProvider<BuildConfig
 
     @Override
     public GroupConfiguration update(String id, GroupConfiguration restEntity) {
+        validateBeforeUpdating(id, restEntity);
         BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
         if (dbEntity != null && dbEntity.isArchived()) {
             throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
