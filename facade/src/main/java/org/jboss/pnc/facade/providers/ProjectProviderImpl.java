@@ -44,11 +44,40 @@ public class ProjectProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
     protected void validateBeforeSaving(Project projectRest) {
 
         super.validateBeforeSaving(projectRest);
+        validateIfNotConflicted(projectRest);
+    }
+
+    @Override
+    public void validateBeforeUpdating(String id, Project restEntity) {
+        super.validateBeforeUpdating(id, restEntity);
+        validateIfNotConflicted(restEntity);
+    }
+
+    /**
+     * Not allowed to delete a project
+     * @param id
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public void delete(String id) {
+        throw new UnsupportedOperationException("Deleting projects is prohibited!");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void validateIfNotConflicted(Project projectRest)
+            throws ConflictedEntryException {
 
         org.jboss.pnc.model.Project project = repository.queryByPredicates(withProjectName(projectRest.getName()));
 
+        Integer projectId = null;
+
+        if (projectRest.getId() != null) {
+            projectId = Integer.valueOf(projectRest.getId());
+        }
+
         //don't validate against myself
-        if(project != null && !project.getId().equals(Integer.valueOf(projectRest.getId()))) {
+        if (project != null && !project.getId().equals(projectId)) {
 
             throw new ConflictedEntryException(
                     "Project of that name already exists",
@@ -56,5 +85,4 @@ public class ProjectProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
                     project.getId());
         }
     }
-
 }
