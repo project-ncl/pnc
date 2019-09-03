@@ -233,7 +233,7 @@ public class MavenRepositorySession implements RepositorySession {
             for (TrackedContentEntryDTO download : downloads) {
                 String path = download.getPath();
                 StoreKey source = download.getStoreKey();
-                if (ignoreContent(path)) {
+                if (ignoreContent(source, path)) {
                     logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", path, source);
                     continue;
                 }
@@ -463,7 +463,7 @@ public class MavenRepositorySession implements RepositorySession {
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
                 StoreKey storeKey = upload.getStoreKey();
-                if (ignoreContent(path)) {
+                if (ignoreContent(storeKey, path)) {
                     logger.debug("Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, storeKey);
                     continue;
                 }
@@ -723,9 +723,11 @@ public class MavenRepositorySession implements RepositorySession {
         return errorMsg;
     }
 
-    private boolean ignoreContent(String path) {
+    private boolean ignoreContent(StoreKey source, String path) {
         for (String suffix : ignoredPathSuffixes) {
             if (path.endsWith(suffix)) {
+                return true;
+            } else if (NPM_PKG_KEY.equals(source.getPackageType()) && path.matches("^/[^/]+$")) {
                 return true;
             }
         }
