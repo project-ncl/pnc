@@ -61,6 +61,7 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
 
     @Override
     public ProductMilestone update(String id, ProductMilestone restEntity) {
+        validateBeforeUpdating(id, restEntity);
 
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
         org.jboss.pnc.model.ProductMilestone milestoneRestDb = mapper.toEntity(restEntity);

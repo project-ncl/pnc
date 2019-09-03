@@ -31,6 +31,8 @@ import org.jboss.pnc.mapper.EnvironmentMapperImpl;
 import org.jboss.pnc.mapper.GroupBuildMapperImpl;
 import org.jboss.pnc.mapper.GroupConfigurationMapperImpl;
 import org.jboss.pnc.mapper.ProductMapperImpl;
+import org.jboss.pnc.mapper.ProductMilestoneMapperImpl;
+import org.jboss.pnc.mapper.ProductReleaseMapperImpl;
 import org.jboss.pnc.mapper.ProductVersionMapperImpl;
 import org.jboss.pnc.mapper.ProjectMapperImpl;
 import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
@@ -44,6 +46,8 @@ import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ProductMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
+import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.mapper.api.ProjectMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
@@ -124,6 +128,12 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
     @Spy
     protected BuildConfigurationMapper buildConfigurationMapper = new BuildConfigurationMapperImpl();
 
+    @Spy
+    protected ProductMilestoneMapper productMilestoneMapper = new ProductMilestoneMapperImpl();
+
+    @Spy
+    protected ProductReleaseMapper productReleaseMapper = new ProductReleaseMapperImpl();
+
     protected int entityId = 1;
 
     protected final List<T> repositoryList = new ArrayList<>();
@@ -150,6 +160,11 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("projectMapper", buildConfigurationRevisionMapper, projectMapper, BuildConfigurationRevisionMapperImpl.class);
         injectMethod("sCMRepositoryMapper", buildConfigurationRevisionMapper, sCMRepositoryMapper, BuildConfigurationRevisionMapperImpl.class);
 
+        injectMethod("productMilestoneMapper", productVersionMapper, productMilestoneMapper, ProductVersionMapperImpl.class);
+        injectMethod("groupConfigurationMapper", productVersionMapper, groupConfigurationMapper, ProductVersionMapperImpl.class);
+        injectMethod("buildConfigurationMapper", productVersionMapper, buildConfigurationMapper, ProductVersionMapperImpl.class);
+        injectMethod("productReleaseMapper", productVersionMapper, productReleaseMapper, ProductVersionMapperImpl.class);
+        injectMethod("productMapper", productVersionMapper, productMapper, ProductVersionMapperImpl.class);
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);

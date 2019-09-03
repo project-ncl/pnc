@@ -58,7 +58,7 @@ public class EnvironmentProviderTest  extends AbstractProviderTest<BuildEnvironm
         return repository;
     }
 
-    BuildEnvironment env = prepareBuildEnvironment("Crash Test Dummy 1");
+    private BuildEnvironment env = prepareBuildEnvironment("Crash Test Dummy 1");
 
     @Before
     public void fill() {
