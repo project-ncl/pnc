@@ -329,7 +329,24 @@ public class IndyRepositorySession implements RepositorySession {
                     StoreKey source = sourceToPaths.getKey();
                     PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue()).setPurgeSource(false);
                     // set read-only only the generic http proxy hosted repos, not shared-imports
-                    doPromoteByPath(req, GENERIC_PKG_KEY.equals(target.getPackageType()));
+
+                    boolean readonly = GENERIC_PKG_KEY.equals(target.getPackageType());
+
+                    StopWatch stopWatchDoPromote = StopWatch.createStarted();
+                    try {
+                        logger.info("BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
+                                    req.getSource().toString(), req.getTarget().toString(), readonly);
+
+                        doPromoteByPath(req, readonly);
+
+                        logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
+                                req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
+                   } catch (RepositoryManagerException ex) {
+
+                        logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
+                                req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
+                        throw ex;
+                   }
                 }
             }
         }
