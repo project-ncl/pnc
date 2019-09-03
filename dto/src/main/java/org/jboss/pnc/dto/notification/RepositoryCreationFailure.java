@@ -33,7 +33,7 @@ import lombok.Data;
  * <pre>
  * Job:
  *     {@link JobNotificationType#BUILD_CONFIG_CREATION} - When the job is to create Build Config.
- *     {@link JobNotificationType#SCM_REPOSIOTRY_CREATION} - When the job is to create SCM Repository.
+ *     {@link JobNotificationType#SCM_REPOSITORY_CREATION} - When the job is to create SCM Repository.
  * Notification type:
  *     {@code RC_REPO_CREATION_ERROR} - Failure while creating the repository in SCM system.
  *     {@code RC_REPO_CLONE_ERROR} - Failure while cloning the repository content.

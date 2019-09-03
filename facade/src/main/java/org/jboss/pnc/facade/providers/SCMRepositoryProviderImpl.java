@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
 
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSIOTRY_CREATION;
+import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
 
 @PermitAll
 @Stateless
@@ -138,7 +138,7 @@ public class SCMRepositoryProviderImpl
     @Override
     public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled) {
         Consumer<Integer> successListener = i -> notifier.sendMessage(new SCMRepositoryCreationSuccess(getSpecific(Integer.toString(i))));
-        return createSCMRepository(scmUrl, preBuildSyncEnabled, SCM_REPOSIOTRY_CREATION, successListener);
+        return createSCMRepository(scmUrl, preBuildSyncEnabled, SCM_REPOSITORY_CREATION, successListener);
     }
 
     @Override
