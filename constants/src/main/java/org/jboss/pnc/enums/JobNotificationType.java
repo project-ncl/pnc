@@ -37,7 +37,7 @@ public enum JobNotificationType {
     /**
      * Job type representing asynchronous creation of SCM Repository.
      */
-    SCM_REPOSIOTRY_CREATION,
+    SCM_REPOSITORY_CREATION,
     /**
      * Job type representing asynchronous creation of Build Config together with SCM Repository.
      */
