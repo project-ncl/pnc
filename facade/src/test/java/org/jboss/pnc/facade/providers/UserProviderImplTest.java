@@ -79,7 +79,7 @@ public class UserProviderImplTest extends AbstractProviderTest<User> {
         when(repository.queryByPredicates(any(Predicate.class))).thenAnswer(inv -> user);
 
         // When
-        org.jboss.pnc.dto.User userDTO = provider.getOrCreateNewUser("test");
+        org.jboss.pnc.dto.User userDTO = provider.getOrCreateNewUser(user.getUsername());
 
         // then
         assertThat(userDTO.getId()).isEqualTo(user.getId().toString());
