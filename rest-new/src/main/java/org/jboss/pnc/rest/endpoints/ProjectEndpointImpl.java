@@ -79,11 +79,6 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     }
 
     @Override
-    public void deleteSpecific(String id) {
-        endpointHelper.delete(id);
-    }
-
-    @Override
     public Page<BuildConfiguration> getBuildConfigurations(String id, PageParameters pageParameters) {
         return buildConfigurationProvider.getBuildConfigurationsForProject(
                 pageParameters.getPageIndex(),

@@ -148,17 +148,6 @@ public interface ProjectEndpoint{
             @Parameter(description = P_ID) @PathParam("id") String id,
             @NotNull Project project);
 
-    @Operation(summary = "Removes a specific project and associated build configs.",
-            responses = {
-                @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @DELETE
-    @Path("/{id}")
-    void deleteSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
-
     @Operation(summary = "Gets all build configs associated with the specified project.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
