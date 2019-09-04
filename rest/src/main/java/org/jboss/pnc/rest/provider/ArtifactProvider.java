@@ -56,6 +56,7 @@ import java.util.stream.Stream;
 
 import static org.jboss.pnc.model.TargetRepository.Type.GENERIC_PROXY;
 import static org.jboss.pnc.model.TargetRepository.Type.MAVEN;
+import static org.jboss.pnc.model.TargetRepository.Type.NPM;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
@@ -137,8 +138,8 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(TargetRepository.Type.MAVEN)) {
-            if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
+        if ((repositoryType == MAVEN) || (repositoryType == NPM)) {
+            if (StringUtils.isEmpty(artifact.getDeployPath())) {
                 return "";
             } else {
                 try {
@@ -159,7 +160,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         TargetRepository.Type repositoryType = artifact.getTargetRepository().getRepositoryType();
         String repositoryPath = artifact.getTargetRepository().getRepositoryPath();
         String result;
-        if ((repositoryType == MAVEN) || ((repositoryType == GENERIC_PROXY)
+        if ((repositoryType == MAVEN) || (repositoryType == NPM) || ((repositoryType == GENERIC_PROXY)
                 && !(StringUtils.isEmpty(repositoryPath) || "/not-available/".equals(repositoryPath)))) {
             if (StringUtils.isEmpty(artifact.getDeployPath())) {
                 result = "";
