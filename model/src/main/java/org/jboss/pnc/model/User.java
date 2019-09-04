@@ -55,7 +55,6 @@ public class User implements GenericEntity<Integer> {
     private Integer id;
 
     @Column(unique = true)
-    @NotNull
     @Email
     @Size(max=255)
     private String email;
