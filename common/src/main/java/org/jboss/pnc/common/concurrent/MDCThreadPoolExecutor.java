@@ -17,12 +17,8 @@
  */
 package org.jboss.pnc.common.concurrent;
 
-import org.slf4j.MDC;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -62,45 +58,45 @@ public class MDCThreadPoolExecutor implements ExecutorService {
 
     @Override
     public <T> Future<T> submit(Callable<T> task) {
-        return executorService.submit(wrap(task));
+        return executorService.submit(MDCWrappers.wrap(task));
     }
 
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
-        return executorService.submit(wrap(task), result);
+        return executorService.submit(MDCWrappers.wrap(task), result);
     }
 
     @Override
     public Future<?> submit(Runnable task) {
-        return executorService.submit(wrap(task));
+        return executorService.submit(MDCWrappers.wrap(task));
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
-        return executorService.invokeAll(wrapCollection(tasks));
+        return executorService.invokeAll(MDCWrappers.wrapCollection(tasks));
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
             long timeout, TimeUnit unit) throws InterruptedException {
-        return executorService.invokeAll(wrapCollection(tasks), timeout, unit);
+        return executorService.invokeAll(MDCWrappers.wrapCollection(tasks), timeout, unit);
     }
 
     @Override
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
-        return executorService.invokeAny(wrapCollection(tasks));
+        return executorService.invokeAny(MDCWrappers.wrapCollection(tasks));
     }
 
     @Override
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
             long timeout,
             TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return executorService.invokeAny(wrapCollection(tasks), timeout, unit);
+        return executorService.invokeAny(MDCWrappers.wrapCollection(tasks), timeout, unit);
     }
 
     @Override
     public void execute(Runnable command) {
-        executorService.execute(wrap(command));
+        executorService.execute(MDCWrappers.wrap(command));
     }
 
     @Override
@@ -127,55 +123,4 @@ public class MDCThreadPoolExecutor implements ExecutorService {
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         return executorService.awaitTermination(timeout, unit);
     }
-
-    public static Runnable wrap(final Runnable runnable) {
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        return () -> {
-            Map previous = MDC.getCopyOfContextMap();
-            if (context == null) {
-                MDC.clear();
-            } else {
-                MDC.setContextMap(context);
-            }
-            try {
-                runnable.run();
-            } finally {
-                if (previous == null) {
-                    MDC.clear();
-                } else {
-                    MDC.setContextMap(previous);
-                }
-            }
-        };
-    }
-
-    static <T> Callable<T> wrap(final Callable<T> callable) {
-        final Map<String, String> context = MDC.getCopyOfContextMap();
-        return () -> {
-            Map previous = MDC.getCopyOfContextMap();
-            if (context == null) {
-                MDC.clear();
-            } else {
-                MDC.setContextMap(context);
-            }
-            try {
-                return callable.call();
-            } finally {
-                if (previous == null) {
-                    MDC.clear();
-                } else {
-                    MDC.setContextMap(previous);
-                }
-            }
-        };
-    }
-
-    static <T> Collection<Callable<T>> wrapCollection(Collection<? extends Callable<T>> tasks) {
-        Collection<Callable<T>> wrapped = new ArrayList<>();
-        for (Callable<T> task : tasks) {
-            wrapped.add(wrap(task));
-        }
-        return wrapped;
-    }
-
 }

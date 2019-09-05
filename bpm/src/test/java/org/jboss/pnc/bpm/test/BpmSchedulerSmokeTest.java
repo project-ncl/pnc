@@ -86,7 +86,7 @@ public class BpmSchedulerSmokeTest {
     public void notificationTest() throws CoreException {
         successNotification = false;
         errorNotification = false;
-        BpmTask task = new BpmTask() {
+        BpmTask task = new BpmTask("") {
             @Override
             protected String getProcessId() {
                 return "colors";

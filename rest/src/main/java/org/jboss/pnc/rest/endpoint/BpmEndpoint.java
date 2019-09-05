@@ -19,29 +19,30 @@ package org.jboss.pnc.rest.endpoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Hidden;
-
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.model.BpmEvent;
+import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
+import org.jboss.pnc.bpm.model.RepositoryCreationResultRest;
+import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.bpm.model.BpmEvent;
-import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
-import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
-import org.jboss.pnc.bpm.model.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
@@ -50,6 +51,7 @@ import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.validators.ScmUrlValidator;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
@@ -65,7 +67,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,6 +100,8 @@ public class BpmEndpoint extends AbstractEndpoint {
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
     private BuildConfigurationRepository buildConfigurationRepository;
 
+    private SequenceHandlerRepository sequenceHandlerRepository;
+
     private ScmModuleConfig moduleConfig;
 
     @Deprecated
@@ -113,6 +116,7 @@ public class BpmEndpoint extends AbstractEndpoint {
             RepositoryConfigurationRepository repositoryConfigurationRepository,
             RepositoryConfigurationProvider repositoryConfigurationProvider,
             BuildConfigurationRepository buildConfigurationRepository,
+            SequenceHandlerRepository sequenceHandlerRepository,
             Configuration configuration) throws ConfigurationParseException {
         this.bpmManager = bpmManager;
         this.bcSetProvider = bcSetProvider;
@@ -121,6 +125,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         this.repositoryConfigurationRepository = repositoryConfigurationRepository;
         this.repositoryConfigurationProvider = repositoryConfigurationProvider;
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.sequenceHandlerRepository = sequenceHandlerRepository;
         this.moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
     }
 
@@ -310,6 +315,10 @@ public class BpmEndpoint extends AbstractEndpoint {
             HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
+        Long buildConfigurationId = sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME);
+        buildConfigurationRest.setId(buildConfigurationId.intValue());
+        MDCUtils.addProcessContext(buildConfigurationId.toString());
+
         String revision = null;
         if (buildConfigurationRest != null) {
             revision = buildConfigurationRest.getScmRevision();
@@ -326,11 +335,10 @@ public class BpmEndpoint extends AbstractEndpoint {
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
 
         repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS,
-                x -> onRCCreationSuccess(x, buildConfigurationRest));
+                MDCWrappers.wrap(x -> onRCCreationSuccess(x, buildConfigurationRest)));
 
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR, x -> {
-            LOG.debug("Received BPM event RC_CREATION_ERROR: " + x);
-        });
+        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR,
+                MDCWrappers.wrap(x -> LOG.debug("Received BPM event RC_CREATION_ERROR: " + x)));
 
         addWebsocketForwardingListeners(repositoryCreationTask);
 
@@ -339,6 +347,7 @@ public class BpmEndpoint extends AbstractEndpoint {
         } catch (CoreException e) {
             throw new CoreException("Could not start BPM task: " + repositoryCreationTask, e);
         }
+        MDCUtils.removeProcessContext();
         return repositoryCreationTask;
     }
 

@@ -118,15 +118,25 @@ public abstract class AbstractModelTest {
      * @param repositoryConfiguration RepositoryConfiguration object, which was already persisted to the database
      */
     protected void insertExampleBuildConfigurations(EntityManager em, RepositoryConfiguration repositoryConfiguration) {
-        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")
-                .description("Test Build Configuration 1 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(repositoryConfiguration).buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder()
+                .id(1)
+                .name("Test Build Configuration 1")
+                .description("Test Build Configuration 1 Description")
+                .project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(repositoryConfiguration)
+                .buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
+                .build();
 
-        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 2")
-                .description("Test Build Configuration 2 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(repositoryConfiguration).buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder()
+                .id(2)
+                .name("Test Build Configuration 2")
+                .description("Test Build Configuration 2 Description")
+                .project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(repositoryConfiguration)
+                .buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
+                .build();
 
         em.getTransaction().begin();
         em.persist(buildConfig1);

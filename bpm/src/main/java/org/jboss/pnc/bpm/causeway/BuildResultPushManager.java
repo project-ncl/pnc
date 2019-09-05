@@ -30,6 +30,7 @@ import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
@@ -126,32 +127,45 @@ public class BuildResultPushManager {
 
         Set<Result> result = new HashSet<>();
         for (String buildRecordId : buildRecordIds) {
-            //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
-            BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildRecordId));
-            Integer pushBuildRecordId = null;
-            if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
-                IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
-                buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, buildRecord.isTemporaryBuild());
-                if (buildRecord != null) {
-                    pushBuildRecordId = buildRecord.getId();
-                } else {
-                    logger.warn("Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
-                            buildRecordId, idRev);
-                }
-            } else {
-                pushBuildRecordId = Integer.valueOf(buildRecordId);
-            }
-            if (pushBuildRecordId != null) {
-                Result pushResult = pushToCauseway(
-                        authToken,
-                        pushBuildRecordId,
-                        String.format(callBackUrlTemplate, buildRecordId),
-                        tagPrefix,
-                        reimport);
-                result.add(pushResult);
-            }
+            MDCUtils.addProcessContext(buildRecordId);
+            processPush(authToken, callBackUrlTemplate, tagPrefix, reimport, result, buildRecordId);
+            MDCUtils.removeProcessContext();
         }
         return result;
+    }
+
+    private void processPush(
+            String authToken,
+            String callBackUrlTemplate,
+            String tagPrefix,
+            boolean reimport,
+            Set<Result> result,
+            String buildRecordId) throws ProcessException {
+        logger.debug("Preparing push to causeway Build.id {}.", buildRecordId);
+        //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
+        BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildRecordId));
+        Integer pushBuildRecordId = null;
+        if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
+            IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
+            buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, buildRecord.isTemporaryBuild());
+            if (buildRecord != null) {
+                pushBuildRecordId = buildRecord.getId();
+            } else {
+                logger.warn("Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
+                        buildRecordId, idRev);
+            }
+        } else {
+            pushBuildRecordId = Integer.valueOf(buildRecordId);
+        }
+        if (pushBuildRecordId != null) {
+            Result pushResult = pushToCauseway(
+                    authToken,
+                    pushBuildRecordId,
+                    String.format(callBackUrlTemplate, buildRecordId),
+                    tagPrefix,
+                    reimport);
+            result.add(pushResult);
+        }
     }
 
     private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix, boolean reimport) throws ProcessException {
@@ -409,7 +423,7 @@ public class BuildResultPushManager {
     public boolean cancelInProgressPush(Integer buildRecordId) {
         BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
-                .buildId(Integer.toString(buildRecordId))
+                .buildId(buildRecordId.toString())
                 .log("Canceled.")
                 .build();
         boolean canceled = inProgress.remove(buildRecordId) != null;

@@ -24,12 +24,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.RollbackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,6 +43,8 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class BuildConfigurationTest extends AbstractModelTest {
+
+    private Logger logger = LoggerFactory.getLogger(BuildConfigurationTest.class);
 
     protected final Map<String, String> GENERIC_PARAMETERS_EMPTY = new HashMap<>();
 
@@ -57,6 +62,9 @@ public class BuildConfigurationTest extends AbstractModelTest {
     private final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
 
     private EntityManager em;
+
+    private static AtomicInteger buildConfigurationSequence = new AtomicInteger();
+
 
     public BuildConfigurationTest() {
         BUILD_ENVIRONMENT_WITH_ID_1 = BuildEnvironment.Builder.newBuilder().id(1).build();
@@ -78,6 +86,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
     @Test
     public void testAddEmptyGenericParameters() {
         BuildConfiguration original = BuildConfiguration.Builder.newBuilder()
+                .id(buildConfigurationSequence.incrementAndGet())
                 .name("Test Build Configuration 1")
                 .description("Test Build Configuration 1 Description").project(PROJECT_WITH_ID_1)
                 .repositoryConfiguration(REPOSITORY_CONFIGURATION_ID_1)
@@ -96,6 +105,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
     @Test(expected = RollbackException.class)
     public void testFailToCreateBCWithoutRepoConfig() {
         BuildConfiguration bc = BuildConfiguration.Builder.newBuilder()
+                .id(buildConfigurationSequence.incrementAndGet())
                 .name("Test Build Configuration 1")
                 .project(PROJECT_WITH_ID_1)
                 .buildScript("mvn install")
@@ -113,6 +123,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
 
 
         BuildConfiguration bc = BuildConfiguration.Builder.newBuilder()
+                .id(buildConfigurationSequence.incrementAndGet())
                 .name("Test Build Configuration 1")
                 .project(PROJECT_WITH_ID_1)
                 .repositoryConfiguration(defaultRepositoryConfiguration)
@@ -164,7 +175,9 @@ public class BuildConfigurationTest extends AbstractModelTest {
                 "Test Build Configuration 2 Description", genericParameters);
 
         em.getTransaction().begin();
+        logger.info("Saving {}", original1);
         em.persist(original1);
+        logger.info("Saving {}", original2);
         em.persist(original2);
         em.getTransaction().commit();
 
@@ -240,9 +253,13 @@ public class BuildConfigurationTest extends AbstractModelTest {
                     .getSingleResult();
     }
 
-    private BuildConfiguration createBc(String name, String description,
+    private BuildConfiguration createBc(
+            String name,
+            String description,
             Map<String, String> genericParameters) {
-        return BuildConfiguration.Builder.newBuilder().name(name)
+        return BuildConfiguration.Builder.newBuilder()
+                .id(buildConfigurationSequence.incrementAndGet())
+                .name(name)
                 .description(description).project(PROJECT_WITH_ID_1)
                 .repositoryConfiguration(REPOSITORY_CONFIGURATION_ID_1)
                 .buildScript("mvn install")

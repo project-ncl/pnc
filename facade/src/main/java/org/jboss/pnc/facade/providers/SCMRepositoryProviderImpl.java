@@ -24,51 +24,44 @@ import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.UrlUtils;
-
-import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
-
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
-import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
+import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.notifications.Notifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.matchByScmUrl;
-import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.searchByScmUrl;
-
-import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.notifications.Notifier;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import org.jboss.pnc.enums.JobNotificationType;
-
+import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
+import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.matchByScmUrl;
+import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.searchByScmUrl;
 
 @PermitAll
 @Stateless
@@ -229,7 +222,7 @@ public class SCMRepositoryProviderImpl
                 repositoryCreationProcess, userToken);
 
         Consumer<RepositoryCreationSuccess> successListener = n -> consumer.accept(n.getData().getRepositoryConfigurationId());
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, successListener);
+        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, MDCWrappers.wrap(successListener));
         addErrorListeners(jobType, repositoryCreationTask);
 
         try {
@@ -241,7 +234,7 @@ public class SCMRepositoryProviderImpl
     }
 
     private void addErrorListeners(JobNotificationType jobType, RepositoryCreationTask task) {
-        Consumer<BpmStringMapNotificationRest> doNotifySMNError = (e) -> notifier.sendMessage(mapError(jobType, e));
+        Consumer<BpmStringMapNotificationRest> doNotifySMNError = MDCWrappers.wrap((e) -> notifier.sendMessage(mapError(jobType, e)));
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotifySMNError);
         task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotifySMNError);
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotifySMNError);

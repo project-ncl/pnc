@@ -27,6 +27,7 @@ import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,9 @@ public class DefaultCausewayClient implements CausewayClient {
 
             response = Request.Post(url)
                     .addHeader(authHeader)
+                    .addHeader("log-user-id", MDCUtils.getUserId())
+                    .addHeader("log-request-context", MDCUtils.getRequestContext())
+                    .addHeader("log-process-context", MDCUtils.getProcessContext())
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
                     .execute()
                     .returnResponse();
