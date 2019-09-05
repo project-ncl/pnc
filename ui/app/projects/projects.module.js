@@ -64,6 +64,9 @@
         resolve: {
           project: ['ProjectResource', '$stateParams', (ProjectResource, $stateParams) => ProjectResource.get({
             id: $stateParams.projectId
+          }).$promise],
+          buildConfigs: ['ProjectResource', '$stateParams', (ProjectResource, $stateParams) => ProjectResource.queryBuildConfigurations({
+            id: $stateParams.projectId
           }).$promise]
         }
       });

@@ -23,13 +23,17 @@
       /**
        * object representing Project
        */
-      project: '<'
+      project: '<',
+      /**
+       * object representing Build Configs
+       */
+      buildConfigs: '<'
     },
     templateUrl: 'projects/detail/pnc-project-detail-page.html',
-    controller: ['$state', 'ProjectResource', 'paginator', '$rootScope', Controller]
+    controller: ['$state', 'ProjectResource', 'filteringPaginator', '$rootScope', Controller]
   });
 
-  function Controller($state, ProjectResource, paginator, $rootScope) {
+  function Controller($state, ProjectResource, filteringPaginator, $rootScope) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -37,17 +41,24 @@
     $ctrl.cancel = cancel;
     $ctrl.update = update;
 
-    $ctrl.buildConfigurations = {
-      page: null,
-      displayFields: ['name', 'project', 'buildStatus']
-    };
+    $ctrl.buildConfigsFilteringFields = [{
+      id: 'name',
+      title: 'Name',
+      placeholder: 'Filter by Name',
+      filterType: 'text'
+    }, {
+      id: 'description',
+      title:  'Description',
+      placeholder: 'Filter by Description',
+      filterType: 'text'
+    }];
+
+    $ctrl.buildConfigsDisplayFields = ['name', 'project', 'buildStatus'];
 
     // --------------------
 
     $ctrl.$onInit = () => {
-      ProjectResource.queryBuildConfigurations({ id: $ctrl.project.id }).$promise.then((page) => { 
-        $ctrl.buildConfigurations.page = paginator(page); 
-      });
+      $ctrl.buildConfigsFilteringPage = filteringPaginator($ctrl.buildConfigs);
     };
 
     function reload() {
