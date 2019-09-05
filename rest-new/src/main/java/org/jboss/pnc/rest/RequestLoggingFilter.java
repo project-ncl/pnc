@@ -21,15 +21,19 @@ import org.apache.commons.io.IOUtils;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.MapUtils;
 import org.jboss.pnc.common.util.RandomUtils;
+import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.Provider;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,21 +43,41 @@ import java.security.Principal;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Provider
+@PreMatching
 public class RequestLoggingFilter implements ContainerRequestFilter {
 
     private Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
 
+    UserService userService;
+
+    public RequestLoggingFilter(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public void filter(ContainerRequestContext context) throws IOException {
-        String logContext = context.getHeaderString("log-context");
-        if (logContext == null) {
-            logContext = RandomUtils.randString(12);
-        }
         MDCUtils.clear();
-        MDCUtils.addRequestContext(logContext);
+        String logRequestContext = context.getHeaderString("log-request-context");
+        if (logRequestContext == null) {
+            logRequestContext = RandomUtils.randString(12);
+        }
+        MDCUtils.addRequestContext(logRequestContext);
+
+        String logProcessContext = context.getHeaderString("log-process-context");
+        MDCUtils.addProcessContext(logProcessContext);
+
+        User user = userService.currentUser();
+        if (user != null) {
+            Integer userId = user.getId();
+            if (userId != null) {
+                MDCUtils.addUserId(Integer.toString(userId));
+            }
+        }
+
         UriInfo uriInfo = context.getUriInfo();
         Request request = context.getRequest();
-        logger.info("Log context {} for request: {} {}", logContext, request.getMethod(), uriInfo.getRequestUri());
+        logger.info("Log context {} for request: {} {}", logRequestContext, request.getMethod(), uriInfo.getRequestUri());
         if (logger.isTraceEnabled()) {
             MultivaluedMap<String, String> headers = context.getHeaders();
             logger.trace("Headers: " + MapUtils.toString(headers));

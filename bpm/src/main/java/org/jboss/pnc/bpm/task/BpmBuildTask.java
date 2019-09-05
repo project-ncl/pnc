@@ -49,8 +49,8 @@ public class BpmBuildTask extends BpmTask {
     }
 
     public BpmBuildTask(BuildTask buildTask) {
+        super(buildTask.getUser().getLoginToken());
         this.buildTask = buildTask;
-        setAccessToken(buildTask.getUser().getLoginToken());
     }
 
     @Override

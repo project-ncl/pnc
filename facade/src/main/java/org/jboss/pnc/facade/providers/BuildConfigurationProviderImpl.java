@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.common.concurrent.MDCWrappers;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -33,6 +35,7 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
@@ -49,6 +52,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +102,9 @@ public class BuildConfigurationProviderImpl
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     @Inject
+    private SequenceHandlerRepository sequenceHandlerRepository;
+
+    @Inject
     private Notifier notifier;
 
     @Inject
@@ -114,6 +121,12 @@ public class BuildConfigurationProviderImpl
         super(repository, mapper, org.jboss.pnc.model.BuildConfiguration.class);
     }
 
+    @Override
+    public BuildConfiguration store(BuildConfiguration restEntity) throws DTOValidationException {
+        validateBeforeSaving(restEntity);
+        Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
+        return super.store(restEntity.toBuilder().id(id.toString()).build(), false);
+    }
 
     @Override
     protected void validateBeforeSaving(BuildConfiguration buildConfigurationRest) {
@@ -348,20 +361,25 @@ public class BuildConfigurationProviderImpl
                 .validateNotEmptyArgument().validateAnnotations();
         BuildConfiguration buildConfiguration = request.getBuildConfiguration();
         validateBeforeSaving(buildConfiguration.toBuilder().scmRepository(FAKE_REPOSITORY).build());
+        Long buildConfigurationId = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
+        MDCUtils.addProcessContext(buildConfigurationId.toString());
 
         RepositoryCreationResponse rcResponse = scmRepositoryProvider.createSCMRepository(
                 request.getScmUrl(),
                 request.getPreBuildSyncEnabled(),
                 JobNotificationType.BUILD_CONFIG_CREATION,
-                id -> onRCCreationSuccess(id, buildConfiguration));
+                MDCWrappers.wrap(id -> onRCCreationSuccess(id, buildConfiguration)));
 
+        BuildConfigCreationResponse response;
         if(rcResponse.getTaskId() == null){
             org.jboss.pnc.model.BuildConfiguration buildConfigurationFromDB =
                     repository.queryByPredicates(withName(buildConfiguration.getName()), isNotArchived());
-            return new BuildConfigCreationResponse(mapper.toDTO(buildConfigurationFromDB));
+            response = new BuildConfigCreationResponse(mapper.toDTO(buildConfigurationFromDB));
         }else{
-            return new BuildConfigCreationResponse(rcResponse.getTaskId());
+            response = new BuildConfigCreationResponse(rcResponse.getTaskId());
         }
+        MDCUtils.removeProcessContext();
+        return response;
     }
 
     @Override

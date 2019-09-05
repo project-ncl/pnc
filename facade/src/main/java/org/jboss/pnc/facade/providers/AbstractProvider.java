@@ -78,7 +78,13 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
 
     @Override
     public DTO store(DTO restEntity) throws DTOValidationException {
-        validateBeforeSaving(restEntity);
+        return store(restEntity, true);
+    }
+
+    protected DTO store(DTO restEntity, boolean validateBeforeSaving) throws DTOValidationException {
+        if (validateBeforeSaving) {
+            validateBeforeSaving(restEntity);
+        }
         log.debug("Storing entity: " + restEntity.toString());
         DB storedEntity = repository.save(mapper.toEntity(restEntity));
         repository.flushAndRefresh(storedEntity);

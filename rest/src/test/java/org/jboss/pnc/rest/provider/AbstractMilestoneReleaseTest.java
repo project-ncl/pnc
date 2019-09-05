@@ -26,6 +26,7 @@ import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductVersionRepositoryMock;
+import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneReleaseRepositoryMock;
@@ -126,6 +127,7 @@ public class AbstractMilestoneReleaseTest {
                 repositoryConfigurationRepository,
                 repositoryConfigurationProvider,
                 buildConfigurationRepository,
+                new SequenceHandlerRepositoryMock(),
                 pncConfiguration);
         bpmMock.setUp();
     }

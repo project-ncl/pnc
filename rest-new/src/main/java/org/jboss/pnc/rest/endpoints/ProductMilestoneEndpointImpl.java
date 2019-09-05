@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.LoggedInUser;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -86,12 +87,14 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public void closeMilestone(String id, ProductMilestone productMilestone) {
+        MDCUtils.addProcessContext(productMilestone.getId());
         if (httpServletRequest != null) {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
             productMilestoneProvider.closeMilestone(id, productMilestone, loginInUser.getTokenString());
         } else {
             productMilestoneProvider.closeMilestone(id, productMilestone);
         }
+        MDCUtils.removeProcessContext();
     }
 
     @Override

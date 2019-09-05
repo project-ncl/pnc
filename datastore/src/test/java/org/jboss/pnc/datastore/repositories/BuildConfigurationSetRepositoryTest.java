@@ -20,6 +20,7 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.datastore.DeploymentFactory;
+import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -31,6 +32,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
@@ -72,6 +74,8 @@ public class BuildConfigurationSetRepositoryTest {
 
     @Inject
     ProjectRepository projectRepository;
+
+    SequenceHandlerRepository sequenceHandlerRepository = new SequenceHandlerRepositoryMock();
 
     @Test
     public void shouldSaveBCSetWithBCs() {
@@ -123,6 +127,7 @@ public class BuildConfigurationSetRepositoryTest {
         BuildConfiguration createBuildConfiguration(String name) {
 
             BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+                    .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                     .name(name)
                     .repositoryConfiguration(repositoryConfiguration)
                     .buildEnvironment(buildEnvironment)

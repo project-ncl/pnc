@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.common.logging;
 
+import org.jboss.pnc.common.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.time.Instant;
@@ -28,6 +31,12 @@ import java.util.Map;
  */
 public class MDCUtils {
 
+    private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
+
+    private static final String REQUEST_CONTEXT_KEY = "requestContext";
+    private static final String PROCESS_CONTEXT_KEY = "processContext";
+    private static final String USER_ID_KEY = "userId";
+
     public static void addContext(BuildTaskContext buildTaskContext) {
         addBuildContext(
                 buildTaskContext.getBuildContentId(),
@@ -36,17 +45,34 @@ public class MDCUtils {
         );
     }
 
-    public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Instant temporaryBuildExpireDate) {
+    public static void addBuildContext(String processContext, Boolean temporaryBuild, Instant temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
-        context.put("processContext", buildContentId);
+        addProcessContext(processContext);
         context.put("tmp", temporaryBuild.toString());
         context.put("exp", temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);
     }
 
+    public static void addProcessContext(String processContext) {
+        Map<String, String> context = getContextMap();
+        String current = context.get(PROCESS_CONTEXT_KEY);
+        if (StringUtils.isEmpty(current)) {
+            context.put(PROCESS_CONTEXT_KEY, processContext);
+            MDC.setContextMap(context);
+        } else {
+            logger.warn("Did not set new processContext [{}] as value already exists [{}].", processContext, current);
+        }
+    }
+
     public static void addRequestContext(String requestContext) {
         Map<String, String> context = getContextMap();
-        context.put("requestContext", requestContext);
+        context.put(REQUEST_CONTEXT_KEY, requestContext);
+        MDC.setContextMap(context);
+    }
+
+    public static void addUserId(String userId) {
+        Map<String, String> context = getContextMap();
+        context.put(USER_ID_KEY, userId);
         MDC.setContextMap(context);
     }
 
@@ -58,7 +84,23 @@ public class MDCUtils {
         return context;
     }
 
+    public static String getRequestContext() {
+        return getContextMap().get(REQUEST_CONTEXT_KEY);
+    }
+
+    public static String getProcessContext() {
+        return getContextMap().get(PROCESS_CONTEXT_KEY);
+    }
+
+    public static String getUserId() {
+        return getContextMap().get(USER_ID_KEY);
+    }
+
     public static void clear() {
         MDC.clear();
+    }
+
+    public static void removeProcessContext() {
+        MDC.remove(PROCESS_CONTEXT_KEY);
     }
 }

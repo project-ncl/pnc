@@ -22,6 +22,9 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -29,7 +32,6 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -42,6 +44,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -55,14 +58,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
@@ -122,6 +123,8 @@ public class DatastoreTest {
     @Inject
     Datastore datastore;
 
+    SequenceHandlerRepository sequenceHandlerRepository = new SequenceHandlerRepositoryMock();
+
     @Deployment
     public static Archive<?> getDeployment() {
         return DeploymentFactory.createDatastoreDeployment();
@@ -151,7 +154,11 @@ public class DatastoreTest {
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl("github.com/project-ncl/pnc")
                 .build();
-        BuildConfiguration buildConfig = BuildConfiguration.Builder.newBuilder().name("test build config").buildScript("mvn deploy").build();
+        BuildConfiguration buildConfig = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
+                .name("test build config")
+                .buildScript("mvn deploy")
+                .build();
 
         project = projectRepository.save(project);
         buildEnv = buildEnvironmentRepository.save(buildEnv);
