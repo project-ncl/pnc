@@ -113,6 +113,7 @@ public interface ProjectEndpoint{
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     Project getSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing project.",
