@@ -98,6 +98,7 @@ public interface ProductMilestoneEndpoint{
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     ProductMilestone getSpecific(@Parameter(description = PM_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product milestone.",

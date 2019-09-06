@@ -92,6 +92,7 @@ public interface ProductReleaseEndpoint{
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     ProductRelease getSpecific(@Parameter(description = PR_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product release.",
