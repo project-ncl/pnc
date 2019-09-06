@@ -18,6 +18,7 @@
 package org.jboss.pnc.datastore.configuration;
 
 import org.jboss.pnc.datastore.repositories.DefaultSequenceHandlerRepository;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +45,25 @@ public class CustomSequenceConfiguration {
         logger.info("Found hibernate.hbm2ddl.auto {} ...", hbm2ddlAutoValue);
         // Possible values: validate | update | create | create-drop
 
+        prepareSequence(hbm2ddlAutoValue, BuildRecord.SEQUENCE_NAME);
+        prepareSequence(hbm2ddlAutoValue, BuildConfiguration.SEQUENCE_NAME);
+    }
+
+    private void prepareSequence(String hbm2ddlAutoValue, String sequenceName) {
         // I need to drop and re-create model
         if ("create".equalsIgnoreCase(hbm2ddlAutoValue) || "create-drop".equalsIgnoreCase(hbm2ddlAutoValue)) {
 
             try {
-                logger.info("Dropping sequence {} ...", BuildRecord.SEQUENCE_NAME);
-                sequenceHandlerRepository.dropSequence(BuildRecord.SEQUENCE_NAME);
+                logger.info("Dropping sequence {} ...", sequenceName);
+                sequenceHandlerRepository.dropSequence(sequenceName);
             } catch (Exception e) {
-                logger.debug("Error encountered when dropping sequence {} in 'create' or 'create-drop' schema phase. This can be safely ignored, as is due to db schema and/or sequence not yet existing.", BuildRecord.SEQUENCE_NAME);
+                logger.debug("Error encountered when dropping sequence {} in 'create' or 'create-drop' schema phase. This can be safely ignored, as is due to db schema and/or sequence not yet existing.",
+                        sequenceName);
             }
 
             try {
-                logger.info("Creating sequence {} ...", BuildRecord.SEQUENCE_NAME);
-                sequenceHandlerRepository.createSequence(BuildRecord.SEQUENCE_NAME);
+                logger.info("Creating sequence {} ...", sequenceName);
+                sequenceHandlerRepository.createSequence(sequenceName);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -67,10 +74,11 @@ public class CustomSequenceConfiguration {
         if ("update".equalsIgnoreCase(hbm2ddlAutoValue)) {
 
             try {
-                logger.info("Updating sequence {} ...", BuildRecord.SEQUENCE_NAME);
-                sequenceHandlerRepository.createSequence(BuildRecord.SEQUENCE_NAME);
+                logger.info("Updating sequence {} ...", sequenceName);
+                sequenceHandlerRepository.createSequence(sequenceName);
             } catch (Exception e) {
-                logger.debug("Error encountered when creating sequence {} in 'update' schema phase. This can be safely ignored, as is due to sequence already existing.", BuildRecord.SEQUENCE_NAME);
+                logger.debug("Error encountered when creating sequence {} in 'update' schema phase. This can be safely ignored, as is due to sequence already existing.",
+                        sequenceName);
             }
 
         }

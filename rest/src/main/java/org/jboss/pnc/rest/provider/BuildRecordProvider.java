@@ -700,7 +700,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .collect(Collectors.toSet());
 
         final int totalRunning = running.size();
-
+        logger.debug("Running builds {}", running);
 
         CollectionInfo<BuildRecordRest> page = null;
         for (int i = 0; i <= pageIndex; i++) {

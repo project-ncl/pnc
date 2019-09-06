@@ -39,6 +39,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -91,6 +92,9 @@ public class DatastoreTest {
     BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
+    SequenceHandlerRepository sequenceHandlerRepository;
+
+    @Inject
     AuditRepository<BuildConfiguration, Integer> auditedBuildConfigurationRepository;
 
     private static int testedConfigurationId;
@@ -131,7 +135,9 @@ public class DatastoreTest {
         repositoryConfigurationRepository.save(repositoryConfiguration);
 
         BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
-                .buildEnvironment(environment).name(ORIGINAL_NAME).project(project)
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
+                .buildEnvironment(environment)
+                .name(ORIGINAL_NAME).project(project)
                 .repositoryConfiguration(repositoryConfiguration)
                 .build();
 

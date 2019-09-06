@@ -27,14 +27,15 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -71,6 +72,9 @@ public class BuildsRestTest  {
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
     BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -115,7 +119,8 @@ public class BuildsRestTest  {
 
         assertThat(buildCoordinatorMock).isNotNull();
 
-        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(100, 1));
+        BuildConfiguration firstBuildConfiguration = buildConfigurationRepository.queryAll().iterator().next();
+        buildConfigurationAudited = buildConfigurationAuditedRepository.findLatestById(firstBuildConfiguration.getId());
         logger.info("Loaded buildConfigurationAudited: {}.", buildConfigurationAudited);
     }
 
@@ -255,7 +260,7 @@ public class BuildsRestTest  {
     @Test
     public void shouldFilterByBuildConfigurationId() throws Exception {
         // given
-        String rsql = "buildConfigurationId==100";
+        String rsql = "buildConfigurationId==" + buildConfigurationAudited.getId();
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);

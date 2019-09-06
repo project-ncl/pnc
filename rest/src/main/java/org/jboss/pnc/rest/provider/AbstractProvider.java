@@ -108,7 +108,13 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
     }
 
     public Integer store(RESTEntity restEntity) throws RestValidationException {
-        validateBeforeSaving(restEntity);
+        return store(restEntity, true);
+    }
+
+    public Integer store(RESTEntity restEntity, boolean validateBeforeSaving) throws RestValidationException {
+        if (validateBeforeSaving) {
+            validateBeforeSaving(restEntity);
+        }
         log.debug("Storing entity: " + restEntity.toString());
         return repository.save(toDBModel().apply(restEntity)).getId();
     }

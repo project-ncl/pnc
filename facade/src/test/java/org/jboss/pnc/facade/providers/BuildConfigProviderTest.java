@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -31,6 +32,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -59,6 +61,9 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
 
     @Mock
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    @Spy
+    SequenceHandlerRepository sequence = new SequenceHandlerRepositoryMock();
 
     @Spy
     @InjectMocks

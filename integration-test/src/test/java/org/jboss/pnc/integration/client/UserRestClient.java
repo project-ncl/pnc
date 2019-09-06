@@ -19,17 +19,20 @@ package org.jboss.pnc.integration.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.Response;
-
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class UserRestClient extends AbstractRestClient<UserRest> {
+
+    private Logger logger = LoggerFactory.getLogger(UserRestClient.class);
 
     private static final String USER_REST_ENDPOINT = "/pnc-rest/rest/users";
 

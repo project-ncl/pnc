@@ -20,25 +20,26 @@ package org.jboss.pnc.demo.data;
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.enums.SupportLevel;
+import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -62,7 +63,6 @@ import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -75,7 +75,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 
 /**
@@ -359,6 +358,7 @@ public class DatabaseDataInitializer {
         Map<String, String> genericParameters = new HashMap<>();
         genericParameters.put("KEY", "VALUE");
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .name(PNC_PROJECT_BUILD_CFG_ID)
                 .project(project1)
                 .description("Test build config for project newcastle")
@@ -373,6 +373,7 @@ public class DatabaseDataInitializer {
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
         buildConfiguration2 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .name("termd")
                 .project(project2)
                 .buildType(BuildType.MVN)
@@ -386,6 +387,7 @@ public class DatabaseDataInitializer {
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
         BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .name("pnc-build-agent-0.4")
                 .project(project3)
                 .description("Test config for Pnc Build Agent.")
@@ -399,6 +401,7 @@ public class DatabaseDataInitializer {
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
         BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .name("dependency-analysis-1.3")
                 .project(project4)
                 .description("Test config for Dependency Analysis.")
@@ -411,6 +414,7 @@ public class DatabaseDataInitializer {
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .name("maven-plugin-test")
                 .project(project5)
                 .description("Test build for Plugins with external downloads")
@@ -541,7 +545,9 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
-            buildRecordRepository.save(buildRecord1);
+            log.info("Saving buildRecord1: " + buildRecord1);
+            BuildRecord savedBuildRecord1 = buildRecordRepository.save(buildRecord1);
+            log.info("Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: " + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
             buildRecords.add(buildRecord1);
 
         }
