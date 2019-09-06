@@ -394,26 +394,28 @@ public class MavenRepositorySession implements RepositorySession {
         return "/api/content/generic-http/hosted/" + getGenericHostedRepoName(source.getName());
     }
 
-    private TargetRepository getUploadsTargetRepository(TargetRepository.Type repoType,
+    private TargetRepository getUploadsTargetRepository(TrackedContentEntryDTO upload,
             IndyContentClientModule content) throws RepositoryManagerException {
-        TargetRepository targetRepository;
-        if (repoType.equals(TargetRepository.Type.MAVEN)) {
-            String storePath;
-            if (isTempBuild) {
-                storePath = "group/" + buildPromotionTarget;
-            } else {
-                storePath = "hosted/" + buildPromotionTarget;
-            }
-            targetRepository = TargetRepository.newBuilder()
-                    .identifier("indy-maven")
-                    .repositoryType(TargetRepository.Type.MAVEN)
-                    .repositoryPath("/api/content/maven/" + storePath)
-                    .temporaryRepo(isTempBuild)
-                    .build();
+        StoreKey storeKey = upload.getStoreKey();
+        String pkgType = storeKey.getPackageType();
+        TargetRepository.Type repoType = toRepoType(pkgType);
+        StoreKey targetKey;
+        if (repoType == TargetRepository.Type.MAVEN) {
+            targetKey = new StoreKey(pkgType, isTempBuild ? StoreType.group : StoreType.hosted, buildPromotionTarget);
+        } else if (repoType == TargetRepository.Type.NPM) {
+            targetKey = storeKey;
         } else {
             throw new RepositoryManagerException("Repository type " + repoType
                     + " is not supported for uploads by Indy repo manager driver.");
         }
+
+        String repoPath = "/api/" + content.contentPath(targetKey);
+        TargetRepository targetRepository = TargetRepository.newBuilder()
+                .identifier("indy-" + repoType.name().toLowerCase())
+                .repositoryType(repoType)
+                .repositoryPath(repoPath)
+                .temporaryRepo((repoType == TargetRepository.Type.MAVEN) && isTempBuild)
+                .build();
         return targetRepository;
     }
 
@@ -472,8 +474,7 @@ public class MavenRepositorySession implements RepositorySession {
 
                 logger.info("Recording upload: {}", identifier);
 
-                TargetRepository.Type repoType = toRepoType(storeKey.getPackageType());
-                TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
+                TargetRepository targetRepository = getUploadsTargetRepository(upload, content);
 
                 Artifact.Quality artifactQuality = getArtifactQuality(isTempBuild);
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
@@ -668,9 +669,11 @@ public class MavenRepositorySession implements RepositorySession {
                 StoreKey buildTarget = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildPromotionTarget);
                 Set<String> paths = new HashSet<>();
                 for (Artifact a : uploads) {
-                    paths.add(a.getDeployPath());
-                    paths.add(a.getDeployPath() + ".md5");
-                    paths.add(a.getDeployPath() + ".sha1");
+                    if (a.getTargetRepository().getRepositoryType() == TargetRepository.Type.MAVEN) {
+                        paths.add(a.getDeployPath());
+                        paths.add(a.getDeployPath() + ".md5");
+                        paths.add(a.getDeployPath() + ".sha1");
+                    }
                 }
                 request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
                 PathsPromoteRequest ppReq = (PathsPromoteRequest) request;
