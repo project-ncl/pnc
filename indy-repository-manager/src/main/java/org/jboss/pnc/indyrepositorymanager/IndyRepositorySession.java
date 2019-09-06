@@ -713,10 +713,13 @@ public class IndyRepositorySession implements RepositorySession {
             } else {
                 StoreKey buildTarget = new StoreKey(packageType, StoreType.hosted, buildPromotionTarget);
                 Set<String> paths = new HashSet<>();
+                boolean promoteChecksums = MAVEN_PKG_KEY.equals(packageType);
                 for (Artifact a : uploads) {
                     paths.add(a.getDeployPath());
-                    paths.add(a.getDeployPath() + ".md5");
-                    paths.add(a.getDeployPath() + ".sha1");
+                    if (promoteChecksums) {
+                        paths.add(a.getDeployPath() + ".md5");
+                        paths.add(a.getDeployPath() + ".sha1");
+                    }
                 }
                 request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
                 PathsPromoteRequest ppReq = (PathsPromoteRequest) request;

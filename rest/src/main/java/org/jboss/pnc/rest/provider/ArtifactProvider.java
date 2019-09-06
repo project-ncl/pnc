@@ -135,12 +135,12 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     private String getDeployUrl(Artifact artifact) {
         RepositoryType repositoryType = artifact.getTargetRepository().getRepositoryType();
-        if (repositoryType.equals(MAVEN) || repositoryType.equals(NPM)) {
+        if ((repositoryType == MAVEN) || (repositoryType == NPM)) {
             if (artifact.getDeployPath() == null || artifact.getDeployPath().equals("")) {
                 return "";
             } else {
                 try {
-                    if (repositoryType.equals(MAVEN)) {
+                    if (repositoryType == MAVEN) {
                         return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
