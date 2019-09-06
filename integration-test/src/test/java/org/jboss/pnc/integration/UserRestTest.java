@@ -20,22 +20,33 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
+import org.jboss.pnc.mock.model.BuildConfigurationMock;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -52,6 +63,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,16 +82,23 @@ public class UserRestTest {
     private static BuildRestClient buildRestClient;
     private static UserRestClient userRestClient;
     private static BuildConfigurationAudited buildConfigurationAudited;
+    private static BuildConfigurationRest filterTestBuildConfiguration;
+
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
+    BuildConfigurationRepository buildConfigurationRepository;
+
+    @Inject
     BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
-    private BuildCoordinatorMock buildCoordinatorMock;
+    SequenceHandlerRepository sequenceHandlerRepository;
 
+    @Inject
+    private BuildCoordinatorMock buildCoordinatorMock;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -91,6 +110,7 @@ public class UserRestTest {
                         clazz(BuildCoordinatorMock.class.
                                 getName()).up().exportAsString()), "beans.xml");
         war.addClass(BuildCoordinatorMock.class);
+        war.addClass(BuildConfigurationMock.class);
         war.addClass(UserRestTest.class);
 
         war.addClass(AuthUtils.class);
@@ -112,17 +132,27 @@ public class UserRestTest {
 
     @Test
     @InSequence(-1)
-    public void sanityTests() throws Exception {
+    @Transactional
+    public void prepare() throws Exception {
 
-        assertThat(buildRecordRepository.queryAll().stream()
+        Set<BuildRecord> buildRecords = buildRecordRepository.queryAll().stream()
                 .filter(record -> record.getUser().getId().equals(100) && record.getUser().getUsername().equals("demo-user"))
-                .count())
+                .collect(Collectors.toSet());
+        assertThat(buildRecords.size())
                 .isEqualTo(2)
                 .overridingErrorMessage("2 BuildRecords in DB expected with user.id == 100 and user.username == \"demo-user\"");
 
         assertThat(buildCoordinatorMock).isNotNull();
-        //load BCA with id=101 ... test back-compatibility
-        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(101, 1));
+        BuildRecord buildRecord = buildRecords.iterator().next();
+        logger.debug("Found buildRecord {}", buildRecord);
+        IdRev buildConfigurationAuditedIdRev = buildRecord.getBuildConfigurationAuditedIdRev();
+        buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(buildConfigurationAuditedIdRev);
+        logger.debug("Found buildConfigurationAudited {}", buildConfigurationAudited);
+
+        filterTestBuildConfiguration = insertNewBuildConfiguration(
+                buildConfigurationAudited.getProject(),
+                buildConfigurationAudited.getBuildEnvironment(),
+                buildConfigurationAudited.getRepositoryConfiguration());
     }
 
 
@@ -222,10 +252,12 @@ public class UserRestTest {
     @Test
     public void shouldSupportFilteringByBcIdWhenGettingUserBuilds() throws Exception {
         // given
-        String rsql = "buildConfigurationId==100";
+        Integer buildConfigurationId = filterTestBuildConfiguration.getId();
+        String rsql = "buildConfigurationId==" + buildConfigurationId;
 
-        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 100, "demo-user"));
-
+        int mockBuildId = 846839;
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.findLatestById(buildConfigurationId);
+        buildCoordinatorMock.addActiveTask(mockBuildTask(mockBuildId, 100, "demo-user", buildConfigurationAudited));
         // when
         List<Integer> sorted = userRestClient.allUserBuilds(100, true, 0, 50, rsql, null).getValue()
                 .stream()
@@ -233,7 +265,16 @@ public class UserRestTest {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(1);
+        assertThat(sorted).containsExactly(mockBuildId);
+    }
+
+    private BuildConfigurationRest insertNewBuildConfiguration(Project project,
+            BuildEnvironment buildEnvironment,
+            RepositoryConfiguration repositoryConfiguration) {
+        BuildConfiguration buildConfiguration = BuildConfigurationMock.createNew(null, project, buildEnvironment, repositoryConfiguration);
+        BuildConfigurationRestClient buildConfigurationRestClient = new BuildConfigurationRestClient();
+        RestResponse<BuildConfigurationRest> aNew = buildConfigurationRestClient.createNew(new BuildConfigurationRest(buildConfiguration));
+        return aNew.getValue();
     }
 
     @Test
@@ -312,6 +353,10 @@ public class UserRestTest {
     }
 
     protected BuildTask mockBuildTask(int id, int userId, String username) {
+        return mockBuildTask(id, userId, username, buildConfigurationAudited);
+    }
+
+    protected BuildTask mockBuildTask(int id, int userId, String username, BuildConfigurationAudited buildConfigurationAudited) {
         BuildTask mockedTask = mock(BuildTask.class);
         doReturn(id).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();

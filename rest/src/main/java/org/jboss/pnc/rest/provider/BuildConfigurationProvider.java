@@ -45,6 +45,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
@@ -78,6 +79,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
+    private SequenceHandlerRepository sequenceHandlerRepository;
+
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     private ProductVersionRepository productVersionRepository;
@@ -90,16 +93,26 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                                       BuildConfigurationSetRepository buildConfigurationSetRepository,
                                       RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
                                       ProductVersionRepository productVersionRepository,
+                                      SequenceHandlerRepository sequenceHandlerRepository,
                                       Configuration configuration) throws ConfigurationParseException {
         super(buildConfigurationRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.productVersionRepository = productVersionRepository;
+        this.sequenceHandlerRepository = sequenceHandlerRepository;
         this.moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class));
     }
 
     // needed for EJB/CDI
     public BuildConfigurationProvider() {
+    }
+
+    @Override
+    public Integer store(BuildConfigurationRest restEntity) throws RestValidationException {
+        validateBeforeSaving(restEntity);
+        Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
+        restEntity.setId(id.intValue());
+        return super.store(restEntity, false);
     }
 
     public CollectionInfo<BuildConfigurationRest> getAllNonArchived(Integer pageIndex, Integer pageSize, String sortingRsql,
@@ -231,6 +244,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repository, buildConfigurationId, true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
         BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
+        Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
+        clonedBuildConfiguration.setId(id.intValue());
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
         logger.debug("Cloned saved BuildConfiguration: {}", clonedBuildConfiguration);
         return clonedBuildConfiguration.getId();

@@ -84,7 +84,6 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration createNew(BuildConfiguration buildConfiguration) {
-//TODO ID
         return endpointHelper.create(buildConfiguration);
     }
 

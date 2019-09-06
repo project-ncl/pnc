@@ -23,13 +23,12 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
@@ -57,7 +56,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.util.Collection;
@@ -138,9 +136,9 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(100, 1));
+        BuildConfiguration firstBuildConfiguration = buildConfigurationRepository.queryAll().iterator().next();
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.findLatestById(firstBuildConfiguration.getId());
         buildConfigName = buildConfigurationAudited.getName();
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
         TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
 
         builtArtifact1 = Artifact.Builder.newBuilder()

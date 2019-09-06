@@ -244,7 +244,6 @@ public class BuildConfigurationProviderImpl
 
     @Override
     public BuildConfiguration clone(String buildConfigurationId) {
-
         ValidationBuilder
                 .validateObject(WhenCreatingNew.class)
                 .validateAgainstRepository(repository, Integer.valueOf(buildConfigurationId), true);
@@ -252,6 +251,9 @@ public class BuildConfigurationProviderImpl
         org.jboss.pnc.model.BuildConfiguration buildConfiguration = repository.queryById(Integer.valueOf(buildConfigurationId));
 
         org.jboss.pnc.model.BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
+        Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
+        clonedBuildConfiguration.setId(id.intValue());
+
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
 
         logger.debug("Cloned saved BuildConfiguration: {}", clonedBuildConfiguration);

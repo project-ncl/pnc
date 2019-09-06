@@ -145,11 +145,16 @@
             <artifactId>hibernate-validator</artifactId>
             <scope>test</scope>
         </dependency>
-    <dependency>
-      <groupId>org.glassfish</groupId>
-      <artifactId>javax.el-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+          <groupId>org.glassfish</groupId>
+          <artifactId>javax.el-impl</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

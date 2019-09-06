@@ -18,7 +18,6 @@
 package org.jboss.pnc.integration_new;
 
 import org.assertj.core.api.Assertions;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -33,7 +32,6 @@ import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -42,6 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -88,9 +89,9 @@ public class BuildConfigurationEndpointTest {
     public void shouldCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description.";
         final String buildScript = "mvn deploy # Updated script";
-        final String id = "100";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        final String id = client.getAll().iterator().next().getId();
         BuildConfiguration bc = client.getSpecific(id);
 
         BuildConfiguration newBC1 = bc.toBuilder().description(description).build();
