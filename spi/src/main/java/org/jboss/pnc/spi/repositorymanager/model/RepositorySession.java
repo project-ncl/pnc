@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.repositorymanager.model;
 
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
@@ -40,6 +41,17 @@ public interface RepositorySession {
      * @throws RepositoryManagerException if there is a problem extracting build artifacts
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
+
+    /**
+     * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing dependencies and
+     * build output.
+     *
+     * @param BuildExecutionSession to provide additional updates to the user
+     *
+     * @return The result of extracting the build artifacts
+     * @throws RepositoryManagerException if there is a problem extracting build artifacts
+     */
+    RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session) throws RepositoryManagerException;
 
     void close();
 }

@@ -21,6 +21,7 @@ import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -109,6 +110,12 @@ public class RepositorySessionMock implements RepositorySession {
             }
         };
     }
+
+    @Override
+    public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session) throws RepositoryManagerException {
+        return extractBuildArtifacts();
+    }
+
 
     private Artifact getArtifact(int i) {
         return Artifact.Builder.newBuilder()

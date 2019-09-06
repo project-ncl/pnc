@@ -93,7 +93,7 @@ public class BuildExecutorTriggerer {
                 notificationSender.send(processProgressUpdate.get());
                 //As there is a plan to split the Executor from Coordinator, the notification should be sent over http
                 //to the endpoint /bpm/tasks/{taskId}/notify
-                //bpmManager should be aupdated to accept notifications identified by buildTaskId
+                //bpmManager should be updated to accept notifications identified by buildTaskId
                 Optional<BpmTask> bpmTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager,
                         statusChangedEvent.getBuildTaskId());
                 if (bpmTask.isPresent()) {
@@ -149,6 +149,22 @@ public class BuildExecutorTriggerer {
 
             case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER:
                 taskName = "Collecting results from repository";
+                break;
+
+            case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_PROCESSING_BUILT_ARTIFACTS:
+                taskName = "Collecting results from repository: [1/4] Processing built artifacts";
+                break;
+
+            case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_PROCESSING_DEPENDENCIES:
+                taskName = "Collecting results from repository: [2/4] Processing dependencies";
+                break;
+
+            case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_REMOVE_BUILD_AGGREGATION_GROUP:
+                taskName = "Collecting results from repository: [3/4] Removing build aggregation group";
+                break;
+
+            case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_PROMOTION_BUILD_CONTENT_SET:
+                taskName = "Collecting results from repository: [4/4] Begin promotion of build content set";
                 break;
 
             case BUILD_ENV_DESTROYING:

@@ -44,7 +44,9 @@ import org.commonjava.indy.promote.model.PromoteRequest;
 import org.commonjava.indy.promote.model.ValidationResult;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -147,13 +149,18 @@ public class MavenRepositorySession implements RepositorySession {
         return connectionInfo;
     }
 
+    @Override
+    public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+        return extractBuildArtifacts(null);
+    }
+
     /**
      * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build result. Add
      * each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the product-level storage.
      * Finally, clear the tracking report, and delete the hosted repository + group associated with the completed build.
      */
     @Override
-    public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+    public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession buildExecutionSession) throws RepositoryManagerException {
         TrackedContentDTO report;
         try {
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
@@ -173,12 +180,18 @@ public class MavenRepositorySession implements RepositorySession {
 
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_PROCESSING_BUILT_ARTIFACTS);
         List<Artifact> uploads = processUploads(report);
         Collections.sort(uploads, comp);
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_PROCESSING_DEPENDENCIES);
         List<Artifact> downloads = processDownloads(report);
         Collections.sort(downloads, comp);
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_REMOVE_BUILD_AGGREGATION_GROUP);
         logger.info("BEGIN: Removing build aggregation group: {}", buildContentId);
         StopWatch stopWatch = StopWatch.createStarted();
 
@@ -198,6 +211,8 @@ public class MavenRepositorySession implements RepositorySession {
         String log = "";
         CompletionStatus status = CompletionStatus.SUCCESS;
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_PROMOTION_BUILD_CONTENT_SET);
         logger.info("BEGIN: promotion to build content set");
         stopWatch.start();
 
@@ -790,6 +805,12 @@ public class MavenRepositorySession implements RepositorySession {
     public void close() {
         IOUtils.closeQuietly(indy);
         IOUtils.closeQuietly(serviceAccountIndy);
+    }
+
+    private static void executeBuildExecutionNotificationIfNotNull(BuildExecutionSession session, BuildExecutionStatus status) {
+        if (session != null) {
+            session.setStatus(status);
+        }
     }
 
 }
