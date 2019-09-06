@@ -179,7 +179,6 @@ public class MavenRepositorySession implements RepositorySession {
 
         deleteBuildGroup();
 
-        Logger logger = LoggerFactory.getLogger(getClass());
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
@@ -218,7 +217,6 @@ public class MavenRepositorySession implements RepositorySession {
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
-        Logger logger = LoggerFactory.getLogger(getClass());
 
         IndyContentClientModule content;
         try {
@@ -429,8 +427,6 @@ public class MavenRepositorySession implements RepositorySession {
         } else {
             String repoName = storeKey.getName();
             for (String pattern : internalRepoPatterns) {
-//                Logger logger = LoggerFactory.getLogger(getClass());
-//                logger.info( "Checking ")
                 if (pattern.equals(repoName)) {
                     return false;
                 }
@@ -453,7 +449,6 @@ public class MavenRepositorySession implements RepositorySession {
      */
     private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
-        Logger logger = LoggerFactory.getLogger(getClass());
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
