@@ -99,6 +99,7 @@ public interface ProductVersionEndpoint{
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     ProductVersion getSpecific(@Parameter(description = PV_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing product version.",

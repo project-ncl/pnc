@@ -103,6 +103,7 @@ public interface SCMRepositoryEndpoint{
     })
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     SCMRepository getSpecific(@Parameter(description = SCM_ID) @PathParam("id") String id);
 
     @Operation(summary = "Updates an existing SCM repository.",
