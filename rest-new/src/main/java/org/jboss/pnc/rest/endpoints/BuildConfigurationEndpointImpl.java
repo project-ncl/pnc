@@ -70,7 +70,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     @Inject
     private BuildTriggerer buildTriggerer;
 
-    private EndpointHelper<BuildConfiguration, BuildConfigurationRef> endpointHelper;
+    private EndpointHelper<Integer, BuildConfiguration, BuildConfigurationRef> endpointHelper;
 
     @PostConstruct
     public void init() {

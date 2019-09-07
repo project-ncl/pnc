@@ -46,7 +46,9 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredica
 
 @PermitAll
 @Stateless
-public class GroupBuildProviderImpl extends AbstractProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef> implements GroupBuildProvider {
+public class GroupBuildProviderImpl
+        extends AbstractIntIdProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef>
+        implements GroupBuildProvider {
 
     @Inject
     private BuildConfigurationSetRepository buildConfigSetRecordRepository;

@@ -29,7 +29,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProductVersionRSQLMapper extends AbstractRSQLMapper<ProductVersion> {
+public class ProductVersionRSQLMapper extends AbstractRSQLMapper<Integer, ProductVersion> {
 
     public ProductVersionRSQLMapper() {
         super(ProductVersion.class);

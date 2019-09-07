@@ -28,7 +28,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ArtifactMapper.class, AbstractArtifactMapper.IDMapper.class })
-public interface TargetRepositoryMapper extends EntityMapper<TargetRepository, org.jboss.pnc.dto.TargetRepository, TargetRepositoryRef> {
+public interface TargetRepositoryMapper extends EntityMapper<Integer, TargetRepository, org.jboss.pnc.dto.TargetRepository, TargetRepositoryRef> {
     @Override
     @Mapping(target = "artifacts", source = "artifactIds")
     TargetRepository toEntity(org.jboss.pnc.dto.TargetRepository dtoEntity);

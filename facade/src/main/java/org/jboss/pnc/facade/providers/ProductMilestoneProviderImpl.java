@@ -43,7 +43,9 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 
 @PermitAll
 @Stateless
-public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> implements ProductMilestoneProvider {
+public class ProductMilestoneProviderImpl
+        extends AbstractIntIdProvider<org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef>
+        implements ProductMilestoneProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProviderImpl.class);
 

@@ -17,14 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import java.lang.invoke.MethodHandles;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
-
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
@@ -36,12 +28,18 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.rest.api.endpoints.GroupBuildEndpoint;
-import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
+import java.lang.invoke.MethodHandles;
+
+import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 /**
  *
@@ -64,7 +62,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     @Inject
     private BrewPusher brewPusher;
 
-    private EndpointHelper<GroupBuild, GroupBuildRef> endpointHelper;
+    private EndpointHelper<Integer, GroupBuild, GroupBuildRef> endpointHelper;
 
     @PostConstruct
     public void init() {

@@ -36,7 +36,7 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
 
-    private EndpointHelper<Artifact, ArtifactRef> endpointHelper;
+    private EndpointHelper<Integer, Artifact, ArtifactRef> endpointHelper;
     
     @Inject
     private ArtifactProvider artifactProvider;

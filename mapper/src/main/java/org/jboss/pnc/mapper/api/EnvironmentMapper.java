@@ -18,10 +18,6 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.mapper.api.EntityMapper;
-import org.jboss.pnc.mapper.api.IdEntity;
-import org.jboss.pnc.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.mapstruct.Mapper;
 
@@ -30,7 +26,7 @@ import org.mapstruct.Mapper;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class)
-public interface EnvironmentMapper extends EntityMapper<BuildEnvironment, Environment, Environment> {
+public interface EnvironmentMapper extends EntityMapper<Integer, BuildEnvironment, Environment, Environment> {
 
     @Override
     BuildEnvironment toEntity(Environment dtoEntity);

@@ -19,7 +19,7 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.User;
 
-public interface UserProvider extends Provider<org.jboss.pnc.model.User, User, User> {
+public interface UserProvider extends Provider<Integer, org.jboss.pnc.model.User, User, User> {
 
     User getOrCreateNewUser(String username);
 }

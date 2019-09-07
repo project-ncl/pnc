@@ -23,7 +23,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
-public interface ProductMilestoneProvider extends Provider<org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
+public interface ProductMilestoneProvider extends Provider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
 
     void closeMilestone(String id, ProductMilestone restEntity);
 

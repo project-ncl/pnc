@@ -31,7 +31,7 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, BuildConfigurationMapper.class})
-public interface GroupConfigurationMapper extends EntityMapper<BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
+public interface GroupConfigurationMapper extends EntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
 
     @Override
     default BuildConfigurationSet toIDEntity(GroupConfigurationRef dtoEntity) {

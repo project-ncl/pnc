@@ -23,6 +23,8 @@ import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -30,7 +32,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-public interface Provider<DB extends GenericEntity<Integer>, DTO extends REF, REF extends DTOEntity> {
+public interface Provider<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity> {
 
     DTO store(DTO restEntity) throws DTOValidationException;
 

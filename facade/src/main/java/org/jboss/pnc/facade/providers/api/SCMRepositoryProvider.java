@@ -20,12 +20,12 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
+import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.model.RepositoryConfiguration;
 
 import java.util.function.Consumer;
-import org.jboss.pnc.enums.JobNotificationType;
 
-public interface SCMRepositoryProvider extends Provider<RepositoryConfiguration, SCMRepository, SCMRepository> {
+public interface SCMRepositoryProvider extends Provider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
 
     Page<SCMRepository> getAllWithMatchAndSearchUrl(int pageIndex,
             int pageSize,

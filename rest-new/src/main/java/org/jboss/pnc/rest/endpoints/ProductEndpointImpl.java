@@ -39,7 +39,7 @@ public class ProductEndpointImpl implements ProductEndpoint {
     @Inject
     private ProductVersionProvider productVersionProvider;
 
-    private EndpointHelper<Product, ProductRef> endpointHelper;
+    private EndpointHelper<Integer, Product, ProductRef> endpointHelper;
 
     @PostConstruct
     public void init() {

@@ -26,7 +26,7 @@ import org.jboss.pnc.dto.response.Page;
 
 import java.util.Optional;
 
-public interface BuildConfigurationProvider extends Provider<org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> {
+public interface BuildConfigurationProvider extends Provider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> {
 
     Page<BuildConfiguration> getBuildConfigurationsForProductVersion(int pageIndex,
                                                                      int pageSize,

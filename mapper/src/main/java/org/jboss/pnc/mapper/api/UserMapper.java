@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.mapper.api.EntityMapper;
-import org.jboss.pnc.mapper.api.IdEntity;
-import org.jboss.pnc.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.model.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -31,7 +27,7 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class)
-public interface UserMapper extends EntityMapper<User, org.jboss.pnc.dto.User, org.jboss.pnc.dto.User> {
+public interface UserMapper extends EntityMapper<Integer, User, org.jboss.pnc.dto.User, org.jboss.pnc.dto.User> {
 
     @Override
     @Mapping(target="email", ignore = true)

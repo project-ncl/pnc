@@ -24,12 +24,13 @@ import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SingularAttribute;
+import java.io.Serializable;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public abstract class AbstractRSQLMapper<DB extends GenericEntity<Integer>> implements RSQLMapper<DB> {
+public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends GenericEntity<ID>> implements RSQLMapper<ID, DB> {
 
     @Inject
     private UniversalRSQLMapper mapper;

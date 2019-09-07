@@ -18,14 +18,13 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ArtifactRef;
-import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.model.Artifact;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public interface ArtifactMapper extends EntityMapper<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
+public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
 
     @Override
     org.jboss.pnc.dto.Artifact toDTO(Artifact dbEntity);

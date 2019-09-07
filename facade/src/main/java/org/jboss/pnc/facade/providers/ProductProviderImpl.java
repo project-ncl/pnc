@@ -37,7 +37,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
 @PermitAll
 @Stateless
-public class ProductProviderImpl extends AbstractProvider<org.jboss.pnc.model.Product, Product, ProductRef> implements ProductProvider {
+public class ProductProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.Product, Product, ProductRef> implements ProductProvider {
 
     @Inject
     public ProductProviderImpl(ProductRepository repository, ProductMapper mapper) {

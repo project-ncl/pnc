@@ -48,7 +48,7 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
 
-    private EndpointHelper<SCMRepository, SCMRepository> endpointHelper;
+    private EndpointHelper<Integer, SCMRepository, SCMRepository> endpointHelper;
 
     @PostConstruct
     public void init() {

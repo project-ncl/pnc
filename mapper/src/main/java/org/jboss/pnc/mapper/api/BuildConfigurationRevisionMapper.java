@@ -32,6 +32,7 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperCentralConfig.class, uses = {ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class}, imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
 
+    @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "scmRepository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "project", resultType = ProjectRef.class)
@@ -59,6 +60,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "genericParameters", source = "parameters")
     BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);
 
+    @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration",
         "repositoryConfiguration", "buildEnvironment", "project", "genericParameters"

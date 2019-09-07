@@ -33,7 +33,7 @@ import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName
 @PermitAll
 @Stateless
 public class UserProviderImpl
-        extends AbstractProvider<org.jboss.pnc.model.User, User, User> implements UserProvider {
+        extends AbstractIntIdProvider<org.jboss.pnc.model.User, User, User> implements UserProvider {
 
     private static final Logger log = LoggerFactory.getLogger(UserProviderImpl.class);
 

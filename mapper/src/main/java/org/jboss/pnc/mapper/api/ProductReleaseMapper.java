@@ -29,7 +29,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductVersionMapper.class})
-public interface ProductReleaseMapper extends EntityMapper<ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
+public interface ProductReleaseMapper extends EntityMapper<Integer, ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = {"productVersion"})
     ProductRelease toEntity(org.jboss.pnc.dto.ProductRelease dtoEntity);

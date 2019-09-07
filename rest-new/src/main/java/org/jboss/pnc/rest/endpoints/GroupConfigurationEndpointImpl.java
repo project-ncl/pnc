@@ -73,7 +73,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     @Inject
     private BuildTriggerer buildTriggerer;
 
-    private EndpointHelper<GroupConfiguration, GroupConfigurationRef> endpointHelper;
+    private EndpointHelper<Integer, GroupConfiguration, GroupConfigurationRef> endpointHelper;
 
     @PostConstruct
     public void init() {

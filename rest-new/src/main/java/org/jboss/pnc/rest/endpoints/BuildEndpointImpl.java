@@ -79,7 +79,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Inject
     private BrewPusher brewPusher;
 
-    private EndpointHelper<Build, BuildRef> endpointHelper;
+    private EndpointHelper<Integer, Build, BuildRef> endpointHelper;
 
     @PostConstruct
     public void init() {

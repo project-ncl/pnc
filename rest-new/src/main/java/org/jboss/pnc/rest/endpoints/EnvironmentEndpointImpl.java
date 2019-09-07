@@ -33,7 +33,7 @@ public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
     @Inject
     private EnvironmentProvider environmentProvider;
 
-    private EndpointHelper<Environment, Environment> endpointHelper;
+    private EndpointHelper<Integer, Environment, Environment> endpointHelper;
 
     @PostConstruct
     public void init() {

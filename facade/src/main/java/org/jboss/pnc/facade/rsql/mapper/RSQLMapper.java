@@ -22,13 +22,14 @@ import org.jboss.pnc.model.GenericEntity;
 
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
+import java.io.Serializable;
 
 /**
  * Mappers that converts RSQL path with DTO field names to Criteria API path.
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @param <DB> The database entity type
  */
-public interface RSQLMapper<DB extends GenericEntity<Integer>> {
+public interface RSQLMapper<ID extends Serializable, DB extends GenericEntity<ID>> {
 
     /**
      * Return the class for which this mapper works.

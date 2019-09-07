@@ -37,7 +37,7 @@ public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {
     @Inject
     private ProductReleaseProvider productReleaseProvider;
 
-    private EndpointHelper<ProductRelease, ProductReleaseRef> endpointHelper;
+    private EndpointHelper<Integer, ProductRelease, ProductReleaseRef> endpointHelper;
 
     @PostConstruct
     public void init() {
