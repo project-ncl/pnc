@@ -30,7 +30,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, ProductReleaseMapper.class, BuildMapper.IDMapper.class, AbstractArtifactMapper.IDMapper.class})
-public interface ProductMilestoneMapper extends EntityMapper<ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
+public interface ProductMilestoneMapper extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
     @Override
     @Mapping(target = "distributedArtifacts", source = "distributedArtifactIds")

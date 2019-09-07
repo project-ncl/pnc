@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
                 EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class,
                 GroupBuildMapper.class})
 
-public interface BuildMapper extends EntityMapper<BuildRecord, Build, BuildRef> {
+public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
     @Override
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)

@@ -32,7 +32,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProje
 
 @PermitAll
 @Stateless
-public class ProjectProviderImpl extends AbstractProvider<org.jboss.pnc.model.Project, Project, ProjectRef> implements ProjectProvider {
+public class ProjectProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.Project, Project, ProjectRef> implements ProjectProvider {
 
     @Inject
     public ProjectProviderImpl(ProjectRepository repository, ProjectMapper mapper) {
@@ -82,7 +82,7 @@ public class ProjectProviderImpl extends AbstractProvider<org.jboss.pnc.model.Pr
             throw new ConflictedEntryException(
                     "Project of that name already exists",
                     org.jboss.pnc.model.Project.class,
-                    project.getId());
+                    project.getId().toString());
         }
     }
 }

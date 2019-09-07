@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import javax.enterprise.context.ApplicationScoped;
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.GenericEntity;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
-
 
 /**
  *
@@ -35,20 +34,20 @@ import javax.persistence.criteria.Path;
 public class UniversalRSQLMapper {
 
     @Inject
-    private Instance<RSQLMapper<?>> mappers;
+    private Instance<RSQLMapper<?, ?>> mappers;
 
-    public <DB extends GenericEntity<Integer>> Path<?> toPath(Class<DB> type, From<?, DB> from, RSQLSelectorPath selector){
+    public <DB extends GenericEntity<?>> Path<?> toPath(Class<DB> type, From<?, DB> from, RSQLSelectorPath selector){
         return mapper(type).toPath(from, selector);
     }
 
-    public <DB extends GenericEntity<Integer>> String toPath(Class<DB> type, RSQLSelectorPath selector){
+    public <DB extends GenericEntity<?>> String toPath(Class<DB> type, RSQLSelectorPath selector){
         return mapper(type).toPath(selector);
     }
 
-    private <DB extends GenericEntity<Integer>> RSQLMapper<DB> mapper(Class<DB> type){
-        for (RSQLMapper<?> mapper : mappers) {
+    private <DB extends GenericEntity<?>> RSQLMapper<?, DB> mapper(Class<DB> type){
+        for (RSQLMapper<?, ?> mapper : mappers) {
             if(mapper.type() == type){
-                return (RSQLMapper<DB>) mapper;
+                return (RSQLMapper<?, DB>) mapper;
             }
         }
         throw new IllegalArgumentException("Missing RSQL mapper implementation for " + type);

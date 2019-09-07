@@ -28,7 +28,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class})
-public interface ProductMapper extends EntityMapper<Product, org.jboss.pnc.dto.Product,ProductRef> {
+public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.pnc.dto.Product,ProductRef> {
     @Override
     Product toEntity(org.jboss.pnc.dto.Product dtoEntity);
 

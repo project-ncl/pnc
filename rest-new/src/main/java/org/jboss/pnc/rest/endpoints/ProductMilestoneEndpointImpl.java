@@ -52,7 +52,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Context
     private HttpServletRequest httpServletRequest;
 
-    private EndpointHelper<ProductMilestone, ProductMilestoneRef> endpointHelper;
+    private EndpointHelper<Integer, ProductMilestone, ProductMilestoneRef> endpointHelper;
 
     @PostConstruct
     public void init() {

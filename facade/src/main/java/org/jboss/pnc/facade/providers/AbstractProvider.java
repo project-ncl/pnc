@@ -21,13 +21,11 @@ import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenDeleting;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -39,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,8 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
  * @param <REF> The reference DTO entity type
  */
 @PermitAll //required to allow all non explicitly restricted operations in EJB that use other restrictions
-public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO extends REF, REF extends DTOEntity> implements Provider<DB, DTO, REF> {
+public abstract class AbstractProvider<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity>
+        implements Provider<ID, DB, DTO, REF> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractProvider.class);
 
@@ -64,13 +64,13 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     @Inject
     protected PageInfoProducer pageInfoProducer;
 
-    protected Repository<DB, Integer> repository;
+    protected Repository<DB, ID> repository;
 
-    protected EntityMapper<DB, DTO, REF> mapper;
+    protected EntityMapper<ID, DB, DTO, REF> mapper;
 
     protected final Class<DB> type;
 
-    public AbstractProvider(Repository<DB, Integer> repository, EntityMapper<DB, DTO, REF> mapper, Class<DB> type) {
+    public AbstractProvider(Repository<DB, ID> repository, EntityMapper<ID, DB, DTO, REF> mapper, Class<DB> type) {
         this.repository = repository;
         this.mapper = mapper;
         this.type = type;
@@ -92,12 +92,6 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
     }
 
     @Override
-    public DTO getSpecific(String id) {
-        DB dbEntity = repository.queryById(Integer.valueOf(id));
-        return mapper.toDTO(dbEntity);
-    }
-
-    @Override
     public Page<DTO> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query);
     }
@@ -108,12 +102,6 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
         log.debug("Updating entity: " + restEntity.toString());
         DB saved = repository.save(mapper.toEntity(restEntity));
         return mapper.toDTO(saved);
-    }
-
-    @Override
-    public void delete(String id) {
-        validateBeforeDeleting(id);
-        repository.delete(Integer.valueOf(id));
     }
 
     @Override
@@ -131,21 +119,12 @@ public abstract class AbstractProvider<DB extends GenericEntity<Integer>, DTO ex
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }
 
-    protected void validateBeforeUpdating(String id, DTO restEntity) {
-        ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
-                .validateNotEmptyArgument()
-                .validateAnnotations()
-                .validateAgainstRepository(repository, Integer.valueOf(id), true);
-    }
+    protected abstract void validateBeforeUpdating(String id, DTO restEntity);
 
     protected void validateBeforeSaving(DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(String id) {
-        ValidationBuilder.validateObject(WhenDeleting.class)
-                .validateAgainstRepository(repository, Integer.valueOf(id), true)
-                .validateAnnotations();
-    }
+    protected abstract void validateBeforeDeleting(String id);
 }

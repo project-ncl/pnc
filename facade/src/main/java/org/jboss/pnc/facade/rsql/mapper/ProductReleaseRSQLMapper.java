@@ -34,7 +34,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<ProductRelease> {
+public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<Integer, ProductRelease> {
 
     @Inject
     private ProductVersionRSQLMapper pvm;

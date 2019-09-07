@@ -28,7 +28,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @ApplicationScoped
-public class TargetRepositoryRSQLMapper extends AbstractRSQLMapper<TargetRepository> {
+public class TargetRepositoryRSQLMapper extends AbstractRSQLMapper<Integer, TargetRepository> {
 
     public TargetRepositoryRSQLMapper() {
         super(TargetRepository.class);

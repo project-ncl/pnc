@@ -79,7 +79,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 @PermitAll
 @Stateless
 public class BuildConfigurationProviderImpl
-        extends AbstractProvider<org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> implements BuildConfigurationProvider {
+        extends AbstractIntIdProvider<org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef>
+        implements BuildConfigurationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProviderImpl.class);
 

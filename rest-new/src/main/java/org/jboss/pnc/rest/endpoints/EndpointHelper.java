@@ -25,15 +25,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.NotFoundException;
+import java.io.Serializable;
 
-public class EndpointHelper<DTO extends REF, REF extends DTOEntity> {
+public class EndpointHelper<DBEntityID extends Serializable, DTO extends REF, REF extends DTOEntity> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Class<DTO> dtoClass;
-    private final Provider<?, DTO, REF> provider;
+    private final Provider<DBEntityID, ?, DTO, REF> provider;
 
-    protected EndpointHelper(Class<DTO> dtoClass, Provider<?, DTO, REF> provider){
+    protected EndpointHelper(Class<DTO> dtoClass, Provider<DBEntityID, ?, DTO, REF> provider){
         this.dtoClass = dtoClass;
         this.provider = provider;
     }

@@ -28,6 +28,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Set;
 
@@ -92,7 +93,7 @@ public class ValidationBuilder<T> {
             ConflictedEntryException {
         ConflictedEntryValidator.ConflictedEntryValidationError validationError = validate.validate();
         if(validationError != null) {
-            throw new ConflictedEntryException(validationError.getMessage(), validationError.getConflictedEntity(), validationError.getConflictedRecordId());
+            throw new ConflictedEntryException(validationError.getMessage(), validationError.getConflictedEntity(), validationError.getConflictedRecordId().toString());
         }
         return this;
     }
@@ -104,7 +105,7 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public <DBEntity extends GenericEntity<ID>, ID extends Number> ValidationBuilder validateAgainstRepository(Repository<DBEntity, ID> repository, ID id, boolean shouldExist)
+    public <DBEntity extends GenericEntity<ID>, ID extends Serializable> ValidationBuilder validateAgainstRepository(Repository<DBEntity, ID> repository, ID id, boolean shouldExist)
             throws RepositoryViolationException, EmptyEntityException {
 
         if(id == null) {

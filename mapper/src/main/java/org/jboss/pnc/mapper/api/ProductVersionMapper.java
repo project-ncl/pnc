@@ -33,7 +33,7 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductMapper.class, GroupConfigurationMapper.class, BuildConfigurationMapper.class, ProductReleaseMapper.class})
-public interface ProductVersionMapper extends EntityMapper<ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
+public interface ProductVersionMapper extends EntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
 
     @Override
     default ProductVersion toIDEntity(ProductVersionRef dtoEntity) {

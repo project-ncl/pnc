@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 
-public interface GroupBuildProvider extends Provider<BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
+public interface GroupBuildProvider extends Provider<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
     public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, String groupConfigurationId);
 

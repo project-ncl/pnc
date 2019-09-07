@@ -28,19 +28,19 @@ import org.jboss.pnc.model.GenericEntity;
 @FunctionalInterface
 public interface ConflictedEntryValidator {
 
-    class ConflictedEntryValidationError {
-        private final Integer conflictedRecordId;
+    class ConflictedEntryValidationError<ID> {
+        private final ID conflictedRecordId;
         private final Class<? extends GenericEntity<?>> conflictedEntity;
         private final String message;
 
-        public ConflictedEntryValidationError(Integer conflictedRecordId, Class<? extends GenericEntity<?>> conflictedEntity,
+        public ConflictedEntryValidationError(ID conflictedRecordId, Class<? extends GenericEntity<?>> conflictedEntity,
                 String message) {
             this.conflictedRecordId = conflictedRecordId;
             this.conflictedEntity = conflictedEntity;
             this.message = message;
         }
 
-        public Integer getConflictedRecordId() {
+        public ID getConflictedRecordId() {
             return conflictedRecordId;
         }
 

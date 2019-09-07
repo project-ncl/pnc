@@ -34,9 +34,10 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperCentralConfig.class,
         uses = {ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class,
             IDMapper.class, SCMRepositoryMapper.class, GroupConfigurationMapper.class})
-public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
+public interface BuildConfigurationMapper extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
 
     @Override
+    @Mapping(target = "id", expression = "java( java.lang.Integer.valueOf(dtoEntity.getId()) )")
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
     @Mapping(target = "buildConfigurationSets", source = "groupConfigs")
@@ -59,6 +60,7 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
     }
 
     @Override
+    @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(ignoreUnmappedSourceProperties = {"repositoryConfiguration", "project",
         "productVersion", "buildEnvironment", "buildConfigurationSets", "dependencies",
@@ -68,6 +70,7 @@ public interface BuildConfigurationMapper extends EntityMapper<BuildConfiguratio
 
 
     @Override
+    @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "groupConfigs", source = "buildConfigurationSets", resultType = GroupConfigurationRef.class)

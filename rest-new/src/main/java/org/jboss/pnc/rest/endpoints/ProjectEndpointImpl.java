@@ -46,7 +46,7 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
     @Inject
     private BuildProvider buildProvider;
 
-    private EndpointHelper<Project, ProjectRef> endpointHelper;
+    private EndpointHelper<Integer, Project, ProjectRef> endpointHelper;
 
     @PostConstruct
     public void init() {

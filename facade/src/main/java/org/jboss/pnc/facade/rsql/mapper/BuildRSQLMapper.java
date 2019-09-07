@@ -29,7 +29,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildRSQLMapper extends AbstractRSQLMapper<BuildRecord> {
+public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
 
     public BuildRSQLMapper() {
         super(BuildRecord.class);

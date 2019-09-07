@@ -32,7 +32,9 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.wi
 
 @PermitAll
 @Stateless
-public class ProductReleaseProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef> implements ProductReleaseProvider {
+public class ProductReleaseProviderImpl
+        extends AbstractIntIdProvider<org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef>
+        implements ProductReleaseProvider {
 
     @Inject
     public ProductReleaseProviderImpl(ProductReleaseRepository repository, ProductReleaseMapper mapper) {

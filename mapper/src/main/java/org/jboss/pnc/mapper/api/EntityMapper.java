@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.model.GenericEntity;
 
+import java.io.Serializable;
 
 /**
  * Mappers that converts database entity to DTO entities and vice versa.
@@ -28,7 +29,7 @@ import org.jboss.pnc.model.GenericEntity;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-public interface EntityMapper<DB extends GenericEntity<Integer>, DTO extends REF, REF extends DTOEntity>{
+public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity>{
 
     /**
      * Converts DTO entity to database entity.

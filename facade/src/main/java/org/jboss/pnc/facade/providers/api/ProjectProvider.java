@@ -20,5 +20,5 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.ProjectRef;
 
-public interface ProjectProvider extends Provider<org.jboss.pnc.model.Project, Project, ProjectRef> {
+public interface ProjectProvider extends Provider<Integer, org.jboss.pnc.model.Project, Project, ProjectRef> {
 }

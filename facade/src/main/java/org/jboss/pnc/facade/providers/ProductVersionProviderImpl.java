@@ -36,8 +36,9 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.wi
 
 @PermitAll
 @Stateless
-public class ProductVersionProviderImpl extends AbstractProvider<org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> implements
-        ProductVersionProvider {
+public class ProductVersionProviderImpl
+        extends AbstractIntIdProvider<org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef>
+        implements ProductVersionProvider {
 
     private ProductRepository productRepository;
     private SystemConfig systemConfig;

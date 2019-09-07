@@ -30,7 +30,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(config = MapperCentralConfig.class,
         uses = {BuildConfigurationMapper.class})
-public interface ProjectMapper extends EntityMapper<Project, org.jboss.pnc.dto.Project, ProjectRef> {
+public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.pnc.dto.Project, ProjectRef> {
 
     @Override
     @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)

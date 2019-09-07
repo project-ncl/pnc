@@ -18,10 +18,6 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.SCMRepository;
-import org.jboss.pnc.mapper.api.EntityMapper;
-import org.jboss.pnc.mapper.api.IdEntity;
-import org.jboss.pnc.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -32,7 +28,7 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class)
-public interface SCMRepositoryMapper extends EntityMapper<RepositoryConfiguration, SCMRepository, SCMRepository> {
+public interface SCMRepositoryMapper extends EntityMapper<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
 
     @Override
     @Mapping(target="internalUrlNormalized", ignore = true)

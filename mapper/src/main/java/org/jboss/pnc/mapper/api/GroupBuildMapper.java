@@ -30,7 +30,7 @@ import org.mapstruct.Mapping;
  * @author Jan Michalov <jmichalo@redhat.com>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, GroupConfigurationMapper.class, BuildMapper.IDMapper.class, UserMapper.class})
-public interface GroupBuildMapper extends EntityMapper<BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
+public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
     @Override
     @Mapping(target = "buildConfigurationSet", source = "groupConfig")

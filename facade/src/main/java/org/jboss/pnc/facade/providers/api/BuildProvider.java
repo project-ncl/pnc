@@ -28,7 +28,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import java.net.URI;
 import java.util.List;
 
-public interface BuildProvider extends Provider<org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
+public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
 
     /**
      * Get the internal scm archive link for a build record. If the scm revision is not specified in the build record

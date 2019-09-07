@@ -54,7 +54,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     @Inject
     private ProductReleaseProvider productReleaseProvider;
 
-    private EndpointHelper<ProductVersion, ProductVersionRef> endpointHelper;
+    private EndpointHelper<Integer, ProductVersion, ProductVersionRef> endpointHelper;
 
     @PostConstruct
     public void init() {

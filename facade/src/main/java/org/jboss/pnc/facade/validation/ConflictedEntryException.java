@@ -24,16 +24,16 @@ import java.util.Optional;
 
 public class ConflictedEntryException extends DTOValidationException {
 
-    private final Integer conflictedRecordId;
+    private final String conflictedRecordId;
     private final Class<? extends GenericEntity<?>> conflictedEntity;
 
-    public ConflictedEntryException(String message, Class<? extends GenericEntity<?>> conflictedEntity, Integer conflictedId) {
+    public ConflictedEntryException(String message, Class<? extends GenericEntity<?>> conflictedEntity, String conflictedId) {
         super(message);
         this.conflictedRecordId = conflictedId;
         this.conflictedEntity = conflictedEntity;
     }
 
-    public Integer getConflictedRecordId() {
+    public String getConflictedRecordId() {
         return conflictedRecordId;
     }
 

@@ -47,7 +47,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
  */
 @PermitAll
 @Stateless
-public class ArtifactProviderImpl extends AbstractProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
+public class ArtifactProviderImpl
+        extends AbstractIntIdProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
 
     private static Logger logger = LoggerFactory.getLogger(ArtifactProviderImpl.class);

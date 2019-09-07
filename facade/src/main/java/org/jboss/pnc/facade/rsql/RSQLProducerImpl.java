@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.facade.rsql;
 
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.RSQLParserException;
+import cz.jirutka.rsql.parser.ast.ComparisonOperator;
+import cz.jirutka.rsql.parser.ast.Node;
+import cz.jirutka.rsql.parser.ast.RSQLOperators;
 import org.jboss.pnc.datastore.limits.rsql.EmptySortInfo;
 import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
@@ -30,20 +35,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
-
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.RSQLParserException;
-import cz.jirutka.rsql.parser.ast.ComparisonOperator;
-import cz.jirutka.rsql.parser.ast.Node;
-import cz.jirutka.rsql.parser.ast.RSQLOperators;
-import java.util.Comparator;
 
 /**
  *
@@ -85,7 +83,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     }
 
     @Override
-    public <DB extends GenericEntity<Integer>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql) {
+    public <DB extends GenericEntity<?>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql) {
         if (rsql == null || rsql.isEmpty()) {
             return new EmptyRSQLPredicate();
         }
@@ -103,7 +101,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     }
 
     @Override
-    public <DB extends GenericEntity<Integer>> SortInfo getSortInfo(Class<DB> type, String rsql) {
+    public <DB extends GenericEntity<?>> SortInfo getSortInfo(Class<DB> type, String rsql) {
         if(rsql == null || rsql.isEmpty()) {
             return new EmptySortInfo();
         }
@@ -139,7 +137,7 @@ public class RSQLProducerImpl implements RSQLProducer {
         return result;
     }
 
-    private <DB extends GenericEntity<Integer>> Predicate<DB> getEntityPredicate(Node rootNode, Class<DB> type) {
+    private <DB extends GenericEntity<?>> Predicate<DB> getEntityPredicate(Node rootNode, Class<DB> type) {
         return (root, query, cb) -> {
             RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(root, cb, new BiFunction<From<?, DB>, RSQLSelectorPath, Path>() {
                 @Override
