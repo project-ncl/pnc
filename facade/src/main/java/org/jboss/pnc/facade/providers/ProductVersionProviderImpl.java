@@ -18,19 +18,29 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.util.StreamHelper;
+import org.jboss.pnc.dto.BuildConfigurationRef;
+import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
@@ -41,25 +51,26 @@ public class ProductVersionProviderImpl
         implements ProductVersionProvider {
 
     private ProductRepository productRepository;
+    private BuildConfigurationSetRepository groupConfigRepository;
     private SystemConfig systemConfig;
 
     @Inject
     public ProductVersionProviderImpl(ProductVersionRepository repository,
                                       ProductVersionMapper mapper,
                                       ProductRepository productRepository,
+                                      BuildConfigurationSetRepository groupConfigRepository,
                                       SystemConfig systemConfig) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
         this.productRepository = productRepository;
+        this.groupConfigRepository = groupConfigRepository;
         this.systemConfig = systemConfig;
     }
 
     @Override
     public ProductVersion store(ProductVersion restEntity) {
-
         validateBeforeSaving(restEntity);
-
         org.jboss.pnc.model.ProductVersion productVersionRestDb = mapper.toEntity(restEntity);
 
         Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
@@ -68,22 +79,26 @@ public class ProductVersionProviderImpl
                                                    restEntity.getVersion(),
                                                    systemConfig.getBrewTagPattern());
 
-        repository.save(productVersionRestDb);
-        return mapper.toDTO(productVersionRestDb);
+        org.jboss.pnc.model.ProductVersion productVersion = repository.save(productVersionRestDb);
+        repository.flushAndRefresh(productVersion);
+        return mapper.toDTO(productVersion);
     }
 
     @Override
     public ProductVersion update(String id, ProductVersion restEntity) {
         validateBeforeUpdating(id, restEntity);
-
         ProductVersion current = super.getSpecific(id);
 
-        if (!current.getVersion().equals(restEntity.getVersion())
-                && current.getProductMilestones()
+        boolean hasClosedMilestone = current.getProductMilestones()
                 .stream()
-                .anyMatch(milestone -> milestone.getEndDate() != null)) {
+                .anyMatch(milestone -> milestone.getEndDate() != null);
+        boolean changingVersion = !current.getVersion().equals(restEntity.getVersion());
+
+        if (changingVersion && hasClosedMilestone) {
             throw new InvalidEntityException("Cannot change version id due to having closed milestone. Product version id: " + id);
         }
+
+        updateGroupConfigs(current, restEntity.getGroupConfigs());
 
         return super.update(id, restEntity);
     }
@@ -100,6 +115,25 @@ public class ProductVersionProviderImpl
         }
     }
 
+    @Override
+    protected void validateBeforeUpdating(String id, ProductVersion restEntity) {
+        super.validateBeforeUpdating(id, restEntity);
+
+        if (restEntity.getGroupConfigs() != null) {
+            for (GroupConfigurationRef groupConfig : restEntity.getGroupConfigs()) {
+                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(groupConfig.getId()));
+                if (set == null) {
+                    throw new InvalidEntityException("Group config with id: " + groupConfig.getId() + " does not exist.");
+                }
+                if (set.getProductVersion() != null && !set.getProductVersion().getId().toString().equals(id)) {
+                    throw new ConflictedEntryException("Group config with id: "
+                            + groupConfig.getId() + " already belongs to different product version.",
+                            org.jboss.pnc.model.ProductVersion.class,
+                            set.getProductVersion().getId().toString());
+                }
+            }
+        }
+    }
 
     @Override
     public Page<ProductVersion> getAllForProduct(int pageIndex,
@@ -109,6 +143,29 @@ public class ProductVersionProviderImpl
                                                  String productId){
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
+    }
+
+    private void updateGroupConfigs(ProductVersion current, List<GroupConfigurationRef> buildConfigs) {
+        HashSet<String> newIds = StreamHelper.nullableStreamOf(buildConfigs)
+                .map(GroupConfigurationRef::getId)
+                .collect(Collectors.toCollection(HashSet::new));
+        for (GroupConfigurationRef groupConfig : current.getGroupConfigs()) {
+            final String id = groupConfig.getId();
+            if (!newIds.contains(id)) {
+                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(id));
+                set.setProductVersion(null);
+                groupConfigRepository.save(set);
+            }
+            newIds.remove(id);
+        }
+        if (!newIds.isEmpty()) {
+            org.jboss.pnc.model.ProductVersion productVersion = repository.queryById(Integer.valueOf(current.getId()));
+            for (String id : newIds) {
+                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(id));
+                set.setProductVersion(productVersion);
+                groupConfigRepository.save(set);
+            }
+        }
     }
 }
 
