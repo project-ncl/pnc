@@ -90,6 +90,12 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
         validateDoesNotConflict(restEntity);
     }
 
+    @Override
+    protected void validateBeforeUpdating(String id, ProductMilestone restEntity) {
+        super.validateBeforeUpdating(restEntity.getId(), restEntity);
+        validateDoesNotConflict(restEntity);
+    }
+
     private void validateDoesNotConflict(ProductMilestone restEntity)
             throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
@@ -97,8 +103,14 @@ public class ProductMilestoneProviderImpl extends AbstractProvider<org.jboss.pnc
                     withProductVersionIdAndVersion(Integer.valueOf(restEntity.getProductVersion().getId()), restEntity.getVersion())
             );
 
+            Integer restEntityId = null;
+
+            if (restEntity.getId() != null) {
+                restEntityId = Integer.valueOf(restEntity.getId());
+            }
+
             // don't validate against myself
-            if (milestoneFromDB != null && !milestoneFromDB.getId().equals(Integer.valueOf(restEntity.getId()))) {
+            if (milestoneFromDB != null && !milestoneFromDB.getId().equals(restEntityId)) {
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         milestoneFromDB.getId(),
                         org.jboss.pnc.model.ProductMilestone.class,

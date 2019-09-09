@@ -171,6 +171,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("productMilestoneMapper", productReleaseMapper, productMilestoneMapper, ProductReleaseMapperImpl.class);
         injectMethod("productVersionMapper", productReleaseMapper, productVersionMapper, ProductReleaseMapperImpl.class);
 
+        injectMethod("productVersionMapper", productMilestoneMapper, productVersionMapper, ProductMilestoneMapperImpl.class);
+        injectMethod("productReleaseMapper", productMilestoneMapper, productReleaseMapper, ProductMilestoneMapperImpl.class);
+
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
     }
