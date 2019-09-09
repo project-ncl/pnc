@@ -96,6 +96,11 @@ public class SCMRepositoryProviderImpl
     }
 
     @Override
+    public void delete(String id) {
+        throw new UnsupportedOperationException("Deleting scm repositories is prohibited!");
+    }
+
+    @Override
     public Page<SCMRepository> getAllWithMatchAndSearchUrl(int pageIndex,
                                                            int pageSize,
                                                            String sortingRsql,
