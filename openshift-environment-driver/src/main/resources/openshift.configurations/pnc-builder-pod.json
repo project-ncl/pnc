@@ -75,6 +75,14 @@
                         "value": "${accessToken}"
                     },
                     {
+                        "name": "logUserId",
+                        "value": "${logUserId}"
+                    },
+                    {
+                        "name": "logProcessContext",
+                        "value": "${logProcessContext}"
+                    },
+                    {
                         "name": "buildContentId",
                         "value": "${buildContentId}"
                     },
@@ -84,7 +92,7 @@
                     },
                     {
                         "name": "buildAgentJvmProperties",
-                        "value": "-DlogMDC=processContext:${buildContentId};tmp:${tempBuild};exp:${expiresDate}"
+                        "value": "-DlogMDC=processContext:${logProcessContext};tmp:${tempBuild};exp:${expiresDate}"
                     }
                 ],
                 "resources": {},
