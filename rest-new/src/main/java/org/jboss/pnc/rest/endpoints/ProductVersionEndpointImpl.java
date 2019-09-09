@@ -62,7 +62,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public ProductVersion createNewProductVersion(ProductVersion productVersion) {
+    public ProductVersion createNew(ProductVersion productVersion) {
         return endpointHelper.create(productVersion);
     }
 

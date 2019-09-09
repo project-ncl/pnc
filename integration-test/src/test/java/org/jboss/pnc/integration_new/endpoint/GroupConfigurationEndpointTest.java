@@ -87,6 +87,6 @@ public class GroupConfigurationEndpointTest {
                 .version("3245.6742")
                 .product(ProductRef.refBuilder().id(product.getId()).build())
                 .build();
-        return pvClient.createNewProductVersion(pv);
+        return pvClient.createNew(pv);
     }
 }

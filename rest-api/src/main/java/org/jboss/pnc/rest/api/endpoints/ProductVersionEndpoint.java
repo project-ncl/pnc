@@ -87,7 +87,7 @@ public interface ProductVersionEndpoint{
             })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
-    ProductVersion createNewProductVersion(@NotNull ProductVersion productVersion);
+    ProductVersion createNew(@NotNull ProductVersion productVersion);
 
     @Operation(summary = "Gets a specific product version.",
             responses = {
