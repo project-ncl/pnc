@@ -33,6 +33,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.monitor.RunningTask;
 import org.jboss.pnc.common.util.RandomUtils;
@@ -115,7 +116,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private final String imageId;
     private final DebugData debugData;
     private final Set<Selector> initialized = new HashSet<>();
-    private final Map<String, String> runtimeProperties;
+    private final Map<String, String> environmetVariables;
 
     private final ExecutorService executor;
     private Optional<GaugeMetric> gaugeMetric = Optional.empty();
@@ -185,18 +186,35 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 .build();
         client.getServerReadyStatus(); // make sure client is connected
 
-        runtimeProperties = new HashMap<>();
+        environmetVariables = new HashMap<>();
 
         final String buildAgentHost = environmentConfiguration.getBuildAgentHost();
         String expiresDateStamp = Long.toString(temporaryBuildExpireDate.toEpochMilli());
 
-        runtimeProperties.put("build-agent-host", buildAgentHost);
-        runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
-        runtimeProperties.put("buildContentId", repositorySession.getBuildRepositoryId());
-        runtimeProperties.put("accessToken", accessToken);
-        runtimeProperties.put("tempBuild", Boolean.toString(tempBuild));
-        runtimeProperties.put("expiresDate", "ts" + expiresDateStamp);
-        runtimeProperties.put("resourcesMemory", builderPodMemory(environmentConfiguration, parameters));
+        Boolean proxyActive = !StringUtils.isEmpty(environmentConfiguration.getProxyServer())
+                && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
+
+        environmetVariables.put("image", imageId);
+        environmetVariables.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
+        // This property sent as Json
+        environmetVariables.put("allowedHttpOutgoingDestinations", toEscapedJsonString(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
+        environmetVariables.put("isHttpActive", proxyActive.toString().toLowerCase());
+        environmetVariables.put("proxyServer", environmentConfiguration.getProxyServer());
+        environmetVariables.put("proxyPort", environmentConfiguration.getProxyPort());
+        environmetVariables.put("nonProxyHosts", environmentConfiguration.getNonProxyHosts());
+
+        environmetVariables.put("AProxDependencyUrl", repositorySession.getConnectionInfo().getDependencyUrl());
+        environmetVariables.put("AProxDeployUrl", repositorySession.getConnectionInfo().getDeployUrl());
+
+        environmetVariables.put("build-agent-host", buildAgentHost);
+        environmetVariables.put("containerPort", environmentConfiguration.getContainerPort());
+        environmetVariables.put("buildContentId", repositorySession.getBuildRepositoryId());
+        environmetVariables.put("accessToken", accessToken);
+        environmetVariables.put("tempBuild", Boolean.toString(tempBuild));
+        environmetVariables.put("expiresDate", "ts" + expiresDateStamp);
+        environmetVariables.put("logUserId", MDCUtils.getUserId());
+        environmetVariables.put("logProcessContext", MDCUtils.getProcessContext());
+        environmetVariables.put("resourcesMemory", builderPodMemory(environmentConfiguration, parameters));
 
         createEnvironment();
     }
@@ -208,17 +226,19 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         String randString = RandomUtils.randString(6);//note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
 
-
-        runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
-        runtimeProperties.put("service-name", "pnc-ba-service-" + randString);
-        runtimeProperties.put("ssh-service-name", "pnc-ba-ssh-" + randString);
-        runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
-        runtimeProperties.put("route-path", "/" + buildAgentContextPath);
-        runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
+        //variables specific to to this pod (retry)
+        environmetVariables.put("pod-name", "pnc-ba-pod-" + randString);
+        environmetVariables.put("service-name", "pnc-ba-service-" + randString);
+        environmetVariables.put("ssh-service-name", "pnc-ba-ssh-" + randString);
+        environmetVariables.put("route-name", "pnc-ba-route-" + randString);
+        environmetVariables.put("route-path", "/" + buildAgentContextPath);
+        environmetVariables.put("buildAgentContextPath", "/" + buildAgentContextPath);
 
         initDebug();
 
-        ModelNode podConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_POD, openshiftBuildAgentConfig), runtimeProperties);
+        ModelNode podConfigurationNode = createModelNode(
+                Configurations.getContentAsString(Resource.PNC_BUILDER_POD, openshiftBuildAgentConfig),
+                environmetVariables);
         pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
         pod.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createPod = () -> {
@@ -232,7 +252,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         creatingPod = Optional.of(CompletableFuture.runAsync(createPod, executor));
         trackCreationFutures.add(creatingPod.get());
 
-        ModelNode serviceConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_SERVICE, openshiftBuildAgentConfig), runtimeProperties);
+        ModelNode serviceConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_SERVICE, openshiftBuildAgentConfig),
+                environmetVariables);
         service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         service.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createService = () -> {
@@ -247,7 +268,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         trackCreationFutures.add(creatingService.get());
 
         if (createRoute) {
-            ModelNode routeConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_ROUTE, openshiftBuildAgentConfig), runtimeProperties);
+            ModelNode routeConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_ROUTE, openshiftBuildAgentConfig),
+                    environmetVariables);
             route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
             route.setNamespace(environmentConfiguration.getPncNamespace());
             Runnable createRoute = () -> {
@@ -291,7 +313,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         if (debugData.isEnableDebugOnFailure()) {
             String password = RandomStringUtils.randomAlphanumeric(10);
             debugData.setSshPassword(password);
-            runtimeProperties.put(POD_USER_PASSWD, password);
+            environmetVariables.put(POD_USER_PASSWD, password);
 
             debugData.setSshServiceInitializer(d -> {
                 Integer port = startSshService();
@@ -301,7 +323,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
-        String definition = replaceConfigurationVariables(resourceDefinition, runtimeProperties);
+        Properties properties = new Properties();
+        properties.putAll(runtimeProperties);
+        String definition = StringPropertyReplacer.replaceProperties(resourceDefinition, properties);
         if (logger.isTraceEnabled()) {
             logger.trace("Node definition: " + secureLog(definition));
         }
@@ -652,29 +676,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         }
     }
 
-    private String replaceConfigurationVariables(String podConfiguration, Map runtimeProperties) {
-        Boolean proxyActive = !StringUtils.isEmpty(environmentConfiguration.getProxyServer())
-                && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
-
-        Properties properties = new Properties();
-        properties.put("image", imageId);
-        properties.put("containerPort", environmentConfiguration.getContainerPort());
-        properties.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
-        // This property sent as Json
-        properties.put("allowedHttpOutgoingDestinations", toEscapedJsonString(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
-        properties.put("isHttpActive", proxyActive.toString().toLowerCase());
-        properties.put("proxyServer", environmentConfiguration.getProxyServer());
-        properties.put("proxyPort", environmentConfiguration.getProxyPort());
-        properties.put("nonProxyHosts", environmentConfiguration.getNonProxyHosts());
-
-        properties.put("AProxDependencyUrl", repositorySession.getConnectionInfo().getDependencyUrl());
-        properties.put("AProxDeployUrl", repositorySession.getConnectionInfo().getDeployUrl());
-
-        properties.putAll(runtimeProperties);
-
-        return StringPropertyReplacer.replaceProperties(podConfiguration, properties);
-    }
-
     /**
      * Enable ssh forwarding
      *
@@ -682,7 +683,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private Integer startSshService() {
         ModelNode serviceConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_SSH_SERVICE,
-                openshiftBuildAgentConfig), runtimeProperties);
+                openshiftBuildAgentConfig), environmetVariables);
         sshService = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         sshService.setNamespace(environmentConfiguration.getPncNamespace());
         try {
