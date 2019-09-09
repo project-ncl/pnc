@@ -46,6 +46,10 @@ public class RestClientConfiguration {
         return getConfiguration(AuthenticateAs.NONE);
     }
 
+    public static Configuration asUser() {
+        return getConfiguration(AuthenticateAs.USER);
+    }
+
     public static Configuration asSystem(){
         return getConfiguration(AuthenticateAs.SYSTEM_USER);
     }
