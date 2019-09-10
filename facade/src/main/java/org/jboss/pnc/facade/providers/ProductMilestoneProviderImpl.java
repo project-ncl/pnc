@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.jboss.pnc.facade.util.UserService;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
@@ -50,6 +51,9 @@ public class ProductMilestoneProviderImpl
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProviderImpl.class);
 
     private ProductMilestoneReleaseManager releaseManager;
+
+    @Inject
+    private UserService userService;
 
     @Inject
     public ProductMilestoneProviderImpl(ProductMilestoneRepository repository,
@@ -124,29 +128,21 @@ public class ProductMilestoneProviderImpl
 
     @Override
     public void closeMilestone(String id, ProductMilestone restEntity) {
-        closeMilestone(id, restEntity, "");
-    }
-
-    @Override
-    public void closeMilestone(String id, ProductMilestone restEntity, String accessToken) {
-
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {
-
             log.info("Milestone is already closed: no more modifications allowed");
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
         } else {
             // save download url if specified
             if (restEntity.getDownloadUrl() != null) {
-
                 milestoneInDb.setDownloadUrl(restEntity.getDownloadUrl());
                 repository.save(milestoneInDb);
             }
 
             if(releaseManager.noReleaseInProgress(milestoneInDb)) {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
-                releaseManager.startRelease(milestoneInDb, accessToken);
+                releaseManager.startRelease(milestoneInDb, userService.currentUserToken());
             }
         }
     }
