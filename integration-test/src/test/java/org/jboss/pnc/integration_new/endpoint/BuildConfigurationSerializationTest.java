@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration_new;
+package org.jboss.pnc.integration_new.endpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.client.RemoteResourceException;
