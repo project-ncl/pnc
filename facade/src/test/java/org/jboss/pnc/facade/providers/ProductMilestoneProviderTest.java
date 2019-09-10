@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -40,6 +41,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +62,9 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
     @Mock
     private ProductMilestoneReleaseManager releaseManager;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private ProductMilestoneProviderImpl provider;
 
@@ -68,6 +73,8 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
 
     @Before
     public void setup() {
+        when(userService.currentUserToken()).thenReturn("eyUserToken");
+
         List<ProductMilestone> productMilestones = new ArrayList<>();
 
         productMilestones.add(mock);
@@ -231,18 +238,13 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
 
     @Test
     public void testCancelMilestoneCloseProcessShouldFailIfAlreadyClosed() {
+        // given
+        ProductMilestone closed = createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
+        closed.setEndDate(new Date());
+        repositoryList.add(closed);
 
-        // when: set end date
-        org.jboss.pnc.dto.ProductMilestone toCreate = org.jboss.pnc.dto.ProductMilestone.builder()
-                .productVersion(productVersionMapper.toRef(mock.getProductVersion()))
-                .version("9.8.7.GA")
-                .endDate(Instant.now())
-                .build();
-
-        org.jboss.pnc.dto.ProductMilestone created = provider.store(toCreate);
-
-        // then
-        assertThatThrownBy(() -> provider.cancelMilestoneCloseProcess(created.getId()))
+        // when then
+        assertThatThrownBy(() -> provider.cancelMilestoneCloseProcess(closed.getId().toString()))
                 .isInstanceOf(RepositoryViolationException.class);
     }
 
@@ -258,18 +260,15 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
 
     @Test
     public void testCloseMilestoneShouldFailIfAlreadyClosed() {
+        // given
+        ProductMilestone closed = createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
+        closed.setEndDate(new Date());
+        repositoryList.add(closed);
 
-        // when: set end date
-        org.jboss.pnc.dto.ProductMilestone toCreate = org.jboss.pnc.dto.ProductMilestone.builder()
-                .productVersion(productVersionMapper.toRef(mock.getProductVersion()))
-                .version("9.8.7.GA")
-                .endDate(Instant.now())
-                .build();
+        org.jboss.pnc.dto.ProductMilestone milestone = provider.getSpecific(closed.getId().toString());
 
-        org.jboss.pnc.dto.ProductMilestone created = provider.store(toCreate);
-
-        // then
-        assertThatThrownBy(() -> provider.closeMilestone(created.getId(), created))
+        // when then
+        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId(), milestone))
                 .isInstanceOf(RepositoryViolationException.class);
     }
 

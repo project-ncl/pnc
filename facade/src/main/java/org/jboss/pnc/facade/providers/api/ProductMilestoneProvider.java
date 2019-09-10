@@ -27,8 +27,6 @@ public interface ProductMilestoneProvider extends Provider<Integer, org.jboss.pn
 
     void closeMilestone(String id, ProductMilestone restEntity);
 
-    void closeMilestone(String id, ProductMilestone restEntity, String accessToken);
-
     void cancelMilestoneCloseProcess(String id)
             throws RepositoryViolationException, EmptyEntityException;
 

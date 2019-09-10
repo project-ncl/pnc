@@ -55,6 +55,7 @@ public class ProductMilestoneRef implements DTOEntity {
     protected final String version;
 
     @PatchSupport({REPLACE})
+    @Null(groups = WhenCreatingNew.class)
     protected final Instant endDate;
 
     @PatchSupport({REPLACE})

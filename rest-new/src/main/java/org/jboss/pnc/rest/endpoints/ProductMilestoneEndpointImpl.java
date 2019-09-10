@@ -42,10 +42,10 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private ProductMilestoneProvider productMilestoneProvider;
-    
+
     @Inject
     private BuildProvider buildProvider;
-    
+
     @Inject
     private AuthenticationProvider authenticationProvider;
 
@@ -88,12 +88,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Override
     public void closeMilestone(String id, ProductMilestone productMilestone) {
         MDCUtils.addProcessContext(productMilestone.getId());
-        if (httpServletRequest != null) {
-            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-            productMilestoneProvider.closeMilestone(id, productMilestone, loginInUser.getTokenString());
-        } else {
-            productMilestoneProvider.closeMilestone(id, productMilestone);
-        }
+        productMilestoneProvider.closeMilestone(id, productMilestone);
         MDCUtils.removeProcessContext();
     }
 
