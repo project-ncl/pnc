@@ -52,7 +52,8 @@ public class UserProviderImpl
 
             log.debug("Adding new user '{}' in database", username);
             currentUser = User.builder().username(username).build();
-            store(currentUser);
+            // get the updated currentUser DTO with id
+            currentUser = store(currentUser);
         }
 
         return currentUser;
