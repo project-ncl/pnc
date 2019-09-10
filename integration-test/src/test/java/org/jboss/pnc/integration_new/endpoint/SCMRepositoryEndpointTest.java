@@ -1,4 +1,4 @@
-package org.jboss.pnc.integration_new;
+package org.jboss.pnc.integration_new.endpoint;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
