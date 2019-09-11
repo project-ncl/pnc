@@ -256,6 +256,7 @@ public class BuildConfigurationProviderImpl
         clonedBuildConfiguration.setId(id.intValue());
 
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
+        repository.flushAndRefresh(clonedBuildConfiguration);
 
         logger.debug("Cloned saved BuildConfiguration: {}", clonedBuildConfiguration);
 
@@ -409,7 +410,7 @@ public class BuildConfigurationProviderImpl
         originalBC.setGenericParameters(buildConfigurationAudited.getGenericParameters());
 
         org.jboss.pnc.model.BuildConfiguration newBc = repository.save(originalBC);
-
+        repository.flushAndRefresh(newBc);
         return Optional.of(mapper.toDTO(newBc));
     }
 

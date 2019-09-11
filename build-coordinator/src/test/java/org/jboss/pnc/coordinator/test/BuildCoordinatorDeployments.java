@@ -57,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Supplier;
+import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -113,6 +114,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
+                .addClass(BuildConfigurationAuditedRepositoryMock.class)
                 .addPackages(false, filter,
                         BpmManager.class.getPackage(),
                         BuildResultMapper.class.getPackage())
