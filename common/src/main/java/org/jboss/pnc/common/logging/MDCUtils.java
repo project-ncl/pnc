@@ -37,6 +37,8 @@ public class MDCUtils {
     private static final String REQUEST_CONTEXT_KEY = "requestContext";
     private static final String PROCESS_CONTEXT_KEY = "processContext";
     private static final String USER_ID_KEY = "userId";
+    private static final String TMP_KEY = "tmp";;
+    private static final String EXP_KEY = "exp";
 
     public static void addContext(BuildTaskContext buildTaskContext) {
         addBuildContext(
@@ -49,8 +51,8 @@ public class MDCUtils {
     public static void addBuildContext(String processContext, Boolean temporaryBuild, Instant temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
         addProcessContext(processContext);
-        context.put("tmp", temporaryBuild.toString());
-        context.put("exp", temporaryBuildExpireDate.toString());
+        context.put(TMP_KEY, temporaryBuild.toString());
+        context.put(EXP_KEY, temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);
     }
 
@@ -103,5 +105,15 @@ public class MDCUtils {
 
     public static void removeProcessContext() {
         MDC.remove(PROCESS_CONTEXT_KEY);
+    }
+
+    public static Map<String, String> getMDCToHeaderMappings() {
+        Map<String, String> mappings = new HashMap<>();
+        mappings.put(USER_ID_KEY, "log-user-id");
+        mappings.put(REQUEST_CONTEXT_KEY, "log-request-context");
+        mappings.put(PROCESS_CONTEXT_KEY, "log-process-context");
+        mappings.put(TMP_KEY, "log-tmp");
+        mappings.put(EXP_KEY, "log-exp");
+        return mappings;
     }
 }

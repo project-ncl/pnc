@@ -30,6 +30,7 @@ import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -73,7 +74,7 @@ public class IndyFactory {
             IndyClientModule[] modules = new IndyClientModule[] {
                     new IndyFoloAdminClientModule(),
                     new IndyPromoteClientModule() };
-            return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), modules);
+            return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), MDCUtils.getMDCToHeaderMappings(), modules);
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }

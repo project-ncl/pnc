@@ -41,6 +41,7 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -161,7 +162,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     new IndyFoloContentClientModule(),
                     new IndyPromoteClientModule() };
 
-            return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), modules);
+            return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), MDCUtils.getMDCToHeaderMappings(), modules);
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }
