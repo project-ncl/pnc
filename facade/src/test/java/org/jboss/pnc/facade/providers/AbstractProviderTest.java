@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
+import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
 import org.jboss.pnc.mapper.BuildConfigurationMapperImpl;
 import org.jboss.pnc.mapper.BuildConfigurationRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildMapperImpl;
@@ -91,6 +92,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
     @Mock
     protected RSQLProducer rsqlPredicateProducer;
 
+    @Mock
+    protected BuildBCRevisionFetcher buildBCRevisionFetcher;
+
     @Spy
     protected ArtifactMapper artifactMapper = new AbstractArtifactMapperImpl();
 
@@ -151,6 +155,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("projectMapper", buildMapper, projectMapper, BuildMapperImpl.class);
         injectMethod("sCMRepositoryMapper", buildMapper, sCMRepositoryMapper, BuildMapperImpl.class);
         injectMethod("userMapper", buildMapper, userMapper, BuildMapperImpl.class);
+        injectMethod("buildBCRevisionFetcher", buildMapper, buildBCRevisionFetcher, BuildMapperImpl.class);
 
         injectMethod("environmentMapper", buildConfigurationMapper, environmentMapper, BuildConfigurationMapperImpl.class);
         injectMethod("groupConfigurationMapper", buildConfigurationMapper, groupConfigurationMapper, BuildConfigurationMapperImpl.class);

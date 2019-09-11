@@ -595,16 +595,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.id = null;
         Date now = Date.from(Instant.now());
         clone.active = true;
-        clone.buildConfigurationSets = new HashSet<>(buildConfigurationSets);
+        clone.buildConfigurationSets = new HashSet<>(); // Don't add the clone to the set
         clone.buildEnvironment = buildEnvironment;
         clone.buildScript = buildScript;
         clone.creationTime = now;
-        clone.dependants = new HashSet<>(dependants);
+        clone.dependants = new HashSet<>(); // Don't add the clone as dependency to parents.
         clone.dependencies = new HashSet<>(dependencies);
         clone.description = description;
         clone.genericParameters = new HashMap<>(genericParameters);
         clone.name = retrieveCloneName(name, now);
-        clone.productVersion = productVersion;
+        clone.productVersion = null; // Clone is mainly for cloning BC to use in new Product Version
         clone.project = project;
         clone.buildType = buildType;
         clone.repositoryConfiguration = repositoryConfiguration;
@@ -615,13 +615,13 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * Change the BC clone name into date_original-BC-name where date will be for every clone updated and for original BC names
      * will be added.
-     * 
+     *
      * Example: clone1 of pslegr-BC on Wednesday October,21st, 2015: 20151021095415_pslegr-BC
-     * 
+     *
      * clone2 of 20151021095415_pslegr-BC on Thursday October,22nd, 2015: 20151022nnnnnn_pslegr-BC
-     * 
+     *
      * clone3 of pslegr-BC on Friday October,23rd, 2015: 20151023nnnnnn_pslegr-BC
-     * 
+     *
      * @param bcName
      * @param now
      * @return A correct name for the cloned BuildConfiguration
@@ -704,7 +704,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         private Date lastModificationTime;
 
         private boolean archived = false;
-        
+
         private Map<String, String> genericParameters = new HashMap<>();
 
         private Builder() {
@@ -841,11 +841,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        public Builder archived(boolean archived) { 
+        public Builder archived(boolean archived) {
             this.archived = archived;
             return this;
         }
-        
+
         public Builder genericParameters(Map<String, String> genericParameters) {
             this.genericParameters = genericParameters;
             return this;

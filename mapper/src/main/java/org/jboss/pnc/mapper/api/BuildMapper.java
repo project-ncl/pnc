@@ -24,6 +24,7 @@ import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
+import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
         uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
                 SCMRepositoryMapper.class, ProjectMapper.class, BuildConfigurationRevisionMapper.class,
                 EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class,
-                GroupBuildMapper.class})
+                GroupBuildMapper.class, BuildBCRevisionFetcher.class})
 
 public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
@@ -52,7 +53,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
     @Mapping(target = "dependentBuildIds", source = "dependentBuildRecordIds")
     @Mapping(target = "dependencyBuildIds", source = "dependencyBuildRecordIds")
-    @Mapping(target = "buildConfigRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
+    @Mapping(target = "buildConfigRevision", ignore = true)
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
     @Mapping(target = "scmRepository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
@@ -63,7 +64,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-            "buildConfigurationAuditedIdRev", "buildEnvironment"
+            "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited"
     })
     Build toDTO(BuildRecord dbEntity);
 
