@@ -709,21 +709,26 @@ public class MavenRepositorySession implements RepositorySession {
      * @return the error message
      */
     private String getValidationError(AbstractPromoteResult<?> result) {
+        StringBuilder sb = new StringBuilder();
         String errorMsg = result.getError();
-        if (errorMsg == null) {
-            ValidationResult validations = result.getValidations();
+        ValidationResult validations = result.getValidations();
+        if (errorMsg != null) {
+            sb.append(errorMsg);
             if (validations != null) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
-
-                validations.getValidatorErrors().forEach((rule, error) -> {
-                    sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
-                });
-
-                errorMsg = sb.toString();
+                sb.append("\n");
             }
         }
-        return errorMsg;
+        if (validations != null) {
+            sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
+
+            validations.getValidatorErrors().forEach((rule, error) -> {
+                sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
+            });
+        }
+        if (sb.length() == 0) {
+            sb.append("(no error message received)");
+        }
+        return sb.toString();
     }
 
     private boolean ignoreContent(StoreKey source, String path) {
