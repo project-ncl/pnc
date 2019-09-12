@@ -66,14 +66,13 @@ public class DefaultCausewayClient implements CausewayClient {
             if(logger.isDebugEnabled())
                 logger.debug("Request body {}.", secureBodyLog(jsonMessage));
 
-            response = Request.Post(url)
+            Request request = Request.Post(url)
                     .addHeader(authHeader)
-                    .addHeader("log-user-id", MDCUtils.getUserId())
-                    .addHeader("log-request-context", MDCUtils.getRequestContext())
-                    .addHeader("log-process-context", MDCUtils.getProcessContext())
-                    .bodyString(jsonMessage, ContentType.APPLICATION_JSON)
-                    .execute()
-                    .returnResponse();
+                    .bodyString(jsonMessage, ContentType.APPLICATION_JSON);
+            MDCUtils.getUserId().ifPresent(v -> request.addHeader("log-user-id", v));
+            MDCUtils.getRequestContext().ifPresent(v -> request.addHeader("log-request-context", v));
+            MDCUtils.getProcessContext().ifPresent(v -> request.addHeader("log-process-context", v));
+            response = request.execute().returnResponse();
         } catch (IOException e) {
             logger.error("Failed to invoke remote Causeway.", e);
             return false;

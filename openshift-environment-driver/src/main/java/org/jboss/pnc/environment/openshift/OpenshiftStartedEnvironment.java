@@ -212,8 +212,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         environmetVariables.put("accessToken", accessToken);
         environmetVariables.put("tempBuild", Boolean.toString(tempBuild));
         environmetVariables.put("expiresDate", "ts" + expiresDateStamp);
-        environmetVariables.put("logUserId", MDCUtils.getUserId());
-        environmetVariables.put("logProcessContext", MDCUtils.getProcessContext());
+        MDCUtils.getUserId().ifPresent(v -> environmetVariables.put("logUserId", v));
+        MDCUtils.getProcessContext().ifPresent(v -> environmetVariables.put("logProcessContext", v));
         environmetVariables.put("resourcesMemory", builderPodMemory(environmentConfiguration, parameters));
 
         createEnvironment();
