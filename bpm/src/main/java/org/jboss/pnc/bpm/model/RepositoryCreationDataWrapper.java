@@ -23,5 +23,5 @@ import lombok.Data;
 public class RepositoryCreationDataWrapper {
 
     private String message;
-    private int repositoryConfigurationId;
+    private String repositoryConfigurationId;
 }

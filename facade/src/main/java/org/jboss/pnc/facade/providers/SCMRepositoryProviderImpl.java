@@ -222,7 +222,7 @@ public class SCMRepositoryProviderImpl
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(
                 repositoryCreationProcess, userToken);
 
-        Consumer<RepositoryCreationSuccess> successListener = n -> consumer.accept(n.getData().getRepositoryConfigurationId());
+        Consumer<RepositoryCreationSuccess> successListener = n -> consumer.accept(Integer.valueOf(n.getData().getRepositoryConfigurationId()));
         repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, MDCWrappers.wrap(successListener));
         addErrorListeners(jobType, repositoryCreationTask);
 
