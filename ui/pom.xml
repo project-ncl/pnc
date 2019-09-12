@@ -124,7 +124,7 @@
             </goals>
             <phase>generate-resources</phase>
             <configuration>
-              <arguments>install</arguments>
+              <arguments>install --loglevel http</arguments>
             </configuration>
           </execution>
 
