@@ -25,6 +25,7 @@ import org.slf4j.MDC;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -84,16 +85,16 @@ public class MDCUtils {
         return context;
     }
 
-    public static String getRequestContext() {
-        return getContextMap().get(REQUEST_CONTEXT_KEY);
+    public static Optional<String> getRequestContext() {
+        return Optional.ofNullable(getContextMap().get(REQUEST_CONTEXT_KEY));
     }
 
-    public static String getProcessContext() {
-        return getContextMap().get(PROCESS_CONTEXT_KEY);
+    public static Optional<String> getProcessContext() {
+        return Optional.ofNullable(getContextMap().get(PROCESS_CONTEXT_KEY));
     }
 
-    public static String getUserId() {
-        return getContextMap().get(USER_ID_KEY);
+    public static Optional<String> getUserId() {
+        return Optional.ofNullable(getContextMap().get(USER_ID_KEY));
     }
 
     public static void clear() {

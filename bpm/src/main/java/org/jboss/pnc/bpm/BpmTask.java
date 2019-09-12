@@ -24,7 +24,6 @@ import lombok.Getter;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,22 +172,18 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         //global not process related parameters
         actualParameters.put("taskId", taskId);
         actualParameters.put("usersAuthToken", accessToken);
-        String mdcUserId = MDCUtils.getUserId();
-        if (!StringUtils.isEmpty(mdcUserId)) {
-            log.debug("Setting process parameter userId: {}", mdcUserId);
-            actualParameters.put("userId", mdcUserId);
-        }
-        String mdcRequestContext = MDCUtils.getRequestContext();
-        if (!StringUtils.isEmpty(mdcRequestContext)) {
-            log.debug("Setting process parameter logRequestContext: {}", mdcRequestContext);
-            actualParameters.put("logRequestContext", mdcRequestContext);
-        }
-        String mdcProcessContext = MDCUtils.getProcessContext();
-        if (!StringUtils.isEmpty(mdcProcessContext)) {
-            log.debug("Setting process parameter logProcessContext: {}", mdcProcessContext);
-            actualParameters.put("logProcessContext", mdcProcessContext);
-        }
-
+        MDCUtils.getUserId().ifPresent(v -> {
+            log.debug("Setting process parameter userId: {}", v);
+            actualParameters.put("userId", v);
+        });
+        MDCUtils.getRequestContext().ifPresent(v -> {
+            log.debug("Setting process parameter logRequestContext: {}", v);
+            actualParameters.put("logRequestContext", v);
+        });
+        MDCUtils.getProcessContext().ifPresent(v -> {
+            log.debug("Setting process parameter logProcessContext: {}", v);
+            actualParameters.put("logProcessContext", v);
+        });
         return actualParameters;
     }
 
