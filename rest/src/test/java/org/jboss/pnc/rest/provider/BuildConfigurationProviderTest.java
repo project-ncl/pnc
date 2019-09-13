@@ -146,7 +146,7 @@ public class BuildConfigurationProviderTest {
 
         BuildConfigurationRest configuration = createValidConfiguration();
         configuration.setId(EXISTING_ID);
-        configuration.setGenericParameters(params);
+        configuration.setParameters(params);
         Optional<BuildConfigurationAuditedRest> bcaRest = provider
                 .getLatestAuditedMatchingBCRest(configuration);
 

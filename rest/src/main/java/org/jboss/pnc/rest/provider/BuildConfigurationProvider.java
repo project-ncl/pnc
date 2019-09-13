@@ -341,7 +341,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 equalsWithNull(audited.getDescription(), rest.getDescription()) &&
                 equalsId(audited.getProject(), rest.getProject()) &&
                 equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
-                audited.getGenericParameters().equals(rest.getGenericParameters());
+                audited.getGenericParameters().equals(rest.getParameters());
     }
 
     private boolean equalsWithNull(Object o1, Object o2) {

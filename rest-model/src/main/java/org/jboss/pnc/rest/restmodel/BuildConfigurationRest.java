@@ -89,7 +89,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     @Getter
     @Setter
-    private Map<String, String> genericParameters ;
+    private Map<String, String> parameters;
 
     public BuildConfigurationRest() {
     }
@@ -108,7 +108,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         }
         this.archived = buildConfiguration.isArchived();
         if (buildConfiguration.getGenericParameters() != null) {
-            this.genericParameters = Collections.unmodifiableMap(buildConfiguration.getGenericParameters());
+            this.parameters = Collections.unmodifiableMap(buildConfiguration.getGenericParameters());
         }
 
         performIfNotNull(buildConfiguration.getRepositoryConfiguration(),
@@ -238,7 +238,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .buildScript(this.getBuildScript())
                 .scmRevision(this.getScmRevision())
                 .archived(this.isArchived())
-                .genericParameters(this.getGenericParameters())
+                .genericParameters(this.getParameters())
                 .buildType(this.getBuildType());
 
         performIfNotNull(this.getRepositoryConfiguration(), () -> builder.repositoryConfiguration(this.getRepositoryConfiguration().toDBEntityBuilder().build()));

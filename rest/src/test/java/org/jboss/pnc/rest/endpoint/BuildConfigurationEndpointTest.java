@@ -25,7 +25,6 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -110,7 +109,7 @@ public class BuildConfigurationEndpointTest {
         @SuppressWarnings("unchecked")
         BuildConfigurationRest bcRest = ((Singleton<BuildConfigurationRest>) response.getEntity()).getContent();
 
-        Map<String, String> supportedParameters = bcRest.getGenericParameters();
+        Map<String, String> supportedParameters = bcRest.getParameters();
         assertThat(supportedParameters).containsKey(KEY);
         assertThat(supportedParameters.get(KEY)).startsWith(VALUE);
     }
