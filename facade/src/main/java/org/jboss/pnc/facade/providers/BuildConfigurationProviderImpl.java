@@ -366,17 +366,21 @@ public class BuildConfigurationProviderImpl
         validateBeforeSaving(buildConfiguration.toBuilder().scmRepository(FAKE_REPOSITORY).build());
         Long buildConfigurationId = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
         MDCUtils.addProcessContext(buildConfigurationId.toString());
+        BuildConfiguration newBuildConfigurationWithId = buildConfiguration.toBuilder().id(buildConfigurationId.toString()).build();
 
         RepositoryCreationResponse rcResponse = scmRepositoryProvider.createSCMRepository(
                 request.getScmUrl(),
                 request.getPreBuildSyncEnabled(),
                 JobNotificationType.BUILD_CONFIG_CREATION,
-                MDCWrappers.wrap(id -> onRCCreationSuccess(id, buildConfiguration)));
+                //wrap as the callback happens from the Bpm task completion
+                MDCWrappers.wrap(repositoryConfigurationId -> onRCCreationSuccess(repositoryConfigurationId, newBuildConfigurationWithId)));
 
         BuildConfigCreationResponse response;
         if(rcResponse.getTaskId() == null){
+            // scm is internal, not running a RepositoryCreationTask.
+            // onRCCreationSuccess already called with id = rcResponse.getRepository().getId()
             org.jboss.pnc.model.BuildConfiguration buildConfigurationFromDB =
-                    repository.queryByPredicates(withName(buildConfiguration.getName()), isNotArchived());
+                    repository.queryByPredicates(withName(newBuildConfigurationWithId.getName()), isNotArchived());
             response = new BuildConfigCreationResponse(mapper.toDTO(buildConfigurationFromDB));
         }else{
             response = new BuildConfigCreationResponse(rcResponse.getTaskId());
