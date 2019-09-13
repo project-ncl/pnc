@@ -259,9 +259,9 @@ public class MavenRepositorySession implements RepositorySession {
                                 paths.add(path + ".md5");
                                 paths.add(path + ".sha1");
                             } else if (NPM_PKG_KEY.equals(packageType)) {
-                                if (path.matches("^/([^/]+)/-/\\1-.+\\.tgz$")) {
+                                if (path.matches("^/(?:@[^/]+/)?([^/]+)/-/\\1-.+\\.tgz$")) {
                                     paths.add(path);
-                                } else if (path.matches("^/[^/]+$")) {
+                                } else if (path.matches("^/(?:@[^/]+/)?[^/]+$")) {
                                     // skip metadata
                                 } else {
                                     logger.warn("Unrecognized NPM download path: {}", path);
