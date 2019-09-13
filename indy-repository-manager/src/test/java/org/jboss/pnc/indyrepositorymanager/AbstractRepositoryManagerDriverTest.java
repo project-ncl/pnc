@@ -37,6 +37,7 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class AbstractRepositoryManagerDriverTest {
 
     @Before
     public void setup() throws Exception {
+        MDC.put("dummy", "non"); //workaround for NPE in Indy 1.6.2 client
         fixture = newServerFixture();
 
         Properties sysprops = System.getProperties();
