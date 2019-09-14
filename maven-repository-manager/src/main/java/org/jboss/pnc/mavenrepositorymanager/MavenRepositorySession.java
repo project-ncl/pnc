@@ -723,7 +723,7 @@ public class MavenRepositorySession implements RepositorySession {
         for (String suffix : ignoredPathSuffixes) {
             if (path.endsWith(suffix)) {
                 return true;
-            } else if (NPM_PKG_KEY.equals(source.getPackageType()) && path.matches("^/[^/]+$")) {
+            } else if (NPM_PKG_KEY.equals(source.getPackageType()) && path.matches("^/(?:@[^/]+/)?[^/]+$")) {
                 return true;
             }
         }
