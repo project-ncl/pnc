@@ -598,7 +598,7 @@ public class MavenRepositorySession implements RepositorySession {
 
         try {
             PathsPromoteResult result = promoter.promoteByPath(req);
-            if (result.getError() == null) {
+            if (result.succeeded()) {
                 if (setReadonly && !isTempBuild) {
                     HostedRepository hosted = serviceAccountIndy.stores().load(req.getTarget(), HostedRepository.class);
                     hosted.setReadonly(true);
@@ -618,20 +618,8 @@ public class MavenRepositorySession implements RepositorySession {
                     }
                 }
             } else {
-                String addendum = "";
-                try {
-                    PathsPromoteResult rollback = promoter.rollbackPathPromote(result);
-                    if (rollback.getError() != null) {
-                        addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
-                    }
-
-                } catch (IndyClientException e) {
-                    throw new RepositoryManagerException("Rollback failed for promotion of: %s. Reason: %s", e, req,
-                            e.getMessage());
-                }
-
-                throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s%s", req, result.getError(),
-                        addendum);
+                String error = getValidationError(result);
+                throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s", req, error);
             }
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, req, e.getMessage());
