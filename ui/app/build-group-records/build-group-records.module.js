@@ -58,7 +58,7 @@
 
 
         $stateProvider.state('build-group-records.detail', {
-          url: '/{id:int}?visualization',
+          url: '/{id}?visualization',
           data: {
             displayName: '{{ buildGroupRecord.buildConfigurationSetName }} » #{{ buildGroupRecord.id }}',
             title: '#{{ buildGroupRecord.id }} {{ buildGroupRecord.buildConfigurationSetName }} | Build Group Record'

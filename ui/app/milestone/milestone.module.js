@@ -31,7 +31,7 @@
 
     $stateProvider
       .state('product.detail.version.milestoneDetail', {
-        url: '/milestone/{milestoneId:int}/detail',
+        url: '/milestone/{milestoneId}/detail',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.detail.html',
@@ -99,7 +99,7 @@
         },
       })
       .state('product.detail.version.milestoneUpdate', {
-        url: '/milestone/{milestoneId:int}/update',
+        url: '/milestone/{milestoneId}/update',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.create-update.html',
@@ -120,7 +120,7 @@
         }
       })
       .state('product.detail.version.milestoneClose', {
-        url: '/milestone/{milestoneId:int}/close',
+        url: '/milestone/{milestoneId}/close',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.close.html',

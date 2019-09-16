@@ -60,7 +60,7 @@
     });
 
     $stateProvider.state('product.detail', {
-      url: '/{productId:int}',
+      url: '/{productId}',
       templateUrl: 'product/views/product.detail.html',
       data: {
          displayName: '{{ productDetail.name }}',
@@ -78,7 +78,7 @@
 
     $stateProvider.state('product.detail.version', {
       //parent: 'product.detail',
-      url: '/version/{versionId:int}',
+      url: '/version/{versionId}',
       views: {
         'content@': {
           templateUrl: 'product/views/product.version.html',

@@ -57,7 +57,7 @@
         });
 
         $stateProvider.state('artifacts.detail', {
-          url: '/{id:int}',
+          url: '/{id}',
           data: {
             displayName: '{{ artifact.identifier }}',
             title: '{{ artifact.identifier }} | Artifacts'

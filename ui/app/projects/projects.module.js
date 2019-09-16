@@ -55,7 +55,7 @@
       });
 
       $stateProvider.state('projects.detail', {
-        url: '/{projectId:int}',
+        url: '/{projectId}',
         component: 'pncProjectDetailPage',
         data: {
           displayName: '{{ project.name }}',

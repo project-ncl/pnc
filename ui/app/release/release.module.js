@@ -49,7 +49,7 @@
       },
     })
     .state('product.detail.version.releaseUpdate', {
-      url: '/release/{releaseId:int}/update',
+      url: '/release/{releaseId}/update',
       views: {
         'content@': {
           templateUrl: 'release/views/release.create-update.html',
