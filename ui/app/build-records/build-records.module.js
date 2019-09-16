@@ -52,7 +52,7 @@
 
       $stateProvider.state('build-records.detail', {
         abstract: true,
-        url: '/{recordId:int}',
+        url: '/{recordId}',
         resolve: {
           recordDetail: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
             return BuildRecord.get({ id: $stateParams.recordId }).$promise;
@@ -151,7 +151,7 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.build-records.detail', {
         abstract: true,
-        url: '/{recordId:int}',
+        url: '/{recordId}',
         templateUrl: 'build-records/views/build-records.detail.html',
         data: {
           proxy: 'projects.detail.build-configs.detail.build-records.detail.default',

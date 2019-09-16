@@ -55,7 +55,7 @@
     });
 
     $stateProvider.state('scm-repositories.detail', {
-      url: '/{scmRepositoryId:int}',
+      url: '/{scmRepositoryId}',
       component: 'pncScmRepositoryDetailPage',
       data: {
         displayName: '{{ scmRepository.getName() }}',

@@ -69,7 +69,7 @@
 
       $stateProvider.state('build-groups.detail', {
         abstract: true,
-        url: '/{configurationSetId:int}',
+        url: '/{configurationSetId}',
         templateUrl: 'build-groups/views/build-groups.detail.html',
         data: {
           displayName: '{{ configurationSetDetail.name }}',
@@ -150,7 +150,7 @@
       });
 
       $stateProvider.state('build-groups.add-configuration', {
-        url: '/build-groups/{configurationSetId:int}/add-configuration',
+        url: '/build-groups/{configurationSetId}/add-configuration',
         templateUrl: 'build-groups/views/build-groups.add.configuration.html',
         data: {
           displayName: 'Add Build Config',

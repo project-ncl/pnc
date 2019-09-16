@@ -52,7 +52,7 @@
       });
 
       $stateProvider.state('projects.detail.build-configs.detail', {
-        url: '/{configurationId:int}',
+        url: '/{configurationId}',
         redirectTo: 'projects.detail.build-configs.detail.default',
         data: {
            displayName: '{{ configurationDetail.name }}',
@@ -205,7 +205,7 @@
       });
       
       $stateProvider.state('projects.detail.build-configs.detail.revisions.detail', {
-        url: '/{revisionId:int}',
+        url: '/{revisionId}',
         views: {
           'master': {
             component: 'pncRevisionsVerticalNav',
@@ -268,7 +268,7 @@
       });
 
       $stateProvider.state('build-configs.detail', {
-        url: '/{configurationId:int}',
+        url: '/{configurationId}',
         resolve: {
           configurationDetail: ['BuildConfigurationDAO', '$stateParams', function(BuildConfigurationDAO, $stateParams) {
             return BuildConfigurationDAO.get({
