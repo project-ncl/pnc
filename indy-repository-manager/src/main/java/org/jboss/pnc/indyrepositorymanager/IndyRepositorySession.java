@@ -183,12 +183,7 @@ public class IndyRepositorySession implements RepositorySession {
         logger.info("BEGIN: Removing build aggregation group: {}", buildContentId);
         StopWatch stopWatch = StopWatch.createStarted();
 
-        try {
-            StoreKey key = new StoreKey(packageType, StoreType.group, buildContentId);
-            serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
-        } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
-        }
+        deleteBuildGroup();
 
         logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
         stopWatch.reset();
@@ -218,6 +213,16 @@ public class IndyRepositorySession implements RepositorySession {
         stopWatch.reset();
 
         return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
+    }
+
+    @Override
+	public void deleteBuildGroup() throws RepositoryManagerException {
+        try {
+            StoreKey key = new StoreKey(packageType, StoreType.group, buildContentId);
+            serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
+        } catch (IndyClientException e) {
+            throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
+        }
     }
 
     /**
