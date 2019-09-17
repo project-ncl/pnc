@@ -177,12 +177,7 @@ public class MavenRepositorySession implements RepositorySession {
         List<Artifact> downloads = processDownloads(report);
         Collections.sort(downloads, comp);
 
-        try {
-            StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
-            serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
-        } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
-        }
+        deleteBuildGroup();
 
         Logger logger = LoggerFactory.getLogger(getClass());
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
@@ -203,6 +198,15 @@ public class MavenRepositorySession implements RepositorySession {
         }
 
         return new MavenRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
+    }
+
+    public void deleteBuildGroup() throws RepositoryManagerException {
+        try {
+            StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
+            serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
+        } catch (IndyClientException e) {
+            throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
+        }
     }
 
     /**
