@@ -121,4 +121,8 @@ public class RepositorySessionMock implements RepositorySession {
     public void close() {
     }
 
+    @Override
+    public void deleteBuildGroup() throws RepositoryManagerException {
+    }
+
 }

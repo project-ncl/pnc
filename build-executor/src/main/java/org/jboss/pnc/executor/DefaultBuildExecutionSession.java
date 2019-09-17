@@ -104,6 +104,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         setStatus(status, false);
     }
 
+    @Override
     public void setStatus(BuildExecutionStatus status, boolean isFinal) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS) && executorException == null) {
@@ -258,12 +259,14 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         this.cancelHook = cancelHook;
     }
 
-    public synchronized void cancel() {
+    public synchronized boolean cancel() {
         cancelRequested = true;
         if (cancelHook != null) {
             cancelHook.run();
+            return true;
         } else {
             log.warn("Trying to cancel operation while no cancel hook is defined.");
+            return false;
         }
     }
 

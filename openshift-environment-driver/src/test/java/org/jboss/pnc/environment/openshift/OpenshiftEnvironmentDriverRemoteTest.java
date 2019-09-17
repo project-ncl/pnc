@@ -237,6 +237,10 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         public void close() {
         }
 
+        @Override
+        public void deleteBuildGroup() throws RepositoryManagerException {
+        }
+
     }
 
 }

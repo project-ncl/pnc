@@ -51,6 +51,7 @@ import org.jboss.pnc.spi.executor.exceptions.AlreadyRunningException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
@@ -166,7 +167,24 @@ public class DefaultBuildExecutor implements BuildExecutor {
         DefaultBuildExecutionSession buildExecutionSession = runningExecutions.get(executionConfigurationId);
         if (buildExecutionSession != null) {
             log.info("Cancelling build {}.", buildExecutionSession.getId());
-            buildExecutionSession.cancel();
+            if (buildExecutionSession.cancel()) {
+                String buildContentId = buildExecutionSession.getBuildExecutionConfiguration().getBuildContentId();
+                RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
+                if (runningEnvironment == null) {
+                    log.warn("Could not retrieve running environment for build {}", buildContentId);
+                } else {
+                    RepositorySession repositorySession = runningEnvironment.getRepositorySession();
+                    if (repositorySession == null) {
+                        log.warn("Could not retrieve repository session for build {}", buildContentId);
+                    } else {
+                        try {
+                            repositorySession.deleteBuildGroup();
+                        } catch (RepositoryManagerException e) {
+                            log.error("Error deleting build group for build " + buildContentId + " when canceling it.", e);
+                        }
+                    }
+                }
+            }
         } else {
             log.warn("Trying to cancel non existing session.");
         }

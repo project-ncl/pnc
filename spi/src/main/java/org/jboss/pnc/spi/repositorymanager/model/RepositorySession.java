@@ -41,5 +41,12 @@ public interface RepositorySession {
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
 
+    /**
+     * Removes build aggregation group. This should be done for every build.
+     *
+     * @throws RepositoryManagerException in case of an error received from repository manager
+     */
+    void deleteBuildGroup() throws RepositoryManagerException;
+
     void close();
 }
