@@ -65,7 +65,9 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
         MDCUtils.addRequestContext(logRequestContext);
 
         String logProcessContext = context.getHeaderString("log-process-context");
-        MDCUtils.addProcessContext(logProcessContext);
+        if (logProcessContext != null) {
+            MDCUtils.addProcessContext(logProcessContext);
+        }
 
         User user = userService.currentUser();
         if (user != null) {
