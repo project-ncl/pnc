@@ -162,7 +162,7 @@ public class BuildTaskEndpoint {
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
             );
 
-                    logger.info("Build execution requested.");
+            logger.info("Build execution requested.");
             logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
 
             AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();

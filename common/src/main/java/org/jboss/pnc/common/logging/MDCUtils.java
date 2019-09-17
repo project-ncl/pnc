@@ -50,7 +50,7 @@ public class MDCUtils {
 
     public static void addBuildContext(String processContext, Boolean temporaryBuild, Instant temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
-        addProcessContext(processContext);
+        addProcessContext(processContext, context);
         context.put(TMP_KEY, temporaryBuild.toString());
         context.put(EXP_KEY, temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);
@@ -58,10 +58,14 @@ public class MDCUtils {
 
     public static void addProcessContext(String processContext) {
         Map<String, String> context = getContextMap();
-        String current = context.get(PROCESS_CONTEXT_KEY);
+        addProcessContext(processContext, context);
+        MDC.setContextMap(context);
+    }
+
+    private static void addProcessContext(String processContext, Map<String, String> map) {
+        String current = map.get(PROCESS_CONTEXT_KEY);
         if (StringUtils.isEmpty(current)) {
-            context.put(PROCESS_CONTEXT_KEY, processContext);
-            MDC.setContextMap(context);
+            map.put(PROCESS_CONTEXT_KEY, processContext);
         } else {
             logger.warn("Did not set new processContext [{}] as value already exists [{}].", processContext, current);
         }
