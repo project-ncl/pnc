@@ -156,6 +156,7 @@ public class IndyRepositorySession implements RepositorySession {
     @Override
     public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
         TrackedContentDTO report;
+        userLog.info("Sealing tracking record");
         try {
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
             boolean sealed = foloAdmin.sealTrackingRecord(buildContentId);
@@ -163,6 +164,7 @@ public class IndyRepositorySession implements RepositorySession {
                 throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildContentId);
             }
 
+            userLog.info("Downloading tracking report");
             report = foloAdmin.getTrackingReport(buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildContentId,
@@ -181,6 +183,7 @@ public class IndyRepositorySession implements RepositorySession {
         Collections.sort(downloads, comp);
 
         logger.info("BEGIN: Removing build aggregation group: {}", buildContentId);
+        userLog.info("Removing build aggregation group");
         StopWatch stopWatch = StopWatch.createStarted();
 
         deleteBuildGroup();
@@ -236,6 +239,7 @@ public class IndyRepositorySession implements RepositorySession {
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
 
         logger.info("BEGIN: Process artifacts downloaded by build");
+        userLog.info("Processing dependencies");
         StopWatch stopWatch = StopWatch.createStarted();
 
         IndyContentClientModule content;
@@ -341,6 +345,7 @@ public class IndyRepositorySession implements RepositorySession {
                     try {
                         logger.info("BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
                                     req.getSource().toString(), req.getTarget().toString(), readonly);
+                        userLog.info("Promoting {} dependencies from {} to {}", req.getPaths().size(), req.getSource(), req.getTarget());
 
                         doPromoteByPath(req, readonly);
 
@@ -497,6 +502,7 @@ public class IndyRepositorySession implements RepositorySession {
             throws RepositoryManagerException {
 
         logger.info("BEGIN: Process artifacts uploaded from build");
+        userLog.info("Processing built argifacts");
         StopWatch stopWatch = StopWatch.createStarted();
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
@@ -684,6 +690,7 @@ public class IndyRepositorySession implements RepositorySession {
      * @param uploads artifacts to be promoted
      */
     public void promoteToBuildContentSet(List<Artifact> uploads) throws RepositoryManagerException {
+        userLog.info("Validating and promoting built artifacts");
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
