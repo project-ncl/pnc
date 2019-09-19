@@ -44,7 +44,7 @@
       </td>
       <td ng-if="::$ctrl.showColumn('configurationName')">
         <a ng-if="::$ctrl.buildRecords" href ui-sref="projects.detail.build-configs.detail({ projectId: item.projectId, configurationId: item.buildConfigurationId })">{{ item.buildConfigurationName }}</a>
-        <a ng-if="::$ctrl.buildGroupRecords" href ui-sref="build-groups.detail.build-configs({ configurationSetId: item.buildConfigurationSetId })">{{ item.buildConfigurationSetName }}</a>
+        <pnc-group-config-link ng-if="::$ctrl.buildRecords" group-config="item"></pnc-group-config-link>
       </td>
       <td ng-if="::$ctrl.showColumn('canonicalName')"><pnc-build-record-link build-record="item"></pnc-build-record-link></td>
       <td ng-if="::$ctrl.showColumn('startTime')">{{ item.startTime | date:'medium' }}</td>
