@@ -19,11 +19,11 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-group-records').component('pncBuildGroupRecordsListPage', {
+  angular.module('pnc.group-builds').component('pncGroupBuildsListPage', {
     bindings: {
-     buildGroupRecords: '<',
+     groupBuilds: '<',
     },
-    templateUrl: 'build-group-records/list/pnc-build-group-records-list-page.html',
+    templateUrl: 'group-builds/list/pnc-group-builds-list-page.html',
     controller: [Controller]
   });
 

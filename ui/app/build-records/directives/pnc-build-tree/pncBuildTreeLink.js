@@ -34,7 +34,7 @@
       /**
        * Object: The BuildGroupRecord to display the link for.
        */
-      buildGroupRecord: '<?'
+      groupBuild: '<?'
     },
     templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree-link.html',
     controller: ['$scope', 'eventTypes', Controller]
@@ -44,7 +44,7 @@
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
-      copyBuildItem($ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord);
+      copyBuildItem($ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild);
 
       $scope.$on(eventTypes.BUILD_STATUS_CHANGED, onEvent);
       $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, onEvent);
@@ -53,8 +53,8 @@
     $ctrl.$onChanges = function(changedBindings) {
       if (changedBindings.buildRecord) {
         copyBuildItem($ctrl.buildRecord);
-      } else if (changedBindings.buildGroupRecord) {
-        copyBuildItem($ctrl.buildGroupRecord);
+      } else if (changedBindings.groupBuild) {
+        copyBuildItem($ctrl.groupBuild);
       }
     };
 

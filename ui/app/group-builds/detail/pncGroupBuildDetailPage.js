@@ -19,13 +19,13 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-group-records').component('pncBuildGroupRecordDetailPage', {
+  angular.module('pnc.group-builds').component('pncGroupBuildDetailPage', {
     bindings: {
-     buildGroupRecord: '<',
+     groupBuild: '<',
      dependencyGraph: '<',
      buildRecords: '<'
     },
-    templateUrl: 'build-group-records/detail/pnc-build-group-record-detail-page.html',
+    templateUrl: 'group-builds/detail/pnc-group-build-detail-page.html',
     controller: ['$scope', 'eventTypes', Controller]
   });
 
@@ -42,9 +42,9 @@
 
     $ctrl.$onInit = function () {
       $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, function (event, payload) {
-        if (payload.id === $ctrl.buildGroupRecord.id) {
+        if (payload.id === $ctrl.groupBuild.id) {
           $scope.$applyAsync(function () {
-            Object.assign($ctrl.buildGroupRecord, payload);
+            Object.assign($ctrl.groupBuild, payload);
           });
         }
       });

@@ -19,14 +19,14 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-group-records').component('pncBuildGroupRecordVisualization', {
+  angular.module('pnc.group-builds').component('pncGroupBuildVisualization', {
     bindings: {
-      buildGroupRecord: '<',
+      groupBuild: '<',
       dependencyGraph: '<',
       buildRecords: '<',
       visualization: '<?'
     },
-    templateUrl: 'build-group-records/detail/pnc-build-group-record-visualization.html',
+    templateUrl: 'group-builds/components/pnc-group-build-visualization/pnc-group-build-visualization.html',
     controller: ['$scope', '$state', '$stateParams', Controller]
   });
 

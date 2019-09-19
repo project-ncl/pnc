@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.build-group-records');
+  var module = angular.module('pnc.group-builds');
 
   /**
    * @ngdoc directive
@@ -42,7 +42,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'build-group-records/components/pnc-group-builds/pnc-group-builds.html',
+        templateUrl: 'group-builds/components/pnc-group-builds/pnc-group-builds.html',
         scope: {},
         controller: ['$scope', 'BuildConfigurationSetRecordDAO', 'eventTypes', PncGroupBuildsCtrl]
       };

@@ -21,17 +21,17 @@
   <div class="col-md-12">
     <div class="page-header">
       <div class="btn-group pull-right" role="group" aria-label="Build Actions">
-        <pnc-build-record-push-button build-group-record="$ctrl.buildGroupRecord"></pnc-build-record-push-button>
-        <button ng-if="$ctrl.buildGroupRecord.$isCancelable()" ng-click="$ctrl.buildGroupRecord.$cancel()" type="button"
+        <pnc-build-record-push-button group-build="$ctrl.groupBuild"></pnc-build-record-push-button>
+        <button ng-if="$ctrl.groupBuild.$isCancelable()" ng-click="$ctrl.groupBuild.$cancel()" type="button"
                 class="btn btn-danger">
           <i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort
         </button>
       </div>
       <h1>
-        <pnc-build-status-icon build-record="$ctrl.buildGroupRecord" no-warnings="true"></pnc-build-status-icon>
-        {{ $ctrl.buildGroupRecord.buildConfigurationSetName }} <span class="fa fa-angle-double-right"></span> #{{
-        $ctrl.buildGroupRecord.id }}
-        <pnc-temporary-build-record-label build-group-record="$ctrl.buildGroupRecord" class="label-sm"></pnc-temporary-build-record-label>
+        <pnc-build-status-icon build-record="$ctrl.groupBuild" no-warnings="true"></pnc-build-status-icon>
+        {{ $ctrl.groupBuild.buildConfigurationSetName }} <span class="fa fa-angle-double-right"></span> #{{
+        $ctrl.groupBuild.id }}
+        <pnc-temporary-build-record-label group-build="$ctrl.groupBuild" class="label-sm"></pnc-temporary-build-record-label>
       </h1>
     </div>
   </div>
@@ -39,7 +39,7 @@
 
 <div class="row">
   <div class="col-md-12">
-    <pnc-build-group-record-values-list build-group-record="$ctrl.buildGroupRecord"></pnc-build-group-record-values-list>
+    <pnc-group-build-values-list group-build="$ctrl.groupBuild"></pnc-group-build-values-list>
   </div>
 </div>
 
@@ -53,8 +53,8 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <pnc-build-group-record-visualization build-group-record="$ctrl.buildGroupRecord" build-records="$ctrl.buildRecords"
-                                            dependency-graph="$ctrl.dependencyGraph"></pnc-build-group-record-visualization>
+      <pnc-group-build-visualization group-build="$ctrl.groupBuild" build-records="$ctrl.buildRecords"
+                                            dependency-graph="$ctrl.dependencyGraph"></pnc-group-build-visualization>
     </div>
   </div>
 </div>

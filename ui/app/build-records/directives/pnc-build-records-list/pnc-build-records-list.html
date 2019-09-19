@@ -40,7 +40,7 @@
       </td>
       <td ng-if="::$ctrl.showColumn('id')">
         <pnc-build-record-link ng-if="::$ctrl.buildRecords" build-record="item" short-link="true"></pnc-build-record-link>
-        <a ng-if="::$ctrl.buildGroupRecords" href ui-sref="build-group-records.detail({ id: item.id })">#{{ item.id }}</a>
+        <a ng-if="::$ctrl.groupBuilds" href ui-sref="group-builds.detail({ id: item.id })">#{{ item.id }}</a>
       </td>
       <td ng-if="::$ctrl.showColumn('configurationName')">
         <a ng-if="::$ctrl.buildRecords" href ui-sref="projects.detail.build-configs.detail({ projectId: item.projectId, configurationId: item.buildConfigurationId })">{{ item.buildConfigurationName }}</a>

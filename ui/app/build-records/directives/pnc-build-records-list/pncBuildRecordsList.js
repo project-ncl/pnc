@@ -26,9 +26,9 @@
        */
       buildRecords: '<?',
       /**
-       * array of Build Group Records: The list of Build Group Records to display.
+       * array of Group Builds: The list of Group Builds to display.
        */
-      buildGroupRecords: '<?',
+      groupBuilds: '<?',
       /**
        * array of strings: Names of table columns to display (see template for possible options).
        * Default fields will be used if omitted.
@@ -55,15 +55,15 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      $ctrl.items = $ctrl.buildRecords ? $ctrl.buildRecords : $ctrl.buildGroupRecords;  
+      $ctrl.items = $ctrl.buildRecords ? $ctrl.buildRecords : $ctrl.groupBuilds;  
       $ctrl.fields = $ctrl.displayFields || DEFAULT_FIELDS;
     };
 
     $ctrl.$onChanges = function(changedBindings) {
       if (changedBindings.buildRecords) {
         $ctrl.items = $ctrl.buildRecords;
-      } else if (changedBindings.buildGroupRecords) {
-        $ctrl.items = $ctrl.buildGroupRecords;
+      } else if (changedBindings.groupBuilds) {
+        $ctrl.items = $ctrl.groupBuilds;
       }
     };
 
