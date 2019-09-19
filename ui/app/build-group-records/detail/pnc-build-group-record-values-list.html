@@ -23,9 +23,7 @@
     <dd>{{ $ctrl.buildGroupRecord.status }}</dd>
     <dt>Build Group</dt>
     <dd>
-      <a ui-sref="build-groups.detail.build-configs({ configurationSetId: $ctrl.buildGroupRecord.buildConfigurationSetId })" 
-         ng-bind="$ctrl.buildGroupRecord.buildConfigurationSetName">
-      </a>
+      <pnc-group-config-link group-config="$ctrl.buildGroupRecord.groupConfig"></pnc-group-config-link>
     </dd>
     <dt>User</dt>
     <dd>{{ $ctrl.buildGroupRecord.username }}</dd>

@@ -39,7 +39,7 @@
   </thead>
   <tbody>
   <tr ng-repeat="buildconfigurationset in page.data">
-    <td><a href ui-sref="build-groups.detail.build-configs({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+    <td><pnc-group-config-link group-config="buildconfigurationset"></pnc-group-config-link></td>
     <td>
       <pnc-latest-build build-group="buildconfigurationset"></pnc-latest-build>
     </td>
