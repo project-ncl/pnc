@@ -34,7 +34,7 @@
       /**
        * Object: The BuildGroupRecord to display the status for.
        */
-      buildGroupRecord: '<?',
+      groupBuild: '<?',
       /**
        * Object: Truthy or falsy object indicating whether data request is finished or not.
        */
@@ -53,14 +53,14 @@
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
-      $ctrl.item = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+      $ctrl.item = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild;
     };
 
     $ctrl.$onChanges = function(changedBindings) {
       if (changedBindings.buildRecord) {
         $ctrl.item = $ctrl.buildRecord;
-      } else if (changedBindings.buildGroupRecord) {
-        $ctrl.item = $ctrl.buildGroupRecord;
+      } else if (changedBindings.groupBuild) {
+        $ctrl.item = $ctrl.groupBuild;
       }
     };
     

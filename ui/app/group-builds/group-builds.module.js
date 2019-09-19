@@ -19,35 +19,35 @@
   'use strict';
 
   angular
-    .module('pnc.build-group-records', [])
+    .module('pnc.group-builds', [])
   
     .config([
       '$stateProvider',
       function ($stateProvider) {
 
-        $stateProvider.state('build-group-records', {
+        $stateProvider.state('group-builds', {
           abstract: true,
-          url: '/build-group-records',
+          url: '/group-builds',
           views: {
             'content@': {
               templateUrl: 'common/templates/single-col.tmpl.html'
             }
           },
           data: {
-            proxy: 'build-group-records.list'
+            proxy: 'group-builds.list'
           }
         });
 
 
-        $stateProvider.state('build-group-records.list', {
+        $stateProvider.state('group-builds.list', {
           url: '',
           data: {
-            displayName: 'Build Group Records',
-            title: 'Build Group Records'
+            displayName: 'Group Builds',
+            title: 'Group Builds'
           },
-          component: 'pncBuildGroupRecordsListPage',
+          component: 'pncGroupBuildsListPage',
           resolve: {
-            buildGroupRecords: [
+            groupBuilds: [
               'BuildConfigSetRecord',
               function (BuildConfigSetRecord) {
                 return BuildConfigSetRecord.query().$promise;
@@ -57,11 +57,11 @@
         });
 
 
-        $stateProvider.state('build-group-records.detail', {
+        $stateProvider.state('group-builds.detail', {
           url: '/{id}?visualization',
           data: {
-            displayName: '{{ buildGroupRecord.buildConfigurationSetName }} » #{{ buildGroupRecord.id }}',
-            title: '#{{ buildGroupRecord.id }} {{ buildGroupRecord.buildConfigurationSetName }} | Build Group Record'
+            displayName: '{{ groupBuild.buildConfigurationSetName }} » #{{ groupBuild.id }}',
+            title: '#{{ groupBuild.id }} {{ groupBuild.buildConfigurationSetName }} | Build Group Record'
           },
           params: {
             visualization: {
@@ -69,9 +69,9 @@
               dynamic: true
             }
           },
-          component: 'pncBuildGroupRecordDetailPage',
+          component: 'pncGroupBuildDetailPage',
           resolve: {
-            buildGroupRecord: [
+            groupBuild: [
               'BuildConfigSetRecord', 
               '$stateParams', 
               function (BuildConfigSetRecord, $stateParams) {

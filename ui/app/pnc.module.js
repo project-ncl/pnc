@@ -33,7 +33,7 @@
     'pnc.group-configs',
     'pnc.milestone',
     'pnc.release',
-    'pnc.build-group-records',
+    'pnc.group-builds',
     'pnc.report',
     'pnc.properties',
     'pnc.scm-repositories',

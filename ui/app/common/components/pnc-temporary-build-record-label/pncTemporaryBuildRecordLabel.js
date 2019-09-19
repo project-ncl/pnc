@@ -28,7 +28,7 @@
       /**
        * Object: a Record object representing Build Group Record
        */
-      buildGroupRecord: '<?',
+      groupBuild: '<?',
     },
     templateUrl: 'common/components/pnc-temporary-build-record-label/pnc-temporary-build-record-label.html',
     controller: [Controller]
@@ -41,7 +41,7 @@
     var buildRecord;
 
     $ctrl.$onInit = function() {
-      buildRecord = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+      buildRecord = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild;
       $ctrl.isTemporary = isTemporary;
     };
 

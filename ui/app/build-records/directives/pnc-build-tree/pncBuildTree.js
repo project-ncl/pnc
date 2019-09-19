@@ -28,7 +28,7 @@
       /**
        * object representing BuildGroupRecord
        */
-      buildGroupRecord: '<?',
+      groupBuild: '<?',
       /**
        * object representing dependencyGraph, allows loading via resolve, if absent it will be
        * pulled automatically
@@ -58,7 +58,7 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      $ctrl.buildItem = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.buildGroupRecord;
+      $ctrl.buildItem = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild;
 
       if ($ctrl.dependencyGraph) {
         buildItemPromise = $q.when($ctrl.dependencyGraph);

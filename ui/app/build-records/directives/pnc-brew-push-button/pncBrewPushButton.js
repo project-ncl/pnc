@@ -22,7 +22,7 @@
   angular.module('pnc.build-records').component('pncBrewPushButton', {
     bindings: {
       buildRecord: '<?',
-      buildGroupRecord: '<?'
+      groupBuild: '<?'
     },
     templateUrl: 'build-records/directives/pnc-brew-push-button/pnc-brew-push-button.html',
     controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'BuildConfigSetRecord', 'messageBus', Controller]
@@ -44,14 +44,14 @@
     }
 
     function isBuildGroupRecord() {
-      return angular.isDefined($ctrl.buildGroupRecord);
+      return angular.isDefined($ctrl.groupBuild);
     }
 
     function isButtonVisible() {
       if (isBuildRecord()) {
         return $ctrl.buildRecord.$isSuccess();
       } else if (isBuildGroupRecord()) {
-        return BuildConfigSetRecord.isSuccess($ctrl.buildGroupRecord);
+        return BuildConfigSetRecord.isSuccess($ctrl.groupBuild);
       }
     }
 
@@ -113,7 +113,7 @@
     }
 
     function doPushBuildGroupRecord(modalValues) {
-      BuildConfigSetRecord.push($ctrl.buildGroupRecord.id, modalValues.tagName).then(function (response) {
+      BuildConfigSetRecord.push($ctrl.groupBuild.id, modalValues.tagName).then(function (response) {
         var accepted = filterAccepted(response.data),
             rejected = filterRejected(response.data);
 
@@ -122,9 +122,9 @@
         }
 
         if (rejected.length === 0) {
-          pncNotify.info('Brew push initiated for group build: ' + BuildConfigSetRecord.canonicalName($ctrl.buildGroupRecord));
+          pncNotify.info('Brew push initiated for group build: ' + BuildConfigSetRecord.canonicalName($ctrl.groupBuild));
         } else {
-          pncNotify.warn('Some Build Records were rejected for brew push of group build: ' + BuildConfigSetRecord.canonicalName($ctrl.buildGroupRecord));
+          pncNotify.warn('Some Build Records were rejected for brew push of group build: ' + BuildConfigSetRecord.canonicalName($ctrl.groupBuild));
           rejected.forEach(function (reject) {
             notify(reject);
           });
