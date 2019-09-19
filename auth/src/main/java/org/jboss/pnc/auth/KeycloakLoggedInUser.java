@@ -90,7 +90,7 @@ public class KeycloakLoggedInUser implements LoggedInUser {
     public String toString() {
         return "KeycloakLoggedInUser [auth=" + auth + ", getEmail()=" + getEmail() + ", getUserName()="
                 + getUserName() + ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getRole()="
-                + getRole() + ", getTokenString()=" + getTokenString() + "]";
+                + getRole() + ", getTokenString()=***]";
     }
 
     private void handleAuthenticationProblem(String warning) {
