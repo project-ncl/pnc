@@ -39,6 +39,8 @@ public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildConfi
     protected SingularAttribute<BuildConfigSetRecord, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
             case "user": return BuildConfigSetRecord_.user;
+            case "groupConfig": return BuildConfigSetRecord_.buildConfigurationSet;
+            case "productVersion": return BuildConfigSetRecord_.productVersion;
             default: return null;
         }
     }
