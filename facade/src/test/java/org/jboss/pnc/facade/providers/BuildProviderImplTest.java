@@ -21,13 +21,18 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import static org.junit.Assert.assertEquals;
+
+import org.jboss.util.graph.Graph;
+import org.jboss.util.graph.Vertex;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,14 +42,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -330,6 +339,40 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
                 .haveExactly(1, new Condition<>(b -> buildRecord3.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"));
     }
 
+    @Test
+    public void shouldGetGraphWithDependencies() {
+        //With
+        Integer buildSetTaskId = 1;
+        BuildSetTask buildSetTask = mock(BuildSetTask.class);
+        when(buildSetTask.getId()).thenReturn(buildSetTaskId);
+
+        BuildTask task = mockBuildTaskWithSet(buildSetTask);
+        BuildTask taskDep = mockBuildTaskWithSet(buildSetTask);
+        BuildTask taskDepDep = mockBuildTaskWithSet(buildSetTask);
+
+        when(task.getDependencies()).thenReturn(asSet(taskDep));
+        when(taskDep.getDependencies()).thenReturn(asSet(taskDepDep));
+
+        //When
+        Graph<BuildTask> graph = provider.getRunningBuildGraphForGroupBuild(buildSetTaskId);
+
+        //Then
+        assertThat(graph.getVerticies()).hasSize(3);
+        assertThat(graph.getVerticies().stream().map(Vertex::getName))
+                .containsExactly(
+                        String.valueOf(task.getId()),
+                        String.valueOf(taskDep.getId()),
+                        String.valueOf(taskDepDep.getId()));
+
+    }
+
+    private BuildTask mockBuildTaskWithSet(BuildSetTask buildSetTask) {
+        BuildTask task = mockBuildTask();
+        when(task.getBuildSetTask()).thenReturn(buildSetTask);
+        when(task.getUser()).thenReturn(mock(User.class));
+        return task;
+    }
+
     private void mockRepository(SortInfo sortInfo, Predicate<BuildRecord> predicate) {
         when(repository.queryWithPredicatesUsingCursor(any(), same(sortInfo), same(predicate)))
                 .thenAnswer((InvocationOnMock invocation) -> {
@@ -346,5 +389,11 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         BuildRecord br = mock(BuildRecord.class);
         when(br.getId()).thenReturn(i);
         return br;
+    }
+
+    private Set<BuildTask> asSet(BuildTask task) {
+        Set<BuildTask> set = new HashSet<>();
+        set.add(task);
+        return set;
     }
 }

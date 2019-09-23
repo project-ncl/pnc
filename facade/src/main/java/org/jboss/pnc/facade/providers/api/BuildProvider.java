@@ -66,7 +66,9 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
 
     Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId);
 
-    Graph<Build> getGroupBuildGraph(String id);
+    Graph<Build> getBuildGraphForGroupBuild(String id);
+
+    Graph<Build> getDependencyGraph(String id);
 
     Page<Build> getAllByStatusAndLogContaining(int pageIndex,
                                                int pageSize,
