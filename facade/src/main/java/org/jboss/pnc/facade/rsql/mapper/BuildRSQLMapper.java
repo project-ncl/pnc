@@ -40,6 +40,7 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
         switch (name) {
             case "environment": return BuildRecord_.buildEnvironment;
             case "user": return BuildRecord_.user;
+            case "groupBuild": return BuildRecord_.buildConfigSetRecord;
             default: return null;
         }
     }
