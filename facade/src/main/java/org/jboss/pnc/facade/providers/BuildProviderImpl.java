@@ -19,6 +19,9 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
+import org.jboss.pnc.common.graph.GraphBuilder;
+import org.jboss.pnc.common.graph.GraphUtils;
+import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Build;
@@ -30,6 +33,7 @@ import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.util.GraphDtoBuilder;
 import org.jboss.pnc.facade.util.MergeIterator;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -37,6 +41,7 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -44,14 +49,20 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+import org.jboss.util.graph.Edge;
+import org.jboss.util.graph.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -59,11 +70,15 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
@@ -87,9 +102,12 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withU
 @Stateless
 public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build, BuildRef> implements BuildProvider {
 
+    private static final Logger logger = LoggerFactory.getLogger(BuildProviderImpl.class);
+
     private BuildRecordRepository buildRecordRepository;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     private Gerrit gerrit;
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
@@ -103,6 +121,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
                              BuildMapper mapper,
                              BuildConfigurationRepository buildConfigurationRepository,
                              BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
                              Gerrit gerrit,
                              BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
                              BuildCoordinator buildCoordinator,
@@ -112,6 +131,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         this.buildRecordRepository = repository;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.gerrit = gerrit;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
@@ -265,8 +285,153 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     }
 
     @Override
-    public Graph<Build> getGroupBuildGraph(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO
+    public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
+        org.jboss.util.graph.Graph<BuildTask> runningBuildTaskGraph = getRunningBuildGraphForGroupBuild(Integer.valueOf(groupBuildId));
+        org.jboss.util.graph.Graph<Build> runningBuildGraph = convertBuildTaskToBuildDto(runningBuildTaskGraph);
+
+        GraphWithMetadata<Build, Integer> groupBuildGraph = getBuildConfigSetRecordGraph(Integer.valueOf(groupBuildId));
+        org.jboss.util.graph.Graph<Build> graph = groupBuildGraph.getGraph();
+
+        GraphUtils.merge(graph, runningBuildGraph);
+
+        Map<String, String> metadata = getGraphMetadata(groupBuildGraph.getMissingNodeIds());
+        GraphDtoBuilder graphBuilder = new GraphDtoBuilder(metadata);
+
+        Graph<Build> graphDto = graphBuilder.from(graph, Build.class);
+        return graphDto;
+    }
+
+    @Override
+    public Graph<Build> getDependencyGraph(String id) {
+        GraphWithMetadata<Build, Integer> buildGraph = getDependencyGraph(Integer.valueOf(id));
+
+        Map<String, String> metadata = getGraphMetadata(buildGraph.getMissingNodeIds());
+        GraphDtoBuilder graphBuilder = new GraphDtoBuilder(metadata);
+        return graphBuilder.from(buildGraph.getGraph(), Build.class);
+    }
+
+    org.jboss.util.graph.Graph<BuildTask> getRunningBuildGraphForGroupBuild(Integer groupBuildId) {
+        List<BuildTask> buildTasks = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .filter(Objects::nonNull)
+                .filter(t -> t.getBuildSetTask() != null
+                        && groupBuildId.equals(t.getBuildSetTask().getId()))
+                .sorted((t1, t2) -> t1.getId() - t2.getId())
+                .collect(Collectors.toList());
+
+        org.jboss.util.graph.Graph<BuildTask> buildGraph = new org.jboss.util.graph.Graph<>();
+        for (BuildTask buildTask : buildTasks) {
+            //Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
+            org.jboss.util.graph.Graph<BuildTask> dependencyGraph = getBuiltTaskDependencyGraph(buildTask.getId());
+            GraphUtils.merge(buildGraph, dependencyGraph);
+        }
+        return buildGraph;
+    }
+
+    private org.jboss.util.graph.Graph<BuildTask> getBuiltTaskDependencyGraph(Integer buildId) {
+        org.jboss.util.graph.Graph<BuildTask> graph = new org.jboss.util.graph.Graph<>();
+        GraphBuilder<BuildTask> graphBuilder = new GraphBuilder<BuildTask>(
+                id -> Optional.ofNullable(getSubmittedBuild(id)),
+                bt -> bt.getDependencies().stream().map(BuildTask::getId).collect(Collectors.toList()),
+                bt -> bt.getDependants().stream().map(BuildTask::getId).collect(Collectors.toList())
+        );
+
+        Vertex<BuildTask> current = graphBuilder.buildDependencyGraph(graph, buildId);
+        if (current != null) {
+            BuildTask currentTask = current.getData();
+            graphBuilder.buildDependentGraph(graph, currentTask.getId());
+        }
+        return graph;
+    }
+
+    private org.jboss.util.graph.Graph<Build> convertBuildTaskToBuildDto(org.jboss.util.graph.Graph<BuildTask> taskGraph) {
+        org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
+
+        for (Vertex<BuildTask> buildTaskVertex : taskGraph.getVerticies()) {
+            Build recordRest = buildMapper.fromBuildTask(buildTaskVertex.getData());
+            Vertex<Build> buildRecordVertex = new NameUniqueVertex<>(recordRest.getId(), recordRest);
+            buildGraph.addVertex(buildRecordVertex);
+        }
+
+        //create edges
+        for (Vertex<BuildTask> vertex: taskGraph.getVerticies()) {
+            for (Object o : vertex.getOutgoingEdges()) {
+                Edge<BuildTask> edge = (Edge<BuildTask>) o;
+                buildGraph.addEdge(
+                        buildGraph.findVertexByName(edge.getFrom().getName()),
+                        buildGraph.findVertexByName(edge.getTo().getName()),
+                        edge.getCost());
+            }
+        }
+        return buildGraph;
+    }
+
+    private GraphWithMetadata<Build, Integer> getBuildConfigSetRecordGraph(Integer groupBuildId) {
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(groupBuildId);
+        org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
+        List<Integer> missingBuildRecordId = new ArrayList<>();
+        for (BuildRecord buildRecord : buildConfigSetRecord.getBuildRecords()) {
+            GraphWithMetadata<Build, Integer> dependencyGraph = getDependencyGraph(buildRecord.getId());
+            GraphUtils.merge(buildGraph, dependencyGraph.getGraph());
+            logger.trace("Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},", buildRecord.getId(), buildGraph, buildGraph.getEdges());
+            missingBuildRecordId.addAll(dependencyGraph.getMissingNodeIds());
+        }
+        return new GraphWithMetadata<>(buildGraph, missingBuildRecordId);
+    }
+
+    private GraphWithMetadata<Build, Integer> getDependencyGraph(Integer buildId) {
+        BuildTask buildTask = getSubmittedBuild(buildId);
+
+        GraphWithMetadata<Build, Integer> buildRecordGraph;
+        if (buildTask == null) {
+            logger.debug("Looking for stored buildRecordId: {}.", buildId);
+            BuildRecord buildRecord = repository.queryById(buildId);
+            if (buildRecord == null) {
+                logger.warn("Cannot find build {}", buildId);
+                return null;
+            } else {
+                GraphWithMetadata<BuildRecord, Integer> dependencyGraph = buildRecordRepository.getDependencyGraph(buildId);
+                org.jboss.util.graph.Graph<Build> buildGraph = convertBuildRecordToRest(dependencyGraph.getGraph());
+                logger.trace("Rest graph for buildRecordId {} {}; Graph edges {}.", buildId, buildGraph, buildGraph.getEdges());
+                buildRecordGraph = new GraphWithMetadata<>(buildGraph, dependencyGraph.getMissingNodeIds());
+            }
+        } else {
+            logger.debug("Getting dependency graph for running build: {}.", buildId);
+
+            org.jboss.util.graph.Graph<BuildTask> graph = getBuiltTaskDependencyGraph(buildId);
+
+            org.jboss.util.graph.Graph<Build> buildGraph = convertBuildTaskToBuildDto(graph);
+            buildRecordGraph = new GraphWithMetadata<>(buildGraph, new ArrayList<>());
+        }
+        return buildRecordGraph;
+    }
+
+    private org.jboss.util.graph.Graph<Build> convertBuildRecordToRest(
+            org.jboss.util.graph.Graph<BuildRecord> recordGraph) {
+        org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
+
+        for (Vertex<BuildRecord> buildRecordVertex : recordGraph.getVerticies()) {
+            Build recordRest = mapper.toDTO(buildRecordVertex.getData());
+            Vertex<Build> buildRecordRestVertex = new NameUniqueVertex<>(recordRest.getId(),
+                    recordRest);
+            buildGraph.addVertex(buildRecordRestVertex);
+        }
+        //create edges
+        for (Edge<BuildRecord> edge : recordGraph.getEdges()) {
+            buildGraph.addEdge(buildGraph.findVertexByName(edge.getFrom().getName()),
+                    buildGraph.findVertexByName(edge.getTo().getName()), edge.getCost());
+        }
+        return buildGraph;
+    }
+
+    private Map<String, String> getGraphMetadata(List<Integer> missingBuildIds) {
+        Map<String, String> metadata = new HashMap<>();
+        if (missingBuildIds.size() > 0) {
+            metadata.put("status", "INCOMPLETE");
+            for (Integer buildId : missingBuildIds) {
+                metadata.put("description", "Missing some Build Records: " + buildId);
+            }
+        }
+        return metadata;
     }
 
     @Override
@@ -300,6 +465,12 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         } else {
             return buildRecord;
         }
+    }
+
+    private BuildTask getSubmittedBuild(Integer id) {
+        return buildCoordinator.getSubmittedBuildTasks().stream()
+                .filter(submittedBuild -> id.equals(submittedBuild.getId()))
+                .findFirst().orElse(null);
     }
 
     @Override

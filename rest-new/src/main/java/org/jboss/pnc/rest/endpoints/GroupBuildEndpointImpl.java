@@ -105,7 +105,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
 
     @Override
     public Graph<Build> getDependencyGraph(String id) {
-        return buildProvider.getGroupBuildGraph(id);
+        return buildProvider.getBuildGraphForGroupBuild(id);
     }
 
 }
