@@ -21,7 +21,6 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
@@ -55,7 +54,6 @@ import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -173,6 +171,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
 
         injectMethod("productVersionMapper", productMilestoneMapper, productVersionMapper, ProductMilestoneMapperImpl.class);
         injectMethod("productReleaseMapper", productMilestoneMapper, productReleaseMapper, ProductMilestoneMapperImpl.class);
+
+        injectMethod("buildConfigurationMapper", groupConfigurationMapper, buildConfigurationMapper, GroupConfigurationMapperImpl.class);
+        injectMethod("productVersionMapper", groupConfigurationMapper, productVersionMapper, GroupConfigurationMapperImpl.class);
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
