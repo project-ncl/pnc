@@ -63,7 +63,7 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Spy
-    SequenceHandlerRepository sequence = new SequenceHandlerRepositoryMock();
+    private SequenceHandlerRepository sequence = new SequenceHandlerRepositoryMock();
 
     @Spy
     @InjectMocks
@@ -181,7 +181,7 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
         //Then
         org.jboss.pnc.dto.BuildConfiguration refreshed = provider.getSpecific(dependant.getId());
         assertThat(refreshed.getDependencies())
-                .doNotHave(new Condition<>(refreshed::equals, dependency.getId()));
+                .doNotHave(new Condition<>(dependency::equals, "BC is equal to 'dependency' bc"));
     }
 
     @Test
