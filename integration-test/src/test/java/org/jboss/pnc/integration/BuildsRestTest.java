@@ -27,7 +27,6 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
@@ -36,7 +35,6 @@ import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -69,9 +67,6 @@ public class BuildsRestTest  {
 
     private static BuildRestClient buildRestClient;
     private static BuildConfigurationAudited buildConfigurationAudited;
-
-    @Inject
-    private BuildRecordRepository buildRecordRepository;
 
     @Inject
     BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
