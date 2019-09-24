@@ -21,26 +21,53 @@ import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class MDCLoggingFilter implements ContainerRequestFilter {
+public class MDCLoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private Logger logger = LoggerFactory.getLogger(MDCLoggingFilter.class);
 
+    private static final String REQUEST_EXECUTION_START = "request-execution-start";;
+
     @Override
     public void filter(ContainerRequestContext containerRequestContext) throws IOException {
+        containerRequestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
+
         String logContext = containerRequestContext.getHeaderString("log-context");
         if (logContext == null) {
             logContext = RandomUtils.randString(12);
         }
         MDCUtils.clear();
         MDCUtils.addRequestContext(logContext);
-        logger.info("Log context {} for request {}.", logContext, containerRequestContext.getUriInfo().getPath());
+        logger.info("Requested {}.", containerRequestContext.getUriInfo().getPath());
+    }
+
+    @Override
+    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
+        Long startTime = (Long) containerRequestContext.getProperty(REQUEST_EXECUTION_START);
+
+        String took;
+        if (startTime == null) {
+            took="-1";
+        } else {
+            took = Long.toString(System.currentTimeMillis() - startTime);
+        }
+
+        try (
+                MDC.MDCCloseable mdcTook = MDC.putCloseable("request.took", took);
+                MDC.MDCCloseable mdcStatus = MDC.putCloseable("response.status",
+                        Integer.toString(containerResponseContext.getStatus()));
+        ) {
+            logger.debug("Completed {}.", containerRequestContext.getUriInfo().getPath());
+        }
     }
 }
