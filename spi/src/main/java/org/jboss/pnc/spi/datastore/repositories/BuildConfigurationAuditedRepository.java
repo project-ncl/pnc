@@ -21,6 +21,8 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildConfigurationAudited} entity.
@@ -30,5 +32,9 @@ public interface BuildConfigurationAuditedRepository {
 
     BuildConfigurationAudited queryById(IdRev idRev);
 
+    Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRev);
+
     List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName);
+
+    List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName);
 }
