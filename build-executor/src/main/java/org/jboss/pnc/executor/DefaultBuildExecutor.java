@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
@@ -67,6 +68,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -361,6 +363,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void retrieveRepositoryManagerResults(DefaultBuildExecutionSession buildExecutionSession) {
+
+        StopWatch stopWatch = StopWatch.createStarted();
+        log.info("BEGIN: retrieving repository manager results");
+
         try {
             if (!buildExecutionSession.hasFailed() && !buildExecutionSession.isCanceled()) {
                 userLog.info("Collecting results from repository manager ...");
@@ -384,8 +390,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 userLog.info("Collected results from repository manager.");
             }
         } catch (Throwable e) {
+            log.info("END: retrieving repository manager results, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
             throw new BuildProcessException(e, buildExecutionSession.getRunningEnvironment());
         }
+        log.info("END: retrieving repository manager results, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
         return null;
     }
 
