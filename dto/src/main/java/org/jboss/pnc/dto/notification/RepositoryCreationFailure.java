@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2018 Red Hat, Inc., and individual contributors
+ * Copyright 2014-2019 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,12 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
-
-import org.jboss.pnc.enums.JobNotificationType;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.jboss.pnc.enums.JobNotificationType;
+
+import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 
 /**
  * Notification about failure in SCM Repository or Build Config creation. This notification is used

@@ -64,7 +64,6 @@
   <modules>
     <module>test-common</module>
     <module>common</module>
-    <module>constants</module>
     <module>causeway-client</module>
     <module>moduleconfig</module>
     <module>auth</module>
@@ -95,6 +94,7 @@
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
+    <module>bpm-mock</module>
   </modules>
 
   <properties>
@@ -400,6 +400,13 @@
         <groupId>org.jboss.pnc</groupId>
         <artifactId>bpm</artifactId>
         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>bpm-mock</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -1672,7 +1679,19 @@
       <id>license-check</id>
       <build>
         <plugins>
-
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>check-license</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>

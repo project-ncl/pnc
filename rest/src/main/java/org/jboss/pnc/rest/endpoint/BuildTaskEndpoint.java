@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014-2019 Red Hat, Inc., and individual contributors
+ * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,8 @@ import org.jboss.pnc.auth.AuthenticationProviderFactory;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Date.ExpiresDate;
@@ -32,12 +34,13 @@ import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
-import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.utils.ErrorResponse;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
@@ -90,7 +93,7 @@ public class BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
             @PathParam("taskId") Integer buildId,
-            @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
+            @FormParam("buildResult") BuildResultRest buildResult) throws CoreException, InvalidEntityException {
 
 //TODO set MDC from request headers instead of business data
 //        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
@@ -102,6 +105,9 @@ public class BuildTaskEndpoint {
 //        }
 //        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporaryBuildExpireDate());
         logger.info("Received build task completed notification for id {}.", buildId);
+
+        ValidationBuilder.validateObject(buildResult, WhenCreatingNew.class)
+                .validateAnnotations();
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
         if(taskId == null) {
@@ -141,13 +147,13 @@ public class BuildTaskEndpoint {
     @Path("/execute-build")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED) //TODO accept single json
     public Response build(
-            
+
             @FormParam("buildExecutionConfiguration")
             BuildExecutionConfigurationRest buildExecutionConfiguration,
-            
+
             @FormParam("usernameTriggered")
             String usernameTriggered,
-            
+
             @FormParam("callbackUrl")
             String callbackUrl,
             @Context UriInfo uriInfo,
@@ -191,7 +197,7 @@ public class BuildTaskEndpoint {
     @Path("/cancel-build/{buildExecutionConfigurationId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response cancelBbuild(
-            
+
             @PathParam("buildExecutionConfigurationId")
             Integer buildExecutionConfigurationId,
             @Context UriInfo uriInfo,

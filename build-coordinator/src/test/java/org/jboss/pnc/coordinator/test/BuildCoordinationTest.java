@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments.Options.WITH_BPM;
 import static org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments.Options.WITH_DATASTORE;
 
 /**
@@ -87,7 +88,7 @@ public class BuildCoordinationTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(WITH_DATASTORE)
+        return BuildCoordinatorDeployments.deployment(WITH_DATASTORE, WITH_BPM)
                 .addClass(TestProjectConfigurationBuilder.class);
     }
 

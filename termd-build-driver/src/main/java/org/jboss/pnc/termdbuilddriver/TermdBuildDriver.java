@@ -184,7 +184,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 }
                 termdRunningBuild.setCancelHook(null);
                 remoteInvocation.close();
-                return complete(termdRunningBuild, status, exception);
+                complete(termdRunningBuild, status, exception);
+                return null;
             }, executor);
 
         } else {
@@ -262,7 +263,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private CompletedBuild collectResults(RunningEnvironment runningEnvironment, org.jboss.pnc.buildagent.api.Status completionStatus) {
+    private CompletedBuild collectResults(RunningEnvironment runningEnvironment, org.jboss.pnc.buildagent.api.Status completionStatus)
+            throws BuildDriverException {
         logger.info("Collecting results ...");
         try {
             TermdFileTranser transfer = new TermdFileTranser(MAX_LOG_SIZE);
@@ -288,7 +290,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             return new DefaultCompletedBuild(
                     runningEnvironment, buildStatus, prependMessage + stringBuffer.toString());
         } catch (Exception e) {
-            throw new RuntimeException("Cannot collect results.", e);
+            throw new BuildDriverException("Cannot collect results.", e);
         }
     }
 
@@ -311,7 +313,14 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             }
         }
 
-        CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), status);
+        CompletedBuild completedBuild = null;
+        try {
+            completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), status);
+        } catch (BuildDriverException e) {
+            logger.warn("Cannot collect results from the environment: " + termdRunningBuild.getRunningEnvironment().getId(), throwable);
+            termdRunningBuild.setBuildError(new BuildDriverException("Cannot collect results from the environment.", e));
+            return null;
+        }
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
 
         if(throwable != null && !isCancelled) {

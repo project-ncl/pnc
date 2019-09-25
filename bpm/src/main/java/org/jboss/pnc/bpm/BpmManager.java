@@ -26,9 +26,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.kie.api.runtime.KieSession;
@@ -91,18 +89,13 @@ public class BpmManager {
     }
 
     @Inject
-    public BpmManager(Configuration configuration) {
-        this.configuration = configuration;
+    public BpmManager(BpmModuleConfig bpmConfig) {
+        this.bpmConfig = bpmConfig;
     }
 
 
     @PostConstruct
     public void init() throws CoreException {
-        try {
-            bpmConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
-        } catch (ConfigurationParseException e) {
-            throw new CoreException("BPM manager could not get its configuration.", e);
-        }
         session = initKieSession();
     }
 
