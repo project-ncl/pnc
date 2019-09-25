@@ -35,6 +35,7 @@ import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
 import org.jboss.pnc.facade.util.MergeIterator;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
@@ -66,8 +67,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -115,6 +118,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     private BuildCoordinator buildCoordinator;
     private SortInfoProducer sortInfoProducer;
+    private UserService userService;
 
     @Inject
     public BuildProviderImpl(BuildRecordRepository repository,
@@ -125,7 +129,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
                              Gerrit gerrit,
                              BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
                              BuildCoordinator buildCoordinator,
-                             SortInfoProducer sortInfoProducer) {
+                             SortInfoProducer sortInfoProducer,
+                             UserService userService) {
         super(repository, mapper, BuildRecord.class);
 
         this.buildRecordRepository = repository;
@@ -137,6 +142,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
         this.sortInfoProducer = sortInfoProducer;
+        this.userService = userService;
     }
 
     @Override
@@ -221,6 +227,9 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     @Override
     public SSHCredentials getSshCredentials(String id) {
         BuildRecord buildRecord = getBuildRecord(id);
+        if(!buildRecord.getUser().equals(userService.currentUser())){
+            throw new EJBAccessException("Only user who executed the build is allowed to get the SSH credentials");
+        }
 
         return SSHCredentials
                 .builder()
