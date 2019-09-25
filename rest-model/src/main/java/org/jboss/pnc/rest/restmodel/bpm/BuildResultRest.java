@@ -21,13 +21,12 @@ package org.jboss.pnc.rest.restmodel.bpm;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -39,11 +38,10 @@ import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -56,6 +54,7 @@ public class BuildResultRest extends BpmNotificationRest implements Serializable
 
     private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);
 
+    @NotNull(groups = WhenCreatingNew.class)
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
     private CompletionStatus completionStatus;

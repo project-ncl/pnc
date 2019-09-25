@@ -17,11 +17,7 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -72,7 +68,7 @@ public class BuildQueue {
 
     private final Logger log = LoggerFactory.getLogger(BuildQueue.class);
 
-    private Configuration configuration;
+    private SystemConfig systemConfig;
 
     private final Set<BuildTask> unfinishedTasks = new HashSet<>();
 
@@ -86,8 +82,8 @@ public class BuildQueue {
 
 
     @Inject
-    public BuildQueue(Configuration configuration) {
-        this.configuration = configuration;
+    public BuildQueue(SystemConfig systemConfig) {
+        this.systemConfig = systemConfig;
     }
 
     @SuppressWarnings("unused")
@@ -176,10 +172,10 @@ public class BuildQueue {
     }
 
     /**
-     * Get build task for given build configuration from the queue.
+     * Get build task for given build systemConfig from the queue.
      *
-     * @param buildConfigAudited build configuration
-     * @return Optional.of(build task for the configuration) if build task is enqueued/in progress, Optional.empty() otherwise
+     * @param buildConfigAudited build systemConfig
+     * @return Optional.of(build task for the systemConfig) if build task is enqueued/in progress, Optional.empty() otherwise
      */
     public synchronized Optional<BuildTask> getTask(BuildConfigurationAudited buildConfigAudited) {
         Optional<BuildTask> ready = readyTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
@@ -240,13 +236,7 @@ public class BuildQueue {
     @PostConstruct
     public void initSemaphore()  {
         int maxConcurrentBuilds = 10;
-        try {
-            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-
-            maxConcurrentBuilds = systemConfig.getCoordinatorMaxConcurrentBuilds();
-        } catch (ConfigurationParseException e) {
-            log.error("Error parsing configuration, using 10 max concurrent builds in BuildQueue", e);
-        }
+        maxConcurrentBuilds = systemConfig.getCoordinatorMaxConcurrentBuilds();
         availableBuildSlots.release(maxConcurrentBuilds);
     }
 
