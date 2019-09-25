@@ -502,7 +502,7 @@ public class IndyRepositorySession implements RepositorySession {
             throws RepositoryManagerException {
 
         logger.info("BEGIN: Process artifacts uploaded from build");
-        userLog.info("Processing built argifacts");
+        userLog.info("Processing built artifacts");
         StopWatch stopWatch = StopWatch.createStarted();
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
