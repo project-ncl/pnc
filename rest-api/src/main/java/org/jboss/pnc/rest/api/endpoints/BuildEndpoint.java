@@ -102,22 +102,6 @@ public interface BuildEndpoint{
             @BeanParam BuildsFilterParameters filterParams,
             @BeanParam BuildAttributeParameters attributes);
 
-    @Operation(summary = "Gets the Build Records produced from the BuildConfiguration by name.",
-            responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/with-status-and-log")
-    Page<Build> getAllByStatusAndLogContaining(
-            @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
-            @Parameter(description = "Log search string") @QueryParam("search") String search,
-            @BeanParam PageParameters pageParameters);
-
     @Operation(summary = "Gets specific build.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
@@ -393,5 +377,19 @@ public interface BuildEndpoint{
     @Path("/ssh-credentials/{id}") // TODO: Check that we can change to /{id}/ssh-credentials and keep auth: ("The path for the endpoint is not restful to be able to authenticate this GET request only.")
     SSHCredentials getSshCredentials(@Parameter(description = B_ID) @PathParam("id") String id);
 
-
+    @Operation(summary = "Gets the Build Records produced from the BuildConfiguration by name.",
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
+                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/with-status-and-log")
+    Page<Build> getAllByStatusAndLogContaining(
+            @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
+            @Parameter(description = "Log search string") @QueryParam("search") String search,
+            @BeanParam PageParameters pageParameters);
 }

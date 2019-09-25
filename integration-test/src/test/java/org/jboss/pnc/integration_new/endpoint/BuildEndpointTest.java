@@ -38,12 +38,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ForbiddenException;
+
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
+
+import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.client.ApacheHttpClient43EngineWithRetry;
+import org.jboss.pnc.client.ClientBase;
+import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.junit.BeforeClass;
+
+import javax.ws.rs.NotAuthorizedException;
+
+import java.lang.reflect.Field;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
+ *
+ * @see org.jboss.pnc.demo.data.DatabaseDataInitializer
  */
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -51,24 +76,68 @@ import java.util.Set;
 public class BuildEndpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointTest.class);
+    private static String buildId;
+    private static String build2Id;
 
     @Deployment
     public static EnterpriseArchive deploy() {
         return Deployments.testEar();
     }
 
+    @BeforeClass
+    public static void prepareData() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        Iterator<Build> it = bc.getAll(null, null).iterator();
+        buildId = it.next().getId();
+        build2Id = it.next().getId();
+    }
+
     @Test
-    public void shouldGetByStatusAndLog() throws RemoteResourceException {
-        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.NONE));
-        RemoteCollection<Build> builds = client.getAllByStatusAndLogContaining(BuildStatus.SUCCESS, "fox");
-        Assertions.assertThat(builds.size()).isGreaterThan(0);
-        Build build = builds.iterator().next();
-        logger.info("Found build:" + build.toString());
+    @InSequence(10)
+    public void shouldGetBuilds() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<Build> all = client.getAll(null, null);
+
+        assertThat(all).hasSize(2);
+    }
+
+    @Test
+    @InSequence(10)
+    public void shouldGetSpecificBuild() throws ClientException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        Build dto = client.getSpecific(buildId);
+
+        assertThat(dto.getId()).isEqualTo(buildId); // from DatabaseDataInitializer
+        assertThat(dto.getStatus()).isEqualTo(BuildStatus.SUCCESS); // from DatabaseDataInitializer
+        assertThat(dto.getBuildConfigRevision()).isNotNull();
+        assertThat(dto.getBuildConfigRevision().getName()).isNotNull();
+    }
+
+    @Test
+    @InSequence(20)
+    public void shouldUpdateBuild() throws ClientException {
+        // given
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
+
+        Build original = client.getSpecific(buildId);
+        Build toUpdate = original.toBuilder().status(BuildStatus.SYSTEM_ERROR).build();
+        assertThat(toUpdate.getStatus()).isNotEqualTo(original.getStatus());
+
+        // when
+        client.update(buildId, toUpdate);
+        Build updated = client.getSpecific(buildId);
+
+        assertThat(updated.getId()).isEqualTo(buildId);
+        assertThat(updated).isEqualToIgnoringGivenFields(original, "status");
+        assertThat(updated.getStatus()).isNotEqualTo(original.getStatus());
+        assertThat(updated.getStatus()).isEqualTo(toUpdate.getStatus());
     }
 
     @Test
     public void shouldSetBuiltArtifacts() throws RemoteResourceException {
-        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
 
         String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
@@ -83,7 +152,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldSetDependentArtifacts() throws RemoteResourceException {
-        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
 
         String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getDependencyArtifacts(buildRecordId);
@@ -97,41 +166,118 @@ public class BuildEndpointTest {
     }
 
     @Test
+    public void shouldGetSCMArchiveLink() throws ClientException, ReflectiveOperationException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        // Disable redirects so we can test the actual response
+        Field f =  ClientBase.class.getDeclaredField("client");
+        f.setAccessible(true);
+        ResteasyClient reClient = (ResteasyClient) f.get(client);
+        ApacheHttpClient43EngineWithRetry engine = (ApacheHttpClient43EngineWithRetry) reClient.httpEngine();
+        engine.setFollowRedirects(false);
+
+        Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId);
+        assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
+        assertThat(internalScmArchiveLink.getHeaderString("Location")).isNotEmpty();
+    }
+
+    @Test
+    public void shouldGetAndRemoveAttribute() throws ClientException {
+        // given
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+        Build original = client.getSpecific(buildId);
+        final String key = "TEST_ATTRIBUTE";
+        final String value = "test value";
+        assertThat(original.getAttributes()).doesNotContainKey(key);
+
+        // when
+        client.addAttribute(buildId, key, value);
+
+        // then
+        Build withAttribute = client.getSpecific(buildId);
+        assertThat(withAttribute.getAttributes()).contains(entry(key, value));
+
+        // and when
+        client.removeAttribute(buildId, key);
+
+        // then
+        Build withRemovedAttribute = client.getSpecific(buildId);
+        assertThat(withRemovedAttribute.getAttributes()).doesNotContainKey(key);
+    }
+
+    @Test
+    public void shouldGetBuildConfigurationRevision() throws ClientException {
+        // when
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        BuildConfigurationRevision bcRevision = client.getBuildConfigurationRevision(buildId);
+
+        // then
+        assertThat(bcRevision.getDescription()).isEqualTo("Test build config for project newcastle"); // from DatabaseDataInitializer
+    }
+
+    @Test
+    public void shouldGetAlignLogs() throws ClientException {
+        // when
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        Optional<String> logs = client.getAlignLogs(buildId);
+
+        // then
+        assertThat(logs).isPresent();
+        assertThat(logs.get()).contains("alignment log"); // from DatabaseDataInitializer
+    }
+
+    @Test
+    public void shouldGetBuildLogs() throws ClientException {
+        // when
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        Optional<String> logs = client.getBuildLogs(buildId);
+
+        // then
+        assertThat(logs).isPresent();
+        assertThat(logs.get()).contains("demo log"); // from DatabaseDataInitializer
+    }
+
+    @Test
+    public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() {
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+
+        assertThatThrownBy(() -> client.getSshCredentials(buildId))
+                .hasCauseInstanceOf(ForbiddenException.class); // 403 means not authorized
+    }
+
+    @Test
+    public void shouldFailToGetSshCredentialsForAnonymous() {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        assertThatThrownBy(() -> client.getSshCredentials(buildId))
+                .hasCauseInstanceOf(NotAuthorizedException.class); // 401 means not authenticated
+    }
+
+    @Test
+    public void shouldGetByStatusAndLog() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<Build> builds = client.getAllByStatusAndLogContaining(BuildStatus.SUCCESS, "fox");
+        Assertions.assertThat(builds.size()).isGreaterThan(0);
+        Build build = builds.iterator().next();
+        logger.info("Found build:" + build.toString());
+    }
+
+    @Test
     public void shouldFailAsRegularUser() {
         BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
 
         String buildRecordId = "1";
-        Exception caught = null;
-        try {
-            client.setBuiltArtifacts(buildRecordId, Collections.emptyList());
-        } catch (RemoteResourceException e) {
-            caught = e;
-        }
-        Assertions.assertThat(caught.getCause()).isInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.setBuiltArtifacts(buildRecordId, Collections.emptyList()))
+                .hasCauseInstanceOf(ForbiddenException.class);
 
-        caught = null;
-        try {
-            client.setDependentArtifacts(buildRecordId, Collections.emptyList());
-        } catch (RemoteResourceException e) {
-            caught = e;
-        }
-        Assertions.assertThat(caught.getCause()).isInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.setDependentArtifacts(buildRecordId, Collections.emptyList()))
+                .hasCauseInstanceOf(ForbiddenException.class);
 
-        caught = null;
-        try {
-            client.delete(buildRecordId);
-        } catch (RemoteResourceException e) {
-            caught = e;
-        }
-        Assertions.assertThat(caught.getCause()).isInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.delete(buildRecordId))
+                .hasCauseInstanceOf(ForbiddenException.class);
 
-        caught = null;
-        try {
-            client.update(buildRecordId, Build.builder().build());
-        } catch (RemoteResourceException e) {
-            caught = e;
-        }
-        Assertions.assertThat(caught.getCause()).isInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> client.update(buildRecordId, Build.builder().build()))
+                .hasCauseInstanceOf(ForbiddenException.class);
     }
 
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
