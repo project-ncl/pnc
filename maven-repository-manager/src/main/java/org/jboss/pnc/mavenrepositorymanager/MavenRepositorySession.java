@@ -44,7 +44,9 @@ import org.commonjava.indy.promote.model.PromoteRequest;
 import org.commonjava.indy.promote.model.ValidationResult;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -147,21 +149,31 @@ public class MavenRepositorySession implements RepositorySession {
         return connectionInfo;
     }
 
+    @Override
+    public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+        return extractBuildArtifacts(null);
+    }
+
     /**
      * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build result. Add
      * each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the product-level storage.
      * Finally, clear the tracking report, and delete the hosted repository + group associated with the completed build.
      */
     @Override
-    public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+    public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession buildExecutionSession) throws RepositoryManagerException {
+
         TrackedContentDTO report;
         try {
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
+            userLog.info("Sealing tracking record");
+            executeBuildExecutionNotificationIfNotNull(buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_SEALING_TRACKING_RECORD);
             boolean sealed = foloAdmin.sealTrackingRecord(buildContentId);
             if (!sealed) {
                 throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildContentId);
             }
 
+            userLog.info("Getting tracking report");
+            executeBuildExecutionNotificationIfNotNull(buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_DOWNLOADING_TRACKING_REPORT);
             report = foloAdmin.getTrackingReport(buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildContentId,
@@ -173,12 +185,18 @@ public class MavenRepositorySession implements RepositorySession {
 
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
+         executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_PROCESSING_BUILT_ARTIFACTS);
         List<Artifact> uploads = processUploads(report);
         Collections.sort(uploads, comp);
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_PROCESSING_DEPENDENCIES);
         List<Artifact> downloads = processDownloads(report);
         Collections.sort(downloads, comp);
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_REMOVE_BUILD_AGGREGATION_GROUP);
         deleteBuildGroup();
 
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
@@ -187,6 +205,8 @@ public class MavenRepositorySession implements RepositorySession {
         String log = "";
         CompletionStatus status = CompletionStatus.SUCCESS;
 
+        executeBuildExecutionNotificationIfNotNull(
+                buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_PROMOTION_BUILD_CONTENT_SET);
         logger.info("BEGIN: promotion to build content set");
         StopWatch stopWatch = StopWatch.createStarted();
 
@@ -343,6 +363,7 @@ public class MavenRepositorySession implements RepositorySession {
                         logger.info("BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
                                     req.getSource().toString(), req.getTarget().toString(), readonly);
 
+                        userLog.info("Promoting {} dependencies from {} to {}", req.getPaths().size(), req.getSource(), req.getTarget());
                         doPromoteByPath(req, readonly);
 
                         logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
@@ -667,6 +688,7 @@ public class MavenRepositorySession implements RepositorySession {
      * @param uploads artifacts to be promoted
      */
     public void promoteToBuildContentSet(List<Artifact> uploads) throws RepositoryManagerException {
+        userLog.info("Validating and promoting built artifacts");
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
@@ -791,4 +813,9 @@ public class MavenRepositorySession implements RepositorySession {
         IOUtils.closeQuietly(serviceAccountIndy);
     }
 
+    private static void executeBuildExecutionNotificationIfNotNull(BuildExecutionSession session, BuildExecutionStatus status) {
+        if (session != null) {
+            session.setStatus(status);
+        }
+    }
 }
