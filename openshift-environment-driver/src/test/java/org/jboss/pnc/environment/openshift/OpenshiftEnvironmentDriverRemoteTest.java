@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -231,6 +232,11 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         @Override
         public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
             return null;
+        }
+
+        @Override
+        public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session) throws RepositoryManagerException {
+            return extractBuildArtifacts();
         }
 
         @Override
