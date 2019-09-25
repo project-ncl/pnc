@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -58,7 +59,8 @@ public interface BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
             @Parameter(description = "Build task id") @PathParam("taskId") int buildId,
-            @Parameter(description = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult);
+            @Parameter(description = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult)
+            throws InvalidEntityException;
 
     @Operation(summary = "Triggers the build execution for a given configuration.",
             responses = {

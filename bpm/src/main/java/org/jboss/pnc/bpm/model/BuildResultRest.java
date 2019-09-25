@@ -22,9 +22,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
@@ -32,8 +32,8 @@ import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -47,6 +47,7 @@ public class BuildResultRest extends BpmEvent implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);
 
+    @NotNull(groups = WhenCreatingNew.class)
     @Getter
     @Setter(onMethod=@__({@Deprecated}))
     private CompletionStatus completionStatus;

@@ -31,7 +31,7 @@ import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.pnc.test.util.JsonUtils;
+import org.jboss.pnc.common.json.JsonUtils;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

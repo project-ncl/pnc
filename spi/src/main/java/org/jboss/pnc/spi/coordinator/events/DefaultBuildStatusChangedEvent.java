@@ -56,8 +56,8 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
 
         return "DefaultBuildStatusChangedEvent{" +
                 "oldStatus=" + oldStatus +
-                "newStatus=" + newStatus +
-                "build=" + build +
+                ", newStatus=" + newStatus +
+                ", build=" + build +
                 '}';
     }
 }

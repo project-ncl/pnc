@@ -19,6 +19,9 @@ import org.jboss.pnc.facade.executor.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
 import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
@@ -54,7 +57,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     SystemConfig systemConfig;
 
     @Override
-    public Response buildTaskCompleted(int buildId, BuildResultRest buildResult) {
+    public Response buildTaskCompleted(int buildId, BuildResultRest buildResult) throws InvalidEntityException {
 
 //TODO set MDC from request headers instead of business data
 //        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
@@ -66,6 +69,9 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 //        }
 //        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporaryBuildExpireDate());
         logger.info("Received build task completed notification for id {}.", buildId);
+
+        ValidationBuilder.validateObject(buildResult, WhenCreatingNew.class)
+                .validateAnnotations();
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
         if (taskId == null) {

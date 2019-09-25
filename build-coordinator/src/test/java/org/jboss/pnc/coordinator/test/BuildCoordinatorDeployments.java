@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
+import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
@@ -66,7 +67,8 @@ public class BuildCoordinatorDeployments {
 
     public enum Options {
 
-        WITH_DATASTORE (() -> datastoreArchive());
+        WITH_DATASTORE (() -> datastoreArchive()),
+        WITH_BPM (() -> bpmArchive());
 
         Supplier<Archive> archiveSupplier;
 
@@ -116,11 +118,9 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
                 .addPackages(false, filter,
-                        BpmManager.class.getPackage(),
                         BuildResultMapper.class.getPackage())
                 .addPackages(true, filter,
                         BuildCoordinator.class.getPackage(),
-                        AbstractArtifactMapper.class.getPackage(),
                         DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
                         TestProjectConfigurationBuilder.class.getPackage(),
@@ -151,5 +151,12 @@ public class BuildCoordinatorDeployments {
                 .addPackages(true, DatastoreAdapter.class.getPackage());
     }
 
+    private static JavaArchive bpmArchive() {
+        return ShrinkWrap.create(JavaArchive.class)
+                .addPackages(false,
+                    BpmManager.class.getPackage(),
+                    BpmBuildTask.class.getPackage()
+                );
+    }
 
 }

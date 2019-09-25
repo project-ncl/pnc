@@ -41,7 +41,7 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());

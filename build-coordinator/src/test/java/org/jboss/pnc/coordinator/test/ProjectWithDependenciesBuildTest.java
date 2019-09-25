@@ -63,7 +63,7 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+        JavaArchive jar = BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
         jar.addClass(TestCDIBuildSetStatusChangedReceiver.class);
         jar.addClass(TestCDIBuildStatusChangedReceiver.class);
         jar.addClass(DatastoreMock.class);

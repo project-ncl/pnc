@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.utils;
 
-import org.jboss.pnc.test.util.JsonUtils;
+import org.jboss.pnc.common.json.JsonUtils;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
