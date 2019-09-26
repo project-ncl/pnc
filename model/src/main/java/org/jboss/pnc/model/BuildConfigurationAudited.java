@@ -17,12 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit table.
@@ -59,8 +55,6 @@ public class BuildConfigurationAudited {
     private BuildType buildType;
 
     private BuildEnvironment buildEnvironment;
-
-    private Set<BuildRecord> buildRecords;
 
     private BuildConfiguration buildConfiguration;
 
@@ -160,14 +154,6 @@ public class BuildConfigurationAudited {
         this.buildEnvironment = buildEnvironment;
     }
 
-    public Set<BuildRecord> getBuildRecords() {
-        return buildRecords;
-    }
-
-    public void setBuildRecords(Set<BuildRecord> buildRecords) {
-        this.buildRecords = buildRecords;
-    }
-
     public BuildConfiguration getBuildConfiguration() {
         return buildConfiguration;
     }
@@ -210,8 +196,6 @@ public class BuildConfigurationAudited {
         private BuildConfiguration buildConfiguration;
         private Integer rev;
 
-        private Set<BuildRecord> buildRecords;
-
         public static Builder newBuilder() {
             return new Builder();
         }
@@ -231,7 +215,6 @@ public class BuildConfigurationAudited {
             configurationAudited.setProject(buildConfiguration.getProject());
             configurationAudited.setBuildType(buildConfiguration.getBuildType());
             configurationAudited.setRepositoryConfiguration(buildConfiguration.getRepositoryConfiguration());
-            configurationAudited.setBuildRecords(buildRecords);
             configurationAudited.buildConfiguration = buildConfiguration;
             return configurationAudited;
         }
@@ -246,23 +229,13 @@ public class BuildConfigurationAudited {
             return this;
         }
 
-        public Builder buildRecords(Set<BuildRecord> buildRecords) {
-            this.buildRecords = buildRecords;
-            return this;
-        }
     }
 
     public static BuildConfigurationAudited fromBuildConfiguration(BuildConfiguration buildConfiguration, Integer revision) {
-        return fromBuildConfiguration(buildConfiguration, revision, Collections.EMPTY_LIST);
-    }
-
-    public static BuildConfigurationAudited fromBuildConfiguration(BuildConfiguration buildConfiguration, Integer revision, List<BuildRecord> buildRecords) {
-        Map<IdRev, Set<BuildRecord>> buildRecordsByIdRev = buildRecords.stream().collect(Collectors.groupingBy(BuildRecord::getBuildConfigurationAuditedIdRev, Collectors.toSet()));
 
         BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
                 .buildConfiguration(buildConfiguration)
                 .rev(revision)
-                .buildRecords(buildRecordsByIdRev.get(new IdRev(buildConfiguration.getId(), revision)))
                 .build();
 
         return buildConfigurationAudited;
