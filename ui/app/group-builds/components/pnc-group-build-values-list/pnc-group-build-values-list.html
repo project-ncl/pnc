@@ -23,10 +23,10 @@
     <dd>{{ $ctrl.groupBuild.status }}</dd>
     <dt>Build Group</dt>
     <dd>
-      <pnc-group-config-link group-config="$ctrl.buildGroupRecord.groupConfig"></pnc-group-config-link>
+      <pnc-group-config-link group-config="$ctrl.groupBuild.groupConfig"></pnc-group-config-link>
     </dd>
     <dt>User</dt>
-    <dd>{{ $ctrl.groupBuild.username }}</dd>
+    <dd>{{ $ctrl.groupBuild.user.username }}</dd>
     <dt>Started</dt>
     <dd>{{ $ctrl.groupBuild.startTime | date: 'medium' }}</dd>
     <dt ng-show="$ctrl.groupBuild.endTime">Finished</dt>

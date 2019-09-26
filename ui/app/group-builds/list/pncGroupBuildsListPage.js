@@ -21,23 +21,60 @@
 
   angular.module('pnc.group-builds').component('pncGroupBuildsListPage', {
     bindings: {
-     groupBuilds: '<',
+      groupBuilds: '<',
     },
     templateUrl: 'group-builds/list/pnc-group-builds-list-page.html',
-    controller: [Controller]
+    controller: ['filteringPaginator', Controller]
   });
 
 
-  function Controller() {
-    var $ctrl = this;
+  function Controller(filteringPaginator) {
+    const $ctrl = this;
 
     // -- Controller API --
-
+    $ctrl.groupBuildsFilteringFields = [{
+      id: 'user.username',
+      title: 'Username',
+      placeholder: 'Filter by Username',
+      filterType: 'text'
+    }, {
+      id: 'groupConfig.name',
+      title: 'Group Config name',
+      placeholder: 'Filter by Group Config name',
+      filterType: 'text'
+    }, {
+      id: 'status',
+      title: 'Status',
+      placeholder: 'Filter by Status',
+      filterType: 'select',
+      filterValues: [
+        'SUCCESS',
+        'REJECTED',
+        'FAILED',
+        'CANCELLED',
+        'BUILDING'
+      ]
+    }, {
+      id: 'temporaryBuild',
+      title: 'Temporary Build',
+      placeholder: 'Filter by Temporary Build',
+      filterType: 'select',
+      filterValues: [
+        'FALSE',
+        'TRUE'
+      ]
+    }];
 
     // --------------------
 
-
     $ctrl.$onInit = function () {
+      $ctrl.groupBuildsFilteringPage = filteringPaginator($ctrl.groupBuilds);
+
+      /* NCL-4433 group builds need to be updated
+      function processEvent() {}
+      $scope.$on(eventTypes.BUILD_SET_STARTED, processEvent);
+      $scope.$on(eventTypes.BUILD_SET_FINISHED, processEvent);
+      */
     };
 
   }

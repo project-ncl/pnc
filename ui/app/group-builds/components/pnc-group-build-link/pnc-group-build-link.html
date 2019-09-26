@@ -17,8 +17,4 @@
     limitations under the License.
 
 -->
-<div>
-  <pnc-search-field class="search" page="page" text="group builds"></pnc-search-field>
-  <pnc-build-records-list group-builds="page.data"></pnc-build-records-list>
-  <pnc-pager class="pull-right" page="page"></pnc-pager>
-</div>
+<a ui-sref="group-builds.detail({ id: $ctrl.groupBuild.id })" ng-transclude href># {{ ::$ctrl.groupBuild.id }}</a>

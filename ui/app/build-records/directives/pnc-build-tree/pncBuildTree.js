@@ -36,10 +36,10 @@
       dependencyGraph: '<?'
     },
     templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree.html',
-    controller: ['BuildRecord', 'BuildConfigSetRecord', '$timeout', '$scope', '$log', '$q', Controller]
+    controller: ['BuildRecord', 'GroupBuildResource', '$timeout', '$scope', '$log', '$q', Controller]
   });
 
-  function Controller(BuildRecord, BuildConfigSetRecord, $timeout, $scope, $log, $q) {
+  function Controller(BuildRecord, GroupBuildResource, $timeout, $scope, $log, $q) {
 
     var $ctrl = this;
     var buildItemPromise = null;
@@ -63,7 +63,7 @@
       if ($ctrl.dependencyGraph) {
         buildItemPromise = $q.when($ctrl.dependencyGraph);
       } else {
-        buildItemPromise = ($ctrl.buildRecord ? BuildRecord : BuildConfigSetRecord).getDependencyGraph({ 
+        buildItemPromise = ($ctrl.buildRecord ? BuildRecord : GroupBuildResource).getDependencyGraph({ 
           id: $ctrl.buildItem.id
         }).$promise;
       }
@@ -168,13 +168,13 @@
 
         level = level || 1;
 
-        // BuildRecord or BuildGroupRecord
-        var isBuildRecord = build.buildConfigurationId;
+        // Build or GroupBuild
+        var isBuild = build.buildConfigRevision !== undefined;
         
         var isCurrentPageBuild = customBuildParent === NO_PARENT_EXISTS;
 
-        if (isBuildRecord && build.buildConfigurationSetId) {
-          $log.warn('Build entity recognition (BuildRecord vs BuildGroupRecord) was not successful');
+        if (isBuild && (build.groupConfig !== undefined)) {
+          $log.error('Build entity recognition (Build vs GroupBuild) was not successful');
           return null;
         }
 
@@ -197,20 +197,20 @@
           tdAttrClass: 'level-' + level
         };
 
-        if (isBuildRecord) {
-          customBuild.isBuildRecord = true;
+        if (isBuild) {
+          customBuild.isBuild = true;
         } else {
-          customBuild.isBuildGroupRecord = true;
+          customBuild.isGroupBuild = true;
           
           // The BuildGroupRecord's list of dependencies contains ALL BuildRecords in the tree,
           // this needs to be filtered down to just the top level, otherwise we'll duplicate
           // every branch in the tree back to the top level.
-          build.buildRecordIds = getRootVertices(dependencyGraph);
+          build._buildIds = getRootVertices(dependencyGraph);
         }
 
         dependencyStructure.push(customBuild);
 
-        (isBuildRecord ? build.dependencyBuildRecordIds : build.buildRecordIds).forEach(function(buildId) {
+        (isBuild ? build.dependencyBuildIds : build._buildIds).forEach(function(buildId) {
           if (dependencyGraph.vertices[buildId]) {
             createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1);
           }
@@ -221,7 +221,7 @@
 
 
       return {
-        dependentStructure: $ctrl.buildItem.dependentBuildRecordIds, // undefined when BuildGroupRecord is being processed
+        dependentStructure: $ctrl.buildItem.dependentBuildIds, // undefined when GroupBuild is being processed
         dependencyStructure: createDependencyStructure($ctrl.buildItem, NO_PARENT_EXISTS),
         nodes: dependencyGraph.vertices
       };

@@ -48,9 +48,9 @@
           component: 'pncGroupBuildsListPage',
           resolve: {
             groupBuilds: [
-              'BuildConfigSetRecord',
-              function (BuildConfigSetRecord) {
-                return BuildConfigSetRecord.query().$promise;
+              'GroupBuildResource',
+              function (GroupBuildResource) {
+                return GroupBuildResource.query().$promise;
               }
             ]
           }
@@ -60,8 +60,8 @@
         $stateProvider.state('group-builds.detail', {
           url: '/{id}?visualization',
           data: {
-            displayName: '{{ groupBuild.buildConfigurationSetName }} » #{{ groupBuild.id }}',
-            title: '#{{ groupBuild.id }} {{ groupBuild.buildConfigurationSetName }} | Build Group Record'
+            displayName: '{{ groupBuild.groupConfig.name }} » #{{ groupBuild.id }}',
+            title: '#{{ groupBuild.id }} {{ groupBuild.groupConfig.name }} | Build Group Record'
           },
           params: {
             visualization: {
@@ -72,17 +72,17 @@
           component: 'pncGroupBuildDetailPage',
           resolve: {
             groupBuild: [
-              'BuildConfigSetRecord', 
+              'GroupBuildResource', 
               '$stateParams', 
-              function (BuildConfigSetRecord, $stateParams) {
-                return BuildConfigSetRecord.get({ id: $stateParams.id }).$promise;
+              function (GroupBuildResource, $stateParams) {
+                return GroupBuildResource.get({ id: $stateParams.id }).$promise;
               }
             ],
             dependencyGraph: [
-              'BuildConfigSetRecord', 
+              'GroupBuildResource', 
               '$stateParams', 
-              function (BuildConfigSetRecord, $stateParams) {
-                return BuildConfigSetRecord.getDependencyGraph({ id: $stateParams.id }).$promise;
+              function (GroupBuildResource, $stateParams) {
+                return GroupBuildResource.queryDependencyGraph({ id: $stateParams.id }).$promise;
               }
             ],
             buildRecords: [

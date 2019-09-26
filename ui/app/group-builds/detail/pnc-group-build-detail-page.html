@@ -22,15 +22,13 @@
     <div class="page-header">
       <div class="btn-group pull-right" role="group" aria-label="Build Actions">
         <pnc-build-record-push-button group-build="$ctrl.groupBuild"></pnc-build-record-push-button>
-        <button ng-if="$ctrl.groupBuild.$isCancelable()" ng-click="$ctrl.groupBuild.$cancel()" type="button"
-                class="btn btn-danger">
+        <button ng-if="$ctrl.groupBuild.$isCancelable()" ng-click="$ctrl.groupBuild.$cancel()" type="button" class="btn btn-danger">
           <i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort
         </button>
       </div>
       <h1>
         <pnc-build-status-icon build-record="$ctrl.groupBuild" no-warnings="true"></pnc-build-status-icon>
-        {{ $ctrl.groupBuild.buildConfigurationSetName }} <span class="fa fa-angle-double-right"></span> #{{
-        $ctrl.groupBuild.id }}
+        {{ $ctrl.groupBuild.groupConfig.name }} <span class="fa fa-angle-double-right"></span> #{{ $ctrl.groupBuild.id }}
         <pnc-temporary-build-record-label group-build="$ctrl.groupBuild" class="label-sm"></pnc-temporary-build-record-label>
       </h1>
     </div>
@@ -53,8 +51,7 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <pnc-group-build-visualization group-build="$ctrl.groupBuild" build-records="$ctrl.buildRecords"
-                                            dependency-graph="$ctrl.dependencyGraph"></pnc-group-build-visualization>
+      <pnc-group-build-visualization group-build="$ctrl.groupBuild" build-records="$ctrl.buildRecords" dependency-graph="$ctrl.dependencyGraph"></pnc-group-build-visualization>
     </div>
   </div>
 </div>
