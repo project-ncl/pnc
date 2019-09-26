@@ -24,6 +24,7 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
@@ -36,12 +37,14 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ValidationException;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import java.util.function.Consumer;
 
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
 
 @PermitAll
@@ -74,6 +77,17 @@ public class GroupBuildProviderImpl
     @Inject
     public GroupBuildProviderImpl(BuildConfigSetRecordRepository repository, GroupBuildMapper mapper) {
         super(repository, mapper, BuildConfigSetRecord.class);
+    }
+
+    @Override
+    public GroupBuild store(GroupBuild restEntity) throws DTOValidationException {
+        throw new UnsupportedOperationException("Direct GroupBuilds creation is not available.");
+    }
+
+    @RolesAllowed(SYSTEM_USER)
+    @Override
+    public GroupBuild update(String id, GroupBuild restEntity) {
+        return super.update(id, restEntity);
     }
 
     @Override
