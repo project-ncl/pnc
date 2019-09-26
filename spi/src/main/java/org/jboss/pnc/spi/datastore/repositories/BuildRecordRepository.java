@@ -25,6 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -48,20 +49,22 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean buildTemporary);
 
     default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean buildTemporary) {
+        final boolean containsTemporary = buildRecords.stream().anyMatch(BuildRecord::isTemporaryBuild);
+
+        //Include temporary builds if you are building temporary and don't if building persistent
+        final boolean includeTemporary = buildTemporary;
+        //NCL-5192
+        //Exclude persistent builds if you are building temporary and there are some temporary builds built
+        final boolean excludePersistent = buildTemporary && containsTemporary;
+        final boolean includePersistent = !excludePersistent;
+
         return buildRecords.stream()
                 .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
-                /*
-                 * filter out the temporary records if we are building persistent(temporaryBuild == false)
-                 * For clarification:
-                 *  |     temporaryBuild     | !record.isTemporaryBuild() |  CONDITION IN FILTER  |
-                 *  |         TRUE           |          TRUE              |        TRUE           |
-                 *  |         TRUE           |          FALSE             |        TRUE           |
-                 *  |         FALSE          |          TRUE              |        TRUE           |
-                 *  |         FALSE          |          FALSE             |        FALSE          |
-                 */
-                .filter(record -> buildTemporary || !record.isTemporaryBuild() )
-                .sorted((o1, o2) -> -o1.getId().compareTo(o2.getId()))
-                .findFirst().orElse(null);
+                //First part includes temporary BRs and second part includes persitent BRs
+                .filter(record -> (includeTemporary && record.isTemporaryBuild()) ||
+                                  (includePersistent && !record.isTemporaryBuild()))
+                .max(Comparator.comparing(BuildRecord::getId))
+                .orElse(null);
     }
 
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);

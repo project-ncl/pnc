@@ -376,6 +376,7 @@ public class DefaultDatastore implements Datastore {
             return true;
         }
         if (checkImplicitDependencies) {
+            logger.debug("Checking if BCA: {} has implicit dependencies that need rebuild", idRev);
             boolean rebuild = hasARebuiltImplicitDependency(latestSuccessfulBuildRecord, temporaryBuild);
             logger.debug("Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.", idRev, rebuild);
             if (rebuild) {
@@ -422,7 +423,13 @@ public class DefaultDatastore implements Datastore {
     private boolean hasARebuiltImplicitDependency(BuildRecord latestSuccessfulBuildRecord, boolean temporaryBuild) {
         Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(latestSuccessfulBuildRecord);
         return lastBuiltFrom.stream()
-                .anyMatch(br -> hasNewerVersion(br, temporaryBuild));
+                .anyMatch(br -> {
+                    if(hasNewerVersion(br, temporaryBuild)) {
+                        logger.debug("Latest successful BuildRecord: {} has implicitly dependent BR: {} that requires rebuild.", latestSuccessfulBuildRecord.getId(), br.getId());
+                        return true;
+                    }
+                    return false;
+                });
     }
 
     /**
