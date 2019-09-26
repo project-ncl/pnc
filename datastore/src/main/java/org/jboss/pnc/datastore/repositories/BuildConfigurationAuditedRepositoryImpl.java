@@ -73,19 +73,18 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 
-        List<BuildRecord> buildRecords = getBuildRecords(buildConfigurationId);
 
-        return result.stream().map(o -> createAudited(o[0], o[1], buildRecords)).collect(Collectors.toList());
+        return result.stream().map(o -> createAudited(o[0], o[1])).collect(Collectors.toList());
     }
 
-    private BuildConfigurationAudited createAudited(Object entity, Object revision, List<BuildRecord> buildRecords) {
+    private BuildConfigurationAudited createAudited(Object entity, Object revision) {
         BuildConfiguration buildConfiguration = (BuildConfiguration) entity;
         DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) revision;
 
         //preload generic parameters
         buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
 
-        return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, revisionEntity.getId(), buildRecords);
+        return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, revisionEntity.getId());
     }
 
     @Override
@@ -98,16 +97,12 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
             return null;
         }
 
-        // These have only the id populated
-        List<BuildRecord> buildRecords = getBuildRecords(idRev);
-
         //preload generic parameters
         buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
 
         return BuildConfigurationAudited.fromBuildConfiguration(
                 buildConfiguration,
-                idRev.getRev(),
-                buildRecords
+                idRev.getRev()
         );
     }
 
@@ -191,8 +186,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 .add(AuditEntity.property("name").like(buildConfigurationName))
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
-        List<BuildRecord> emptyList = Collections.EMPTY_LIST;
-        return result.stream().map(o -> createAudited(o[0], o[1], emptyList)).collect(Collectors.toList());
+        return result.stream().map(o -> createAudited(o[0], o[1])).collect(Collectors.toList());
     }
 
     @Override
