@@ -17,10 +17,14 @@
     limitations under the License.
 
 -->
+<pnc-header>
+  <pnc-header-title>Group Builds</pnc-header-title>
+</pnc-header>
+
+<div class="row">
+  <pnc-toolbar filtering-page="$ctrl.groupBuildsFilteringPage" filtering-fields="$ctrl.groupBuildsFilteringFields"></pnc-toolbar>
+</div>
 <div>
-    <div class="page-header">
-      <h1>Group Builds</h1>
-    </div>
-  
-    <pnc-group-builds></pnc-group-builds>
-  </div>
+  <pnc-build-records-list group-builds="$ctrl.groupBuildsFilteringPage.data"></pnc-build-records-list>
+  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.groupBuildsFilteringPage" ng-if="$ctrl.groupBuildsFilteringPage"></pnc-page-controls>
+</div>

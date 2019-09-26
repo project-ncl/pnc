@@ -40,7 +40,7 @@
       </td>
       <td ng-if="::$ctrl.showColumn('id')">
         <pnc-build-record-link ng-if="::$ctrl.buildRecords" build-record="item" short-link="true"></pnc-build-record-link>
-        <a ng-if="::$ctrl.groupBuilds" href ui-sref="group-builds.detail({ id: item.id })">#{{ item.id }}</a>
+        <pnc-group-build-link ng-if="::$ctrl.groupBuilds" group-build="item"></pnc-group-build-link>
       </td>
       <td ng-if="::$ctrl.showColumn('configurationName')">
         <a ng-if="::$ctrl.buildRecords" href ui-sref="projects.detail.build-configs.detail({ projectId: item.projectId, configurationId: item.buildConfigurationId })">{{ item.buildConfigurationName }}</a>
@@ -49,7 +49,7 @@
       <td ng-if="::$ctrl.showColumn('canonicalName')"><pnc-build-record-link build-record="item"></pnc-build-record-link></td>
       <td ng-if="::$ctrl.showColumn('startTime')">{{ item.startTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('endTime')">{{ item.endTime | date:'medium' }}</td>
-      <td ng-if="::$ctrl.showColumn('username')">{{ item.username }}</td>
+      <td ng-if="::$ctrl.showColumn('username')">{{ item.user.username }}</td>
       <td ng-if="::$ctrl.showColumn('pushStatus')" class="push-status">
         <pnc-brew-push-status-label build-record="item"></pnc-brew-push-status-label>
       </td>

@@ -20,8 +20,8 @@
 <div>
   <pnc-build-status-icon build-record="$ctrl.buildItem"></pnc-build-status-icon>
 
-  <a ng-if="$ctrl.buildRecord" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.buildRecord.buildConfigurationAudited.projectId, configurationId: $ctrl.buildRecord.buildConfigurationAudited.id })" ng-click="$event.stopPropagation()">{{$ctrl.buildRecord.buildConfigurationAudited.name}}</a> 
-  <pnc-group-config-link group-config="$ctrl.buildGroupRecord.groupConfig" ng-if="$ctrl.buildGroupRecord"></pnc-group-config-link>
+  <a ng-if="$ctrl.buildRecord" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.buildRecord.buildConfigurationAudited.projectId, configurationId: $ctrl.buildRecord.buildConfigurationAudited.id })" ng-click="$event.stopPropagation()">{{$ctrl.buildRecord.buildConfigRevision.name}}</a> 
+  <pnc-group-config-link group-config="$ctrl.groupBuild.groupConfig" ng-if="$ctrl.groupBuild"></pnc-group-config-link>
 
   <span class="fa fa-angle-double-right"></span>
 
