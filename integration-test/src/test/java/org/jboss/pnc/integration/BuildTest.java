@@ -293,6 +293,53 @@ public class BuildTest {
         assertThat(finalRecord.getValue().getStatus()).isNotIn(BuildCoordinationStatus.REJECTED_ALREADY_BUILT, BuildCoordinationStatus.REJECTED);
     }
 
+    //NCL-5192
+    //Replicates NCL-5192 through explicit dependency instead of implicit
+    @Test
+    public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev() {
+        BuildConfigurationRest parent = buildConfigurationRestClient.getByName("pnc-build-agent-0.4").getValue();
+        BuildConfigurationRest dependency = buildConfigurationRestClient.getByName("termd").getValue();
+
+        BuildOptions persistent = new BuildOptions();
+        BuildOptions temporary = new BuildOptions();
+        temporary.setTemporaryBuild(true);
+        parent.setDescription("Random Description to be able to trigger build again so that temporary build will be first on this revision");
+        dependency.setDescription("Random Description so it rebuilds");
+        buildConfigurationRestClient.update(parent.getId(),parent);
+        buildConfigurationRestClient.update(dependency.getId(),dependency);
+
+        //Build temporary builds (parent and dependency) on new revision
+        RestResponse<BuildRecordRest> temporaryBuild = triggerBCBuild(parent,Optional.empty(),temporary);
+        assertThat(temporaryBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(temporaryBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
+        } , 15, TimeUnit.SECONDS);
+
+        //Build persistent build of dependency on the same revision
+        RestResponse<BuildRecordRest> dependencyPersistentBuild = triggerBCBuild(dependency,Optional.empty(),persistent);
+        assertThat(dependencyPersistentBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(dependencyPersistentBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
+        }, 15, TimeUnit.SECONDS);
+
+        //Build temporary build of parent and check it gets REJECTED even if it's dependency has newer record
+        //(in this case temp build should ignore persistent one)
+        RestResponse<BuildRecordRest> finalRecord = triggerBCBuild(parent, Optional.empty(), temporary);
+        assertThat(finalRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(finalRecord.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+        }, 15, TimeUnit.SECONDS);
+
+        RestResponse<BuildRecordRest> response = buildRecordRestClient.get(finalRecord.getValue().getId());
+        assertThat(response.getValue().getStatus()).isEqualTo(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+    }
+
     @Test
     public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() {
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();

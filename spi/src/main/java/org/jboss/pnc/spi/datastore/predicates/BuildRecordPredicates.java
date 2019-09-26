@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -25,7 +26,6 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
@@ -37,8 +37,9 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.MapJoin;
+import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
-
+import javax.persistence.criteria.Subquery;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -95,15 +96,29 @@ public class BuildRecordPredicates {
     }
 
     /**
-     * Only relevant situation is when (temporary is false) and whole right side is false.
-     * Right side is false when BuildRecord is temporary => cb.isFalse(true) (true is not false)
-     *  -> conclusion = in case requested build is not temporary (persistent) and record is temporary, record is ignored
+     * see NCL-5192
+     *
+     * If building a temporary build and there are temporary builds already presents, ignore persistent ones.
+     *
+     * If building a persistent build, ignore temporary builds.
      *
      * @param temporary if requested build is temporary
-     * @return Predicate that filters out temporary records when dealing with persistent builds
+     * @return Predicate that filters out builds according to description
      */
     public static Predicate<BuildRecord> includeTemporary(boolean temporary) {
-        return (root, query, cb) -> (temporary) ? cb.and() : cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+        return (root, query, cb) -> {
+            if (temporary) {
+                //Create subquery that counts number of temporary builds
+                Subquery<Long> temporaryCount = query.subquery(Long.class);
+                Root<BuildRecord> subRoot = temporaryCount.from(BuildRecord.class);
+                temporaryCount.select(cb.count(subRoot.get(BuildRecord_.id)));
+                temporaryCount.where(cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)));
+
+                // only false if build is persistent and there are temporaryBuilds present
+                return cb.or(cb.isTrue(root.get(BuildRecord_.temporaryBuild)), cb.lessThanOrEqualTo(temporaryCount, 0L));
+            }
+            return cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+        };
     }
 
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
