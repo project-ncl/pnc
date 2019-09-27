@@ -36,11 +36,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      console.log($ctrl.groupConfigsPage);
-
       $ctrl.paginator = filteringPaginator($ctrl.groupConfigsPage);
-
-      console.log($ctrl.paginator);
 
       $ctrl.filterFields = [{
         id: 'name',
