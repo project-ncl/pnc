@@ -25,10 +25,10 @@
       groupBuild: '<?'
     },
     templateUrl: 'build-records/directives/pnc-brew-push-button/pnc-brew-push-button.html',
-    controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'BuildConfigSetRecord', 'messageBus', Controller]
+    controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'GroupBuildResource', 'messageBus', Controller]
   });
 
-  function Controller($uibModal, pncNotify, BuildRecord, BuildConfigSetRecord, messageBus) {
+  function Controller($uibModal, pncNotify, BuildRecord, GroupBuildResource, messageBus) {
     var $ctrl = this,
         unsubscribes = [];
 
@@ -51,7 +51,7 @@
       if (isBuildRecord()) {
         return $ctrl.buildRecord.$isSuccess();
       } else if (isBuildGroupRecord()) {
-        return BuildConfigSetRecord.isSuccess($ctrl.groupBuild);
+        return GroupBuildResource.isSuccess($ctrl.groupBuild);
       }
     }
 
@@ -64,7 +64,7 @@
       });
 
       modal.result.then(function (modalValues) {
-        return isBuildRecord() ? doPushBuildRecord(modalValues) : doPushBuildGroupRecord(modalValues);
+        return isBuildRecord() ? doPushBuildRecord(modalValues) : doPushGroupBuild(modalValues);
       });
     }
 
@@ -112,19 +112,19 @@
       });
     }
 
-    function doPushBuildGroupRecord(modalValues) {
-      BuildConfigSetRecord.push($ctrl.groupBuild.id, modalValues.tagName).then(function (response) {
-        var accepted = filterAccepted(response.data),
-            rejected = filterRejected(response.data);
+    function doPushGroupBuild(modalValues) {
+      GroupBuildResource.brewPush($ctrl.groupBuild.id, modalValues.tagName).then(function (response) {
+        const accepted = filterAccepted(response.data),
+              rejected = filterRejected(response.data);
 
         if (accepted.length > 0) {
           subscribe(accepted);
         }
 
         if (rejected.length === 0) {
-          pncNotify.info('Brew push initiated for group build: ' + BuildConfigSetRecord.canonicalName($ctrl.groupBuild));
+          pncNotify.info('Brew push initiated for Group Build: ' + GroupBuildResource.canonicalName($ctrl.groupBuild));
         } else {
-          pncNotify.warn('Some Build Records were rejected for brew push of group build: ' + BuildConfigSetRecord.canonicalName($ctrl.groupBuild));
+          pncNotify.warn('Some Build Records were rejected for brew push of Group Build: ' + GroupBuildResource.canonicalName($ctrl.groupBuild));
           rejected.forEach(function (reject) {
             notify(reject);
           });
