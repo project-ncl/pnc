@@ -60,7 +60,9 @@ public class BpmBuildScheduler implements BuildScheduler {
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
             BpmBuildTask task = new BpmBuildTask(buildTask);
-            task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(b.toBuildResult()));
+            task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, buildResultRest -> {
+                onComplete.accept(buildResultRest.toBuildResult());
+            });
             manager.startTask(task);
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
