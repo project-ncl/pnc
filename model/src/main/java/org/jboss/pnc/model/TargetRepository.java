@@ -38,7 +38,7 @@ import java.util.Set;
  * Contains information related to a repository of build artifacts (i.e. Maven, NPM, etc)
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "repositoryPath" }) )
+@Table(uniqueConstraints = @UniqueConstraint(name="uk_targetrepo_identifier_repopath", columnNames = { "identifier", "repositoryPath" }) )
 public class TargetRepository implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;

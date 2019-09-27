@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -32,9 +30,11 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -76,7 +76,14 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Audited
-@Table(uniqueConstraints = {@UniqueConstraint(name = "UK_BUILD_CONFIGURATION_NAME", columnNames = {"name", "active"})})
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = {"name", "active"}),
+       indexes = {
+           @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
+           @Index(name = "idx_buildconfiguration_buildenvironment", columnList = "buildenvironment_id"),
+           @Index(name = "idx_buildconfiguration_project", columnList = "project_id"),
+           @Index(name = "idx_buildconfiguration_repositoryconfiguration", columnList = "repositoryconfiguration_id")
+       }
+)
 public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
@@ -99,9 +106,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
-    @Index(name="idx_buildconfiguration_repositoryconfiguration")
     @ManyToOne(optional = false)
-    @JoinColumn(updatable = true, nullable = false)
+    @JoinColumn(updatable = true, nullable = false, foreignKey = @ForeignKey(name = "fk_build_configuration_repository_configuration"))
     private RepositoryConfiguration repositoryConfiguration;
 
     /**
@@ -119,15 +125,13 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @NotAudited
     @ManyToOne
-    @ForeignKey(name = "fk_build_configuration_product_version")
-    @Index(name="idx_build_configuration_product_version")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_product_version"))
     private ProductVersion productVersion;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
-    @ForeignKey(name = "fk_buildconfiguration_project")
-    @Index(name="idx_buildconfiguration_project")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildconfiguration_project"))
     private Project project;
 
     @Enumerated(EnumType.STRING)
@@ -136,8 +140,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
-    @ForeignKey(name = "fk_buildconfiguration_buildenvironment")
-    @Index(name="idx_buildconfiguration_buildenvironment")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildconfiguration_buildenvironment"))
     private BuildEnvironment buildEnvironment;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -172,10 +175,23 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotAudited
     @ManyToMany(cascade = { CascadeType.REFRESH })
     @JoinTable(name = "build_configuration_dep_map", joinColumns = {
-            @JoinColumn(name = "dependency_id", referencedColumnName = "id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "dependant_id", referencedColumnName = "id") })
-    @ForeignKey(name = "fk_build_configuration_dep_map_dependency", inverseName = "fk_build_configuration_dep_map_dependant")
-    @Index(name="idx_build_configuration_dep_map_dependency", columnNames={"dependency_id", "dependant_id"} )
+            @JoinColumn(
+                name = "dependency_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")
+            )
+        },
+        inverseJoinColumns = {
+            @JoinColumn(
+                name = "dependant_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")
+            )
+        },
+        indexes = {
+            @Index(name = "idx_build_configuration_dep_map_dependency", columnList = "dependency_id")
+        }
+    )
     private Set<BuildConfiguration> dependencies;
 
     /**
@@ -187,7 +203,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfiguration> dependants;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "build_configuration_parameters")
+    @CollectionTable(name = "build_configuration_parameters", joinColumns=@JoinColumn(name = "buildconfiguration_id", foreignKey = @ForeignKey(name = "fk_build_configuration_parameters_build_config")))
     @MapKeyColumn(length = 50, name = "key", nullable = false)
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();

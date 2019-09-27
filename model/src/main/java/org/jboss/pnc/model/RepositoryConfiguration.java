@@ -28,6 +28,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +40,11 @@ import java.util.Set;
  * @author Jakub Bartecek
  */
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repositoryconfiguration_externalurl", columnNames = {"externalurl"}),
+        @UniqueConstraint(name = "uk_repositoryconfiguration_externalurlnormalized", columnNames = {"externalurlnormalized"}),
+        @UniqueConstraint(name = "uk_repositoryconfiguration_internalurl", columnNames = {"internalurl"}),
+        @UniqueConstraint(name = "uk_repositoryconfiguration_internalurlnormalized", columnNames = {"internalurlnormalized"})
+})
 public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 4248038054068607536L;

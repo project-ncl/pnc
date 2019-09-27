@@ -17,27 +17,32 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_buildconfigurationset_name", columnNames = "name"),
+       indexes = @Index(name = "idx_buildconfigurationset_productversion", columnList = "productversion_id")
+)
 public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 2596901834161647987L;
@@ -56,14 +61,28 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     private String name;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
-    @ForeignKey(name = "fk_buildconfigurationset_productversion")
-    @Index(name="idx_buildconfigurationset_productversion")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildconfigurationset_productversion"))
     private ProductVersion productVersion;
 
     @ManyToMany
-    @JoinTable(name = "build_configuration_set_map", joinColumns = { @JoinColumn(name = "build_configuration_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") })
-    @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset", inverseName = "fk_build_configuration_set_map_buildconfiguration")
-    @Index(name="idx_build_configuration_set_map_buildconfigurationset", columnNames={"build_configuration_set_id", "build_configuration_id"} )
+    @JoinTable(name = "build_configuration_set_map", joinColumns = {
+            @JoinColumn(
+                name = "build_configuration_set_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")
+            )
+        },
+        inverseJoinColumns = {
+            @JoinColumn(
+                name = "build_configuration_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")
+            )
+        },
+        indexes = {
+            @Index(name = "idx_build_configuration_set_map_buildconfigurationset", columnList = "build_configuration_set_id")
+        }
+    )
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
     @OneToMany(mappedBy = "buildConfigurationSet")

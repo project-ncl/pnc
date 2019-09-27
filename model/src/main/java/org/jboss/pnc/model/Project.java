@@ -17,20 +17,23 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -44,6 +47,12 @@ import java.util.Set;
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @Entity
+@Table(
+    uniqueConstraints = @UniqueConstraint(name = "uk_project_name", columnNames = {"name"}),
+    indexes = {
+        @Index(name = "idx_project_license", columnList = "license_id")
+    }
+)
 public class Project implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -4644857058640271044L;
@@ -72,8 +81,7 @@ public class Project implements GenericEntity<Integer> {
     private String projectUrl;
 
     @ManyToOne
-    @ForeignKey(name = "fk_project_license")
-    @Index(name="idx_project_license")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_project_license"))
     private License license;
 
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
