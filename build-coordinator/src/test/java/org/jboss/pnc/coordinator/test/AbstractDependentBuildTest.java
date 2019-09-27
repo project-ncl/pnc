@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
@@ -135,7 +136,7 @@ public abstract class AbstractDependentBuildTest {
         when(systemConfig.getTemporalBuildExpireDate()).thenReturn(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
         when(config.getModuleConfig(any())).thenReturn(systemConfig);
 
-        buildQueue = new BuildQueue(config);
+        buildQueue = new BuildQueue(config.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)));
 
         if (buildConfigurationRepository == null) {
             buildConfigurationRepository = new BuildConfigurationRepositoryMock();

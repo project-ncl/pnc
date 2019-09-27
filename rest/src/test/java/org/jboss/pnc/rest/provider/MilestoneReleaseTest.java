@@ -28,8 +28,7 @@ import org.jboss.pnc.rest.restmodel.causeway.BuildImportResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.BuildImportStatus;
 import org.jboss.pnc.rest.restmodel.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.rest.restmodel.causeway.ReleaseStatus;
-import org.jboss.pnc.rest.utils.mock.BpmMock.Push;
-import org.jboss.pnc.rest.utils.mock.BpmMock.PushList;
+import org.jboss.pnc.rest.utils.mock.BpmPushMock;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Test;
@@ -192,11 +191,11 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
     private Integer assertBpmCalled(ProductMilestone milestone) {
         Response pushesFor = bpmMock.getPushesFor(milestone.getId());
-        PushList pushList = (PushList) pushesFor.getEntity();
+        BpmPushMock.PushList pushList = (BpmPushMock.PushList) pushesFor.getEntity();
 
-        List<Push> pushes = pushList.getPushes();
+        List<BpmPushMock.Push> pushes = pushList.getPushes();
         assertThat(pushes).hasSize(1);
-        Push push = pushes.iterator().next();
+        BpmPushMock.Push push = pushes.iterator().next();
         return push.getTaskId();
     }
 
