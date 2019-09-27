@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
  */
 public class BuildConfigurationAudited {
 
-    private static final long serialVersionUID = 0L;
-
     /**
      * The id of the build configuration this record is associated with
      */

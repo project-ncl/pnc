@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -48,9 +48,9 @@ import java.util.Set;
  * performed during a development cycle from the previous milestone until the end of the current milestone.
  */
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"version", "productVersion_id"})
-})
+@Table(uniqueConstraints = @UniqueConstraint(name="uk_productmilestone_vers_prodversid", columnNames = {"version", "productVersion_id"}),
+       indexes = @Index(name = "idx_productmilestone_productversion", columnList = "productversion_id")
+)
 public class ProductMilestone implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -107,10 +107,9 @@ public class ProductMilestone implements GenericEntity<Integer> {
      */
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
-    @ForeignKey(name = "fk_productmilestone_productversion")
-    @Index(name="idx_productmilestone_productversion")
-    @JoinColumn(updatable = false)
+    @JoinColumn(updatable = false, foreignKey = @ForeignKey(name = "fk_productmilestone_productversion"))
     private ProductVersion productVersion;
+
 
     @OneToOne(mappedBy = "productMilestone")
     private ProductRelease productRelease;
@@ -135,11 +134,23 @@ public class ProductMilestone implements GenericEntity<Integer> {
      */
     @ManyToMany(fetch = FetchType.EAGER) //TODO remove eager fetch
     @JoinTable(name = "product_milestone_distributed_artifacts_map", joinColumns = {
-            @JoinColumn(name = "product_milestone_id", referencedColumnName = "id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "artifact_id", referencedColumnName = "id") })
-    @ForeignKey(name = "fk_product_milestone_distributed_artifacts_map")
-    @Index(name = "idx_product_milestone_distributed_artifacts_map", columnNames = { "product_milestone_id",
-            "artifact_id" })
+            @JoinColumn(
+                name = "product_milestone_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_product_milestone_distributed_artifacts_map")
+            )
+        },
+        inverseJoinColumns = {
+            @JoinColumn(
+                name = "artifact_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_distributed_artifacts_product_milestone_map")
+            )
+        },
+        indexes = {
+            @Index(name = "idx_product_milestone_distributed_artifacts_map", columnList = "product_milestone_id")
+        }
+    )
     private Set<Artifact> distributedArtifacts;
 
     public ProductMilestone() {

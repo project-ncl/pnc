@@ -39,6 +39,7 @@ import javax.persistence.Table;
 @Entity
 @Table(indexes = {@Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id")})
 public class BuildRecordPushResult implements GenericEntity<Integer> {
+    private static final long serialVersionUID = 8461294730832773438L;
 
     public static final String SEQUENCE_NAME = "build_record_push_result_id_seq";
 

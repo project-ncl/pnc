@@ -75,8 +75,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Entity
 @Table(indexes = {
         @Index(name = "idx_buildrecord_user", columnList = "user_id"),
-        @Index(name="idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
-        @Index(name="idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id")
+        @Index(name = "idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
+        @Index(name = "idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id"),
+        @Index(name = "idx_buildrecord_buildconfiguration", columnList = "buildconfiguration_id"),
+        @Index(name = "idx_buildrecord_buildconfiguration_aud", columnList= "buildconfiguration_id,buildconfiguration_rev"),
+        @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id")
 })
 public class BuildRecord implements GenericEntity<Integer> {
 
@@ -219,7 +222,11 @@ public class BuildRecord implements GenericEntity<Integer> {
             )
         },
         inverseJoinColumns = {
-            @JoinColumn(name = "built_artifact_id", referencedColumnName = "id")
+            @JoinColumn(
+                name = "built_artifact_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map_built")
+            )
         },
         uniqueConstraints = @UniqueConstraint(
             name = "uk_build_record_id_built_artifact_id",
@@ -244,7 +251,11 @@ public class BuildRecord implements GenericEntity<Integer> {
             )
         },
         inverseJoinColumns = {
-            @JoinColumn(name = "dependency_artifact_id", referencedColumnName = "id")
+            @JoinColumn(
+                name = "dependency_artifact_id",
+                referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")
+            )
         },
         uniqueConstraints = @UniqueConstraint(
             name = "uk_build_record_id_dependency_artifact_id",
@@ -273,7 +284,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * should only be a single primary product milestone which originally produced this build.
      */
     @ManyToOne
-    @JoinColumn(updatable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_productMilestone"), updatable = false)
     private ProductMilestone productMilestone;
 
     /**
@@ -289,7 +300,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id"))
+    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_buildrecord")))
     @MapKeyColumn(name="key")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
