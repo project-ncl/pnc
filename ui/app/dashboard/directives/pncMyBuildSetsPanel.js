@@ -33,12 +33,12 @@
     '$log',
     'authService',
     'PageFactory',
-    'BuildConfigSetRecord',
+    'GroupBuildResource',
     'BuildRecordDAO',
     'UserDAO',
     'eventTypes',
     'paginator',
-    function ($log, authService, PageFactory, BuildConfigSetRecord,
+    function ($log, authService, PageFactory, GroupBuildResource,
               BuildRecordDAO, UserDAO, eventTypes, paginator) {
       return {
         restrict: 'E',
@@ -57,7 +57,7 @@
           function init() {
 
             authService.getPncUser().then(function(result) {
-              return BuildConfigSetRecord.getByUser({
+              return GroupBuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10
               }).$promise.then(function(page) {
@@ -67,8 +67,10 @@
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
 
+            /* NCL-4433 group builds need to be updated
             scope.$on(eventTypes.BUILD_SET_STARTED, scope.update);
             scope.$on(eventTypes.BUILD_SET_FINISHED, scope.update);
+            */
           }
 
           if (authService.isAuthenticated()) {
