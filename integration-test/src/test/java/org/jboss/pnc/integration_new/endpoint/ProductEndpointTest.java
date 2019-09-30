@@ -51,6 +51,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.util.Collections;
+import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.client.patch.ProductPatchBuilder;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -180,6 +182,22 @@ public class ProductEndpointTest {
         assertThat(retrieved).isEqualTo(toUpdate);
         assertThat(retrieved).isEqualToIgnoringGivenFields(dto, "name");
         assertThat(retrieved.getName()).isEqualTo("Updated name");
+    }
+
+    @Test
+    public void testPatch() throws ClientException, PatchBuilderException {
+        // given
+        ProductClient client = new ProductClient(RestClientConfiguration.asUser());
+        Product original = client.getSpecific(productId);
+        final String newPGMsystemName = "newPGMsystemName";
+
+        // when
+        client.patch(productId, new ProductPatchBuilder().replacePgmSystemName(newPGMsystemName));
+        Product patched = client.getSpecific(original.getId());
+
+        // then
+        assertThat(patched).isEqualToIgnoringGivenFields(original, "pgmSystemName");
+        assertThat(patched.getPgmSystemName()).isEqualTo(newPGMsystemName);
     }
 
     @Test
