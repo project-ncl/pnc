@@ -25,9 +25,12 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
@@ -45,9 +48,10 @@ import java.security.Principal;
  */
 @Provider
 @PreMatching
-public class RequestLoggingFilter implements ContainerRequestFilter {
+public class RequestLoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
+    private static final String REQUEST_EXECUTION_START = "request-execution-start";;
 
     UserService userService;
 
@@ -56,15 +60,17 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
     }
 
     @Override
-    public void filter(ContainerRequestContext context) throws IOException {
+    public void filter(ContainerRequestContext requestContext) throws IOException {
         MDCUtils.clear();
-        String logRequestContext = context.getHeaderString("log-request-context");
+        requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
+
+        String logRequestContext = requestContext.getHeaderString("log-request-context");
         if (logRequestContext == null) {
             logRequestContext = RandomUtils.randString(12);
         }
         MDCUtils.addRequestContext(logRequestContext);
 
-        String logProcessContext = context.getHeaderString("log-process-context");
+        String logProcessContext = requestContext.getHeaderString("log-process-context");
         if (logProcessContext != null) {
             MDCUtils.addProcessContext(logProcessContext);
         }
@@ -77,14 +83,35 @@ public class RequestLoggingFilter implements ContainerRequestFilter {
             }
         }
 
-        UriInfo uriInfo = context.getUriInfo();
-        Request request = context.getRequest();
-        logger.info("Log context {} for request: {} {}", logRequestContext, request.getMethod(), uriInfo.getRequestUri());
+        UriInfo uriInfo = requestContext.getUriInfo();
+        Request request = requestContext.getRequest();
+        logger.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());
+
         if (logger.isTraceEnabled()) {
-            MultivaluedMap<String, String> headers = context.getHeaders();
+            MultivaluedMap<String, String> headers = requestContext.getHeaders();
             logger.trace("Headers: " + MapUtils.toString(headers));
-            logger.trace("Entity: {}.", getEntityBody(context));
-            logger.trace("User principal name: {}", getUserPrincipalName(context));
+            logger.trace("Entity: {}.", getEntityBody(requestContext));
+            logger.trace("User principal name: {}", getUserPrincipalName(requestContext));
+        }
+    }
+
+    @Override
+    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
+        Long startTime = (Long) containerRequestContext.getProperty(REQUEST_EXECUTION_START);
+
+        String took;
+        if (startTime == null) {
+            took="-1";
+        } else {
+            took = Long.toString(System.currentTimeMillis() - startTime);
+        }
+
+        try (
+            MDC.MDCCloseable mdcTook = MDC.putCloseable("request.took", took);
+            MDC.MDCCloseable mdcStatus = MDC.putCloseable("response.status",
+                    Integer.toString(containerResponseContext.getStatus()));
+        ) {
+            logger.debug("Completed {}.", containerRequestContext.getUriInfo().getPath());
         }
     }
 
