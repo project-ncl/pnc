@@ -84,8 +84,8 @@ public abstract class ClientBase<T> {
     }
 
     RemoteCollectionConfig getRemoteCollectionConfig() {
-        Integer pageSize = configuration.getPageSize();
-        if (pageSize == null || pageSize < 1) {
+        int pageSize = configuration.getPageSize();
+        if (pageSize < 1) {
             pageSize = 100;
         }
         return new RemoteCollectionConfig(pageSize);
