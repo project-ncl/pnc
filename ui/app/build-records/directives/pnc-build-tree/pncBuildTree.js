@@ -36,10 +36,10 @@
       dependencyGraph: '<?'
     },
     templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree.html',
-    controller: ['BuildRecord', 'GroupBuildResource', '$timeout', '$scope', '$log', '$q', Controller]
+    controller: ['BuildRecord', 'GroupBuildResource', '$timeout', '$scope', '$log', '$q', 'EntityRecognizer', Controller]
   });
 
-  function Controller(BuildRecord, GroupBuildResource, $timeout, $scope, $log, $q) {
+  function Controller(BuildRecord, GroupBuildResource, $timeout, $scope, $log, $q, EntityRecognizer) {
 
     var $ctrl = this;
     var buildItemPromise = null;
@@ -169,14 +169,9 @@
         level = level || 1;
 
         // Build or GroupBuild
-        var isBuild = build.buildConfigRevision !== undefined;
+        var isBuild = EntityRecognizer.isBuild(build);
         
         var isCurrentPageBuild = customBuildParent === NO_PARENT_EXISTS;
-
-        if (isBuild && (build.groupConfig !== undefined)) {
-          $log.error('Build entity recognition (Build vs GroupBuild) was not successful');
-          return null;
-        }
 
         var attrClass = '';
         if (expandOptions) {
