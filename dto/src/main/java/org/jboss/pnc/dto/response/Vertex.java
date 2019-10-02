@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 /**
@@ -25,6 +28,8 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
+@Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = Vertex.Builder.class)
 public class Vertex<T> {
 
     private final String name;
@@ -33,4 +38,6 @@ public class Vertex<T> {
 
     private final T data;
 
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class Builder<T> {}
 }
