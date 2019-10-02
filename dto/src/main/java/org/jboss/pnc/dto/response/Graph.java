@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.dto.response;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
@@ -28,6 +31,8 @@ import java.util.Map;
  */
 @Getter
 @AllArgsConstructor
+@Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = Graph.Builder.class)
 public class Graph<T> {
 
     private final Map<String, Vertex<T>> vertices;
@@ -36,4 +41,6 @@ public class Graph<T> {
 
     private final Map<String, String> metadata;
 
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class Builder<T> {}
 }
