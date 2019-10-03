@@ -137,18 +137,19 @@ public class ProductMilestone implements GenericEntity<Integer> {
             @JoinColumn(
                 name = "product_milestone_id",
                 referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_product_milestone_distributed_artifacts_map")
+                foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_productmilestone")
             )
         },
         inverseJoinColumns = {
             @JoinColumn(
                 name = "artifact_id",
                 referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_distributed_artifacts_product_milestone_map")
+                foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_artifact")
             )
         },
         indexes = {
-            @Index(name = "idx_product_milestone_distributed_artifacts_map", columnList = "product_milestone_id")
+            @Index(name = "idx_product_milestone_distr_art_map_artifact", columnList = "artifact_id"),
+            @Index(name = "idx_product_milestone_distr_art_map_productmilestone", columnList = "product_milestone_id")
         }
     )
     private Set<Artifact> distributedArtifacts;

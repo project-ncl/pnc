@@ -102,7 +102,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     private Set<BuildConfiguration> buildConfigurations;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id", foreignKey = @ForeignKey(name = "fk_product_version_attributes")))
+    @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id", foreignKey = @ForeignKey(name = "fk_product_version_attributes_productversion")))
     @MapKeyColumn(name="key")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
