@@ -58,7 +58,7 @@ import java.util.Set;
  */
 @Entity
 @Table(
-    uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "sha256", "targetRepository_id"}),
+    uniqueConstraints = @UniqueConstraint(name="uk_artifact_name", columnNames = { "identifier", "sha256", "targetRepository_id"}),
     indexes = {
         @Index(name="idx_artifact_targetRepository", columnList = "targetRepository_id"),
         @Index(name="idx_artifact_identifier", columnList = "identifier"),

@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.util.StringPropertyReplacer;
 
@@ -28,9 +26,11 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
@@ -57,9 +57,12 @@ import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
  * @author avibelli
  */
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"version", "product_id"})
-})
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_productversion_version_prod_id", columnNames = {"version", "product_id"}),
+       indexes = {
+           @Index(name = "idx_productversion_currentmilestone", columnList = "currentproductmilestone_id"),
+           @Index(name = "idx_productversion_product", columnList = "product_id")
+       }
+)
 public class ProductVersion implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -78,8 +81,7 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
-    @ForeignKey(name = "fk_productversion_product")
-    @Index(name="idx_productversion_product")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_productversion_product"))
     private Product product;
 
     @OneToMany(mappedBy = "productVersion")
@@ -89,15 +91,14 @@ public class ProductVersion implements GenericEntity<Integer> {
     private Set<ProductMilestone> productMilestones;
 
     @OneToOne
-    @ForeignKey(name = "fk_productversion_currentmilestone")
-    @Index(name="idx_productversion_currentmilestone")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_productversion_currentmilestone"))
     private ProductMilestone currentProductMilestone;
 
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfiguration> buildConfigurations;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id"))
+    @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id", foreignKey = @ForeignKey(name = "fk_product_version_attributes_productversion")))
     @MapKeyColumn(name="key")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();

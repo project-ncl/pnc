@@ -18,20 +18,22 @@
 package org.jboss.pnc.model;
 
 import org.jboss.pnc.enums.MilestoneReleaseStatus;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import java.util.Date;
@@ -42,7 +44,9 @@ import java.util.Date;
  * Time: 12:57 PM
  */
 @Entity
+@Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
 public class ProductMilestoneRelease implements GenericEntity<Integer> {
+    private static final long serialVersionUID = -9033616377795309672L;
     public static final String SEQUENCE_NAME = "product_milestone_release_id_seq";
 
     @Id
@@ -52,8 +56,7 @@ public class ProductMilestoneRelease implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
-    @ForeignKey(name = "fk_productmilestone_milestonerelease")
-    @JoinColumn(updatable = false)
+    @JoinColumn(updatable = false, foreignKey = @ForeignKey(name = "fk_productmilestone_milestonerelease"))
     private ProductMilestone milestone;
     
     @Enumerated(EnumType.STRING)

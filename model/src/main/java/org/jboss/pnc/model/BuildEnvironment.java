@@ -18,7 +18,6 @@
 package org.jboss.pnc.model;
 
 import org.jboss.pnc.enums.SystemImageType;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.CollectionTable;
@@ -28,13 +27,17 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -47,6 +50,11 @@ import java.util.Map;
  * @author avibelli
  */
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(name="uk_buildenvironment_name", columnNames = "name"),
+       indexes = {
+           @Index(name = "idx_buildenvironment_systemimageid", columnList = "systemimageid")
+       }
+)
 public class BuildEnvironment implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 3170247997550146257L;
@@ -80,7 +88,6 @@ public class BuildEnvironment implements GenericEntity<Integer> {
      */
     @NotNull
     @Column(unique=true, updatable=false)
-    @Index(name="idx_buildenvironment_systemimageid")
     @Size(max=255)
     private String systemImageId;
 
@@ -90,7 +97,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     private SystemImageType systemImageType;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id"))
+    @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id", foreignKey = @ForeignKey(name = "fk_build_environment_attributes_buildenvironment")))
     @MapKeyColumn(name="name")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<String, String>();
