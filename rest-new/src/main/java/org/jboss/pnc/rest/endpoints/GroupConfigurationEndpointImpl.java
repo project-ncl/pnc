@@ -106,11 +106,6 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     @Override
-    public void deleteSpecific(String id) {
-        endpointHelper.delete(id);
-    }
-
-    @Override
     public GroupBuild trigger(String id, GroupBuildParameters buildParams, GroupBuildRequest request) {
         return triggerBuild(id, Optional.ofNullable(request), buildParams);
     }

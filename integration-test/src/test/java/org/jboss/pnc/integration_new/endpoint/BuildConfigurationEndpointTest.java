@@ -70,7 +70,6 @@ import org.jboss.pnc.enums.BuildType;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -179,25 +178,6 @@ public class BuildConfigurationEndpointTest {
                 PME_PARAMS_LONG);
     }
 
-    @Test
-    @Ignore("TODO: unignore when deletion strategy is defined")
-    public void shouldCreateBuildConfigurationWithNameOfAnArchivedOne() throws ClientException {
-        // having created
-        String configName = UUID.randomUUID().toString();
-        String configId = createBuildConfigurationAndValidateResults(projectId, environmentId,
-                repositoryConfigurationId, configName, UUID.randomUUID().toString()).getId();
-
-        // and archived build configuration
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
-        client.deleteSpecific(configId);
-        BuildConfiguration archivedBc = client.getSpecific(configId);
-        assertThat(archivedBc.isArchived()).isTrue();
-
-        // one can create another configuration with the same name
-        createBuildConfigurationAndValidateResults(projectId, environmentId,
-                repositoryConfigurationId, configName, UUID.randomUUID().toString());
-    }
-
     private BuildConfiguration createBuildConfigurationAndValidateResults(
             String projectId,
             String environmentId,
@@ -297,28 +277,6 @@ public class BuildConfigurationEndpointTest {
                 .replaceDescription(newDescription2);
         BuildConfiguration updated2 = client.patch(id, builder2.getJsonPatch(), BuildConfiguration.class);
         Assert.assertEquals(newDescription2, updated2.getDescription());
-    }
-
-    @Test
-    @Ignore("TODO: unignore when deletion strategy is defined")
-    public void shouldDeleteBuildConfiguration() throws Exception {
-        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
-        // given
-        BuildConfiguration bc = createBuildConfigurationAndValidateResults(
-                projectId,
-                environmentId,
-                repositoryConfigurationId,
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString());
-
-        assertThat(bc.isArchived()).isFalse();
-
-        // when
-        client.deleteSpecific(bc.getId());
-
-        // then
-        BuildConfiguration deleted = client.getSpecific(bc.getId());
-        assertThat(deleted.isArchived()).isFalse();
     }
 
     @Test
