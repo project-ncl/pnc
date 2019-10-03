@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 
 /**
  *
@@ -36,8 +37,8 @@ import lombok.Data;
 @JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
 public class CreateAndSyncSCMRequest {
 
-    @NotBlank
-    @SCMUrl
+    @NotBlank(groups = {WhenCreatingNew.class})
+    @SCMUrl(groups = {WhenCreatingNew.class})
     private final String scmUrl;
 
     private final Boolean preBuildSyncEnabled;

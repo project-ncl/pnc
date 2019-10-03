@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.hibernate.service.spi.InjectService;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -51,6 +52,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -113,6 +115,9 @@ public class BuildConfigurationProviderImpl
 
     @Inject
     private BuildConfigRevisionHelper buildConfigRevisionHelper;
+
+    @Inject
+    private ProjectRepository projectRepository;
 
     private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id("-1").build();
 
@@ -219,7 +224,9 @@ public class BuildConfigurationProviderImpl
                                                                             String sortingRsql,
                                                                             String query,
                                                                             String productVersionId) {
-
+        ValidationBuilder
+                .validateObject(null)
+                .validateAgainstRepository(productVersionRepository, Integer.valueOf(productVersionId),true);
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
     }
 
@@ -229,7 +236,9 @@ public class BuildConfigurationProviderImpl
                                                                      String sortingRsql,
                                                                      String query,
                                                                      String projectId) {
-
+        ValidationBuilder
+                .validateObject(null)
+                .validateAgainstRepository(projectRepository, Integer.valueOf(projectId),true);
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(Integer.valueOf(projectId)));
 
     }
@@ -240,6 +249,9 @@ public class BuildConfigurationProviderImpl
                                                                            String sortingRsql,
                                                                            String query,
                                                                            String scmRepositoryId) {
+        ValidationBuilder
+                .validateObject(null)
+                .validateAgainstRepository(repositoryConfigurationRepository, Integer.valueOf(scmRepositoryId),true);
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withScmRepositoryId(Integer.valueOf(scmRepositoryId)));
     }
 
@@ -356,6 +368,10 @@ public class BuildConfigurationProviderImpl
 
     @Override
     public Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex, int pageSize, String sortingRsql, String query, String groupConfigId) {
+        ValidationBuilder
+                .validateObject(null)
+                .validateAgainstRepository(buildConfigurationSetRepository, Integer.valueOf(groupConfigId),true);
+
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(Integer.valueOf(groupConfigId)));
     }
 
