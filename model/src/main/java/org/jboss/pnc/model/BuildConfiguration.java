@@ -107,7 +107,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(updatable = true, nullable = false, foreignKey = @ForeignKey(name = "fk_build_configuration_repository_configuration"))
+    @JoinColumn(updatable = true, nullable = false, foreignKey = @ForeignKey(name = "fk_buildconfiguration_repositoryconfiguration"))
     private RepositoryConfiguration repositoryConfiguration;
 
     /**
@@ -189,6 +189,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             )
         },
         indexes = {
+            @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
             @Index(name = "idx_build_configuration_dep_map_dependency", columnList = "dependency_id")
         }
     )
@@ -203,7 +204,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfiguration> dependants;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "build_configuration_parameters", joinColumns=@JoinColumn(name = "buildconfiguration_id", foreignKey = @ForeignKey(name = "fk_build_configuration_parameters_build_config")))
+    @CollectionTable(name = "build_configuration_parameters", joinColumns=@JoinColumn(name = "buildconfiguration_id", foreignKey = @ForeignKey(name = "fk_build_configuration_parameters_bc")))
     @MapKeyColumn(length = 50, name = "key", nullable = false)
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();

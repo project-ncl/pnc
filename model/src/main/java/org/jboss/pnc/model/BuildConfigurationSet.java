@@ -80,7 +80,8 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
             )
         },
         indexes = {
-            @Index(name = "idx_build_configuration_set_map_buildconfigurationset", columnList = "build_configuration_set_id")
+            @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
+            @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id")
         }
     )
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();

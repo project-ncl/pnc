@@ -218,14 +218,14 @@ public class BuildRecord implements GenericEntity<Integer> {
             @JoinColumn(
                 name = "build_record_id",
                 referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map")
+                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map_buildrecord")
             )
         },
         inverseJoinColumns = {
             @JoinColumn(
                 name = "built_artifact_id",
                 referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map_built")
+                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map_builtartifact")
             )
         },
         uniqueConstraints = @UniqueConstraint(
@@ -233,7 +233,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             columnNames = {"build_record_id", "built_artifact_id" }
         ),
         indexes = {
-                @Index(name = "idx_build_record_built_artifact_map", columnList = "built_artifact_id")
+            @Index(name = "idx_build_record_built_artifact_map_buildrecord", columnList = "build_record_id"),
+            @Index(name = "idx_build_record_built_artifact_map_builtartifact", columnList = "built_artifact_id")
         }
     )
     @Column(updatable = false)
@@ -247,7 +248,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             @JoinColumn(
                 name = "build_record_id",
                 referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map")
+                foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")
             )
         },
         inverseJoinColumns = {
@@ -300,7 +301,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_buildrecord")))
+    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_build_record")))
     @MapKeyColumn(name="key")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<>();
