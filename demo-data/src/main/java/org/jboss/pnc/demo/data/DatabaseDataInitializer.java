@@ -342,11 +342,16 @@ public class DatabaseDataInitializer {
         projectRepository.save(project5);
 
 
-        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(0));
-        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(1));
-        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(2));
-        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(3));
-        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(4));
+        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(0),
+                "https://github.com/project-ncl/pnc.git");
+        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(1),
+                null);
+        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(2),
+                null);
+        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(3),
+                null);
+        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(4),
+                null);
 
         repositoryConfigurationRepository.save(repositoryConfiguration1);
         repositoryConfigurationRepository.save(repositoryConfiguration2);
@@ -642,9 +647,10 @@ public class DatabaseDataInitializer {
 
     }
 
-    private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl) {
+    private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {
         return  RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(internalScmUrl)
+                .externalUrl(externalUrl)
                 .build();
     }
 
