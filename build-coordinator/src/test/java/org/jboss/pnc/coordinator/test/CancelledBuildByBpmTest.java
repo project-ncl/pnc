@@ -1,6 +1,6 @@
 /**
  * JBoss, Home of Professional Open Source.
- * Copyright 2014 Red Hat, Inc., and individual contributors
+ * Copyright 2014-2019 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,13 +111,6 @@ public class CancelledBuildByBpmTest {
 
     @Spy
     private ProjectMapper projectMapper;
-
-//    @Deployment
-//    public static JavaArchive createDeployment() {
-//        JavaArchive deployment = BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
-//        deployment.addPackages(false, BpmMock.class.getPackage());
-//        return deployment;
-//    }
 
     @Test (timeout = 5_000)
     public void buildSingleProjectTestCase() throws Exception {
