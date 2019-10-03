@@ -18,10 +18,20 @@
 package org.jboss.pnc.model;
 
 import org.jboss.pnc.enums.SupportLevel;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -37,6 +47,7 @@ import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
  * which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
 @Entity
+@Table(indexes = @Index(name = "idx_productrelease_milestone", columnList = "productmilestone_id"))
 public class ProductRelease implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -73,8 +84,7 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     @NotNull
     @OneToOne(cascade = { CascadeType.REFRESH })
-    @ForeignKey(name = "fk_productrelease_milestone")
-    @Index(name="idx_productrelease_milestone")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_productrelease_milestone"))
     private ProductMilestone productMilestone;
 
     public ProductRelease() {

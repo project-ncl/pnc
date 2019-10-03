@@ -28,6 +28,8 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -41,6 +43,9 @@ import java.util.Set;
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @Entity
+@Table(
+    uniqueConstraints = @UniqueConstraint(name = "uk_project_name", columnNames = {"name"})
+)
 public class Project implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -4644857058640271044L;

@@ -29,6 +29,8 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -41,6 +43,13 @@ import java.util.Set;
  *
  */
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name="uk_product_abbreviation", columnNames = "abbreviation"),
+        @UniqueConstraint(name="uk_product_productcode", columnNames = "productcode"),
+        @UniqueConstraint(name="uk_product_name", columnNames = "name"),
+        @UniqueConstraint(name="uk_product_pgmsystemname", columnNames = "pgmsystemname")
+       }
+)
 public class Product implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -9022966336791211855L;
