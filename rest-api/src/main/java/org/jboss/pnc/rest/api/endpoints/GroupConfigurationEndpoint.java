@@ -62,8 +62,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -156,17 +154,6 @@ public interface GroupConfigurationEndpoint{
     GroupConfiguration patchSpecific(
             @Parameter(description = GC_ID) @PathParam("id") String id,
             @NotNull GroupConfiguration groupConfiguration);
-
-    @Operation(summary = "Removes a specific group config.",
-            responses = {
-                @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @DELETE
-    @Path("/{id}")
-    void deleteSpecific(@Parameter(description = GC_ID) @PathParam("id") String id);
 
     @Operation(summary = "Builds the build configs in the group config.",
             responses = {

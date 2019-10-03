@@ -103,11 +103,6 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public void deleteSpecific(String id) {
-        endpointHelper.delete(id);
-    }
-
-    @Override
     public Build trigger(String id, BuildParameters buildParams) {
         return triggerBuild(id, OptionalInt.empty(), buildParams);
     }
