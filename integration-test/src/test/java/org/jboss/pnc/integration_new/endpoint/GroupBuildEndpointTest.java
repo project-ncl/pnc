@@ -74,6 +74,7 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldGetSpecificGroupBuild() throws ClientException {
 
         GroupBuild build = anonymousClient.getSpecific(groupBuildId1);
@@ -89,7 +90,6 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
-    @Ignore
     public void shouldGetBuilds() throws ClientException {
 
         RemoteCollection<Build> builds = anonymousClient.getBuilds(groupBuildId1, null);
