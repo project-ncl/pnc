@@ -22,7 +22,6 @@ import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -98,8 +97,7 @@ public class BuildDriverFactoryTest {
                 BuildExecutionSession currentBuildExecution,
                 RunningEnvironment runningEnvironment,
                 Consumer<CompletedBuild> onComplete,
-                Consumer<Throwable> onError)
-                throws BuildDriverException {
+                Consumer<Throwable> onError) {
             return null;
         }
     }
@@ -116,8 +114,7 @@ public class BuildDriverFactoryTest {
                 BuildExecutionSession currentBuildExecution,
                 RunningEnvironment runningEnvironment,
                 Consumer<CompletedBuild> onComplete,
-                Consumer<Throwable> onError)
-                throws BuildDriverException {
+                Consumer<Throwable> onError) {
             return null;
         }
     }

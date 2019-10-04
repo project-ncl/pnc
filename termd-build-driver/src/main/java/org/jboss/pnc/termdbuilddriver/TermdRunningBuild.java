@@ -52,11 +52,11 @@ public class TermdRunningBuild implements RunningBuild {
     }
 
     public void setCompletedBuild(CompletedBuild completedBuild) {
-        logger.debug("[{}] Setting completed build {}", runningEnvironment.getId(), completedBuild);
+        logger.debug("Setting completed build {}", completedBuild);
         onComplete.accept(completedBuild);
     }
 
-    public void setBuildError(Exception error) {
+    public void setBuildError(Throwable error) {
         onError.accept(error);
     }
 
@@ -71,7 +71,7 @@ public class TermdRunningBuild implements RunningBuild {
         if (cancelHook != null) {
             cancelHook.run();
         } else {
-            logger.warn("Trying to cancel operation while no cancel hook is defined.");
+            logger.warn("Trying to cancel operation while no cancel hook is defined. The operation might be already completed.");
         }
     }
 

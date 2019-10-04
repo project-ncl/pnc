@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.mock.builddriver;
 
-import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -43,8 +43,7 @@ public abstract class BuildDriverBase {
             BuildExecutionSession buildExecutionSession,
             RunningEnvironment runningEnvironment,
             Consumer<CompletedBuild> onComplete,
-            Consumer<Throwable> onError)
-           throws BuildDriverException {
+            Consumer<Throwable> onError) {
 
         log.debug("Building " + buildExecutionSession.getId());
 
@@ -85,6 +84,11 @@ public abstract class BuildDriverBase {
             @Override
             public BuildStatus getBuildStatus() {
                 return buildStatus;
+            }
+
+            @Override
+            public Optional<String> getOutputChecksum() {
+                return Optional.of("5678bbe366b11f7216bd03ad33f583d9");
             }
 
         };

@@ -40,13 +40,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,7 +52,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
 import static org.jboss.pnc.buildagent.api.Status.FAILED;
@@ -106,8 +103,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             BuildExecutionSession buildExecutionSession,
             RunningEnvironment runningEnvironment,
             Consumer<CompletedBuild> onComplete,
-            Consumer<Throwable> onError)
-            throws BuildDriverException {
+            Consumer<Throwable> onError) {
 
         logger.info("[{}] Starting build for Build Execution Session {}",
                 runningEnvironment.getId(),
@@ -143,75 +139,89 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                         debugData.setDebugEnabled(true);
                         enableSsh(Optional.ofNullable(remoteInvocation.getBuildAgentClient()));
                     }
-                    remoteInvocation.notifyCompleted(newStatus);
+                    remoteInvocation.notifyCompleted(new RemoteInvocationCompletion(newStatus, Optional.of(event.getOutputChecksum())));
                 }
             };
 
-            CompletableFuture<String> uploadFuture = CompletableFuture.supplyAsync(uploadTask(termdRunningBuild.getRunningEnvironment(),
-                    buildScript), executor);
-            CompletableFuture<Void> setClientFuture = uploadFuture.thenApplyAsync(scriptPath ->
-                    createBuildAgentClient(remoteInvocation,
-                            termdRunningBuild.getRunningEnvironment(),
-                            scriptPath,
-                            onStatusUpdate), executor);
-            CompletableFuture<Void> invokeFuture = setClientFuture
-                    .thenRunAsync(() -> invokeRemoteScript(remoteInvocation), executor);
+            AtomicReference<ScheduledFuture> forceCancelFuture = new AtomicReference<>();
 
-            CompletableFuture<org.jboss.pnc.buildagent.api.Status> buildCompletedFuture = invokeFuture.thenComposeAsync(nul -> remoteInvocation.getCompletionNotifier(), executor);
+            CompletableFuture<Void> prepareBuildFuture = CompletableFuture
+                    .supplyAsync(() -> {
+                            logger.debug("Uploading ...");
+                            return uploadTask(termdRunningBuild.getRunningEnvironment(), buildScript);
+                        }, executor)
+                    .thenApplyAsync(scriptPath -> {
+                            logger.debug("CreateBuildAgentClient ...");
+                            createBuildAgentClient(remoteInvocation,
+                                termdRunningBuild.getRunningEnvironment(),
+                                scriptPath,
+                                onStatusUpdate);
+                            return null;
+                        }, executor)
+                    .thenRunAsync(() -> {
+                            logger.debug("Invoking remote script ...");
+                            invokeRemoteScript(remoteInvocation);
+                        }, executor);
 
-            AtomicReference<ScheduledFuture> forceCancel = new AtomicReference<>();
-            termdRunningBuild.setCancelHook(() -> {
-                uploadFuture.cancel(true);
-                setClientFuture.cancel(true);
-                invokeFuture.cancel(false);
-                if (remoteInvocation.getBuildAgentClient() != null) {
-                    remoteInvocation.cancel(runningName);
+            CompletableFuture<RemoteInvocationCompletion> buildFuture = prepareBuildFuture.thenComposeAsync(nul -> {
+                            logger.debug("Waiting fo remote script to complete...");
+                            return remoteInvocation.getCompletionNotifier();
+                        }, executor);
+
+            buildFuture.handle((remoteInvocationCompletion, exception) -> {
+                RemoteInvocationCompletion completion;
+                if (remoteInvocationCompletion != null) {
+                    logger.debug("Completing build execution {}. Status: {};", termdRunningBuild.getName(), remoteInvocationCompletion.getStatus());
+                    completion = remoteInvocationCompletion;
+                } else if (exception != null && exception.getCause() instanceof java.util.concurrent.CancellationException){
+                    //canceled in non build operation (completableFuture cancel)
+                    logger.debug("Completing build execution {}. Cancelled;", termdRunningBuild.getName());
+                    completion = new RemoteInvocationCompletion(INTERRUPTED, Optional.empty());
+                } else {
+                    logger.warn("Completing build execution.", exception);
+                    completion = new RemoteInvocationCompletion(new BuildDriverException("System error.", exception));
                 }
 
-                ScheduledFuture<?> forceCancel_ = scheduledExecutorService.schedule(
-                        () -> {
-                            logger.debug("Forcing cancel ...");
-                            remoteInvocation.notifyCompleted(Status.INTERRUPTED);
-                        }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
-                forceCancel.set(forceCancel_);
-            });
-
-            buildCompletedFuture.handleAsync((status, exception) -> {
-                logger.debug("Completing build execution {}. Status: {}; exception: {}.", termdRunningBuild.getName(), status, exception);
-                ScheduledFuture forceCancel_ = forceCancel.get();
+                ScheduledFuture forceCancel_ = forceCancelFuture.get();
                 if (forceCancel_ != null) {
                     forceCancel_.cancel(true);
                 }
                 termdRunningBuild.setCancelHook(null);
                 remoteInvocation.close();
-                complete(termdRunningBuild, status, exception);
-                return null;
-            }, executor);
 
+                complete(termdRunningBuild, completion);
+                return null;
+            });
+
+            termdRunningBuild.setCancelHook(() -> {
+                remoteInvocation.cancel(); //try to cancel remote execution
+                ScheduledFuture<?> forceCancel_ = scheduledExecutorService.schedule(
+                    () -> {
+                        logger.debug("Force cancelling build ...");
+                        prepareBuildFuture.cancel(true);
+                    }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
+                forceCancelFuture.set(forceCancel_);
+            });
         } else {
             logger.debug("Skipping script uploading (cancel flag) ...");
         }
         return termdRunningBuild;
     }
 
-    private Supplier<String> uploadTask(RunningEnvironment runningEnvironment, String command) {
-        return () -> {
-            try {
-                logger.debug("[{}] Uploading script ...", runningEnvironment.getId());
-                logger.debug("[{}] Full script:\n {}", runningEnvironment.getId(), command);
+    private String uploadTask(RunningEnvironment runningEnvironment, String command) {
+        try {
+            logger.debug("Full script:\n {}", command);
+            new TermdFileTranser(URI.create(getBuildAgentUrl(runningEnvironment)), MAX_LOG_SIZE).uploadScript(command,
+                    Paths.get(runningEnvironment.getWorkingDirectory().toAbsolutePath().toString(),
+                            "run.sh"));
 
-                new TermdFileTranser(URI.create(getBuildAgentUrl(runningEnvironment)), MAX_LOG_SIZE).uploadScript(command,
-                        Paths.get(runningEnvironment.getWorkingDirectory().toAbsolutePath().toString(),
-                                "run.sh"));
-
-                String scriptPath =
-                        runningEnvironment.getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
-                return scriptPath;
-            } catch (Throwable e ) {
-                logger.warn("Caught unhandled exception.", e);
-                throw new RuntimeException("Unable to upload script.", e);
-            }
-        };
+            String scriptPath =
+                    runningEnvironment.getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
+            return scriptPath;
+        } catch (Throwable e ) {
+            logger.warn("Caught unhandled exception.", e);
+            throw new RuntimeException("Unable to upload script.", e);
+        }
     }
 
     private Void invokeRemoteScript(RemoteInvocation remoteInvocation) {
@@ -263,8 +273,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private CompletedBuild collectResults(RunningEnvironment runningEnvironment, org.jboss.pnc.buildagent.api.Status completionStatus)
-            throws BuildDriverException {
+    private CompletedBuild collectResults(RunningEnvironment runningEnvironment, RemoteInvocationCompletion remoteInvocationCompletion) {
         logger.info("Collecting results ...");
         try {
             TermdFileTranser transfer = new TermdFileTranser(MAX_LOG_SIZE);
@@ -277,7 +286,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
 
             String prependMessage = "";
-            BuildStatus buildStatus = getBuildStatus(completionStatus);
+            BuildStatus buildStatus = getBuildStatus(remoteInvocationCompletion.getStatus());
 
             if (!transfer.isFullyDownloaded()) {
                 prependMessage = "----- build log was cut, storing only last part -----\n";
@@ -288,9 +297,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             }
 
             return new DefaultCompletedBuild(
-                    runningEnvironment, buildStatus, prependMessage + stringBuffer.toString());
-        } catch (Exception e) {
-            throw new BuildDriverException("Cannot collect results.", e);
+                    runningEnvironment, buildStatus, remoteInvocationCompletion.getOutputChecksum(), prependMessage + stringBuffer.toString());
+        } catch (Throwable e) {
+            throw new RuntimeException("Cannot collect results.", e);
         }
     }
 
@@ -304,34 +313,18 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private Void complete(TermdRunningBuild termdRunningBuild, Status status, Throwable throwable) {
-        boolean isCancelled = INTERRUPTED.equals(status); //canceled while build is running
-        if(throwable != null) {
-            isCancelled = CancellationException.class.equals(throwable.getCause().getClass()); //canceled in non build operation (completableFuture cancel)
-            if (isCancelled) {
-                status = INTERRUPTED;
-            }
-        }
+    private void complete(TermdRunningBuild termdRunningBuild, RemoteInvocationCompletion completion) {
+        CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), completion);
+        logger.debug("Command result {}", completedBuild);
 
-        CompletedBuild completedBuild = null;
-        try {
-            completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), status);
-        } catch (BuildDriverException e) {
-            logger.warn("Cannot collect results from the environment: " + termdRunningBuild.getRunningEnvironment().getId(), throwable);
-            termdRunningBuild.setBuildError(new BuildDriverException("Cannot collect results from the environment.", e));
-            return null;
-        }
-        logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
-
-        if(throwable != null && !isCancelled) {
-            logger.warn("[{}] Completed with exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
-            termdRunningBuild.setBuildError((Exception) throwable);
+        if (completion.getException() != null) {
+            logger.warn("Completed with exception.", completion.getException());
+            termdRunningBuild.setBuildError(completion.getException());
         } else if(completedBuild == null ) {
             termdRunningBuild.setBuildError(new BuildDriverException("Completed build should not be null."));
         } else {
             termdRunningBuild.setCompletedBuild(completedBuild);
         }
-        return null;
     }
 
     private String prepareBuildScript(TermdRunningBuild termdRunningBuild, DebugData debugData) {

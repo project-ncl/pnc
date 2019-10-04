@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -38,7 +37,7 @@ class RemoteInvocation implements Cloneable {
 
     private String scriptPath;
 
-    private final CompletableFuture<Status> completionNotifier = new CompletableFuture<>();
+    private final CompletableFuture<RemoteInvocationCompletion> completionNotifier = new CompletableFuture<>();
 
     private boolean canceled = false;
 
@@ -57,11 +56,13 @@ class RemoteInvocation implements Cloneable {
         }
     }
 
-    void cancel(String buildName) {
+    void cancel() {
         try {
             canceled = true;
-            logger.info("Canceling running build {}.", buildName);
-            buildAgentClient.execute('C' - 64); //send ctrl+C
+            if (buildAgentClient != null) {
+                logger.info("Canceling running build.");
+                buildAgentClient.execute('C' - 64); //send ctrl+C
+            }
         } catch (BuildAgentClientException e) {
             completionNotifier.completeExceptionally(new BuildDriverException("Cannot cancel remote script.", e));
         }
@@ -75,11 +76,11 @@ class RemoteInvocation implements Cloneable {
         this.scriptPath = scriptPath;
     }
 
-    public void notifyCompleted(Status status) {
-        completionNotifier.complete(status);
+    public void notifyCompleted(RemoteInvocationCompletion remoteInvocationCompletion) {
+        completionNotifier.complete(remoteInvocationCompletion);
     }
 
-    public CompletableFuture<Status> getCompletionNotifier() {
+    public CompletableFuture<RemoteInvocationCompletion> getCompletionNotifier() {
         return completionNotifier;
     }
 
