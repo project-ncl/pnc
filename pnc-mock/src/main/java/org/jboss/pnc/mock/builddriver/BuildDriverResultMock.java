@@ -21,6 +21,8 @@ package org.jboss.pnc.mock.builddriver;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 
+import java.util.Optional;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -38,6 +40,11 @@ public class BuildDriverResultMock {
             @Override
             public BuildStatus getBuildStatus() {
                 return status;
+            }
+
+            @Override
+            public Optional<String> getOutputChecksum() {
+                return Optional.of("4678bbe366b11f7216bd03ad33f583d9");
             }
         };
     }

@@ -211,6 +211,11 @@ public class StatusUpdatesTest {
             public BuildStatus getBuildStatus() {
                 return BuildStatus.SUCCESS;
             }
+
+            @Override
+            public Optional<String> getOutputChecksum() {
+                return Optional.of("3678bbe366b11f7216bd03ad33f583d9");
+            }
         };
         return new BuildResult(
                 CompletionStatus.SUCCESS,

@@ -20,7 +20,7 @@ package org.jboss.pnc.spi.builddriver.exception;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-01.
  */
-public class BuildDriverException extends Exception {
+public class BuildDriverException extends Throwable {
 
     private static final long serialVersionUID = -2381584604707278639L;
 
@@ -28,7 +28,7 @@ public class BuildDriverException extends Exception {
         super(message);
     }
 
-    public BuildDriverException(String message, Exception cause) {
+    public BuildDriverException(String message, Throwable cause) {
         super(message, cause);
     }
 }

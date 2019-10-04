@@ -52,7 +52,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
 
     @Test(timeout = 15_000)
-    public void shouldFetchFromGitAndBuild() throws Exception {
+    public void shouldFetchFromGitAndBuild() throws Throwable {
         //given
         Path tmpRepo = Files.createTempDirectory("tmpRepo");
         String repoPath = "file://" + tmpRepo.toAbsolutePath().toString() + "/test-repo";
@@ -74,6 +74,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
         CountDownLatch latch = new CountDownLatch(1);
         Consumer<CompletedBuild> onComplete = (completedBuild) -> {
+            logger.info("Build completed.");
             buildResult.set(completedBuild);
             latch.countDown();
         };
@@ -81,12 +82,11 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             logger.error("Error received: ", throwable);
             fail(throwable.getMessage());
         };
-//        runningBuild.monitor(onComplete, onError);
 
         //when
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError); //TODO set monitor before the build starts
 
-
+        logger.info("Waiting for build to complete...");
         latch.await();
         //then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
@@ -122,7 +122,6 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             fail(throwable.getMessage());
         };
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
-
         runningBuild.cancel();
 
         latch.await();

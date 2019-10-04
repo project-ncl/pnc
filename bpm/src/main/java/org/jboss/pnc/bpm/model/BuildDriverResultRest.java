@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -31,12 +32,14 @@ public class BuildDriverResultRest implements BuildDriverResult {
 
     private String buildLog;
     private BuildStatus buildStatus;
+    Optional<String> outputChecksum;
 
     public BuildDriverResultRest() {}
 
     public BuildDriverResultRest(BuildDriverResult buildDriverResult) {
         this.buildLog = buildDriverResult.getBuildLog();
         this.buildStatus = buildDriverResult.getBuildStatus();
+        this.outputChecksum = buildDriverResult.getOutputChecksum();
     }
 
     @Override
@@ -47,6 +50,11 @@ public class BuildDriverResultRest implements BuildDriverResult {
     @Override
     public BuildStatus getBuildStatus() {
         return buildStatus;
+    }
+
+    @Override
+    public Optional<String> getOutputChecksum() {
+        return outputChecksum;
     }
 
     public void setBuildStatus(BuildStatus buildStatus) {

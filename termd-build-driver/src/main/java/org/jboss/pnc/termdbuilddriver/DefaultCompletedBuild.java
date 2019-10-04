@@ -24,6 +24,8 @@ import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
+import java.util.Optional;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -31,17 +33,20 @@ public class DefaultCompletedBuild implements CompletedBuild {
 
     private RunningEnvironment runningEnvironment;
     private BuildStatus buildStatus;
+    private Optional<String> outputChecksum;
+
     private String buildLog;
 
-    public DefaultCompletedBuild(RunningEnvironment runningEnvironment, BuildStatus buildStatus, String buildLog) {
+    public DefaultCompletedBuild(RunningEnvironment runningEnvironment, BuildStatus buildStatus, Optional<String> outputChecksum, String buildLog) {
         this.runningEnvironment = runningEnvironment;
         this.buildStatus = buildStatus;
+        this.outputChecksum = outputChecksum;
         this.buildLog = buildLog;
     }
 
     @Override
     public BuildDriverResult getBuildResult() throws BuildDriverException {
-        return new DefaultBuildDriverResult(buildLog, buildStatus);
+        return new DefaultBuildDriverResult(buildLog, buildStatus, outputChecksum);
     }
 
     @Override

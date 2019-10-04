@@ -180,6 +180,12 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     private Integer buildLogSize;
 
+    /**
+     * Checksum of build logs. Used to verify the integrity of the logs in the remote storage eg. Elasticsearch
+     */
+    @Column(updatable = false)
+    private String buildOutputChecksum;
+
     @Enumerated(EnumType.STRING)
     private BuildStatus status;
 
@@ -706,6 +712,14 @@ public class BuildRecord implements GenericEntity<Integer> {
         this.buildLogSize = buildLogSize;
     }
 
+    public String getbuildOutputChecksum() {
+        return buildOutputChecksum;
+    }
+
+    public void setbuildOutputChecksum(String buildOutputChecksum) {
+        this.buildOutputChecksum = buildOutputChecksum;
+    }
+
     public String getSshCommand() {
         return sshCommand;
     }
@@ -847,6 +861,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildLog = "";
 
+        private String buildOutputChecksum;
+
         private BuildStatus status;
 
         private Set<Artifact> builtArtifacts;
@@ -932,6 +948,8 @@ public class BuildRecord implements GenericEntity<Integer> {
                 logger.error("Cannot compute log checksum.", e);
                 throw new RuntimeException("Cannot compute log checksum.", e);
             }
+
+            buildRecord.setbuildOutputChecksum(buildOutputChecksum);
 
             if (temporaryBuild == null) {
                 temporaryBuild = true;
@@ -1034,6 +1052,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder appendLog(String buildLog) {
             this.buildLog += buildLog;
+            return this;
+        }
+
+        public Builder buildOutputChecksum(String buildOutputChecksum) {
+            this.buildOutputChecksum = buildOutputChecksum;
             return this;
         }
 
