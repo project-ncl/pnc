@@ -89,6 +89,7 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldGetBuilds() throws ClientException {
 
         RemoteCollection<Build> builds = anonymousClient.getBuilds(groupBuildId1, null);
