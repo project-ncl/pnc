@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').controller('RecordResultController', [
+  angular.module('pnc.builds').controller('RecordResultController', [
     'buildLog',
     'recordDetail',
     'sshCredentials',

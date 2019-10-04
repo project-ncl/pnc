@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncBrewPushButton', {
+  angular.module('pnc.builds').component('pncBrewPushButton', {
     bindings: {
       buildRecord: '<?',
       groupBuild: '<?'

@@ -25,7 +25,7 @@
    * @example 
    * <pnc-build-tree-link build-record="buildRecord"></pnc-build-tree-link>
    */
-  angular.module('pnc.build-records').component('pncBuildTreeLink', {
+  angular.module('pnc.builds').component('pncBuildTreeLink', {
     bindings: {
       /**
        * Object: The BuildRecord to display the link for.

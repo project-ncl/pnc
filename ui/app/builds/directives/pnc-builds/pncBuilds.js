@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.build-records');
+  var module = angular.module('pnc.builds');
 
   /**
    * @ngdoc directive

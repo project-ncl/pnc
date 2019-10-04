@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncLiveUpdateBuildRecordsList', {
+  angular.module('pnc.builds').component('pncLiveUpdateBuildRecordsList', {
     bindings: {
       /**
        * array of Build Records: The list of Build Records to display.
