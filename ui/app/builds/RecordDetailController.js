@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').controller('RecordDetailController', [
+  angular.module('pnc.builds').controller('RecordDetailController', [
     '$scope',
     '$state',
     '$log',

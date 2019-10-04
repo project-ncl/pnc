@@ -24,7 +24,7 @@
     'xeditable',
     'pnc.common.restclient',
     'pnc.common.directives',
-    'pnc.build-records',
+    'pnc.builds',
     'infinite-scroll',
     'pnc.common.authentication'
   ]);

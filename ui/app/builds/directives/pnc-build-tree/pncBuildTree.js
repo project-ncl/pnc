@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncBuildTree', {
+  angular.module('pnc.builds').component('pncBuildTree', {
     bindings: {
       /**
        * object representing BuildRecord

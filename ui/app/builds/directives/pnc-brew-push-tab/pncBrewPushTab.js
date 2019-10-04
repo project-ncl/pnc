@@ -19,7 +19,7 @@
 (function () {
     'use strict';
 
-    angular.module('pnc.build-records').component('pncBrewPushTab', {
+    angular.module('pnc.builds').component('pncBrewPushTab', {
       bindings: {
         buildRecord: '<',
         buildRecordPushResult: '<'

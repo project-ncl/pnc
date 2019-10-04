@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncBuildRecordLink', {
+  angular.module('pnc.builds').component('pncBuildRecordLink', {
     bindings: {
       buildRecord: '<',
       shortLink: '@'

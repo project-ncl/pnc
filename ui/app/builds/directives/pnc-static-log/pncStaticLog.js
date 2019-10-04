@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncStaticLog', {
+  angular.module('pnc.builds').component('pncStaticLog', {
     bindings: {
       /**
        * string: Log content

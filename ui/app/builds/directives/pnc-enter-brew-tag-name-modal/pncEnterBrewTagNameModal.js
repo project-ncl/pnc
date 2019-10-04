@@ -19,7 +19,7 @@
 (function () {
     'use strict';
 
-    angular.module('pnc.build-records').component('pncEnterBrewTagNameModal', {
+    angular.module('pnc.builds').component('pncEnterBrewTagNameModal', {
       bindings: {
         /**
          * Injected by $uibModal

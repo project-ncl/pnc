@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncBuildRecordsDataTable', {
+  angular.module('pnc.builds').component('pncBuildRecordsDataTable', {
     bindings: {
       page: '<',
       displayFields: '<',

@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-records').controller('RecordRepourResultController', [
+  angular.module('pnc.builds').controller('RecordRepourResultController', [
     'repourLog',
     'REST_BASE_URL',
     'BUILD_RECORD_ENDPOINT',
