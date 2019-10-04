@@ -90,6 +90,7 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldGetBuilds() throws ClientException {
 
         RemoteCollection<Build> builds = anonymousClient.getBuilds(groupBuildId1, null);
@@ -97,7 +98,6 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
-    @Ignore
     public void shouldGetDependencyGraph() throws ClientException {
 
         Graph<Build> graph = anonymousClient.getDependencyGraph(groupBuildId1);
