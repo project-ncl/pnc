@@ -36,7 +36,7 @@
        */
       groupBuild: '<?'
     },
-    templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree-link.html',
+    templateUrl: 'builds/directives/pnc-build-tree/pnc-build-tree-link.html',
     controller: ['$scope', 'eventTypes', Controller]
   });
 

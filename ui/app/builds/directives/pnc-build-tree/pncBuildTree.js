@@ -35,7 +35,7 @@
        */
       dependencyGraph: '<?'
     },
-    templateUrl: 'build-records/directives/pnc-build-tree/pnc-build-tree.html',
+    templateUrl: 'builds/directives/pnc-build-tree/pnc-build-tree.html',
     controller: ['BuildRecord', 'GroupBuildResource', '$timeout', '$scope', '$log', '$q', 'EntityRecognizer', Controller]
   });
 

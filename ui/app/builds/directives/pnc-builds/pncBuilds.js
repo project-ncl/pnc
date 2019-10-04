@@ -47,7 +47,7 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'build-records/directives/pnc-builds/pnc-builds.html',
+        templateUrl: 'builds/directives/pnc-builds/pnc-builds.html',
         scope: {},
         controller: ['$scope', 'BuildsDAO', 'eventTypes', PncBuildsCtrl]
       };

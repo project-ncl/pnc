@@ -27,7 +27,7 @@
         doClose: '&close',
         doDismiss: '&dismiss'
       },
-      templateUrl: 'build-records/directives/pnc-enter-brew-tag-name-modal/pnc-enter-brew-tag-name-modal.html',
+      templateUrl: 'builds/directives/pnc-enter-brew-tag-name-modal/pnc-enter-brew-tag-name-modal.html',
       controller: [Controller]
     });
 

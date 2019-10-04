@@ -25,7 +25,7 @@
       shortLink: '@'
     },
     transclude: true, 
-    templateUrl: 'build-records/directives/pnc-build-record-link/pnc-build-record-link.html',
+    templateUrl: 'builds/directives/pnc-build-record-link/pnc-build-record-link.html',
     controller: [Controller]
   });
 

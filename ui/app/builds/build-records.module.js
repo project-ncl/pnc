@@ -84,7 +84,7 @@
       //   url: '/result',
       //   controller: 'RecordResultController',
       //   controllerAs: 'resultCtrl',
-      //   templateUrl: 'build-records/views/build-records.detail.result.html',
+      //   templateUrl: 'builds/views/build-records.detail.result.html',
       //   data: {
       //     displayName: 'Log'
       //   },
@@ -104,7 +104,7 @@
       //   url: '/artifacts',
       //   controller: 'RecordArtifactsController',
       //   controllerAs: 'artifactsCtrl',
-      //   templateUrl: 'build-records/views/build-records.detail.artifacts.html',
+      //   templateUrl: 'builds/views/build-records.detail.artifacts.html',
       //   data: {
       //     displayName: 'Built Artifacts',
       //   },
@@ -119,7 +119,7 @@
       //     url: '/dependencies',
       //     controller: 'RecordArtifactsController',
       //     controllerAs: 'artifactsCtrl',
-      //     templateUrl: 'build-records/views/build-records.detail.artifacts.html',
+      //     templateUrl: 'builds/views/build-records.detail.artifacts.html',
       //     data: {
       //       displayName: 'Dependencies',
       //     },
@@ -132,7 +132,7 @@
 
       $stateProvider.state('build-records.list', {
         url: '',
-        templateUrl: 'build-records/views/build-records.list.html',
+        templateUrl: 'builds/views/build-records.list.html',
         data: {
           displayName: 'Build Records',
           title: 'Build Records'
@@ -154,7 +154,7 @@
       $stateProvider.state('projects.detail.build-configs.detail.build-records.detail', {
         abstract: true,
         url: '/{recordId}',
-        templateUrl: 'build-records/views/build-records.detail.html',
+        templateUrl: 'builds/views/build-records.detail.html',
         data: {
           proxy: 'projects.detail.build-configs.detail.build-records.detail.default',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Record'
@@ -173,7 +173,7 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.default', {
         url: '',
-        templateUrl: 'build-records/views/build-records.detail.default.html',
+        templateUrl: 'builds/views/build-records.detail.default.html',
         data: {
           displayName: 'Job #{{ recordDetail.id }}',
         }
@@ -183,7 +183,7 @@
         url: '/result',
         controller: 'RecordResultController',
         controllerAs: 'resultCtrl',
-        templateUrl: 'build-records/views/build-records.detail.result.html',
+        templateUrl: 'builds/views/build-records.detail.result.html',
         data: {
           displayName: 'Build Log',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Log'
@@ -204,7 +204,7 @@
         url: '/artifacts',
         controller: 'RecordArtifactsController',
         controllerAs: 'artifactsCtrl',
-        templateUrl: 'build-records/views/build-records.detail.artifacts.html',
+        templateUrl: 'builds/views/build-records.detail.artifacts.html',
         data: {
           displayName: 'Build Artifacts',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Artifacts'
@@ -220,7 +220,7 @@
           url: '/dependencies',
           controller: 'RecordArtifactsController',
           controllerAs: 'artifactsCtrl',
-          templateUrl: 'build-records/views/build-records.detail.artifacts.html',
+          templateUrl: 'builds/views/build-records.detail.artifacts.html',
           data: {
             displayName: 'Dependencies',
             title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Dependencies'
@@ -239,7 +239,7 @@
         url: '/alignment-log',
         controller: 'RecordRepourResultController',
         controllerAs: 'repourResultCtrl',
-        templateUrl: 'build-records/views/build-records.detail.repour-result.html',
+        templateUrl: 'builds/views/build-records.detail.repour-result.html',
         data: {
           displayName: 'Alignment Log',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Alignment Log'
