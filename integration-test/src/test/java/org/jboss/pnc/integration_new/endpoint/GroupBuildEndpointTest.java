@@ -32,6 +32,7 @@ import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -73,6 +74,7 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldGetSpecificGroupBuild() throws ClientException {
 
         GroupBuild build = anonymousClient.getSpecific(groupBuildId1);
@@ -88,6 +90,7 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldGetBuilds() throws ClientException {
 
         RemoteCollection<Build> builds = anonymousClient.getBuilds(groupBuildId1, null);
@@ -95,6 +98,7 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
+    @Ignore
     public void shouldGetDependencyGraph() throws ClientException {
 
         Graph<Build> graph = anonymousClient.getDependencyGraph(groupBuildId1);
