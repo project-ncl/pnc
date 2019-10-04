@@ -24,7 +24,7 @@
       buildRecord: '<?',
       groupBuild: '<?'
     },
-    templateUrl: 'build-records/directives/pnc-brew-push-button/pnc-brew-push-button.html',
+    templateUrl: 'builds/directives/pnc-brew-push-button/pnc-brew-push-button.html',
     controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'GroupBuildResource', 'messageBus', Controller]
   });
 

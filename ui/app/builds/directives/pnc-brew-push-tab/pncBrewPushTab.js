@@ -24,7 +24,7 @@
         buildRecord: '<',
         buildRecordPushResult: '<'
       },
-      templateUrl: 'build-records/directives/pnc-brew-push-tab/pnc-brew-push-tab.html',
+      templateUrl: 'builds/directives/pnc-brew-push-tab/pnc-brew-push-tab.html',
       controller: [Controller]
     });
 

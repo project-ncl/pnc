@@ -39,7 +39,7 @@
        */
       hideHead: '<?'
     },
-    templateUrl: 'build-records/directives/pnc-build-records-list/pnc-build-records-list.html',
+    templateUrl: 'builds/directives/pnc-build-records-list/pnc-build-records-list.html',
     controller: [Controller]
   });
 

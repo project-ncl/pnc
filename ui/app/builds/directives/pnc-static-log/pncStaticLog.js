@@ -26,7 +26,7 @@
        */
       log: '<'
     },
-    templateUrl: 'build-records/directives/pnc-static-log/pnc-static-log.html',
+    templateUrl: 'builds/directives/pnc-static-log/pnc-static-log.html',
     controller: [Controller]
   });
 

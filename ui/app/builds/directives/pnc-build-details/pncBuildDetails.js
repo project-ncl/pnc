@@ -31,7 +31,7 @@
     'buildStatusHelper',
     function (buildStatusHelper) {
 
-    var DEFAULT_TEMPLATE = 'build-records/directives/pnc-build-details/pnc-build-details.html';
+    var DEFAULT_TEMPLATE = 'builds/directives/pnc-build-details/pnc-build-details.html';
 
     return {
       restrict: 'EA',

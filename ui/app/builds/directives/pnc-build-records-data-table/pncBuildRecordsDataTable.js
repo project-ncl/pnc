@@ -23,7 +23,7 @@
       page: '<',
       displayFields: '<',
     },
-    templateUrl: 'build-records/directives/pnc-build-records-data-table/pnc-build-records-data-table.html',
+    templateUrl: 'builds/directives/pnc-build-records-data-table/pnc-build-records-data-table.html',
     controller: ['paginator', Controller]
   });
 

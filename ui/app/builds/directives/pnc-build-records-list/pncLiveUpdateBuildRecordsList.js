@@ -35,7 +35,7 @@
        */
       hideHead: '<?'
     },
-    templateUrl: 'build-records/directives/pnc-build-records-list/pnc-live-update-build-records-list.html',
+    templateUrl: 'builds/directives/pnc-build-records-list/pnc-live-update-build-records-list.html',
     controller: ['$scope', 'eventTypes', Controller]
   });
 
