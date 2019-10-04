@@ -97,7 +97,6 @@ public class GroupBuildEndpointTest {
     }
 
     @Test
-    @Ignore
     public void shouldGetDependencyGraph() throws ClientException {
 
         Graph<Build> graph = anonymousClient.getDependencyGraph(groupBuildId1);
