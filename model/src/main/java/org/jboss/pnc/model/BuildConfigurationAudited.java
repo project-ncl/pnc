@@ -19,13 +19,9 @@ package org.jboss.pnc.model;
 
 import org.jboss.pnc.enums.BuildType;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit table.
@@ -68,8 +64,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
     private Date creationTime;
 
     private Date lastModificationTime;
-
-    private Set<BuildRecord> buildRecords;
 
     private BuildConfiguration buildConfiguration;
 
@@ -185,14 +179,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
         this.lastModificationTime = lastModificationTime;
     }
 
-    public Set<BuildRecord> getBuildRecords() {
-        return buildRecords;
-    }
-
-    public void setBuildRecords(Set<BuildRecord> buildRecords) {
-        this.buildRecords = buildRecords;
-    }
-
     public BuildConfiguration getBuildConfiguration() {
         return buildConfiguration;
     }
@@ -235,8 +221,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
         private BuildConfiguration buildConfiguration;
         private Integer rev;
 
-        private Set<BuildRecord> buildRecords;
-
         public static Builder newBuilder() {
             return new Builder();
         }
@@ -258,7 +242,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
             configurationAudited.setRepositoryConfiguration(buildConfiguration.getRepositoryConfiguration());
             configurationAudited.setCreationTime(buildConfiguration.getCreationTime());
             configurationAudited.setLastModificationTime(buildConfiguration.getLastModificationTime());
-            configurationAudited.setBuildRecords(buildRecords);
             configurationAudited.buildConfiguration = buildConfiguration;
             return configurationAudited;
         }
@@ -273,23 +256,12 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildRecords(Set<BuildRecord> buildRecords) {
-            this.buildRecords = buildRecords;
-            return this;
-        }
     }
 
     public static BuildConfigurationAudited fromBuildConfiguration(BuildConfiguration buildConfiguration, Integer revision) {
-        return fromBuildConfiguration(buildConfiguration, revision, Collections.EMPTY_LIST);
-    }
-
-    public static BuildConfigurationAudited fromBuildConfiguration(BuildConfiguration buildConfiguration, Integer revision, List<BuildRecord> buildRecords) {
-        Map<IdRev, Set<BuildRecord>> buildRecordsByIdRev = buildRecords.stream().collect(Collectors.groupingBy(BuildRecord::getBuildConfigurationAuditedIdRev, Collectors.toSet()));
-
         BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
                 .buildConfiguration(buildConfiguration)
                 .rev(revision)
-                .buildRecords(buildRecordsByIdRev.get(new IdRev(buildConfiguration.getId(), revision)))
                 .build();
 
         return buildConfigurationAudited;
