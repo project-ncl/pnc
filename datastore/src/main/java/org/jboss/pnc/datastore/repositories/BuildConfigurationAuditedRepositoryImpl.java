@@ -38,6 +38,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -114,6 +116,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         if (buildConfiguration == null) {
             return null;
         }
+        // These have only the id populated
         List<BuildRecord> buildRecords = getBuildRecords(idRev);
 
         //preload generic parameters
@@ -124,6 +127,43 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 idRev.getRev(),
                 buildRecords
         );
+    }
+
+    @Override
+    public Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRevs) {
+        logger.trace("Querying for BuildConfigurationAudited.idRevs: {}.", idRevs);
+
+        List<String> idRevConcatenated = idRevs.stream()
+                .map(idRev -> idRev.getId() + "-" + idRev.getRev()).collect(Collectors.toList());
+
+        // WORKAROUND: as I cannot concatenate AuditEntity property to match `AuditEntity.property("id")-AuditEntity.property("rev")` in idRevConcatenated list
+        // I can query all BuildConfigurationAudited with the only id and later on filter id and rev
+        List<Integer> bcaRevIds= idRevs.stream()
+                .map(idRev -> idRev.getRev()).collect(Collectors.toList());
+        // Getting all revisions of BuildConfiguration with specified list of IDs
+        List<Object[]> result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.revisionNumber().in(bcaRevIds))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return result.stream().filter(res -> {
+            BuildConfiguration buildConfiguration = (BuildConfiguration) res[0];
+            DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) res[1];
+            return idRevConcatenated.contains(buildConfiguration.getId() + "-" + revisionEntity.getId());
+        }).peek (res -> {
+            BuildConfiguration buildConfiguration = (BuildConfiguration) res[0];
+            //preload generic parameters
+            buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
+        })
+        .map(res -> {
+            BuildConfiguration buildConfiguration = (BuildConfiguration) res[0];
+            DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) res[1];
+            return BuildConfigurationAudited.fromBuildConfiguration(
+                    buildConfiguration,
+                    revisionEntity.getId());
+        }).collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
     }
 
     /**
@@ -171,5 +211,21 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 .getResultList();
         List<BuildRecord> emptyList = Collections.EMPTY_LIST;
         return result.stream().map(o -> createAudited(o[0], o[1], emptyList)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName) {
+        List<Object[]> result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.property("name").like(buildConfigurationName))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return result.stream().map(o -> {
+            BuildConfiguration buildConfiguration = (BuildConfiguration) o[0];
+            DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) o[1];
+            return new IdRev(buildConfiguration.getId(), revisionEntity.getId());
+        }).collect(Collectors.toList());
     }
 }
