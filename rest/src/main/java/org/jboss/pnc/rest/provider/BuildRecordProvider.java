@@ -84,6 +84,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -305,6 +306,30 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return buildRecordGraph;
     }
 
+    BuildRecordRest createNewBuildRecordRest(BuildTask buildTask, Map<IdRev, BuildConfigurationAudited> buildConfigurationsAuditedMap) {
+        // TODO do not mix executor and coordinator data in the same endpoint
+        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildTask.getId());
+        UserRest user = new UserRest(buildTask.getUser());
+        // refresh entity
+        IdRev idRev = buildTask.getBuildConfigurationAudited().getIdRev();
+        logger.debug("Loading entity by idRev: {}.", idRev);
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationsAuditedMap.get(idRev);
+        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(buildConfigurationAudited);
+
+        Integer[] dependencyIds = buildTask.getDependencies().stream().map(BuildTask::getId).toArray(Integer[]::new);
+        Integer[] dependentIds = buildTask.getDependants().stream().map(BuildTask::getId).toArray(Integer[]::new);
+
+        BuildRecordRest buildRecRest;
+        if (runningExecution != null) {
+            buildRecRest = new BuildRecordRest(runningExecution, buildTask.getSubmitTime(), user, buildConfigAuditedRest,
+                    dependencyIds, dependentIds);
+        } else {
+            buildRecRest = new BuildRecordRest(buildTask.getId(), buildTask.getStatus(), buildTask.getSubmitTime(),
+                    buildTask.getStartTime(), buildTask.getEndTime(), user, buildConfigAuditedRest,
+                    buildTask.getBuildOptions().isTemporaryBuild(), dependencyIds, dependentIds);
+        }
+        return buildRecRest;
+    }
     BuildRecordRest createNewBuildRecordRest(BuildTask buildTask) {
         //TODO do not mix executor and coordinator data in the same endpoint
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildTask.getId());
@@ -518,6 +543,15 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
             BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
                     .queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
+            buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
+            return new BuildRecordRest(buildRecord);
+        };
+    }
+
+    protected Function<? super BuildRecord, ? extends BuildRecordRest> toRESTModel(Map<IdRev, BuildConfigurationAudited> buildConfigurationsAuditedMap) {
+        return (buildRecord) -> {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationsAuditedMap
+                    .get(new IdRev(buildRecord.getBuildConfigurationId(), buildRecord.getBuildConfigurationRev()));
 
             buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
             return new BuildRecordRest(buildRecord);
@@ -644,32 +678,21 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
      * complete. This abstraction allows clients to query for a list of all builds whether running or completed.
      */
     private CollectionInfo<BuildRecordRest> getBuilds(Integer pageIndex, Integer pageSize, String sort, String orFindByBuildConfigurationName, String andFindByBuildConfigurationName, String... rsqlQueries) {
+        logger.debug(
+                "Get running and completed build records by pageIndex: {}, pageSize: {}, sort: {}, orFindByBuildConfigurationName: {}, andFindByBuildConfigurationName: {}, rsqlQueries: {}",
+                pageIndex, pageSize, sort, orFindByBuildConfigurationName, andFindByBuildConfigurationName, rsqlQueries);
+
+        // Combine predicates of both search query and the additional filters (e.g.userId, buildConfigurationId)
         List<Predicate<BuildRecord>> dbAndPredicatesList = Arrays.stream(rsqlQueries)
                 .filter(rsqlString -> rsqlString != null && !rsqlString.isEmpty())
                 .map(p -> rsqlPredicateProducer.getPredicate(BuildRecord.class, p))
                 .collect(Collectors.toList());
         List<Predicate<BuildRecord>> dbOrPredicateList = new ArrayList<>();
 
+        // Combine rsqlQueries AND-ing all the single queries
         String combinedQueries = combineRsqlQueriesMatchAll(rsqlQueries);
-        if (!StringUtils.isEmpty(orFindByBuildConfigurationName)) {
-            //add steam condition
-            if (StringUtils.isEmpty(combinedQueries)) {
-                combinedQueries = "(buildConfigurationName=like=" + orFindByBuildConfigurationName + ")";
-            } else {
-                combinedQueries = "(" + combinedQueries + "),(buildConfigurationName=like=" + orFindByBuildConfigurationName + ")";
-            }
-
-            //add DB predicate
-            List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
-                    .searchForBuildConfigurationName(orFindByBuildConfigurationName);
-            if (!buildConfigurationAuditeds.isEmpty()) {
-                dbOrPredicateList.add(
-                        BuildRecordPredicates.withBuildConfigurationIdRev(
-                                buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
-                        )
-                );
-            }
-        }
+        // An AND condition (andFindByBuildConfigurationName) gets higher precedence over an OR condition
+        // (orFindByBuildConfigurationName). If specified both, only AND is applied.
 
         if (!StringUtils.isEmpty(andFindByBuildConfigurationName)) {
             //add steam condition
@@ -680,24 +703,43 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             }
 
             //add DB predicate
-            List<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedRepository
-                    .searchForBuildConfigurationName(andFindByBuildConfigurationName);
-            if (!buildConfigurationAuditeds.isEmpty()) {
-                dbAndPredicatesList.add(
-                        BuildRecordPredicates.withBuildConfigurationIdRev(
-                                buildConfigurationAuditeds.stream().map(bca -> bca.getIdRev()).collect(Collectors.toList())
-                        )
-                );
+            List<IdRev> buildConfigurationAuditedIdRevs = buildConfigurationAuditedRepository
+                    .searchIdRevForBuildConfigurationName(andFindByBuildConfigurationName);
+            if (!buildConfigurationAuditedIdRevs.isEmpty()) {
+                dbAndPredicatesList.add(BuildRecordPredicates.withBuildConfigurationIdRev(buildConfigurationAuditedIdRevs));
             } else {
                 dbAndPredicatesList.add(Predicate.nonMatching());
+        }
+
+        } else if (!StringUtils.isEmpty(orFindByBuildConfigurationName)) {
+            //add steam condition
+            if (StringUtils.isEmpty(combinedQueries)) {
+                combinedQueries = "(buildConfigurationName=like=" + orFindByBuildConfigurationName + ")";
+            } else {
+                combinedQueries = "(" + combinedQueries + "),(buildConfigurationName=like=" + orFindByBuildConfigurationName + ")";
+            }
+
+            //add DB predicate
+            List<IdRev> buildConfigurationAuditedIdRevs = buildConfigurationAuditedRepository
+                    .searchIdRevForBuildConfigurationName(orFindByBuildConfigurationName);
+            if (!buildConfigurationAuditedIdRevs.isEmpty()) {
+                dbOrPredicateList.add(BuildRecordPredicates.withBuildConfigurationIdRev(buildConfigurationAuditedIdRevs));
             }
         }
 
-        Set<BuildRecordRest> running = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
-                .map(this::createNewBuildRecordRest)
+        List<BuildTask> buildTasks = buildCoordinator.getSubmittedBuildTasks();
+        Set<IdRev> buildConfigAuditedIdRevsOfBuildTasks = nullableStreamOf(buildTasks).map(buildTask -> buildTask.getBuildConfigurationAudited().getIdRev()).collect(Collectors.toSet());
+
+        Set<BuildRecordRest> running = new HashSet<BuildRecordRest>();
+        if (!buildConfigAuditedIdRevsOfBuildTasks.isEmpty()) {
+
+            Map<IdRev, BuildConfigurationAudited> buildConfigurationsAuditedMap = buildConfigurationAuditedRepository.queryById(buildConfigAuditedIdRevsOfBuildTasks);
+            running = nullableStreamOf(buildTasks)
+                    .map(buildTask -> createNewBuildRecordRest(buildTask, buildConfigurationsAuditedMap))
                 .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, combinedQueries))
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .collect(Collectors.toSet());
+        }
 
         final int totalRunning = running.size();
         logger.debug("Running builds {}", running);
@@ -725,10 +767,17 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sort);
 
 
-        List<BuildRecordRest> content = nullableStreamOf(repository
+        List<BuildRecord> buildRecords = nullableStreamOf(((BuildRecordRepository) repository)
                 .queryWithPredicatesUsingCursor(pageInfo, sortInfo, dbAndPredicates, dbOrPredicates))
-                .map(toRESTModel())
                 .collect(Collectors.toList());
+        Set<IdRev> buildRecordsIdRevs = nullableStreamOf(buildRecords).map(br -> new IdRev(br.getBuildConfigurationId(), br.getBuildConfigurationRev())).collect(Collectors.toSet());
+
+        List<BuildRecordRest> content = new ArrayList<>();
+        if (!buildRecordsIdRevs.isEmpty()) {
+            Map<IdRev, BuildConfigurationAudited> buildConfigurationsAuditedMap = buildConfigurationAuditedRepository.queryById(buildRecordsIdRevs);
+            content = nullableStreamOf(buildRecords).map(toRESTModel(buildConfigurationsAuditedMap))
+                    .collect(Collectors.toList());
+        }
         content.addAll(running);
 
         content = content.stream()

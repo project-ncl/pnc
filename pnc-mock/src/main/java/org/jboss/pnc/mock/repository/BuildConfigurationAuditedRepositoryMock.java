@@ -24,7 +24,9 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -89,8 +91,22 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
         return getOptionalById(id).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + id));
     }
 
+    public Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRevs) {
+
+        return idRevs.stream()
+                .map(idRev -> {
+                    return getOptionalById(idRev).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + idRev));
+                })
+                .collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
+    }
+
     @Override
     public List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName) {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    @Override
+    public List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName) {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 }
