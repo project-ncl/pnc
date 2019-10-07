@@ -147,11 +147,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
             CompletableFuture<Void> prepareBuildFuture = CompletableFuture
                     .supplyAsync(() -> {
-                            logger.debug("Uploading ...");
+                            logger.debug("Uploading build script to build environment ...");
                             return uploadTask(termdRunningBuild.getRunningEnvironment(), buildScript);
                         }, executor)
                     .thenApplyAsync(scriptPath -> {
-                            logger.debug("CreateBuildAgentClient ...");
+                            logger.debug("Creating connected BuildAgentClient instance ...");
                             createBuildAgentClient(remoteInvocation,
                                 termdRunningBuild.getRunningEnvironment(),
                                 scriptPath,
@@ -171,14 +171,14 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             buildFuture.handle((remoteInvocationCompletion, exception) -> {
                 RemoteInvocationCompletion completion;
                 if (remoteInvocationCompletion != null) {
-                    logger.debug("Completing build execution {}. Status: {};", termdRunningBuild.getName(), remoteInvocationCompletion.getStatus());
+                    logger.debug("Completing build execution. Status: {};", remoteInvocationCompletion.getStatus());
                     completion = remoteInvocationCompletion;
                 } else if (exception != null && exception.getCause() instanceof java.util.concurrent.CancellationException){
                     //canceled in non build operation (completableFuture cancel)
-                    logger.debug("Completing build execution {}. Cancelled;", termdRunningBuild.getName());
+                    logger.debug("Completing build execution. Cancelled;");
                     completion = new RemoteInvocationCompletion(INTERRUPTED, Optional.empty());
                 } else {
-                    logger.warn("Completing build execution.", exception);
+                    logger.warn("Completing build execution. System error.", exception);
                     completion = new RemoteInvocationCompletion(new BuildDriverException("System error.", exception));
                 }
 
