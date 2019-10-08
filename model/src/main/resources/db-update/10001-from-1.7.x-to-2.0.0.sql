@@ -19,3 +19,6 @@
 -- NCL-4888 - Change EXECUTION_ROOT_NAME parameter name
 update build_configuration_parameters set KEY='BREW_BUILD_NAME' where KEY='EXECUTION_ROOT_NAME';
 update build_configuration_parameters_aud set KEY='BREW_BUILD_NAME' where KEY='EXECUTION_ROOT_NAME';
+
+-- NCL-4679
+alter table buildrecord add column buildoutputchecksum varchar(255);
