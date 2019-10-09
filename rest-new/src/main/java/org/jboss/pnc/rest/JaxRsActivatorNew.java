@@ -8,7 +8,7 @@
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.rest;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
@@ -42,20 +44,59 @@ import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
 import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.servlet.ServletConfig;
+import javax.ws.rs.core.Context;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.OAuthFlow;
+import io.swagger.v3.oas.models.security.OAuthFlows;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationPath("/rest-new")
+@ApplicationScoped
 public class JaxRsActivatorNew extends Application {
+    private static final Logger logger = LoggerFactory.getLogger(JaxRsActivatorNew.class);
+
+    private static final String KEYCLOAK_AUTH = "keycloakAuth";
+
+    @Inject
+    private SystemConfig systemConfig;
+
+    @Context
+    private ServletConfig servletConfig;
 
     private Set<Object> singletons = new HashSet<Object>();
 
     public JaxRsActivatorNew() throws IOException {
-        configureSwagger();
         configureCors();
+    }
+
+    @PostConstruct
+    public void init() {
+        configureSwagger();
     }
 
     @Override
@@ -74,14 +115,69 @@ public class JaxRsActivatorNew extends Application {
         return resources;
     }
 
-    private void configureCors () {
+    private void configureCors() {
         CorsFilter corsFilter = new CorsFilter();
         corsFilter.getAllowedOrigins().add("*");
         corsFilter.setAllowedMethods("OPTIONS, GET, POST, DELETE, PUT, PATCH");
         singletons.add(corsFilter);
     }
 
-    private final void configureSwagger() throws IOException {
+    private void configureSwagger() {
+        OpenAPI oas = new OpenAPI();
+        Info info = new Info()
+                .title("PNC")
+                .description("PNC build system")
+                .termsOfService("http://swagger.io/terms/")
+                .license(new License()
+                        .name("Apache 2.0")
+                        .url("http://www.apache.org/licenses/LICENSE-2.0.html"));
+        oas.info(info);
+        oas.addServersItem(new Server().url("/pnc-rest-new"));
+
+        final SecurityScheme authScheme = getAuthScheme();
+        if (authScheme == null) {
+            logger.warn("Not adding auth scheme to openapi definition as auth scheme could not been generated.");
+        } else {
+            oas.schemaRequirement(KEYCLOAK_AUTH, authScheme);
+            oas.addSecurityItem(new SecurityRequirement().addList(KEYCLOAK_AUTH));
+        }
+
+        SwaggerConfiguration oasConfig = new SwaggerConfiguration().openAPI(oas);
+
+        try {
+            new JaxrsOpenApiContextBuilder()
+                    .servletConfig(servletConfig)
+                    .application(this)
+                    .openApiConfiguration(oasConfig)
+                    .buildContext(true);
+        } catch (OpenApiConfigurationException ex) {
+            throw new IllegalArgumentException("Failed to setup OpenAPI configuration", ex);
+        }
+    }
+
+    private SecurityScheme getAuthScheme() {
+        try {
+            final KeycloakClientConfig keycloakConfig = systemConfig.getKeycloakServiceAccountConfig();
+            if(keycloakConfig == null || StringUtils.isEmpty(keycloakConfig.getAuthServerUrl())){
+                return null;
+            }
+            URI keycloakURL = new URI(keycloakConfig.getAuthServerUrl())
+                    .resolve("realms")
+                    .resolve(keycloakConfig.getRealm())
+                    .resolve("protocol/openid-connect/auth");
+
+            final OAuthFlow implicitFlow = new OAuthFlow()
+                    .authorizationUrl(keycloakURL.toString());
+
+            SecurityScheme scheme = new SecurityScheme();
+            scheme.type(SecurityScheme.Type.OAUTH2)
+                    .description("This application uses Keycloak oauth authentication")
+                    .flows(new OAuthFlows().implicit(implicitFlow));
+            return scheme;
+        } catch (URISyntaxException ex) {
+            logger.warn("Failed to parse Keycloak setting", ex);
+            return null;
+        }
     }
 
     private void addProjectResources(Set<Class<?>> resources) {
@@ -118,7 +214,6 @@ public class JaxRsActivatorNew extends Application {
         resources.add(ValidationExceptionExceptionMapper.class);
         resources.add(EJBExceptionMapper.class);
     }
-
 
     private void addSwaggerResources(Set<Class<?>> resources) {
         resources.add(OpenApiResource.class);
