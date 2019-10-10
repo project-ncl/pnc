@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.junit.AfterClass;
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +48,14 @@ public class AbstractLocalBuildAgentTest {
     private static Logger log = LoggerFactory.getLogger(AbstractLocalBuildAgentTest.class);
 
     private org.jboss.pnc.spi.builddriver.DebugData debugData = new DebugData(false);
+
+    TermdBuildDriverModuleConfig buildDriverModuleConfig;
+
+    public AbstractLocalBuildAgentTest() {
+        buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
+        doReturn(200L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
+        doReturn(1000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
+    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {

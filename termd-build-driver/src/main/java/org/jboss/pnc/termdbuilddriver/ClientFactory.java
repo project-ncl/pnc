@@ -15,24 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.builddriver;
+package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
-import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
+import org.jboss.pnc.buildagent.client.BuildAgentClient;
+import org.jboss.pnc.buildagent.client.BuildAgentClientException;
+import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 
+import java.net.URI;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface BuildDriver {
+public interface ClientFactory {
 
-    String getDriverId();
+    BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
+            throws TimeoutException, InterruptedException, BuildAgentClientException;
 
-    RunningBuild startProjectBuild(
-            BuildExecutionSession buildExecutionSession,
-            RunningEnvironment runningEnvironment,
-            Consumer<CompletedBuild> onComplete,
-            Consumer<Throwable> onError) throws BuildDriverException;
+    FileTranser getFileTransfer(URI baseServerUri, int maxLogSize);
 }

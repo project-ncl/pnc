@@ -28,7 +28,7 @@ public class BuildDriverException extends Exception {
         super(message);
     }
 
-    public BuildDriverException(String message, Exception cause) {
+    public BuildDriverException(String message, Throwable cause) {
         super(message, cause);
     }
 }
