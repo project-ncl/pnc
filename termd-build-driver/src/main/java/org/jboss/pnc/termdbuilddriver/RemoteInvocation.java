@@ -17,19 +17,30 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.api.Status;
+import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+
+import static org.jboss.pnc.buildagent.api.Status.FAILED;
+import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-class RemoteInvocation implements Cloneable {
+class RemoteInvocation implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(RemoteInvocation.class);
 
@@ -41,12 +52,39 @@ class RemoteInvocation implements Cloneable {
 
     private boolean canceled = false;
 
+    private Set<Runnable> closeListeners = new HashSet<>();
+
+    public RemoteInvocation(
+            ClientFactory buildAgentClientFactory,
+            String terminalUrl,
+            Optional<Consumer<Status>> onStatusUpdate) throws BuildDriverException {
+        Consumer<TaskStatusUpdateEvent> onStatusUpdateInternal = (event) -> {
+            final org.jboss.pnc.buildagent.api.Status newStatus;
+            if (isCanceled() && event.getNewStatus().equals(FAILED)) {
+                newStatus = INTERRUPTED; //TODO fix returned status and remove this workaround
+            } else {
+                newStatus = event.getNewStatus();
+            }
+            logger.debug("Driver received new status update {}.", newStatus);
+            onStatusUpdate.ifPresent(c -> c.accept(newStatus));
+            if (newStatus.isFinal()) {
+                completionNotifier.complete(new RemoteInvocationCompletion(newStatus, Optional.of(event.getOutputChecksum())));
+            }
+        };
+
+        try {
+            buildAgentClient = buildAgentClientFactory.createBuildAgentClient(terminalUrl, onStatusUpdateInternal);
+        } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
+            throw new BuildDriverException("Cannot create Build Agent Client.", e);
+        }
+    }
+
     void invoke() {
         String command = "sh " + scriptPath;
         if (buildAgentClient != null) {
             try {
                 logger.info("Invoking remote command {}.", command);
-                buildAgentClient.executeCommand(command);
+                buildAgentClient.execute(command);
                 logger.debug("Remote command invoked.");
             } catch (BuildAgentClientException e) {
                 throw new RuntimeException("Cannot execute remote command.", e);
@@ -57,19 +95,21 @@ class RemoteInvocation implements Cloneable {
     }
 
     void cancel() {
+        canceled = true;
         try {
-            canceled = true;
-            if (buildAgentClient != null) {
-                logger.info("Canceling running build.");
-                buildAgentClient.execute('C' - 64); //send ctrl+C
-            }
+            logger.info("Canceling running build.");
+            buildAgentClient.cancel();
         } catch (BuildAgentClientException e) {
             completionNotifier.completeExceptionally(new BuildDriverException("Cannot cancel remote script.", e));
         }
     }
 
-    public void setBuildAgentClient(BuildAgentClient buildAgentClient) {
-        this.buildAgentClient = buildAgentClient;
+    public void enableSsh() {
+        try {
+            buildAgentClient.execute("/usr/local/bin/startSshd.sh");
+        } catch (BuildAgentClientException e) {
+            logger.error("Failed to enable ssh access", e);
+        }
     }
 
     public void setScriptPath(String scriptPath) {
@@ -84,10 +124,7 @@ class RemoteInvocation implements Cloneable {
         return completionNotifier;
     }
 
-    public BuildAgentClient getBuildAgentClient() {
-        return buildAgentClient;
-    }
-
+    @Override
     public void close() {
         if (buildAgentClient != null) {
             logger.debug("Closing build agent client.");
@@ -101,9 +138,18 @@ class RemoteInvocation implements Cloneable {
             //cancel has been requested
             logger.debug("There is no buildAgentClient probably cancel has been requested.");
         }
+        closeListeners.forEach(Runnable::run);
     }
 
     public boolean isCanceled() {
         return canceled;
+    }
+
+    public void addOnClose(Runnable task) {
+        closeListeners.add(task);
+    }
+
+    public boolean isAlive() {
+        return buildAgentClient.isServerAlive();
     }
 }

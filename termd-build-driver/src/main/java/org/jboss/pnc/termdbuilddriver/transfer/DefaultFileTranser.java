@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.function.Consumer;
 
-public class TermdFileTranser {
+public class DefaultFileTranser implements FileTranser {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -45,16 +45,12 @@ public class TermdFileTranser {
 
     private int maxDownloadSize;
 
-    public TermdFileTranser(URI baseServerUri, int maxDownloadSize) {
+    public DefaultFileTranser(URI baseServerUri, int maxDownloadSize) {
         this.baseServerUri = baseServerUri;
         this.maxDownloadSize = maxDownloadSize;
     }
 
-    public TermdFileTranser(int maxDownloadSize) {
-        this.maxDownloadSize = maxDownloadSize;
-        this.baseServerUri = null;
-    }
-
+    @Override
     public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
         try {
             logger.debug("Downloading file to String Buffer from {}", uri);
@@ -97,10 +93,12 @@ public class TermdFileTranser {
         }
     }
 
+    @Override
     public boolean isFullyDownloaded() {
         return fullyDownloaded;
     }
 
+    @Override
     public void uploadScript(String script, Path remoteFilePath) throws TransferException {
         logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script);
         String scriptPath = UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString();
