@@ -36,23 +36,23 @@
       // NCL-2402 changed the module base URL, this redirect should
       // be removed at some point in the future.
       $urlRouterProvider.when(/^\/record\/?.*/, ['$location', function ($location) {
-        return $location.url().replace('/record', '/build-records');
+        return $location.url().replace('/record', '/builds');
       }]);
 
-      $stateProvider.state('build-records', {
+      $stateProvider.state('builds', {
         abstract: true,
-        url: '/build-records',
+        url: '/builds',
         views: {
           'content@': {
             templateUrl: 'common/templates/single-col.tmpl.html'
           }
         },
         data: {
-          proxy: 'build-records.list',
+          proxy: 'builds.list',
         }
       });
 
-      $stateProvider.state('build-records.detail', {
+      $stateProvider.state('builds.detail', {
         abstract: true,
         url: '/{recordId}',
         resolve: {
@@ -62,7 +62,7 @@
         }
       });
 
-      $stateProvider.state('build-records.detail.default', {
+      $stateProvider.state('builds.detail.default', {
         url: '',
         onEnter: [
           '$state',
@@ -70,7 +70,7 @@
           'recordDetail',
           function ($state, $timeout, recordDetail) {
             $timeout(function () { // Works around bug in ui.router https://github.com/angular-ui/ui-router/issues/1434
-              $state.go('projects.detail.build-configs.detail.build-records.detail.default', {
+              $state.go('projects.detail.build-configs.detail.builds.detail.default', {
                 projectId: recordDetail.projectId,
                 configurationId: recordDetail.buildConfigurationId,
                 recordId: recordDetail.id
@@ -80,11 +80,11 @@
         ]
       });
 
-      // $stateProvider.state('build-records.detail.result', {
+      // $stateProvider.state('builds.detail.result', {
       //   url: '/result',
       //   controller: 'RecordResultController',
       //   controllerAs: 'resultCtrl',
-      //   templateUrl: 'builds/views/build-records.detail.result.html',
+      //   templateUrl: 'builds/views/builds.detail.result.html',
       //   data: {
       //     displayName: 'Log'
       //   },
@@ -100,11 +100,11 @@
       //   }
       // });
       //
-      // $stateProvider.state('build-records.detail.artifacts', {
+      // $stateProvider.state('builds.detail.artifacts', {
       //   url: '/artifacts',
       //   controller: 'RecordArtifactsController',
       //   controllerAs: 'artifactsCtrl',
-      //   templateUrl: 'builds/views/build-records.detail.artifacts.html',
+      //   templateUrl: 'builds/views/builds.detail.artifacts.html',
       //   data: {
       //     displayName: 'Built Artifacts',
       //   },
@@ -115,11 +115,11 @@
       //   }
       // });
       //
-      // $stateProvider.state('build-records.detail.dependencies', {
+      // $stateProvider.state('builds.detail.dependencies', {
       //     url: '/dependencies',
       //     controller: 'RecordArtifactsController',
       //     controllerAs: 'artifactsCtrl',
-      //     templateUrl: 'builds/views/build-records.detail.artifacts.html',
+      //     templateUrl: 'builds/views/buildds.detail.artifacts.html',
       //     data: {
       //       displayName: 'Dependencies',
       //     },
@@ -130,20 +130,24 @@
       //     }
       //   });
 
-      $stateProvider.state('build-records.list', {
+      $stateProvider.state('builds.list', {
         url: '',
-        templateUrl: 'builds/views/build-records.list.html',
         data: {
-          displayName: 'Build Records',
-          title: 'Build Records'
+          displayName: 'Builds',
+          title: 'Builds'
         },
-        controller: 'RecordListController',
-        controllerAs: 'ctrl'
+        component: 'pncBuildsListPage',
+        resolve: {
+          builds: [
+            'BuildResource',
+            (BuildResource) => BuildResource.query().$promise
+          ]
+        }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds', {
         abstract: true,
-        url: '/build-records',
+        url: '/builds',
         views: {
           'content@': {
             templateUrl: 'common/templates/single-col.tmpl.html'
@@ -151,12 +155,12 @@
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail', {
         abstract: true,
         url: '/{recordId}',
-        templateUrl: 'builds/views/build-records.detail.html',
+        templateUrl: 'builds/views/builds.detail.html',
         data: {
-          proxy: 'projects.detail.build-configs.detail.build-records.detail.default',
+          proxy: 'projects.detail.build-configs.detail.builds.detail.default',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Record'
         },
         controller: 'RecordDetailController',
@@ -171,19 +175,19 @@
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.default', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.default', {
         url: '',
-        templateUrl: 'builds/views/build-records.detail.default.html',
+        templateUrl: 'builds/views/builds.detail.default.html',
         data: {
           displayName: 'Job #{{ recordDetail.id }}',
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.result', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.result', {
         url: '/result',
         controller: 'RecordResultController',
         controllerAs: 'resultCtrl',
-        templateUrl: 'builds/views/build-records.detail.result.html',
+        templateUrl: 'builds/views/builds.detail.result.html',
         data: {
           displayName: 'Build Log',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Log'
@@ -200,11 +204,11 @@
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.artifacts', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.artifacts', {
         url: '/artifacts',
         controller: 'RecordArtifactsController',
         controllerAs: 'artifactsCtrl',
-        templateUrl: 'builds/views/build-records.detail.artifacts.html',
+        templateUrl: 'builds/views/builds.detail.artifacts.html',
         data: {
           displayName: 'Build Artifacts',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Artifacts'
@@ -216,11 +220,11 @@
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.dependencies', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.dependencies', {
           url: '/dependencies',
           controller: 'RecordArtifactsController',
           controllerAs: 'artifactsCtrl',
-          templateUrl: 'builds/views/build-records.detail.artifacts.html',
+          templateUrl: 'builds/views/builds.detail.artifacts.html',
           data: {
             displayName: 'Dependencies',
             title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Dependencies'
@@ -235,11 +239,11 @@
       /**
        * naming: alignment log (end user), repour result (internal)
        */
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.repour-result', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.repour-result', {
         url: '/alignment-log',
         controller: 'RecordRepourResultController',
         controllerAs: 'repourResultCtrl',
-        templateUrl: 'builds/views/build-records.detail.repour-result.html',
+        templateUrl: 'builds/views/builds.detail.repour-result.html',
         data: {
           displayName: 'Alignment Log',
           title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Alignment Log'
@@ -251,7 +255,7 @@
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-records.detail.brew-push', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.brew-push', {
         url: '/brew-push',
         component: 'pncBrewPushTab',
         bindings: {
