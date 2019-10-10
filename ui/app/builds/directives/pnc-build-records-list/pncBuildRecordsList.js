@@ -22,9 +22,9 @@
   angular.module('pnc.builds').component('pncBuildRecordsList', {
     bindings: {
       /**
-       * array of Build Records: The list of Build Records to display.
+       * array of Builds: The list of Builds to display.
        */
-      buildRecords: '<?',
+      builds: '<?',
       /**
        * array of Group Builds: The list of Group Builds to display.
        */
@@ -55,13 +55,13 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      $ctrl.items = $ctrl.buildRecords ? $ctrl.buildRecords : $ctrl.groupBuilds;  
+      $ctrl.items = $ctrl.builds ? $ctrl.builds : $ctrl.groupBuilds;  
       $ctrl.fields = $ctrl.displayFields || DEFAULT_FIELDS;
     };
 
     $ctrl.$onChanges = function(changedBindings) {
-      if (changedBindings.buildRecords) {
-        $ctrl.items = $ctrl.buildRecords;
+      if (changedBindings.builds) {
+        $ctrl.items = $ctrl.builds;
       } else if (changedBindings.groupBuilds) {
         $ctrl.items = $ctrl.groupBuilds;
       }
