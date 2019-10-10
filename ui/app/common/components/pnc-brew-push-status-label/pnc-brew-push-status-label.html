@@ -22,25 +22,25 @@
 <div ng-if="!$ctrl.loading">
   <span ng-switch on="$ctrl.pushStatus.status">
     <span ng-switch-when="SUCCESS" class="label label-success">
-      <a ui-sref="projects.detail.build-configs.detail.build-records.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
+      <a ui-sref="projects.detail.build-configs.detail.builds.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
         SUCCESS
       </a>
     </span>
 
     <span ng-switch-when="FAILED" class="label label-danger">
-      <a ui-sref="projects.detail.build-configs.detail.build-records.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
+      <a ui-sref="projects.detail.build-configs.detail.builds.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
         FAILED
       </a>
     </span>
 
     <span ng-switch-when="SYSTEM_ERROR" class="label label-danger">
-      <a ui-sref="projects.detail.build-configs.detail.build-records.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
+      <a ui-sref="projects.detail.build-configs.detail.builds.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
         ERROR
       </a>
     </span>
 
     <span ng-switch-when="CANCELED" class="label label-default">
-      <a ui-sref="projects.detail.build-configs.detail.build-records.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
+      <a ui-sref="projects.detail.build-configs.detail.builds.detail.brew-push({ projectId: $ctrl.buildRecord.projectId, configurationId: $ctrl.buildRecord.buildConfigurationId, recordId: $ctrl.buildRecord.id })" href>
         CANCELED
       </a>
     </span>

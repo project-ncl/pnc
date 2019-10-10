@@ -28,7 +28,7 @@
       function notify(buildRecord, pushStatus) {
 
         function navigateToPushResult() {
-          $state.go('projects.detail.build-configs.detail.build-records.detail.brew-push', { recordId: buildRecord.id });
+          $state.go('projects.detail.build-configs.detail.builds.detail.brew-push', { recordId: buildRecord.id });
         }
 
         function doNotify(type, message) {
