@@ -27,13 +27,23 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
 
     private Integer internalCancelTimeoutMillis = 5000;
+    private Long livenessProbeFrequencyMillis = 5000L;
+    private Long livenessFailTimeoutMillis = 15000L;
 
     public TermdBuildDriverModuleConfig(
-            @JsonProperty("internalCancelTimeoutMillis") Integer internalCancelTimeoutMillis
+            @JsonProperty("internalCancelTimeoutMillis") Integer internalCancelTimeoutMillis,
+            @JsonProperty("livenessProbeFrequencyMillis") Long livenessProbeFrequencyMillis,
+            @JsonProperty("livenessFailTimeoutMillis") Long livenessFailTimeoutMillis
             ) {
 
         if (internalCancelTimeoutMillis != null) {
             this.internalCancelTimeoutMillis = internalCancelTimeoutMillis;
+        }
+        if (livenessProbeFrequencyMillis != null) {
+            this.livenessProbeFrequencyMillis = livenessProbeFrequencyMillis;
+        }
+        if (livenessFailTimeoutMillis != null) {
+            this.livenessFailTimeoutMillis = livenessFailTimeoutMillis;
         }
     }
 

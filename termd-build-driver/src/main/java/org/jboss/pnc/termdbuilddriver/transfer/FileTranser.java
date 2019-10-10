@@ -15,23 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.termdbuilddriver;
+package org.jboss.pnc.termdbuilddriver.transfer;
 
-import org.jboss.pnc.buildagent.api.Status;
+import java.net.URI;
+import java.nio.file.Path;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class StatusUpdateEvent {
+public interface FileTranser {
 
-    private final Status newStatus;
+    StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException;
 
-    public StatusUpdateEvent(Status newStatus) {
-        this.newStatus = newStatus;
-    }
+    boolean isFullyDownloaded();
 
-    public Status getNewStatus() {
-        return newStatus;
-    }
-
+    void uploadScript(String script, Path remoteFilePath) throws TransferException;
 }

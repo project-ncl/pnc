@@ -18,15 +18,18 @@
 
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.common.RandomUtils;
 import org.jboss.pnc.buildagent.server.BuildAgentException;
 import org.jboss.pnc.buildagent.server.BuildAgentServer;
 import org.jboss.pnc.buildagent.server.IoLoggerName;
+import org.jboss.pnc.buildagent.server.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,7 +40,7 @@ public class TermdServer {
 
     private static final AtomicInteger port_pool = new AtomicInteger(8090);
 
-    private static Thread serverThread;
+    private static BuildAgentServer buildAgent;
 
     private static final Logger log = LoggerFactory.getLogger(TermdServer.class);
 
@@ -58,30 +61,28 @@ public class TermdServer {
      */
     public static void startServer(String host, int port, String bindPath, Optional<Path> logFolder)
             throws InterruptedException, BuildAgentException {
-        Semaphore mutex = new Semaphore(2);
-        Runnable onStart = () ->  {
+        try {
+            IoLoggerName[] primaryLoggers = {IoLoggerName.FILE};
+            Options options = new Options(
+                    host,
+                    port,
+                    bindPath,
+                    true,
+                    false
+            );
+            Map<String, String> mdcMap = new HashMap<>();
+            mdcMap.put("ctx", RandomUtils.randString(6));
+            buildAgent = new BuildAgentServer(
+                    logFolder,
+                    Optional.empty(),
+                    primaryLoggers,
+                    options,
+                    mdcMap);
             log.info("Server started.");
-            mutex.release();
-        };
-        mutex.acquire(2);
-
-        AtomicReference<BuildAgentServer> buildAgentServerReference = new AtomicReference<>();
-
-        serverThread = new Thread(() -> {
-            try {
-                IoLoggerName[] primaryLoggers = {IoLoggerName.FILE};
-                BuildAgentServer buildAgent = new BuildAgentServer(host, port, bindPath, logFolder, Optional.empty(), primaryLoggers, onStart);
-                buildAgentServerReference.set(buildAgent);
-                mutex.release();
-            } catch (BuildAgentException e) {
-                throw new RuntimeException("Cannot start build agent.", e);
-            }
-        }, "termd-serverThread-thread");
-        serverThread.start();
-
-        mutex.acquire(2); //wait to start the server and object fully constructed
-        int assignedPort = buildAgentServerReference.get().getPort();
-        runningPort.set(assignedPort);
+        } catch (BuildAgentException e) {
+            throw new RuntimeException("Cannot start build agent.", e);
+        }
+        runningPort.set(buildAgent.getPort());
     }
 
     public static AtomicInteger getPort_pool() {
@@ -94,7 +95,7 @@ public class TermdServer {
 
     public static void stopServer() {
         log.info("Stopping server...");
-        serverThread.interrupt();
+        buildAgent.stop();
     }
 
 }
