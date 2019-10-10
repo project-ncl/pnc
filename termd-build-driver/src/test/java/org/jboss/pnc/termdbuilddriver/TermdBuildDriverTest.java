@@ -20,7 +20,6 @@ package org.jboss.pnc.termdbuilddriver;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -49,7 +49,6 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     SystemConfig systemConfig = mock(SystemConfig.class);
-    TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
 
     @Test(timeout = 15_000)
     public void shouldFetchFromGitAndBuild() throws Throwable {
@@ -59,7 +58,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         ZipUtils.unzipToDir(tmpRepo, "/repo.zip");
         String dirName = "test-repo-cloned";
 
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig);
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, new DefaultClientFactory());
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn(repoPath).when(buildExecutionConfiguration).getScmRepoURL();
@@ -102,7 +101,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         String logStart = "Running the command...";
         String logEnd = "Command completed.";
 
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig);
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, new DefaultClientFactory());
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
@@ -141,18 +140,17 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         CountDownLatch latchCompleted = new CountDownLatch(1);
         CountDownLatch latchRunning = new CountDownLatch(1);
 
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig);
-        Consumer<StatusUpdateEvent> cancelOnBuildStart = (statusUpdateEvent) -> {
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, new DefaultClientFactory());
+        Consumer<Status> cancelOnBuildStart = (status) -> {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 logger.error("Sleep interrupted.", e);
             }
-            if (Status.RUNNING.equals(statusUpdateEvent.getNewStatus())) {
+            if (Status.RUNNING.equals(status)) {
                 latchRunning.countDown();
             }
         };
-        driver.addStatusUpdateConsumer(cancelOnBuildStart);
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
@@ -170,7 +168,12 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             logger.error("Error received: ", throwable);
             fail(throwable.getMessage());
         };
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
+        RunningBuild runningBuild = driver.startProjectBuild(
+                buildExecution,
+                localEnvironmentPointer,
+                onComplete,
+                onError,
+                Optional.of(cancelOnBuildStart));
 
         latchRunning.await();
         runningBuild.cancel();
