@@ -50,12 +50,12 @@ import java.util.stream.Collectors;
 public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
     @Override
-    @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
+    @Mapping(target = "environment", ignore = true)
     @Mapping(target = "dependentBuildIds", source = "dependentBuildRecordIds")
     @Mapping(target = "dependencyBuildIds", source = "dependencyBuildRecordIds")
     @Mapping(target = "buildConfigRevision", ignore = true)
-    @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
-    @Mapping(target = "scmRepository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "scmRepository", ignore = true)
     @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "scmRepositoryURL", source = "scmRepoURL")

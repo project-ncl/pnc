@@ -18,8 +18,14 @@
 package org.jboss.pnc.mapper;
 
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
+import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
+import org.jboss.pnc.mapper.api.EnvironmentMapper;
+import org.jboss.pnc.mapper.api.ProjectMapper;
+import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
@@ -31,7 +37,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 /**
- * Workaround for NCL-4889.
+ * Workaround for NCL-4889 and NCL-5257. This class will fetch the audited Build Config from DB if it is missing
+ * from the transient filed in BuildRecord entity and will map it to appropriate fields in the
+ * Build DTO.
+ *
  * @author jbrazdil
  */
 @ApplicationScoped
@@ -41,6 +50,15 @@ public class BuildBCRevisionFetcher {
     private BuildConfigurationRevisionMapper bcRevisionMapper;
 
     @Inject
+    private ProjectMapper projectMapper;
+
+    @Inject
+    private EnvironmentMapper environmentMapper;
+
+    @Inject
+    private SCMRepositoryMapper scmRepositoryMapper;
+
+    @Inject
     private BuildConfigurationAuditedRepository bcAuditedRepository;
 
     @BeforeMapping
@@ -48,10 +66,20 @@ public class BuildBCRevisionFetcher {
         Integer id = build.getBuildConfigurationId();
         Integer revision = build.getBuildConfigurationRev();
 
-        BuildConfigurationAudited buildConfigurationAudited = bcAuditedRepository
-                .queryById(new IdRev(id, revision));
+        // If somebody before us already set the BCA we don't need to query it from DB again
+        BuildConfigurationAudited bca = build.getBuildConfigurationAudited();
+        if(bca == null){
+            bca = bcAuditedRepository.queryById(new IdRev(id, revision));
+        }
 
-        BuildConfigurationRevision bcRevision = bcRevisionMapper.toDTO(buildConfigurationAudited);
+        BuildConfigurationRevisionRef bcRevision = bcRevisionMapper.toRef(bca);
+        ProjectRef project = projectMapper.toRef(bca.getProject());
+        Environment environment = environmentMapper.toRef(bca.getBuildEnvironment());
+        SCMRepository scmRepository = scmRepositoryMapper.toRef(bca.getRepositoryConfiguration());
+
         dtoBuilder.buildConfigRevision(bcRevision);
+        dtoBuilder.project(project);
+        dtoBuilder.environment(environment);
+        dtoBuilder.scmRepository(scmRepository);
     }
 }
