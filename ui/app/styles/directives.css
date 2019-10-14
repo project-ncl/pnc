@@ -221,22 +221,22 @@
 }
 
 /**
- * pnc-build-records-list
+ * pnc-builds-list
  */
-.panel .pnc-build-records-list {
+.panel .pnc-builds-list {
   margin-bottom: 0;
 }
 
-.pnc-build-records-list td {
+.pnc-builds-list td {
   vertical-align: middle !important;
 }
 
-.pnc-build-records-list th {
+.pnc-builds-list th {
   text-align: center;
 
 }
 
-.pnc-build-records-list .push-status {
+.pnc-builds-list .push-status {
   text-align: center;
 }
 

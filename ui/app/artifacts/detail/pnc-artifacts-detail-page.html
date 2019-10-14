@@ -38,7 +38,7 @@
         <dd>{{ $ctrl.artifact.artifactQuality }}</dd>
         <dt>Import Date</dt>
         <dd>{{ ($ctrl.artifact.importDate | date : 'short') || 'n/a'}}</dd>
-        <dt>Build Record</dt>
+        <dt>Build</dt>
         <dd>
           <span ng-show="$ctrl.buildRecord"><pnc-build-link build="$ctrl.buildRecord" short-link="false"></pnc-build-link></span>
           <span ng-hide="$ctrl.buildRecord">n/a</span>
@@ -85,7 +85,7 @@
     </div>
     <div class="col-lg-6">
       <h3>Usages</h3>
-      <pnc-build-records-data-table page="$ctrl.usages" display-fields="$ctrl.buildRecordListDisplayFields"></pnc-build-records-data-table>
+      <pnc-builds-data-table page="$ctrl.usages" display-fields="$ctrl.buildRecordListDisplayFields"></pnc-builds-data-table>
     </div>
   </div>
 </div>

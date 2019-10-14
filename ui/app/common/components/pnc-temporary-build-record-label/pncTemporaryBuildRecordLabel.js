@@ -22,7 +22,7 @@
   angular.module('pnc.common.components').component('pncTemporaryBuildRecordLabel', {
     bindings: {
       /**
-       * Object: a Record object representing Build Record
+       * Object: a Record object representing Build
        */
       buildRecord: '<?',
       /**

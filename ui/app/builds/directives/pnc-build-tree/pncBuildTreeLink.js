@@ -20,7 +20,7 @@
 
   /**
    * The dumb component representing Build Tree Link displaying information like build status icon, 
-   * build configuration link and build record link for given Build Record or Build Group Record.
+   * build configuration link and Build link for given Build or Build Group Record.
    * 
    * @example 
    * <pnc-build-tree-link build-record="buildRecord"></pnc-build-tree-link>

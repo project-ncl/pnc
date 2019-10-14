@@ -124,7 +124,7 @@
         if (rejected.length === 0) {
           pncNotify.info('Brew push initiated for Group Build: ' + GroupBuildResource.canonicalName($ctrl.groupBuild));
         } else {
-          pncNotify.warn('Some Build Records were rejected for brew push of Group Build: ' + GroupBuildResource.canonicalName($ctrl.groupBuild));
+          pncNotify.warn('Some Builds were rejected for brew push of Group Build: ' + GroupBuildResource.canonicalName($ctrl.groupBuild));
           rejected.forEach(function (reject) {
             notify(reject);
           });
