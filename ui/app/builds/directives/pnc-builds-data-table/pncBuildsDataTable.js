@@ -18,12 +18,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').component('pncBuildRecordsDataTable', {
+  angular.module('pnc.builds').component('pncBuildsDataTable', {
     bindings: {
       page: '<',
       displayFields: '<',
     },
-    templateUrl: 'builds/directives/pnc-build-records-data-table/pnc-build-records-data-table.html',
+    templateUrl: 'builds/directives/pnc-builds-data-table/pnc-builds-data-table.html',
     controller: ['paginator', Controller]
   });
 

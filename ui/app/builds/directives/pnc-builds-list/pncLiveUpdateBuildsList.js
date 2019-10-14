@@ -19,12 +19,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').component('pncLiveUpdateBuildRecordsList', {
+  angular.module('pnc.builds').component('pncLiveUpdateBuildsList', {
     bindings: {
       /**
-       * array of Build Records: The list of Build Records to display.
+       * array of Builds: The list of Builds to display.
        */
-      buildRecords: '<?',
+      builds: '<?',
       /**
        * array of strings: Names of table columns to display (see template for possible options).
        * Default fields will be used if omitted.
@@ -35,7 +35,7 @@
        */
       hideHead: '<?'
     },
-    templateUrl: 'builds/directives/pnc-build-records-list/pnc-live-update-build-records-list.html',
+    templateUrl: 'builds/directives/pnc-builds-list/pnc-live-update-builds-list.html',
     controller: ['$scope', 'eventTypes', Controller]
   });
 
@@ -53,16 +53,16 @@
     };
 
     function onUpdate(event, payload) {
-      var buildRecord;
+      var build;
 
-      if ($ctrl.buildRecords) {
-        buildRecord = $ctrl.buildRecords.find(function (item) {
+      if ($ctrl.builds) {
+        build = $ctrl.builds.find(function (item) {
           return item.id === payload.id;
         });
 
-        if (buildRecord) {
+        if (build) {
           $scope.$applyAsync(function () {
-            Object.assign(buildRecord, payload);
+            Object.assign(build, payload);
           });
         }
       }

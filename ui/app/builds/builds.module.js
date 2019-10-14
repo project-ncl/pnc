@@ -161,7 +161,7 @@
         templateUrl: 'builds/views/builds.detail.html',
         data: {
           proxy: 'projects.detail.build-configs.detail.builds.detail.default',
-          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Record'
+          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build'
         },
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',

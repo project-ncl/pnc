@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').component('pncBuildRecordsList', {
+  angular.module('pnc.builds').component('pncBuildsList', {
     bindings: {
       /**
        * array of Builds: The list of Builds to display.
@@ -39,7 +39,7 @@
        */
       hideHead: '<?'
     },
-    templateUrl: 'builds/directives/pnc-build-records-list/pnc-build-records-list.html',
+    templateUrl: 'builds/directives/pnc-builds-list/pnc-builds-list.html',
     controller: [Controller]
   });
 

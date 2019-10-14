@@ -20,7 +20,7 @@
 
   /**
    * The dumb component representing Build Status displaying information like build status icon, 
-   * start / end time or started by user for given Build Record or Build Group Record.
+   * start / end time or started by user for given Build or Build Group Record.
    * 
    * @example 
    * <pnc-build-status build-record="buildRecord" is-loaded="isLoaded"></pnc-build-status>
