@@ -19,18 +19,18 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').component('pncBuildRecordLink', {
+  angular.module('pnc.builds').component('pncBuildLink', {
     bindings: {
-      buildRecord: '<',
+      build: '<',
       shortLink: '@'
     },
     transclude: true, 
-    templateUrl: 'builds/directives/pnc-build-record-link/pnc-build-record-link.html',
+    templateUrl: 'builds/directives/pnc-build-link/pnc-build-link.html',
     controller: [Controller]
   });
 
   function Controller() {
-    var $ctrl = this;
+    const $ctrl = this;
 
     // -- Controller API --
 
@@ -44,9 +44,9 @@
 
     function getLinkText() {
       if ($ctrl.shortLink === 'true') {
-        return '#' + $ctrl.buildRecord.id;
+        return '#' + $ctrl.build.id;
       } else {
-        return $ctrl.buildRecord.$canonicalName();
+        return $ctrl.build.$canonicalName();
       }
     }
   }

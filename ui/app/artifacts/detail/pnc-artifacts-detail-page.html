@@ -40,7 +40,7 @@
         <dd>{{ ($ctrl.artifact.importDate | date : 'short') || 'n/a'}}</dd>
         <dt>Build Record</dt>
         <dd>
-          <span ng-show="$ctrl.buildRecord"><pnc-build-record-link build-record="$ctrl.buildRecord" short-link="false"></pnc-build-record-link></span>
+          <span ng-show="$ctrl.buildRecord"><pnc-build-link build="$ctrl.buildRecord" short-link="false"></pnc-build-link></span>
           <span ng-hide="$ctrl.buildRecord">n/a</span>
         </dd>
       </dl>
