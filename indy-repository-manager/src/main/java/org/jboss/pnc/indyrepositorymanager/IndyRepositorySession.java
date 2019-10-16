@@ -56,6 +56,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -188,6 +189,8 @@ public class IndyRepositorySession implements RepositorySession {
 
         deleteBuildGroup();
 
+        MDC.put("build_phase.key", "removing_build_aggregation_group");
+        MDC.put("build_phase.duration", String.valueOf(stopWatch.getTime(TimeUnit.SECONDS)));
         logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
         stopWatch.reset();
 
@@ -212,6 +215,8 @@ public class IndyRepositorySession implements RepositorySession {
             uploads = Collections.emptyList();
         }
 
+        MDC.put("build_phase.key", "promotion_to_build_content_set");
+        MDC.put("build_phase.duration", String.valueOf(stopWatch.getTime(TimeUnit.SECONDS)));
         logger.info("END: promotion to build content set, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
         stopWatch.reset();
 
@@ -546,9 +551,13 @@ public class IndyRepositorySession implements RepositorySession {
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
             }
+            MDC.put("build_phase.key", "upload_artifact");
+            MDC.put("build_phase.duration", String.valueOf(stopWatch.getTime(TimeUnit.SECONDS)));
             logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
             return builds;
         }
+        MDC.put("build_phase.key", "upload_artifact");
+        MDC.put("build_phase.duration", String.valueOf(stopWatch.getTime(TimeUnit.SECONDS)));
         logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
         return Collections.emptyList();
     }
