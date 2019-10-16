@@ -20,19 +20,21 @@ package org.jboss.pnc.rest.api.parameters;
 import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Data;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@Data
 public class BuildAttributeParameters {
 
     @Parameter(description = "Find builds only with given attribute key (and value).")
     @QueryParam("attribute-key")
-    String attributeKey;
+    private String attributeKey;
 
     @Parameter(description = "Find build only with given attribute value (and key).")
     @QueryParam("attribute-value")
-    String attributeValue;
+    private String attributeValue;
 
 }
