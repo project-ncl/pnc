@@ -38,10 +38,11 @@ import static org.jboss.pnc.AbstractTest.AUTH_JAR;
  */
 public class Deployments {
 
+    private static final PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
+
     public static final Logger logger = LoggerFactory.getLogger(Deployments.class);
 
     public static EnterpriseArchive testEar() {
-        PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
 
         File earArchive = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?")
                 .withoutTransitivity()
@@ -65,6 +66,24 @@ public class Deployments {
         return ear;
     }
 
+    public static EnterpriseArchive testEarForInContainerTest() {
+        EnterpriseArchive ear = testEar();
+        addTestCommonWithoutTransitives(ear);
+        return ear;
+    }
+
+    /**
+     *
+     * @param classes to add to the deployment
+     * @return
+     */
+    public static EnterpriseArchive testEarForInContainerTest(Class<?>... classes) {
+        EnterpriseArchive ear = testEarForInContainerTest();
+        WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
+        restWar.addClasses(classes);
+        return ear;
+    }
+
     private static void addTestPersistenceXml(EnterpriseArchive enterpriseArchive) {
         JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
         datastoreJar.addAsManifestResource("test-ds.xml", "persistence.xml");
@@ -78,7 +97,7 @@ public class Deployments {
         return restWar;
     }
 
-    public static void addKeycloakServiceClientMock(EnterpriseArchive enterpriseArchive) {
+    private static void addKeycloakServiceClientMock(EnterpriseArchive enterpriseArchive) {
         JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, AUTH_JAR);
 
         jar.deleteClass(DefaultKeycloakServiceClient.class);
@@ -89,5 +108,10 @@ public class Deployments {
         logger.info(jar.toString(true));
 
         enterpriseArchive.addAsModule(jar);
+    }
+
+    private static void addTestCommonWithoutTransitives(EnterpriseArchive webArchive) {
+        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:test-common").withoutTransitivity().asFile();
+        webArchive.addAsLibraries(manuallyAddedLibs);
     }
 }

@@ -118,7 +118,7 @@
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
     <version.keycloak>4.5.0.Final</version.keycloak>
-    <version.undertow>2.0.20.Final</version.undertow>
+    <version.undertow>2.0.22.Final</version.undertow>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
     <version.swagger2>2.0.7</version.swagger2>
     <version.buildagent>0.6.0-SNAPSHOT</version.buildagent>

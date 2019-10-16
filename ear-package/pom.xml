@@ -174,14 +174,19 @@
           <configuration>
             <archive>
               <manifestEntries combine.children="append">
+                <!--
+                io.undertow.core, org.jboss.xnio: required by BuildAgentClient
+                -->
                 <Dependencies>
+                  io.undertow.core,
                   org.apache.commons.beanutils,
                   org.apache.commons.codec,
                   org.apache.commons.collections,
                   org.apache.commons.io,
                   org.apache.commons.lang,
                   org.apache.commons.lang3,
-                  org.apache.httpcomponents.core
+                  org.apache.httpcomponents.core,
+                  org.jboss.xnio
                 </Dependencies>
               </manifestEntries>
             </archive>
