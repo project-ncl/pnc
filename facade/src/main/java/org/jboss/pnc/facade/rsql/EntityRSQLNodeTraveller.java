@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.rsql;
 
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.LIKE;
+
 import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,15 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
 import java.lang.invoke.MethodHandles;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -77,21 +84,29 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNod
         List<String> arguments = node.getArguments();
         final ComparisonOperator operator = node.getOperator();
         if (RSQLOperators.EQUAL.equals(operator)) {
-            return cb.equal(path, arguments.get(0));
+            Object argument = cast(arguments.get(0), path.getJavaType());
+            return cb.equal(path, argument);
         } else if (RSQLOperators.NOT_EQUAL.equals(operator)) {
-            return cb.notEqual(path, arguments.get(0));
+            Object argument = cast(arguments.get(0), path.getJavaType());
+            return cb.notEqual(path, argument);
         } else if (RSQLOperators.GREATER_THAN.equals(operator)) {
-            return cb.greaterThan(path, arguments.get(0));
+            Comparable argument = cast(arguments.get(0), path.getJavaType());
+            return cb.greaterThan(path, argument);
         } else if (RSQLOperators.GREATER_THAN_OR_EQUAL.equals(operator)) {
-            return cb.greaterThanOrEqualTo(path, arguments.get(0));
+            Comparable argument = cast(arguments.get(0), path.getJavaType());
+            return cb.greaterThanOrEqualTo(path, argument);
         } else if (RSQLOperators.LESS_THAN.equals(operator)) {
-            return cb.lessThan(path, arguments.get(0));
+            Comparable argument = cast(arguments.get(0), path.getJavaType());
+            return cb.lessThan(path, argument);
         } else if (RSQLOperators.LESS_THAN_OR_EQUAL.equals(operator)) {
-            return cb.lessThanOrEqualTo(path, arguments.get(0));
+            Comparable argument = cast(arguments.get(0), path.getJavaType());
+            return cb.lessThanOrEqualTo(path, argument);
         } else if (RSQLOperators.IN.equals(operator)) {
-            return path.in(arguments);
+            List<Object> castArguments = castArguments(arguments, path.getJavaType());
+            return path.in(castArguments);
         } else if (RSQLOperators.NOT_IN.equals(operator)) {
-            return cb.not(path.in(arguments));
+            List<Object> castArguments = castArguments(arguments, path.getJavaType());
+            return cb.not(path.in(castArguments));
         } else if (LIKE.equals(operator)) {
             return cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()));
         } else if (IS_NULL.equals(operator)) {
@@ -129,6 +144,39 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNod
     }
 
     private String preprocessLikeOperatorArgument(String argument) {
-        return argument.replaceAll("\\?","_").replaceAll("\\*", "%");
+        return argument.replaceAll("\\?", "_").replaceAll("\\*", "%");
     }
+
+    private <T extends Comparable<? super T>> List<T> castArguments(List<String> arguments, Class<T> javaType) {
+        if (javaType == String.class) {
+            return (List<T>) arguments;
+        }
+        return arguments.stream().map(a -> cast(a, javaType)).collect(Collectors.toList());
+    }
+
+    private <T extends Comparable<? super T>> T cast(String argument, Class<T> javaType) {
+        if (javaType.isEnum()) {
+            Class<? extends Enum> enumType = (Class<? extends Enum>) javaType;
+            return (T) Enum.valueOf(enumType, argument);
+        } else if (javaType == String.class) {
+            return (T) argument;
+        } else if (javaType == Integer.class || javaType == int.class) {
+            return (T) Integer.valueOf(argument);
+        } else if (javaType == Long.class || javaType == long.class) {
+            return (T) Long.valueOf(argument);
+        } else if (javaType == Boolean.class || javaType == boolean.class) {
+            return (T) Boolean.valueOf(argument);
+        } else if (javaType == Date.class) {
+            try {
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(argument, timeFormatter);
+                return (T) Date.from(Instant.from(offsetDateTime));
+            } catch (DateTimeParseException ex) {
+                throw new RSQLException("The datetime must be in the ISO-8601 format with timezone, e.g. 1970-01-01T00:00:00Z, was " + argument, ex);
+            }
+        } else {
+            throw new UnsupportedOperationException("The target type " + javaType + " is not known to the type converter.");
+        }
+    }
+
 }

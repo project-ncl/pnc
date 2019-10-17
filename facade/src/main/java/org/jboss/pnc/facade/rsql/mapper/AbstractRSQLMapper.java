@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import org.jboss.pnc.facade.rsql.RSQLException;
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.model.GenericEntity;
 
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SingularAttribute;
+
 import java.io.Serializable;
 
 /**
@@ -55,7 +57,7 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
         if (toEntity(name) != null) {
             return mapEntity(from, toEntity(name), selector.next());
         }
-        throw new IllegalArgumentException("Unknown RSQL selector " + name + " for type " + type);
+        throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
     protected <X extends GenericEntity<Integer>> Path<?> mapEntity(From<?, DB> from, SingularAttribute<DB, X> entity, RSQLSelectorPath selector) {
@@ -75,7 +77,7 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
             Class<? extends GenericEntity<Integer>> bindableType = entity.getBindableJavaType();
             return entity.getName() + "." + mapper.toPath(bindableType, selector.next());
         }
-        throw new IllegalArgumentException("Unknown RSQL selector " + name + " for type " + type);
+        throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
     protected abstract SingularAttribute<DB, ? extends GenericEntity<Integer>> toEntity(String name);

@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.facade.rsql;
 
-import java.util.NoSuchElementException;
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -44,7 +42,7 @@ public class RSQLSelectorPath {
 
     public RSQLSelectorPath next() {
         if (next == null) {
-            throw new NoSuchElementException("There is no next element in the path");
+            throw new RSQLException("Another element in the RSQL selector expected after " + element);
         }
         return next;
     }

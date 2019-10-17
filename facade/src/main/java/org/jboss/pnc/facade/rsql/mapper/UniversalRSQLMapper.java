@@ -50,6 +50,6 @@ public class UniversalRSQLMapper {
                 return (RSQLMapper<?, DB>) mapper;
             }
         }
-        throw new IllegalArgumentException("Missing RSQL mapper implementation for " + type);
+        throw new UnsupportedOperationException("Missing RSQL mapper implementation for " + type);
     }
 }

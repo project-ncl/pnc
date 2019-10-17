@@ -39,6 +39,7 @@ import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
 import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
 import org.jboss.pnc.rest.provider.EJBExceptionMapper;
+import org.jboss.pnc.rest.provider.RSQLExceptionMapper;
 import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
 import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
 import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
@@ -72,6 +73,7 @@ import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,6 +215,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(UnauthorizedExceptionMapper.class);
         resources.add(ValidationExceptionExceptionMapper.class);
         resources.add(EJBExceptionMapper.class);
+        resources.add(RSQLExceptionMapper.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {
