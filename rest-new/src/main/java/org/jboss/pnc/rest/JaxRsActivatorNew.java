@@ -161,10 +161,8 @@ public class JaxRsActivatorNew extends Application {
             if(keycloakConfig == null || StringUtils.isEmpty(keycloakConfig.getAuthServerUrl())){
                 return null;
             }
-            URI keycloakURL = new URI(keycloakConfig.getAuthServerUrl())
-                    .resolve("realms")
-                    .resolve(keycloakConfig.getRealm())
-                    .resolve("protocol/openid-connect/auth");
+            URI keycloakURL = new URI(keycloakConfig.getAuthServerUrl() + "/")
+                    .resolve("realms/" + keycloakConfig.getRealm() + "/protocol/openid-connect/auth");
 
             final OAuthFlow implicitFlow = new OAuthFlow()
                     .authorizationUrl(keycloakURL.toString());
