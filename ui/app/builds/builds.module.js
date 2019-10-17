@@ -30,14 +30,7 @@
 
   module.config([
     '$stateProvider',
-    '$urlRouterProvider',
-    function ($stateProvider, $urlRouterProvider) {
-
-      // NCL-2402 changed the module base URL, this redirect should
-      // be removed at some point in the future.
-      $urlRouterProvider.when(/^\/record\/?.*/, ['$location', function ($location) {
-        return $location.url().replace('/record', '/builds');
-      }]);
+    function ($stateProvider) {
 
       $stateProvider.state('builds', {
         abstract: true,
@@ -49,6 +42,21 @@
         },
         data: {
           proxy: 'builds.list',
+        }
+      });
+
+      $stateProvider.state('builds.list', {
+        url: '',
+        data: {
+          displayName: 'Builds',
+          title: 'Builds'
+        },
+        component: 'pncBuildsListPage',
+        resolve: {
+          builds: [
+            'BuildResource',
+            (BuildResource) => BuildResource.query().$promise
+          ]
         }
       });
 
@@ -78,71 +86,6 @@
             });
           }
         ]
-      });
-
-      // $stateProvider.state('builds.detail.result', {
-      //   url: '/result',
-      //   controller: 'RecordResultController',
-      //   controllerAs: 'resultCtrl',
-      //   templateUrl: 'builds/views/builds.detail.result.html',
-      //   data: {
-      //     displayName: 'Log'
-      //   },
-      //   resolve: {
-      //     buildLog: function (BuildRecord, recordDetail) {
-      //       return BuildRecord.getLog({ id: recordDetail.id }).$promise;
-      //     },
-      //     sshCredentials: function (BuildRecord, recordDetail) {
-      //       return BuildRecord.getSshCredentials({
-      //         recordId: recordDetail.id
-      //       }).$promise;
-      //     }
-      //   }
-      // });
-      //
-      // $stateProvider.state('builds.detail.artifacts', {
-      //   url: '/artifacts',
-      //   controller: 'RecordArtifactsController',
-      //   controllerAs: 'artifactsCtrl',
-      //   templateUrl: 'builds/views/builds.detail.artifacts.html',
-      //   data: {
-      //     displayName: 'Built Artifacts',
-      //   },
-      //   resolve: {
-      //     artifacts: function (recordDetail) {
-      //       return recordDetail.$getBuiltArtifacts();
-      //     }
-      //   }
-      // });
-      //
-      // $stateProvider.state('builds.detail.dependencies', {
-      //     url: '/dependencies',
-      //     controller: 'RecordArtifactsController',
-      //     controllerAs: 'artifactsCtrl',
-      //     templateUrl: 'builds/views/buildds.detail.artifacts.html',
-      //     data: {
-      //       displayName: 'Dependencies',
-      //     },
-      //     resolve: {
-      //       artifacts: function (recordDetail) {
-      //         return recordDetail.$getDependencies();
-      //       }
-      //     }
-      //   });
-
-      $stateProvider.state('builds.list', {
-        url: '',
-        data: {
-          displayName: 'Builds',
-          title: 'Builds'
-        },
-        component: 'pncBuildsListPage',
-        resolve: {
-          builds: [
-            'BuildResource',
-            (BuildResource) => BuildResource.query().$promise
-          ]
-        }
       });
 
       $stateProvider.state('projects.detail.build-configs.detail.builds', {
