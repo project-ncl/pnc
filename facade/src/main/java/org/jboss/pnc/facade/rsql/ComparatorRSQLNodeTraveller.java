@@ -55,7 +55,7 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
             }
         }
         if(comparator == null){
-            throw new IllegalArgumentException("No argument for RSQL comparsion found.");
+            throw new RSQLException("No argument for RSQL comparsion found.");
         }
         if (node.getOperator().equals(DESC)) {
             comparator = comparator.reversed();
@@ -72,10 +72,12 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
             if(obj instanceof Comparable){
                 return (Comparable) obj;
             }else{
-                throw new IllegalArgumentException("Field " + argument + " is not comparable.");
+                throw new RSQLException("Field " + argument + " is not comparable.");
             }
+        } catch (NoSuchMethodException ex) {
+            throw new RSQLException("Field " + argument + " not found.", ex);
         } catch (ReflectiveOperationException | SecurityException ex) {
-                throw new RuntimeException("Could not access field " + argument + ": " + ex.getMessage(), ex);
+            throw new RuntimeException("Could not access field " + argument + ": " + ex.getMessage(), ex);
         }
     }
     

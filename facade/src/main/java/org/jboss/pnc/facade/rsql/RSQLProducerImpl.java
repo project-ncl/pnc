@@ -68,7 +68,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     @Inject
     UniversalRSQLMapper mapper;
 
-    public RSQLProducerImpl() throws RSQLParserException {
+    public RSQLProducerImpl() {
         Set<ComparisonOperator> predicateOperators = RSQLOperators.defaultOperators();
         predicateOperators.add(LIKE);
         predicateOperators.add(IS_NULL);
@@ -118,7 +118,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     @Override
     public <DTO> Comparator<DTO> getComparator(String rsql) {
         if (rsql == null || rsql.isEmpty()) {
-            throw new IllegalArgumentException("RSQL sort query must be non-empty and non-null.");
+            throw new RSQLException("RSQL sort query must be non-empty and non-null.");
         }
         if(!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
             rsql = FIXED_START_OF_SORTING_EXPRESSION + rsql;

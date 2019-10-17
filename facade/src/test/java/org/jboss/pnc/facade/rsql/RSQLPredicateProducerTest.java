@@ -82,10 +82,11 @@ public class RSQLPredicateProducerTest {
         Path<Integer> idPath = mock(Path.class);
 
         when(root.get(BuildRecord_.id)).thenReturn(idPath);
+        Mockito.doReturn(Integer.class).when(idPath).getJavaType();
 
         criteriaPredicate.apply(root, null, cb);
 
-        Mockito.verify(cb).equal(idPath, "4");
+        Mockito.verify(cb).equal(idPath, 4);
     }
 
     @Test
@@ -100,6 +101,7 @@ public class RSQLPredicateProducerTest {
 
         when(root.join(BuildRecord_.buildEnvironment)).thenReturn(join);
         when(join.get(BuildEnvironment_.name)).thenReturn(namePath);
+        Mockito.doReturn(String.class).when(namePath).getJavaType();
 
         criteriaPredicate.apply(root, null, cb);
 

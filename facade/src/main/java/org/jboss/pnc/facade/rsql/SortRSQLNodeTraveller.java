@@ -68,6 +68,9 @@ class SortRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeT
 
         logger.trace("Sorting direction - {}, arguments {}", sortingDirection, node.getArguments());
         for (String argument : node.getArguments()) {
+            if("id".equals(argument)){ // Disable sorting by id
+                throw new RSQLException("Sorting by id is not supported.");
+            }
             sortingFields.add(toPath.apply(RSQLSelectorPath.get(argument)));
         }
         return new DefaultSortInfo(sortingDirection, sortingFields);
