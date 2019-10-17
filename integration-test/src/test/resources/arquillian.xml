@@ -25,8 +25,8 @@
     <container qualifier="jboss" default="true">
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
-            <property name="javaVmArguments">-Xmx1G </property>
-            <!--<property name="javaVmArguments">-Xmx1G -Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>-->
+            <property name="javaVmArguments">-Xmx2G </property>
+            <!--<property name="javaVmArguments">-Xmx2G -Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>-->
         </configuration>
     </container>
 
