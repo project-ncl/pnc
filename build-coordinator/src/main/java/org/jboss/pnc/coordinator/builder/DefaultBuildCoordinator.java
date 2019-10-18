@@ -17,12 +17,14 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.util.BuildStageUtils;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -65,6 +67,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -635,6 +638,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 log.error("Unable to store error [" + error.getMessage() + "] of build coordination task [" + task.getId() + "].", e1);
             }
             throw error;
+        } finally {
+            if (task.getSubmitTime() != null) {
+                BuildStageUtils.logBuildStage("Enqueued", ChronoUnit.SECONDS.between(task.getSubmitTime().toInstant(), Instant.now()));
+            } else {
+                BuildStageUtils.logBuildStage("Enqueued", 0);
+            }
         }
     }
 

@@ -18,7 +18,9 @@
 
 package org.jboss.pnc.coordinator.builder;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.jboss.pnc.common.mdc.MDCUtils;
+import org.jboss.pnc.common.util.BuildStageUtils;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -41,6 +43,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -65,6 +68,8 @@ public class BuildTasksInitializer {
                                            BuildOptions buildOptions,
                                            Supplier<Integer> buildTaskIdProvider,
                                            Set<BuildTask> submittedBuildTasks) {
+
+        StopWatch stopWatch = StopWatch.createStarted();
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildOptions(buildOptions)
@@ -84,6 +89,8 @@ public class BuildTasksInitializer {
                 submittedBuildTasks,
                 buildOptions);
 
+        stopWatch.stop();
+        BuildStageUtils.logBuildStage("Scheduling", stopWatch.getTime(TimeUnit.SECONDS));
         return buildSetTask;
     }
 

@@ -18,6 +18,8 @@
 
 package org.jboss.pnc.executor;
 
+import org.apache.commons.lang3.time.StopWatch;
+import org.jboss.pnc.common.util.BuildStageUtils;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
@@ -66,6 +69,8 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private Runnable cancelHook;
 
     private String accessToken;
+
+    private final StopWatch stopWatch = StopWatch.createStarted();
 
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration,
                                         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
@@ -132,6 +137,12 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         this.status = status;
         onBuildExecutionStatusChangedEvent.accept(statusChanged);
         log.debug("Fired events after build execution task {} update.", getId());
+
+        BuildStageUtils.logBuildStage(status.toString(), stopWatch.getTime(TimeUnit.SECONDS));
+
+        // reset and start to note the duration to the next status being done
+        stopWatch.reset();
+        stopWatch.start();
     }
 
     private BuildResult getBuildResult() {

@@ -37,7 +37,7 @@ public class BuildStageUtils {
      * @param buildStage build stage who's duration we're logging
      * @param duration in seconds
      */
-    public static void logBuildStage(String buildStage, int duration) {
+    public static void logBuildStage(String buildStage, long duration) {
 
         Map<String, String> mdc = MDC.getCopyOfContextMap();
         if (mdc == null) {
