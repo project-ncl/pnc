@@ -43,6 +43,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
     private final Map<String, String> grafana;
+    private final String bifrostUrl;
 
     public UIModuleConfig(
             @JsonProperty("pncUrl") String pncUrl,
@@ -52,7 +53,8 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("userGuideUrl") String userGuideUrl,
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak,
-            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
+            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana,
+            @JsonProperty("bifrostUrl") String bifrostUrl) {
         this.pncUrl = pncUrl;
         this.pncRestUrl = pncRestUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
@@ -61,6 +63,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); //default to 24h
         this.keycloak = keycloak;
         this.grafana = grafana;
+        this.bifrostUrl = bifrostUrl;
     }
 
     /**
@@ -123,6 +126,10 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return grafana;
     }
 
+    public String getBifrostUrl() {
+        return bifrostUrl;
+    }
+
     @Override
     public String toString() {
         return "UIModuleConfig{" +
@@ -134,6 +141,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 ", ssoTokenLifespan=" + ssoTokenLifespan +
                 ", keycloak=" + keycloak +
                 ", grafana=" + grafana +
+                ", bifrostUrl=" + bifrostUrl +
                 '}';
     }
 }
