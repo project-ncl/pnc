@@ -53,8 +53,8 @@ public class AbstractLocalBuildAgentTest {
 
     public AbstractLocalBuildAgentTest() {
         buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
-        doReturn(200L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
-        doReturn(1000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
+        doReturn(100L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
+        doReturn(5000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
     }
 
     @BeforeClass
