@@ -23,6 +23,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.mdc.BuildTaskContext;
 import org.jboss.pnc.common.mdc.MDCUtils;
 import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -635,6 +636,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 log.error("Unable to store error [" + error.getMessage() + "] of build coordination task [" + task.getId() + "].", e1);
             }
             throw error;
+        } finally {
+            ProcessStageUtils.logProcessStageEnd("Enqueued");
         }
     }
 

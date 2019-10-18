@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -106,6 +107,12 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public void setStatus(BuildExecutionStatus status, boolean isFinal) {
+
+        if (this.status != null) {
+            // old status is done
+            ProcessStageUtils.logProcessStageEnd(this.status.toString());
+        }
+
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS) && executorException == null) {
                 setException(new ExecutorException("FailedReasonStatus or executorException must be set before final DONE_WITH_ERRORS."));
@@ -132,6 +139,10 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         this.status = status;
         onBuildExecutionStatusChangedEvent.accept(statusChanged);
         log.debug("Fired events after build execution task {} update.", getId());
+
+        if (!status.hasFailed() && !status.isCompleted()) {
+            ProcessStageUtils.logProcessStageBegin(status.toString());
+        }
     }
 
     private BuildResult getBuildResult() {
