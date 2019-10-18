@@ -94,7 +94,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         livenessFailTimeout = termdBuildDriverModuleConfig.getLivenessFailTimeoutMillis();
 
         executor = MDCExecutors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
-        scheduledExecutorService = MDCExecutors.newScheduledThreadPool(1, new NamedThreadFactory("termd-build-driver-cancel"));
+        scheduledExecutorService = MDCExecutors.newScheduledThreadPool(1, new NamedThreadFactory("build-driver-liveness-cancel"));
     }
 
     @Override

@@ -41,7 +41,7 @@ public class DefaultClientFactory implements ClientFactory {
     public BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException {
         return new BuildAgentSocketClient(
-                terminalUrl.replace("http://", "ws://"),
+                terminalUrl,
                 Optional.empty(),
                 onStatusUpdate,
                 "",
