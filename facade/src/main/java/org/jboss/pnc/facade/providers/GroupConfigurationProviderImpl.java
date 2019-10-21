@@ -20,7 +20,9 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -36,8 +38,11 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
+import java.util.List;
+
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
 
 @PermitAll
@@ -88,6 +93,23 @@ public class GroupConfigurationProviderImpl
         } else {
             super.delete(id);
         }
+    }
+
+    @Override
+    public GroupConfiguration store(GroupConfiguration restEntity) throws DTOValidationException {
+        ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
+                .validateConflict(
+                        () -> {
+                            List<BuildConfigurationSet> groupConfigurations = repository.queryWithPredicates(withName(restEntity.getName()));
+                            if (groupConfigurations.size() > 0) {
+                                BuildConfigurationSet conflicted = groupConfigurations.get(0);
+                                return new ConflictedEntryValidator.ConflictedEntryValidationError
+                                        (conflicted.getId(),BuildConfigurationSet.class, "Group Configuration with the same name already exist");
+                            }
+                            return null;
+                        }
+                );
+        return super.store(restEntity);
     }
 
     @Override
