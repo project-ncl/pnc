@@ -67,9 +67,9 @@ public class Build extends BuildRef {
     private Build(ProjectRef project, SCMRepository scmRepository, Environment environment, Map<String, String> attributes,
             User user, BuildConfigurationRevisionRef buildConfigRevision, List<String> dependentBuildIds,
             List<String> dependencyBuildIds, String id, Instant submitTime, Instant startTime, Instant endTime,
-            BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmRepositoryURL,
-            GroupBuildRef groupBuild) {
-        super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmRepositoryURL);
+            BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmUrl,
+            String scmRevision, String scmTag, GroupBuildRef groupBuild) {
+        super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmUrl, scmRevision, scmTag);
         this.project = project;
         this.scmRepository = scmRepository;
         this.environment = environment;

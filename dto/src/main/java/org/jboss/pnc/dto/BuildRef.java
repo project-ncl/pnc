@@ -61,7 +61,11 @@ public class BuildRef implements DTOEntity {
 
     protected final Boolean temporaryBuild;
 
-    protected final String scmRepositoryURL;
+    protected final String scmUrl;
+
+    protected final String scmRevision;
+
+    protected final String scmTag;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
