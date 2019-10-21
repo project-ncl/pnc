@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.ToString;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -29,6 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.Map;
 
+@ToString
 @XmlRootElement(name = "BuildEnvironment")
 public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
 
