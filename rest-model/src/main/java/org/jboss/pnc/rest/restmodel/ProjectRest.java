@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.ToString;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
@@ -34,6 +35,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Project")
+@ToString
 public class ProjectRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)
