@@ -58,9 +58,9 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmRepository", ignore = true)
     @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
-    @Mapping(target = "scmRepositoryURL", source = "scmRepoURL")
+    @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "attributes", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
+    @BeanMapping(ignoreUnmappedSourceProperties = {"buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
@@ -79,7 +79,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     }
 
     @Override
-    @Mapping(target = "scmRepositoryURL", source = "scmRepoURL")
+    @Mapping(target = "scmUrl", source = "scmRepoURL")
     @BeanMapping(ignoreUnmappedSourceProperties = {"scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
@@ -88,17 +88,15 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
             "buildConfigurationAuditedIdRev", "buildOutputChecksum"
     })
     BuildRef toRef(BuildRecord dbEntity);
-    
+
     @Override
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
     @Mapping(target = "dependentBuildRecordIds", source = "dependentBuildIds")
     @Mapping(target = "dependencyBuildRecordIds", source = "dependencyBuildIds")
     @Mapping(target = "buildConfigurationAudited", source = "buildConfigRevision")
     @Mapping(target = "buildConfigSetRecord", source = "groupBuild")
-    @Mapping(target = "scmRepoURL", source = "scmRepositoryURL")
+    @Mapping(target = "scmRepoURL", source = "scmUrl")
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
-    @Mapping(target = "scmRevision", ignore = true)
-    @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "repourLog", ignore = true)
     @Mapping(target = "buildLog", ignore = true)
     @Mapping(target = "builtArtifacts", ignore = true)
@@ -135,7 +133,9 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "dependencyBuildIds", source = "dependencies")
     @Mapping(target = "buildContentId", source = "contentId")
     @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
-    @Mapping(target = "scmRepositoryURL", ignore = true)
+    @Mapping(target = "scmUrl", ignore = true)
+    @Mapping(target = "scmRevision", ignore = true)
+    @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {
             "productMilestone", "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions"})
