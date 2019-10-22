@@ -59,6 +59,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
 import java.lang.invoke.MethodHandles;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -80,6 +81,10 @@ public class BuildRecordsTest {
 
     private static Integer buildRecord2Id;
 
+    private static Integer temporaryBuildId1;
+
+    private static Integer temporaryBuildId2;
+
     private static Integer buildRecordWithArtifactsId;
 
     private static String buildConfigName;
@@ -91,6 +96,10 @@ public class BuildRecordsTest {
     private static Artifact builtArtifact3;
 
     private static Artifact importedArtifact1;
+
+    private static Artifact temporaryBuiltArtifact1;
+
+    private static Artifact temporaryBuiltArtifact2;
 
     @Inject
     private ArtifactRepository artifactRepository;
@@ -142,32 +151,9 @@ public class BuildRecordsTest {
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
         TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
 
-        builtArtifact1 = Artifact.Builder.newBuilder()
-                .filename("builtArtifact1.jar")
-                .identifier("integration-test:built-artifact1:jar:1.0")
-                .targetRepository(targetRepository)
-                .md5("md-fake-1")
-                .sha1("sha1-fake-1")
-                .sha256("sha256-fake-1")
-                .build();
-
-        builtArtifact2 = Artifact.Builder.newBuilder()
-                .filename("builtArtifact2.jar")
-                .identifier("integration-test:built-artifact2:jar:1.0")
-                .targetRepository(targetRepository)
-                .md5("md-fake-2")
-                .sha1("sha1-fake-2")
-                .sha256("sha256-fake-2")
-                .build();
-
-        builtArtifact3 = Artifact.Builder.newBuilder()
-                .filename("builtArtifact3.jar")
-                .identifier("integration-test:built-artifact3:jar:1.0")
-                .targetRepository(targetRepository)
-                .md5("md-fake-3")
-                .sha1("sha1-fake-3")
-                .sha256("sha256-fake-3")
-                .build();
+        builtArtifact1 = createDummyArtifact("1", targetRepository);
+        builtArtifact2 = createDummyArtifact("2", targetRepository);
+        builtArtifact3 = createDummyArtifact("3", targetRepository);
 
         importedArtifact1 = Artifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
@@ -256,6 +242,51 @@ public class BuildRecordsTest {
 
         buildRecordWithArtifactsId = buildRecordWithArtifacts.getId();
 
+
+        /* Temporary builds */
+        temporaryBuiltArtifact1 = createDummyArtifact("temp1", targetRepository, Artifact.Quality.TEMPORARY);
+        temporaryBuiltArtifact2 = createDummyArtifact("temp2", targetRepository, Artifact.Quality.TEMPORARY);
+
+        temporaryBuiltArtifact1 = artifactRepository.save(temporaryBuiltArtifact1);
+        temporaryBuiltArtifact2 = artifactRepository.save(temporaryBuiltArtifact2);
+
+        long epochMonthAgo = Instant.now().getEpochSecond() - 30 * 60 * 60 * 24;
+
+        BuildRecord temporaryBuild1 = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
+                .buildLog("Temporary build 1")
+                .repourLog("Alignment done")
+                .status(BuildStatus.SUCCESS)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .submitTime(new Date(0))
+                .startTime(new Date(0))
+                .endTime(new Date(epochMonthAgo))
+                .user(user)
+                .builtArtifact(temporaryBuiltArtifact1)
+                .dependency(importedArtifact1)
+                .temporaryBuild(true)
+                .build();
+
+        temporaryBuild1 = buildRecordRepository.save(temporaryBuild1);
+        temporaryBuildId1 = temporaryBuild1.getId();
+
+        BuildRecord temporaryBuild2 = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
+                .buildLog("Temporary build 1")
+                .repourLog("Alignment done")
+                .status(BuildStatus.SUCCESS)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .user(user)
+                .builtArtifact(temporaryBuiltArtifact2)
+                .dependency(importedArtifact1)
+                .temporaryBuild(true)
+                .build();
+
+        temporaryBuild2 = buildRecordRepository.save(temporaryBuild2);
+        temporaryBuildId2 = temporaryBuild2.getId();
     }
 
     @Test
@@ -298,13 +329,20 @@ public class BuildRecordsTest {
     }
 
     @Test
-    @Ignore
-    public void shouldGetArtifactsForSpecificBuildRecord() {
-        // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
+    @Transactional
+    public void shouldGetOldTemporaryBuild() {
+        // given
+        BuildRecord expectedBuildRecord = buildRecordRepository.findByIdFetchAllProperties(temporaryBuildId1);
+        long epochTwoWeeksAgo = Instant.now().getEpochSecond() - 14 * 24 * 60 * 60;
 
-        //then
-        assertThat(artifacts).hasSize(4);
+        // when
+        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider.getAllTemporaryOlderThanTimestamp(0, 10, null, null, epochTwoWeeksAgo);
+
+        // then
+        assertThat(temporaryBuilds).isNotNull();
+        assertThat(temporaryBuilds.getContent())
+                .usingElementComparatorIgnoringFields("user", "buildConfigurationAudited", "project")
+                .containsOnly(toRestBuildRecord(expectedBuildRecord));
     }
 
     @Test
@@ -527,6 +565,23 @@ public class BuildRecordsTest {
         assertThat(buildRecords).hasSize(0);
     }
 
+    private Artifact createDummyArtifact(String suffix, TargetRepository targetRepository, Artifact.Quality quality) {
+        return Artifact.Builder.newBuilder()
+                .filename("builtArtifact" + suffix + ".jar")
+                .identifier("integration-test:built-artifact" + suffix + ":jar:1.0")
+                .targetRepository(targetRepository)
+                .md5("md-fake-" + suffix)
+                .sha1("sha1-fake-" + suffix)
+                .sha256("sha256-fake-" + suffix)
+                .artifactQuality(quality)
+                .build();
+    }
+
+
+    private Artifact createDummyArtifact(String suffix, TargetRepository targetRepository) {
+        return createDummyArtifact(suffix, targetRepository, Artifact.Quality.NEW);
+    }
+
     private List<BuildRecordRest> selectBuildRecords(String buildConfigName) {
         return buildRecordProvider.getAllForConfigurationOrProjectName(0, 999, null, null, buildConfigName)
                 .getContent().stream().collect(Collectors.toList());
@@ -534,6 +589,10 @@ public class BuildRecordsTest {
 
     private ArtifactRest toRestArtifact(Artifact artifact) {
         return new ArtifactRest(artifact);
+    }
+
+    private BuildRecordRest toRestBuildRecord(BuildRecord buildRecord) {
+        return new BuildRecordRest(buildRecord);
     }
 
     class IsImported extends Condition<ArtifactRest> {

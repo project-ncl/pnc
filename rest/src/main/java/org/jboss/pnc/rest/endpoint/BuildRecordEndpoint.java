@@ -165,6 +165,24 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromCollection(buildRecordProvider.getAllByStatusAndLogContaining(pageIndex, pageSize, sort, q, status, search));
     }
 
+    @ApiOperation(value = "Gets the temporary Build Records, which were built before a timestamp set by parameter")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/temporary-older-than-timestamp")
+    public Response getAllTemporaryOlderThanTimestamp(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Timestamp using Linux epoch") @QueryParam("timestamp") long timestamp) {
+        return fromCollection(buildRecordProvider.getAllTemporaryOlderThanTimestamp(pageIndex, pageSize, sort, q, timestamp));
+    }
+
     @Override
     @ApiOperation(value = "Gets specific Build Record")
     @ApiResponses(value = {
