@@ -113,7 +113,7 @@
          */
         getLastByConfiguration: {
           method: 'GET',
-          url: BUILDS_ENDPOINT + '/?q=buildConfigurationId==:id&pageIndex=0&pageSize=1&sort==desc=id'
+          url: BUILDS_ENDPOINT + '/?q=buildConfigurationId==:id&pageIndex=0&pageSize=1'
         },
         /**
          * Gets BuildRecords by configuration.

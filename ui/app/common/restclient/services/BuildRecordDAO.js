@@ -82,7 +82,7 @@
         },
         _getLatestForConfiguration: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1&sort==desc=id'
+          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1'
         },
         getAuditedBuildConfiguration: {
           method: 'GET',

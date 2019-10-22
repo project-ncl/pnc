@@ -77,7 +77,7 @@
         },
         _getLatestBuildConfigSetRecordsForConfigSet: {
           method: 'GET',
-          url: ENDPOINT + '/build-config-set-records?pageIndex=0&pageSize=1&sort==desc=id'
+          url: ENDPOINT + '/build-config-set-records?pageIndex=0&pageSize=1'
         }
       });
 

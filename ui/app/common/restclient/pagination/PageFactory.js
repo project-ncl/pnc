@@ -224,8 +224,7 @@
             var newArgs = {
               pageIndex: pageIndex,
               pageSize: pageSize,
-              search: searchText, // search must be done in backend, either via RSQL or directly
-              sort: 'sort=desc=id' // if the data are not sorted, pagination makes no sense
+              search: searchText // search must be done in backend, either via RSQL or directly
             };
 
             /**

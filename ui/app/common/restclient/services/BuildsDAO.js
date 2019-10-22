@@ -46,7 +46,7 @@
         },
         _getLastByConfiguration: {
           method: 'GET',
-          url: REST_BASE_URL + '/builds?q=buildConfigurationId==:id&pageIndex=0&pageSize=1&sort==desc=id'
+          url: REST_BASE_URL + '/builds?q=buildConfigurationId==:id&pageIndex=0&pageSize=1'
         }
       });
 
