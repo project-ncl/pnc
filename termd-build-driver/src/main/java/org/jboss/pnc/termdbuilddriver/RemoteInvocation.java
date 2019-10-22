@@ -68,7 +68,7 @@ class RemoteInvocation implements Closeable {
             logger.debug("Driver received new status update {}.", newStatus);
             onStatusUpdate.ifPresent(c -> c.accept(newStatus));
             if (newStatus.isFinal()) {
-                completionNotifier.complete(new RemoteInvocationCompletion(newStatus, Optional.of(event.getOutputChecksum())));
+                completionNotifier.complete(new RemoteInvocationCompletion(newStatus, Optional.ofNullable(event.getOutputChecksum())));
             }
         };
 
