@@ -88,6 +88,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -900,5 +901,14 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             String search) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, BuildRecordPredicates.withStatus(status),
                 BuildRecordPredicates.withBuildLogContains(search));
+    }
+
+    public CollectionInfo<BuildRecordRest> getAllTemporaryOlderThanTimestamp(int pageIndex,
+                                                  int pageSize,
+                                                  String sort,
+                                                  String q,
+                                                  long timestamp) {
+        return queryForCollection(pageIndex, pageSize, sort, q, BuildRecordPredicates.temporaryBuild(),
+                BuildRecordPredicates.buildFinishedBefore(new Date(timestamp)));
     }
 }
