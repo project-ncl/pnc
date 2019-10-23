@@ -21,10 +21,10 @@
 
   <div class="pull-left">
 
-    <a class="btn btn-default btn-sm" href="{{resultCtrl.logUrl}}" target="_blank" title="View the log as a plain text">
+    <a class="btn btn-default btn-sm" href="{{$ctrl.build.$buildLogUrl()}}" target="_blank" title="View the log as a plain text">
       View <span class="pficon pficon-arrow"></span>
     </a>
-    <a class="btn btn-default btn-sm" href="{{resultCtrl.logUrl}}" target="_blank" title="Download the log as a plain text" download="{{resultCtrl.logFileName}}">
+    <a class="btn btn-default btn-sm" href="{{$ctrl.build.$buildLogUrl()}}" target="_blank" title="Download the log as a plain text" download="{{$ctrl.logFileName}}">
       Download <span class="fa fa-arrow-circle-o-down"></span>
     </a>
 
@@ -34,11 +34,11 @@
         <tbody>
           <tr>
             <td class="text-right p-r-10"><strong>command:</strong></td>
-            <td>{{ resultCtrl.sshCredentials.command }}</td>
+            <td>{{ $ctrl.sshCredentials.command }}</td>
           </tr>
           <tr>
             <td class="text-right p-r-10"><strong>password:</strong></td>
-            <td>{{ resultCtrl.sshCredentials.password }}</td>
+            <td>{{ $ctrl.sshCredentials.password }}</td>
           </tr>
         </tbody>
       </table>
@@ -50,15 +50,15 @@
       type="button"
       class="btn btn-primary btn-sm popover-no-max w-min-130"
       popover-placement="right"
-      ng-if="resultCtrl.sshCredentials.command"
-      ng-click="resultCtrl.sshCredentialsBtn.clicked = !resultCtrl.sshCredentialsBtn.clicked"
-      ng-class="{'active' : resultCtrl.sshCredentialsBtn.clicked }">
+      ng-if="$ctrl.sshCredentials.command"
+      ng-click="$ctrl.sshCredentialsBtn.clicked = !$ctrl.sshCredentialsBtn.clicked"
+      ng-class="{'active' : $ctrl.sshCredentialsBtn.clicked }">
         <span class="hide-when-active">Show</span>
         <span class="display-when-active">Hide</span>
         SSH credentials
     </button>
   </div>
 
-  <pnc-static-log log="resultCtrl.log"></pnc-static-log>
+  <pnc-static-log log="$ctrl.buildLog.payload"></pnc-static-log>
   
 </div>
