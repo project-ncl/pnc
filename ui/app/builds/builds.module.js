@@ -62,10 +62,10 @@
 
       $stateProvider.state('builds.detail', {
         abstract: true,
-        url: '/{recordId}',
+        url: '/{buildId}',
         resolve: {
-          recordDetail: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
-            return BuildRecord.get({ id: $stateParams.recordId }).$promise;
+          build: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
+            return BuildResource.get({ id: $stateParams.buildId }).$promise;
           }]
         }
       });
@@ -75,13 +75,13 @@
         onEnter: [
           '$state',
           '$timeout',
-          'recordDetail',
-          function ($state, $timeout, recordDetail) {
+          'build',
+          function ($state, $timeout, build) {
             $timeout(function () { // Works around bug in ui.router https://github.com/angular-ui/ui-router/issues/1434
               $state.go('projects.detail.build-configs.detail.builds.detail.default', {
-                projectId: recordDetail.projectId,
-                configurationId: recordDetail.buildConfigurationId,
-                recordId: recordDetail.id
+                projectId: build.project.id,
+                configurationId: build.buildConfigRevision.id,
+                buildId: build.id
               });
             });
           }
@@ -100,27 +100,25 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail', {
         abstract: true,
-        url: '/{recordId}',
-        templateUrl: 'builds/views/builds.detail.html',
+        url: '/{buildId}',
         data: {
           proxy: 'projects.detail.build-configs.detail.builds.detail.default',
-          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build'
+          title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Build'
         },
-        controller: 'RecordDetailController',
-        controllerAs: 'recordCtrl',
+        component: 'pncBuildDetailPage',
         resolve: {
-          recordDetail: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
-            return BuildRecord.get({ id: $stateParams.recordId }).$promise;
+          build: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
+            return BuildResource.get({ id: $stateParams.buildId }).$promise;
           }],
-          buildRecordPushResult: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
-            return BuildRecord.getLatestPushStatus($stateParams.recordId);
+          buildBrewPushResult: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
+            return BuildResource.getBrewPushResult({ id: $stateParams.buildId });
           }]
         }
       });
 
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail.default', {
         url: '',
-        templateUrl: 'builds/views/builds.detail.default.html',
+        templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
         data: {
           displayName: 'Job #{{ recordDetail.id }}',
         }

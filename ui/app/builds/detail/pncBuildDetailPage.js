@@ -15,53 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').component('pncBuildDetailDetailsPage', {
+  angular.module('pnc.builds').component('pncBuildDetailPage', {
     bindings: {
       build: '<',
-      dependencyGraph: '<',
-      buildBrewPushResult: '<'
+      dependencyGraph: '<'
     },
-    templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
-    controller: [Controller]
+    templateUrl: 'builds/detail/pnc-build-detail-page.html',
+    controller: ['buildStatusHelper', 'utils', '$scope', 'eventTypes', Controller]
   });
 
 
-  function Controller() {
+  function Controller(buildStatusHelper, utils, $scope, eventTypes) {
     const $ctrl = this;
 
     // -- Controller API --
-
+    $ctrl.isFinished = false;
+    $ctrl.hasPushResults = false;
 
     // --------------------
 
+
     $ctrl.$onInit = function () {
-     
+      $ctrl.isFinished = buildStatusHelper.isFinished($ctrl.build);
+      $ctrl.hasPushResults = !utils.isEmpty($ctrl.buildBrewPushResult);
+
+      /* NCL-4433
+      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, function (event, payload) {
+        if (payload.id === $ctrl.build.id) {
+          $scope.$applyAsync(function () {
+            Object.assign($ctrl.build, payload);
+          });
+        }
+      });
+      */
     };
 
-
-    /* NCL-4433
-    $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
-      if (recordDetail.id === payload.id) {
-        recordDetail.$get();
-      }
-    });
-
-    $scope.$on(eventTypes.BREW_PUSH_RESULT, function (event, payload) {
-      if (payload.buildRecordId === recordDetail.id) {
-        $scope.$applyAsync(function () { hasPushResult = true; });
-      }
-    });
-
-    var unsubscribe = messageBus.subscribe({
-      topic: 'component-build',
-      id: recordDetail.id
-    });
-
-    $scope.$on('$destroy', unsubscribe);
-    */
   }
 
 })();

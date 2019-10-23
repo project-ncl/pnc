@@ -75,6 +75,10 @@
             'CANCELLED': {
               progress: FINISHED,
               failed: true
+            },
+            'SUCCESS': {
+              progress: FINISHED,
+              failed: false
             }
           });
 
@@ -83,6 +87,8 @@
               return statusOrResource;
             } else if (angular.isObject(statusOrResource)) {
               return statusOrResource.status;
+            } else {
+              console.error('Status was not recognized: ' + statusOrResource);
             }
           }
 
