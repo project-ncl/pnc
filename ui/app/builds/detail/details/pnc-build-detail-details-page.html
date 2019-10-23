@@ -19,9 +19,102 @@
 -->
 <div class="row push-down">
   <div class="col-sm-12 col-md-10 col-lg-8">
-    <pnc-build-details build-record="recordCtrl.record"></pnc-build-details>
+
+    <div class="pnc-build-details">
+      <dl class="dl-horizontal">
+
+        <dt>Job Id:</dt>
+        <dd>{{ $ctrl.build.id }}</dd>
+
+        <dt>Status:</dt>
+        <dd ng-class="$ctrl.buildStatusHelper.isSuccess($ctrl.build.status) ? 'text-success' : 'text-danger'">{{ $ctrl.build.status }} <span ng-show="$ctrl.buildStatusHelper.isFinished($ctrl.build.status)" class="m-l-20">[ <a ng-href="{{ $ctrl.build.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
+        
+        <dt>Build Config:</dt>
+        <dd><a href ui-sref="build-configs.detail({ configurationId: $ctrl.build.buildConfigRevision.id })">{{ $ctrl.build.buildConfigRevision.name || '&mdash;' }}</a></dd>
+        
+        <dt>Started By:</dt>
+        <dd>{{ $ctrl.build.user.username || '&mdash;' }}</dd>
+        
+        <dt ng-show="$ctrl.build.submitTime">Submitted:</dt>
+        <dd ng-show="$ctrl.build.submitTime">{{ ($ctrl.build.submitTime | date : 'medium') }}</dd>
+        
+        <dt ng-show="$ctrl.build.startTime">Started:</dt>
+        <dd ng-show="$ctrl.build.startTime">{{ ($ctrl.build.startTime | date : 'medium') }}</dd>
+        
+        <dt ng-show="$ctrl.build.endTime">Finished:</dt>
+        <dd ng-show="$ctrl.build.endTime">{{ ($ctrl.build.endTime | date : 'medium') }}</dd>
+
+        <dt>SCM URL:</dt>
+        <dd>
+          <span ng-show="$ctrl.build.scmUrl">{{ $ctrl.build.scmUrl }}</span>
+          <span ng-hide="$ctrl.build.scmUrl">
+            <span class="pficon pficon-warning-triangle-o" ng-if="$ctrl.buildStatusHelper.isFailed($ctrl.build.status)" title="Something went wrong, probably during alignment process, you should check alignment logs for more details."></span>
+            Not available, based on <code>{{ $ctrl.build.scmRepository.internalUrl }}</code>
+          </span>
+        </dd>
+
+        <dt class="lh-1-5 m-t-10">
+          Pre-alignment<br>SCM Revision
+          <a uib-popover="SCM Revision before Alignment is executed"
+            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+            href><span class="fa fa-info-circle"></span></a> :
+        </dt>
+        <dd class="m-t-10">
+          <span ng-show="$ctrl.build.buildConfigRevision.scmRevision">{{ $ctrl.build.buildConfigRevision.scmRevision }}</span>
+        </dd>
+
+        <dt class="lh-1-5 m-t-10">
+          Post-alignment<br>SCM Revision
+          <a uib-popover="SCM Revision after Alignment is executed"
+            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+            href><span class="fa fa-info-circle"></span></a> :
+        </dt>
+        <dd class="m-t-10">
+          <span ng-show="$ctrl.build.scmRevision">{{ $ctrl.build.scmRevision }}</span>
+          <span ng-hide="$ctrl.build.scmRevision">
+            <span class="pficon pficon-warning-triangle-o" ng-if="$ctrl.buildStatusHelper.isFailed($ctrl.build.status)" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
+            Not available, based on <code>{{ $ctrl.build.buildConfigRevision.scmRevision }}</code>
+          </span>
+        </dd>
+
+        <dt class="lh-1-5 m-t-10 m-b-5">
+          Post-alignment<br>SCM Tag
+          <a uib-popover="SCM Tag after Alignment is executed"
+            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+            href><span class="fa fa-info-circle"></span></a> :
+        </dt>
+        <dd class="m-t-10 m-b-5">
+          <span ng-show="$ctrl.build.scmTag">{{ $ctrl.build.scmTag }}</span>
+          <span ng-hide="$ctrl.build.scmTag">
+            Not available
+          </span>
+        </dd>
+
+        <dt>Environment:</dt>
+        <dd>{{ $ctrl.build.environment.name || '&mdash;' }}</dd>
+
+        <dt>Script:</dt>
+        <dd><pre class="pre-scrollable">{{ $ctrl.build.buildConfigRevision.buildScript || '&mdash;' }}</pre></dd>
+
+        <dt ng-repeat-start="(key, value) in $ctrl.build.attributes">{{key}}</dt>
+        <dd ng-repeat-end>{{value}}</dd>
+
+        <dt>Parameters</dt>
+        <dd>todo NCL-5271</dd>
+        <!--dd>
+          <ul class="list-unstyled" ng-show="$ctrl.build.buildConfigurationAudited.genericParameters">
+            <li ng-repeat="(key, value) in $ctrl.build.buildConfigurationAudited.genericParameters">
+              <tt>{{key}}</tt> : <pre>{{value}}</pre>
+            </li>
+          </ul>
+          <span ng-hide="$ctrl.build.buildConfigurationAudited.genericParameters">&mdash;</span>
+        </dd-->
+
+      </dl>
+    </div>
+
   </div>
 </div>
 
-<pnc-build-tree build-record="recordCtrl.record"></pnc-build-tree>
-<pnc-log-streamer build-record="recordCtrl.record" ng-if="::recordCtrl.buildStatusHelper.isInProgress(recordCtrl.record)"></pnc-log-streamer>
+<pnc-build-tree build="$ctrl.build"></pnc-build-tree>
+<pnc-log-streamer build-record="$ctrl.build" ng-if="::$ctrl.buildStatusHelper.isInProgress($ctrl.build)"></pnc-log-streamer>
