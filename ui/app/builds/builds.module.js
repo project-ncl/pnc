@@ -120,27 +120,23 @@
         url: '',
         templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
         data: {
-          displayName: 'Job #{{ recordDetail.id }}',
+          displayName: 'Job #{{ build.id }}',
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.result', {
-        url: '/result',
-        controller: 'RecordResultController',
-        controllerAs: 'resultCtrl',
-        templateUrl: 'builds/views/builds.detail.result.html',
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.build-log', {
+        url: '/build-log',
+        component: 'pncBuildDetailBuildLogPage',
         data: {
           displayName: 'Build Log',
-          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Log'
+          title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Build Log'
         },
         resolve: {
-          buildLog: ['BuildRecord', 'recordDetail', function (BuildRecord, recordDetail) {
-            return BuildRecord.getLog({ id: recordDetail.id }).$promise;
+          buildLog: ['BuildResource', 'build', function (BuildResource, build) {
+            return BuildResource.getLogBuild({ id: build.id }).$promise;
           }],
-          sshCredentials: ['BuildRecord', 'recordDetail', function (BuildRecord, recordDetail) {
-            return BuildRecord.getSshCredentials({
-              recordId: recordDetail.id
-            });
+          sshCredentials: ['BuildResource', 'build', function (BuildResource, build) {
+            return BuildResource.getSshCredentials({ id: build.id }).$promise;
           }]
         }
       });

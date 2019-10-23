@@ -18,21 +18,33 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').controller('RecordResultController', [
-    'buildLog',
-    'recordDetail',
-    'sshCredentials',
-    function(buildLog, recordDetail, sshCredentials) {
-      this.logUrl = recordDetail.$buildLogUrl();
-      this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
-      this.log = buildLog.payload;
+  angular.module('pnc.builds').component('pncBuildDetailBuildLogPage', {
+    bindings: {
+      build: '<',
+      buildLog: '<',
+      sshCredentials: '<'
+    },
+    templateUrl: 'builds/detail/build-log/pnc-build-detail-build-log-page.html',
+    controller: [Controller]
+  });
 
-      this.sshCredentialsBtn = {
-        clicked: false
-      };
 
-      this.sshCredentials = sshCredentials;
-    }
-  ]);
+  function Controller() {
+    const $ctrl = this;
+
+    // -- Controller API --
+    $ctrl.logFileName = null;
+    $ctrl.sshCredentialsBtn = {
+      clicked: false
+    };
+
+
+    // --------------------
+
+    $ctrl.$onInit = function () {
+      $ctrl.logFileName = $ctrl.build.id + '_' + $ctrl.build.buildConfigRevision.name + '_' + $ctrl.build.status + '.txt';
+    };
+
+  }
 
 })();

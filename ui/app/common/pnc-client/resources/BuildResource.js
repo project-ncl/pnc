@@ -164,7 +164,7 @@
 
       resource.getSshCredentials = params => $q.when(authService.isAuthenticated()).then(authenticated => {
         if (authenticated) {
-          return resource._getSshCredentials(params).$promise;
+          return resource._getSshCredentials(params);
         }
       });
 
@@ -194,7 +194,7 @@
 
 
       function buildLogUrl(build) {
-        return ENDPOINT.replace(':id', build.id) + '/log';
+        return ENDPOINT.replace(':id', build.id) + '/logs/build';
       }
       resource.prototype.$buildLogUrl = function () {
         return buildLogUrl(this);
