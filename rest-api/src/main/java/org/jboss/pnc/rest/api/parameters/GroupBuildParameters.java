@@ -38,6 +38,7 @@ public class GroupBuildParameters {
 
     @Parameter(description = "What should varant rebuild?")
     @QueryParam("rebuildMode")
+    @DefaultValue("IMPLICIT_DEPENDENCY_CHECK")
     RebuildMode rebuildMode;
 
     @Parameter(description = "Should we add a timestamp during the alignment? Valid only for temporary builds.")

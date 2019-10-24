@@ -151,6 +151,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("environmentMapper", buildMapper, environmentMapper, BuildMapperImpl.class);
         injectMethod("groupBuildMapper", buildMapper, groupBuildMapper, BuildMapperImpl.class);
         injectMethod("projectMapper", buildMapper, projectMapper, BuildMapperImpl.class);
+        injectMethod("productMilestoneMapper", buildMapper, productMilestoneMapper, BuildMapperImpl.class);
         injectMethod("sCMRepositoryMapper", buildMapper, sCMRepositoryMapper, BuildMapperImpl.class);
         injectMethod("userMapper", buildMapper, userMapper, BuildMapperImpl.class);
         injectMethod("buildBCRevisionFetcher", buildMapper, buildBCRevisionFetcher, BuildMapperImpl.class);
