@@ -18,16 +18,34 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').controller('RecordRepourResultController', [
-    'repourLog',
-    'REST_BASE_URL',
-    'BUILD_RECORD_ENDPOINT',
-    'recordDetail',
-    function(repourLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail) {
-      this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/repour-log';
-      this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '_repour-log.txt';
-      this.log = repourLog.payload;
-    }
-  ]);
+  angular.module('pnc.builds').component('pncBuildDetailAlignmentLogPage', {
+    bindings: {
+      build: '<',
+      alignmentLog: '<'
+    },
+    templateUrl: 'builds/detail/alignment-log/pnc-build-detail-alignment-log-page.html',
+    controller: ['REST_BASE_REST_URL', 'BUILD_PATH', Controller]
+  });
+
+
+  function Controller(REST_BASE_REST_URL, BUILD_PATH) {
+    const $ctrl = this;
+
+    // -- Controller API --
+    $ctrl.logUrl = null;
+    $ctrl.logFileName = null;
+    $ctrl.sshCredentialsBtn = {
+      clicked: false
+    };
+
+
+    // --------------------
+
+    $ctrl.$onInit = function () {
+      $ctrl.logUrl = REST_BASE_REST_URL + BUILD_PATH.replace(':id', $ctrl.build.id) + '/logs/align';
+      $ctrl.logFileName = $ctrl.build.id + '_' + $ctrl.build.buildConfigRevision.name + '_' + $ctrl.build.status + '_alignment-log.txt';
+    };
+
+  }
 
 })();
