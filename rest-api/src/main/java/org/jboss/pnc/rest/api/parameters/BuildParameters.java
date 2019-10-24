@@ -36,19 +36,15 @@ public class BuildParameters {
     @DefaultValue("false")
     boolean temporaryBuild;
 
-    @Parameter(description = "Should we force the rebuild?")
-    @QueryParam("forceRebuild")
-    @DefaultValue("false")
-    boolean forceRebuild;
-
     @Parameter(description = "What should varant rebuild?")
     @QueryParam("rebuildMode")
+    @DefaultValue("IMPLICIT_DEPENDENCY_CHECK")
     RebuildMode rebuildMode;
 
     @Parameter(description = "Should we build also dependencies of this BuildConfiguration?")
     @QueryParam("buildDependencies")
     @DefaultValue("true")
-    boolean buildDependencies;
+    Boolean buildDependencies;
 
     @Parameter(description = "Should we keep the build container running, if the build fails?")
     @QueryParam("keepPodOnFailure")

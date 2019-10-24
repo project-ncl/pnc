@@ -61,6 +61,8 @@ public class Build extends BuildRef {
 
     private final List<String> dependencyBuildIds;
 
+    private final ProductMilestoneRef productMilestone;
+
     private final GroupBuildRef groupBuild;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
@@ -68,7 +70,7 @@ public class Build extends BuildRef {
             User user, BuildConfigurationRevisionRef buildConfigRevision, List<String> dependentBuildIds,
             List<String> dependencyBuildIds, String id, Instant submitTime, Instant startTime, Instant endTime,
             BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmUrl,
-            String scmRevision, String scmTag, GroupBuildRef groupBuild) {
+            String scmRevision, String scmTag, GroupBuildRef groupBuild, ProductMilestoneRef productMilestone) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmUrl, scmRevision, scmTag);
         this.project = project;
         this.scmRepository = scmRepository;
@@ -78,6 +80,7 @@ public class Build extends BuildRef {
         this.buildConfigRevision = buildConfigRevision;
         this.dependentBuildIds = dependentBuildIds;
         this.dependencyBuildIds = dependencyBuildIds;
+        this.productMilestone = productMilestone;
         this.groupBuild = groupBuild;
     }
 
