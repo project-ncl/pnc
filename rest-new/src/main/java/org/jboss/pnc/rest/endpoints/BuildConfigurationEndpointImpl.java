@@ -205,7 +205,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     private BuildOptions toBuildOptions(BuildParameters buildParams) {
         BuildOptions buildOptions = new BuildOptions(
                 buildParams.isTemporaryBuild(),
-                buildParams.isBuildDependencies(),
+                buildParams.getBuildDependencies(),
                 buildParams.isKeepPodOnFailure(),
                 buildParams.isTimestampAlignment(),
                 buildParams.getRebuildMode());
