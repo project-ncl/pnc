@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder;
 
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -66,6 +67,9 @@ public class BuildTasksInitializer {
                                            BuildOptions buildOptions,
                                            Supplier<Integer> buildTaskIdProvider,
                                            Set<BuildTask> submittedBuildTasks) {
+
+        ProcessStageUtils.logProcessStageBegin("Scheduling");
+
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildOptions(buildOptions)
@@ -85,6 +89,7 @@ public class BuildTasksInitializer {
                 submittedBuildTasks,
                 buildOptions);
 
+        ProcessStageUtils.logProcessStageEnd("Scheduling");
         return buildSetTask;
     }
 
@@ -285,6 +290,7 @@ public class BuildTasksInitializer {
                         productMilestone,
                         buildContentId);
                 log.debug("Created new buildTask {} for BuildConfigurationAudited {}.", buildTask, buildConfigAudited);
+                ProcessStageUtils.logProcessStageBegin("Enqueued");
             }
 
             buildSetTask.addBuildTask(buildTask);
