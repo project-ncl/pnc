@@ -30,4 +30,13 @@
       return restConfig.getPncUrl();
     }
   ]);
+
+  module.factory('REST_BASE_REST_URL', [
+    'restConfig',
+    function(restConfig) {
+      return restConfig.getPncRestUrl();
+    }
+  ]);
+
+d
 })();

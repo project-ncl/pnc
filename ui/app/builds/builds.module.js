@@ -173,21 +173,16 @@
           }
         });
 
-      /**
-       * naming: alignment log (end user), repour result (internal)
-       */
-      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.repour-result', {
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.alignment-log', {
         url: '/alignment-log',
-        controller: 'RecordRepourResultController',
-        controllerAs: 'repourResultCtrl',
-        templateUrl: 'builds/views/builds.detail.repour-result.html',
+        component: 'pncBuildDetailAlignmentLogPage',
         data: {
           displayName: 'Alignment Log',
-          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Alignment Log'
+          title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Alignment Log'
         },
         resolve: {
-          repourLog: ['BuildRecord', 'recordDetail', function (BuildRecord, recordDetail) {
-            return BuildRecord.getRepourLog({ id: recordDetail.id }).$promise;
+          alignmentLog: ['BuildResource', 'build', function (BuildResource, build) {
+            return BuildResource.getLogAlign({ id: build.id }).$promise;
           }]
         }
       });
