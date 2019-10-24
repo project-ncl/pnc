@@ -487,8 +487,8 @@ public class BuildConfigurationRestTest extends AbstractTest {
                 .hasJsonValueEqual("content.name", createRevisionsResponse.jsonPath().get("content[1].name"));
 
         // Verify generic parameters have been restored.
-        assertThat(restoreRevisionResponse.jsonPath().getMap("content.genericParameters", String.class, String.class))
-                .isEqualToComparingFieldByField(createRevisionsResponse.jsonPath().getMap("content[1].genericParameters", String.class, String.class));
+        assertThat(restoreRevisionResponse.jsonPath().getMap("content.genericParameters", String.class, String.class).get("KEY1"))
+                .isEqualTo(createRevisionsResponse.jsonPath().getMap("content[1].genericParameters", String.class, String.class).get("KEY1"));
     }
 
     // TODO Test will fail due to issue: NCL-4473, remove @Ignore when fixed.

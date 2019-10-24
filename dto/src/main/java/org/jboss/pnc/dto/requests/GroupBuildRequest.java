@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.dto.requests;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 
 import java.util.List;
@@ -30,8 +32,11 @@ import lombok.Data;
  */
 @Data
 @Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = GroupBuildRequest.Builder.class)
 public class GroupBuildRequest {
 
     private final List<BuildConfigurationRevisionRef> buildConfigurationRevisions;
 
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class Builder{}
 }

@@ -18,7 +18,12 @@
 package org.jboss.pnc.integration_new.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.mock.auth.KeycloakServiceClientMock;
+import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.executor.BuildExecutorMock;
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
+import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -32,6 +37,7 @@ import java.io.File;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
 import static org.jboss.pnc.AbstractTest.AUTH_JAR;
+import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -108,6 +114,24 @@ public class Deployments {
         logger.info(jar.toString(true));
 
         enterpriseArchive.addAsModule(jar);
+    }
+
+    public static void addBuildExecutorMock(EnterpriseArchive enterpriseArchive) {
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, EXECUTOR_JAR);
+
+        jar.deleteClass(DefaultBuildExecutor.class);
+
+        jar.addPackage(BuildExecutorMock.class.getPackage());
+        jar.addClass(BuildDriverResultMock.class);
+        jar.addClass(RepositoryManagerResultMock.class);
+        jar.addClass(ArtifactBuilder.class);
+
+        jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+
+        logger.info(jar.toString(true));
+
+        enterpriseArchive.addAsModule(jar);
+
     }
 
     private static void addTestCommonWithoutTransitives(EnterpriseArchive webArchive) {

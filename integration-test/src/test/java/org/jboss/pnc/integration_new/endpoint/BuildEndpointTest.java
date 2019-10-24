@@ -239,7 +239,8 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() {
-        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(
+                RestClientConfiguration.AuthenticateAs.USER2));
 
         assertThatThrownBy(() -> client.getSshCredentials(buildId))
                 .hasCauseInstanceOf(ForbiddenException.class); // 403 means not authorized

@@ -26,7 +26,7 @@ import org.jboss.pnc.integration.env.IntegrationTestEnv;
 public class RestClientConfiguration {
 
     public enum AuthenticateAs {
-        NONE, USER, SYSTEM_USER
+        NONE, USER, USER2, SYSTEM_USER
     }
 
     public static Configuration getConfiguration(AuthenticateAs authAs) {
@@ -34,6 +34,8 @@ public class RestClientConfiguration {
         if (AuthenticateAs.SYSTEM_USER.equals(authAs)) {
             builder.basicAuth(new Configuration.BasicAuth("system", "system.1234"));
         } else if (AuthenticateAs.USER.equals(authAs)) {
+            builder.basicAuth(new Configuration.BasicAuth("demo-user", "pass.1234"));
+        } else if (AuthenticateAs.USER2.equals(authAs)) {
             builder.basicAuth(new Configuration.BasicAuth("user", "pass.1234"));
         }
         builder.protocol("http");
