@@ -40,11 +40,6 @@ public class ProcessStageUtils {
      */
     public static void logProcessStage(String processStage, Step step) {
 
-        Map<String, String> mdc = MDC.getCopyOfContextMap();
-        if (mdc == null) {
-            mdc = new HashMap<>();
-        }
-
         try (MDC.MDCCloseable a = MDC.putCloseable(MDC_PROCESS_STAGE_NAME, processStage);
              MDC.MDCCloseable b = MDC.putCloseable(MDC_PROCESS_STAGE_STEP, step.toString())) {
 
