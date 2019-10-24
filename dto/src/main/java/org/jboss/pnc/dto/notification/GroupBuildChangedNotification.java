@@ -17,20 +17,18 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import org.jboss.pnc.dto.GroupBuild;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+import static org.jboss.pnc.enums.JobNotificationProgress.PENDING;
 import static org.jboss.pnc.enums.JobNotificationType.GROUP_BUILD;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Notification about change in Group Build.
@@ -64,7 +62,9 @@ public class GroupBuildChangedNotification extends Notification {
     }
 
     public static JobNotificationProgress getProgress(BuildStatus status) {
-        if (status.isFinal()) {
+        if (BuildStatus.NEW.equals(status)) {
+            return PENDING;
+        } else if (status.isFinal()) {
             return FINISHED;
         } else {
             return IN_PROGRESS;
