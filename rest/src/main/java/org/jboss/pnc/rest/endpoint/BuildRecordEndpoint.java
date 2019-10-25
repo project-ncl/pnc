@@ -179,7 +179,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
-            @ApiParam(value = "Timestamp using Linux epoch") @QueryParam("timestamp") long timestamp) {
+            @ApiParam(value = "Timestamp using Linux epoch in miliseconds") @QueryParam("timestamp") long timestamp) {
         return fromCollection(buildRecordProvider.getAllTemporaryOlderThanTimestamp(pageIndex, pageSize, sort, q, timestamp));
     }
 
