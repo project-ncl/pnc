@@ -56,6 +56,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -87,6 +88,8 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     private BuildRecordProvider buildRecordProvider;
 
+    private BuildConfigSetRecordProvider buildConfigSetRecordProvider;
+
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     private EndpointAuthenticationProvider authenticationProvider;
@@ -108,6 +111,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             EndpointAuthenticationProvider authenticationProvider, Notifier notifier) {
         super(buildConfigSetRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
+        this.buildConfigSetRecordProvider = buildConfigSetRecordProvider;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
         this.authenticationProvider = authenticationProvider;
         this.notifier = notifier;
@@ -128,6 +132,24 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
         return super.getAll(pageIndex, pageSize, sort, q);
+    }
+
+    @ApiOperation(value = "Gets the temporary Build Config Set Records, which were built before a timestamp set by parameter")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSetRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationSetRecordPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/temporary-older-than-timestamp")
+    public Response getAllTemporaryOlderThanTimestamp(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Timestamp using Linux epoch in miliseconds") @QueryParam("timestamp") long timestamp) {
+        return fromCollection(buildConfigSetRecordProvider.getAllTemporaryOlderThanTimestamp(pageIndex, pageSize, sort, q, timestamp));
     }
 
     @ApiOperation(value = "Gets specific build config set execution record")
