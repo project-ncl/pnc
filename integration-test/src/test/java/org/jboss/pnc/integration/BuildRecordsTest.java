@@ -260,7 +260,7 @@ public class BuildRecordsTest {
                 .buildConfigurationAudited(buildConfigurationAudited)
                 .submitTime(new Date(0))
                 .startTime(new Date(0))
-                .endTime(new Date(epochMonthAgo))
+                .endTime(new Date(epochMonthAgo * 1000))
                 .user(user)
                 .builtArtifact(temporaryBuiltArtifact1)
                 .dependency(importedArtifact1)
@@ -336,7 +336,7 @@ public class BuildRecordsTest {
         long epochTwoWeeksAgo = Instant.now().getEpochSecond() - 14 * 24 * 60 * 60;
 
         // when
-        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider.getAllTemporaryOlderThanTimestamp(0, 10, null, null, epochTwoWeeksAgo);
+        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider.getAllTemporaryOlderThanTimestamp(0, 10, null, null, epochTwoWeeksAgo * 1000);
 
         // then
         assertThat(temporaryBuilds).isNotNull();
@@ -565,7 +565,7 @@ public class BuildRecordsTest {
         assertThat(buildRecords).hasSize(0);
     }
 
-    private Artifact createDummyArtifact(String suffix, TargetRepository targetRepository, Artifact.Quality quality) {
+    public static  Artifact createDummyArtifact(String suffix, TargetRepository targetRepository, Artifact.Quality quality) {
         return Artifact.Builder.newBuilder()
                 .filename("builtArtifact" + suffix + ".jar")
                 .identifier("integration-test:built-artifact" + suffix + ":jar:1.0")
@@ -578,7 +578,7 @@ public class BuildRecordsTest {
     }
 
 
-    private Artifact createDummyArtifact(String suffix, TargetRepository targetRepository) {
+    public static Artifact createDummyArtifact(String suffix, TargetRepository targetRepository) {
         return createDummyArtifact(suffix, targetRepository, Artifact.Quality.NEW);
     }
 
