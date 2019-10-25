@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -29,6 +30,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.function.Function;
 
 @PermitAll
@@ -58,5 +60,15 @@ public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSe
             String rsql, Integer buildConfigSetId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
                 BuildConfigSetRecordPredicates.withBuildConfigSetId(buildConfigSetId));
+    }
+
+    public CollectionInfo<BuildConfigSetRecordRest> getAllTemporaryOlderThanTimestamp(int pageIndex,
+                                                  int pageSize,
+                                                  String sort,
+                                                  String q,
+                                                  long timestamp) {
+        return queryForCollection(pageIndex, pageSize, sort, q, BuildConfigSetRecordPredicates.temporaryBuild(),
+                BuildConfigSetRecordPredicates.buildFinishedBefore(new Date(timestamp)));
+
     }
 }
