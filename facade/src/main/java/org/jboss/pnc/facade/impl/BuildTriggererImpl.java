@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -55,6 +56,8 @@ import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 /**
  *
@@ -179,16 +182,21 @@ public class BuildTriggererImpl implements BuildTriggerer {
             List<BuildConfigurationRevisionRef> buildConfigurationAuditedRests) throws InvalidEntityException {
         Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
 
-        for (BuildConfigurationRevisionRef bc : buildConfigurationAuditedRests) {
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(Integer.valueOf(bc.getId()), bc.getRev()));
-            Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());
-            buildConfigurationAudited = hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited);
+        Set<IdRev> buildConfigurationAuditedRevs = nullableStreamOf(buildConfigurationAuditedRests).map(bcrRef -> new IdRev(Integer.valueOf(bcrRef.getId()), bcrRef.getRev())).collect(Collectors.toSet());
+        if (!buildConfigurationAuditedRevs.isEmpty()) {
+            Map<IdRev, BuildConfigurationAudited> buildConfigurationsAuditedMap = buildConfigurationAuditedRepository.queryById(buildConfigurationAuditedRevs);
 
-            if (!buildConfigurationSet.getBuildConfigurations().contains(buildConfigurationAudited.getBuildConfiguration())) {
-                throw new InvalidEntityException("BuildConfigurationSet " + buildConfigurationSet + " doesn't contain this BuildConfigurationAudited entity " + buildConfigurationAudited);
+            for (BuildConfigurationRevisionRef bc : buildConfigurationAuditedRests) {
+                BuildConfigurationAudited buildConfigurationAudited = buildConfigurationsAuditedMap.get(new IdRev(Integer.valueOf(bc.getId()), bc.getRev()));
+                Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());
+                buildConfigurationAudited = hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited);
+
+                if (!buildConfigurationSet.getBuildConfigurations().contains(buildConfigurationAudited.getBuildConfiguration())) {
+                    throw new InvalidEntityException("BuildConfigurationSet " + buildConfigurationSet + " doesn't contain this BuildConfigurationAudited entity " + buildConfigurationAudited);
+                }
+
+                buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
             }
-
-            buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
         }
 
         return buildConfigurationAuditedsMap;
