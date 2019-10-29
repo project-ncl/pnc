@@ -143,16 +143,14 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail.artifacts', {
         url: '/artifacts',
-        controller: 'RecordArtifactsController',
-        controllerAs: 'artifactsCtrl',
-        templateUrl: 'builds/views/builds.detail.artifacts.html',
+        component: 'pncBuildDetailArtifactsPage',
         data: {
           displayName: 'Build Artifacts',
-          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Build Artifacts'
+          title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Build Artifacts'
         },
         resolve: {
-          artifacts: ['recordDetail', function (recordDetail) {
-            return recordDetail.$getBuiltArtifacts({ pageSize: 10 });
+          artifacts: ['build', function (build) {
+            return build.$getBuiltArtifacts({ pageSize: 10 });
           }]
         }
       });
