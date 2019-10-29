@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.BuildType;
 
 import java.time.Instant;
@@ -36,6 +37,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = BuildConfigurationRevision.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
     private final SCMRepository scmRepository;
@@ -56,6 +58,7 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

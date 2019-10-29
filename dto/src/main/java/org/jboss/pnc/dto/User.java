@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
@@ -34,6 +35,7 @@ import javax.validation.constraints.Null;
 @Data
 @Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = User.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
@@ -43,6 +45,7 @@ public class User implements DTOEntity {
     protected final String username;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

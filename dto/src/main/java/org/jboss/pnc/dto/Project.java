@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
@@ -38,6 +39,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = Project.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Project extends ProjectRef {
 
     @PatchSupport({ADD, REPLACE})
@@ -50,6 +52,7 @@ public class Project extends ProjectRef {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

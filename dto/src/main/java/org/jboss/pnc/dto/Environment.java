@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SystemImageType;
@@ -39,6 +40,7 @@ import lombok.Data;
 @Data
 @Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = Environment.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Environment implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
@@ -62,6 +64,7 @@ public class Environment implements DTOEntity {
     private final boolean deprecated;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }
