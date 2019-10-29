@@ -30,7 +30,7 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperCentralConfig.class, uses = {ArtifactMapper.class, AbstractArtifactMapper.IDMapper.class })
 public interface TargetRepositoryMapper extends EntityMapper<Integer, TargetRepository, org.jboss.pnc.dto.TargetRepository, TargetRepositoryRef> {
     @Override
-    @Mapping(target = "artifacts", source = "artifactIds")
+    @Mapping(target = "artifacts", ignore = true)
     TargetRepository toEntity(org.jboss.pnc.dto.TargetRepository dtoEntity);
 
     @Override
@@ -38,8 +38,7 @@ public interface TargetRepositoryMapper extends EntityMapper<Integer, TargetRepo
     TargetRepository toIDEntity(TargetRepositoryRef dtoEntity);
 
     @Override
-    @Mapping(target = "artifactIds", source = "artifacts")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"identifierPath"})
+    @BeanMapping(ignoreUnmappedSourceProperties = {"identifierPath", "artifacts"})
     org.jboss.pnc.dto.TargetRepository toDTO(TargetRepository dbEntity);
 
     @Override

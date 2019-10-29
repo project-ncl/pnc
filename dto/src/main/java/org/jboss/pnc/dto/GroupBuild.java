@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.BuildStatus;
 
 import java.time.Instant;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -46,15 +45,12 @@ public class GroupBuild extends GroupBuildRef {
 
     private final ProductVersionRef productVersion;
 
-    private final Set<String> buildIds;
-
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private GroupBuild(GroupConfigurationRef groupConfig, User user, ProductVersionRef productVersion, Set<String> buildIds, String id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
+    private GroupBuild(GroupConfigurationRef groupConfig, User user, ProductVersionRef productVersion, String id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
         super(id, startTime, endTime, status, temporaryBuild);
         this.groupConfig = groupConfig;
         this.user = user;
         this.productVersion = productVersion;
-        this.buildIds = buildIds;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

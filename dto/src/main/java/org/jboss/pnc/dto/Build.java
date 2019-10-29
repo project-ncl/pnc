@@ -27,7 +27,6 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
@@ -59,18 +58,14 @@ public class Build extends BuildRef {
 
     private final BuildConfigurationRevisionRef buildConfigRevision;
 
-    private final List<String> dependentBuildIds;
-
-    private final List<String> dependencyBuildIds;
-
     private final ProductMilestoneRef productMilestone;
 
     private final GroupBuildRef groupBuild;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Build(ProjectRef project, SCMRepository scmRepository, Environment environment, Map<String, String> attributes,
-            User user, BuildConfigurationRevisionRef buildConfigRevision, List<String> dependentBuildIds,
-            List<String> dependencyBuildIds, String id, Instant submitTime, Instant startTime, Instant endTime,
+            User user, BuildConfigurationRevisionRef buildConfigRevision,
+            String id, Instant submitTime, Instant startTime, Instant endTime,
             BuildStatus status, String buildContentId, Boolean temporaryBuild, String scmUrl,
             String scmRevision, String scmTag, GroupBuildRef groupBuild, ProductMilestoneRef productMilestone) {
         super(id, submitTime, startTime, endTime, status, buildContentId, temporaryBuild, scmUrl, scmRevision, scmTag);
@@ -80,8 +75,6 @@ public class Build extends BuildRef {
         this.attributes = attributes;
         this.user = user;
         this.buildConfigRevision = buildConfigRevision;
-        this.dependentBuildIds = dependentBuildIds;
-        this.dependencyBuildIds = dependencyBuildIds;
         this.productMilestone = productMilestone;
         this.groupBuild = groupBuild;
     }

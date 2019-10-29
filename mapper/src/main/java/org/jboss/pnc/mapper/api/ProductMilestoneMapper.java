@@ -33,8 +33,8 @@ import org.mapstruct.Mapping;
 public interface ProductMilestoneMapper extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
     @Override
-    @Mapping(target = "distributedArtifacts", source = "distributedArtifactIds")
-    @Mapping(target = "performedBuilds", source = "performedBuildIds")
+    @Mapping(target = "distributedArtifacts", ignore = true)
+    @Mapping(target = "performedBuilds", ignore = true)
     ProductMilestone toEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity);
 
     @Override
@@ -48,10 +48,9 @@ public interface ProductMilestoneMapper extends EntityMapper<Integer, ProductMil
     }
 
     @Override
-    @Mapping(target = "distributedArtifactIds", source = "distributedArtifacts")
-    @Mapping(target = "performedBuildIds", source = "performedBuilds")
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "productRelease", resultType = ProductReleaseRef.class)
+    @BeanMapping(ignoreUnmappedSourceProperties = {"performedBuilds", "distributedArtifacts"})
     org.jboss.pnc.dto.ProductMilestone toDTO(ProductMilestone dbEntity);
 
     @Override

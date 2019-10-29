@@ -104,14 +104,10 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone retrieved = client.getSpecific(created.getId());
 
         //then
-        ProductMilestone toCompare = productMilestone.toBuilder()
-                .performedBuildIds(Collections.emptySet()) // query had null, but server responds with empty array
-                .distributedArtifactIds(Collections.emptySet()) // query had null, but server responds with empty array
-                .build();
-        assertThat(created.getProductVersion().getId()).isEqualTo(toCompare.getProductVersion().getId());
-        assertThat(retrieved.getProductVersion().getId()).isEqualTo(toCompare.getProductVersion().getId());
-        assertThat(created).isEqualToIgnoringGivenFields(toCompare, "id", "productVersion");
-        assertThat(retrieved).isEqualToIgnoringGivenFields(toCompare, "id", "productVersion");
+        assertThat(created.getProductVersion().getId()).isEqualTo(productMilestone.getProductVersion().getId());
+        assertThat(retrieved.getProductVersion().getId()).isEqualTo(productMilestone.getProductVersion().getId());
+        assertThat(created).isEqualToIgnoringGivenFields(productMilestone, "id", "productVersion");
+        assertThat(retrieved).isEqualToIgnoringGivenFields(productMilestone, "id", "productVersion");
         assertThat(retrieved).isEqualTo(created);
     }
 

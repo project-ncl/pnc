@@ -34,7 +34,7 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
 
     @Override
     @Mapping(target = "buildConfigurationSet", source = "groupConfig")
-    @Mapping(target = "buildRecords", source = "buildIds")
+    @Mapping(target = "buildRecords", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     BuildConfigSetRecord toEntity(GroupBuild dtoEntity);
@@ -51,10 +51,9 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
 
     @Override
     @Mapping(target = "groupConfig", source = "buildConfigurationSet", resultType = GroupConfigurationRef.class)
-    @Mapping(target = "buildIds", source = "buildRecords")
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"attributes"})
+    @BeanMapping(ignoreUnmappedSourceProperties = {"attributes", "buildRecords"})
     GroupBuild toDTO(BuildConfigSetRecord dbEntity);
 
     @Override
