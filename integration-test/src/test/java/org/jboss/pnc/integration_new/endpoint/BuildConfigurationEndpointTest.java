@@ -299,7 +299,7 @@ public class BuildConfigurationEndpointTest {
         assertThat(original.getProductVersion()).isNotNull();
         assertThat(original.getGroupConfigs()).isNotEmpty();
         BuildConfiguration parent = client.getSpecific(configuration4Id);
-        assertThat(parent.getDependencies()).haveExactly(1, new Condition<>(d -> d.getId().equals(configurationId), "cloned"));
+        assertThat(parent.getDependencies()).containsKey(configurationId);
 
         // when
         BuildConfiguration clone = client.clone(original.getId());
@@ -310,8 +310,8 @@ public class BuildConfigurationEndpointTest {
         assertThat(clone.getGroupConfigs()).isEmpty();
         BuildConfiguration retrieved = client.getSpecific(clone.getId());
         BuildConfiguration retrivedParent = client.getSpecific(configuration4Id);
-        assertThat(retrivedParent.getDependencies()).haveExactly(1, new Condition<>(d -> d.getId().equals(configurationId), "cloned"));
-        assertThat(retrivedParent.getDependencies()).doNotHave(new Condition<>(d -> d.getId().equals(clone.getId()), "clone"));
+        assertThat(retrivedParent.getDependencies()).containsKey(configurationId);
+        assertThat(retrivedParent.getDependencies()).doesNotContainKey(clone.getId());
         assertThat(clone).isEqualToIgnoringGivenFields(original, "id", "name", "groupConfigs", "creationTime", "modificationTime", "modificationTime", "productVersion");
         assertThat(retrieved).isEqualToIgnoringGivenFields(clone, "modificationTime"); // close of transaction changes the modification time - WONTFIX
     }
@@ -346,10 +346,9 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration newDependency = createBuildConfigurationAndValidateResults(projectId,
                 environmentId, repositoryConfigurationId, "dep-"+UUID.randomUUID(), PARAMETER_KEY);
         BuildConfiguration parent = client.getSpecific(configuration3Id);
-        Set<BuildConfigurationRef> oldDependencies = parent.getDependencies();
+        Map<String, BuildConfigurationRef> oldDependencies = parent.getDependencies();
         assertThat(oldDependencies)
-                .extracting(DTOEntity::getId)
-                .doesNotContain(newDependency.getId());
+                .doesNotContainKey(newDependency.getId());
 
         // when
         client.addDependency(parent.getId(), newDependency);
@@ -358,7 +357,7 @@ public class BuildConfigurationEndpointTest {
         RemoteCollection<BuildConfiguration> all = client.getDependencies(parent.getId());
         assertThat(all)
                 .extracting(DTOEntity::getId)
-                .containsAll(oldDependencies.stream().map(DTOEntity::getId).collect(Collectors.toList()))
+                .containsAll(oldDependencies.keySet().stream().collect(Collectors.toList()))
                 .contains(newDependency.getId());
     }
 
@@ -368,20 +367,20 @@ public class BuildConfigurationEndpointTest {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         // given
         BuildConfiguration parent = client.getSpecific(configuration3Id);
-        Set<BuildConfigurationRef> oldDependencies = parent.getDependencies();
+        Map<String, BuildConfigurationRef> oldDependencies = parent.getDependencies();
         assertThat(oldDependencies).isNotEmpty();
-        BuildConfigurationRef toDelete = oldDependencies.iterator().next();
+        BuildConfigurationRef toDelete = oldDependencies.values().iterator().next();
 
         // when
         client.removeDependency(parent.getId(), toDelete.getId());
 
         //then
         RemoteCollection<BuildConfiguration> all = client.getDependencies(parent.getId());
-        oldDependencies.remove(toDelete);
+        oldDependencies.remove(toDelete.getId());
         assertThat(all)
                 .extracting(DTOEntity::getId)
                 .doesNotContain(toDelete.getId())
-                .containsAll(oldDependencies.stream().map(DTOEntity::getId).collect(Collectors.toList()));
+                .containsAll(oldDependencies.keySet().stream().collect(Collectors.toList()));
     }
 
     @Test

@@ -18,9 +18,9 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.BuildConfigurationRef;
-import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper.IDMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.mapstruct.BeanMapping;
@@ -33,7 +33,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(config = MapperCentralConfig.class,
         uses = {ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class,
-            IDMapper.class, SCMRepositoryMapper.class, GroupConfigurationMapper.class})
+            IDMapper.class, SCMRepositoryMapper.class, MapSetMapper.class})
 public interface BuildConfigurationMapper extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
 
     @Override
@@ -73,8 +73,8 @@ public interface BuildConfigurationMapper extends EntityMapper<Integer, BuildCon
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @Mapping(target = "environment", source = "buildEnvironment", qualifiedBy = Reference.class)
-    @Mapping(target = "groupConfigs", source = "buildConfigurationSets", resultType = GroupConfigurationRef.class)
-    @Mapping(target = "dependencies", source = "dependencies", resultType = BuildConfigurationRef.class)
+    @Mapping(target = "groupConfigs", source = "buildConfigurationSets")
+    @Mapping(target = "dependencies", source = "dependencies")
     @Mapping(target = "scmRepository", source = "repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)

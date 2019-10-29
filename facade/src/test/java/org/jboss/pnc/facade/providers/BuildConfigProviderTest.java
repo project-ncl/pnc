@@ -164,7 +164,7 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
         //Then
         org.jboss.pnc.dto.BuildConfiguration refreshed = provider.getSpecific(dependency.getId());
         assertThat(refreshed.getDependencies())
-                .anySatisfy(config -> assertThat(config.getId()).isEqualTo(bc.getId().toString()));
+                .containsKey(bc.getId().toString());
     }
 
     @Test
@@ -173,14 +173,14 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
         org.jboss.pnc.dto.BuildConfiguration dependency = provider.getSpecific("2"); //BC(name: "First!")
         org.jboss.pnc.dto.BuildConfiguration dependant = provider.getSpecific("3"); //BC(name: "Second!!")
         assertThat(dependant.getDependencies())
-                .anySatisfy(config -> assertThat(config.getId()).isEqualTo(dependency.getId()));
+                .containsKey(dependency.getId());
 
         //When
         provider.removeDependency(dependant.getId(), dependency.getId());
 
         //Then
         org.jboss.pnc.dto.BuildConfiguration refreshed = provider.getSpecific(dependant.getId());
-        assertThat(refreshed.getDependencies())
+        assertThat(refreshed.getDependencies().values())
                 .doNotHave(new Condition<>(dependency::equals, "BC is equal to 'dependency' bc"));
     }
 

@@ -64,6 +64,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -151,7 +152,7 @@ public class BuildConfigurationProviderImpl
         validateDependencies(id, buildConfigurationRest.getDependencies());
     }
 
-    private void validateDependencies(String buildConfigId, Set<BuildConfigurationRef> dependencies) throws InvalidEntityException {
+    private void validateDependencies(String buildConfigId, Map<String, BuildConfigurationRef> dependencies) throws InvalidEntityException {
 
         if (dependencies == null || dependencies.isEmpty()) {
             return;
@@ -159,9 +160,9 @@ public class BuildConfigurationProviderImpl
 
         org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(buildConfigId));
 
-        for (BuildConfigurationRef buildConfigurationRef : dependencies) {
+        for (String id : dependencies.keySet()) {
 
-            Integer dependencyId = Integer.valueOf(buildConfigurationRef.getId());
+            Integer dependencyId = Integer.valueOf(id);
 
             ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
                     !buildConfig.getId().equals(dependencyId),
@@ -444,8 +445,9 @@ public class BuildConfigurationProviderImpl
         org.jboss.pnc.model.BuildConfiguration buildConfigurationSaved = repository.save(buildConfiguration);
 
         Set<Integer> bcSetIds = configuration.getGroupConfigs()
+                .keySet()
                 .stream()
-                .map(c -> Integer.valueOf(c.getId()))
+                .map(Integer::valueOf)
                 .collect(Collectors.toSet());
 
         SCMRepository scmRepository = scmRepositoryMapper.toDTO(repositoryConfiguration);

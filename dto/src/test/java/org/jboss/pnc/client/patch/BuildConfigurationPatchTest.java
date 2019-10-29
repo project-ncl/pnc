@@ -33,9 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -105,25 +103,25 @@ public class BuildConfigurationPatchTest {
 
     @Test
     public void shouldAddToCollection() throws PatchBuilderException, IOException, JsonPatchException {
-        Set<BuildConfigurationRef> dependencies = new HashSet<>();
+        Map<String, BuildConfigurationRef> dependencies = new HashMap<>();
         BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id("1").build();
-        dependencies.add(dependency1);
+        dependencies.put(dependency1.getId(), dependency1);
 
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id("1")
                 .dependencies(dependencies)
                 .build();
 
-        Set<BuildConfigurationRef> addDependencies = new HashSet<>();
+        Map<String, BuildConfigurationRef> addDependencies = new HashMap<>();
         BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id("2").build();
-        addDependencies.add(dependency2);
+        addDependencies.put(dependency2.getId(), dependency2);
         String patchString = new BuildConfigurationPatchBuilder()
             .addDependencies(addDependencies)
             .getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
-        dependencies.addAll(addDependencies);
-        Assertions.assertThat(updatedBuildConfiguration.getDependencies()).contains(dependency1, dependency2);
+        dependencies.putAll(addDependencies);
+        Assertions.assertThat(updatedBuildConfiguration.getDependencies()).containsKeys(dependency1.getId(), dependency2.getId());
     }
 
     @Test
@@ -133,24 +131,25 @@ public class BuildConfigurationPatchTest {
         BuildConfigurationRef dependency2a = BuildConfigurationRef.refBuilder().id("2").build();
         BuildConfigurationRef dependency3 = BuildConfigurationRef.refBuilder().id("3").build();
         BuildConfigurationRef dependency4 = BuildConfigurationRef.refBuilder().id("4").build();
-        Set<BuildConfigurationRef> dependencies = new HashSet<>();
-        dependencies.add(dependency1);
-        dependencies.add(dependency2);
+        Map<String, BuildConfigurationRef> dependencies = new HashMap<>();
+        dependencies.put(dependency1.getId(), dependency1);
+        dependencies.put(dependency2.getId(), dependency2);
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id("1")
                 .dependencies(dependencies)
                 .build();
 
-        Set<BuildConfigurationRef> newDependencies = new HashSet<>();
-        newDependencies.add(dependency2a);
-        newDependencies.add(dependency3);
-        newDependencies.add(dependency4);
+        Map<String, BuildConfigurationRef> newDependencies = new HashMap<>();
+        newDependencies.put(dependency2a.getId(), dependency2a);
+        newDependencies.put(dependency3.getId(), dependency3);
+        newDependencies.put(dependency4.getId(), dependency4);
         String patchString = new BuildConfigurationPatchBuilder()
             .replaceDependencies(newDependencies)
             .getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
-        Assertions.assertThat(updatedBuildConfiguration.getDependencies()).containsExactly(newDependencies.toArray(new BuildConfigurationRef[3]));
+        Assertions.assertThat(updatedBuildConfiguration.getDependencies())
+                .containsOnly(newDependencies.entrySet().toArray(new Map.Entry[3]));
     }
 
     private BuildConfiguration applyPatch(BuildConfiguration buildConfiguration, String patchString)

@@ -31,7 +31,6 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
@@ -62,19 +61,19 @@ public class BuildConfiguration extends BuildConfigurationRef {
     protected final Environment environment;
 
     @PatchSupport({ADD, REPLACE})
-    private final Set<BuildConfigurationRef> dependencies;
+    private final Map<String, BuildConfigurationRef> dependencies;
 
     @PatchSupport({REPLACE})
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
     private final ProductVersionRef productVersion;
 
-    private final Set<GroupConfigurationRef> groupConfigs;
+    private final Map<String, GroupConfigurationRef> groupConfigs;
 
     @PatchSupport({ADD, REMOVE, REPLACE})
     private final Map<String, String> parameters;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private BuildConfiguration(SCMRepository scmRepository, ProjectRef project, Environment environment, Set<BuildConfigurationRef> dependencies, ProductVersionRef productVersion, Set<GroupConfigurationRef> groupConfigs, Map<String, String> parameters, String id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
+    private BuildConfiguration(SCMRepository scmRepository, ProjectRef project, Environment environment, Map<String, BuildConfigurationRef> dependencies, ProductVersionRef productVersion, Map<String, GroupConfigurationRef> groupConfigs, Map<String, String> parameters, String id, String name, String description, String buildScript, String scmRevision, Instant creationTime, Instant modificationTime, boolean archived, BuildType buildType) {
         super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, archived, buildType);
         this.scmRepository = scmRepository;
         this.project = project;
