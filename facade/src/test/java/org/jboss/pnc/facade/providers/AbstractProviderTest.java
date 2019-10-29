@@ -68,6 +68,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.jboss.pnc.mapper.MapSetMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -138,6 +139,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
     @Spy
     protected ProductReleaseMapper productReleaseMapper = new ProductReleaseMapperImpl();
 
+    @Spy
+    protected MapSetMapper mapSetMapper = new MapSetMapper();
+
     protected int entityId = 1;
 
     protected final List<T> repositoryList = new ArrayList<>();
@@ -157,7 +161,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("buildBCRevisionFetcher", buildMapper, buildBCRevisionFetcher, BuildMapperImpl.class);
 
         injectMethod("environmentMapper", buildConfigurationMapper, environmentMapper, BuildConfigurationMapperImpl.class);
-        injectMethod("groupConfigurationMapper", buildConfigurationMapper, groupConfigurationMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("mapSetMapper", buildConfigurationMapper, mapSetMapper, BuildConfigurationMapperImpl.class);
         injectMethod("productVersionMapper", buildConfigurationMapper, productVersionMapper, BuildConfigurationMapperImpl.class);
         injectMethod("projectMapper", buildConfigurationMapper, projectMapper, BuildConfigurationMapperImpl.class);
         injectMethod("sCMRepositoryMapper", buildConfigurationMapper, sCMRepositoryMapper, BuildConfigurationMapperImpl.class);
@@ -184,6 +188,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("userMapper", groupBuildMapper, userMapper, GroupBuildMapperImpl.class);
         injectMethod("groupConfigurationMapper", groupBuildMapper, groupConfigurationMapper, GroupBuildMapperImpl.class);
         injectMethod("productVersionMapper", groupBuildMapper, productVersionMapper, GroupBuildMapperImpl.class);
+
+        injectMethod("groupConfigurationMapper", mapSetMapper, groupConfigurationMapper, MapSetMapper.class);
+        injectMethod("buildConfigurationMapper", mapSetMapper, buildConfigurationMapper, MapSetMapper.class);
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
