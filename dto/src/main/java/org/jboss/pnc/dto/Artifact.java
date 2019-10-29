@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.ArtifactQuality;
 
 import java.time.Instant;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -43,16 +42,10 @@ public class Artifact extends ArtifactRef {
 
     private final TargetRepositoryRef targetRepository;
 
-    private final Set<String> buildIds;
-
-    private final Set<String> dependantBuildIds;
-
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Artifact(TargetRepositoryRef targetRepository, Set<String> buildIds, Set<String> dependantBuildIds, String id, String identifier, ArtifactQuality artifactQuality, String md5, String sha1, String sha256, String filename, String deployPath, Instant importDate, String originUrl, Long size, String deployUrl, String publicUrl) {
+    private Artifact(TargetRepositoryRef targetRepository, String id, String identifier, ArtifactQuality artifactQuality, String md5, String sha1, String sha256, String filename, String deployPath, Instant importDate, String originUrl, Long size, String deployUrl, String publicUrl) {
         super(id, identifier, artifactQuality, md5, sha1, sha256, filename, deployPath, importDate, originUrl, size, deployUrl, publicUrl);
         this.targetRepository = targetRepository;
-        this.buildIds = buildIds;
-        this.dependantBuildIds = dependantBuildIds;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

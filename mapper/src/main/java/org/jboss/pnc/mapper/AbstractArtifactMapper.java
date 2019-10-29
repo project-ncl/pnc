@@ -57,13 +57,12 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     private Configuration config;
 
     @Override
-    @Mapping(target = "buildIds", source = "buildRecords")
-    @Mapping(target = "dependantBuildIds", source = "dependantBuildRecords")
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
     @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
     @BeanMapping(ignoreUnmappedSourceProperties = {"distributedInProductMilestones",
-            "identifierSha256", "built", "imported", "trusted", "descriptiveString"
+            "identifierSha256", "built", "imported", "trusted", "descriptiveString",
+            "dependantBuildRecords", "buildRecords"
     })
     public abstract Artifact toDTO(org.jboss.pnc.model.Artifact dbEntity);
 
@@ -76,8 +75,8 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     public abstract ArtifactRef toRef(org.jboss.pnc.model.Artifact dbEntity);
 
     @Override
-    @Mapping(target = "buildRecords", source = "buildIds")
-    @Mapping(target = "dependantBuildRecords", source = "dependantBuildIds")
+    @Mapping(target = "buildRecords", ignore = true)
+    @Mapping(target = "dependantBuildRecords", ignore = true)
     /* Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as he thinks it is a new property */
     @Mapping(target = "dependantBuildRecord", ignore = true)
     /* Same as above */

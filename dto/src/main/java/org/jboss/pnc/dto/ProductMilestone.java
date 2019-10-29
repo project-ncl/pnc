@@ -28,7 +28,6 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
-import java.util.Set;
 
 /**
  *
@@ -45,18 +44,12 @@ public class ProductMilestone extends ProductMilestoneRef {
     @RefHasId(groups = {WhenCreatingNew.class})
     private final ProductVersionRef productVersion;
 
-    private final Set<String> performedBuildIds;
-
-    private final Set<String> distributedArtifactIds;
-
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductMilestone(ProductVersionRef productVersion, Set<String> performedBuildIds, Set<String> distributedArtifactIds, ProductReleaseRef productRelease, String id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
+    private ProductMilestone(ProductVersionRef productVersion, ProductReleaseRef productRelease, String id, String version, Instant endDate, Instant startingDate, Instant plannedEndDate, String downloadUrl, String issueTrackerUrl) {
         super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
         this.productVersion = productVersion;
-        this.performedBuildIds = performedBuildIds;
-        this.distributedArtifactIds = distributedArtifactIds;
         this.productRelease = productRelease;
     }
 

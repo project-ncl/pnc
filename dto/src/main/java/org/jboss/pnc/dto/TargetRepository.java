@@ -20,8 +20,6 @@ package org.jboss.pnc.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.RepositoryType;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -40,12 +38,9 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TargetRepository extends TargetRepositoryRef {
 
-    private final Set<String> artifactIds;
-
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private TargetRepository(Set<String> artifactIds, String id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
+    private TargetRepository(String id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
         super(id, temporaryRepo, identifier, repositoryType, repositoryPath);
-        this.artifactIds = artifactIds;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

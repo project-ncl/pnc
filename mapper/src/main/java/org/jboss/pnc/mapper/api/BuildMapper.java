@@ -52,8 +52,6 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
 
     @Override
     @Mapping(target = "environment", ignore = true)
-    @Mapping(target = "dependentBuildIds", source = "dependentBuildRecordIds")
-    @Mapping(target = "dependencyBuildIds", source = "dependencyBuildRecordIds")
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
     @Mapping(target = "buildConfigRevision", ignore = true)
     @Mapping(target = "project", ignore = true)
@@ -64,9 +62,10 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-            "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
-            "buildConfigurationId", "buildConfigurationRev", "buildConfigurationAuditedIdRev", "buildEnvironment",
-            "buildConfigurationAudited", "buildOutputChecksum"
+            "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
+            "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
+            "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
+            "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds"
     })
     Build toDTO(BuildRecord dbEntity);
 
@@ -93,8 +92,8 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
 
     @Override
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
-    @Mapping(target = "dependentBuildRecordIds", source = "dependentBuildIds")
-    @Mapping(target = "dependencyBuildRecordIds", source = "dependencyBuildIds")
+    @Mapping(target = "dependentBuildRecordIds", ignore = true)
+    @Mapping(target = "dependencyBuildRecordIds", ignore = true)
     @Mapping(target = "buildConfigurationAudited", source = "buildConfigRevision")
     @Mapping(target = "buildConfigSetRecord", source = "groupBuild")
     @Mapping(target = "scmRepoURL", source = "scmUrl")
@@ -122,8 +121,6 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @BeanMapping(ignoreUnmappedSourceProperties = {"project", "scmRepository"})
     BuildRecord toEntity(Build dtoEntity);
 
-
-
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
     @Mapping(target = "scmRepository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
     @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
@@ -131,9 +128,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     //Workaround for [NCL-4228]
     //Use of Reference class was needed here because resultType=GroupBuildRef.class along with unwrapping of Optional resulted in NPE in Mapstruct processor
     @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord", qualifiedBy = Reference.class)
-    @Mapping(target = "dependentBuildIds", source = "dependants")
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
-    @Mapping(target = "dependencyBuildIds", source = "dependencies")
     @Mapping(target = "buildContentId", source = "contentId")
     @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
     @Mapping(target = "scmUrl", ignore = true)
@@ -141,7 +136,8 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {
-            "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions"})
+        "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions", "dependants",
+        "dependencies"})
     Build fromBuildTask(BuildTask buildTask);
 
     public static <T> T unwrap(Optional<T> optional) {
