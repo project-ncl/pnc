@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
@@ -39,6 +40,7 @@ import java.time.Instant;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = ProductRelease.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductRelease extends ProductReleaseRef {
 
     @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class})
@@ -54,6 +56,7 @@ public class ProductRelease extends ProductReleaseRef {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.ArtifactQuality;
 
 import java.time.Instant;
@@ -37,6 +38,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = Artifact.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Artifact extends ArtifactRef {
 
     private final TargetRepositoryRef targetRepository;
@@ -54,6 +56,7 @@ public class Artifact extends ArtifactRef {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

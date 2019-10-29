@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
@@ -38,6 +39,7 @@ import java.util.Set;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = ProductMilestone.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductMilestone extends ProductMilestoneRef {
 
     @RefHasId(groups = {WhenCreatingNew.class})
@@ -59,6 +61,7 @@ public class ProductMilestone extends ProductMilestoneRef {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

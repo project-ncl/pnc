@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.RepositoryType;
 
 import java.util.Set;
@@ -36,6 +37,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = TargetRepository.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TargetRepository extends TargetRepositoryRef {
 
     private final Set<String> artifactIds;
@@ -47,6 +49,7 @@ public class TargetRepository extends TargetRepositoryRef {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }

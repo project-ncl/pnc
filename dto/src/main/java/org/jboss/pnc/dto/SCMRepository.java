@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
@@ -40,6 +41,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @Data
 @Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = SCMRepository.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SCMRepository implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
@@ -58,6 +60,7 @@ public class SCMRepository implements DTOEntity {
     protected final Boolean preBuildSyncEnabled;
 
     @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
 }
