@@ -20,13 +20,16 @@
 <table class="table table-bordered table-striped table-hover">
   <thead>
     <th>Identifier</th>
+    <th>Quality</th>
     <th>File Name</th>
     <th>Repository Type</th>
     <th>Checksums</th>
+    <th>Actions</th>
   </thead>
   <tbody>
     <tr ng-repeat="artifact in $ctrl.artifacts">
       <td><pnc-artifact-link artifact="artifact"></pnc-artifact-link></td>
+      <td>{{ artifact.artifactQuality }}</td>
       <td>{{ artifact.filename }}</td>
       <td>{{ artifact.targetRepository.repositoryType }}</td>
       <td>
@@ -38,6 +41,11 @@
         </div>
         <div class="checksum checksum-sha256">
           {{ artifact.sha256 }}
+        </div>
+      </td>
+      <td class="td-actions">
+        <div class="btn-group" role="group" aria-label="Row Actions">
+          <a ng-href="{{ artifact.publicUrl }}" target="_self" class="btn btn-default">Download</a>
         </div>
       </td>
     </tr>

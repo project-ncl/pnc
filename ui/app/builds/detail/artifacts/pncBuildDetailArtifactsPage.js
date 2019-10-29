@@ -18,81 +18,76 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.builds').controller('RecordArtifactsController', [
-    '$log',
-    'artifacts',
-    'filteringPaginator',
-    'pfFilterAdaptor',
-    function ($log, artifacts, filteringPaginator, pfFilterAdaptor) {
-      var self = this;
-      self.artifacts = filteringPaginator(artifacts);
+  angular.module('pnc.builds').component('pncBuildDetailArtifactsPage', {
+    bindings: {
+      artifacts: '<'
+    },
+    templateUrl: 'builds/detail/artifacts/pnc-build-detail-artifacts-page.html',
+    controller: ['filteringPaginator', Controller]
+  });
 
-      var adaptor = pfFilterAdaptor(self.artifacts);
+  function Controller(filteringPaginator) {
+    const $ctrl = this;
 
-      self.filterConfig = {
-        fields: [
-          {
-            id: 'identifier',
-            title: 'Identifier',
-            placeholder: 'Filter by Identifier',
-            filterType: 'text'
-          },
-          {
-            id: 'filename',
-            title:  'Filename',
-            placeholder: 'Filter by Filename',
-            filterType: 'text'
-          },
-          {
-            id: 'targetRepository.repositoryType',
-            title: 'Repo Type',
-            placeholder: 'Filter by Repo Type',
-            filterType: 'select',
-            filterValues: [
-              'MAVEN',
-              'GENERIC_PROXY',
-              'NPM',
-              'COCOA_POD'
-            ]
-          },
-          {
-            id: 'artifactQuality',
-            title: 'Quality',
-            placeholder: ' Filter by artifact quality',
-            filterType: 'select',
-            filterValues: [
-              'NEW',
-              'VERIFIED',
-              'TESTED',
-              'DEPRECATED',
-              'BLACKLISTED',
-              'TEMPORARY'
-            ]
-          },
-          {
-            id: 'md5',
-            title:  'md5',
-            placeholder: 'Filter by md5 checksum',
-            filterType: 'text'
-          },
-          {
-            id: 'sha1',
-            title:  'sha1',
-            placeholder: 'Filter by sha1 checksum',
-            filterType: 'text'
-          },
-          {
-            id: 'sha256',
-            title:  'sha256',
-            placeholder: 'Filter by sha256 checksum',
-            filterType: 'text'
-          }
-        ],
-        resultsCount: adaptor.resultsCount(),
-        appliedFilters: [],
-        onFilterChange: adaptor.onFilterChange
-      };
-    }
-  ]);
+    // -- Controller API --
+    $ctrl.artifactsFilteringFields = [{
+      id: 'identifier',
+      title: 'Identifier',
+      placeholder: 'Filter by Identifier',
+      filterType: 'text'
+    }, {
+      id: 'filename',
+      title:  'Filename',
+      placeholder: 'Filter by Filename',
+      filterType: 'text'
+    }, {
+      id: 'targetRepository.repositoryType',
+      title: 'Repo Type',
+      placeholder: 'Filter by Repo Type',
+      filterType: 'select',
+      filterValues: [
+        'MAVEN',
+        'GENERIC_PROXY',
+        'NPM',
+        'COCOA_POD'
+      ]
+    }, {
+      id: 'artifactQuality',
+      title: 'Quality',
+      placeholder: ' Filter by artifact quality',
+      filterType: 'select',
+      filterValues: [
+        'NEW',
+        'VERIFIED',
+        'TESTED',
+        'DEPRECATED',
+        'BLACKLISTED',
+        'TEMPORARY'
+      ]
+    }, {
+      id: 'md5',
+      title:  'md5',
+      placeholder: 'Filter by md5 checksum',
+      filterType: 'text'
+    }, {
+      id: 'sha1',
+      title:  'sha1',
+      placeholder: 'Filter by sha1 checksum',
+      filterType: 'text'
+    }, {
+      id: 'sha256',
+      title:  'sha256',
+      placeholder: 'Filter by sha256 checksum',
+      filterType: 'text'
+    }];
+  
+
+    // --------------------
+
+    $ctrl.$onInit = function () {
+      $ctrl.artifactsFilteringPage = filteringPaginator($ctrl.artifacts);
+    };
+
+  }
 
 })();
