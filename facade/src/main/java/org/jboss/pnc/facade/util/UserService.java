@@ -65,6 +65,8 @@ public class UserService {
             user = repository.queryByPredicates(withUserName(username));
             if (user != null) {
                 user.setLoginToken(currentUser.getTokenString());
+            } else {
+                throw new IllegalStateException("User not in database: Login in UI to create user.");
             }
         }
         logger.trace("Returning user: {}.", user);

@@ -47,6 +47,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
@@ -70,7 +71,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -227,7 +227,13 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     @Override
     public SSHCredentials getSshCredentials(String id) {
         BuildRecord buildRecord = getBuildRecord(id);
-        if(!buildRecord.getUser().equals(userService.currentUser())){
+        User user = null;
+        try {
+            user = userService.currentUser();
+        } catch(IllegalStateException e) {
+            //leaves user null
+        }
+        if(!buildRecord.getUser().equals(user)) {
             throw new EJBAccessException("Only user who executed the build is allowed to get the SSH credentials");
         }
 

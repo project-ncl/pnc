@@ -57,6 +57,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.asUser;
 
 @RunAsClient
@@ -185,7 +186,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldTriggerPersistentAfterSingleTemporaryWithoutForce() throws ClientException {
+    public void shouldTriggerPersistentWithoutForceAfterTemporaryOnTheSameRev() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient.getAll(Optional.empty(),Optional.of("name==maven-plugin-test")).iterator().next();
 
         BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder().description("Random Description to be able to trigger build again so that temporary build will be first on this revision").build();
@@ -284,11 +285,9 @@ public class BuildTest {
             logger.debug("Gotten build with status: {}", build.getStatus());
             if (!build.getStatus().isFinal()) return false;
         } catch (RemoteResourceNotFoundException e) {
-            //expected
-            return false;
+            fail(String.format("Build with id:{} not present", buildId), e);
         } catch (ClientException e) {
-            logger.debug("Client has failed in an unexpected way.",e);
-            return false;
+            fail("Client has failed in an unexpected way.",e);
         }
         assertThat(build).isNotNull();
         assertThat(build.getStatus()).isNotNull();
@@ -309,11 +308,9 @@ public class BuildTest {
             logger.debug("Gotten build with status: {}", build.getStatus());
             if (!build.getStatus().isFinal()) return false;
         } catch (RemoteResourceNotFoundException e) {
-            //expected
-            return false;
+            fail(String.format("Group Build with id:%s not present", groupBuildId),e);
         } catch (ClientException e) {
-            logger.debug("Client has failed in an unexpected way.",e);
-            return false;
+            fail("Client has failed in an unexpected way.",e);
         }
         assertThat(build.getStatus())
                 .isNotIn(isNotIn)
