@@ -22,6 +22,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryPromotion;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -72,6 +73,12 @@ public class RepositoryManagerMock implements RepositoryManager {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;
+    }
+
+    @Override
+    public RepositoryManagerResult collectBuildResult(String buildContentId, boolean tempBuild,
+            String buildPromotionTarget) throws RepositoryManagerException {
+        return RepositoryManagerResultMock.mockResult(false);
     }
 
     @Override

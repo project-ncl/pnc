@@ -76,7 +76,7 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
         String artifactRef = new SimpleArtifactRef(pvr, "pom", null).toString();
 
         // extract the "builtArtifacts" artifacts we uploaded above.
-        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
+        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts(null, true);
 
         // check that both files are present in extracted result
         List<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();

@@ -100,7 +100,7 @@ public class IndyPromotionValidationTest {
             url = UrlUtils.buildUrl(deployUrl, pathPom3);
             put(client, url, nonparseablePom);
 
-            RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
+            RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts(null, true);
             // Just a dummy check, the point is really to be able to debug this
             assertTrue(CompletionStatus.FAILED == repositoryManagerResult.getCompletionStatus());
         } catch (Exception e) {

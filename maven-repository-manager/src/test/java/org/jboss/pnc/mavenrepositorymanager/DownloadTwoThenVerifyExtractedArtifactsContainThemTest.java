@@ -79,7 +79,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
 
         // extract the build artifacts, which should contain the two imported deps.
         // This will also trigger promoting imported artifacts into the shared-imports hosted repo
-        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
+        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts(null, true);
 
         List<Artifact> deps = repositoryManagerResult.getDependencies();
         System.out.println(deps);

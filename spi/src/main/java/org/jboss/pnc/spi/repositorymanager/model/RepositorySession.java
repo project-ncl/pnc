@@ -37,21 +37,12 @@ public interface RepositorySession {
      * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing dependencies and
      * build output.
      *
+     * @param session the session used to provide additional updates to the user, can be null
+     * @param promote flag if promotion for the collected artifacts and dependencies should be done
      * @return The result of extracting the build artifacts
      * @throws RepositoryManagerException if there is a problem extracting build artifacts
      */
-    RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
-
-    /**
-     * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing dependencies and
-     * build output.
-     *
-     * @param BuildExecutionSession to provide additional updates to the user
-     *
-     * @return The result of extracting the build artifacts
-     * @throws RepositoryManagerException if there is a problem extracting build artifacts
-     */
-    RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session) throws RepositoryManagerException;
+    RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session, boolean promote) throws RepositoryManagerException;
 
     /**
      * Removes build aggregation group. This should be done for every build.

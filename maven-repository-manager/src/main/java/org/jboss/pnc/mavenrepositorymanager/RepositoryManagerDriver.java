@@ -45,6 +45,7 @@ import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
@@ -219,6 +220,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
         return new MavenRepositorySession(indy, serviceAccountIndy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionTarget, tempBuild);
+    }
+
+    @Override
+    public RepositoryManagerResult collectBuildResult(String buildContentId, boolean tempBuild,
+            String buildPromotionTarget) throws RepositoryManagerException {
+        Indy indy = init(null);
+
+        MavenRepositorySession session = new MavenRepositorySession(indy, indy, buildContentId, null,
+                internalRepoPatterns, ignoredPathSuffixes, buildPromotionTarget, tempBuild);
+        return session.extractBuildArtifacts(null, false);
     }
 
     /**
