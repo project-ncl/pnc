@@ -41,7 +41,7 @@ public class HealthCheckEndpointImpl implements HealthCheckEndpoint {
             return Response.serverError().build();
         } else {
 
-            boolean atLeastOneCheckFailed = result.entrySet().stream().anyMatch(e -> !e.getValue());
+            boolean atLeastOneCheckFailed = result.values().stream().anyMatch(v -> !v);
 
             if (atLeastOneCheckFailed) {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(result).build();
