@@ -75,12 +75,17 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             MDCUtils.addProcessContext(logProcessContext);
         }
 
-        User user = userService.currentUser();
-        if (user != null) {
-            Integer userId = user.getId();
-            if (userId != null) {
-                MDCUtils.addUserId(Integer.toString(userId));
+        User user = null;
+        try {
+            user = userService.currentUser();
+            if (user != null) {
+                Integer userId = user.getId();
+                if (userId != null) {
+                    MDCUtils.addUserId(Integer.toString(userId));
+                }
             }
+        } catch (IllegalStateException e) {
+            //user not found.. proceed
         }
 
         UriInfo uriInfo = requestContext.getUriInfo();
