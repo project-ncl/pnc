@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -30,7 +30,7 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, BuildConfigurationMapper.class})
+@Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, MapSetMapper.class})
 public interface GroupConfigurationMapper extends EntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
 
     @Override
@@ -57,7 +57,7 @@ public interface GroupConfigurationMapper extends EntityMapper<Integer, BuildCon
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
-    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
+    @Mapping(target = "buildConfigs", source = "buildConfigurations")
     @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigSetRecords", "active", "currentProductMilestone", "archived"})
     GroupConfiguration toDTO(BuildConfigurationSet dbEntity);
 }

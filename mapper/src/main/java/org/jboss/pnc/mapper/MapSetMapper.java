@@ -48,11 +48,11 @@ public class MapSetMapper {
     private GroupConfigurationMapper groupConfigurationMapper;
 
 
-    public Set<BuildConfigurationSet> mapBG(Map<String, GroupConfigurationRef> value) {
+    public Set<BuildConfigurationSet> mapGC(Map<String, GroupConfigurationRef> value) {
         return map(value, groupConfigurationMapper);
     }
 
-    public Map<String, GroupConfigurationRef> mapBG(Collection<BuildConfigurationSet> value) {
+    public Map<String, GroupConfigurationRef> mapGC(Collection<BuildConfigurationSet> value) {
         return map(value, groupConfigurationMapper);
     }
 

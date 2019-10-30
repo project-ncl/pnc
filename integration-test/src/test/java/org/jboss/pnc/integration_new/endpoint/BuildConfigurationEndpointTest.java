@@ -324,7 +324,7 @@ public class BuildConfigurationEndpointTest {
 
         assertThat(all)
                 .hasSize(1)
-                .allMatch(gc -> gc.getBuildConfigs().stream().map(b ->b.getId()).anyMatch(configurationId::equals));
+                .allMatch(gc -> gc.getBuildConfigs().containsKey(configurationId));
     }
 
     @Test
