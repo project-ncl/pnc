@@ -137,7 +137,7 @@ public class BuildTest {
 
         List<BuildConfigurationRevisionRef> buildConfigurationRevisions = new ArrayList<>();
         BuildConfigurationRevision buildConfigurationRevision = BuildConfigurationRevision.builder()
-                .id(groupConfiguration.getBuildConfigs().get(0).getId())
+                .id(groupConfiguration.getBuildConfigs().keySet().iterator().next())
                 .rev(1)
                 .name(groupConfiguration.getName())
                 .build();

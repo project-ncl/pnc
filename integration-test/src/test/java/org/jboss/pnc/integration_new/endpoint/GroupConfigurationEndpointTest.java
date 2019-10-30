@@ -166,14 +166,14 @@ public class GroupConfigurationEndpointTest {
         String bcToAddId = buildConfiguration.getId();
         GroupConfiguration groupConfiguration = client.getSpecific(gcId);
         assertThat(groupConfiguration.getBuildConfigs())
-                .areNot(new Condition<>(bc -> bc.getId().equals(bcToAddId),"Is BuildConfig with id 100"));
+                .doesNotContainKey(bcToAddId);
 
         //when
         client.addConfiguration(gcId, buildConfiguration);
 
         //then
         assertThat(client.getSpecific(gcId).getBuildConfigs())
-                .anySatisfy((bc -> bc.getId().equals(bcToAddId)));
+                .containsKey(bcToAddId);
     }
 
     /**
@@ -236,18 +236,14 @@ public class GroupConfigurationEndpointTest {
         GroupConfiguration refreshed = client.getSpecific(gcId);
         assertThat(refreshed).isNotNull();
         assertThat(refreshed.getBuildConfigs())
-                .doNotHave(new Condition<>(bc -> bc.getId().equals(configuration.getId()),"Is BuildConfig with id of 'configuration'"));
+                .doesNotContainKey(configuration.getId());
     }
 
     @Test
     public void getBuildConfigs() throws ClientException {
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
         String gcId = "100";
-        Set<String> bcIds = client
-                .getSpecific(gcId).getBuildConfigs()
-                .stream()
-                .map(BuildConfigurationRef::getId)
-                .collect(Collectors.toSet());
+        Set<String> bcIds = client.getSpecific(gcId).getBuildConfigs().keySet();
 
         assertThat(client.getConfigurations(gcId))
                 .hasSameSizeAs(bcIds)

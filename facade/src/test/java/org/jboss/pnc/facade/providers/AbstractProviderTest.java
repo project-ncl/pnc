@@ -182,7 +182,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("productVersionMapper", productMilestoneMapper, productVersionMapper, ProductMilestoneMapperImpl.class);
         injectMethod("productReleaseMapper", productMilestoneMapper, productReleaseMapper, ProductMilestoneMapperImpl.class);
 
-        injectMethod("buildConfigurationMapper", groupConfigurationMapper, buildConfigurationMapper, GroupConfigurationMapperImpl.class);
+        injectMethod("mapSetMapper", groupConfigurationMapper, mapSetMapper, GroupConfigurationMapperImpl.class);
         injectMethod("productVersionMapper", groupConfigurationMapper, productVersionMapper, GroupConfigurationMapperImpl.class);
 
         injectMethod("userMapper", groupBuildMapper, userMapper, GroupBuildMapperImpl.class);

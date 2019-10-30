@@ -136,7 +136,7 @@ public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildCo
         //Then
         org.jboss.pnc.dto.GroupConfiguration refreshed = provider.getSpecific(bcs.getId().toString());
         assertThat(refreshed.getBuildConfigs())
-                .anySatisfy(config -> assertThat(config.getId()).isEqualTo(buildConfiguration.getId().toString()));
+                .containsKey(buildConfiguration.getId().toString());
     }
 
     @Test
@@ -146,14 +146,14 @@ public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildCo
         BuildConfiguration toRemove = bcs.getBuildConfigurations().stream().findFirst().get();
         when(buildConfigurationRepository.queryById(Integer.valueOf(toRemove.getId()))).thenReturn(toRemove);
         assertThat(groupConfiguration.getBuildConfigs())
-                .anySatisfy(config -> assertThat(config.getId()).isEqualTo(toRemove.getId().toString()));
+                .containsKey(toRemove.getId().toString());
 
         //When
         provider.removeConfiguration(groupConfiguration.getId(), toRemove.getId().toString());
 
         //Then
         org.jboss.pnc.dto.GroupConfiguration refreshed = provider.getSpecific(groupConfiguration.getId());
-        assertThat(refreshed.getBuildConfigs())
+        assertThat(refreshed.getBuildConfigs().values())
                 .doNotHave(new Condition<>(toRemove::equals,"BC is equal to 'toRemove' bc"));
     }
 
