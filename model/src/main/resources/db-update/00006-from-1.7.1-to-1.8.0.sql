@@ -32,4 +32,9 @@ update repositoryconfiguration
 set externalurlnormalized = substring(externalurlnormalized from '%@#"%#"' for '#')
 where externalurlnormalized like '%@%';
 
-
+-- NCL-4581: add health check
+create sequence healthcheck_id_seq;
+create table HealthCheck (
+    id integer default nextval('healthcheck_id_seq') not null,
+    date timestamp with time zone
+);
