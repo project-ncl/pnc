@@ -18,16 +18,15 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ProductRef;
-import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.Product;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  * @author Jan Michalov <jmichalo@redhat.com>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class})
+@Mapper(config = MapperCentralConfig.class, uses = {MapSetMapper.class})
 public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.pnc.dto.Product,ProductRef> {
     @Override
     Product toEntity(org.jboss.pnc.dto.Product dtoEntity);
@@ -43,7 +42,6 @@ public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.
     }
 
     @Override
-    @Mapping(target = "productVersions", resultType = ProductVersionRef.class)
     org.jboss.pnc.dto.Product toDTO(Product dbEntity);
 
     @Override

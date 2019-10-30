@@ -109,7 +109,7 @@ public class ProductEndpointTest {
                 .description("The newst product of them all")
                 .pgmSystemName("TheNewP")
                 .productCode("NP")
-                .productVersions(Collections.emptySet())
+                .productVersions(Collections.emptyMap())
                 .build();
         Product created = client.createNew(product);
         assertThat(created.getId()).isNotEmpty();

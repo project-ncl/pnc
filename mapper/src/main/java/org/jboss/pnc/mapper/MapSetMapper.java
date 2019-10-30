@@ -27,12 +27,15 @@ import javax.inject.Inject;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupConfigurationRef;
+import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.model.ProductVersion;
 
 /**
  *
@@ -48,6 +51,9 @@ public class MapSetMapper {
     private GroupConfigurationMapper groupConfigurationMapper;
 
 
+    @Inject
+    private ProductVersionMapper productVersionMapper;
+
     public Set<BuildConfigurationSet> mapGC(Map<String, GroupConfigurationRef> value) {
         return map(value, groupConfigurationMapper);
     }
@@ -62,6 +68,14 @@ public class MapSetMapper {
 
     public Map<String, BuildConfigurationRef> mapBC(Collection<BuildConfiguration> value) {
         return map(value, buildConfigurationMapper);
+    }
+
+    public Set<ProductVersion> mapPV(Map<String, ProductVersionRef> value) {
+        return map(value, productVersionMapper);
+    }
+
+    public Map<String, ProductVersionRef> mapPV(Collection<ProductVersion> value) {
+        return map(value, productVersionMapper);
     }
 
     private <DTO extends DTOEntity, DB extends GenericEntity<?>> Set<DB> map(Map<String, DTO> value, EntityMapper<?, DB, ?, DTO> mapper) {

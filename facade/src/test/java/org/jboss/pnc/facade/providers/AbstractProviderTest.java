@@ -179,6 +179,8 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("productMilestoneMapper", productReleaseMapper, productMilestoneMapper, ProductReleaseMapperImpl.class);
         injectMethod("productVersionMapper", productReleaseMapper, productVersionMapper, ProductReleaseMapperImpl.class);
 
+        injectMethod("mapSetMapper", productMapper, mapSetMapper, ProductMapperImpl.class);
+
         injectMethod("productVersionMapper", productMilestoneMapper, productVersionMapper, ProductMilestoneMapperImpl.class);
         injectMethod("productReleaseMapper", productMilestoneMapper, productReleaseMapper, ProductMilestoneMapperImpl.class);
 
@@ -191,6 +193,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
 
         injectMethod("groupConfigurationMapper", mapSetMapper, groupConfigurationMapper, MapSetMapper.class);
         injectMethod("buildConfigurationMapper", mapSetMapper, buildConfigurationMapper, MapSetMapper.class);
+        injectMethod("productVersionMapper", mapSetMapper, productVersionMapper, MapSetMapper.class);
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
@@ -240,7 +243,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         });
         doAnswer(inv -> {
             Integer id = inv.getArgument(0);
-            Object object = repositoryList.stream()
+            T object = repositoryList.stream()
                     .filter(a -> id.equals(a.getId()))
                     .findFirst()
                     .orElse(null);

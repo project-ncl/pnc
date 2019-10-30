@@ -20,14 +20,11 @@ package org.jboss.pnc.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.processor.annotation.PatchSupport;
-
-import java.util.Set;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
@@ -45,12 +42,10 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 public class Product extends ProductRef {
 
     @PatchSupport({ADD, REPLACE})
-    @Getter
-    @Setter
-    private final Set<ProductVersionRef> productVersions;
+    private final Map<String, ProductVersionRef> productVersions;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Product(Set<ProductVersionRef> productVersions, String id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
+    private Product(Map<String, ProductVersionRef> productVersions, String id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
         super(id, name, description, abbreviation, productCode, pgmSystemName);
         this.productVersions = productVersions;
     }
