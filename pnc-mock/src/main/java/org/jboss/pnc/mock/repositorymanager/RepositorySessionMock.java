@@ -78,7 +78,7 @@ public class RepositorySessionMock implements RepositorySession {
     }
 
     @Override
-    public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+    public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session, boolean promote) throws RepositoryManagerException {
         return new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {

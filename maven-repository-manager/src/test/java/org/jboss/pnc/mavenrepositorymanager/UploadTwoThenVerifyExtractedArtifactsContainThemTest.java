@@ -74,7 +74,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         }
 
         // extract the "built" artifacts we uploaded above.
-        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
+        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts(null, true);
 
         // check that both files are present in extracted result
         List<Artifact> artifacts = repositoryManagerResult.getBuiltArtifacts();

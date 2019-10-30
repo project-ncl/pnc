@@ -57,7 +57,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
                 .store(buildId, new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId), path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
-        RepositoryManagerResult result = session.extractBuildArtifacts();
+        RepositoryManagerResult result = session.extractBuildArtifacts(null, true);
 
         // do some sanity checks while we're here
         List<Artifact> deps = result.getBuiltArtifacts();
