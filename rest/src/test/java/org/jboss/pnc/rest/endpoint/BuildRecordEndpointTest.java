@@ -34,6 +34,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -72,6 +73,8 @@ public class BuildRecordEndpointTest {
     private EndpointAuthenticationProvider authProvider;
     @Mock
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
+    @Mock
+    private RepositoryManager repositoryManager;
 
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
@@ -93,6 +96,7 @@ public class BuildRecordEndpointTest {
                 artifactProvider,
                 authProvider,
                 temporaryBuildsCleanerAsyncInvoker,
+                repositoryManager,
                 new DefaultNotifier());
 
         User user = mock(User.class);

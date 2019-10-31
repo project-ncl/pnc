@@ -76,8 +76,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositoryManagerResult collectBuildResult(String buildContentId, boolean tempBuild,
-            String buildPromotionTarget) throws RepositoryManagerException {
+    public RepositoryManagerResult collectRepoManagerResult(String buildContentId, boolean tempBuild) throws RepositoryManagerException {
         return RepositoryManagerResultMock.mockResult(false);
     }
 
