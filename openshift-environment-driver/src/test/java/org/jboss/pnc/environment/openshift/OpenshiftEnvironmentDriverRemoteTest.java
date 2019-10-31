@@ -235,11 +235,6 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         }
 
         @Override
-        public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session) throws RepositoryManagerException {
-            return extractBuildArtifacts();
-        }
-
-        @Override
         public void close() {
         }
 

@@ -45,19 +45,17 @@ public interface RepositoryManager {
                                             Map<String,String> genericParameters) throws RepositoryManagerException;
 
     /**
-     * Collects processed build result for a previously finished build for any repair work needed. This reads the
-     * tracking report and collects the downloads and uploads the same way as they are collected at the end of a
-     * successful build.
+     * Collects processed repository manager result for a previously finished build for any repair work needed.
+     * This reads the tracking report and collects the downloads and uploads the same way as they are collected
+     * at the end of a successful build.
+     *
      * @param buildContentId string identifier of the build
      * @param tempBuild flag if this is a temporary build
-     * @param buildPromotionTarget uploads target repository name
-     *
      * @return repository manager result
      * @throws RepositoryManagerException
      *             in case of an error when collecting the build artifacts and dependencies
      */
-    RepositoryManagerResult collectBuildResult(String buildContentId, boolean tempBuild,
-            String buildPromotionTarget) throws RepositoryManagerException;
+    RepositoryManagerResult collectRepoManagerResult(String buildContentId, boolean tempBuild) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the

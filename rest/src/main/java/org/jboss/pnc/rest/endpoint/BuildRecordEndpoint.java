@@ -31,6 +31,7 @@ import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
 import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
@@ -43,6 +44,8 @@ import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.pnc.spi.notifications.Notifier;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -95,6 +98,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     private ArtifactProvider artifactProvider;
     private EndpointAuthenticationProvider authProvider;
 
+    private RepositoryManager repositoryManager;
+
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     private Notifier notifier;
@@ -112,12 +117,14 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             ArtifactProvider artifactProvider,
             EndpointAuthenticationProvider authProvider,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
+            RepositoryManager repositoryManager,
             Notifier notifier) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.artifactProvider = artifactProvider;
         this.authProvider = authProvider;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
+        this.repositoryManager = repositoryManager;
         this.notifier = notifier;
     }
 
@@ -158,6 +165,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromCollection(buildRecordProvider.getAllByStatusAndLogContaining(pageIndex, pageSize, sort, q, status, search));
     }
 
+    @Override
     @ApiOperation(value = "Gets specific Build Record")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
@@ -171,6 +179,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return super.getSpecific(id);
     }
 
+    @Override
     @ApiOperation(value = "Delete specific Build Record (it must be from a temporary build). Operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
@@ -215,13 +224,15 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Produces(MediaType.TEXT_PLAIN)
     public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         String buildRecordLog = buildRecordProvider.getBuildRecordLog(id);
-        if (buildRecordLog == null)
+        if (buildRecordLog == null) {
             return Response.status(Status.NOT_FOUND).build();
+        }
 
-        if (buildRecordLog.isEmpty())
+        if (buildRecordLog.isEmpty()) {
             return Response.noContent().build();
-        else
+        } else {
             return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
+        }
     }
 
     @ApiOperation(value = "Gets repour logs for specific Build Record")
@@ -311,6 +322,21 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             @ApiParam(value = "List of artifact ids", required = true) List<Integer> artifactIds) {
         buildRecordProvider.setDependentArtifacts(id, artifactIds);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Gets repository manager result for a specific Build Record")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = RepositoryManagerResultRest.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/repository-manager-result")
+    public Response collectRepoManagerResult(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id)
+            throws RepositoryManagerException {
+        BuildRecordRest br = basicProvider.getSpecific(id);
+        return fromSingleton(repositoryManager.collectRepoManagerResult(br.getBuildContentId(), br.getTemporaryBuild()));
     }
 
     /**
@@ -454,6 +480,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
      *
      * Gets a BuildRecord which is completed or in running state
      */
+    @Deprecated
     @ApiOperation(value = "Deprecated, use /builds/{id}")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),

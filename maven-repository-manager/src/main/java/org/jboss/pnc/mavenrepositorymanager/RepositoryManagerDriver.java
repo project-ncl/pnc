@@ -223,10 +223,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RepositoryManagerResult collectBuildResult(String buildContentId, boolean tempBuild,
-            String buildPromotionTarget) throws RepositoryManagerException {
+    public RepositoryManagerResult collectRepoManagerResult(String buildContentId, boolean tempBuild)
+            throws RepositoryManagerException {
         Indy indy = init(null);
 
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
         MavenRepositorySession session = new MavenRepositorySession(indy, indy, buildContentId, null,
                 internalRepoPatterns, ignoredPathSuffixes, buildPromotionTarget, tempBuild);
         return session.extractBuildArtifacts(null, false);

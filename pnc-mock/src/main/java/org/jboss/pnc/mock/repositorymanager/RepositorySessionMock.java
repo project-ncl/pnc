@@ -111,11 +111,6 @@ public class RepositorySessionMock implements RepositorySession {
         };
     }
 
-    @Override
-    public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession session) throws RepositoryManagerException {
-        return extractBuildArtifacts();
-    }
-
     private Artifact getArtifact(int i) {
         return Artifact.Builder.newBuilder()
             .id(i)
