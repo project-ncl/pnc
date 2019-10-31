@@ -206,7 +206,6 @@ public class ClientGenerator extends AbstractProcessor {
                         MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
                         addDefaultParameters(restApiMethod, methodBuilder);
                         methodBuilder
-                                .addException(ClassName.get("org.jboss.pnc.client", "ClientException"))
                                 .returns(TypeName.get(returnType))
                                 .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
@@ -249,7 +248,7 @@ public class ClientGenerator extends AbstractProcessor {
     private MethodSpec completeMethod(MethodSpec.Builder methodBuilder) {
         return methodBuilder
                                 .nextControlFlow("catch ($T e)", ClientErrorException.class)
-                                .addStatement("throw new RemoteResourceException(e)")
+                                .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
                                 .endControlFlow()
                                 .build();
     }

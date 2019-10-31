@@ -17,33 +17,49 @@
  */
 package org.jboss.pnc.client;
 
+import java.util.Optional;
+import org.jboss.pnc.dto.response.ErrorResponse;
+
 import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.core.Response;
+
+import lombok.Getter;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RemoteResourceException extends ClientException {
 
+    @Getter
     private final int status;
+
+    private final ErrorResponse response;
 
     public RemoteResourceException(Throwable cause) {
         super(cause);
-        status = -1;
+        this.status = -1;
+        this.response = null;
     }
 
     public RemoteResourceException(ClientErrorException cause) {
         super(cause);
-        Response response = cause.getResponse();
-        status = response.getStatus();
+        this.status = cause.getResponse().getStatus();
+        this.response = null;
+    }
+
+    public RemoteResourceException(ErrorResponse response, ClientErrorException cause) {
+        super(response == null ? cause.getMessage() : response.getErrorMessage(), cause);
+        this.status = cause.getResponse().getStatus();
+        this.response = response;
     }
 
     public RemoteResourceException(String message, int status) {
         super(message + " status: " + status);
         this.status = status;
+        this.response = null;
     }
 
-    public int getStatus() {
-        return status;
+    public Optional<ErrorResponse> getResponse() {
+        return Optional.ofNullable(response);
     }
+
 }
