@@ -19,6 +19,8 @@ package org.jboss.pnc.client;
 
 import org.jboss.pnc.client.patch.PatchBase;
 import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
@@ -27,10 +29,16 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import java.util.Optional;
 
 /**
@@ -119,4 +127,17 @@ public abstract class ClientBase<T> {
         return patch(id, jsonPatch, (Class<S>)patchBase.getClazz());
     }
 
+    protected ErrorResponse readErrorResponse(WebApplicationException ex){
+        Response response = ex.getResponse();
+        if(response.hasEntity()){
+            try{
+                return response.readEntity(ErrorResponse.class);
+            }catch(ProcessingException | IllegalStateException e){
+                logger.debug("Can't map response to ErrorResponse.", e);
+            }catch(RuntimeException e){
+                logger.warn("Unexpected exception when trying to read ErrorResponse.", e);
+            }
+        }
+        return null;
+    }
 }
