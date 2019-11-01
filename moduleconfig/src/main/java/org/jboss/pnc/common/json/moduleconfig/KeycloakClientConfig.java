@@ -21,14 +21,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.common.util.IoUtils;
 
 import javax.ws.rs.DefaultValue;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Getter
+@Slf4j
 public class KeycloakClientConfig {
     private final String realm;
     private final String realmPublicKey;
@@ -55,6 +60,12 @@ public class KeycloakClientConfig {
 
     @JsonIgnore
     public String getSecret() {
-        return credentials.get("secret");
+        String secretPath = credentials.get("secretFileLocation");
+        try {
+            return IoUtils.readFileAsString(new File(secretPath)).trim();
+        } catch(IOException e) {
+            log.error("Error while getting secret token", e);
+            throw new RuntimeException(e);
+        }
     }
 }
