@@ -5,6 +5,6 @@
     "ssl-required": "none",
     "resource": "pnc-orchestrator",
     "credentials": {
-        "secret": "abc1234-123abc-..."
+        "secretFileLocation": "/tmp/super-secret"
     }
 }
