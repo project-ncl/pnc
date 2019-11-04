@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.Project;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -29,11 +29,11 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class,
-        uses = {BuildConfigurationMapper.class})
+        uses = {MapSetMapper.class})
 public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.pnc.dto.Project, ProjectRef> {
 
     @Override
-    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
+    @Mapping(target = "buildConfigs", source = "buildConfigurations")
     org.jboss.pnc.dto.Project toDTO(Project dbEntity);
 
     @Override
@@ -49,7 +49,7 @@ public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigurations"})
     ProjectRef toRef(Project dbEntity);
-    
+
     @Override
     @Mapping(target = "buildConfigurations", source = "buildConfigs")
     Project toEntity(org.jboss.pnc.dto.Project dtoEntity);
