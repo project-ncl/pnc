@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -181,7 +182,7 @@ public class ProjectEndpointTest {
 
         // when
         Project existingProject = client.getSpecific("100");
-        List<BuildConfigurationRef> buildConfigRefs = existingProject.getBuildConfigs();
+        Map<String, BuildConfigurationRef> buildConfigRefs = existingProject.getBuildConfigs();
 
         Project original = Project.builder()
                 .name("New name new me: " + UUID.randomUUID().toString())

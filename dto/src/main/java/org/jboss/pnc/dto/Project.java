@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
-import java.util.List;
+import java.util.Map;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
@@ -43,10 +43,10 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 public class Project extends ProjectRef {
 
     @PatchSupport({ADD, REPLACE})
-    private final List<BuildConfigurationRef> buildConfigs;
+    private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Project(List<BuildConfigurationRef> buildConfigs, String id, String name, String description, String issueTrackerUrl, String projectUrl) {
+    private Project(Map<String, BuildConfigurationRef> buildConfigs, String id, String name, String description, String issueTrackerUrl, String projectUrl) {
         super(id, name, description, issueTrackerUrl, projectUrl);
         this.buildConfigs = buildConfigs;
     }
