@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -117,7 +118,7 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
         when(productRepository.queryById(prodId)).thenReturn(productDB);
         when(systemConfig.getBrewTagPattern()).thenReturn("${product_short_name}-${product_version}-HI");
         org.jboss.pnc.dto.ProductVersion productVersion = org.jboss.pnc.dto.ProductVersion.builder()
-                .productMilestones(new ArrayList<>())
+                .productMilestones(Collections.emptyMap())
                 .product(product)
                 .version(version)
                 .build();
@@ -140,7 +141,7 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
                 .id(pv.getId().toString())
                 .version(newVersion)
                 .product(ProductRef.refBuilder().id(pv.getProduct().getId().toString()).build())
-                .productMilestones(new ArrayList<>())
+                .productMilestones(Collections.emptyMap())
                 .build();
 
         assertThat(productVersion.getVersion()).isNotEqualTo(pv.getVersion());
