@@ -27,14 +27,20 @@ import javax.inject.Inject;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupConfigurationRef;
+import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
+import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 
 /**
@@ -50,6 +56,11 @@ public class MapSetMapper {
     @Inject
     private GroupConfigurationMapper groupConfigurationMapper;
 
+    @Inject
+    private ProductMilestoneMapper productMilestoneMapper;
+
+    @Inject
+    private ProductReleaseMapper productReleaseMapper;
 
     @Inject
     private ProductVersionMapper productVersionMapper;
@@ -76,6 +87,22 @@ public class MapSetMapper {
 
     public Map<String, ProductVersionRef> mapPV(Collection<ProductVersion> value) {
         return map(value, productVersionMapper);
+    }
+
+    public Set<ProductMilestone> mapPM(Map<String, ProductMilestoneRef> value) {
+        return map(value, productMilestoneMapper);
+    }
+
+    public Map<String, ProductMilestoneRef> mapPM(Collection<ProductMilestone> value) {
+        return map(value, productMilestoneMapper);
+    }
+
+    public Set<ProductRelease> mapPR(Map<String, ProductReleaseRef> value) {
+        return map(value, productReleaseMapper);
+    }
+
+    public Map<String, ProductReleaseRef> mapPR(Collection<ProductRelease> value) {
+        return map(value, productReleaseMapper);
     }
 
     private <DTO extends DTOEntity, DB extends GenericEntity<?>> Set<DB> map(Map<String, DTO> value, EntityMapper<?, DB, ?, DTO> mapper) {

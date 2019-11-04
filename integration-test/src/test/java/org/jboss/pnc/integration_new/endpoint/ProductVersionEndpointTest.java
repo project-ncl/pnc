@@ -56,7 +56,9 @@ import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,10 +108,10 @@ public class ProductVersionEndpointTest {
         ProductVersion retrieved = client.getSpecific(created.getId());
 
         ProductVersion toCompare = productVersion.toBuilder()
-                .productMilestones(Collections.emptyList()) // query had null, but server responds with empty array
-                .productReleases(Collections.emptyList()) // query had null, but server responds with empty array
-                .groupConfigs(Collections.emptyList()) // query had null, but server responds with empty array
-                .buildConfigs(Collections.emptyList()) // query had null, but server responds with empty array
+                .productMilestones(Collections.emptyMap()) // query had null, but server responds with empty map
+                .productReleases(Collections.emptyMap()) // query had null, but server responds with empty map
+                .groupConfigs(Collections.emptyMap()) // query had null, but server responds with empty map
+                .buildConfigs(Collections.emptyMap()) // query had null, but server responds with empty map
                 .build();
 
         assertThat(created.getProduct().getId()).isEqualTo(toCompare.getProduct().getId());
@@ -232,14 +234,14 @@ public class ProductVersionEndpointTest {
                 .build();
         GroupConfigurationClient gcc = new GroupConfigurationClient(RestClientConfiguration.asUser());
         GroupConfiguration gcToAdd = gcc.createNew(gc);
-        List<GroupConfigurationRef> groupConfis = new ArrayList<>();
+        Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
 
         //when
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
         ProductVersion productVersion = client.getSpecific(productVersionsId2);
 
-        groupConfis.addAll(productVersion.getGroupConfigs());
-        groupConfis.add(gcToAdd);
+        groupConfis.putAll(productVersion.getGroupConfigs());
+        groupConfis.put(gcToAdd.getId(), gcToAdd);
 
         ProductVersion toUpdate = productVersion.toBuilder().groupConfigs(groupConfis).build();
         client.update(productVersion.getId(), toUpdate);
@@ -248,21 +250,22 @@ public class ProductVersionEndpointTest {
         //then
         assertThat(retrieved.getGroupConfigs())
                 .hasSameSizeAs(groupConfis)
-                .anySatisfy(g -> g.getId().equals(gcToAdd.getId()));
+                .containsKey(gcToAdd.getId());
     }
 
     @Test
     public void shouldNotUpdateGroupConfigsWhenOneIsAlreadyAsssociatedWithAnotherProductVersion() throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
-        GroupConfigurationRef alreadyAssignedGC = client.getSpecific(productVersionsId).getGroupConfigs().get(0);
-        List<GroupConfigurationRef> groupConfis = new ArrayList<>();
+        GroupConfigurationRef alreadyAssignedGC = client.getSpecific(productVersionsId).getGroupConfigs().values().iterator().next();
+        Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
+        assertThat(alreadyAssignedGC).isNotNull();
 
         // when
         ProductVersion productVersion = client.getSpecific(productVersionsId2);
 
-        groupConfis.addAll(productVersion.getGroupConfigs());
-        groupConfis.add(alreadyAssignedGC);
+        groupConfis.putAll(productVersion.getGroupConfigs());
+        groupConfis.put(alreadyAssignedGC.getId(), alreadyAssignedGC);
 
         ProductVersion toUpdate = productVersion.toBuilder().groupConfigs(groupConfis).build();
 
@@ -275,14 +278,14 @@ public class ProductVersionEndpointTest {
     public void shouldNotUpdateGroupConfigsWithNonExistantGroupConfig() throws ClientException {
         // given
         GroupConfigurationRef notExistingGC = GroupConfigurationRef.refBuilder().id("9999").name("i-dont-exist").build();
-        List<GroupConfigurationRef> groupConfis = new ArrayList<>();
+        Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
 
         // when
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
         ProductVersion productVersion = client.getSpecific(productVersionsId2);
 
-        groupConfis.addAll(productVersion.getGroupConfigs());
-        groupConfis.add(notExistingGC);
+        groupConfis.putAll(productVersion.getGroupConfigs());
+        groupConfis.put(notExistingGC.getId(), notExistingGC);
 
         ProductVersion toUpdate = productVersion.toBuilder().groupConfigs(groupConfis).build();
 
@@ -297,7 +300,7 @@ public class ProductVersionEndpointTest {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
         ProductVersion productVersion = client.getSpecific(productVersionsId);
-        String milestoneId = productVersion.getProductMilestones().get(0).getId();
+        String milestoneId = productVersion.getProductMilestones().values().iterator().next().getId();
 
         ProductMilestoneClient pmc = new ProductMilestoneClient(RestClientConfiguration.asUser());
         ProductMilestone milestone = pmc.getSpecific(milestoneId);

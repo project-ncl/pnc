@@ -17,9 +17,8 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import java.util.Collections;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.util.StreamHelper;
-import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
@@ -39,8 +38,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
@@ -90,6 +89,7 @@ public class ProductVersionProviderImpl
         ProductVersion current = super.getSpecific(id);
 
         boolean hasClosedMilestone = current.getProductMilestones()
+                .values()
                 .stream()
                 .anyMatch(milestone -> milestone.getEndDate() != null);
         boolean changingVersion = !current.getVersion().equals(restEntity.getVersion());
@@ -120,14 +120,14 @@ public class ProductVersionProviderImpl
         super.validateBeforeUpdating(id, restEntity);
 
         if (restEntity.getGroupConfigs() != null) {
-            for (GroupConfigurationRef groupConfig : restEntity.getGroupConfigs()) {
-                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(groupConfig.getId()));
+            for (String groupConfigId : restEntity.getGroupConfigs().keySet()) {
+                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(groupConfigId));
                 if (set == null) {
-                    throw new InvalidEntityException("Group config with id: " + groupConfig.getId() + " does not exist.");
+                    throw new InvalidEntityException("Group config with id: " + groupConfigId + " does not exist.");
                 }
                 if (set.getProductVersion() != null && !set.getProductVersion().getId().toString().equals(id)) {
                     throw new ConflictedEntryException("Group config with id: "
-                            + groupConfig.getId() + " already belongs to different product version.",
+                            + groupConfigId + " already belongs to different product version.",
                             org.jboss.pnc.model.ProductVersion.class,
                             set.getProductVersion().getId().toString());
                 }
@@ -145,12 +145,14 @@ public class ProductVersionProviderImpl
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
     }
 
-    private void updateGroupConfigs(ProductVersion current, List<GroupConfigurationRef> buildConfigs) {
-        HashSet<String> newIds = StreamHelper.nullableStreamOf(buildConfigs)
-                .map(GroupConfigurationRef::getId)
-                .collect(Collectors.toCollection(HashSet::new));
-        for (GroupConfigurationRef groupConfig : current.getGroupConfigs()) {
-            final String id = groupConfig.getId();
+    private void updateGroupConfigs(ProductVersion current, Map<String, GroupConfigurationRef> buildConfigs) {
+        Set<String> newIds;
+        if(buildConfigs == null){
+            newIds = Collections.emptySet();
+        } else {
+            newIds = new HashSet<>(buildConfigs.keySet());
+        }
+        for (String id : current.getGroupConfigs().keySet()) {
             if (!newIds.contains(id)) {
                 BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(id));
                 set.setProductVersion(null);

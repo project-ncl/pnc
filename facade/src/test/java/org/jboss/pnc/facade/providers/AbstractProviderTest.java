@@ -171,9 +171,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("sCMRepositoryMapper", buildConfigurationRevisionMapper, sCMRepositoryMapper, BuildConfigurationRevisionMapperImpl.class);
 
         injectMethod("productMilestoneMapper", productVersionMapper, productMilestoneMapper, ProductVersionMapperImpl.class);
-        injectMethod("groupConfigurationMapper", productVersionMapper, groupConfigurationMapper, ProductVersionMapperImpl.class);
-        injectMethod("buildConfigurationMapper", productVersionMapper, buildConfigurationMapper, ProductVersionMapperImpl.class);
-        injectMethod("productReleaseMapper", productVersionMapper, productReleaseMapper, ProductVersionMapperImpl.class);
+        injectMethod("mapSetMapper", productVersionMapper, mapSetMapper, ProductVersionMapperImpl.class);
         injectMethod("productMapper", productVersionMapper, productMapper, ProductVersionMapperImpl.class);
 
         injectMethod("productMilestoneMapper", productReleaseMapper, productMilestoneMapper, ProductReleaseMapperImpl.class);
@@ -194,6 +192,8 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("groupConfigurationMapper", mapSetMapper, groupConfigurationMapper, MapSetMapper.class);
         injectMethod("buildConfigurationMapper", mapSetMapper, buildConfigurationMapper, MapSetMapper.class);
         injectMethod("productVersionMapper", mapSetMapper, productVersionMapper, MapSetMapper.class);
+        injectMethod("productMilestoneMapper", mapSetMapper, productMilestoneMapper, MapSetMapper.class);
+        injectMethod("productReleaseMapper", mapSetMapper, productReleaseMapper, MapSetMapper.class);
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);

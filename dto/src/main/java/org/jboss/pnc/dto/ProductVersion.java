@@ -27,7 +27,6 @@ import org.jboss.pnc.dto.validation.constraints.RefHasId;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
@@ -53,19 +52,19 @@ public class ProductVersion extends ProductVersionRef {
     private final ProductMilestoneRef currentProductMilestone;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<ProductMilestoneRef> productMilestones;
+    private final Map<String, ProductMilestoneRef> productMilestones;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<ProductReleaseRef> productReleases;
+    private final Map<String, ProductReleaseRef> productReleases;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<GroupConfigurationRef> groupConfigs;
+    private final Map<String, GroupConfigurationRef> groupConfigs;
 
     @PatchSupport({ADD, REPLACE})
-    private final List<BuildConfigurationRef> buildConfigs;
+    private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, List<ProductMilestoneRef> productMilestones, List<ProductReleaseRef> productReleases, List<GroupConfigurationRef> groupConfigs, List<BuildConfigurationRef> buildConfigs, String id, String version, Map<String, String> attributes) {
+    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, Map<String, ProductMilestoneRef> productMilestones, Map<String, ProductReleaseRef> productReleases, Map<String, GroupConfigurationRef> groupConfigs, Map<String, BuildConfigurationRef> buildConfigs, String id, String version, Map<String, String> attributes) {
         super(id, version, attributes);
         this.product = product;
         this.currentProductMilestone = currentProductMilestone;

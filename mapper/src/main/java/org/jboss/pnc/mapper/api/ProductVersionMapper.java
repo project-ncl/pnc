@@ -17,12 +17,10 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.BuildConfigurationRef;
-import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
-import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.ProductVersion;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -32,7 +30,7 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductMapper.class, GroupConfigurationMapper.class, BuildConfigurationMapper.class, ProductReleaseMapper.class})
+@Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class})
 public interface ProductVersionMapper extends EntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
 
     @Override
@@ -58,11 +56,9 @@ public interface ProductVersionMapper extends EntityMapper<Integer, ProductVersi
     ProductVersionRef toRef(ProductVersion dbEntity);
 
     @Override
-    @Mapping(target = "groupConfigs", source = "buildConfigurationSets", resultType = GroupConfigurationRef.class)
+    @Mapping(target = "groupConfigs", source = "buildConfigurationSets")
     @Mapping(target = "product", resultType = ProductRef.class)
-    @Mapping(target = "productReleases", resultType = ProductReleaseRef.class)
     @Mapping(target = "currentProductMilestone", resultType = ProductMilestoneRef.class)
-    @Mapping(target = "buildConfigs", source = "buildConfigurations", resultType = BuildConfigurationRef.class)
-    @Mapping(target = "productMilestones", resultType = ProductMilestoneRef.class)
+    @Mapping(target = "buildConfigs", source = "buildConfigurations")
     org.jboss.pnc.dto.ProductVersion toDTO(ProductVersion dbEntity);
 }
