@@ -223,6 +223,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     private CompletionStage<RemoteInvocationCompletion> monitorBuildLiveness(
             RemoteInvocation remoteInvocation) {
 
+        CompletableFuture completableFuture = new CompletableFuture();
+
         AtomicReference<Long> lastSuccess = new AtomicReference<>();
         lastSuccess.set(System.currentTimeMillis());
 
@@ -234,13 +236,13 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 if (System.currentTimeMillis() - last > livenessFailTimeout) {
                     logger.warn("Liveness probe failed.");
                     RemoteInvocationCompletion completion = new RemoteInvocationCompletion(new BuildDriverException("Build Agent has gone away."));
-                    remoteInvocation.notifyCompleted(completion);
+                    completableFuture.complete(completion);
                 }
             }
         };
         ScheduledFuture<?> livenessMonitor = scheduledExecutorService.scheduleWithFixedDelay(isAlive, livenessProbeFrequency, livenessProbeFrequency, TimeUnit.MILLISECONDS);
         remoteInvocation.addOnClose(() -> livenessMonitor.cancel(false));
-        return remoteInvocation.getCompletionNotifier();
+        return completableFuture;
     }
 
     private String uploadTask(RunningEnvironment runningEnvironment, String command, FileTranser fileTranser) {

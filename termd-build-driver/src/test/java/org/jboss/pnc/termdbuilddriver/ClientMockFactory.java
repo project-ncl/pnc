@@ -26,6 +26,8 @@ import org.jboss.pnc.termdbuilddriver.transfer.TransferException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -34,20 +36,23 @@ import java.util.function.Consumer;
  */
 public class ClientMockFactory implements ClientFactory {
 
-    BuildAgentMockClient client;
+    BuildAgentMockClient buildAgentClient;
+
+    private Consumer<TaskStatusUpdateEvent> onStatusUpdate;
 
     public ClientMockFactory() {
-        client = new BuildAgentMockClient();
+        buildAgentClient = new BuildAgentMockClient();
     }
 
-    public BuildAgentMockClient getClient() {
-        return client;
+    public BuildAgentMockClient getBuildAgentClient() {
+        return buildAgentClient;
     }
 
     @Override
     public BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException {
-        return client;
+        this.onStatusUpdate = onStatusUpdate;
+        return buildAgentClient;
     }
 
     @Override
@@ -70,13 +75,19 @@ public class ClientMockFactory implements ClientFactory {
         };
     }
 
+    public Consumer<TaskStatusUpdateEvent> getOnStatusUpdate() {
+        return onStatusUpdate;
+    }
+
     public class BuildAgentMockClient implements BuildAgentClient {
 
         private boolean serverAlive;
 
+        private List<Object> executedCommands = new ArrayList<>();
+
         @Override
         public void execute(Object command) throws BuildAgentClientException {
-
+            executedCommands.add(command);
         }
 
         @Override
@@ -101,6 +112,10 @@ public class ClientMockFactory implements ClientFactory {
 
         public void setServerAlive(boolean serverAlive) {
             this.serverAlive = serverAlive;
+        }
+
+        public List<Object> getExecutedCommands() {
+            return executedCommands;
         }
     }
 }
