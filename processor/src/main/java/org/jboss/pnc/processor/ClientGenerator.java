@@ -40,11 +40,15 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -90,8 +94,15 @@ public class ClientGenerator extends AbstractProcessor {
                 logger.info("Processing method " + restApiMethod.getSimpleName());
 
                 if (restApiMethod.getKind() == ElementKind.METHOD) {
+                    //NCL-5221
+                    //skip endpoint methods annotated with @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
+                    Consumes consumesAnnotation = restApiMethod.getAnnotation(Consumes.class);
+                    if (consumesAnnotation != null && restApiMethod.getAnnotation(PATCH.class) != null) {
+                        List<String> mediaTypes = Arrays.asList(consumesAnnotation.value());
+                        if (mediaTypes.stream().anyMatch(type -> type.equals(MediaType.APPLICATION_JSON_PATCH_JSON)))
+                            continue;
+                    }
                     String parametersList = getParameters(restApiMethod);
-
                     TypeMirror returnType = restApiMethod.getReturnType();
                     TypeMirror returnGeneric = null; //TODO check for null before adding a generic (currently no such case)
                     if (returnType instanceof DeclaredType) {
