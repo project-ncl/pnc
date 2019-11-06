@@ -45,6 +45,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import org.jboss.pnc.dto.Build;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -63,6 +65,7 @@ public class ArtifactEndpointTest {
     private static Artifact artifactRest1;
     private static Artifact artifactRest2;
     private static Artifact artifactRest3;
+    private static Artifact artifactRest4;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -81,7 +84,8 @@ public class ArtifactEndpointTest {
         targetRepositoryRef = artifacts.get(0).getTargetRepository();
         artifactRest1 = artifacts.get(0);
         artifactRest2 = artifacts.get(1);
-        artifactRest3 = artifacts.get(4);
+        artifactRest3 = artifacts.get(2);
+        artifactRest4 = artifacts.get(4);
         logger.debug("Using targetRepositoryRef: {}", targetRepositoryRef);
     }
 
@@ -115,7 +119,7 @@ public class ArtifactEndpointTest {
         //artifacts 2 and 3 have same SHA1
         assertThat(artifacts)
                 .hasSize(2)
-                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest2.getId(), artifactRest3.getId()));
+                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest2.getId(), artifactRest4.getId()));
     }
 
     @Test
@@ -127,7 +131,7 @@ public class ArtifactEndpointTest {
         //artifacts 1 and 3 have same SHA256
         assertThat(artifacts)
                 .hasSize(2)
-                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest1.getId(), artifactRest3.getId()));
+                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest1.getId(), artifactRest4.getId()));
     }
 
     @Test
@@ -157,11 +161,11 @@ public class ArtifactEndpointTest {
     public void testGetAllArfifactsWithSha1AndSha256() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
-        RemoteCollection<Artifact> artifacts = client.getAll(artifactRest3.getSha256(), null, artifactRest3.getSha1());
+        RemoteCollection<Artifact> artifacts = client.getAll(artifactRest4.getSha256(), null, artifactRest4.getSha1());
 
         assertThat(artifacts)
                 .hasSize(1)
-                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest3.getId()));
+                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest4.getId()));
     }
 
     @Test
@@ -240,5 +244,25 @@ public class ArtifactEndpointTest {
 
         Artifact artifact2 = client.getSpecific(id);
         assertThat(artifact2.getSize()).isEqualTo(size);
+    }
+
+    @Test
+    public void shouldGetBuildThatProducedArtifact() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+
+        RemoteCollection<Build> builds = client.getBuilds(artifactRest1.getId());
+
+        assertThat(builds)
+                .hasSize(1);
+    }
+
+    @Test
+    public void shouldGetBuildsThatDependsOnArtifact() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+
+        RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId());
+
+        assertThat(builds)
+                .hasSize(2);
     }
 }

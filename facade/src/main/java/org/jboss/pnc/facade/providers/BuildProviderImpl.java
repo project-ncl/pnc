@@ -94,6 +94,8 @@ import static java.lang.Math.min;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDependency;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactProduced;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
@@ -273,6 +275,16 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
         java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(projectId).equals(t.getBuildConfigurationAudited().getProject().getId());
         return getBuildList(pageInfo, predicate, withBuildConfigurationIds(buildConfigIds));
+    }
+
+    @Override
+    public Page<Build> getBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withArtifactProduced(Integer.valueOf(artifactId)));
+    }
+
+    @Override
+    public Page<Build> getDependantBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withArtifactDependency(Integer.valueOf(artifactId)));
     }
 
     @Override

@@ -30,6 +30,10 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Optional;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 @Stateless
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
@@ -37,9 +41,12 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);
 
     private EndpointHelper<Integer, Artifact, ArtifactRef> endpointHelper;
-    
+
     @Inject
     private ArtifactProvider artifactProvider;
+
+    @Inject
+    private BuildProvider buildProvider;
 
     @PostConstruct
     public void init() {
@@ -72,5 +79,23 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     @Override
     public void update(String id, Artifact artifact){
         endpointHelper.update(id, artifact);
+    }
+
+    @Override
+    public Page<Build> getBuilds(String id, PageParameters pageParams) {
+        return buildProvider.getBuildsForArtifact(pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                id);
+    }
+
+    @Override
+    public Page<Build> getDependantBuilds(String id, PageParameters pageParams) {
+        return buildProvider.getDependantBuildsForArtifact(pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                id);
     }
 }
