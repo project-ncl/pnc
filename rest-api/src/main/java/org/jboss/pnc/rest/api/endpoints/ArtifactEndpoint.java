@@ -43,6 +43,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jboss.pnc.dto.Build;
+import static org.jboss.pnc.rest.api.endpoints.GroupBuildEndpoint.GB_ID;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -65,6 +69,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
 public interface ArtifactEndpoint {
+    static final String A_ID = "ID of the artifact";
+
     @Operation(summary = "Gets all artifacts.",
             responses = {
                     @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
@@ -125,4 +131,34 @@ public interface ArtifactEndpoint {
     @PUT
     @Path("/{id}")
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
+
+    @Operation(summary = "Gets the build(s) that produced this artifact.",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = SwaggerPages.BuildPage.class))),
+                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/builds")
+    Page<Build> getBuilds(
+            @Parameter(description = A_ID) @PathParam("id") String id,
+            @BeanParam PageParameters pageParams);
+
+    @Operation(summary = "Gets the build(s) that depends on this artifact.",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = SwaggerPages.BuildPage.class))),
+                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/dependant-builds")
+    Page<Build> getDependantBuilds(
+            @Parameter(description = A_ID) @PathParam("id") String id,
+            @BeanParam PageParameters pageParams);
 }

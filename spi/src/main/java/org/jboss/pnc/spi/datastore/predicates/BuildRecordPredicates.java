@@ -172,6 +172,20 @@ public class BuildRecordPredicates {
         };
     }
 
+    public static Predicate<BuildRecord> withArtifactProduced(Integer artifactId) {
+        return (root, query, cb) -> {
+            SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);
+            return cb.equal(builtArtifacts.get(Artifact_.id), artifactId);
+        };
+    }
+
+    public static Predicate<BuildRecord> withArtifactDependency(Integer artifactId) {
+        return (root, query, cb) -> {
+            SetJoin<BuildRecord, Artifact> dependencies = root.join(BuildRecord_.dependencies);
+            return cb.equal(dependencies.get(Artifact_.id), artifactId);
+        };
+    }
+
     public static Predicate<BuildRecord> withPerformedInMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
             Join<BuildRecord, ProductMilestone> productMilestone = root.join(BuildRecord_.productMilestone);
