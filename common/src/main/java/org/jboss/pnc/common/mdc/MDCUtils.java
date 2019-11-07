@@ -38,7 +38,7 @@ public class MDCUtils {
 
     public static void addBuildContext(String buildContentId, Boolean temporaryBuild, Date temporaryBuildExpireDate) {
         Map<String, String> context = getContextMap();
-        context.put("buildContentId", buildContentId);
+        context.put("processContext", buildContentId);
         context.put("temporaryBuild", temporaryBuild.toString());
         context.put("expires", Long.toString(temporaryBuildExpireDate.getTime()));
         MDC.setContextMap(context);
