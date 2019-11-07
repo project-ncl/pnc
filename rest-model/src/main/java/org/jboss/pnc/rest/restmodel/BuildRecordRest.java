@@ -52,7 +52,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Date endTime;
 
-    
+
     private BuildCoordinationStatus status;
 
     private Integer buildConfigurationId;
@@ -148,12 +148,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
         performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
         this.status = BuildCoordinationStatus.fromBuildStatus(buildRecord.getStatus());
-        if (buildRecord.getBuildConfigSetRecord() != null)
+        if (buildRecord.getBuildConfigSetRecord() != null) {
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
+        }
 
         this.buildContentId = buildRecord.getBuildContentId();
         this.temporaryBuild = buildRecord.isTemporaryBuild();
-        
+
         performIfNotNull(buildRecord.getProductMilestone(), () -> productMilestoneId = buildRecord.getProductMilestone().getId());
         performIfNotNull(buildRecord.getUser(), () -> user = new UserRest(buildRecord.getUser()));
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
