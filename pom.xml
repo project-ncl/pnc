@@ -62,6 +62,7 @@
   </developers>
 
   <modules>
+    <module>constants</module>
     <module>test-common</module>
     <module>common</module>
     <module>causeway-client</module>
