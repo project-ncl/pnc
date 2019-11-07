@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.hibernate.service.spi.InjectService;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;

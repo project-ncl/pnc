@@ -31,11 +31,11 @@
 
     <artifactId>rest-api</artifactId>
     <packaging>jar</packaging>
-  
+
     <name>PNC :: REST API</name>
     <description>Module with REST API bidings.</description>
-  
-  
+
+
     <dependencies>
         <!-- Project dependencies -->
         <dependency>
@@ -77,28 +77,23 @@
             <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-
 
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>processor</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <!-- Test dependencies -->
@@ -107,8 +102,6 @@
             <artifactId>undertow-core</artifactId>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
 
     <build>
