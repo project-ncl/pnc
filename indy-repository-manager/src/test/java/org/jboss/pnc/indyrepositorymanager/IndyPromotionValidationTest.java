@@ -33,6 +33,7 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
+import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -73,7 +74,7 @@ public class IndyPromotionValidationTest {
 
         RepositoryManager driver = null;
         try {
-            driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl));
+            driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl), new BuildRecordRepositoryMock());
             RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null,
                     RepositoryType.MAVEN, Collections.emptyMap());
 
@@ -105,7 +106,7 @@ public class IndyPromotionValidationTest {
             url = UrlUtils.buildUrl(deployUrl, pathPom3);
             put(client, url, nonparseablePom);
 
-            RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
+            RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts(true);
             // Just a dummy check, the point is really to be able to debug this
             assertTrue(CompletionStatus.FAILED == repositoryManagerResult.getCompletionStatus());
         } catch (Exception e) {

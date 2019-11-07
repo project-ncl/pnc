@@ -149,22 +149,74 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     /**
-     * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build result. Add
-     * each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the product-level storage.
-     * Finally, clear the tracking report, and delete the hosted repository + group associated with the completed build.
+     * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build
+     * result. Add each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the
+     * product-level storage. Finally delete the group associated with the completed build.
+     *
+     * @param liveBuild
+     *            {@inheritDoc} - if true, the promotion of the collected artifacts and dependencies is done, tracking report is sealed
+     *            and the build group is removed, if false it only reads the data without any actions
      */
     @Override
-    public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
-        TrackedContentDTO report;
-        userLog.info("Sealing tracking record");
-        try {
-            IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
-            boolean sealed = foloAdmin.sealTrackingRecord(buildContentId);
-            if (!sealed) {
-                throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildContentId);
+    public RepositoryManagerResult extractBuildArtifacts(final boolean liveBuild)
+            throws RepositoryManagerException {
+
+        TrackedContentDTO report = sealAndGetTrackingReport(liveBuild);
+
+        Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
+
+        List<Artifact> uploads = collectUploads(report);
+        Collections.sort(uploads, comp);
+
+        List<Artifact> downloads = processDownloads(report, liveBuild);
+        Collections.sort(downloads, comp);
+
+        if (liveBuild) {
+            deleteBuildGroup();
+        }
+
+        logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
+                StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
+
+        String log = "";
+        CompletionStatus status = CompletionStatus.SUCCESS;
+
+        if (liveBuild) {
+            logger.info("BEGIN: promotion to build content set");
+            StopWatch stopWatch = StopWatch.createStarted();
+
+            try {
+                promoteToBuildContentSet(uploads);
+            } catch (RepositoryManagerException rme) {
+                status = CompletionStatus.FAILED;
+                log = rme.getMessage();
+                logger.error("Promotion validation error(s): \n" + log);
+                userLog.error("Artifact promotion failed. Promotion validation error(s): {}", log);
+                // prevent saving artifacts and dependencies to a failed build
+                downloads = Collections.emptyList();
+                uploads = Collections.emptyList();
             }
 
-            userLog.info("Downloading tracking report");
+            logger.info("END: promotion to build content set, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
+            stopWatch.reset();
+        }
+
+        return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
+    }
+
+    private TrackedContentDTO sealAndGetTrackingReport(boolean seal) throws RepositoryManagerException {
+        TrackedContentDTO report;
+        try {
+            IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
+            if (seal) {
+                userLog.info("Sealing tracking record");
+                boolean sealed = foloAdmin.sealTrackingRecord(buildContentId);
+                if (!sealed) {
+                    throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildContentId);
+                }
+            }
+
+            userLog.info("Getting tracking report");
             report = foloAdmin.getTrackingReport(buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildContentId,
@@ -173,59 +225,23 @@ public class IndyRepositorySession implements RepositorySession {
         if (report == null) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s.", buildContentId);
         }
+        return report;
+    }
 
-        Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
-
-        List<Artifact> uploads = processUploads(report);
-        Collections.sort(uploads, comp);
-
-        List<Artifact> downloads = processDownloads(report);
-        Collections.sort(downloads, comp);
-
+    @Override
+    public void deleteBuildGroup() throws RepositoryManagerException {
         logger.info("BEGIN: Removing build aggregation group: {}", buildContentId);
         userLog.info("Removing build aggregation group");
         StopWatch stopWatch = StopWatch.createStarted();
 
-        deleteBuildGroup();
-
-        logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
-        stopWatch.reset();
-
-        logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
-                StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
-
-        String log = "";
-        CompletionStatus status = CompletionStatus.SUCCESS;
-
-        logger.info("BEGIN: promotion to build content set");
-        stopWatch.start();
-
-        try {
-            promoteToBuildContentSet(uploads);
-        } catch (RepositoryManagerException rme) {
-            status = CompletionStatus.FAILED;
-            log = rme.getMessage();
-            logger.error("Promotion validation error(s): \n" + log);
-            userLog.error("Artifact promotion failed. Promotion validation error(s): {}", log);
-            // prevent saving artifacts and dependencies to a failed build
-            downloads = Collections.emptyList();
-            uploads = Collections.emptyList();
-        }
-
-        logger.info("END: promotion to build content set, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
-        stopWatch.reset();
-
-        return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
-    }
-
-    @Override
-	public void deleteBuildGroup() throws RepositoryManagerException {
         try {
             StoreKey key = new StoreKey(packageType, StoreType.group, buildContentId);
             serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
         }
+        logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
+        stopWatch.reset();
     }
 
     /**
@@ -233,15 +249,36 @@ public class IndyRepositorySession implements RepositorySession {
      * return dependency artifacts meta data.
      *
      * @param report The tracking report that contains info about artifacts downloaded by the build
+     * @param promote flag if collected dependencies should be promoted
      * @return List of dependency artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
+    private List<Artifact> processDownloads(final TrackedContentDTO report, final boolean promote)
+            throws RepositoryManagerException {
+        List<Artifact> deps;
 
         logger.info("BEGIN: Process artifacts downloaded by build");
         userLog.info("Processing dependencies");
         StopWatch stopWatch = StopWatch.createStarted();
 
+        Set<TrackedContentEntryDTO> downloads = report.getDownloads();
+        if (downloads != null) {
+            deps = collectDownloadedArtifacts(report);
+
+            if (promote) {
+                Map<StoreKey, Map<StoreKey, Set<String>>> depMap = collectDownloadsPromotionMap(downloads);
+                promoteDownloads(depMap);
+            }
+        } else {
+            deps = new ArrayList<>();
+        }
+
+        logger.info("END: Process artifacts downloaded by build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
+        return deps;
+    }
+
+    private List<Artifact> collectDownloadedArtifacts(TrackedContentDTO report)
+            throws RepositoryManagerException {
         IndyContentClientModule content;
         try {
             content = indy.content();
@@ -249,120 +286,138 @@ public class IndyRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
         }
 
-        List<Artifact> deps = new ArrayList<>();
-
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
-        if (downloads != null) {
-            Map<StoreKey, Map<StoreKey, Set<String>>> toPromote = new HashMap<>();
-
-            Map<String, StoreKey> promotionTargets = new HashMap<>();
-            for (TrackedContentEntryDTO download : downloads) {
-                String path = download.getPath();
-                StoreKey source = download.getStoreKey();
-                String packageType = source.getPackageType();
-                if (ignoreContent(packageType, path)) {
-                    logger.debug("Ignoring download (matched in ignored patterns): {} (From: {})", download.getPath(), source);
-                    continue;
-                }
-
-
-                // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
-                // New binary imports will be coming from a remote repository...
-                if (isExternalOrigin(source)) {
-                    StoreKey target = null;
-                    Map<StoreKey, Set<String>> sources = null;
-                    Set<String> paths = null;
-
-                    // this has not been captured, so promote it.
-                    switch (packageType) {
-                        case MAVEN_PKG_KEY:
-                        case NPM_PKG_KEY:
-                            target = getPromotionTarget(packageType, promotionTargets);
-                            sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
-                            paths = sources.computeIfAbsent(source, s -> new HashSet<>());
-
-                            paths.add(download.getPath());
-                            if (MAVEN_PKG_KEY.equals(packageType)) {
-                                paths.add(download.getPath() + ".md5");
-                                paths.add(download.getPath() + ".sha1");
-                            }
-                            break;
-
-                        case GENERIC_PKG_KEY:
-                            String remoteName = source.getName();
-                            String hostedName = getGenericHostedRepoName(remoteName);
-                            target = new StoreKey(packageType, StoreType.hosted, hostedName);
-                            sources = toPromote.computeIfAbsent(target, t -> new HashMap<>());
-                            paths = sources.computeIfAbsent(source, s -> new HashSet<>());
-
-                            paths.add(download.getPath());
-                            break;
-
-                        default:
-                            // do not promote anything else anywhere
-                            break;
-                    }
-                }
-
-                String identifier = computeIdentifier(download);
-
-                logger.info("Recording download: {}", identifier);
-
-                String originUrl = download.getOriginUrl();
-                if (originUrl == null) {
-                    // this is from a hosted repository, either shared-imports or a build, or something like that.
-                    originUrl = download.getLocalUrl();
-                }
-
-                TargetRepository targetRepository = getDownloadsTargetRepository(download, content);
-
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
-                        .md5(download.getMd5())
-                        .sha1(download.getSha1())
-                        .sha256(download.getSha256())
-                        .size(download.getSize())
-                        .deployPath(download.getPath())
-                        .originUrl(originUrl)
-                        .importDate(Date.from(Instant.now()))
-                        .filename(new File(path).getName())
-                        .identifier(identifier)
-                        .targetRepository(targetRepository);
-
-                Artifact artifact = validateArtifact(artifactBuilder.build());
-                deps.add(artifact);
+        List<Artifact> deps = new ArrayList<>(downloads.size());
+        for (TrackedContentEntryDTO download : downloads) {
+            String path = download.getPath();
+            StoreKey source = download.getStoreKey();
+            String packageType = source.getPackageType();
+            if (ignoreContent(packageType, path)) {
+                logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", path, source);
+                continue;
             }
 
-            for (Map.Entry<StoreKey, Map<StoreKey, Set<String>>> targetToSources : toPromote.entrySet()) {
-                StoreKey target = targetToSources.getKey();
-                for (Map.Entry<StoreKey, Set<String>> sourceToPaths : targetToSources.getValue().entrySet()) {
-                    StoreKey source = sourceToPaths.getKey();
-                    PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue()).setPurgeSource(false);
-                    // set read-only only the generic http proxy hosted repos, not shared-imports
+            String identifier = computeIdentifier(download);
 
-                    boolean readonly = GENERIC_PKG_KEY.equals(target.getPackageType());
+            logger.info("Recording download: {}", identifier);
 
-                    StopWatch stopWatchDoPromote = StopWatch.createStarted();
-                    try {
-                        logger.info("BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
-                                    req.getSource().toString(), req.getTarget().toString(), readonly);
-                        userLog.info("Promoting {} dependencies from {} to {}", req.getPaths().size(), req.getSource(), req.getTarget());
+            String originUrl = download.getOriginUrl();
+            if (originUrl == null) {
+                // this is from a hosted repository, either shared-imports or a build, or something like that.
+                originUrl = download.getLocalUrl();
+            }
 
-                        doPromoteByPath(req, readonly);
+            TargetRepository targetRepository = getDownloadsTargetRepository(download, content);
 
-                        logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
-                                req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
-                   } catch (RepositoryManagerException ex) {
+            Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
+                    .md5(download.getMd5())
+                    .sha1(download.getSha1())
+                    .sha256(download.getSha256())
+                    .size(download.getSize())
+                    .deployPath(path)
+                    .originUrl(originUrl)
+                    .importDate(Date.from(Instant.now()))
+                    .filename(new File(path).getName())
+                    .identifier(identifier)
+                    .targetRepository(targetRepository);
 
-                        logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
-                                req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
-                        throw ex;
-                   }
+            Artifact artifact = validateArtifact(artifactBuilder.build());
+            deps.add(artifact);
+        }
+        return deps;
+    }
+
+    private Map<StoreKey, Map<StoreKey, Set<String>>> collectDownloadsPromotionMap(Set<TrackedContentEntryDTO> downloads) {
+        Map<StoreKey, Map<StoreKey, Set<String>>> depMap = new HashMap<>();
+        Map<String, StoreKey> promotionTargets = new HashMap<>();
+        for (TrackedContentEntryDTO download : downloads) {
+            String path = download.getPath();
+            StoreKey source = download.getStoreKey();
+            String packageType = source.getPackageType();
+            if (ignoreContent(packageType, path)) {
+                logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", path, source);
+                continue;
+            }
+
+            // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
+            // New binary imports will be coming from a remote repository...
+            if (isExternalOrigin(source)) {
+                StoreKey target = null;
+                Map<StoreKey, Set<String>> sources = null;
+                Set<String> paths = null;
+
+                // this has not been captured, so promote it.
+                switch (packageType) {
+                    case MAVEN_PKG_KEY:
+                    case NPM_PKG_KEY:
+                        target = getPromotionTarget(packageType, promotionTargets);
+                        sources = depMap.computeIfAbsent(target, t -> new HashMap<>());
+                        paths = sources.computeIfAbsent(source, s -> new HashSet<>());
+
+                        paths.add(path);
+                        if (MAVEN_PKG_KEY.equals(packageType)) {
+                            paths.add(path + ".md5");
+                            paths.add(path + ".sha1");
+                        }
+                        break;
+
+                    case GENERIC_PKG_KEY:
+                        String remoteName = source.getName();
+                        String hostedName = getGenericHostedRepoName(remoteName);
+                        target = new StoreKey(packageType, StoreType.hosted, hostedName);
+                        sources = depMap.computeIfAbsent(target, t -> new HashMap<>());
+                        paths = sources.computeIfAbsent(source, s -> new HashSet<>());
+
+                        paths.add(path);
+                        break;
+
+                    default:
+                        // do not promote anything else anywhere
+                        break;
                 }
             }
         }
 
-        logger.info("END: Process artifacts downloaded by build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
-        return deps;
+        return depMap;
+    }
+
+    /**
+     * Promotes by path downloads captured in given map. The key in the map is promotion target store
+     * key. The value is another map, where key is promotion source store key and value is list of
+     * paths to be promoted.
+     *
+     * @param depMap
+     *            dependencies map
+     * @throws RepositoryManagerException
+     *             in case of an error during promotion
+     */
+    private void promoteDownloads(Map<StoreKey, Map<StoreKey, Set<String>>> depMap)
+            throws RepositoryManagerException {
+        for (Map.Entry<StoreKey, Map<StoreKey, Set<String>>> targetToSources : depMap.entrySet()) {
+            StoreKey target = targetToSources.getKey();
+            for (Map.Entry<StoreKey, Set<String>> sourceToPaths : targetToSources.getValue().entrySet()) {
+                StoreKey source = sourceToPaths.getKey();
+                PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue()).setPurgeSource(false);
+                // set read-only only the generic http proxy hosted repos, not shared-imports
+                boolean readonly = GENERIC_PKG_KEY.equals(target.getPackageType());
+
+                StopWatch stopWatchDoPromote = StopWatch.createStarted();
+                try {
+                    logger.info("BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
+                            req.getSource().toString(), req.getTarget().toString(), readonly);
+                    userLog.info("Promoting {} dependencies from {} to {}", req.getPaths().size(), req.getSource(), req.getTarget());
+
+                    doPromoteByPath(req, readonly);
+
+                    logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
+                            req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
+                } catch (RepositoryManagerException ex) {
+                    logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
+                            req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
+                    throw ex;
+                }
+            }
+        }
     }
 
     private StoreKey getPromotionTarget(String packageType, Map<String, StoreKey> promotionTargets) {
@@ -498,7 +553,7 @@ public class IndyRepositorySession implements RepositorySession {
      * @return List of output artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<Artifact> processUploads(TrackedContentDTO report)
+    private List<Artifact> collectUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
 
         logger.info("BEGIN: Process artifacts uploaded from build");

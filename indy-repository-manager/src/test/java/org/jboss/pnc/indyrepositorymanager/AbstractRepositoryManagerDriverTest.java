@@ -31,6 +31,7 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -121,7 +122,8 @@ public class AbstractRepositoryManagerDriverTest {
         System.out.println("Using base URL: " + url);
 
         Configuration config = new Configuration();
-        driver = new RepositoryManagerDriver(config);
+        BuildRecordRepositoryMock bcRepository = new BuildRecordRepositoryMock();
+        driver = new RepositoryManagerDriver(config, bcRepository);
     }
 
     protected InternalRepoPatterns getInternalRepoPatterns() {

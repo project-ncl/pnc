@@ -382,7 +382,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 if (repositorySession == null) {
                     return null;
                 }
-                RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
+                RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts(true);
                 buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
                 if (repositoryManagerResult.getCompletionStatus().isFailed()) {
                     buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR);
