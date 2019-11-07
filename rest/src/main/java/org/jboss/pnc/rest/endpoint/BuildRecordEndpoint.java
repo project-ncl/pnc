@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.endpoint;
 
 import io.swagger.v3.oas.annotations.Hidden;
+
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
@@ -66,8 +67,6 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
-    private Notifier notifier;
-
     @Context
     private HttpServletRequest httpServletRequest;
 
@@ -80,14 +79,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             BuildRecordProvider buildRecordProvider,
             ArtifactProvider artifactProvider,
             EndpointAuthenticationProvider authProvider,
-            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
-            Notifier notifier) {
+            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.artifactProvider = artifactProvider;
         this.authProvider = authProvider;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
-        this.notifier = notifier;
     }
 
     @GET
@@ -101,12 +98,14 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
+    @Override
     @GET
     @Path("/{id}")
     public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
+    @Override
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Integer id)
@@ -132,13 +131,15 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Produces(MediaType.TEXT_PLAIN)
     public Response getLogs(@PathParam("id") Integer id) {
         String buildRecordLog = buildRecordProvider.getBuildRecordLog(id);
-        if (buildRecordLog == null)
+        if (buildRecordLog == null) {
             return Response.status(Status.NOT_FOUND).build();
+        }
 
-        if (buildRecordLog.isEmpty())
+        if (buildRecordLog.isEmpty()) {
             return Response.noContent().build();
-        else
+        } else {
             return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
+        }
     }
 
     @GET
@@ -262,6 +263,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
      *
      * Gets a BuildRecord which is completed or in running state
      */
+    @Deprecated
     @GET
     @Path("/{id}/completed-or-running")
     public Response getCompletedOrRunnning(@PathParam("id") Integer id) {
