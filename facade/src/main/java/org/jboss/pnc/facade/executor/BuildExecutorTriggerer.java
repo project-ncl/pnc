@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.facade.executor;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
@@ -34,6 +33,8 @@ import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -44,7 +45,7 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class BuildExecutorTriggerer {
 
-    private final Logger log = Logger.getLogger(BuildExecutorTriggerer.class);
+    private static final Logger log = LoggerFactory.getLogger(BuildExecutorTriggerer.class);
 
     private BuildExecutor buildExecutor;
 
