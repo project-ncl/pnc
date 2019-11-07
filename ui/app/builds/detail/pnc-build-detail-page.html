@@ -21,7 +21,7 @@
   <div class="col-md-12">
     <div class="page-header border-none">
       <div class="btn-group pull-right" role="group" aria-label="Build Actions">
-        <pnc-brew-push-button build-record="$ctrl.build"></pnc-brew-push-button>
+        <pnc-brew-push-button build="$ctrl.build"></pnc-brew-push-button>
         <button ng-if="$ctrl.build.$isCancelable()" ng-click="$ctrl.build.$cancel()" type="button" class="btn btn-danger"><i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort</button>
       </div>
       <h1>

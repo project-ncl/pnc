@@ -21,15 +21,15 @@
   angular.module('pnc.common.components').component('pncBrewPushStatusLabel', {
     bindings: {
       /**
-       * Object: The BuildRecord to show the brew push status of
+       * Object: The Build to show the brew push status of
        */
-      buildRecord: '<?'
+      build: '<?'
     },
     templateUrl: 'common/components/pnc-brew-push-status-label/pnc-brew-push-status-label.html',
-    controller: ['BuildRecord', Controller]
+    controller: ['BuildResource', Controller]
   });
 
-  function Controller(BuildRecord) {
+  function Controller(BuildResource) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -41,8 +41,8 @@
 
 
     $ctrl.$onInit = function () {
-      if ($ctrl.buildRecord.$isSuccess()) {
-        BuildRecord.getLatestPushStatus($ctrl.buildRecord.id)
+      if ($ctrl.build.$isSuccess()) {
+        BuildResource.getBrewPushResult({ id: $ctrl.build.id }).$promise
           .then(function (pushStatus) {
             $ctrl.pushStatus = pushStatus;
           })

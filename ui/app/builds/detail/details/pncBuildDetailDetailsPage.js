@@ -21,8 +21,7 @@
   angular.module('pnc.builds').component('pncBuildDetailDetailsPage', {
     bindings: {
       build: '<',
-      dependencyGraph: '<',
-      buildBrewPushResult: '<'
+      dependencyGraph: '<'
     },
     templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
     controller: [Controller]

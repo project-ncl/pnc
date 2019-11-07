@@ -22,9 +22,9 @@
   angular.module('pnc.builds').component('pncBuildTree', {
     bindings: {
       /**
-       * object representing BuildRecord
+       * object representing Build
        */
-      buildRecord: '<?',
+      build: '<?',
       /**
        * object representing BuildGroupRecord
        */
@@ -36,10 +36,10 @@
       dependencyGraph: '<?'
     },
     templateUrl: 'builds/directives/pnc-build-tree/pnc-build-tree.html',
-    controller: ['BuildRecord', 'GroupBuildResource', '$timeout', '$scope', '$log', '$q', 'EntityRecognizer', Controller]
+    controller: ['BuildResource', 'GroupBuildResource', '$timeout', '$scope', '$log', '$q', 'EntityRecognizer', Controller]
   });
 
-  function Controller(BuildRecord, GroupBuildResource, $timeout, $scope, $log, $q, EntityRecognizer) {
+  function Controller(BuildResource, GroupBuildResource, $timeout, $scope, $log, $q, EntityRecognizer) {
 
     var $ctrl = this;
     var buildItemPromise = null;
@@ -58,12 +58,12 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      $ctrl.buildItem = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild;
+      $ctrl.buildItem = $ctrl.build ? $ctrl.build : $ctrl.groupBuild;
 
       if ($ctrl.dependencyGraph) {
         buildItemPromise = $q.when($ctrl.dependencyGraph);
       } else {
-        buildItemPromise = ($ctrl.buildRecord ? BuildRecord : GroupBuildResource).getDependencyGraph({ 
+        buildItemPromise = ($ctrl.build ? BuildResource : GroupBuildResource).getDependencyGraph({ 
           id: $ctrl.buildItem.id
         }).$promise;
       }
