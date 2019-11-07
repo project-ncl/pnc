@@ -42,12 +42,15 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.Ignored
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
@@ -100,6 +103,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private IgnoredPathPatterns ignoredPathPatterns;
 
+    private BuildRecordRepository buildRecordRepository;
+
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
@@ -108,7 +113,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Inject
-    public RepositoryManagerDriver(Configuration configuration) {
+    public RepositoryManagerDriver(Configuration configuration, BuildRecordRepository buildRecordRepository) {
+        this.buildRecordRepository = buildRecordRepository;
+
         IndyRepoDriverModuleConfig config;
         try {
             config = configuration
@@ -239,6 +246,28 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 throw new IllegalArgumentException("Repository type " + repoType
                         + " is not supported by this repository manager driver.");
         }
+    }
+
+    @Override
+    public RepositoryManagerResult collectRepoManagerResult(Integer id)
+            throws RepositoryManagerException {
+        BuildRecord br = buildRecordRepository.findByIdFetchAllProperties(id);
+        if (br == null) {
+            return null;
+        }
+
+        String buildContentId = br.getBuildContentId();
+        BuildType buildType = br.getBuildConfigurationAudited().getBuildType();
+        boolean tempBuild = br.isTemporaryBuild();
+
+        Indy indy = init(null);
+
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
+        String packageType = getIndyPackageTypeKey(buildType.getRepoType());
+
+        IndyRepositorySession session = new IndyRepositorySession(indy, indy, buildContentId, packageType, null,
+                internalRepoPatterns, ignoredPathPatterns, buildPromotionTarget, tempBuild);
+        return session.extractBuildArtifacts(false);
     }
 
     /**

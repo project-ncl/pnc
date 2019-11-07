@@ -59,7 +59,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));
 
         // now, extract the build artifacts. This will trigger promotion of imported stuff to shared-imports.
-        RepositoryManagerResult result = session.extractBuildArtifacts();
+        RepositoryManagerResult result = session.extractBuildArtifacts(true);
 
         // do some sanity checks while we're here
         List<Artifact> deps = result.getDependencies();

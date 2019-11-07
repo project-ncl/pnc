@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.repositorymanager;
 
 import java.util.Map;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
@@ -46,6 +47,19 @@ public interface RepositoryManager {
                                             String serviceAccountToken,
                                             RepositoryType repositoryType,
                                             Map<String,String> genericParameters) throws RepositoryManagerException;
+
+    /**
+     * Collects processed repository manager result for a previously finished build for any repair work needed.
+     * This reads the tracking report and collects the downloads and uploads the same way as they are collected
+     * at the end of a successful build.
+     *
+     * @param buildContentId string identifier of the build
+     * @param tempBuild flag if this is a temporary build
+     * @return repository manager result
+     * @throws RepositoryManagerException
+     *             in case of an error when collecting the build artifacts and dependencies
+     */
+    RepositoryManagerResult collectRepoManagerResult(Integer id) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the

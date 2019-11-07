@@ -23,7 +23,22 @@ package org.jboss.pnc.enums;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public enum BuildType {
-    MVN,
-    NPM,
-    GRADLE
+    MVN(RepositoryType.MAVEN),
+    NPM(RepositoryType.NPM),
+    GRADLE(RepositoryType.MAVEN);
+
+    private RepositoryType repoType;
+
+    private BuildType(RepositoryType repoType) {
+        this.repoType = repoType;
+    }
+
+    /**
+     * Gets repository type assigned with this build type.
+     *
+     * @return the repository type
+     */
+    public RepositoryType getRepoType() {
+        return repoType;
+    }
 }
