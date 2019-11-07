@@ -21,14 +21,14 @@
 
   angular.module('pnc.builds').component('pncBrewPushButton', {
     bindings: {
-      buildRecord: '<?',
+      build: '<?',
       groupBuild: '<?'
     },
     templateUrl: 'builds/directives/pnc-brew-push-button/pnc-brew-push-button.html',
-    controller: ['$uibModal', 'pncNotify', 'BuildRecord', 'GroupBuildResource', 'messageBus', Controller]
+    controller: ['$uibModal', 'pncNotify', 'BuildResource', 'GroupBuildResource', 'messageBus', 'EntityRecognizer', Controller]
   });
 
-  function Controller($uibModal, pncNotify, BuildRecord, GroupBuildResource, messageBus) {
+  function Controller($uibModal, pncNotify, BuildResource, GroupBuildResource, messageBus, EntityRecognizer) {
     var $ctrl = this,
         unsubscribes = [];
 
@@ -39,17 +39,17 @@
 
     // --------------------
 
-    function isBuildRecord() {
-      return angular.isDefined($ctrl.buildRecord);
+    function isBuild() {
+      return EntityRecognizer.isBuild($ctrl.build);
     }
 
     function isBuildGroupRecord() {
-      return angular.isDefined($ctrl.groupBuild);
+      return EntityRecognizer.isGroupBuild($ctrl.groupBuild);
     }
 
     function isButtonVisible() {
-      if (isBuildRecord()) {
-        return $ctrl.buildRecord.$isSuccess();
+      if (isBuild()) {
+        return $ctrl.build.$isSuccess();
       } else if (isBuildGroupRecord()) {
         return GroupBuildResource.isSuccess($ctrl.groupBuild);
       }
@@ -64,7 +64,7 @@
       });
 
       modal.result.then(function (modalValues) {
-        return isBuildRecord() ? doPushBuildRecord(modalValues) : doPushGroupBuild(modalValues);
+        return isBuild() ? doPushBuild(modalValues) : doPushGroupBuild(modalValues);
       });
     }
 
@@ -105,8 +105,13 @@
       });
     }
 
-    function doPushBuildRecord(modalValues) {
-      BuildRecord.push($ctrl.buildRecord.id, modalValues.tagName).then(function (response) {
+    function doPushBuild(modalValues) {
+      BuildResource.brewPush({ 
+        id: $ctrl.build.id
+      }, {
+        tagPrefix: modalValues.tagName,
+        buildId: $ctrl.build.id
+      }).then(function (response) {
         subscribe(response.data);
         notify(response.data[0]);
       });

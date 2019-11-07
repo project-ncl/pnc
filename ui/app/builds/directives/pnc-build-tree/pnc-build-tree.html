@@ -40,7 +40,7 @@
 
       <tr ng-if="$ctrl.buildTree.dependentStructure.length" ng-repeat="itemId in $ctrl.buildTree.dependentStructure">
         <td>
-          <pnc-build-tree-link build-record="$ctrl.buildTree.nodes[itemId].data"></pnc-build-tree-link>
+          <pnc-build-tree-link build="$ctrl.buildTree.nodes[itemId].data"></pnc-build-tree-link>
         </td>
       </tr>
     </tbody>
@@ -64,7 +64,7 @@
       </tr>
       <tr ng-show="$ctrl.dependencyStructureIsLoaded" ng-repeat="item in $ctrl.buildTree.dependencyStructure" id="{{item.attrId}}" ng-attr-data-parent="{{item.attrParent}}" class="{{item.attrClass}}">
         <td class="treegrid-node {{ item.tdAttrClass}}">
-          <pnc-build-tree-link ng-if="item.isBuild" class="inline-block" build-record="$ctrl.buildTree.nodes[item.id].data"></pnc-build-tree-link>
+          <pnc-build-tree-link ng-if="item.isBuild" class="inline-block" build="$ctrl.buildTree.nodes[item.id].data"></pnc-build-tree-link>
           <pnc-build-tree-link ng-if="item.isGroupBuild" class="inline-block" group-build="$ctrl.buildItem"></pnc-build-tree-link>
         </td>
       </tr>

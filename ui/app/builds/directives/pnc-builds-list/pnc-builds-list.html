@@ -51,7 +51,7 @@
       <td ng-if="::$ctrl.showColumn('endTime')">{{ item.endTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('username')">{{ item.user.username }}</td>
       <td ng-if="::$ctrl.showColumn('pushStatus')" class="push-status">
-        <pnc-brew-push-status-label build-record="item"></pnc-brew-push-status-label>
+        <pnc-brew-push-status-label build="item"></pnc-brew-push-status-label>
       </td>
     </tr>
   </tbody>

@@ -23,14 +23,14 @@
    * build configuration link and Build link for given Build or Build Group Record.
    * 
    * @example 
-   * <pnc-build-tree-link build-record="buildRecord"></pnc-build-tree-link>
+   * <pnc-build-tree-link build="build"></pnc-build-tree-link>
    */
   angular.module('pnc.builds').component('pncBuildTreeLink', {
     bindings: {
       /**
        * Object: The BuildRecord to display the link for.
        */
-      buildRecord: '<?',
+      build: '<?',
       /**
        * Object: The BuildGroupRecord to display the link for.
        */
@@ -44,15 +44,15 @@
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
-      copyBuildItem($ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild);
+      copyBuildItem($ctrl.build ? $ctrl.build : $ctrl.groupBuild);
 
       $scope.$on(eventTypes.BUILD_STATUS_CHANGED, onEvent);
       $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, onEvent);
     };
 
     $ctrl.$onChanges = function(changedBindings) {
-      if (changedBindings.buildRecord) {
-        copyBuildItem($ctrl.buildRecord);
+      if (changedBindings.build) {
+        copyBuildItem($ctrl.build);
       } else if (changedBindings.groupBuild) {
         copyBuildItem($ctrl.groupBuild);
       }

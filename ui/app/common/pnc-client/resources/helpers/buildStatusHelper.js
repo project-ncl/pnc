@@ -68,6 +68,14 @@
               progress: FINISHED,
               failed: true
             },
+            'FAILED': {
+              progress: FINISHED,
+              failed: true
+            },
+            'NO_REBUILD_REQUIRED': {
+              progress: FINISHED,
+              failed: false
+            },
             'DONE_WITH_ERRORS': {
               progress: FINISHED,
               failed: true

@@ -110,7 +110,7 @@
           build: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
             return BuildResource.get({ id: $stateParams.buildId }).$promise;
           }],
-          buildBrewPushResult: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
+          brewPushResult: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
             return BuildResource.getBrewPushResult({ id: $stateParams.buildId });
           }]
         }
@@ -185,18 +185,10 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail.brew-push', {
         url: '/brew-push',
-        component: 'pncBrewPushTab',
-        bindings: {
-          buildRecord: 'recordDetail'
-        },
+        component: 'pncBuildDetailBrewPushPage',
         data: {
           displayName: 'Brew Push Results',
-          title: '#{{ recordDetail.id }} {{ recordDetail.buildConfigurationName }} | Brew Push'
-        },
-        resolve: {
-          buildRecordPushResult: ['BuildRecord', '$stateParams', function (BuildRecord, $stateParams) {
-            return BuildRecord.getLatestPushStatus($stateParams.recordId);
-          }]
+          title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Brew Push'
         }
       });
 

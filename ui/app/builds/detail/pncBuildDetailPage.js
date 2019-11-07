@@ -22,14 +22,15 @@
   angular.module('pnc.builds').component('pncBuildDetailPage', {
     bindings: {
       build: '<',
-      dependencyGraph: '<'
+      dependencyGraph: '<',
+      brewPushResult: '<'
     },
     templateUrl: 'builds/detail/pnc-build-detail-page.html',
-    controller: ['buildStatusHelper', 'utils', '$scope', 'eventTypes', Controller]
+    controller: ['buildStatusHelper', '$scope', 'eventTypes', Controller]
   });
 
 
-  function Controller(buildStatusHelper, utils, $scope, eventTypes) {
+  function Controller(buildStatusHelper, $scope, eventTypes) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -41,7 +42,7 @@
 
     $ctrl.$onInit = function () {
       $ctrl.isFinished = buildStatusHelper.isFinished($ctrl.build);
-      $ctrl.hasPushResults = !utils.isEmpty($ctrl.buildBrewPushResult);
+      $ctrl.hasPushResults = !!$ctrl.brewPushResult.status;
 
       /* NCL-4433
       $scope.$on(eventTypes.BUILD_STATUS_CHANGED, function (event, payload) {

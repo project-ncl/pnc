@@ -33,7 +33,8 @@
     'authService',
     'BUILD_PATH',
     'BUILD_SSH_CREDENTIALS_PATH',
-    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH) => {
+    'buildStatusHelper',
+    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_PATH;
       const BUILD_SSH_CREDENTIALS_ENDPOINT = restConfig.getPncRestUrl() + BUILD_SSH_CREDENTIALS_PATH;
 
@@ -169,11 +170,8 @@
       });
 
 
-      function isSuccess(status) {
-        return status === 'DONE';
-      }
       resource.prototype.$isSuccess = function () {
-        return isSuccess(this.status);
+        return buildStatusHelper.isSuccess(this);
       };
 
 
