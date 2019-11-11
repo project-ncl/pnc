@@ -17,31 +17,43 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.jboss.pnc.enums.RepositoryType;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.RepositoryType;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 /**
  *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
 @JsonDeserialize(builder = TargetRepository.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TargetRepository extends TargetRepositoryRef {
+public class TargetRepository implements DTOEntity {
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    protected final String id;
 
-    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private TargetRepository(String id, Boolean temporaryRepo, String identifier, RepositoryType repositoryType, String repositoryPath) {
-        super(id, temporaryRepo, identifier, repositoryType, repositoryPath);
-    }
+    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final Boolean temporaryRepo;
+
+    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final String identifier;
+
+    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final RepositoryType repositoryType;
+
+    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    protected final String repositoryPath;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
