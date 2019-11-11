@@ -19,18 +19,18 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.components').component('pncTemporaryBuildRecordLabel', {
+  angular.module('pnc.common.components').component('pncTemporaryBuildLabel', {
     bindings: {
       /**
-       * Object: a Record object representing Build
+       * Object: a object representing Build
        */
-      buildRecord: '<?',
+      build: '<?',
       /**
-       * Object: a Record object representing Build Group Record
+       * Object: a object representing Group Build
        */
       groupBuild: '<?',
     },
-    templateUrl: 'common/components/pnc-temporary-build-record-label/pnc-temporary-build-record-label.html',
+    templateUrl: 'common/components/pnc-temporary-build-label/pnc-temporary-build-label.html',
     controller: [Controller]
   });
 
@@ -38,15 +38,15 @@
   function Controller() {
     var $ctrl = this;
 
-    var buildRecord;
+    var build;
 
     $ctrl.$onInit = function() {
-      buildRecord = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild;
+      build = $ctrl.build ? $ctrl.build : $ctrl.groupBuild;
       $ctrl.isTemporary = isTemporary;
     };
 
     function isTemporary() {
-      return buildRecord.temporaryBuild;
+      return build.temporaryBuild;
     }
   }
 

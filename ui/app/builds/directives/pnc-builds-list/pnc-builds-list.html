@@ -32,11 +32,11 @@
   <tbody>
     <tr ng-repeat="item in $ctrl.items">
       <td ng-if="::$ctrl.showColumn('status')">
-        <pnc-build-status-icon build-record="item"></pnc-build-status-icon>
+        <pnc-build-status-icon build="item"></pnc-build-status-icon>
         {{ item.status }}
       </td>
       <td ng-if="::$ctrl.showColumn('statusIcon')" class="status-icon">
-          <pnc-build-status-icon build-record="item"></pnc-build-status-icon>
+          <pnc-build-status-icon build="item"></pnc-build-status-icon>
       </td>
       <td ng-if="::$ctrl.showColumn('id')">
         <pnc-build-link ng-if="::$ctrl.builds" build="item" short-link="true"></pnc-build-link>

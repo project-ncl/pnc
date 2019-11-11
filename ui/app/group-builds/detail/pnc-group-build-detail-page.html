@@ -27,9 +27,9 @@
         </button>
       </div>
       <h1>
-        <pnc-build-status-icon build-record="$ctrl.groupBuild" no-warnings="true"></pnc-build-status-icon>
+        <pnc-build-status-icon build="$ctrl.groupBuild" no-warnings="true"></pnc-build-status-icon>
         {{ $ctrl.groupBuild.groupConfig.name }} <span class="fa fa-angle-double-right"></span> #{{ $ctrl.groupBuild.id }}
-        <pnc-temporary-build-record-label group-build="$ctrl.groupBuild" class="label-sm"></pnc-temporary-build-record-label>
+        <pnc-temporary-build-label group-build="$ctrl.groupBuild" class="label-sm"></pnc-temporary-build-label>
       </h1>
     </div>
   </div>

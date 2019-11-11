@@ -25,10 +25,10 @@
         <button ng-if="$ctrl.build.$isCancelable()" ng-click="$ctrl.build.$cancel()" type="button" class="btn btn-danger"><i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort</button>
       </div>
       <h1>
-        <pnc-build-status-icon build-record="$ctrl.build" no-warnings="true"></pnc-build-status-icon>
+        <pnc-build-status-icon build="$ctrl.build" no-warnings="true"></pnc-build-status-icon>
         Build #{{ $ctrl.build.id }} of {{ $ctrl.build.buildConfigRevision.name }}
         <pnc-corrupted-build-record-label build-record="$ctrl.build" class="label-sm"></pnc-corrupted-build-record-label>
-        <pnc-temporary-build-record-label build-record="$ctrl.build" class="label-sm"></pnc-temporary-build-record-label>
+        <pnc-temporary-build-label build="$ctrl.build" class="label-sm"></pnc-temporary-build-label>
       </h1>
     </div>
   </div>
