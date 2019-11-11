@@ -109,8 +109,7 @@
       BuildResource.brewPush({ 
         id: $ctrl.build.id
       }, {
-        tagPrefix: modalValues.tagName,
-        buildId: $ctrl.build.id
+        tagPrefix: modalValues.tagName
       }).then(function (response) {
         subscribe(response.data);
         notify(response.data[0]);
