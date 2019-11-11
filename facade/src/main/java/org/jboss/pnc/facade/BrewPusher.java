@@ -29,7 +29,7 @@ public interface BrewPusher {
 
     public void pushGroup(int id, String tagPrefix);
 
-    BuildPushResult brewPush(BuildPushRequest buildPushRequest) throws ProcessException;
+    BuildPushResult brewPush(String id, BuildPushRequest buildPushRequest) throws ProcessException;
 
     boolean brewPushCancel(int buildId);
 

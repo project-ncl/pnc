@@ -266,7 +266,7 @@ public interface BuildEndpoint{
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
-    BuildPushResult push(BuildPushRequest buildPushRequest);
+    BuildPushResult push(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushRequest buildPushRequest);
 
     @Operation(summary = "Cancels push of build to Brew.",
             responses = {

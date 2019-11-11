@@ -172,10 +172,10 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public BuildPushResult push(BuildPushRequest buildPushRequest) {
+    public BuildPushResult push(String id, BuildPushRequest buildPushRequest) {
 
         try {
-            return brewPusher.brewPush(buildPushRequest);
+            return brewPusher.brewPush(id, buildPushRequest);
         } catch (ProcessException e) {
             throw new RuntimeException(e);
         }
