@@ -36,9 +36,6 @@ public class BuildPushRequest {
 
     private final String tagPrefix;
 
-    @NotNull
-    private final String buildId;
-
     private final boolean reimport;
 
     @JsonPOJOBuilder(withPrefix = "")

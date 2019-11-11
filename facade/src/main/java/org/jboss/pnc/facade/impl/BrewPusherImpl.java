@@ -26,6 +26,7 @@ import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.facade.BrewPusher;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.Result;
@@ -66,14 +67,12 @@ public class BrewPusherImpl implements BrewPusher {
     @Inject
     private Configuration configuration;
 
-    @Inject
-    private AuthenticationProvider authenticationProvider;
 
     @Inject
     private BuildPushResultMapper buildPushResultMapper;
 
-    @Context
-    private HttpServletRequest httpServletRequest;
+    @Inject
+    private UserService userService;
 
     @Override
     public void pushGroup(int id, String tagPrefix) {
@@ -89,7 +88,7 @@ public class BrewPusherImpl implements BrewPusher {
         try {
             Set<Result> pushed = buildResultPushManager.push(
                     buildRecordsIds,
-                    currentUserToken(),
+                    userService.currentUserToken(),
                     getCompleteCallbackUrl(),
                     tagPrefix,
                     false);
@@ -98,22 +97,22 @@ public class BrewPusherImpl implements BrewPusher {
         }
     }
 
-    public BuildPushResult brewPush(BuildPushRequest buildPushRequest) throws ProcessException {
+    @Override
+    public BuildPushResult brewPush(String id, BuildPushRequest buildPushRequest) throws ProcessException {
 
-        String buildId = buildPushRequest.getBuildId();
-        BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildId));
+        BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(id));
 
         if (buildRecord == null) {
             return null;
         }
 
-        log.debug("Pushing BuildRecord {}.", buildId);
+        log.debug("Pushing BuildRecord {}.", id);
         Set<String> toPush = new HashSet<>();
-        toPush.add(buildId);
+        toPush.add(id);
 
         Set<Result> pushed = buildResultPushManager.push(
                 toPush,
-                currentUserToken(),
+                userService.currentUserToken(),
                 getCompleteCallbackUrl(),
                 buildPushRequest.getTagPrefix(),
                 buildPushRequest.isReimport());
@@ -123,7 +122,7 @@ public class BrewPusherImpl implements BrewPusher {
         List<BuildPushResult> pushedResponse = pushed.stream()
                 .map(r -> BuildPushResult.builder()
                         .id(r.getId())
-                        .buildId(buildId)
+                        .buildId(id)
                         .status(r.getStatus())
                         .log(r.getMessage())
                         .build())
@@ -153,11 +152,6 @@ public class BrewPusherImpl implements BrewPusher {
 
         BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildId);
         return buildPushResultMapper.toDTO(latestForBuildRecord);
-    }
-
-    private String currentUserToken() {
-        LoggedInUser currentUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        return currentUser.getTokenString();
     }
 
     private String getCompleteCallbackUrl() {

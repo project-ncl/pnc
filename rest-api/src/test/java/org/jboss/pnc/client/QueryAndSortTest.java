@@ -38,6 +38,6 @@ public class QueryAndSortTest {
 
         BuildClient buildClient = new BuildClient(configuration);
         BuildPushRequest pushRequest = BuildPushRequest.builder().build();
-        buildClient.push(pushRequest);
+        buildClient.push("", pushRequest);
     }
 }
