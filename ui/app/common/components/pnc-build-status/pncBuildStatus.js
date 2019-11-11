@@ -23,16 +23,16 @@
    * start / end time or started by user for given Build or Build Group Record.
    * 
    * @example 
-   * <pnc-build-status build-record="buildRecord" is-loaded="isLoaded"></pnc-build-status>
+   * <pnc-build-status build="build" is-loaded="isLoaded"></pnc-build-status>
    */
   angular.module('pnc.common.components').component('pncBuildStatus', {
     bindings: {
       /**
-       * Object: The BuildRecord to display the status for.
+       * Object: The Build to display the status for.
        */
-      buildRecord: '<?',
+      build: '<?',
       /**
-       * Object: The BuildGroupRecord to display the status for.
+       * Object: The Group Build to display the status for.
        */
       groupBuild: '<?',
       /**
@@ -53,12 +53,12 @@
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
-      $ctrl.item = $ctrl.buildRecord ? $ctrl.buildRecord : $ctrl.groupBuild;
+      $ctrl.item = $ctrl.build ? $ctrl.build : $ctrl.groupBuild;
     };
 
     $ctrl.$onChanges = function(changedBindings) {
-      if (changedBindings.buildRecord) {
-        $ctrl.item = $ctrl.buildRecord;
+      if (changedBindings.build) {
+        $ctrl.item = $ctrl.build;
       } else if (changedBindings.groupBuild) {
         $ctrl.item = $ctrl.groupBuild;
       }

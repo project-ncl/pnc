@@ -23,7 +23,7 @@
       /**
        * Object: The BuildRecord to display the status icon for.
        */
-      buildRecord: '<',
+      build: '<',
       /**
        * Boolean: Whether to display additional warnings such as corrupted 
        * BuildRecord indicator, defaults to false.
@@ -44,8 +44,8 @@
 
     // --------------------
 
-    function isCorrupted(buildRecord) {
-      var attrs = buildRecord.attributes;
+    function isCorrupted(build) {
+      var attrs = build.attributes;
 
       return attrs && (
         attrs.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR' ||
@@ -53,14 +53,14 @@
       );
     }
 
-    function isTemporary(buildRecord) {
-      return buildRecord.temporaryBuild;
+    function isTemporary(build) {
+      return build.temporaryBuild;
     }
 
     $ctrl.$onChanges = function (changes) {
-      if (changes.buildRecord && changes.buildRecord.currentValue) {
-        $ctrl.isCorrupted = isCorrupted(changes.buildRecord.currentValue);
-        $ctrl.isTemporary = isTemporary(changes.buildRecord.currentValue);
+      if (changes.build && changes.build.currentValue) {
+        $ctrl.isCorrupted = isCorrupted(changes.build.currentValue);
+        $ctrl.isTemporary = isTemporary(changes.build.currentValue);
       }
     };
   }

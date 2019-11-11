@@ -18,7 +18,7 @@
 
 -->
 <div>
-  <pnc-build-status-icon build-record="$ctrl.buildItem"></pnc-build-status-icon>
+  <pnc-build-status-icon build="$ctrl.buildItem"></pnc-build-status-icon>
 
   <a ng-if="$ctrl.build" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.build.buildConfigRevision.project.id, configurationId: $ctrl.build.buildConfigRevision.id })" ng-click="$event.stopPropagation()">{{$ctrl.build.buildConfigRevision.name}}</a> 
   <pnc-group-config-link group-config="$ctrl.groupBuild.groupConfig" ng-if="$ctrl.groupBuild"></pnc-group-config-link>
