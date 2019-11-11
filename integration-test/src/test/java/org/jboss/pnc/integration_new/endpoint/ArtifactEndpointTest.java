@@ -27,7 +27,7 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
-import org.jboss.pnc.dto.TargetRepositoryRef;
+import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
@@ -35,6 +35,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class ArtifactEndpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointTest.class);
 
-    private TargetRepositoryRef targetRepositoryRef;
+    private TargetRepository targetRepositoryRef;
 
     private static Artifact artifactRest1;
     private static Artifact artifactRest2;
