@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.executor;
 
-import org.apache.commons.lang3.time.StopWatch;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
@@ -26,6 +25,7 @@ import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
@@ -68,7 +68,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -212,7 +211,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         if (buildExecutionSession.isCanceled()) {
             return null;
         }
-        userLog.info("Setting up repository...");
+        ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.REPO_SETTING_UP.toString(), "Setting up repository...");
         buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
 
         BuildType buildType = buildExecutionSession.getBuildExecutionConfiguration().getBuildType();
@@ -227,10 +226,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
             String serviceAccountToken = (serviceClient == null ? null : serviceClient.getAuthToken());
 
-            return repositoryManager.createBuildRepository(buildExecution,
+            RepositorySession buildRepository = repositoryManager.createBuildRepository(buildExecution,
                     buildExecutionSession.getAccessToken(),
                     serviceAccountToken,
                     buildExecutionSession.getBuildExecutionConfiguration().getGenericParameters());
+            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.REPO_SETTING_UP.toString(), "Repository setup complete.");
+            return buildRepository;
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
@@ -245,7 +246,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
             return null;
         }
 
-        userLog.info("Setting up build environment ...");
+        ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.BUILD_ENV_SETTING_UP.toString(), "Setting up build environment ...");
+
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETTING_UP);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionSession.getBuildExecutionConfiguration();
         try {
@@ -279,14 +281,14 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         try {
             Consumer<RunningEnvironment> onComplete = (runningEnvironment) -> {
-                userLog.info("Build environment prepared.");
+                ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.BUILD_ENV_SETTING_UP.toString(), "Build environment prepared.");
 
                 buildExecutionSession.setRunningEnvironment(runningEnvironment);
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                 waitToCompleteFuture.complete(null);
             };
             Consumer<Exception> onError = (e) -> {
-                userLog.error("Failed to set-up build environment.");
+                ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.BUILD_ENV_SETTING_UP.toString(), "Failed to set-up build environment.");
 
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
                 waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
@@ -306,14 +308,18 @@ public class DefaultBuildExecutor implements BuildExecutor {
             waitToCompleteFuture.complete(null);
             return waitToCompleteFuture;
         }
-        userLog.info("Setting up build ...");
+        ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.BUILD_SETTING_UP.toString(), "Running the build ...");
 
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_SETTING_UP);
         RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
 
         try {
-            Consumer<CompletedBuild> onComplete = waitToCompleteFuture::complete;
+            Consumer<CompletedBuild> onComplete = value -> {
+                ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.BUILD_SETTING_UP.toString(), "Build completed.");
+                waitToCompleteFuture.complete(value);
+            };
             Consumer<Throwable> onError = (e) -> {
+                ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.BUILD_SETTING_UP.toString(), "Build failed.");
                 waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningEnvironment));
             };
 
@@ -340,7 +346,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             return null;
         }
         try {
-            userLog.info("Collecting results from build driver ...");
+            ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER.toString(), "Collecting results from build driver ...");
 
             buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             BuildDriverResult buildResult = completedBuild.getBuildResult();
@@ -356,6 +362,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 userLog.warn("Build completed with errors.");
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             }
+            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER.toString(), "Collected results from build driver.");
             return null;
         } catch (Throwable e) {
             throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
@@ -363,13 +370,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void retrieveRepositoryManagerResults(DefaultBuildExecutionSession buildExecutionSession) {
-
-        StopWatch stopWatch = StopWatch.createStarted();
-        log.info("BEGIN: retrieving repository manager results");
-
         try {
             if (!buildExecutionSession.hasFailed() && !buildExecutionSession.isCanceled()) {
-                userLog.info("Collecting results from repository manager ...");
+                ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER.toString(), "Collecting results from repository manager ...");
 
                 buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
                 RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
@@ -387,13 +390,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 } else {
                     buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_SUCCESS);
                 }
-                userLog.info("Collected results from repository manager.");
             }
         } catch (Throwable e) {
-            log.info("END: retrieving repository manager results, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
             throw new BuildProcessException(e, buildExecutionSession.getRunningEnvironment());
+        } finally {
+            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER.toString(), "Collected results from repository manager.");
         }
-        log.info("END: retrieving repository manager results, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
         return null;
     }
 
@@ -417,7 +419,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private Void completeExecution(DefaultBuildExecutionSession buildExecutionSession, Throwable e) {
         Integer buildExecutionId = buildExecutionSession.getId();
         try {
-            userLog.info("Finalizing build execution.");
+            ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.FINALIZING_EXECUTION.toString(), "Finalizing build execution ...");
             if (e != null) {
                 log.debug("Finalizing FAILED execution. Exception: ", e);
             } else {
@@ -493,6 +495,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     repositorySession.close();
                 }
             }
+            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.FINALIZING_EXECUTION.toString(), "Finalized build execution.");
         }
         return null;
     }
