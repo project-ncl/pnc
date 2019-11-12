@@ -283,7 +283,6 @@ public class BuildTasksInitializer {
                         productMilestone,
                         buildContentId);
                 log.debug("Created new buildTask {} for BuildConfigurationAudited {}.", buildTask, buildConfigAudited);
-                ProcessStageUtils.logProcessStageBegin("Enqueued");
             }
 
             buildSetTask.addBuildTask(buildTask);
