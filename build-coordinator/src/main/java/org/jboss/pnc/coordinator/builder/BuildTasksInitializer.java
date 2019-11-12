@@ -67,8 +67,6 @@ public class BuildTasksInitializer {
                                            Supplier<Integer> buildTaskIdProvider,
                                            Set<BuildTask> submittedBuildTasks) {
 
-        ProcessStageUtils.logProcessStageBegin("Scheduling");
-
         BuildSetTask buildSetTask =
                 BuildSetTask.Builder.newBuilder()
                         .buildOptions(buildOptions)
@@ -88,7 +86,6 @@ public class BuildTasksInitializer {
                 submittedBuildTasks,
                 buildOptions);
 
-        ProcessStageUtils.logProcessStageEnd("Scheduling");
         return buildSetTask;
     }
 
