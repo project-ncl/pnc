@@ -19,15 +19,15 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.components').component('pncCorruptedBuildRecordLabel', {
+  angular.module('pnc.common.components').component('pncCorruptedBuildLabel', {
     bindings: {
 
       /**
-       * Object: a BuildRecord object to display it's corrupted status.
+       * Object: a Build object to display it's corrupted status.
        */
-      buildRecord: '<'
+      build: '<'
     },
-    templateUrl: 'common/components/pnc-corrupted-build-record-label/pnc-corrupted-build-record-label.html',
+    templateUrl: 'common/components/pnc-corrupted-build-label/pnc-corrupted-build-label.html',
     controller: [Controller]
   });
 
@@ -42,11 +42,12 @@
     // --------------------
 
     function isCorrupted() {
-      var attrs = $ctrl.buildRecord.attributes;
+      var attrs = $ctrl.build.attributes;
 
       return attrs && (
         attrs.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR' ||
-        attrs.PNC_SYSTEM_ERROR           === 'DISABLED_FIREWALL'
+        attrs.PNC_SYSTEM_ERROR           === 'DISABLED_FIREWALL' ||
+        attrs.BUILD_PROCESS_ISSUE
       );
     }
   }
