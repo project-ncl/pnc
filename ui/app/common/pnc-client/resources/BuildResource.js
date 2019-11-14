@@ -34,7 +34,8 @@
     'BUILD_PATH',
     'BUILD_SSH_CREDENTIALS_PATH',
     'buildStatusHelper',
-    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper) => {
+    'rsqlQuery',
+    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper, rsqlQuery) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_PATH;
       const BUILD_SSH_CREDENTIALS_ENDPOINT = restConfig.getPncRestUrl() + BUILD_SSH_CREDENTIALS_PATH;
 
@@ -54,7 +55,10 @@
         query: {
           method: 'GET',
           isPaged: true,
-          url: ENDPOINT
+          url: ENDPOINT,
+          params: {
+            sort: '=desc=submitTime'
+          }
         },
 
         // getLastByConfiguration should be part of the BuildConfigResource
@@ -140,12 +144,6 @@
 
         /**
          * Push build to Brew.
-         * 
-         * {
-         *  "tagPrefix": "string",
-         *  "buildId": "string",
-         *  "reimport": true
-         * }
          */
         brewPush: {
           method: 'POST',
