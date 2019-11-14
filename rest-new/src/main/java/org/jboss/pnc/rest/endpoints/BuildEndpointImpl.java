@@ -168,7 +168,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public BuildPushResult getPushResult(String id) {
-        return brewPusher.getBrewPushResult(Integer.parseInt(id));
+        BuildPushResult brewPushResult = brewPusher.getBrewPushResult(Integer.parseInt(id));
+        if(brewPushResult == null){
+            throw new NotFoundException();
+        }
+        return brewPushResult;
     }
 
     @Override
