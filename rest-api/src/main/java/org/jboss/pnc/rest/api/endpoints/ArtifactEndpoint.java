@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
@@ -31,6 +32,7 @@ import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -76,7 +78,7 @@ public interface ArtifactEndpoint {
             })
     @GET
     Page<Artifact> getAll(
-            @BeanParam PageParameters pageParams,
+            @Valid @BeanParam PageParameters pageParams,
             @Parameter(description = "Filter by sha256 of the artifact") @QueryParam("sha256") String sha256,
             @Parameter(description = "Filter by md5 of the artifact") @QueryParam("md5") String md5,
             @Parameter(description = "Filter by sha1 of the artifact") @QueryParam("sha1") String sha1);

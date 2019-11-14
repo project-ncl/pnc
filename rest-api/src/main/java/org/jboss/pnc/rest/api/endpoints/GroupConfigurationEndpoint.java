@@ -42,6 +42,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -93,7 +94,7 @@ public interface GroupConfigurationEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<GroupConfiguration> getAll(@BeanParam PageParameters pageParams);
+    Page<GroupConfiguration> getAll(@Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Creates a new group config.",
             responses = {
@@ -188,7 +189,7 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getConfigurations(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Adds a build config to the group config.",
             responses = {
@@ -231,7 +232,7 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams,
+            @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams);
 
     @Operation(summary = "Get all group builds associated with this group config.",
@@ -247,6 +248,6 @@ public interface GroupConfigurationEndpoint{
     @Path("/{id}/group-builds")
     Page<GroupBuild> getAllGroupBuilds(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams);
 
 }

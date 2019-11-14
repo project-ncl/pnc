@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
@@ -37,6 +38,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupBuildPage;
 
+import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -79,7 +81,7 @@ public interface GroupBuildEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<GroupBuild> getAll(@BeanParam PageParameters pageParams);
+    Page<GroupBuild> getAll(@Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Gets specific group build.",
             responses = {
@@ -119,7 +121,7 @@ public interface GroupBuildEndpoint {
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = GB_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams,
+            @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
     @Operation(summary = "Push all perfomred builds from this group build to Brew.",
