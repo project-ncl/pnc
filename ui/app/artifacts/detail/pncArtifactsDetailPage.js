@@ -22,7 +22,7 @@
   angular.module('pnc.artifacts').component('pncArtifactsDetailPage', {
     bindings: {
      artifact: '<',
-     buildRecord: '<',
+     build: '<',
      usages: '<'
     },
     templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
@@ -34,13 +34,14 @@
     const $ctrl = this;
 
     // -- Controller API --
-
+    
     $ctrl.buildRecordListDisplayFields = ['statusIcon', 'canonicalName', 'endTime', 'pushStatus'];
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
+      debugger;
     };
 
   }

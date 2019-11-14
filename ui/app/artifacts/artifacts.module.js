@@ -71,14 +71,14 @@
                 return Artifact.get({ id: $stateParams.id }).$promise;
               }
             ],
-            buildRecord: [
+            build: [
               'artifact',
-              'BuildRecord',
-              function(artifact, BuildRecord) {
+              'BuildResource',
+              function(artifact, BuildResource) {
                 if (artifact.buildRecordIds.length === 0) {
                   return null;
                 }
-                return BuildRecord.get({ id: artifact.buildRecordIds[0] }).$promise;
+                return BuildResource.get({ id: artifact.buildRecordIds[0] }).$promise;
               }
             ],
             usages: [ 

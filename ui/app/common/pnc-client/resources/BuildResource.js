@@ -182,7 +182,7 @@
 
 
       function canonicalName(build) {
-        return build.buildConfigurationName + '#' + build.id;
+        return build.buildConfigRevision.name + '#' + build.id;
       }
       resource.prototype.$canonicalName = function () {
         return canonicalName(this);
