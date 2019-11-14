@@ -44,6 +44,7 @@ import org.jboss.pnc.rest.provider.EJBExceptionMapper;
 import org.jboss.pnc.rest.provider.RSQLExceptionMapper;
 import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
 import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
+import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
 import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
@@ -220,6 +221,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(ValidationExceptionExceptionMapper.class);
         resources.add(EJBExceptionMapper.class);
         resources.add(RSQLExceptionMapper.class);
+        resources.add(ConstraintViolationExceptionMapper.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {
