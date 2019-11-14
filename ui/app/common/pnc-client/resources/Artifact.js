@@ -26,10 +26,10 @@
     '$resource',
     'restConfig',
     'ARTIFACT_PATH',
-    'BuildRecord',
+    'BuildResource',
     'rsqlQuery',
     '$q',
-    function ($resource, restConfig, ARTIFACT_PATH, BuildRecord, rsqlQuery, $q) {
+    function ($resource, restConfig, ARTIFACT_PATH, BuildResource, rsqlQuery, $q) {
       const ENDPOINT = restConfig.getPncUrl() + ARTIFACT_PATH;
 
 
@@ -47,7 +47,7 @@
         if (artifact && artifact.dependantBuildRecordIds && artifact.dependantBuildRecordIds.length === 0) {
           return $q.when(null);
         } else {
-          return BuildRecord.query(Object.assign(params, { q: rsqlQuery().where('id').in(artifact.dependantBuildRecordIds).end() })).$promise;
+          return BuildResource.query(Object.assign(params, { q: rsqlQuery().where('id').in(artifact.dependantBuildRecordIds).end() })).$promise;
         }
       };
 
