@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.requests.CreateAndSyncSCMRequest;
@@ -34,6 +35,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.SCMRepositoryPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -87,7 +89,7 @@ public interface SCMRepositoryEndpoint{
     })
     @GET
     Page<SCMRepository> getAll(
-            @BeanParam PageParameters pageParameters,
+            @Valid @BeanParam PageParameters pageParameters,
             @Parameter(description = "Url to search for") @QueryParam(MATCH_QUERY_PARAM) String matchUrl,
             @Parameter(description = "Url part to search for") @QueryParam(SEARCH_QUERY_PARAM) String searchUrl);
 
@@ -171,6 +173,6 @@ public interface SCMRepositoryEndpoint{
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildsConfigs(
             @Parameter(description = SCM_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
 }

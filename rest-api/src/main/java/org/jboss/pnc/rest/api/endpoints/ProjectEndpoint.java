@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
@@ -36,6 +37,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProjectPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -83,7 +85,7 @@ public interface ProjectEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<Project> getAll(@BeanParam PageParameters pageParameters);
+    Page<Project> getAll(@Valid @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Creates a new project.",
             responses = {
@@ -159,7 +161,7 @@ public interface ProjectEndpoint{
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = "Project Id") @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Get all builds associated with a specific project.",
             responses = {
@@ -174,7 +176,7 @@ public interface ProjectEndpoint{
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams,
+            @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
 }

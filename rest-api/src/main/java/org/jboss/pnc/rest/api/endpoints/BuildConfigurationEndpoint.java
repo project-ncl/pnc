@@ -44,6 +44,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionP
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -98,7 +99,7 @@ public interface BuildConfigurationEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<BuildConfiguration> getAll(@BeanParam PageParameters pageParams);
+    Page<BuildConfiguration> getAll(@Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Creates a new build config.",
             responses = {
@@ -191,7 +192,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams,
+            @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
     @Operation(summary = "Clones an existing build config.",
@@ -220,7 +221,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/group-configs")
     Page<GroupConfiguration> getGroupConfigs(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Get the direct dependencies of the specified build config.",
             responses = {
@@ -235,7 +236,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/dependencies")
     Page<BuildConfiguration> getDependencies(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Adds a dependency to the specified build config.",
             responses = {
@@ -277,7 +278,7 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/revisions")
     Page<BuildConfigurationRevision> getRevisions(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Creates new build config revision.",
             description = "This endpoint can be used for updating build config while returning the new revision.",
