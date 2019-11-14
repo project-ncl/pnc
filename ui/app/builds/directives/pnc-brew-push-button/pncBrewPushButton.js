@@ -68,13 +68,11 @@
       });
     }
 
-    function subscribe(statuses) {
-      statuses.forEach(function (status) {
-        unsubscribes.push(messageBus.subscribe({
-          topic: 'causeway-push',
-          id: status.id
-        }));
-      });
+    function subscribe(status) {
+      unsubscribes.push(messageBus.subscribe({
+        topic: 'causeway-push',
+        id: status.id
+      }));
     }
 
     function notify(statusObj) {
@@ -110,9 +108,9 @@
         id: $ctrl.build.id
       }, {
         tagPrefix: modalValues.tagName
-      }).then(function (response) {
-        subscribe(response.data);
-        notify(response.data[0]);
+      }).$promise.then(function (response) {
+        subscribe(response);
+        notify(response);
       });
     }
 
