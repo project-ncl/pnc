@@ -108,4 +108,4 @@ The system has a limit to how many files can be watched by a user. You can run o
 
     echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-_note: For Arch Linux add `fs.inotify.max_user_watches=524288` to `/etc/sysctl.d/99-sysctl.conf` and then execute `sysctl --system`. This will also persist across reboots_
+_note: For Arch Linux add `fs.inotify.max_user_watches=524288` to `/etc/sysctl.d/99-sysctl.conf` and then execute `sysctl --system`. This will also persist across reboots_ .
