@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.coordinator.maintenance.Result;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.User;
@@ -56,7 +56,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;

@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.maintenance;
 
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.Result;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
