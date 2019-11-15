@@ -794,6 +794,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             } catch (InterruptedException e) {
                 log.warn("BuildCoordinator thread interrupted. Possibly the system is being shut down", e);
                 break;
+            } finally {
+                MDCUtils.clear();
             }
         }
     }
