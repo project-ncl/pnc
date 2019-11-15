@@ -18,7 +18,7 @@
 package org.jboss.pnc.integration.mock;
 
 import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
-import org.jboss.pnc.coordinator.maintenance.Result;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.model.BuildRecord;
 
 import javax.enterprise.context.Dependent;
