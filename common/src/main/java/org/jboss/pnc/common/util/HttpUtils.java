@@ -17,16 +17,23 @@
  */
 package org.jboss.pnc.common.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 
 import javax.ws.rs.core.MediaType;
 
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -45,6 +52,8 @@ import org.slf4j.LoggerFactory;
 public class HttpUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpUtils.class);
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private HttpUtils() {
     }
@@ -126,8 +135,49 @@ public class HttpUtils {
     }
 
     /**
+     * Performs HTTP post request to a uri with a json payload
+     *
+     * @param uri URI of a remote endpoint
+     * @param object Request content, which will be serialized to JSON format
+     */
+    public static void performHttpPostRequest(String uri, Object object) throws JsonProcessingException {
+        StringEntity entity = new StringEntity(objectMapper.writeValueAsString(object), "UTF-8");
+        entity.setContentType(MediaType.APPLICATION_JSON);
+        HttpUtils.performHttpPostRequest(uri, entity);
+    }
+
+    /**
+     * Performs HTTP POST request to a uri with a payload
+     *
+     * @param uri URI of a remote endpoint
+     * @param payload Request content
+     */
+    public static void performHttpPostRequest(String uri, HttpEntity payload) {
+        LOG.debug("Sending HTTP POST request to {} with payload {}", uri, payload);
+
+        HttpPost request = new HttpPost(uri);
+        request.setEntity(payload);
+
+        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                if (isSuccess(response.getStatusLine().getStatusCode())) {
+                    LOG.debug("HTTP POST request to {} with payload {} sent successfully. Response code: {}",
+                            uri, payload, response.getStatusLine().getStatusCode());
+                } else {
+                    LOG.error("Sending HTTP POST request to {} with payload {} failed! " +
+                            "Response code: {}, Message: {}",
+                            uri, payload, response.getStatusLine().getStatusCode(),
+                            response.getEntity().getContent());
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Error occurred executing the HTTP post request!", e);
+        }
+    }
+
+    /**
      * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates, using 3 attempts to retry failed request 
-     * @see getPermissiveHttpClient(int retries)
+     * @see #getPermissiveHttpClient(int retries)
      */
     public static CloseableHttpClient getPermissiveHttpClient() {
         return getPermissiveHttpClient(3);
