@@ -21,6 +21,7 @@ import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
+import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ class RemoteInvocation implements Closeable {
             ClientFactory buildAgentClientFactory,
             String terminalUrl,
             Optional<Consumer<Status>> onStatusUpdate) throws BuildDriverException {
+
         Consumer<TaskStatusUpdateEvent> onStatusUpdateInternal = (event) -> {
             final org.jboss.pnc.buildagent.api.Status newStatus;
             if (isCanceled() && event.getNewStatus().equals(FAILED)) {
@@ -73,7 +75,7 @@ class RemoteInvocation implements Closeable {
         };
 
         try {
-            buildAgentClient = buildAgentClientFactory.createBuildAgentClient(terminalUrl, onStatusUpdateInternal);
+            buildAgentClient = buildAgentClientFactory.createBuildAgentClient(terminalUrl, MDCWrappers.wrap(onStatusUpdateInternal));
         } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
             throw new BuildDriverException("Cannot create Build Agent Client.", e);
         }
