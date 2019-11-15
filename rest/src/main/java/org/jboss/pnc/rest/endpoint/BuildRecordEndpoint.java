@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.rest.restmodel.DeleteOperationResultRest;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildRecord;
@@ -48,6 +49,8 @@ import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -96,8 +99,12 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest> {
 
+    private static final Logger logger = LoggerFactory.getLogger(BuildRecordEndpoint.class);
+
     private BuildRecordProvider buildRecordProvider;
+
     private ArtifactProvider artifactProvider;
+
     private EndpointAuthenticationProvider authProvider;
 
     private RepositoryManager repositoryManager;
@@ -199,8 +206,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return super.getSpecific(id);
     }
 
-    @Override
-    @ApiOperation(value = "Delete specific Build Record (it must be from a temporary build). Operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.")
+    @ApiOperation(value = "Delete specific Build Record (it must be from a temporary build). Operation is async. Once complete notification is set as events 'build-records#delete'" +
+            "and possibly callback can be performed with JSON body containing information about operation completion using object org.jboss.pnc.rest.restmodel.DeleteOperationResultRest")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
@@ -209,26 +216,34 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     })
     @DELETE
     @Path("/{id}")
-    public Response delete(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id)
+    public Response delete(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+                           @ApiParam(value = "Optional Callback URL") @QueryParam("callback") String callbackUrl)
             throws RepositoryViolationException {
-
-        Consumer<Result> onComplete = (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_RECORDS_DELETE.getId(), result.getId().toString());
-        };
-
         User currentUser = authProvider.getCurrentUser(httpServletRequest);
-        boolean found;
+
         try {
-            found = temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), onComplete);
+            if (temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), notifyOnBuildDeletionCompletion(callbackUrl))) {
+                return Response.ok().build();
+            } else {
+                return Response.status(Status.NOT_FOUND).build();
+            }
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
+    }
 
-        if (found) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Status.NOT_FOUND).build();
-        }
+    private Consumer<Result> notifyOnBuildDeletionCompletion(String callbackUrl) {
+        return (result) -> {
+            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_RECORDS_DELETE.getId(), result.getId().toString());
+
+            if ( callbackUrl != null && !callbackUrl.isEmpty()) {
+                try {
+                    HttpUtils.performHttpPostRequest(callbackUrl, DeleteOperationResultRest.of(result));
+                } catch (JsonProcessingException e) {
+                    logger.error("Failed to perform a callback of delete operation.", e);
+                }
+            }
+        };
     }
 
     @ApiOperation(value = "Gets logs for specific Build Record")
