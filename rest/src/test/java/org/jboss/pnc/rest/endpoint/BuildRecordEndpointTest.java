@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
@@ -29,8 +31,11 @@ import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
+import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
@@ -40,12 +45,17 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
+import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,6 +68,8 @@ import static org.mockito.Mockito.when;
 public class BuildRecordEndpointTest {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
+
+    private static final String USER_TOKEN = "token";
 
     private final static int BUILD_RECORD_NOT_VALID_ID = 99999;
     private final static int DEF_PAGE_SIZE = 100;
@@ -80,7 +92,10 @@ public class BuildRecordEndpointTest {
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
 
     private BuildRecordEndpoint endpoint;
+
     private ArtifactProvider artifactProvider;
+
+    private User user;
 
     @Before
     public void setUp() {
@@ -99,8 +114,9 @@ public class BuildRecordEndpointTest {
                 repositoryManager,
                 new DefaultNotifier());
 
-        User user = mock(User.class);
+        this.user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);
+        when(user.getLoginToken()).thenReturn(USER_TOKEN);
         when(authProvider.getCurrentUser(any())).thenReturn(user);
     }
 
@@ -135,6 +151,34 @@ public class BuildRecordEndpointTest {
         assertThat(endpoint.getBuiltArtifacts(BUILD_RECORD_NOT_VALID_ID,
                 DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null).getStatus())
         .isEqualTo(204);
+    }
+
+    @Test
+    public void shouldPerformCallbackAfterDeletion() throws RepositoryViolationException, ValidationException {
+        // given
+        final int buildId = 88;
+        final String buildIdString = new Integer(buildId).toString();
+        final String callbackUrl = "http://localhost:8088/callback";
+        WireMockServer wireMockServer = new WireMockServer(8088);
+        wireMockServer.start();
+        wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
+
+        given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(eq(buildId), eq(USER_TOKEN), any()))
+                .willAnswer(invocation -> {
+            Result result = new Result(buildIdString, Result.Status.SUCCESS, "Build was deleted successfully");
+
+            ((Consumer<Result>) invocation.getArgument(2)).accept(result);
+            return true;
+        });
+
+        // when
+        Response response = endpoint.delete(buildId, callbackUrl);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/callback")).withRequestBody(matchingJsonPath("$.id",
+                equalTo(buildIdString))));
+        wireMockServer.stop();
     }
 
     private void endpointReturnsLog(int logId, String logContent) {

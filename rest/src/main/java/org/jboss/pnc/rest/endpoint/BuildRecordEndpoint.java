@@ -234,9 +234,10 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     private Consumer<Result> notifyOnBuildDeletionCompletion(String callbackUrl) {
         return (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_RECORDS_DELETE.getId(), result.getId().toString());
+            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_RECORDS_DELETE.getId(), result
+                    .getId());
 
-            if ( callbackUrl != null && !callbackUrl.isEmpty()) {
+            if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 try {
                     HttpUtils.performHttpPostRequest(callbackUrl, DeleteOperationResultRest.of(result));
                 } catch (JsonProcessingException e) {
