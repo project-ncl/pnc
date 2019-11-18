@@ -17,11 +17,8 @@
     limitations under the License.
 
 -->
-<div class="row push-down">
-  <div class="col-sm-12 col-md-10 col-lg-8">
-    <pnc-build-details build-record="recordCtrl.record"></pnc-build-details>
-  </div>
-</div>
-
-<pnc-build-tree build-record="recordCtrl.record"></pnc-build-tree>
-<pnc-log-streamer build-record="recordCtrl.record" ng-if="::recordCtrl.buildStatusHelper.isInProgress(recordCtrl.record)"></pnc-log-streamer>
+<ng-bifrost-log-viewer
+    bifrost-host="$ctrl.bifrostHost"
+    match-filters="$ctrl.matchFilters"
+    prefix-filters="$ctrl.prefixFilters">
+</ng-bifrost-log-viewer>
