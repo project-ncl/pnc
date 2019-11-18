@@ -24,7 +24,7 @@
     <dt>Status:</dt>
     <dd ng-class="ctrl.buildStatusHelper.isSuccess(ctrl.record.status) ? 'text-success' : 'text-danger'">{{ ctrl.record.status }} <span ng-show="ctrl.buildStatusHelper.isFinished(ctrl.record.status)" class="m-l-20">[ <a ng-href="{{ ctrl.record.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
     <dt>Build Config:</dt>
-    <dd><a href ui-sref="build-configs.detail({ configurationId: ctrl.record.buildConfigurationId })">{{ ctrl.record.buildConfigurationName || '&mdash;' }}</a></dd>
+    <dd><a href ui-sref="projects.detail.build-configs.detail.revisions.detail({ projectId: ctrl.record.projectId, configurationId: ctrl.record.buildConfigurationId, revisionId: ctrl.record.buildConfigurationRev  })">{{ ctrl.record.buildConfigurationName || '&mdash;' }}</a></dd>
     <dt>Started By:</dt>
     <dd>{{ ctrl.record.username || '&mdash;' }}</dd>
     <dt ng-show="ctrl.record.submitTime">Submitted:</dt>
@@ -48,7 +48,7 @@
     <dt class="lh-1-5 m-t-10">
       Pre-alignment<br>SCM Revision
       <a uib-popover="SCM Revision before Alignment is executed"
-         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
          href><span class="fa fa-info-circle"></span></a> :
     </dt>
     <dd class="m-t-10">
@@ -58,7 +58,7 @@
     <dt class="lh-1-5 m-t-10">
       Post-alignment<br>SCM Revision
       <a uib-popover="SCM Revision after Alignment is executed"
-         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
          href><span class="fa fa-info-circle"></span></a> :
     </dt>
     <dd class="m-t-10">
@@ -72,7 +72,7 @@
     <dt class="lh-1-5 m-t-10 m-b-5">
       Post-alignment<br>SCM Tag
       <a uib-popover="SCM Tag after Alignment is executed"
-         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
          href><span class="fa fa-info-circle"></span></a> :
     </dt>
     <dd class="m-t-10 m-b-5">
