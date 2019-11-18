@@ -21,9 +21,11 @@
   var module = angular.module('pnc.build-records', [
     'ui.router',
     'angular-websocket',
+    'bifrost',
     'pnc.common.events',
     'pnc.common.directives',
     'pnc.common.restclient',
+    'pnc.properties'
   ]);
 
   module.config([
