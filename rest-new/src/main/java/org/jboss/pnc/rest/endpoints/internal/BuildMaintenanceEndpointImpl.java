@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildMaintananceEndpoint;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -26,23 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 public class BuildMaintenanceEndpointImpl implements BuildMaintananceEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildMaintenanceEndpointImpl.class);
 
-    @Context
-    private HttpServletRequest request;
-
     @Inject
     private RepositoryManager repositoryManager;
-
-    @Inject
-    SystemConfig systemConfig;
 
 
     @Override
