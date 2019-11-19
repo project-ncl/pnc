@@ -24,8 +24,8 @@
     <dt>Status:</dt>
     <dd ng-class="ctrl.buildStatusHelper.isSuccess(ctrl.record.status) ? 'text-success' : 'text-danger'">{{ ctrl.record.status }} <span ng-show="ctrl.buildStatusHelper.isFinished(ctrl.record.status)" class="m-l-20">[ <a ng-href="{{ ctrl.record.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
     <dt>Build Config:</dt>
-    <dd><a href ui-sref="build-configs.detail({ configurationId: ctrl.record.buildConfigurationId })">{{
-      ctrl.record.buildConfigurationName || '&mdash;' }}</a>
+    <dd>
+      <pnc-build-configs-detail-link record="ctrl.record"></pnc-build-configs-detail-link>
       <a href
          ui-sref="projects.detail.build-configs.detail.revisions.detail({ projectId: ctrl.record.projectId, configurationId: ctrl.record.buildConfigurationId, revisionId: ctrl.record.buildConfigurationRev  })"><i
         class="fa fa-clock-o fa-lg c-info" uib-tooltip="Go to specific revision of the build config that was used for this build"
