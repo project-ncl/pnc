@@ -34,6 +34,7 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -147,7 +148,7 @@ public interface ProductMilestoneEndpoint{
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = PM_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters,
+            @Valid @BeanParam PageParameters pageParameters,
             @BeanParam BuildsFilterParameters buildsFilter);
 
     @Operation(summary = "Close a product milestone.",

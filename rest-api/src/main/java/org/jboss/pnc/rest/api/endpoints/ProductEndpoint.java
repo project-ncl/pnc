@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
@@ -33,6 +34,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductVersionPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -79,7 +81,7 @@ public interface ProductEndpoint {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<Product> getAll(@BeanParam PageParameters pageParameters);
+    Page<Product> getAll(@Valid @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Creates a new product.",
             responses = {
@@ -156,6 +158,6 @@ public interface ProductEndpoint {
     @Path("/{id}/versions")
     Page<ProductVersion> getProductVersions(
             @Parameter(description = P_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
 }

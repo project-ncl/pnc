@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -38,6 +39,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestonePage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductReleasePage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -148,7 +150,7 @@ public interface ProductVersionEndpoint{
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
             @Parameter(description = PV_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams);
 
     @Operation(summary = "Gets group configs associated with a specific product version.",
             responses = {
@@ -163,7 +165,7 @@ public interface ProductVersionEndpoint{
     @Path("/{id}/group-configs")
     Page<GroupConfiguration> getGroupConfigurations(
             @Parameter(description = PV_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
     @Operation(summary = "Gets all product milestones of a specific product version.",
             responses = {
@@ -178,7 +180,7 @@ public interface ProductVersionEndpoint{
     @Path("/{id}/milestones")
     Page<ProductMilestone> getMilestones(
             @Parameter(description = PV_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
 
     @Operation(summary = "Gets all product releases of a specific product version.",
@@ -194,5 +196,5 @@ public interface ProductVersionEndpoint{
     @Path("/{id}/releases")
     Page<ProductRelease> getReleases(
             @Parameter(description = PV_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 }

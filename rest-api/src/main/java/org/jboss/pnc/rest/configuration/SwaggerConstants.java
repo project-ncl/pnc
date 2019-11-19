@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.configuration;
 
+import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
+
 /**
  * Constants for Swagger documentation API.
  *
@@ -51,7 +53,7 @@ public interface SwaggerConstants {
     public static final String PAGE_INDEX_DESCRIPTION = "Page Index";
     public static final String PAGE_INDEX_QUERY_PARAM = "pageIndex";
     public static final String PAGE_INDEX_DEFAULT_VALUE = "0";
-    public static final String PAGE_SIZE_DESCRIPTION = "Pagination size";
+    public static final String PAGE_SIZE_DESCRIPTION = "Pagination size (maximum is " + MAX_PAGE_SIZE + ")";
     public static final String PAGE_SIZE_QUERY_PARAM = "pageSize";
     public static final String PAGE_SIZE_DEFAULT_VALUE = "50";
     public static final String SORTING_DESCRIPTION = "Sorting RSQL";

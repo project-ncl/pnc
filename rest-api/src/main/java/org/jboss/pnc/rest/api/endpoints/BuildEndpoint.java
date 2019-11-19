@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -43,6 +44,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushResultPage;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -56,6 +58,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.util.List;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -98,7 +101,7 @@ public interface BuildEndpoint{
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GET
-    Page<Build> getAll(@BeanParam PageParameters pageParams,
+    Page<Build> getAll(@Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams,
             @BeanParam BuildAttributeParameters attributes);
 
@@ -154,7 +157,7 @@ public interface BuildEndpoint{
     @Path("/{id}/artifacts/built")
     Page<Artifact> getBuiltArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
     @Operation(summary= "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!",
             tags = "internal",
@@ -184,7 +187,7 @@ public interface BuildEndpoint{
     @Path("/{id}/artifacts/dependencies")
     Page<Artifact> getDependencyArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 
     @Operation(summary= "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!",
             tags = "internal",
@@ -391,5 +394,5 @@ public interface BuildEndpoint{
     Page<Build> getAllByStatusAndLogContaining(
             @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
             @Parameter(description = "Log search string") @QueryParam("search") String search,
-            @BeanParam PageParameters pageParameters);
+            @Valid @BeanParam PageParameters pageParameters);
 }

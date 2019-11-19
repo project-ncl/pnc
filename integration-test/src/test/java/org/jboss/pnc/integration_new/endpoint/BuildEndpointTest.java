@@ -56,13 +56,17 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.client.ApacheHttpClient43EngineWithRetry;
 import org.jboss.pnc.client.ClientBase;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.junit.BeforeClass;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 
 import java.lang.reflect.Field;
+
+import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -100,6 +104,24 @@ public class BuildEndpointTest {
         RemoteCollection<Build> all = client.getAll(null, null);
 
         assertThat(all).hasSize(2);
+    }
+
+    @Test
+    public void shouldFailGetAllWithLargePage() throws RemoteResourceException {
+        final Configuration clientConfig = RestClientConfiguration.asAnonymous();
+
+        Configuration largePageConfig = Configuration.builder()
+                .basicAuth(clientConfig.getBasicAuth())
+                .bearerToken(clientConfig.getBearerToken())
+                .host(clientConfig.getHost())
+                .pageSize(MAX_PAGE_SIZE + 1)
+                .port(clientConfig.getPort())
+                .protocol(clientConfig.getProtocol())
+                .build();
+        BuildClient client = new BuildClient(largePageConfig);
+
+        assertThatThrownBy(() -> client.getAll(null, null))
+                .hasCauseInstanceOf(BadRequestException.class);
     }
 
     @Test

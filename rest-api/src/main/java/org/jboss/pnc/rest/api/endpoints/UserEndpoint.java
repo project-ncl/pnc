@@ -33,6 +33,7 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
 
+import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -79,7 +80,7 @@ public interface UserEndpoint{
     @Path("/{id}/builds")
     Page<Build> getBuilds(
             @Parameter(description = "ID of the user") @PathParam("id") String id,
-            @BeanParam PageParameters pageParameters,
+            @Valid @BeanParam PageParameters pageParameters,
             @BeanParam BuildsFilterParameters buildsFilter);
 
 }

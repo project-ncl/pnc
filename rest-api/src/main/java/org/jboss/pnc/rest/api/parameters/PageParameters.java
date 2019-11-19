@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.rest.api.parameters;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
+import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
@@ -44,11 +49,14 @@ public class PageParameters {
     @Parameter(description = PAGE_INDEX_DESCRIPTION)
     @QueryParam(PAGE_INDEX_QUERY_PARAM)
     @DefaultValue(PAGE_INDEX_DEFAULT_VALUE)
+    @PositiveOrZero
     private int pageIndex;
 
     @Parameter(description = PAGE_SIZE_DESCRIPTION)
     @QueryParam(PAGE_SIZE_QUERY_PARAM)
     @DefaultValue(PAGE_SIZE_DEFAULT_VALUE)
+    @Positive
+    @Max(MAX_PAGE_SIZE)
     private int pageSize;
 
     @Parameter(description = SORTING_DESCRIPTION)
