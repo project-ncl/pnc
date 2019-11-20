@@ -70,7 +70,9 @@
                   return message;
                 }
               }
-            });
+              //Workaround for NCL-4525: Possibly unhandled rejection: undefined.
+              //See https://projects.engineering.redhat.com/browse/NCL-4525?focusedCommentId=1963863&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-1963863
+            }).result.then(function () { }, function () { });
           }
         });
       }
