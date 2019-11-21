@@ -26,7 +26,7 @@
        */
       build: '<?',
       /**
-       * object representing BuildGroupRecord
+       * object representing Group Build
        */
       groupBuild: '<?',
       /**

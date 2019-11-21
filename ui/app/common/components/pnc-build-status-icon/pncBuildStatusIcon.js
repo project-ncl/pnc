@@ -21,12 +21,12 @@
   angular.module('pnc.common.components').component('pncBuildStatusIcon', {
     bindings: {
       /**
-       * Object: The BuildRecord to display the status icon for.
+       * Object: The Build to display the status icon for.
        */
       build: '<',
       /**
        * Boolean: Whether to display additional warnings such as corrupted 
-       * BuildRecord indicator, defaults to false.
+       * Build indicator, defaults to false.
        */
       noWarnings: '@',
     },

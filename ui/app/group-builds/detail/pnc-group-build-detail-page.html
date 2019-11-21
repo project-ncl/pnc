@@ -21,7 +21,7 @@
   <div class="col-md-12">
     <div class="page-header">
       <div class="btn-group pull-right" role="group" aria-label="Build Actions">
-        <pnc-build-record-push-button group-build="$ctrl.groupBuild"></pnc-build-record-push-button>
+        <pnc-brew-push-button group-build="$ctrl.groupBuild"></pnc-brew-push-button>
         <button ng-if="$ctrl.groupBuild.$isCancelable()" ng-click="$ctrl.groupBuild.$cancel()" type="button" class="btn btn-danger">
           <i class="fa fa-ban" aria-hidden="true"></i>&nbsp;Abort
         </button>
@@ -41,7 +41,7 @@
   </div>
 </div>
 
-<div ng-if="::$ctrl.hasBuildRecords()">
+<div ng-if="::$ctrl.hasBuilds()">
   <div class="row">
     <div class="col-md-12">
       <div class="page-header">
@@ -51,7 +51,7 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <pnc-group-build-visualization group-build="$ctrl.groupBuild" builds="$ctrl.buildRecords" dependency-graph="$ctrl.dependencyGraph"></pnc-group-build-visualization>
+      <pnc-group-build-visualization group-build="$ctrl.groupBuild" builds="$ctrl.builds" dependency-graph="$ctrl.dependencyGraph"></pnc-group-build-visualization>
     </div>
   </div>
 </div>

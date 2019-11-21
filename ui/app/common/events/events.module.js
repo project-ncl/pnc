@@ -27,16 +27,16 @@
     '$log',
     '$rootScope',
     'eventTypes',
-    'BuildRecordDAO',
+    'BuildResource',
     'authService',
     'pncNotify',
-    function($state, $log, $rootScope, eventTypes, BuildRecordDAO,
+    function($state, $log, $rootScope, eventTypes, BuildResource,
              authService, pncNotify) {
       var scope = $rootScope.$new();
 
-      function buildRecordLinkCallback(recordId) {
+      function buildLinkCallback(buildId) {
         return function() {
-          $state.go('builds.detail.default', {recordId: recordId});
+          $state.go('builds.detail.default', {buildId: buildId});
         };
       }
 
@@ -49,16 +49,16 @@
         authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'NEW') {
             pncNotify.info('Build ' + payload.buildConfigurationName + ' in new state',
-                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                         'Build #' + payload.id, buildLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'WAITING_FOR_DEPENDENCIES') {
             pncNotify.info('Build ' + payload.buildConfigurationName + ' waiting for dependencies',
-                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                         'Build #' + payload.id, buildLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'ENQUEUED') {
             pncNotify.info('Build ' + payload.buildConfigurationName + ' was enqueued',
-                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                         'Build #' + payload.id, buildLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'BUILDING') {
             pncNotify.info('Build ' + payload.buildConfigurationName + ' is being built',
-                         'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                         'Build #' + payload.id, buildLinkCallback(payload.id));
           }
         });
       });
@@ -71,25 +71,25 @@
         authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'REJECTED') {
             pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.',
-                           'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                           'Build #' + payload.id, buildLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'REJECTED_ALREADY_BUILT') {
             pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.',
-                           'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                           'Build #' + payload.id, buildLinkCallback(payload.id));
           } else if (payload.buildCoordinationStatus === 'SYSTEM_ERROR') {
             pncNotify.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.',
-                            'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                            'Build #' + payload.id, buildLinkCallback(payload.id));
           } else {
-            BuildRecordDAO.get({recordId: payload.id}).$promise.then(
+            BuildResource.get({buildId: payload.id}).$promise.then(
               function (result) {
                 if (result.status === 'BUILD_COMPLETED' || result.status === 'DONE' || result.status === 'SUCCESS') {
                   pncNotify.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed',
-                                    'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                                    'Build #' + payload.id, buildLinkCallback(payload.id));
                 } else if (result.status === 'CANCELLED') {
                   pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' cancelled',
-                                 'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                                 'Build #' + payload.id, buildLinkCallback(payload.id));
                 } else {
                   pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed',
-                                 'Build #' + payload.id, buildRecordLinkCallback(payload.id));
+                                 'Build #' + payload.id, buildLinkCallback(payload.id));
                 }
               }
             );
