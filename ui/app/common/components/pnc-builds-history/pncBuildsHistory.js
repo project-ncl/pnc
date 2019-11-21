@@ -43,7 +43,7 @@
         ($ctrl.buildGroup ? BuildConfigurationSet.queryBuildConfigSetRecords({ 
           id: $ctrl.buildGroup.id,
           pageSize: 10
-        }) : BuildRecord.getByConfiguration({ 
+        }) : BuildRecord.getByConfiguration({ // it will be refactored when working on BuildConfigResource (NCL-4198)
           id: $ctrl.buildConfig.id,
           pageSize: 10
         })).$promise.then(function (page) {

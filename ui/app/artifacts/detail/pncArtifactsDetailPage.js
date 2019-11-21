@@ -35,7 +35,7 @@
 
     // -- Controller API --
     
-    $ctrl.buildRecordListDisplayFields = ['statusIcon', 'canonicalName', 'endTime', 'pushStatus'];
+    $ctrl.buildListDisplayFields = ['statusIcon', 'canonicalName', 'endTime', 'pushStatus'];
 
     // --------------------
 

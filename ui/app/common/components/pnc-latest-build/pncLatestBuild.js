@@ -53,6 +53,7 @@
           setLatestBuild(_.isArray(data) ? data[0] : null);
         });
       } else {
+        // it will be refactored when working on BuildConfigResource (NCL-4198)
         resultPromise = BuildRecord.getLastByConfiguration({ id: $ctrl.buildConfig.id }).$promise.then(function (data) {
           setLatestBuild(_.isArray(data.content) ? data.content[0] : null);
         });

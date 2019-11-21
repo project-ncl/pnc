@@ -61,7 +61,7 @@
           url: '/{id}?visualization',
           data: {
             displayName: '{{ groupBuild.groupConfig.name }} » #{{ groupBuild.id }}',
-            title: '#{{ groupBuild.id }} {{ groupBuild.groupConfig.name }} | Build Group Record'
+            title: '#{{ groupBuild.id }} {{ groupBuild.groupConfig.name }} | Group Build'
           },
           params: {
             visualization: {
@@ -85,12 +85,12 @@
                 return GroupBuildResource.queryDependencyGraph({ id: $stateParams.id }).$promise;
               }
             ],
-            buildRecords: [
+            builds: [
               'dependencyGraph',
-              'BuildRecord',
-              function (dependencyGraph, BuildRecord) {
+              'BuildResource',
+              function (dependencyGraph, BuildResource) {
                 return Object.keys(dependencyGraph.vertices).map(function (name) {
-                  return new BuildRecord(dependencyGraph.vertices[name].data);
+                  return new BuildResource(dependencyGraph.vertices[name].data);
                 });
               }
             ]

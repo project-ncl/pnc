@@ -23,7 +23,7 @@
     bindings: {
      groupBuild: '<',
      dependencyGraph: '<',
-     buildRecords: '<'
+     builds: '<'
     },
     templateUrl: 'group-builds/detail/pnc-group-build-detail-page.html',
     controller: ['$scope', 'eventTypes', Controller]
@@ -35,7 +35,7 @@
 
     // -- Controller API --
 
-     $ctrl.hasBuildRecords = hasBuildRecords;
+     $ctrl.hasBuilds = hasBuilds;
 
     // --------------------
 
@@ -50,8 +50,8 @@
       });
     };
 
-    function hasBuildRecords() {
-      return $ctrl.buildRecords && $ctrl.buildRecords.length > 0;
+    function hasBuilds() {
+      return $ctrl.builds && $ctrl.builds.length > 0;
     }
 
   }

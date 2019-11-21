@@ -20,7 +20,7 @@
 
   /**
    * The dumb component representing Build Tree Link displaying information like build status icon, 
-   * build configuration link and Build link for given Build or Build Group Record.
+   * build configuration link and Build link for given Build or Group Build.
    * 
    * @example 
    * <pnc-build-tree-link build="build"></pnc-build-tree-link>
@@ -28,11 +28,11 @@
   angular.module('pnc.builds').component('pncBuildTreeLink', {
     bindings: {
       /**
-       * Object: The BuildRecord to display the link for.
+       * Object: The Build to display the link for.
        */
       build: '<?',
       /**
-       * Object: The BuildGroupRecord to display the link for.
+       * Object: The Group Build to display the link for.
        */
       groupBuild: '<?'
     },

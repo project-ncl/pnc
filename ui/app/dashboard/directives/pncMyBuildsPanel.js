@@ -36,11 +36,11 @@
     'authService',
     'PageFactory',
     'BuildConfigurationDAO',
-    'BuildRecord',
+    'BuildResource',
     'UserDAO',
     'eventTypes',
     'paginator',
-    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildRecord, UserDAO, eventTypes, paginator) {
+    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildResource, UserDAO, eventTypes, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
@@ -58,7 +58,7 @@
           function init() {
 
             authService.getPncUser().then(function(result) {
-              return BuildRecord.getByUser({
+              return BuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10
               }).$promise.then(function(page){

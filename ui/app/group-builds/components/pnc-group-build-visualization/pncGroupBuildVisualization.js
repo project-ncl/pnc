@@ -23,7 +23,7 @@
     bindings: {
       groupBuild: '<',
       dependencyGraph: '<',
-      buildRecords: '<',
+      builds: '<',
       visualization: '<?'
     },
     templateUrl: 'group-builds/components/pnc-group-build-visualization/pnc-group-build-visualization.html',
@@ -36,7 +36,7 @@
 
     // -- Controller API --
 
-    $ctrl.buildRecordColumns = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username', 'pushStatus'];
+    $ctrl.buildColumns = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username', 'pushStatus'];
     $ctrl.changeVisualization = changeVisualization;
 
     // --------------------

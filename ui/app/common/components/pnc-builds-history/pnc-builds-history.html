@@ -25,9 +25,9 @@
 
   <table class="table table-striped table-hover" ng-show="$ctrl.page.data.length">
     <tbody>
-      <tr ng-repeat="record in $ctrl.page.data">
+      <tr ng-repeat="build in $ctrl.page.data">
         <td>
-          <pnc-build-status build="record" is-loaded="$ctrl.page.isLoaded"></pnc-build-status>
+          <pnc-build-status build="build" is-loaded="$ctrl.page.isLoaded"></pnc-build-status>
         </td>
       </tr>
     </tbody>

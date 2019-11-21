@@ -29,8 +29,8 @@
     </label>
   </div>
 
-  <pnc-live-update-builds-list ng-show="$ctrl.visualization === 'list'" builds="$ctrl.buildRecords"
-                                      display-fields="$ctrl.buildRecordColumns"></pnc-live-update-builds-list>
+  <pnc-live-update-builds-list ng-show="$ctrl.visualization === 'list'" builds="$ctrl.builds"
+                                      display-fields="$ctrl.buildColumns"></pnc-live-update-builds-list>
 
   <pnc-build-tree ng-show="$ctrl.visualization === 'tree'" group-build="$ctrl.groupBuild" dependency-graph="$ctrl.dependencyGraph"></pnc-build-tree>
 </div>

@@ -43,14 +43,14 @@
       return EntityRecognizer.isBuild($ctrl.build);
     }
 
-    function isBuildGroupRecord() {
+    function isGroupBuild() {
       return EntityRecognizer.isGroupBuild($ctrl.groupBuild);
     }
 
     function isButtonVisible() {
       if (isBuild()) {
         return $ctrl.build.$isSuccess();
-      } else if (isBuildGroupRecord()) {
+      } else if (isGroupBuild()) {
         return GroupBuildResource.isSuccess($ctrl.groupBuild);
       }
     }

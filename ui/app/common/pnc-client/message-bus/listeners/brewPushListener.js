@@ -22,13 +22,13 @@
     '$rootScope',
     '$state',
     'pncNotify',
-    'BuildRecord',
-    function ($rootScope, $state, pncNotify, BuildRecord) {
+    'BuildResource',
+    function ($rootScope, $state, pncNotify, BuildResource) {
 
-      function notify(buildRecord, pushStatus) {
+      function notify(build, pushStatus) {
 
         function navigateToPushResult() {
-          $state.go('projects.detail.build-configs.detail.builds.detail.brew-push', { recordId: buildRecord.id });
+          $state.go('projects.detail.build-configs.detail.builds.detail.brew-push', { buildId: build.id });
         }
 
         function doNotify(type, message) {
@@ -37,14 +37,14 @@
 
         switch(pushStatus) {
           case 'SUCCESS':
-            doNotify('success', 'Brew push completed for build: ' + buildRecord.$canonicalName());
+            doNotify('success', 'Brew push completed for build: ' + build.$canonicalName());
             break;
           case 'FAILED':
           case 'SYSTEM_ERROR':
-            doNotify('error', 'Brew push failed for build: ' + buildRecord.$canonicalName());
+            doNotify('error', 'Brew push failed for build: ' + build.$canonicalName());
             break;
           case 'CANCELED':
-            doNotify('info', 'Brew push cancelled for build: ' + buildRecord.$canonicalName());
+            doNotify('info', 'Brew push cancelled for build: ' + build.$canonicalName());
         }
       }
 
@@ -52,9 +52,9 @@
         if (message.eventType === 'BREW_PUSH_RESULT') {
           $rootScope.$broadcast('BREW_PUSH_RESULT', message);
 
-          if (message.buildRecordId) {
-            BuildRecord.get({ id: message.buildRecordId }).$promise.then(function (buildRecord) {
-              notify(buildRecord, message.status);
+          if (message.buildId) {
+            BuildResource.get({ id: message.buildId }).$promise.then(function (build) {
+              notify(build, message.status);
             });
           }
 

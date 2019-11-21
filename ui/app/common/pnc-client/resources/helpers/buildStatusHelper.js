@@ -100,32 +100,32 @@
             }
           }
 
-          function isPending(buildRecord) {
-            var status = getStatus(buildRecord);
+          function isPending(build) {
+            var status = getStatus(build);
 
             return buildStatus[status].progress === PENDING;
           }
 
-          function isInProgress(buildRecord) {
-            var status = getStatus(buildRecord);
+          function isInProgress(build) {
+            var status = getStatus(build);
 
             return buildStatus[status].progress === IN_PROGRESS;
           }
 
-          function isFinished(buildRecord) {
-            var status = getStatus(buildRecord);
+          function isFinished(build) {
+            var status = getStatus(build);
 
             return buildStatus[status].progress === FINISHED;
           }
 
-          function isFailed(buildRecord) {
-            var status = getStatus(buildRecord);
+          function isFailed(build) {
+            var status = getStatus(build);
 
             return buildStatus[status].failed;
           }
 
-          function isSuccess(buildRecord) {
-            return !isFailed(buildRecord);
+          function isSuccess(build) {
+            return !isFailed(build);
           }
 
           
