@@ -113,7 +113,7 @@ public class BuildResultPushManager {
      *
      * @param buildRecordIds
      * @param authToken
-     * @param callBackUrlTemplate %d in the template will be replaced with BuildRecord.id
+     * @param callBackUrlTemplate %s in the template will be replaced with BuildRecord.id
      * @param tagPrefix
      * @param reimport Wherather the build should be reimported with new revision number if it already exists in Brew
      * @return
