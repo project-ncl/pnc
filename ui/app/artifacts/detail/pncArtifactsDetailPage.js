@@ -41,7 +41,6 @@
 
 
     $ctrl.$onInit = function () {
-      debugger;
     };
 
   }

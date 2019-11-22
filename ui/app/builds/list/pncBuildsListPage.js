@@ -50,7 +50,9 @@
         'REJECTED',
         'FAILED',
         'CANCELLED',
-        'BUILDING'
+        'BUILDING', 
+        'NO_REBUILD_REQUIRED',
+        'SYSTEM_ERROR'
       ]
     }, {
       id: 'temporaryBuild',

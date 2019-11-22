@@ -26,11 +26,11 @@
       brewPushResult: '<'
     },
     templateUrl: 'builds/detail/pnc-build-detail-page.html',
-    controller: ['buildStatusHelper', '$scope', 'eventTypes', Controller]
+    controller: ['buildStatusHelper', Controller]
   });
 
 
-  function Controller(buildStatusHelper, $scope, eventTypes) {
+  function Controller(buildStatusHelper) {
     const $ctrl = this;
 
     // -- Controller API --
