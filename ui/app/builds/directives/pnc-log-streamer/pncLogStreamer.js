@@ -18,11 +18,11 @@
 (function() {
   'use strict';
 
-  angular.module('pnc.build-records').component('pncLogStreamer', {
+  angular.module('pnc.builds').component('pncLogStreamer', {
     bindings: {
-      buildRecord: '<'
+      build: '<'
     },
-    templateUrl: 'build-records/components/pnc-log-streamer/pnc-log-streamer.html',
+    templateUrl: 'builds/directives/pnc-log-streamer/pnc-log-streamer.html',
     controller: ['pncProperties', Controller]
   });
 
