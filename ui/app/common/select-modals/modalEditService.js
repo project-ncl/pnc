@@ -28,7 +28,7 @@
       *
       */
       this.editBuildGroupBuildConfigs = function (buildGroup, buildConfigs) {
-        $q.when(buildConfigs).then(function (buildConfigs) {
+        return $q.when(buildConfigs).then(function (buildConfigs) {
           return modalSelectService.openForBuildConfigs({
             title: 'Add / Remove Build Configs from ' + buildGroup.name,
             buildConfigs: buildConfigs
