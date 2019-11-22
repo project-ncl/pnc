@@ -34,8 +34,7 @@
     'BUILD_PATH',
     'BUILD_SSH_CREDENTIALS_PATH',
     'buildStatusHelper',
-    'rsqlQuery',
-    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper, rsqlQuery) => {
+    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_PATH;
       const BUILD_SSH_CREDENTIALS_ENDPOINT = restConfig.getPncRestUrl() + BUILD_SSH_CREDENTIALS_PATH;
 
