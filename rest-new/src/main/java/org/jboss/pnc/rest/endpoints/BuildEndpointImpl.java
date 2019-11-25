@@ -48,6 +48,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
@@ -234,13 +238,31 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public String getAlignLogs(String id) {
-        return provider.getRepourLog(id);
+    public StreamingOutput getAlignLogs(String id) {
+        String repourLog = provider.getRepourLog(id);
+        if (repourLog == null || repourLog.isEmpty()) {
+            return null;
+        }
+
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(repourLog);
+            writer.flush();
+        };
     }
 
     @Override
-    public String getBuildLogs(String id) {
-        return provider.getBuildLog(id);
+    public StreamingOutput getBuildLogs(String id) {
+        String buildLog = provider.getBuildLog(id);
+        if (buildLog == null || buildLog.isEmpty()) {
+            return null;
+        }
+
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(buildLog);
+            writer.flush();
+        };
     }
 
     @Override

@@ -86,8 +86,14 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>test-common</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Test dependencies -->
+
 
     </dependencies>
 

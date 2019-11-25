@@ -45,8 +45,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -196,6 +198,17 @@ public class ClientGenerator extends AbstractProcessor {
                         methodBuilder
                                 .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(String.class)))
                                 .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))")
+                                .nextControlFlow("catch ($T e)", NotFoundException.class)
+                                .addStatement("return Optional.empty()");
+                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        methods.add(methodSpec);
+                    } else if (ClassName.get(returnType).toString().equals("javax.ws.rs.core.StreamingOutput")) {
+                        //string response
+                        MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
+                        addDefaultParameters(restApiMethod, methodBuilder);
+                        methodBuilder
+                                .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(InputStream.class)))
+                                .addStatement("return Optional.ofNullable(getInputStream(\"" + restApiMethod.getAnnotation(Path.class).value() + "\", " + parametersList + "))")
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("return Optional.empty()");
                         MethodSpec methodSpec = completeMethod(methodBuilder);
