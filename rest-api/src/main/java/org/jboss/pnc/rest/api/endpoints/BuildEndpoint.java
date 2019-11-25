@@ -58,6 +58,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import java.util.List;
 
@@ -349,7 +350,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/logs/align")
     @Produces(MediaType.TEXT_PLAIN)
-    String getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
+    StreamingOutput getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
 
     @Operation(summary = "Gets build logs for specific build.",
@@ -363,7 +364,7 @@ public interface BuildEndpoint{
     @GET
     @Path("/{id}/logs/build")
     @Produces(MediaType.TEXT_PLAIN)
-    String getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
+    StreamingOutput getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
     @Operation(summary = "Gets ssh credentials to log into the build pod.",
             description = "This GET requests require authentication",

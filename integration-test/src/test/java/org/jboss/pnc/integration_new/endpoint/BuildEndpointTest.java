@@ -21,51 +21,48 @@ import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.client.ApacheHttpClient43EngineWithRetry;
 import org.jboss.pnc.client.BuildClient;
+import org.jboss.pnc.client.ClientBase;
+import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
-
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-
-import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.client.ApacheHttpClient43EngineWithRetry;
-import org.jboss.pnc.client.ClientBase;
-import org.jboss.pnc.client.ClientException;
-import org.jboss.pnc.client.Configuration;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.junit.BeforeClass;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotAuthorizedException;
-
-import java.lang.reflect.Field;
-
 import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 
 /**
@@ -238,25 +235,27 @@ public class BuildEndpointTest {
     }
 
     @Test
-    public void shouldGetAlignLogs() throws ClientException {
+    public void shouldGetAlignLogs() throws ClientException, IOException {
         // when
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        Optional<String> logs = client.getAlignLogs(buildId);
+        Optional<InputStream> stream = client.getAlignLogs(buildId);
 
         // then
-        assertThat(logs).isPresent();
-        assertThat(logs.get()).contains("alignment log"); // from DatabaseDataInitializer
+        assertThat(stream).isPresent();
+        String log = IoUtils.readStreamAsString(stream.get());
+        assertThat(log).contains("alignment log"); // from DatabaseDataInitializer
     }
 
     @Test
-    public void shouldGetBuildLogs() throws ClientException {
+    public void shouldGetBuildLogs() throws ClientException, IOException {
         // when
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        Optional<String> logs = client.getBuildLogs(buildId);
+        Optional<InputStream> stream = client.getBuildLogs(buildId);
 
         // then
-        assertThat(logs).isPresent();
-        assertThat(logs.get()).contains("demo log"); // from DatabaseDataInitializer
+        assertThat(stream).isPresent();
+        String log = IoUtils.readStreamAsString(stream.get());
+        assertThat(log).contains("demo log"); // from DatabaseDataInitializer
     }
 
     @Test

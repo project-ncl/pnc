@@ -19,7 +19,6 @@ package org.jboss.pnc.client;
 
 import org.jboss.pnc.client.patch.PatchBase;
 import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
@@ -29,16 +28,14 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import java.io.InputStream;
 import java.util.Optional;
 
 /**
@@ -120,6 +117,18 @@ public abstract class ClientBase<T> {
                 .invoke(clazz);
 
         return result;
+    }
+
+    public InputStream getInputStream(String methodPath, String id) {
+        Path path = iface.getAnnotation(Path.class);
+
+        String interfacePath = path.value();
+
+        ResteasyWebTarget webTarget = target.path(interfacePath + methodPath).resolveTemplate("id", id);
+
+        return webTarget.request()
+                .build(HttpMethod.GET)
+                .invoke(InputStream.class);
     }
 
     public <S> S patch(String id, PatchBase patchBase) throws PatchBuilderException {
