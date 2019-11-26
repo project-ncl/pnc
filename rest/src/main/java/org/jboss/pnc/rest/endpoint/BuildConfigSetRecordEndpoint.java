@@ -17,11 +17,14 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.rest.restmodel.DeleteOperationResultRest;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -40,6 +43,8 @@ import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.pnc.spi.notifications.Notifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -84,6 +89,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSetRecord, BuildConfigSetRecordRest> {
+
+    private static final Logger logger = LoggerFactory.getLogger(BuildRecordEndpoint.class);
 
     private BuildRecordProvider buildRecordProvider;
 
@@ -164,29 +171,51 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Delete specific Build Config Set Record (it must be from a temporary build). Operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.")
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
-    })
+    @ApiOperation(value = "Delete specific Build Config Set Record (it must be from a temporary build). Operation is " +
+            "async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier " +
+            "buildRecord.id and possibly callback can be performed with JSON body containing information about " +
+            "operation completion using object org.jboss.pnc.rest.restmodel.DeleteOperationResultRest")
+    @ApiResponses(value = {@ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION), @ApiResponse(code =
+            NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION), @ApiResponse(code = INVALID_CODE, message =
+            INVALID_DESCRIPTION, response = ErrorResponseRest.class), @ApiResponse(code = SERVER_ERROR_CODE, message
+            = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)})
     @DELETE
     @Path("/{id}")
-    public Response delete(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id)
+    public Response delete(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id,
+                           @ApiParam(value = "Optional Callback URL") @QueryParam("callback") String callbackUrl)
             throws RepositoryViolationException {
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
 
-        Consumer<Result> onComplete = (result) -> {
-            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_CONFIG_SET_RECORDS_DELETE.getId(), result.getId().toString());
-        };
-
         try {
-            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(), onComplete);
+            if (temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(),
+                    notifyOnDeletionCompletion(callbackUrl))) {
+                return Response
+                        .ok()
+                        .build();
+            } else {
+                return Response
+                        .status(Response.Status.NOT_FOUND)
+                        .build();
+
+            }
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
-        return Response.ok().build();
+    }
+
+    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl) {
+        return (result) -> {
+            notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_CONFIG_SET_RECORDS_DELETE.getId(),
+                    result.getId());
+
+            if (callbackUrl != null && !callbackUrl.isEmpty()) {
+                try {
+                    HttpUtils.performHttpPostRequest(callbackUrl, DeleteOperationResultRest.of(result));
+                } catch (JsonProcessingException e) {
+                    logger.error("Failed to perform a callback of BuildConfigSetRecord delete operation.", e);
+                }
+            }
+        };
     }
 
     @ApiOperation(value = "Gets the build records associated with this set")
