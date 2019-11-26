@@ -118,7 +118,7 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail.default', {
         url: '',
-        templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
+        component: 'pncBuildDetailDetailsPage',
         data: {
           displayName: 'Job #{{ build.id }}',
         }
