@@ -24,11 +24,11 @@
       dependencyGraph: '<'
     },
     templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
-    controller: [Controller]
+    controller: ['buildStatusHelper', Controller]
   });
 
 
-  function Controller() {
+  function Controller(buildStatusHelper) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -37,7 +37,7 @@
     // --------------------
 
     $ctrl.$onInit = function () {
-     
+      $ctrl.buildStatusHelper = buildStatusHelper;
     };
 
 

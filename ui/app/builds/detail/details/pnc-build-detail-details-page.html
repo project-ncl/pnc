@@ -28,19 +28,19 @@
 
         <dt>Status:</dt>
         <dd ng-class="$ctrl.buildStatusHelper.isSuccess($ctrl.build.status) ? 'text-success' : 'text-danger'">{{ $ctrl.build.status }} <span ng-show="$ctrl.buildStatusHelper.isFinished($ctrl.build.status)" class="m-l-20">[ <a ng-href="{{ $ctrl.build.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
-        
+
         <dt>Build Config:</dt>
         <dd><a href ui-sref="build-configs.detail({ configurationId: $ctrl.build.buildConfigRevision.id })">{{ $ctrl.build.buildConfigRevision.name || '&mdash;' }}</a></dd>
-        
+
         <dt>Started By:</dt>
         <dd>{{ $ctrl.build.user.username || '&mdash;' }}</dd>
-        
+
         <dt ng-show="$ctrl.build.submitTime">Submitted:</dt>
         <dd ng-show="$ctrl.build.submitTime">{{ ($ctrl.build.submitTime | date : 'medium') }}</dd>
-        
+
         <dt ng-show="$ctrl.build.startTime">Started:</dt>
         <dd ng-show="$ctrl.build.startTime">{{ ($ctrl.build.startTime | date : 'medium') }}</dd>
-        
+
         <dt ng-show="$ctrl.build.endTime">Finished:</dt>
         <dd ng-show="$ctrl.build.endTime">{{ ($ctrl.build.endTime | date : 'medium') }}</dd>
 
@@ -56,7 +56,7 @@
         <dt class="lh-1-5 m-t-10">
           Pre-alignment<br>SCM Revision
           <a uib-popover="SCM Revision before Alignment is executed"
-            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
             href><span class="fa fa-info-circle"></span></a> :
         </dt>
         <dd class="m-t-10">
@@ -66,7 +66,7 @@
         <dt class="lh-1-5 m-t-10">
           Post-alignment<br>SCM Revision
           <a uib-popover="SCM Revision after Alignment is executed"
-            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
             href><span class="fa fa-info-circle"></span></a> :
         </dt>
         <dd class="m-t-10">
@@ -80,7 +80,7 @@
         <dt class="lh-1-5 m-t-10 m-b-5">
           Post-alignment<br>SCM Tag
           <a uib-popover="SCM Tag after Alignment is executed"
-            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" 
+            popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
             href><span class="fa fa-info-circle"></span></a> :
         </dt>
         <dd class="m-t-10 m-b-5">
@@ -117,4 +117,4 @@
 </div>
 
 <pnc-build-tree build="$ctrl.build"></pnc-build-tree>
-<pnc-log-streamer build-record="$ctrl.build" ng-if="::$ctrl.buildStatusHelper.isInProgress($ctrl.build)"></pnc-log-streamer>
+<pnc-log-streamer build="$ctrl.build" ng-if="$ctrl.buildStatusHelper.isInProgress($ctrl.build)"></pnc-log-streamer>
