@@ -44,7 +44,15 @@
       placeholder: 'Filter by Description',
       filterType: 'text'
     }];
-    
+
+    $ctrl.projectsSortingFields = [{
+      id: 'name',
+      title: 'Name'
+    }, {
+      id: 'description',
+      title: 'Description'
+    }];
+
     // --------------------
 
     $ctrl.$onInit = () => {

@@ -189,8 +189,10 @@
          * @returns this - to allow method chaining.
          */
         that.sortBy = function (field, desc) {
-          var order = desc ? 'desc' : 'asc';
-          sortBy = 'sort=' + order + '=' + field;
+          if (field) {
+            var order = desc ? 'desc' : 'asc';
+            sortBy = '=' + order + '=' + field;
+          }
           return this;
         };
 

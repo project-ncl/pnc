@@ -48,6 +48,13 @@
           paginator.apply();
         };
 
+
+        that.onSortChange = function (field, asc) {
+          //pfSort passes "isAscending" to the function, but "paginator.sortBy" uses "desc" for api request.
+          paginator.sortBy(field.id, !asc);
+          paginator.apply();
+        };
+
         that.resultsCount = function () {
           if (paginator.total === 1) {
             return paginator.data.length;
