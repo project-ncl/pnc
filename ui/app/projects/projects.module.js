@@ -50,7 +50,10 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['ProjectResource', (ProjectResource) => ProjectResource.query().$promise]
+          projects: ['ProjectResource', (ProjectResource) => ProjectResource.query({
+          //Workaround to fix NCL-5340 data flashing problem
+            sort: '=asc=name'
+          }).$promise]
         }
       });
 
@@ -80,7 +83,7 @@
           requireAuth: true
         }
       });
-      
+
     }
   ]);
 
