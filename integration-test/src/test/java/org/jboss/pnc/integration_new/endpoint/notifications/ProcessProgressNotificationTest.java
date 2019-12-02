@@ -15,29 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration;
+package org.jboss.pnc.integration_new.endpoint.notifications;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.websockets.NotificationCollector;
+import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.mock.dto.BuildMock;
-import org.jboss.pnc.rest.notifications.websockets.Action;
-import org.jboss.pnc.rest.notifications.websockets.MessageType;
-import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
-import org.jboss.pnc.rest.notifications.websockets.ProgressUpdatesRequest;
-import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
+import org.jboss.pnc.notification.Action;
+import org.jboss.pnc.notification.MessageType;
+import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
+import org.jboss.pnc.notification.ProgressUpdatesRequest;
+import org.jboss.pnc.notification.TypedMessage;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -53,9 +50,11 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -78,21 +77,17 @@ public class ProcessProgressNotificationTest {
 
     @Deployment(name="WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
-        restWar.addClass(ProcessProgressNotificationTest.class);
-        restWar.addClass(NotificationCollector.class);
-        restWar.addPackages(true, BuildMock.class.getPackage());
-        restWar.addPackage(NotificationsEndpoint.class.getPackage());
-        logger.info(enterpriseArchive.toString(true));
-        return enterpriseArchive;
+        return Deployments.testEarForInContainerTest(
+                Collections.singletonList(NotificationsEndpoint.class.getPackage()),
+                Arrays.asList(BuildMock.class.getPackage()),
+                ProcessProgressNotificationTest.class, NotificationCollector.class);
     }
 
     @Before
     public void before() throws Exception {
         notificationCollector = new NotificationCollector();
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String uri = "ws://localhost:8080/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://localhost:8080/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
         Session session = container.connectToServer(notificationCollector, URI.create(uri));
         waitForWSClientConnection();
         notificationCollector.clear();
@@ -126,7 +121,7 @@ public class ProcessProgressNotificationTest {
         //then
         logger.info("Received: " + notificationCollector.getMessages().get(0));
 
-        assertThat(notificationCollector.getMessages().get(0)).startsWith("{\"oldStatus\":\"NEW\",\"build\":{\"id\":\"1\",\"status\":\"SUCCESS\",");
+        assertTrue(notificationCollector.getMessages().get(0).startsWith("{\"oldStatus\":\"NEW\",\"build\":{\"id\":\"1\",\"status\":\"SUCCESS\","));
     }
 
     private void waitForMessages(int numberOfMessages) {

@@ -15,8 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.rest.endpoints.notifications;
 
+import org.jboss.pnc.notification.Action;
+import org.jboss.pnc.notification.MessageType;
+import org.jboss.pnc.notification.ProgressUpdatesRequest;
+import org.jboss.pnc.notification.RequestParser;
+import org.jboss.pnc.notification.SessionBasedAttachedClient;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -46,7 +51,7 @@ public class NotificationsEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     /** broadcasting endpoint, all events are sent to all subscribed users */
-    public static final String ENDPOINT_PATH = "/ws/build-records/notifications"; //TODO rename endpoint
+    public static final String ENDPOINT_PATH = "/notifications";
 
     @Inject
     Notifier notifier;

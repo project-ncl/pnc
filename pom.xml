@@ -388,6 +388,14 @@
         <type>war</type>
       </dependency>
 
+      <!-- Use this dependency to attach war classes -->
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-new</artifactId>
+        <version>${project.version}</version>
+        <classifier>classes</classifier>
+      </dependency>
+
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>notifications</artifactId>

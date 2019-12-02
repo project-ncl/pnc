@@ -15,30 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.websockets;
+package org.jboss.pnc.integration_new.endpoint.notifications;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.OnMessage;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @ClientEndpoint
-public class UpdatesMessageHandler {
+public class NotificationCollector {
 
-    private Logger logger = LoggerFactory.getLogger(UpdatesMessageHandler.class);
+    private Logger logger = LoggerFactory.getLogger(NotificationCollector.class);
 
-    private Consumer<String> onMessage;
-
-    public UpdatesMessageHandler(Consumer<String> onMessage) {
-        this.onMessage = onMessage;
-    }
+    private List<String> messages = new ArrayList<>();
 
     @OnMessage
     public void onMessage(String message) {
         logger.debug("Received notification {}.", message);
-        onMessage.accept(message);
+        messages.add(message);
+    }
+
+    public List<String> getMessages() {
+        return Collections.unmodifiableList(messages);
+    }
+
+    public void clear() {
+        messages.clear();
     }
 
 }

@@ -26,7 +26,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
+import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildOptions;
@@ -74,7 +74,7 @@ public class RemoteBuildTest {
 
     @Test
     public void runMultipleBuilds() throws Exception {
-        String uri = "ws://" + HOST + "/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://" + HOST + "/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
         Consumer<String> onMessage = (message) -> {
             try {
                 BuildChangedNotification notification = mapper.readValue(message, BuildChangedNotification.class);

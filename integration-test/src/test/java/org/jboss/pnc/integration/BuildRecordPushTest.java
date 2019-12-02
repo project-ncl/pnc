@@ -29,7 +29,7 @@ import org.jboss.pnc.integration.client.BuildRecordRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.CausewayClientMock;
-import org.jboss.pnc.integration.websockets.WsUpdatesClient;
+import org.jboss.pnc.integration_new.endpoint.notifications.WsUpdatesClient;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
