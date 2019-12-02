@@ -36,7 +36,9 @@
          * Array: The fields representing individual select box sortingFields options, this configuration will extend PatternFly Toolbar configuration
          */
         sortingFields: '<',
-
+        /**
+         * Array: The configuration of the sorting, this configuration will extend "currentField" and "isAscending" of PatternFly Toolbar configuration
+         */
         sortingConfigs: '<',
         /**
          * Object: Optional config object for toolbar level action buttons:
