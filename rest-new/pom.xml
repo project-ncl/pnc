@@ -57,6 +57,16 @@
 
         <!-- REST dependencies -->
         <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>notifications</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.websocket</groupId>
+            <artifactId>jboss-websocket-api_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
             <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
             <scope>provided</scope>
@@ -123,6 +133,15 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <!-- required for integration tests -->
+        <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <attachClasses>true</attachClasses>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>

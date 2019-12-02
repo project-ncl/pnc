@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
 import static org.jboss.pnc.AbstractTest.AUTH_JAR;
@@ -87,6 +88,31 @@ public class Deployments {
         EnterpriseArchive ear = testEarForInContainerTest();
         WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
         restWar.addClasses(classes);
+        return ear;
+    }
+
+    /**
+     * @param packages to add
+     * @params packagesRecursive to add packages recursively
+     * @param classes to add to the deployment
+     *
+     * @return
+     */
+    public static EnterpriseArchive testEarForInContainerTest(List<Package> packages, List<Package> packagesRecursive, Class<?>... classes) {
+        EnterpriseArchive ear = testEarForInContainerTest();
+        WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
+        restWar.addClasses(classes);
+
+        if (packages != null) {
+            for (Package pkg : packages) {
+                restWar.addPackage(pkg);
+            }
+        }
+        if (packagesRecursive != null) {
+            for (Package pkg : packagesRecursive) {
+                restWar.addPackages(true, pkg);
+            }
+        }
         return ear;
     }
 

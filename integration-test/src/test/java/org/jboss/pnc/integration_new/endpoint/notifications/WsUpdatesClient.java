@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.websockets;
+package org.jboss.pnc.integration_new.endpoint.notifications;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.rest.notifications.websockets.MessageType;
-import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
-import org.jboss.pnc.rest.notifications.websockets.ProgressUpdatesRequest;
-import org.jboss.pnc.rest.notifications.websockets.TypedMessage;
+import org.jboss.pnc.notification.MessageType;
+import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
+import org.jboss.pnc.notification.ProgressUpdatesRequest;
+import org.jboss.pnc.notification.TypedMessage;
 
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
@@ -44,7 +44,7 @@ public class WsUpdatesClient {
         UpdatesMessageHandler updatesMessageHandler = new UpdatesMessageHandler(onMessage);
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String uri = "ws://localhost:8080/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://localhost:8080/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
         Session session = container.connectToServer(updatesMessageHandler, URI.create(uri));
 
         RemoteEndpoint.Basic asyncRemote = session.getBasicRemote();

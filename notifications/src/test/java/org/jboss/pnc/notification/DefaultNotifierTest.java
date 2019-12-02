@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.notification.websockets;
+package org.jboss.pnc.notification;
 
 import org.jboss.pnc.notification.DefaultNotifier;
 import static org.assertj.core.api.Assertions.assertThat;

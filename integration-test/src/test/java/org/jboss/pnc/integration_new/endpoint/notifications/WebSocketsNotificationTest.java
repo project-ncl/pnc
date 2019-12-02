@@ -15,19 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration;
+package org.jboss.pnc.integration_new.endpoint.notifications;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.websockets.NotificationCollector;
+import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.mock.dto.BuildMock;
-import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
+import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -37,7 +35,6 @@ import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -52,6 +49,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -78,14 +76,10 @@ public class WebSocketsNotificationTest {
 
     @Deployment(name="WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
-        restWar.addClass(WebSocketsNotificationTest.class);
-        restWar.addClass(NotificationCollector.class);
-        restWar.addPackages(true, BuildMock.class.getPackage());
-        restWar.addPackage(NotificationsEndpoint.class.getPackage());
-        logger.info(enterpriseArchive.toString(true));
-        return enterpriseArchive;
+        return Deployments.testEarForInContainerTest(
+                Collections.singletonList(NotificationsEndpoint.class.getPackage()),
+                Collections.singletonList(BuildMock.class.getPackage()),
+                WebSocketsNotificationTest.class, NotificationCollector.class);
     }
 
     @Test
@@ -93,7 +87,7 @@ public class WebSocketsNotificationTest {
     public void setUp() throws Exception {
         notificationCollector = new NotificationCollector();
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String uri = "ws://localhost:8080/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://localhost:8080/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
         container.connectToServer(notificationCollector, URI.create(uri));
         waitForWSClientConnection();
         logger.info("Connected to notification client.");

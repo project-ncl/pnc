@@ -70,6 +70,12 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>rest-new</artifactId>
+      <scope>test</scope>
+      <classifier>classes</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>auth</artifactId>
       <scope>test</scope>
     </dependency>

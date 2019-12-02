@@ -15,54 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.notification;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
-
 /**
+ * Message
+ * {
+ *   message-type: 'process-updates',
+ *   message: {
+ *     action: 'subscribe|unsubscribe',
+ *     topic: 'component-build',
+ *     id: 123
+ *   }
+ * }
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@JsonDeserialize(builder = TypedMessage.TypedMessageBuilder.class)
+@JsonDeserialize(builder = ProgressUpdatesRequest.ProgressUpdatesRequestBuilder.class)
 @AllArgsConstructor
-@XmlRootElement
-public class TypedMessage<T> implements Serializable {
+@Builder
+@Getter
+public class ProgressUpdatesRequest { //TODO use generic name for all type of subscription based notifications
 
-    @Getter
-    private final MessageType messageType;
+    private Action action;
 
-    @Getter
-    private final T data;
+    private String topic;
 
-    public static <T> TypedMessageBuilder<T> builder() {
-        return new TypedMessageBuilder<T>();
+    private String id;
+
+    public static ProgressUpdatesRequest subscribe(String topic, String id) {
+        return new ProgressUpdatesRequest(Action.SUBSCRIBE, topic, id);
     }
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static final class TypedMessageBuilder<T> {
-
-        private MessageType messageType;
-        private T data;
-
-        private TypedMessageBuilder() {}
-
-        public TypedMessageBuilder messageType(MessageType messageType) {
-            this.messageType = messageType;
-            return this;
-        }
-
-        public TypedMessageBuilder data(T data) {
-            this.data = data;
-            return this;
-        }
-
-        public TypedMessage build() {
-            return new TypedMessage(messageType, data);
-        }
+    public static final class ProgressUpdatesRequestBuilder {
     }
+
 }
