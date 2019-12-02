@@ -53,6 +53,8 @@
         // Search term the user has queried for.
         var activeSearch = null;
 
+        var sortChangeCallbacks = [];
+
 
         /*
          * Generates an RSQL query string based on the current internal state.
@@ -189,10 +191,13 @@
          * @returns this - to allow method chaining.
          */
         that.sortBy = function (field, desc) {
-          if (field) {
+          if (field && field.id) {
             var order = desc ? 'desc' : 'asc';
-            sortBy = '=' + order + '=' + field;
+            sortBy = '=' + order + '=' + field.id;
           }
+
+          var currentSortConfig = { 'field': field, 'asc': !desc };
+          handleSortChangeCallbacks(currentSortConfig);
           return this;
         };
 
@@ -206,8 +211,27 @@
          */
         that.clearSort = function () {
           sortBy = null;
+
+          handleSortChangeCallbacks();
           return this;
         };
+
+        /**
+         * Provide an injection interface to others and save it to local callback stack
+         */
+        that.onSortChange = function (callbackFn) {
+          sortChangeCallbacks.push(callbackFn);
+        };
+
+        /**
+         * Execute all callback functions that injected to the paginator
+         * and pass in current sorting configuration
+         */
+        function handleSortChangeCallbacks(currentSortConfig) {
+          sortChangeCallbacks.forEach((callback) => {
+            callback(currentSortConfig);
+          });
+        }
 
        /**
         * Applies any filter / search terms and refreshes the internal
