@@ -32,6 +32,12 @@
   function Controller(filteringPaginator) {
     const $ctrl = this;
 
+    const DEFAULT_SORTING_CONFIG = {
+      'field': { 'id': 'name', 'title': 'Name' },
+      'asc': true
+    };
+    const PAGE_NAME = 'projectList';
+
     // -- Controller API --
     $ctrl.projectsFilteringFields = [{
       id: 'name',
@@ -40,7 +46,7 @@
       filterType: 'text'
     }, {
       id: 'description',
-      title:  'Description',
+      title: 'Description',
       placeholder: 'Filter by Description',
       filterType: 'text'
     }];
@@ -53,10 +59,22 @@
       title: 'Description'
     }];
 
+    var sortingConfigJson = window.localStorage.getItem('projectListSortingConfig');
+    $ctrl.projectsSortingConfigs = sortingConfigJson ? JSON.parse(sortingConfigJson) : DEFAULT_SORTING_CONFIG;
+
     // --------------------
 
     $ctrl.$onInit = () => {
       $ctrl.projectsFilteringPage = filteringPaginator($ctrl.projects);
+
+      $ctrl.projectsFilteringPage.onSortChange(currentSortConfig => {
+        var storageKey = PAGE_NAME + 'SortingConfig';
+        if (currentSortConfig) {
+          window.localStorage.setItem(storageKey, JSON.stringify(currentSortConfig));
+        } else {
+          window.localStorage.setItem(storageKey, DEFAULT_SORTING_CONFIG);
+        }
+      });
     };
 
   }

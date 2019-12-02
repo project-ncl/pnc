@@ -42,6 +42,19 @@
         }
       });
 
+      var getSortFromLocalStorage = function () {
+        const DEFAULT_FILED = 'name';
+        const DEFAULT_ASC = 'asc';
+
+        var sortingConfigJson = window.localStorage.getItem('projectListSortingConfig');
+        var sortingConfig = sortingConfigJson ? JSON.parse(sortingConfigJson) : null;
+        var asc = sortingConfig ? sortingConfig.asc ? 'asc' : 'desc' : DEFAULT_ASC;
+        var field = sortingConfig ? sortingConfig.field.id : DEFAULT_FILED;
+        return {
+          sort: '=' + asc + '=' + field
+        };
+      };
+
       $stateProvider.state('projects.list', {
         url: '',
         component: 'pncProjectsListPage',
@@ -50,10 +63,7 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['ProjectResource', (ProjectResource) => ProjectResource.query({
-          //Workaround to fix NCL-5340 data flashing problem
-            sort: '=asc=name'
-          }).$promise]
+          projects: ['ProjectResource', (ProjectResource) => ProjectResource.query(getSortFromLocalStorage()).$promise]
         }
       });
 

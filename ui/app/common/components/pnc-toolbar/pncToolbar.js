@@ -36,6 +36,8 @@
          * Array: The fields representing individual select box sortingFields options, this configuration will extend PatternFly Toolbar configuration
          */
         sortingFields: '<',
+
+        sortingConfigs: '<',
         /**
          * Object: Optional config object for toolbar level action buttons:
          *
@@ -83,7 +85,9 @@
         if ($ctrl.sortingFields) {
           $ctrl.pfToolbarConfig.sortConfig = {
             fields: $ctrl.sortingFields,
-            onSortChange: $ctrl.adaptor.onSortChange
+            onSortChange: $ctrl.adaptor.onSortChange,
+            currentField: $ctrl.sortingConfigs.field,
+            isAscending: $ctrl.sortingConfigs.asc
           };
         }
 
