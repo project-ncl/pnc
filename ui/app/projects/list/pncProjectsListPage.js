@@ -67,7 +67,7 @@
     $ctrl.$onInit = () => {
       $ctrl.projectsFilteringPage = filteringPaginator($ctrl.projects);
 
-      $ctrl.projectsFilteringPage.onSortChange(currentSortConfig => {
+      $ctrl.projectsFilteringPage.addSortChangeListener(currentSortConfig => {
         var storageKey = PAGE_NAME + 'SortingConfig';
         if (currentSortConfig) {
           window.localStorage.setItem(storageKey, JSON.stringify(currentSortConfig));

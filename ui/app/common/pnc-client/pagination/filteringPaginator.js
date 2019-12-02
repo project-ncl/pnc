@@ -219,7 +219,7 @@
         /**
          * Provide an injection interface to others and save it to local callback stack
          */
-        that.onSortChange = function (callbackFn) {
+        that.addSortChangeListener = function (callbackFn) {
           sortChangeCallbacks.push(callbackFn);
         };
 
