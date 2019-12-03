@@ -24,10 +24,12 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+@ApplicationScoped
 public class BuildMaintenanceEndpointImpl implements BuildMaintananceEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildMaintenanceEndpointImpl.class);
