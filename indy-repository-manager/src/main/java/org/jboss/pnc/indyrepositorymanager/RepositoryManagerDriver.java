@@ -251,7 +251,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Override
     public RepositoryManagerResult collectRepoManagerResult(Integer id)
             throws RepositoryManagerException {
-        BuildRecord br = buildRecordRepository.findByIdFetchAllProperties(id);
+        BuildRecord br = buildRecordRepository.findByIdFetchProperties(id);
         if (br == null) {
             return null;
         }
