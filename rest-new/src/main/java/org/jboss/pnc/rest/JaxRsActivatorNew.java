@@ -35,6 +35,7 @@ import org.jboss.pnc.rest.endpoints.ProjectEndpointImpl;
 import org.jboss.pnc.rest.endpoints.SCMRepositoryEndpointImpl;
 import org.jboss.pnc.rest.endpoints.UserEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.BpmEndpointImpl;
+import org.jboss.pnc.rest.endpoints.internal.BuildMaintenanceEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.BuildTaskEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.HealthCheckEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
@@ -93,7 +94,7 @@ public class JaxRsActivatorNew extends Application {
     @Context
     private ServletConfig servletConfig;
 
-    private Set<Object> singletons = new HashSet<Object>();
+    private Set<Object> singletons = new HashSet<>();
 
     public JaxRsActivatorNew() throws IOException {
         configureCors();
@@ -192,6 +193,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(ArtifactEndpointImpl.class);
 
         resources.add(BpmEndpointImpl.class);
+        resources.add(BuildMaintenanceEndpointImpl.class);
         resources.add(BuildEndpointImpl.class);
         resources.add(BuildTaskEndpointImpl.class);
 

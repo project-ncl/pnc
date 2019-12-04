@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 @ApplicationScoped
@@ -39,7 +38,7 @@ public class BuildMaintenanceEndpointImpl implements BuildMaintananceEndpoint {
 
 
     @Override
-    public Response collectRepoManagerResult(@PathParam("id") Integer id) {
+    public Response collectRepoManagerResult(Integer id) {
         logger.info("Getting repository manager result for build record id {}.", id);
         RepositoryManagerResult result;
         try {
