@@ -20,10 +20,14 @@ package org.jboss.pnc.client;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderValues;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.MDC;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -34,6 +38,7 @@ public class ClientTest {
     public void shouldRetryFailedConnection() throws RemoteResourceException {
 
         AtomicInteger requestsReceived = new AtomicInteger(0);
+        AtomicReference<String> headerReceived = new AtomicReference<>();
 
         Undertow server = Undertow.builder()
                 .addHttpListener(8080, "localhost")
@@ -41,17 +46,28 @@ public class ClientTest {
                     @Override
                     public void handleRequest(final HttpServerExchange exchange) throws Exception {
                         requestsReceived.incrementAndGet();
+                        String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCUtils.REQUEST_CONTEXT_KEY);
+                        HeaderValues strings = exchange.getRequestHeaders().get(headerName);
+                        if (strings != null) {
+                            headerReceived.set(strings.getFirst());
+                        }
                         exchange.getConnection().close();
                     }
                 }).build();
         server.start();
 
-        Configuration connectionInfo = Configuration.builder()
+        Configuration configuration = Configuration.builder()
                 .protocol("http")
                 .host("localhost")
                 .port(8080)
+//                .mdcToHeadersMappings(MDCUtils.getMDCToHeaderMappings())
+                .addDefaultMdcToHeadersMappings()
                 .build();
-        ProjectClient projectClient = new ProjectClient(connectionInfo);
+
+        ProjectClient projectClient = new ProjectClient(configuration);
+
+        String requestContext = "12345";
+        MDC.put(MDCUtils.REQUEST_CONTEXT_KEY, requestContext);
         try {
             projectClient.getSpecific("1");
         } catch (javax.ws.rs.ProcessingException | ClientException e) {
@@ -59,5 +75,7 @@ public class ClientTest {
         }
 
         Assert.assertTrue(requestsReceived.intValue() > 2);
+        Assert.assertEquals(requestContext, headerReceived.get());
+        System.out.println("Done!");
     }
 }

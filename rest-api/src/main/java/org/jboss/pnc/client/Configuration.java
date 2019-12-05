@@ -18,16 +18,17 @@
 package org.jboss.pnc.client;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import org.jboss.pnc.common.logging.MDCUtils;
+
+import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Data
 @AllArgsConstructor
-@Builder
 public class Configuration {
 
     private final String host;
@@ -44,6 +45,27 @@ public class Configuration {
      */
     private final int pageSize;
 
+    /**
+     * Define which values from the logging MDC are added as headers to the request.
+     * A key is a MDC key.
+     * A value is a header name
+     */
+    private Map<String, String> mdcToHeadersMappings;
+
+    private Configuration(ConfigurationBuilder builder) {
+        host = builder.host;
+        port = builder.port;
+        basicAuth = builder.basicAuth;
+        bearerToken = builder.bearerToken;
+        protocol = builder.protocol;
+        pageSize = builder.pageSize;
+        mdcToHeadersMappings = builder.mdcToHeadersMappings;
+    }
+
+    public static ConfigurationBuilder builder() {
+        return new ConfigurationBuilder();
+    }
+
     @Getter
     public static class BasicAuth {
         private String username;
@@ -55,4 +77,67 @@ public class Configuration {
         }
     }
 
+    public static final class ConfigurationBuilder {
+
+        private String host;
+
+        private Integer port;
+
+        private BasicAuth basicAuth;
+
+        private String bearerToken;
+
+        private String protocol;
+
+        private int pageSize;
+
+        private Map<String, String> mdcToHeadersMappings;
+
+        private ConfigurationBuilder() {
+        }
+
+        public ConfigurationBuilder host(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public ConfigurationBuilder port(Integer port) {
+            this.port = port;
+            return this;
+        }
+
+        public ConfigurationBuilder basicAuth(BasicAuth basicAuth) {
+            this.basicAuth = basicAuth;
+            return this;
+        }
+
+        public ConfigurationBuilder bearerToken(String bearerToken) {
+            this.bearerToken = bearerToken;
+            return this;
+        }
+
+        public ConfigurationBuilder protocol(String protocol) {
+            this.protocol = protocol;
+            return this;
+        }
+
+        public ConfigurationBuilder pageSize(int pageSize) {
+            this.pageSize = pageSize;
+            return this;
+        }
+
+        public ConfigurationBuilder mdcToHeadersMappings(Map<String, String> mdcToHeadersMappings) {
+            this.mdcToHeadersMappings = mdcToHeadersMappings;
+            return this;
+        }
+
+        public ConfigurationBuilder addDefaultMdcToHeadersMappings() {
+            this.mdcToHeadersMappings = MDCUtils.getMDCToHeaderMappings();
+            return this;
+        }
+
+        public Configuration build() {
+            return new Configuration(this);
+        }
+    }
 }

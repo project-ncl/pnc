@@ -71,6 +71,7 @@ public abstract class ClientBase<T> {
                 .httpEngine(engine)
                 .build();
         client.register(ResteasyJackson2ProviderWithDateISO8601.class);
+        client.register(new MdcToHeadersFilter(configuration.getMdcToHeadersMappings()));
         client.register(RequestLoggingFilter.class);
         target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
