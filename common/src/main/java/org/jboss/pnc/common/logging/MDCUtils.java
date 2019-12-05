@@ -34,11 +34,11 @@ public class MDCUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 
-    private static final String REQUEST_CONTEXT_KEY = "requestContext";
-    private static final String PROCESS_CONTEXT_KEY = "processContext";
-    private static final String USER_ID_KEY = "userId";
-    private static final String TMP_KEY = "tmp";;
-    private static final String EXP_KEY = "exp";
+    public static final String REQUEST_CONTEXT_KEY = "requestContext";
+    public static final String PROCESS_CONTEXT_KEY = "processContext";
+    public static final String USER_ID_KEY = "userId";
+    public static final String TMP_KEY = "tmp";;
+    public static final String EXP_KEY = "exp";
 
     public static void addContext(BuildTaskContext buildTaskContext) {
         addBuildContext(

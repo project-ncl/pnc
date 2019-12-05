@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration_new.setup;
 
 import org.jboss.pnc.client.Configuration;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.integration.env.IntegrationTestEnv;
 
 /**
@@ -41,6 +42,9 @@ public class RestClientConfiguration {
         builder.protocol("http");
         builder.host("localhost");
         builder.port(IntegrationTestEnv.getHttpPort());
+
+        builder.mdcToHeadersMappings(MDCUtils.getMDCToHeaderMappings());
+
         return builder.build();
     }
 
