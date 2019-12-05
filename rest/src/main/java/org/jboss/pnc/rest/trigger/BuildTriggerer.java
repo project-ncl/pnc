@@ -31,6 +31,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.GenericSettingProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetWithAuditedBCsRest;
 import org.jboss.pnc.rest.utils.BpmNotifier;
@@ -78,6 +79,8 @@ public class BuildTriggerer {
 
     private SystemConfig systemConfig;
 
+    private GenericSettingProvider genericSettingProvider;
+
     @Deprecated //not meant for usage its only to make CDI happy
     public BuildTriggerer() {
     }
@@ -92,7 +95,8 @@ public class BuildTriggerer {
                           BpmNotifier bpmNotifier,
                           HibernateLazyInitializer hibernateLazyInitializer,
                           SortInfoProducer sortInfoProducer,
-                          SystemConfig systemConfig) {
+                          SystemConfig systemConfig,
+                          GenericSettingProvider genericSettingProvider) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -103,6 +107,7 @@ public class BuildTriggerer {
         this.hibernateLazyInitializer = hibernateLazyInitializer;
         this.sortInfoProducer = sortInfoProducer;
         this.systemConfig = systemConfig;
+        this.genericSettingProvider = genericSettingProvider;
     }
 
     public int triggerBuild(final Integer buildConfigurationId,
@@ -111,6 +116,11 @@ public class BuildTriggerer {
                             BuildOptions buildOptions,
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new BuildConflictException("PNC is in maintenance mode");
+        }
+
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
@@ -136,6 +146,11 @@ public class BuildTriggerer {
                             User currentUser,
                             BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new BuildConflictException("PNC is in maintenance mode");
+        }
+
         BuildConfigurationSetTriggerResult result =
                 doTriggerBuild(configurationId, buildConfigurationRevision, currentUser, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), configurationId);
@@ -178,6 +193,11 @@ public class BuildTriggerer {
             BuildOptions buildOptions,
             URL callBackUrl)
             throws CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new CoreException("PNC is in maintenance mode");
+        }
+
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, buildOptions);
@@ -190,6 +210,11 @@ public class BuildTriggerer {
             User currentUser,
             BuildOptions buildOptions)
             throws CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new CoreException("PNC is in maintenance mode");
+        }
+
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetId);
@@ -208,6 +233,11 @@ public class BuildTriggerer {
             BuildOptions buildOptions,
             URL callBackUrl)
             throws CoreException, InvalidEntityException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new CoreException("PNC is in maintenance mode");
+        }
+
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetAuditedRest, currentUser, buildOptions);
@@ -220,6 +250,11 @@ public class BuildTriggerer {
             User currentUser,
             BuildOptions buildOptions)
             throws CoreException, InvalidEntityException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new CoreException("PNC is in maintenance mode");
+        }
+
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetAuditedRest.getId());
         Preconditions.checkArgument(buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetAuditedRest.getId());
