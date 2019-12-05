@@ -62,14 +62,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Stateless
 public class BuildResultPushManager {
 
-    /** Generic parameter name for overriding the executionRootName value received from Repour. */
+    /**
+     * Generic parameter name for overriding the executionRootName value received from Repour.
+     */
     private static final String BREW_BUILD_NAME = "BREW_BUILD_NAME";
 
     private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
@@ -99,7 +100,7 @@ public class BuildResultPushManager {
             BuildRecordRepository buildRecordRepository, BuildRecordPushResultRepository buildRecordPushResultRepository,
             BuildPushResultMapper mapper, InProgress inProgress,
             Event<BuildPushResult> buildPushResultEvent, ArtifactRepository artifactRepository, CausewayClient causewayClient) {
-        this.buildConfigurationRepository =  buildConfigurationRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.mapper = mapper;
@@ -115,15 +116,15 @@ public class BuildResultPushManager {
      * @param authToken
      * @param callBackUrlTemplate %s in the template will be replaced with BuildRecord.id
      * @param tagPrefix
-     * @param reimport Wherather the build should be reimported with new revision number if it already exists in Brew
+     * @param reimport Wherather the build should be reimported with new revision number if it
+     * already exists in Brew
      * @return
-     * @throws ProcessException
      */
     public Set<Result> push(
             Set<String> buildRecordIds,
             String authToken,
             String callBackUrlTemplate, String tagPrefix,
-            boolean reimport) throws ProcessException {
+            boolean reimport) {
 
         Set<Result> result = new HashSet<>();
         for (String buildRecordId : buildRecordIds) {
@@ -140,7 +141,7 @@ public class BuildResultPushManager {
             String tagPrefix,
             boolean reimport,
             Set<Result> result,
-            String buildRecordId) throws ProcessException {
+            String buildRecordId) {
         logger.debug("Preparing push to causeway Build.id {}.", buildRecordId);
         //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
         BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildRecordId));
@@ -168,34 +169,38 @@ public class BuildResultPushManager {
         }
     }
 
-    private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix, boolean reimport) throws ProcessException {
+    private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix, boolean reimport) {
         logger.info("Pushing to causeway BR.id: {}", buildRecordId);
+        boolean successfullyPushed = false;
+        String message = "Failed to push to Causeway.";
 
         if (!inProgress.add(buildRecordId, tagPrefix)) {
             logger.warn("Push for BR.id {} already running.", buildRecordId);
             return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "A push for this buildRecord is already running.");
         }
-
-        BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
-        if (buildRecord == null) {
-            logger.warn("Did not find build record by id: " + buildRecordId);
-            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "Did not find build record by given id.");
+        try {
+            BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
+            if (buildRecord == null) {
+                logger.warn("Did not find build record by id: " + buildRecordId);
+                message = "Did not find build record by given id.";
+            } else if (!buildRecord.getStatus().completedSuccessfully()) {
+                logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
+                message = "Cannot push failed build.";
+            } else {
+                BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
+                successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
+            }
+        } catch (RuntimeException ex) {
+            logger.error("Failed to push to Causeway.", ex);
+            message = ("Failed to push to Causeway: " + ex.getMessage());
         }
 
-        if (!buildRecord.getStatus().completedSuccessfully()) {
-            logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
-            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "Cannot push failed build.");
-        }
-
-        BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
-        boolean successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
         if (!successfullyPushed) {
             inProgress.remove(buildRecordId);
-            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "Failed to push to Causeway.");
+            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, message);
         } else {
             return new Result(buildRecordId.toString(), BuildPushStatus.ACCEPTED);
         }
-
     }
 
     private BuildImportRequest createCausewayPushRequest(
@@ -213,7 +218,7 @@ public class BuildResultPushManager {
                 "x86_64", //TODO set based on env, some env has native build tools
                 "rhel",
                 "x86_64",
-                 buildEnvironment.getAttributes()
+                buildEnvironment.getAttributes()
         );
 
         List<Artifact> builtArtifactEntities = artifactRepository.queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
@@ -344,7 +349,7 @@ public class BuildResultPushManager {
         }
 
         String[] splittedName = executionRootName.split(":");
-        if(splittedName.length != 2) {
+        if (splittedName.length != 2) {
             throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
         }
         return new Gav(splittedName[0], splittedName[1], executionRootVersion);
@@ -400,9 +405,9 @@ public class BuildResultPushManager {
     private Set<Dependency> collectDependencies(Collection<Artifact> dependencies) {
         return dependencies.stream()
                 .map(artifact -> new Dependency(
-                        artifact.getFilename(),
-                        artifact.getMd5(),
-                        artifact.getSize())
+                artifact.getFilename(),
+                artifact.getMd5(),
+                artifact.getSize())
                 )
                 .collect(Collectors.toSet());
     }
