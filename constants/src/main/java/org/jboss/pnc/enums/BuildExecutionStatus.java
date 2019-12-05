@@ -21,7 +21,7 @@ package org.jboss.pnc.enums;
 /**
  * Represents the status of the task in the execution "sub-process".
  * The status represent the runtime state and task completion status.
- * Status is not meant to be stored to the datastore. For storing the results, see {@link org.jboss.pnc.model.BuildStatus}
+ * Status is not meant to be stored to the datastore. For storing the results, see {@link org.jboss.pnc.enums.BuildStatus}
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-22.
 */

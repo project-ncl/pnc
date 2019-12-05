@@ -15,28 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.constants;
 
 /**
- * Represents attribute keys.
- *
- * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
+ * Required to compile with java 11 for java 8 target
  */
-public class Attributes {
-
-    /**
-     * Attribute key for org.jboss.pnc.dto.ProductVersion representing Brew tag prefix for a
-     * Version.
-     */
-    public static final String BREW_TAG_PREFIX = "BREW_TAG_PREFIX";
-
-    /**
-     * Attribute key for org.jboss.pnc.dto.Build representing Brew name of the build.
-     */
-    public static final String BUILD_BREW_NAME = "BREW_BUILD_NAME";
-
-    /**
-     * Attribute key for org.jboss.pnc.dto.Build representing Brew version of the build.
-     */
-    public static final String BUILD_BREW_VERSION = "BREW_BUILD_VERSION";
-}
+package javax.annotation;

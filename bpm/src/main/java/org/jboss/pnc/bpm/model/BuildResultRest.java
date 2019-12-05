@@ -41,7 +41,7 @@ import java.io.Serializable;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildResult")
-@NoArgsConstructor(onConstructor = @__({@Deprecated}))
+@NoArgsConstructor
 @AllArgsConstructor
 public class BuildResultRest extends BpmEvent implements Serializable {
 
@@ -49,35 +49,35 @@ public class BuildResultRest extends BpmEvent implements Serializable {
 
     @NotNull(groups = WhenCreatingNew.class)
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private CompletionStatus completionStatus;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private ProcessException processException;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private String processLog;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private BuildExecutionConfigurationRest buildExecutionConfiguration;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private BuildDriverResultRest buildDriverResult;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private RepositoryManagerResultRest repositoryManagerResult;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private EnvironmentDriverResult environmentDriverResult;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private RepourResult repourResult;
 
     public static BuildResultRest valueOf(String serialized) throws IOException {

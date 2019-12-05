@@ -88,7 +88,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     private String buildContentId;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private Boolean temporaryBuild;
 
     /**

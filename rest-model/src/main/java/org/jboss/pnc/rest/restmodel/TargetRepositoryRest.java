@@ -48,11 +48,11 @@ import java.util.stream.Collectors;
 @ToString
 @XmlRootElement(name = "TargetRepository")
 @NoArgsConstructor
-@Setter(onMethod=@__({@Deprecated}))
+@Setter
 public class TargetRepositoryRest implements GenericEntity<Integer> {
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     private Integer id;

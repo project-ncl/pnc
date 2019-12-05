@@ -43,11 +43,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Setter(onMethod=@__({@Deprecated}))
+@Setter
 public class BuildRecordPushResultRest implements GenericRestEntity<Integer> {
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     private Integer id;

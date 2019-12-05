@@ -34,7 +34,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Setter(onMethod=@__({@Deprecated}))
+@Setter
 public class BuildRecordPushRequestRest {
 
     @Getter
