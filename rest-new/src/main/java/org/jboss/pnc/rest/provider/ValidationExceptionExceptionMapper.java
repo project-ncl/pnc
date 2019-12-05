@@ -27,6 +27,7 @@ import java.lang.invoke.MethodHandles;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 
 @Provider
 public class ValidationExceptionExceptionMapper implements ExceptionMapper<DTOValidationException> {
@@ -39,6 +40,9 @@ public class ValidationExceptionExceptionMapper implements ExceptionMapper<DTOVa
         if (e instanceof ConflictedEntryException) {
             status = Response.Status.CONFLICT;
             logger.debug("A ConflictedEntry error occurred when processing REST call", e);
+        }if (e instanceof EmptyEntityException) {
+            logger.debug("Entity not found", e);
+            return Response.status(Response.Status.NOT_FOUND).build();
         } else {
             logger.warn("A validation error occurred when processing REST call", e);
         }
