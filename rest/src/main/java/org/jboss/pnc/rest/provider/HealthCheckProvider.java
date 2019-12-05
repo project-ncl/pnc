@@ -18,15 +18,14 @@
 package org.jboss.pnc.rest.provider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.model.HealthCheck;
-import org.jboss.pnc.spi.datastore.repositories.HealthCheckRepository;
+import org.jboss.pnc.model.GenericSetting;
+import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @PermitAll
@@ -34,8 +33,10 @@ import java.util.Map;
 @Slf4j
 public class HealthCheckProvider {
 
+    public static final String HEALTH_CHECK_KEY = "HEALTH_CHECK";
+
     @Inject
-    private HealthCheckRepository healthCheckRepository;
+    private GenericSettingRepository genericSettingRepository;
 
     @Deprecated
     public HealthCheckProvider() {}
@@ -51,7 +52,7 @@ public class HealthCheckProvider {
 
     private boolean checkDatabaseRead() {
         try {
-            healthCheckRepository.queryAll().size();
+            genericSettingRepository.queryAll().size();
             return true;
         } catch (Exception e) {
             log.error("Error while reading from database", e);
@@ -61,19 +62,20 @@ public class HealthCheckProvider {
 
     private boolean checkDatabaseWrite() {
 
+        // check if there is a key with "HEALTH_CHECK"
+        // if yes, modify the value to a new date, and write
+        // else: create a new entry and save into the database with the new date
+
         try {
-            List<HealthCheck> healthCheckList = healthCheckRepository.queryAll();
+            GenericSetting healthCheck = genericSettingRepository.queryByKey(HEALTH_CHECK_KEY);
 
-            HealthCheck healthCheck;
-
-            if (healthCheckList.size() > 0) {
-                healthCheck = healthCheckList.get(0);
-            } else {
-                healthCheck = new HealthCheck();
+            if (healthCheck == null) {
+                healthCheck = new GenericSetting();
+                healthCheck.setKey(HEALTH_CHECK_KEY);
             }
 
-            healthCheck.setDate(new Date());
-            healthCheckRepository.save(healthCheck);
+            healthCheck.setValue(new Date().toString());
+            genericSettingRepository.save(healthCheck);
 
             return true;
         } catch (Exception e) {

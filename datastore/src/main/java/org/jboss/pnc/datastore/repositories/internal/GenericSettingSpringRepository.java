@@ -15,13 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.datastore.repositories.internal;
 
-import org.jboss.pnc.model.HealthCheck;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.model.GenericSetting;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-/**
- * Interface for manipulating {@link org.jboss.pnc.model.HealthCheck} entity.
- */
-public interface HealthCheckRepository extends Repository<HealthCheck, Integer> {
+import javax.enterprise.context.Dependent;
+
+@Dependent
+public interface GenericSettingSpringRepository extends JpaRepository<GenericSetting, Integer>,
+        JpaSpecificationExecutor<GenericSetting> {
 }
