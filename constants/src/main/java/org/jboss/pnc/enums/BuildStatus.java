@@ -18,6 +18,9 @@
 package org.jboss.pnc.enums;
 
 import java.util.Arrays;
+import static org.jboss.pnc.enums.BuildProgress.FINISHED;
+import static org.jboss.pnc.enums.BuildProgress.IN_PROGRESS;
+import static org.jboss.pnc.enums.BuildProgress.PENDING;
 
 /**
  * Status of a running or isFinal build.
@@ -29,71 +32,65 @@ public enum BuildStatus {
     /**
      * Build completed successfully
      */
-    SUCCESS (true),
+    SUCCESS(FINISHED, true),
 
     /**
      * Build failed
      */
-    FAILED(false),
+    FAILED(FINISHED, false),
 
     /**
      * A build has been requested (possibly via dependencies) but no actual build happened as it was
      * not required (no updates).
      */
-    NO_REBUILD_REQUIRED (true),
+    NO_REBUILD_REQUIRED(FINISHED, true),
 
     /**
      * Build is waiting for dependencies to finish
      */
-    WAITING_FOR_DEPENDENCIES,
+    WAITING_FOR_DEPENDENCIES(PENDING),
 
     /**
      * Build currently running
      */
-    BUILDING,
+    BUILDING(IN_PROGRESS),
 
     /**
      * Build rejected due to conflict with another build
      */
-    REJECTED(false),
+    REJECTED(FINISHED, false),
 
     /**
      * Build rejected due to failed dependency build
      */
-    REJECTED_FAILED_DEPENDENCIES(false),
+    REJECTED_FAILED_DEPENDENCIES(FINISHED, false),
 
     /**
      * User cancelled the build
      */
-    CANCELLED(true),
+    CANCELLED(FINISHED, true),
 
     /**
      * A system error prevented the build from completing
      */
-    SYSTEM_ERROR(false),
+    SYSTEM_ERROR(FINISHED, false),
 
     /**
      * It is not known what the build status is at this time
      */
-    NEW;
-
-    // isFinal means it's in the final state, it could also have failed
-    private final boolean isFinal;
+    NEW(PENDING);
 
     private final boolean completedSuccessfully;
 
-    BuildStatus() {
-        this(false, false);
+    private final BuildProgress progress;
+
+    BuildStatus(BuildProgress progress) {
+        this(progress, false);
     }
 
-    BuildStatus(boolean isFinalStateSuccessful) {
-
-        this(true, isFinalStateSuccessful);
-    }
-
-    private BuildStatus(boolean isFinal, boolean completedSuccessfully) {
-        this.isFinal = isFinal;
+    private BuildStatus(BuildProgress progress, boolean completedSuccessfully) {
         this.completedSuccessfully = completedSuccessfully;
+        this.progress = progress;
     }
 
     public boolean completedSuccessfully() {
@@ -101,7 +98,11 @@ public enum BuildStatus {
     }
 
     public boolean isFinal() {
-        return isFinal;
+        return progress == FINISHED;
+    }
+
+    public BuildProgress progress() {
+        return progress;
     }
 
     @Deprecated
