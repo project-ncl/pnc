@@ -17,24 +17,38 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Type;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
-import java.util.Date;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
-public class HealthCheck implements GenericEntity<Integer> {
+@Table(indexes = {@Index(name="idx_key", columnList = "key")})
+public class GenericSetting implements GenericEntity<Integer> {
 
-    public static final String SEQUENCE_NAME = "healthcheck_id_seq";
+    public static final String SEQUENCE_NAME = "generic_setting_id_seq";
 
     @Id
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1, initialValue = 100)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    private Date date;
+    @NotNull
+    @Column(unique=true)
+    private String key;
+
+    @NotNull
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    private String value;
 
     @Override
     public Integer getId() {
@@ -46,11 +60,19 @@ public class HealthCheck implements GenericEntity<Integer> {
         this.id = id;
     }
 
-    public Date getDate() {
-        return date;
+    public String getKey() {
+        return key;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }
