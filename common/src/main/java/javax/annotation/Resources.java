@@ -15,28 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.constants;
+
+package javax.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Represents attribute keys.
+ * This class is used to allow multiple resources declarations.
  *
- * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
+ * @see Resource
+ * @since Common Annotations 1.0
  */
-public class Attributes {
 
-    /**
-     * Attribute key for org.jboss.pnc.dto.ProductVersion representing Brew tag prefix for a
-     * Version.
-     */
-    public static final String BREW_TAG_PREFIX = "BREW_TAG_PREFIX";
-
-    /**
-     * Attribute key for org.jboss.pnc.dto.Build representing Brew name of the build.
-     */
-    public static final String BUILD_BREW_NAME = "BREW_BUILD_NAME";
-
-    /**
-     * Attribute key for org.jboss.pnc.dto.Build representing Brew version of the build.
-     */
-    public static final String BUILD_BREW_VERSION = "BREW_BUILD_VERSION";
+@Documented
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface Resources {
+   /**
+    * Array used for multiple resource declarations.
+    */
+   Resource[] value();
 }

@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>24</version>
+    <version>36</version>
     <relativePath />
   </parent>
 
@@ -101,6 +101,8 @@
   <properties>
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
+<!--    <maven.compiler.source>1.8</maven.compiler.source>-->
+<!--    <maven.compiler.target>1.8</maven.compiler.target>-->
     <maven.min.version>3.2</maven.min.version>
     <version.javax.enterprise>2.0.SP1</version.javax.enterprise>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
@@ -161,6 +163,7 @@
     <jboss.management.port>${default.management.port}</jboss.management.port>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
+    <version.javadoc.plugin>3.1.1</version.javadoc.plugin>
   </properties>
 
   <dependencies>
@@ -838,7 +841,7 @@
       <dependency>
         <groupId>org.jacoco</groupId>
         <artifactId>org.jacoco.core</artifactId>
-        <version>0.7.1.201405082137</version>
+        <version>0.8.5</version>
       </dependency>
 
       <dependency>
@@ -1081,6 +1084,25 @@
         <version>1.9.0</version>
       </dependency>
 
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>2.3.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.3.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.activation</groupId>
+        <artifactId>javax.activation</artifactId>
+        <version>1.2.0</version>
+        <scope>provided</scope>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -1151,7 +1173,7 @@
           <configuration>
             <version>7</version>
             <defaultLibBundleDir>lib</defaultLibBundleDir>
-            <fileNameMapping>no-version</fileNameMapping>
+            <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
           </configuration>
         </plugin>
 
@@ -1238,7 +1260,7 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.7.1.201405082137</version>
+          <version>0.8.5</version>
         </plugin>
 
         <plugin>
@@ -1334,6 +1356,12 @@
             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
             <autoReleaseAfterClose>false</autoReleaseAfterClose>
           </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
         </plugin>
 
       </plugins>
@@ -1498,6 +1526,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${version.javadoc.plugin}</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -1507,7 +1536,9 @@
             <configuration>
               <detectOfflineLinks>false</detectOfflineLinks>
               <quiet>true</quiet>
-              <additionalparam>-Xdoclint:none</additionalparam>
+              <additionalOptions>-source 1.8</additionalOptions>
+<!--              <doclint>syntax</doclint>-->
+              <doclint>none</doclint>
             </configuration>
           </execution>
         </executions>

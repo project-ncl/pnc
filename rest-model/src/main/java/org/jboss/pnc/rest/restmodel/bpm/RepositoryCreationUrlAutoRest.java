@@ -41,20 +41,20 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(onConstructor=@__({@Deprecated}))
-@Setter(onMethod=@__({@Deprecated}))
+@Setter
 public class RepositoryCreationUrlAutoRest implements Serializable {
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
     private String scmUrl;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private Boolean preBuildSyncEnabled;
 
     @Getter
-    @Setter(onMethod=@__({@Deprecated}))
+    @Setter
     private BuildConfigurationRest buildConfigurationRest;
 
     @JsonPOJOBuilder(withPrefix = "")

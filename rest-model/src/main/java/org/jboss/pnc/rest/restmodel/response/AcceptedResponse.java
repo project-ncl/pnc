@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Builder
 @XmlRootElement
 @NoArgsConstructor
-@Setter(onMethod=@__({@Deprecated}))
+@Setter
 public class AcceptedResponse {
 
     /** Id of the started operation */

@@ -207,7 +207,7 @@
         </dependencies>
         <configuration>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
-          <fileNameMapping>no-version</fileNameMapping>
+          <outputFileNameMapping>@{artifactId}@.@{extension}@</outputFileNameMapping>
           <packagingExcludes>${excludeMessaging}</packagingExcludes>
           <modules>
             <jarModule>

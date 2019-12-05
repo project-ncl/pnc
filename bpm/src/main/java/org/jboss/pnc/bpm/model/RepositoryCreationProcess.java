@@ -38,8 +38,8 @@ import java.io.Serializable;
 @JsonDeserialize(builder = RepositoryCreationProcess.RepositoryCreationProcessRestBuilder.class)
 @AllArgsConstructor
 @Builder
-@NoArgsConstructor(onConstructor=@__({@Deprecated}))
-@Setter(onMethod=@__({@Deprecated}))
+@NoArgsConstructor
+@Setter
 public class RepositoryCreationProcess implements Serializable {
 
     @Getter

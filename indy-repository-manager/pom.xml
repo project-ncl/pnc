@@ -121,6 +121,12 @@
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-test-fixtures-core</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun</groupId>
+          <artifactId>tools</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
