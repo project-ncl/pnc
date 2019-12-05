@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
@@ -60,6 +61,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "progress", source = "status")
     @BeanMapping(ignoreUnmappedSourceProperties = {"buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
@@ -81,6 +83,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
 
     @Override
     @Mapping(target = "scmUrl", source = "scmRepoURL")
+    @Mapping(target = "progress", source = "status")
     @BeanMapping(ignoreUnmappedSourceProperties = {"scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
@@ -118,7 +121,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @Mapping(target = "buildRecordPushResults", ignore = true)
     @Mapping(target = "attributes", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"project", "scmRepository"})
+    @BeanMapping(ignoreUnmappedSourceProperties = {"project", "scmRepository", "progress"})
     BuildRecord toEntity(Build dtoEntity);
 
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
@@ -135,6 +138,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmRevision", ignore = true)
     @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "progress", source = "status")
     @BeanMapping(ignoreUnmappedSourceProperties = {
         "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions", "dependants",
         "dependencies"})
@@ -142,6 +146,10 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
 
     public static <T> T unwrap(Optional<T> optional) {
         return (optional != null && optional.isPresent()) ? optional.get() : null;
+    }
+
+    public static BuildProgress buildProgress(BuildStatus status) {
+        return status == null ? null : status.progress();
     }
 
     public static class StatusMapper {

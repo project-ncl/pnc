@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -54,6 +55,8 @@ public class BuildRef implements DTOEntity {
     protected final Instant startTime;
 
     protected final Instant endTime;
+
+    protected final BuildProgress progress;
 
     protected final BuildStatus status;
 
