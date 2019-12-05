@@ -317,6 +317,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
             buildQueue.addWaitingTask(buildTask, () -> updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED));
         }
+        ProcessStageUtils.logProcessStageBegin("Enqueued");
     }
 
     private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {

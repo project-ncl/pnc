@@ -21,9 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ProcessStageUtils {
 
     private static final Logger log = LoggerFactory.getLogger("org.jboss.pnc._userlog_.process-stage-update");
@@ -36,22 +33,32 @@ public class ProcessStageUtils {
      * Note that in the future this might be modified to send logs via Kafka
      *
      * @param processStage process stage name
+     * @param step
+     * @param message
      */
-    public static void logProcessStage(String processStage, Step step) {
+    private static void logProcessStage(String processStage, Step step, String message) {
 
         try (MDC.MDCCloseable a = MDC.putCloseable(MDC_PROCESS_STAGE_NAME, processStage);
              MDC.MDCCloseable b = MDC.putCloseable(MDC_PROCESS_STAGE_STEP, step.toString())) {
 
-            log.info("{}: {} ", step, processStage);
+            log.info("{}", message);
         }
     }
 
     public static void logProcessStageBegin(String processStage) {
-        logProcessStage(processStage, Step.BEGIN);
+        logProcessStage(processStage, Step.BEGIN, String.format("%s: %s ", Step.BEGIN.toString(), processStage));
+    }
+
+    public static void logProcessStageBegin(String processStage, String message) {
+        logProcessStage(processStage, Step.BEGIN, message);
     }
 
     public static void logProcessStageEnd(String processStage) {
-        logProcessStage(processStage, Step.END);
+        logProcessStage(processStage, Step.END, String.format("%s: %s ", Step.END.toString(), processStage));
+    }
+
+    public static void logProcessStageEnd(String processStage, String message) {
+        logProcessStage(processStage, Step.END, message);
     }
 
     public enum Step {
