@@ -178,7 +178,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                             }
                         }
                         return remoteInvocationCompletion;
-                    });
+                    }, executor);
 
             CompletableFuture<Object> buildFuture = CompletableFuture.anyOf(buildLivenessFuture, optionallyEnableDebug);
 
@@ -292,7 +292,10 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             }
 
             return new DefaultCompletedBuild(
-                    runningEnvironment, buildStatus, remoteInvocationCompletion.getOutputChecksum(), prependMessage + stringBuffer.toString());
+                    runningEnvironment,
+                    buildStatus,
+                    remoteInvocationCompletion.getOutputChecksum(),
+                    prependMessage + stringBuffer.toString());
         } catch (Throwable e) {
             throw new RuntimeException("Cannot collect results.", e);
         }
