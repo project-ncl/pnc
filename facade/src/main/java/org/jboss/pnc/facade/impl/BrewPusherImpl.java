@@ -85,16 +85,12 @@ public class BrewPusherImpl implements BrewPusher {
                 .map(String::valueOf)
                 .collect(Collectors.toSet());
 
-        try {
-            Set<Result> pushed = buildResultPushManager.push(
-                    buildRecordsIds,
-                    userService.currentUserToken(),
-                    getCompleteCallbackUrl(),
-                    tagPrefix,
-                    false);
-        } catch (ProcessException ex) {
-            throw new RuntimeException(ex);
-        }
+        Set<Result> pushed = buildResultPushManager.push(
+                buildRecordsIds,
+                userService.currentUserToken(),
+                getCompleteCallbackUrl(),
+                tagPrefix,
+                false);
     }
 
     @Override
