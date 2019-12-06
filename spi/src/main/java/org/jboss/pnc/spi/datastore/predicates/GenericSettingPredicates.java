@@ -15,16 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.repositories.internal;
+package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.HealthCheck;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.jboss.pnc.model.GenericSetting;
+import org.jboss.pnc.model.GenericSetting_;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
-import javax.enterprise.context.Dependent;
+/**
+ * Predicates for {@link org.jboss.pnc.model.GenericSetting} entity.
+ */
+public class GenericSettingPredicates {
 
-@Dependent
-public interface HealthCheckSpringRepository extends JpaRepository<HealthCheck, Integer>,
-        JpaSpecificationExecutor<HealthCheck> {
-
+    public static Predicate<GenericSetting> withKey(String key) {
+        return (root, query, cb) -> cb.equal(root.get(GenericSetting_.key), key);
+    }
 }

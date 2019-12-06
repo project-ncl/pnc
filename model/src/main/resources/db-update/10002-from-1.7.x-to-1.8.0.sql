@@ -16,9 +16,11 @@
 -- limitations under the License.
 --
 
-create sequence healthcheck_id_seq;
-create table HealthCheck (
-    id integer default nextval('healthcheck_id_seq') not null,
-    date timestamp with time zone
+-- NCL-4581: add health check
+create sequence generic_setting_id_seq;
+create table GenericSetting (
+    id integer default nextval('generic_setting_id_seq') not null,
+    key varchar(255) unique not null,
+    value text not null,
+    primary key (id)
 );
-

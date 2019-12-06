@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.model.HealthCheck;
+import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 /**
- * Interface for manipulating {@link org.jboss.pnc.model.HealthCheck} entity.
+ * Interface for manipulating {@link org.jboss.pnc.model.GenericSetting} entity.
  */
-public interface HealthCheckRepository extends Repository<HealthCheck, Integer> {
+public interface GenericSettingRepository extends Repository<GenericSetting, Integer> {
+
+    GenericSetting queryByKey(String key);
 }
