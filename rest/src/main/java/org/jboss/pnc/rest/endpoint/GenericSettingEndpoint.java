@@ -67,7 +67,7 @@ public class GenericSettingEndpoint {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
     })
     @POST
-    @Path("set-announcement-banner")
+    @Path("announcement-banner")
     public Response setAnnouncementBanner(BannerRest banner) {
         genericSettingProvider.setAnnouncementBanner(banner.getBanner());
         return Response.ok().build();
