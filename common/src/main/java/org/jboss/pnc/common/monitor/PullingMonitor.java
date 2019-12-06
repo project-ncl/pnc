@@ -112,15 +112,19 @@ public class PullingMonitor {
             try {
                 // Check if given condition is satisfied
                 if (condition.get()) {
+                    onMonitorComplete.run();
                     runningTasks.remove(runningTask);
                     runningTask.cancel();
-                    onMonitorComplete.run();
                 }
             } catch (Exception e) {
                 log.error("Exception in monitor runnable", e);
+                try {
+                    onMonitorError.accept(e);
+                } catch (Exception e1) {
+                    log.error("Error while notifying error.", e1);
+                }
                 runningTasks.remove(runningTask);
                 runningTask.cancel();
-                onMonitorError.accept(e);
             }
         };
         ScheduledFuture<?> future = executorService.scheduleWithFixedDelay(monitor, 0L, checkInterval, timeUnit);
