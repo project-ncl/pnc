@@ -45,6 +45,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.rest.provider.GenericSettingProvider;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -93,12 +94,19 @@ public class BuildTriggererImpl implements BuildTriggerer {
     @Inject
     private HibernateLazyInitializer hibernateLazyInitializer;
 
+    @Inject
+    GenericSettingProvider genericSettingProvider;
+
     @Override
     public int triggerBuild(
             final int buildConfigId,
             OptionalInt buildConfigurationRevision,
             BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new BuildConflictException("PNC is in maintenance mode");
+        }
 
         BuildSetTask result = doTriggerBuild(buildConfigId, buildConfigurationRevision, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigId);
@@ -108,6 +116,10 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public int triggerGroupBuild(int groupConfigId,
             Optional<GroupBuildRequest> revs,
             BuildOptions buildOptions) throws BuildConflictException, CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            throw new BuildConflictException("PNC is in maintenance mode");
+        }
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
         return result.getId();
