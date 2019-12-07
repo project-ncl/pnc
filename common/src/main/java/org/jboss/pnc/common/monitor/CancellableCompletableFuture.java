@@ -15,14 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jboss.pnc.common.monitor;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
+ * CompletableFuture with task cancellation support.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class MonitorException extends RuntimeException {
-    public MonitorException(String message) {
-        super(message);
+public class CancellableCompletableFuture<T> extends CompletableFuture<T> {
+
+    private final Runnable onCancel;
+
+    public CancellableCompletableFuture(Runnable onCancel) {
+        this.onCancel = onCancel;
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        onCancel.run();
+        return super.cancel(mayInterruptIfRunning);
     }
 }

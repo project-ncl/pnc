@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.net.URI;
 import java.util.Date;
 import java.util.Optional;
@@ -69,7 +68,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -146,9 +144,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
         DebugData debugData = new DebugData(buildExecutionConfiguration.isPodKeptOnFailure());
 
         CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
-                .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration, debugData), executor)
-                .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
-                .thenComposeAsync(runningBuild -> runTheBuild(buildExecutionSession), executor)
+                .thenComposeAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration, debugData), executor)
+                .thenComposeAsync(nul -> runTheBuild(buildExecutionSession), executor)
                 //no cancellation after this point
                 .thenApplyAsync(completedBuild -> {
                     buildExecutionSession.setCancelHook(null);
@@ -239,7 +236,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
     }
 
-    private StartedEnvironment setUpEnvironment(
+    private CompletableFuture<Void> setUpEnvironment(
             DefaultBuildExecutionSession buildExecutionSession,
             RepositorySession repositorySession,
             DebugData debugData) {
@@ -266,14 +263,15 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
             buildExecutionSession.setCancelHook(() -> startedEnv.cancel());
 
-            return startedEnv;
+            return waitForEnvironmentInitialization(buildExecutionSession, startedEnv);
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
     }
 
     private CompletableFuture<Void> waitForEnvironmentInitialization(
-            DefaultBuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment) {
+            DefaultBuildExecutionSession buildExecutionSession,
+            StartedEnvironment startedEnvironment) {
 
         CompletableFuture<Void> waitToCompleteFuture = new CompletableFuture<>();
 

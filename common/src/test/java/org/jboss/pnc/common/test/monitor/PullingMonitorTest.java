@@ -18,22 +18,28 @@
 
 package org.jboss.pnc.common.test.monitor;
 
+import org.jboss.pnc.common.monitor.CancellableCompletableFuture;
 import org.jboss.pnc.common.monitor.PullingMonitor;
-import org.jboss.pnc.common.util.ObjectWrapper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class PullingMonitorTest {
+
+    private static final Logger log = LoggerFactory.getLogger(PullingMonitorTest.class);
 
     static PullingMonitor pullingMonitor;
 
@@ -50,80 +56,88 @@ public class PullingMonitorTest {
 
     @Test
     public void monitorShouldNotifyWhenConditionIsSatisfied() throws InterruptedException {
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        ObjectWrapper<Boolean> notificationReceived = new ObjectWrapper<>(false);
-        Runnable onComplete = () -> {
-            notificationReceived.set(true);
-            latch.countDown();
-        };
-        Consumer<Exception> onError = (e) -> {
-            Assert.fail("Monitoring failed: " + e.getMessage());
-        };
-
-        ObjectWrapper<Integer> pulledWrapper = new ObjectWrapper<>(0);
+        AtomicInteger polled = new AtomicInteger(0);
         Supplier<Boolean> condition = () -> {
-            Integer pulled = pulledWrapper.get();
-            pulledWrapper.set(pulled + 1);
-            if (pulled > 1) {
+            log.info("Validating condition ...");
+            if (polled.incrementAndGet() > 1) {
+                log.info("Satisfied.");
                 return true;
             } else {
                 return false;
             }
         };
-        pullingMonitor.monitor(onComplete, onError, condition, 100, 500, TimeUnit.MILLISECONDS);
-
-        latch.await(1, TimeUnit.SECONDS);
-        Assert.assertTrue("Did not receive complete notification.", notificationReceived.get());
+        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        monitor.exceptionally(t -> {
+            Assert.fail("Monitoring failed: " + t.getMessage());
+            return null;
+        });
+        try {
+            monitor.get(1, TimeUnit.SECONDS);
+        } catch (ExecutionException | TimeoutException e) {
+            Assert.fail("Did not receive complete notification." + e.getMessage());
+        }
+        Assert.assertEquals(2, polled.get());
     }
 
     @Test
     public void monitorShouldTimeoutDueToUnsatisfiedCondition() throws InterruptedException {
-        ObjectWrapper<Integer> pulledWrapper = new ObjectWrapper<>(0);
+        CountDownLatch lock = new CountDownLatch(1);
+        AtomicInteger polled = new AtomicInteger(0);
         Supplier<Boolean> condition = () -> {
-            Integer pulled = pulledWrapper.get();
-            pulledWrapper.set(pulled + 1);
-            if (pulled > 8) {
-                return true;
-            } else {
-                return false;
-            }
+            log.info("Validating condition ...");
+            polled.incrementAndGet();
+            return false;
         };
-        failingMonitor(condition);
+        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        monitor.exceptionally(t -> {
+            log.info("Handling exception: " + t.getMessage());
+            lock.countDown();
+            return null;
+        });
+        lock.await(1, TimeUnit.SECONDS);
+        Assert.assertEquals(5, polled.get());
     }
 
     @Test
     public void monitorShouldTimeoutDueToUnresponsiveCondition() throws InterruptedException {
+        CountDownLatch lock = new CountDownLatch(1);
+        AtomicInteger polled = new AtomicInteger(0);
         Supplier<Boolean> condition = () -> {
+            log.info("Validating condition ...");
+            polled.incrementAndGet();
             try {
-                Thread.sleep(1000);
+                Thread.sleep(600);
             } catch (InterruptedException e) {
+                log.info(e.getMessage());
             }
             return true;
         };
-        failingMonitor(condition);
+        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        monitor.exceptionally(t -> {
+            log.info("Handling exception: " + t.getMessage());
+            lock.countDown();
+            return null;
+        });
+        lock.await(1, TimeUnit.SECONDS);
+        Assert.assertEquals(1, polled.get());
     }
 
-    private void failingMonitor(Supplier<Boolean> condition) throws InterruptedException {
-        PullingMonitor pullingMonitor = new PullingMonitor();
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        ObjectWrapper<Boolean> notificationReceived = new ObjectWrapper<>(false);
-        Runnable onComplete = () -> {
-            Assert.fail("Success should not be received.");
+    @Test
+    public void shouldCompleteExceptionally() throws InterruptedException {
+        CountDownLatch lock = new CountDownLatch(1);
+        Supplier<Boolean> condition = () -> {
+            log.info("Validating condition ...");
+            throw new RuntimeException("bam");
         };
-
-        Consumer<Exception> onError = (e) -> {
-            Assert.assertNotNull("Exception should be set.", e);
-            notificationReceived.set(true);
-            latch.countDown();
-        };
-
-        pullingMonitor.monitor(onComplete, onError, condition, 100, 500, TimeUnit.MILLISECONDS);
-
-        latch.await(1, TimeUnit.SECONDS);
-        Assert.assertTrue("Did not receive error notification.", notificationReceived.get());
+        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        monitor.exceptionally(t -> {
+            log.info("Handling exception: " + t.getMessage());
+            if (t.getMessage().equals("bam")) {
+                lock.countDown();
+            }
+            return null;
+        });
+        boolean await = lock.await(1, TimeUnit.SECONDS);
+        Assert.assertTrue("Did not received the exception.", await);
     }
 }

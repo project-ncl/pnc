@@ -18,14 +18,13 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -37,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,11 +149,6 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         coordinator.build(configurationA, user, buildOptions);
 
         //then
-        new PullingMonitor().monitor(() -> {},
-                e -> {Assert.fail("There should be 2 submitted tasks.");},
-                () -> coordinator.getSubmittedBuildTasks().size() == 2,
-                100, 500, TimeUnit.MILLISECONDS);
-//        Assert.assertEquals("There should be 2 submitted tasks.", 2, coordinator.getSubmittedBuildTasks().size());
         waitForEmptyBuildQueue();
         Assert.assertEquals("There should be 2 build records.", 2, buildRecordRepository.queryAll().size());
     }
