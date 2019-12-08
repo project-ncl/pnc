@@ -25,7 +25,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.pncmetrics.MetricsConfiguration;
@@ -62,7 +62,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     private OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig;
     private OpenshiftBuildAgentConfig openshiftBuildAgentConfig;
     private SystemConfig systemConfig;
-    private PullingMonitor pullingMonitor;
+    private PollingMonitor pollingMonitor;
     private MetricsConfiguration metricsConfig;
 
     @Deprecated //CDI workaround
@@ -71,7 +71,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     @Inject
     public OpenshiftEnvironmentDriver(
-            PullingMonitor pullingMonitor,
+            PollingMonitor pollingMonitor,
             SystemConfig systemConfig,
             OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig,
             OpenshiftBuildAgentConfig openshiftBuildAgentConfig,
@@ -79,7 +79,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         this.systemConfig = systemConfig;
 
         int executorThreadPoolSize = DEFAULT_EXECUTOR_THREAD_POOL_SIZE;
-        this.pullingMonitor = pullingMonitor;
+        this.pollingMonitor = pollingMonitor;
 
         this.openshiftEnvironmentDriverModuleConfig = openshiftEnvironmentDriverModuleConfig;
         this.openshiftBuildAgentConfig = openshiftBuildAgentConfig;
@@ -113,7 +113,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
                 executor,
                 openshiftBuildAgentConfig,
                 openshiftEnvironmentDriverModuleConfig,
-                pullingMonitor,
+                pollingMonitor,
                 repositorySession,
                 buildImageId,
                 debugData,

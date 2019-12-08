@@ -28,6 +28,11 @@ public class CancellableCompletableFuture<T> extends CompletableFuture<T> {
 
     private final Runnable onCancel;
 
+    /**
+     * OnCancel {@link Runnable} is invoked when the {@link CancellableCompletableFuture#cancel(boolean)} is called.
+     *
+     * @param onCancel
+     */
     public CancellableCompletableFuture(Runnable onCancel) {
         this.onCancel = onCancel;
     }

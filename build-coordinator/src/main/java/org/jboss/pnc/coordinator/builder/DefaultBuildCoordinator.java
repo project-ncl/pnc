@@ -23,7 +23,7 @@ import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -406,7 +406,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void monitorCancellation(BuildTask buildTask) {
         int cancellationTimeout = 30;
-        PullingMonitor monitor = new PullingMonitor();
+        PollingMonitor monitor = new PollingMonitor();
 
         Runnable invokeCancelInternal = () -> {
             if (!getSubmittedBuildTasks().contains(buildTask)) {

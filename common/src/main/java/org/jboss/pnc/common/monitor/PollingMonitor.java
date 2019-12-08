@@ -36,8 +36,8 @@ import java.util.function.Supplier;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @ApplicationScoped
-public class PullingMonitor {
-    private static final Logger log = LoggerFactory.getLogger(PullingMonitor.class);
+public class PollingMonitor {
+    private static final Logger log = LoggerFactory.getLogger(PollingMonitor.class);
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
     private static final int DEFAULT_TIMEOUT = 300;
@@ -59,7 +59,7 @@ public class PullingMonitor {
     private int timeout;
     private int checkInterval;
 
-    public PullingMonitor() {
+    public PollingMonitor() {
         ReadEnvProperty reader = new ReadEnvProperty();
 
         timeout = reader.getIntValueFromPropertyOrDefault(PULLING_MONITOR_TIMEOUT_KEY, DEFAULT_TIMEOUT);
