@@ -35,7 +35,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.CancellableCompletableFuture;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.environment.openshift.exceptions.PodFailedStartException;
@@ -109,7 +109,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private final RepositorySession repositorySession;
     private final OpenshiftBuildAgentConfig openshiftBuildAgentConfig;
     private final OpenshiftEnvironmentDriverModuleConfig environmentConfiguration;
-    private final PullingMonitor pullingMonitor;
+    private final PollingMonitor pollingMonitor;
     private final String imageId;
     private final DebugData debugData;
     private final Map<String, String> environmetVariables;
@@ -142,7 +142,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             ExecutorService executor,
             OpenshiftBuildAgentConfig openshiftBuildAgentConfig,
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
-            PullingMonitor pullingMonitor,
+            PollingMonitor pollingMonitor,
             RepositorySession repositorySession,
             String systemImageId,
             DebugData debugData,
@@ -167,7 +167,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         this.executor = executor;
         this.openshiftBuildAgentConfig = openshiftBuildAgentConfig;
         this.environmentConfiguration = environmentConfiguration;
-        this.pullingMonitor = pullingMonitor;
+        this.pollingMonitor = pollingMonitor;
         this.repositorySession = repositorySession;
         this.imageId = systemImageId == null ? environmentConfiguration.getImageId() : systemImageId;
         this.debugData = debugData;
@@ -367,7 +367,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      *   monitorInitialization:
      *       -> setup monitors, track them and return
      *
-     * -> pullingMonitor.monitor(<pod>) [in background]
+     * -> pollingMonitor.monitor(<pod>) [in background]
      *    -> Success: signal via executing onComplete consumer
      *                finish
      *    -> Failure: call retryPod consumer
@@ -406,7 +406,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(
                 nul -> {
-                    CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(() -> isPodRunning());
+                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isPodRunning());
                     addFuture(monitor);
                     return monitor;
                 }, executor
@@ -414,7 +414,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(
                 nul -> {
-                    CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(() -> isServiceRunning());
+                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isServiceRunning());
                     addFuture(monitor);
                     return monitor;
                 }, executor
@@ -424,7 +424,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         if (creatingRoute.isPresent()) {
             routeFuture = creatingRoute.get().thenComposeAsync(
                 nul -> {
-                    CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(() -> isRouteRunning());
+                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isRouteRunning());
                     addFuture(monitor);
                     return monitor;
                 }, executor
@@ -439,7 +439,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             return null;
         });
 
-        CancellableCompletableFuture<Void> isBuildAgentUpFuture = pullingMonitor.monitor(() -> isServletAvailable(buildAgentUrl));
+        CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor.monitor(() -> isServletAvailable(buildAgentUrl));
         addFuture(isBuildAgentUpFuture);
 
         CompletableFuture<RunningEnvironment> runningEnvironmentFuture = CompletableFuture.allOf(podFuture, serviceFuture, routeFuture)

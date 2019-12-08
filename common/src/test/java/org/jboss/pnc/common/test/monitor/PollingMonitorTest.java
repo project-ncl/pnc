@@ -19,7 +19,7 @@
 package org.jboss.pnc.common.test.monitor;
 
 import org.jboss.pnc.common.monitor.CancellableCompletableFuture;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -37,20 +37,20 @@ import java.util.function.Supplier;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class PullingMonitorTest {
+public class PollingMonitorTest {
 
-    private static final Logger log = LoggerFactory.getLogger(PullingMonitorTest.class);
+    private static final Logger log = LoggerFactory.getLogger(PollingMonitorTest.class);
 
-    static PullingMonitor pullingMonitor;
+    static PollingMonitor pollingMonitor;
 
     @BeforeClass
     public static void init() {
-        pullingMonitor = new PullingMonitor();
+        pollingMonitor = new PollingMonitor();
     }
 
     @AfterClass
     public static void destroy() {
-        pullingMonitor.destroy();
+        pollingMonitor.destroy();
     }
 
 
@@ -66,7 +66,7 @@ public class PullingMonitorTest {
                 return false;
             }
         };
-        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
         monitor.exceptionally(t -> {
             Assert.fail("Monitoring failed: " + t.getMessage());
             return null;
@@ -88,7 +88,7 @@ public class PullingMonitorTest {
             polled.incrementAndGet();
             return false;
         };
-        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
         monitor.exceptionally(t -> {
             log.info("Handling exception: " + t.getMessage());
             lock.countDown();
@@ -112,7 +112,7 @@ public class PullingMonitorTest {
             }
             return true;
         };
-        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
         monitor.exceptionally(t -> {
             log.info("Handling exception: " + t.getMessage());
             lock.countDown();
@@ -129,7 +129,7 @@ public class PullingMonitorTest {
             log.info("Validating condition ...");
             throw new RuntimeException("bam");
         };
-        CancellableCompletableFuture<Void> monitor = pullingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
+        CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(condition, 100, 500, TimeUnit.MILLISECONDS);
         monitor.exceptionally(t -> {
             log.info("Handling exception: " + t.getMessage());
             if (t.getMessage().equals("bam")) {

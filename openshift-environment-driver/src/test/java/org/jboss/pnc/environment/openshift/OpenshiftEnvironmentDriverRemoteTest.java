@@ -20,7 +20,7 @@ package org.jboss.pnc.environment.openshift;
 import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.builddriver.DebugData;
@@ -75,7 +75,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig = Mockito.mock(OpenshiftEnvironmentDriverModuleConfig.class);
 
         environmentDriver = new OpenshiftEnvironmentDriver(
-                new PullingMonitor(),
+                new PollingMonitor(),
                 systemConfig,
                 openshiftEnvironmentDriverModuleConfig,
                 null,
