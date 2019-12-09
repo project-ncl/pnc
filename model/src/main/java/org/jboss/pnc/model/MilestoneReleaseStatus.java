@@ -17,11 +17,20 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.Cacheable;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 8/30/16
  * Time: 1:16 PM
  */
+@Immutable
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public enum MilestoneReleaseStatus {
     IN_PROGRESS,
     FAILED,

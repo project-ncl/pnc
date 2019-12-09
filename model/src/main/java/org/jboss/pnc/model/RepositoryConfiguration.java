@@ -17,9 +17,12 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.UrlUtils;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -40,6 +43,8 @@ import java.util.Set;
  *
  * @author Jakub Bartecek
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repositoryconfiguration_externalurl", columnNames = {"externalurl"}),
         @UniqueConstraint(name = "uk_repositoryconfiguration_externalurlnormalized", columnNames = {"externalurlnormalized"}),
@@ -106,6 +111,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      */
     private boolean preBuildSyncEnabled = true;
 
+    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @OneToMany(mappedBy = "repositoryConfiguration")
     private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 

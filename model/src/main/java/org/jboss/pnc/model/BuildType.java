@@ -17,11 +17,20 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.Cacheable;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
+
 /**
  * BuildType is used to define pre-build operations and to set proper repository.
  *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Immutable
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public enum BuildType {
     MVN,
     GRADLE

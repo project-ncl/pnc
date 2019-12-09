@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.Email;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -39,6 +42,8 @@ import java.util.Set;
  *
  * @author avibelli
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(name = "UserTable", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
         @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
@@ -78,6 +83,7 @@ public class User implements GenericEntity<Integer> {
     @Size(max=50)
     private String username;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "user")
     private Set<BuildRecord> buildRecords;
 
