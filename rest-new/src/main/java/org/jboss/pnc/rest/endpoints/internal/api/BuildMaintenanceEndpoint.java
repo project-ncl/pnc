@@ -41,13 +41,14 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
  * @author pkocandr
  */
 @Tag(name = "Internal")
-@Path("/build-maintanance")
+@Path("/build-maintenance")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface BuildMaintananceEndpoint {
+public interface BuildMaintenanceEndpoint {
 
     @Operation(summary = "Gets repository manager result for a specific Build Record. It generates "
-            + "a successful result from tracking report even for builds that failed because of a system error.",
+            + "a successful result from tracking report even for builds that failed because of a system error "
+            + "with a sealed tracking record.",
             responses = {
                     @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
