@@ -819,12 +819,16 @@ public class IndyRepositorySession implements RepositorySession {
                 sb.append("\n");
             }
         }
-        if (validations != null) {
+        if ((validations != null) && (validations.getRuleSet() != null)) {
             sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
 
-            validations.getValidatorErrors().forEach((rule, error) -> {
-                sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
-            });
+            if (validations.getValidatorErrors().isEmpty()) {
+                sb.append("(no validation errors received)");
+            } else {
+                validations.getValidatorErrors().forEach((rule, error) -> {
+                    sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
+                });
+            }
         }
         if (sb.length() == 0) {
             sb.append("(no error message received)");
