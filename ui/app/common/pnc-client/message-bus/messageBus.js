@@ -15,84 +15,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @ts-check
+
+
+
 (function () {
   'use strict';
 
   angular.module('pnc.common.pnc-client.message-bus').factory('messageBus', [
-    '$websocket',
-    '$injector',
-    '$log',
-    function ($websocket, $injector, $log) {
+    'restConfig',
+    '$rootScope',
+    function (restConfig, $rootScope) {
 
-      var SUBSCRIBE_DATA_TEMPLATE = Object.freeze({
-        action: 'SUBSCRIBE'
+      const messageBus = new PncJsLibs.MessageBus(restConfig.getPncNotificationsUrl());
+
+      messageBus.onBuildStatusChange((build, notification) => {
+         let payload = {
+           id: parseInt(build.id),
+           buildCoordinationStatus: build.status,
+           userId: parseInt(build.user.id),
+           buildConfigurationId: parseInt(build.buildConfigRevision.id),
+           buildConfigurationName: build.buildConfigRevision.name,
+           buildStartTime: build.startTime,
+           buildEndTime: build.endTime
+         };
+
+         let eventType;
+
+         if (notification.progress === 'IN_PROGRESS') {
+           eventType = 'BUILD_STARTED';
+         } else if (notification.progress === 'FINISHED') {
+           eventType = 'BUILD_FINISHED';
+         }
+
+         $rootScope.$broadcast(eventType, payload);
+
+         $rootScope.$broadcast('BUILD_STATUS_CHANGED', {
+          id: payload.id,
+          status: payload.buildCoordinationStatus,
+          userId: payload.userId,
+          buildConfigurationId: payload.buildConfigurationId,
+          buildConfigurationName: payload.buildConfigurationName,
+          startTime: payload.buildStartTime,
+          endTime: payload.buildEndTime
+        });
+
       });
 
-      var UNSUBSCRIBE_DATA_TEMPLATE = Object.freeze({
-        action: 'UNSUBSCRIBE'
-      });
+      messageBus.onGroupBuildStatusChange((groupBuild, notification) => {
 
-      var listeners = [],
-          webSocket;
-
-      function connect(url) {
-        webSocket = $websocket(url, null, { reconnectIfNotNormalClose: true });
-
-        webSocket.onOpen(function () {
-          $log.info('Connected to PNC messageBus at: %s', webSocket.url);
-        });
-
-        webSocket.onClose(function () {
-          $log.info('Disconnected from PNC messageBus at: %s', webSocket.url);
-        });
-
-        webSocket.onError(function () {
-          $log.error('Connection error on PNC messageBus at: %s', webSocket.url);
-        });
-
-        webSocket.onMessage(function (message) {
-          var parsedMsg = JSON.parse(message.data);
-          listeners.forEach(function (listener) {
-            listener(parsedMsg);
-          });
-        });
-      }
-
-      function disconnect(force) {
-        webSocket.close(!!force);
-      }
-
-      function subscribe(params) {
-        webSocket.send({
-          messageType: 'PROCESS_UPDATES',
-          data: angular.merge({}, SUBSCRIBE_DATA_TEMPLATE, params)
-        });
-
-        // Returns a function to unsubscribe for convenience.
-        return function () {
-          unsubscribe(params);
+        let payload = {
+          id: parseInt(groupBuild.id),
+          buildStatus: groupBuild.status,
+          userId: parseInt(groupBuild.user.id),
+          buildSetConfigurationId: parseInt(groupBuild.groupConfig.id),
+          buildSetConfigurationName: groupBuild.groupConfig.name,
+          startTime: groupBuild.startTime,
+          endTime: groupBuild.endTime
         };
-      }
 
-      function unsubscribe(params) {
-        webSocket.send({
-          messageType: 'PROCESS_UPDATES',
-          data: angular.merge({}, UNSUBSCRIBE_DATA_TEMPLATE, params)
+        let eventType;
+
+        if (notification.progress === 'IN_PROGRESS') {
+          eventType = 'BUILD_SET_STARTED';
+        } else if (notification.progress === 'FINISHED') {
+          eventType = 'BUILD_SET_FINISHED';
+        }
+
+        $rootScope.$broadcast(eventType, payload);
+
+        $rootScope.$broadcast('BUILD_SET_STATUS_CHANGED', {
+          id: payload.id,
+          status: payload.buildStatus,
+          userId: payload.userId,
+          buildConfigurationSetId: payload.buildSetConfigurationId,
+          buildConfigurationSetName: payload.buildSetConfigurationName,
+          startTime: payload.buildSetStartTime,
+          endTime: payload.buildSetEndTime
         });
-      }
+      });
 
-      function registerListener(listener) {
-        listeners.push(angular.isString(listener) ?
-            $injector.get(listener) :  $injector.invoke(listener));
-      }
-
-      return {
-        connect: connect,
-        disconnect: disconnect,
-        subscribe: subscribe,
-        unsubscribe: unsubscribe,
-        registerListener: registerListener
-      };
+      return messageBus;
     }
   ]);
 
