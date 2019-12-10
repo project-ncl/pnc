@@ -22,6 +22,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Set;
+
 import javax.enterprise.context.Dependent;
 
 @Dependent
@@ -37,4 +39,10 @@ public interface BuildRecordSpringRepository
             + "left join fetch br.user "
             + "where br.id = ?1")
     BuildRecord findByIdFetchProperties(Integer id);
+
+    @Query("SELECT DISTINCT br.id, br.buildConfigurationId, br.buildConfigurationRev FROM BuildRecord br "
+            + "JOIN br.builtArtifacts builtArtifacts "
+            + "WHERE builtArtifacts.id IN (?1)")
+    Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesIds);
+
 }

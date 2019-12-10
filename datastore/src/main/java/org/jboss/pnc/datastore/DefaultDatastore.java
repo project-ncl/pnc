@@ -54,7 +54,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
-import static org.jboss.pnc.common.util.StreamCollectors.toFlatList;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
@@ -464,10 +463,13 @@ public class DefaultDatastore implements Datastore {
      * @return BuildRecords that produced captured dependencies artifacts
      */
     private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record) {
-        return ofNullableCollection(record.getDependencies())
+
+        Set<Integer> dependenciesId = ofNullableCollection(record.getDependencies())
                 .stream()
-                .map(Artifact::getBuildRecords)
-                .collect(toFlatList());
+                .map(Artifact::getId)
+                .collect(Collectors.toSet());
+
+        return dependenciesId.isEmpty() ? Collections.emptyList() : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
     }
 
 }

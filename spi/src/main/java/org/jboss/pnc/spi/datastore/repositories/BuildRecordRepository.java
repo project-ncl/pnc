@@ -28,6 +28,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.
@@ -74,4 +75,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId);
 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
+
+    Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId);
 }

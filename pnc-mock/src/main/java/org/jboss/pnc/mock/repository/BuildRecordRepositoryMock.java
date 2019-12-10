@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
@@ -26,11 +27,16 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -113,5 +119,20 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     @Override
     public List<BuildRecord> queryAll() {
         return super.queryAll();
+    }
+
+    @Override
+    public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesId) {
+        return data.stream()
+                .filter(buildRecord -> {
+                    Set<Integer> builtArtifactsId =
+                    ofNullableCollection(buildRecord.getBuiltArtifacts())
+                    .stream()
+                    .map(Artifact::getId)
+                    .collect(Collectors.toSet());
+
+                    // Get the build records which have any built artifact ids corresponding to a list of dependencies
+                    return !Collections.disjoint(dependenciesId, builtArtifactsId);
+                }).collect(Collectors.toSet());
     }
 }
