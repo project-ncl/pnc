@@ -105,14 +105,18 @@ public class BuildRecordPredicates {
      * @param temporary if requested build is temporary
      * @return Predicate that filters out builds according to description
      */
-    public static Predicate<BuildRecord> includeTemporary(boolean temporary) {
+    public static Predicate<BuildRecord> includeTemporary(IdRev idRev, boolean temporary) {
         return (root, query, cb) -> {
             if (temporary) {
-                //Create subquery that counts number of temporary builds
+                //Create subquery that counts number of temporary builds for the same BuildConfigurationAudited.idRev
                 Subquery<Long> temporaryCount = query.subquery(Long.class);
                 Root<BuildRecord> subRoot = temporaryCount.from(BuildRecord.class);
                 temporaryCount.select(cb.count(subRoot.get(BuildRecord_.id)));
-                temporaryCount.where(cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)));
+                temporaryCount.where(
+                        cb.and(cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)),
+                                cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                                cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())
+                                ));
 
                 // only false if build is persistent and there are temporaryBuilds present
                 return cb.or(cb.isTrue(root.get(BuildRecord_.temporaryBuild)), cb.lessThanOrEqualTo(temporaryCount, 0L));

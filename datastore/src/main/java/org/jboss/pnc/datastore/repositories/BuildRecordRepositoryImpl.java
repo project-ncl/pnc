@@ -158,7 +158,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
                 sortInfo,
                 withBuildConfigurationIdRev(idRev),
                 withSuccess(),
-                includeTemporary(temporaryBuild));
+                includeTemporary(idRev, temporaryBuild));
 
         if (buildRecords.size() == 0) {
             return null;
