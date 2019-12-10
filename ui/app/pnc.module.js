@@ -52,7 +52,7 @@
       $httpProvider, NotificationsProvider, cfpLoadingBarProvider, $animateProvider) {
 
     $locationProvider.html5Mode(false);
-    $locationProvider.hashPrefix('');  // remove a '!' prefix to restore the original behavior 
+    $locationProvider.hashPrefix('');  // remove a '!' prefix to restore the original behavior
 
     // Allows dashboard to be root state.
     $urlRouterProvider.when('', '/');
@@ -113,7 +113,7 @@
 
       // representing PNC REST API version 2+
       restConfigProvider.setPncRestUrl(pncProperties.pncRestUrl);
-      
+
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
       restConfigProvider.setDaUrl(pncProperties.daUrl);
 
@@ -146,13 +146,7 @@
         });
       });
 
-      messageBus.registerListener(['$log', function ($log) {
-        return function (message) {
-          $log.debug('MessageBus received: %O', message);
-        };
-      }]);
-
-      messageBus.connect(restConfig.getPncNotificationsUrl());
+      messageBus.connect();
   }]);
 
 })();

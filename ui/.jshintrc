@@ -23,6 +23,7 @@
     "Keycloak": false,
     "pnc": false,
     "_": false,
-    "jsonpatch": false
+    "jsonpatch": false,
+    "PncJsLibs": false
   }
 }

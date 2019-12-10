@@ -18,8 +18,19 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client.message-bus', [
-    'angular-websocket'
-  ]);
+  angular
+      .module('pnc.common.events')
+      .constant('events', Object.freeze({
 
+        BUILD_PENDING: ' BUILD_PENDING',
+        BUILD_IN_PROGRESS: 'BUILD_IN_PROGRESS',
+        BUILD_FINISHED: 'BUILD_FINISHED',
+        BUILD_STATUS_CHANGED: 'BUILD_STATUS_CHANGED',
+
+        GROUP_BUILD_PENDING: 'GROUP_BUILD_PENDING',
+        GROUP_BUILD_IN_PROGRESS: 'GROUP_BUILD_IN_PROGRESS',
+        GROUP_BUILD_FINISHED: 'GROUP_BUILD_FINISHED',
+        GROUP_BUILD_STATUS_CHANGED: 'GROUP_BUILD_STATUS_CHANGED'
+
+      }));
 })();

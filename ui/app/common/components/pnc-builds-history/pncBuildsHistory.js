@@ -17,7 +17,7 @@
  */
 (function () {
     'use strict';
-  
+
     /**
      * The component representing builds history for given Build Configuration or Build Set Configuration
      */
@@ -35,12 +35,12 @@
       templateUrl: 'common/components/pnc-builds-history/pnc-builds-history.html',
       controller: ['eventTypes', '$scope', 'BuildRecord', 'BuildConfigurationSet', 'paginator', Controller]
     });
-  
+
     function Controller(eventTypes, $scope, BuildRecord, BuildConfigurationSet, paginator) {
       var $ctrl = this;
 
       function loadBuildsHistory() {
-        ($ctrl.buildGroup ? BuildConfigurationSet.queryBuildConfigSetRecords({ 
+        ($ctrl.buildGroup ? BuildConfigurationSet.queryBuildConfigSetRecords({
           id: $ctrl.buildGroup.id,
           pageSize: 10
         }) : BuildRecord.getByConfiguration({ // it will be refactored when working on BuildConfigResource (NCL-4198)
@@ -52,7 +52,8 @@
       }
 
       function processEvent(event, payload) {
-        if (($ctrl.buildGroup  && payload.buildSetConfigurationId === $ctrl.buildGroup.id ) || 
+        console.log(' yoyoyo event: %O, payload: %O', event, payload);
+        if (($ctrl.buildGroup  && payload.buildSetConfigurationId === $ctrl.buildGroup.id ) ||
             ($ctrl.buildConfig && payload.buildConfigurationId    === $ctrl.buildConfig.id)) {
           $ctrl.page.refresh();
         }
@@ -60,7 +61,7 @@
 
       $ctrl.$onInit = function() {
         loadBuildsHistory();
-  
+
         if ($ctrl.buildGroup) {
           $scope.$on(eventTypes.BUILD_SET_STARTED, processEvent);
           $scope.$on(eventTypes.BUILD_SET_FINISHED, processEvent);
