@@ -96,13 +96,17 @@ public class BuildRecordPredicates {
     }
 
     /**
-     * see NCL-5192
+     * (related to NCL-5192, NCL-5351)
      *
-     * If building a temporary build and there are temporary builds already presents, ignore persistent ones.
+     * When (re)building a temporary build:
+     * - if there are existing temporary builds having the same idRev, ignore persistent builds
+     * - if there are no existing temporary builds having the same idRev, consider also persistent builds
      *
-     * If building a persistent build, ignore temporary builds.
+     * When (re)building a persistent build:
+     * - consider only existing persistent builds having the same idRev
      *
-     * @param temporary if requested build is temporary
+     * @param idRev the revision of the build to (re)build
+     * @param temporary if requested (re)build is temporary
      * @return Predicate that filters out builds according to description
      */
     public static Predicate<BuildRecord> includeTemporary(IdRev idRev, boolean temporary) {
