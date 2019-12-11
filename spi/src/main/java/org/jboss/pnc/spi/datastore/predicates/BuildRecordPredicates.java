@@ -100,10 +100,10 @@ public class BuildRecordPredicates {
      *
      * When (re)building a temporary build:
      * - if there are existing temporary builds having the same idRev, ignore persistent builds
-     * - if there are no existing temporary builds having the same idRev, consider also persistent builds
+     * - if there are no existing temporary builds having the same idRev, include also persistent builds having the same idRev
      *
      * When (re)building a persistent build:
-     * - consider only existing persistent builds having the same idRev
+     * - include only existing persistent builds having the same idRev
      *
      * @param idRev the revision of the build to (re)build
      * @param temporary if requested (re)build is temporary
