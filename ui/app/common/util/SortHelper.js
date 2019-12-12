@@ -32,8 +32,6 @@
 
     var helper = {};
 
-    const DEFAULT_CONFIG = defaultSortConfig['projectList'];
-
     /**
      * The helper that read specific sort configuration from localStorage according to the page name that passed in(the
      * first parameter). If there is no such config in the local storage, it will use the default config (the second
@@ -44,7 +42,7 @@
     helper.getSortConfigFromLocalStorage = function (pageName) {
       const STORAGE_KEY = pageName + 'SortingConfig';
       let sortConfigJson = window.localStorage.getItem(STORAGE_KEY);
-      return sortConfigJson ? JSON.parse(sortConfigJson) : DEFAULT_CONFIG;
+      return sortConfigJson ? JSON.parse(sortConfigJson) : defaultSortConfig[pageName];
     };
 
     /**
