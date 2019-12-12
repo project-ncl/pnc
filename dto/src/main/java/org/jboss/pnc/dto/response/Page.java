@@ -60,4 +60,12 @@ public class Page<T> {
     public Page() {
         content = Collections.emptyList();
     }
+
+    public Page(int pageIndex, int pageSize, int totalHits, Collection<T> content) {
+        this.pageIndex = pageIndex;
+        this.pageSize = pageSize;
+        this.totalPages = (int) Math.ceil((double) totalHits / pageSize);
+        this.totalHits = totalHits;
+        this.content = content;
+    }
 }

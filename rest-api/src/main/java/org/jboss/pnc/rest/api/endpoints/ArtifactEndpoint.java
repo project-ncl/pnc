@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
@@ -46,8 +47,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jboss.pnc.dto.Build;
-import static org.jboss.pnc.rest.api.endpoints.GroupBuildEndpoint.GB_ID;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -163,4 +163,18 @@ public interface ArtifactEndpoint {
     Page<Build> getDependantBuilds(
             @Parameter(description = A_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
+
+    @Operation(summary = "Gets the milestones that produced or consumed this artifact.",
+            responses = {
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = SwaggerPages.MilestoneInfoPage.class))),
+                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GET
+    @Path("/{id}/milestones")
+    Page<MilestoneInfo> getMilestonesInfo(
+            @Parameter(description = A_ID) @PathParam("id") String id,
+            @BeanParam PaginationParameters pageParams);
 }
