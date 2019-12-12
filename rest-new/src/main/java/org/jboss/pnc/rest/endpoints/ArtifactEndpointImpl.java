@@ -31,8 +31,11 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Optional;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
+import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 @Stateless
@@ -47,6 +50,9 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     @Inject
     private BuildProvider buildProvider;
+
+    @Inject
+    private ProductMilestoneProvider productMilestoneProvider;
 
     @PostConstruct
     public void init() {
@@ -97,5 +103,10 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
                 pageParams.getSort(),
                 pageParams.getQ(),
                 id);
+    }
+
+    @Override
+    public Page<MilestoneInfo> getMilestonesInfo(String id, PaginationParameters pageParams){
+        return productMilestoneProvider.getMilestonesOfArtifact(id, pageParams.getPageIndex(), pageParams.getPageSize());
     }
 }

@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.Page;
@@ -37,7 +44,27 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.SetJoin;
+import javax.persistence.metamodel.SetAttribute;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecord_;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductRelease_;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductVersion_;
+import org.jboss.pnc.model.Product_;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
@@ -54,6 +81,9 @@ public class ProductMilestoneProviderImpl
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private EntityManager em;
 
     @Inject
     public ProductMilestoneProviderImpl(ProductMilestoneRepository repository,
@@ -183,5 +213,97 @@ public class ProductMilestoneProviderImpl
                                                                         String productVersionId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
+    }
+
+    @Override
+    public Page<MilestoneInfo> getMilestonesOfArtifact(String id, int pageIndex, int pageSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        List<Integer> builtIn = getMilestoneIds(cb, id, Artifact_.buildRecords);
+        List<Integer> dependencyOf = getMilestoneIds(cb, id, Artifact_.dependantBuildRecords);
+
+        Set<Integer> milestoneIds = new HashSet<>(dependencyOf);
+        milestoneIds.addAll(builtIn);
+        milestoneIds.remove(null); // some builds are not in a milestone and so it gives us null
+        if(milestoneIds.isEmpty()){
+            return new Page<>();
+        }
+
+        CriteriaQuery<Tuple> query = milestoneInfoQuery(cb, milestoneIds);
+        int offset = pageIndex * pageSize;
+        List<MilestoneInfo> milestones = em.createQuery(query)
+                .setMaxResults(pageSize)
+                .setFirstResult(offset)
+                .getResultList()
+                .stream()
+                .map(m -> mapTupleToMilestoneInfo(m, builtIn))
+                .collect(Collectors.toList());
+
+        return new Page<>(pageIndex,
+                pageSize,
+                milestoneIds.size(),
+                milestones);
+    }
+
+    private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<org.jboss.pnc.model.ProductMilestone> milestone = query.from(org.jboss.pnc.model.ProductMilestone.class);
+        Root<ProductRelease> release = query.from(ProductRelease.class);
+        Path<ProductVersion> version = milestone.get(ProductMilestone_.productVersion);
+        Path<Product> product = version.get(ProductVersion_.product);
+        query.multiselect(
+                product.get(Product_.id),
+                product.get(Product_.name),
+                version.get(ProductVersion_.id),
+                version.get(ProductVersion_.version),
+                milestone.get(ProductMilestone_.id),
+                milestone.get(ProductMilestone_.version),
+                milestone.get(ProductMilestone_.endDate),
+                release.get(ProductRelease_.id),
+                release.get(ProductRelease_.version),
+                release.get(ProductRelease_.releaseDate));
+        query.where(cb.and(
+                cb.equal(release.get(ProductRelease_.productMilestone), milestone)),
+                milestone.get(ProductMilestone_.id).in(milestoneIds));
+        query.orderBy(cb.desc(milestone.get(ProductMilestone_.endDate)),
+                cb.desc(milestone.get(ProductMilestone_.id)));
+        return query;
+    }
+
+    private MilestoneInfo mapTupleToMilestoneInfo(Tuple tuple, List<Integer> buildIn) {
+        final Integer milestoneId = (Integer) tuple.get(4);
+        return MilestoneInfo.builder()
+                .productId(tuple.get(0).toString())
+                .productName(tuple.get(1).toString())
+                .productVersionId(tuple.get(2).toString())
+                .productVersionVersion(tuple.get(3).toString())
+                .milestoneId(milestoneId.toString())
+                .milestoneVersion(tuple.get(5).toString())
+                .milestoneEndDate(toInstant(tuple.get(6)))
+                .releaseId(tuple.get(7).toString())
+                .releaseVersion(tuple.get(8).toString())
+                .releaseReleaseDate(toInstant(tuple.get(9)))
+                .built(buildIn.contains(milestoneId))
+                .build();
+    }
+
+    private static Instant toInstant(Object object) {
+        if(object== null)
+            return null;
+        return ((Date) object).toInstant();
+    }
+
+    private List<Integer> getMilestoneIds(CriteriaBuilder cb, String id, SetAttribute<Artifact, BuildRecord> buildRecords) {
+        CriteriaQuery<Integer> buildQuery = cb.createQuery(Integer.class);
+
+        Root<Artifact> artifact = buildQuery.from(Artifact.class);
+        SetJoin<Artifact, BuildRecord> build = artifact.join(buildRecords);
+        buildQuery.where(cb.equal(artifact.get(Artifact_.id), Integer.valueOf(id)));
+        buildQuery.select(build.get(BuildRecord_.productMilestone).get(ProductMilestone_.id));
+        buildQuery.distinct(true);
+
+        List<Integer> resultList = em.createQuery(buildQuery).getResultList();
+        return resultList;
     }
 }

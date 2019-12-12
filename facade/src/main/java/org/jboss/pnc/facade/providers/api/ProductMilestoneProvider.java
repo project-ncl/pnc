@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
@@ -35,4 +36,7 @@ public interface ProductMilestoneProvider extends Provider<Integer, org.jboss.pn
                                                                  String sortingRsql,
                                                                  String query,
                                                                  String productVersionId);
+
+
+    Page<MilestoneInfo> getMilestonesOfArtifact(String id, int pageIndex, int pageSize);
 }

@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration_new.endpoint;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ObjectAssert;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -27,6 +28,7 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.integration_new.setup.Deployments;
@@ -261,5 +263,21 @@ public class ArtifactEndpointTest {
 
         assertThat(builds)
                 .hasSize(2);
+    }
+
+    @Test
+    public void shouldGetMilestonesInfo() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<MilestoneInfo> milestonesInfo = client.getMilestonesInfo(artifactRest3.getId());
+        assertThat(milestonesInfo).hasSize(1)
+                .first().extracting(MilestoneInfo::isBuilt).isEqualTo(false);
+
+        RemoteCollection<MilestoneInfo> milestonesInfo2 = client.getMilestonesInfo(artifactRest1.getId());
+        ObjectAssert<MilestoneInfo> milestone = assertThat(milestonesInfo2).hasSize(1)
+                .first();
+        milestone.extracting(MilestoneInfo::isBuilt).isEqualTo(true);
+        milestone.extracting(MilestoneInfo::getProductName).isEqualTo("Project Newcastle Demo Product");
+        milestone.extracting(MilestoneInfo::getMilestoneVersion).isEqualTo("1.0.0.Build1");
     }
 }
