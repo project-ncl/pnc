@@ -42,18 +42,12 @@
         }
       });
 
-      var getSortFromLocalStorage = function () {
-        const DEFAULT_FILED = 'name';
-        const DEFAULT_ASC = 'asc';
-
-        var sortingConfigJson = window.localStorage.getItem('projectListSortingConfig');
-        var sortingConfig = sortingConfigJson ? JSON.parse(sortingConfigJson) : null;
-        var asc = sortingConfig ? sortingConfig.asc ? 'asc' : 'desc' : DEFAULT_ASC;
-        var field = sortingConfig ? sortingConfig.field.id : DEFAULT_FILED;
+      function getSortFromLocalStorage(sortHelper) {
+        let sortConfig = sortHelper.getSortConfigFromLocalStorage("projectList");
         return {
-          sort: '=' + asc + '=' + field
+          sort: '=' + (sortConfig.asc ? 'asc' : 'desc') + '=' + sortConfig.field.id
         };
-      };
+      }
 
       $stateProvider.state('projects.list', {
         url: '',
@@ -63,7 +57,7 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['ProjectResource', (ProjectResource) => ProjectResource.query(getSortFromLocalStorage()).$promise]
+          projects: ['ProjectResource', 'SortHelper', (ProjectResource, helper) => ProjectResource.query(getSortFromLocalStorage(helper)).$promise]
         }
       });
 

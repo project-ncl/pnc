@@ -26,16 +26,13 @@
       projects: '<'
     },
     templateUrl: 'projects/list/pnc-projects-list-page.html',
-    controller: ['filteringPaginator', Controller]
+    controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator,sortHelper) {
     const $ctrl = this;
 
-    const DEFAULT_SORTING_CONFIG = {
-      'field': { 'id': 'name', 'title': 'Name' },
-      'asc': true
-    };
+    //Page level default configuration especially for current component.
     const PAGE_NAME = 'projectList';
 
     // -- Controller API --
@@ -59,21 +56,16 @@
       title: 'Description'
     }];
 
-    var sortingConfigJson = window.localStorage.getItem('projectListSortingConfig');
-    $ctrl.projectsSortingConfigs = sortingConfigJson ? JSON.parse(sortingConfigJson) : DEFAULT_SORTING_CONFIG;
 
     // --------------------
 
     $ctrl.$onInit = () => {
       $ctrl.projectsFilteringPage = filteringPaginator($ctrl.projects);
 
+      $ctrl.projectsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+
       $ctrl.projectsFilteringPage.addSortChangeListener(currentSortConfig => {
-        var storageKey = PAGE_NAME + 'SortingConfig';
-        if (currentSortConfig) {
-          window.localStorage.setItem(storageKey, JSON.stringify(currentSortConfig));
-        } else {
-          window.localStorage.setItem(storageKey, DEFAULT_SORTING_CONFIG);
-        }
+        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
       });
     };
 
