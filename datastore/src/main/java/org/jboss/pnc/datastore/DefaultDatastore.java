@@ -465,30 +465,11 @@ public class DefaultDatastore implements Datastore {
     private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record) {
 
         Set<Integer> dependenciesId = ofNullableCollection(record.getDependencies())
-                .stream().
-                peek (res -> {
-                    logger.info("#1 DependenciesId found for {}: {}", record, res.getId());
-                })
-                .map(Artifact::getId).
-                peek (res -> {
-                    logger.info("#1 ArtifactId found: {}", res);
-                })
+                .stream()
+                .map(Artifact::getId)
                 .collect(Collectors.toSet());
 
-        Collection<BuildRecord> oldRes = ofNullableCollection(record.getDependencies())
-        .stream().peek (res -> {
-                    logger.info("#2 Dependencies found for {}: {}", record, res.getId());
-                })
-        .map(Artifact::getBuildRecords)
-        .peek (res -> {
-            logger.info("#2 BuildRecords found: {}", res);
-        })
-        .collect(org.jboss.pnc.common.util.StreamCollectors.toFlatList());
-
-        logger.info("#2 Total BuildRecords found: {}", oldRes);
-
-        logger.info("#2 Finding built artifacts for dependencies: {}", dependenciesId);
-
+        logger.debug("Finding built artifacts for dependencies: {}", dependenciesId);
         return dependenciesId.isEmpty() ? Collections.emptyList() : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
     }
 
