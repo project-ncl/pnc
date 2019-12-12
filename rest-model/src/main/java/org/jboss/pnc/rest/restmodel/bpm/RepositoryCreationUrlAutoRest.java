@@ -40,7 +40,7 @@ import java.io.Serializable;
 @JsonDeserialize(builder = RepositoryCreationUrlAutoRest.RepositoryCreationUrlAutoRestBuilder.class)
 @AllArgsConstructor
 @Builder
-@NoArgsConstructor(onConstructor=@__({@Deprecated}))
+@NoArgsConstructor
 @Setter
 public class RepositoryCreationUrlAutoRest implements Serializable {
 
