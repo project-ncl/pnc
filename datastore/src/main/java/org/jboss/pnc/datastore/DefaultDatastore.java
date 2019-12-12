@@ -477,7 +477,7 @@ public class DefaultDatastore implements Datastore {
 
         Collection<BuildRecord> oldRes = ofNullableCollection(record.getDependencies())
         .stream().peek (res -> {
-                    logger.info("#2 Dependencies found for {}: {}", record, res);
+                    logger.info("#2 Dependencies found for {}: {}", record, res.getId());
                 })
         .map(Artifact::getBuildRecords)
         .peek (res -> {

@@ -52,6 +52,9 @@ public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
         // when
         insertNewBuildRecords(b);
 
+        makeResult(b).dependOn(c);
+        makeResult(a).dependOn(b, c);
+
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
         build(a, buildOptions);
@@ -63,6 +66,9 @@ public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
     public void shouldNotBuildAOnModifiedC() throws TimeoutException, InterruptedException {
         // when
         insertNewBuildRecords(c);
+
+        makeResult(b).dependOn(c);
+        makeResult(a).dependOn(b, c);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
@@ -76,6 +82,9 @@ public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
         // when
         insertNewBuildRecords(c);
 
+        makeResult(b).dependOn(c);
+        makeResult(a).dependOn(b, c);
+
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(false);
         buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
@@ -88,6 +97,9 @@ public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
     public void shouldBuildABCOnForceAWithDependencies() throws TimeoutException, InterruptedException {
         // when
         insertNewBuildRecords(d,b,a);
+
+        makeResult(b).dependOn(c);
+        makeResult(a).dependOn(b, c);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(true);
