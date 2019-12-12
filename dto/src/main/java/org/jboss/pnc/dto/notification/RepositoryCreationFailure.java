@@ -20,9 +20,11 @@ package org.jboss.pnc.dto.notification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
 import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 /**
  * Notification about failure in SCM Repository or Build Config creation. This notification is used
@@ -57,7 +59,7 @@ public class RepositoryCreationFailure extends Notification {
     public RepositoryCreationFailure(@JsonProperty("job") JobNotificationType job,
             @JsonProperty("notificationType") String notificationType,
             @JsonProperty("data") Object data) {
-        super(job, notificationType, FINISHED);
+        super(job, notificationType, FINISHED, IN_PROGRESS);
         this.data = data;
     }
 }

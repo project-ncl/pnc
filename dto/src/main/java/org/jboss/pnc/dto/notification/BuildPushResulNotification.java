@@ -29,6 +29,8 @@ import static org.jboss.pnc.enums.JobNotificationType.BREW_PUSH;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+
 /**
  * Notification about Brew Push.
  *   
@@ -53,7 +55,7 @@ public class BuildPushResulNotification extends Notification {
 
     @JsonCreator
     public BuildPushResulNotification(@JsonProperty("buildPushResult") BuildPushResult buildPushResult) {
-        super(BREW_PUSH, BREW_PUSH_RESULT, FINISHED);
+        super(BREW_PUSH, BREW_PUSH_RESULT, FINISHED, IN_PROGRESS);
         this.buildPushResult = buildPushResult;
     }
 }

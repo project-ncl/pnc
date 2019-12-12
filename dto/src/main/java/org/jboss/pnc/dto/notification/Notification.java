@@ -44,21 +44,30 @@ public abstract class Notification {
     private final JobNotificationProgress progress;
 
     /**
+     * Progress of the asynchonous job.
+     */
+    private final JobNotificationProgress oldProgress;
+
+    /**
      * Optional notification message.
      */
     private final String message;
 
-    protected Notification(JobNotificationType job, String notificationType, JobNotificationProgress progress, String message) {
+    protected Notification(JobNotificationType job, String notificationType,
+            JobNotificationProgress progress, JobNotificationProgress oldProgress, String message) {
         this.job = job;
         this.notificationType = notificationType;
         this.progress = progress;
+        this.oldProgress = oldProgress;
         this.message = message;
     }
 
-    protected Notification(JobNotificationType job, String notificationType, JobNotificationProgress progress) {
+    protected Notification(JobNotificationType job, String notificationType,
+            JobNotificationProgress progress, JobNotificationProgress oldProgress) {
         this.job = job;
         this.notificationType = notificationType;
         this.progress = progress;
+        this.oldProgress = oldProgress;
         this.message = null;
     }
 }
