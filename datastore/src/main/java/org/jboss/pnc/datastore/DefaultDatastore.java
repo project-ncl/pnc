@@ -467,7 +467,7 @@ public class DefaultDatastore implements Datastore {
         Set<Integer> dependenciesId = ofNullableCollection(record.getDependencies())
                 .stream().
                 peek (res -> {
-                    logger.info("#1 Dependencies found for {}: {}", record, res);
+                    logger.info("#1 DependenciesId found for {}: {}", record, res.getId());
                 })
                 .map(Artifact::getId).
                 peek (res -> {
