@@ -791,6 +791,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             try {
                 BuildTask task = buildQueue.take();
                 MDCUtils.addContext(getMDCMeta(task));
+                task.getRequestContext().ifPresent(c -> MDCUtils.addRequestContext(c));
                 processBuildTask(task);
                 log.info("Build task: " + task + ", will pick up next task");
             } catch (InterruptedException e) {

@@ -141,7 +141,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "progress", source = "status")
     @BeanMapping(ignoreUnmappedSourceProperties = {
         "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions", "dependants",
-        "dependencies"})
+        "dependencies", "requestContext"})
     Build fromBuildTask(BuildTask buildTask);
 
     public static <T> T unwrap(Optional<T> optional) {

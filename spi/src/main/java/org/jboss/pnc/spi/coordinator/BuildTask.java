@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -76,15 +77,21 @@ public class BuildTask {
     //called when all dependencies are built
     private final Integer buildConfigSetRecordId;
 
+    /**
+     * Request that started the builds
+     */
+    private Optional<String> requestContext;
+
     private BuildTask(BuildConfigurationAudited buildConfigurationAudited,
-                      BuildOptions buildOptions,
-                      User user,
-                      Date submitTime,
-                      BuildSetTask buildSetTask,
-                      int id,
-                      Integer buildConfigSetRecordId,
-                      ProductMilestone productMilestone,
-                      String contentId) {
+            BuildOptions buildOptions,
+            User user,
+            Date submitTime,
+            BuildSetTask buildSetTask,
+            int id,
+            Integer buildConfigSetRecordId,
+            ProductMilestone productMilestone,
+            String contentId,
+            Optional<String> requestContext) {
 
         this.id = id;
         this.buildConfigurationAudited = buildConfigurationAudited;
@@ -97,6 +104,7 @@ public class BuildTask {
         this.productMilestone = productMilestone;
         this.contentId = contentId;
 
+        this.requestContext = requestContext;
     }
 
     public void setStatus(BuildCoordinationStatus status) {
@@ -187,6 +195,10 @@ public class BuildTask {
         }
     }
 
+    public Optional<String> getRequestContext() {
+        return requestContext;
+    }
+
     /**
      * A build task is equal to another build task if they are using the same
      * build configuration ID and version.
@@ -273,12 +285,13 @@ public class BuildTask {
     }
 
     public static BuildTask build(BuildConfigurationAudited buildConfigurationAudited,
-                                  BuildOptions buildOptions, User user,
-                                  int buildTaskId,
-                                  BuildSetTask buildSetTask,
-                                  Date submitTime,
-                                  ProductMilestone productMilestone,
-                                  String contentId) {
+            BuildOptions buildOptions, User user,
+            int buildTaskId,
+            BuildSetTask buildSetTask,
+            Date submitTime,
+            ProductMilestone productMilestone,
+            String contentId,
+            Optional<String> requestContext) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null) {
@@ -302,7 +315,8 @@ public class BuildTask {
                 buildTaskId,
                 buildConfigSetRecordId,
                 milestone,
-                contentId);
+                contentId,
+                requestContext);
     }
 
 

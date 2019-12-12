@@ -331,7 +331,8 @@ public class DefaultBuildCoordinatorTest {
                 null,
                 new Date(),
                 null,
-                "context-id"
+                "context-id",
+                Optional.empty()
         );
 
         buildTask.setStatus(BuildCoordinationStatus.DONE);

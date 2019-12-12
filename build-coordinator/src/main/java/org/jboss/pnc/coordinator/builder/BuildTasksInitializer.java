@@ -280,6 +280,7 @@ public class BuildTasksInitializer {
                                 user.getId().toString()
                         );
 
+                Optional<String> requestContext = MDCUtils.getRequestContext();
                 buildTask = BuildTask.build(
                         buildConfigAudited,
                         buildSetTask.getBuildOptions(),
@@ -288,7 +289,8 @@ public class BuildTasksInitializer {
                         buildSetTask,
                         buildSetTask.getStartTime(),
                         productMilestone,
-                        buildContentId);
+                        buildContentId,
+                        requestContext);
                 log.debug("Created new buildTask {} for BuildConfigurationAudited {}.", buildTask, buildConfigAudited);
             }
 
