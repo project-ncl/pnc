@@ -43,7 +43,7 @@
       });
 
       function getSortFromLocalStorage(sortHelper) {
-        let sortConfig = sortHelper.getSortConfigFromLocalStorage("projectList");
+        let sortConfig = sortHelper.getSortConfigFromLocalStorage('projectList');
         return {
           sort: '=' + (sortConfig.asc ? 'asc' : 'desc') + '=' + sortConfig.field.id
         };
