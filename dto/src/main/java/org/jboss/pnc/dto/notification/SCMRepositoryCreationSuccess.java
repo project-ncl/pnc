@@ -25,17 +25,19 @@ import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
-import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
+import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 
 /**
  * Notification about created SCM Repository.
  *   
  * <pre>
- * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION}
+ * Job: {@link JobNotificationType#SCM_REPOSITORY_CREATION}
  * Notification type: {@code SCMR_CREATION_SUCCESS}
  * Progress:{@link JobNotificationProgress#FINISHED}
  * Message: no
@@ -56,7 +58,7 @@ public class SCMRepositoryCreationSuccess extends Notification {
 
     @JsonCreator
     public SCMRepositoryCreationSuccess(@JsonProperty("scmRepository") SCMRepository scmRepository) {
-        super(BUILD_CONFIG_CREATION, BC_CREATION_SUCCESS, FINISHED);
+        super(SCM_REPOSITORY_CREATION, BC_CREATION_SUCCESS, FINISHED, IN_PROGRESS);
         this.scmRepository = scmRepository;
     }
 }

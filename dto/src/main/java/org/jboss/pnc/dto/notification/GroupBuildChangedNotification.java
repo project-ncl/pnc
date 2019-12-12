@@ -20,6 +20,7 @@ package org.jboss.pnc.dto.notification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
@@ -57,7 +58,7 @@ public class GroupBuildChangedNotification extends Notification {
 
     @JsonCreator
     public GroupBuildChangedNotification(@JsonProperty("groupBuild") GroupBuild groupBuild) {
-        super(GROUP_BUILD, GROUP_BUILD_STATUS_CHANGED, getProgress(groupBuild.getStatus()));
+        super(GROUP_BUILD, GROUP_BUILD_STATUS_CHANGED, getProgress(groupBuild.getStatus()), getPreviousProgress(groupBuild.getStatus()));
         this.groupBuild = groupBuild;
     }
 
@@ -70,4 +71,15 @@ public class GroupBuildChangedNotification extends Notification {
             return IN_PROGRESS;
         }
     }
+
+    public static JobNotificationProgress getPreviousProgress(BuildStatus status) {
+        if (BuildStatus.NEW.equals(status)) {
+            return null;
+        } else if (status.isFinal()) {
+            return IN_PROGRESS;
+        } else {
+            return PENDING;
+        }
+    }
+
 }

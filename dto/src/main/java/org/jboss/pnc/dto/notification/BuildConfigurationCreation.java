@@ -29,6 +29,8 @@ import static org.jboss.pnc.enums.JobNotificationType.BUILD_CONFIG_CREATION;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
+
 /**
  * Notification about created Build Config.
  *   
@@ -60,7 +62,7 @@ public class BuildConfigurationCreation extends Notification {
     private final BuildConfigurationRef buildConfig;
 
     private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig) {
-        super(BUILD_CONFIG_CREATION, BC_CREATION_SUCCESS, FINISHED);
+        super(BUILD_CONFIG_CREATION, BC_CREATION_SUCCESS, FINISHED, IN_PROGRESS);
         this.scmRepository = scmRepository;
         this.buildConfig = buildConfig;
     }
@@ -69,7 +71,7 @@ public class BuildConfigurationCreation extends Notification {
     private BuildConfigurationCreation(@JsonProperty("scmRepository") SCMRepository scmRepository,
             @JsonProperty("buildConfig") BuildConfigurationRef buildConfig,
             @JsonProperty("message") String message) {
-        super(BUILD_CONFIG_CREATION, BC_CREATION_ERROR, FINISHED, message);
+        super(BUILD_CONFIG_CREATION, BC_CREATION_ERROR, FINISHED, IN_PROGRESS, message);
         this.scmRepository = scmRepository;
         this.buildConfig = buildConfig;
     }

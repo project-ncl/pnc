@@ -67,12 +67,15 @@ public class BuildChangedNotification extends Notification {
 
     @JsonCreator
     public BuildChangedNotification(@JsonProperty("oldStatus") BuildStatus oldStatus, @JsonProperty("build") Build build) {
-        super(BUILD, BUILD_STATUS_CHANGED, getProgress(build.getStatus()));
+        super(BUILD, BUILD_STATUS_CHANGED, getProgress(build.getStatus()), getProgress(oldStatus));
         this.oldStatus = oldStatus;
         this.build = build;
     }
 
     public static JobNotificationProgress getProgress(BuildStatus status) {
+        if(status == null){
+            return null;
+        }
         if (status == WAITING_FOR_DEPENDENCIES || status == NEW) {
             return PENDING;
         }
