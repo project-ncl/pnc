@@ -34,6 +34,7 @@ import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
@@ -83,6 +84,9 @@ public class BuildTaskEndpoint {
     @Inject
     SystemConfig systemConfig;
 
+    @Inject
+    UserProvider userProvider;
+
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
 
     @Deprecated
@@ -93,7 +97,8 @@ public class BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
             @PathParam("taskId") Integer buildId,
-            @FormParam("buildResult") BuildResultRest buildResult) throws CoreException, InvalidEntityException {
+            @FormParam("buildResult") BuildResultRest buildResult,
+            @Context HttpServletRequest request) throws CoreException, InvalidEntityException {
 
 //TODO set MDC from request headers instead of business data
 //        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
@@ -105,6 +110,9 @@ public class BuildTaskEndpoint {
 //        }
 //        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporaryBuildExpireDate());
         logger.info("Received build task completed notification for id {}.", buildId);
+
+        AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
         ValidationBuilder.validateObject(buildResult, WhenCreatingNew.class)
                 .validateAnnotations();
@@ -126,7 +134,8 @@ public class BuildTaskEndpoint {
             MDCUtils.addBuildContext(
                     buildTask.getContentId(),
                     temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
+                    userProvider.getByUsername(loginInUser.getUserName()).toString()
             );
             if (buildTask.getStatus().isCompleted()) {
                 logger.warn("Task with id: {} is already completed with status: {}", buildTask.getId(), buildTask.getStatus());
@@ -165,7 +174,8 @@ public class BuildTaskEndpoint {
             MDCUtils.addBuildContext(
                     buildExecutionConfiguration.getBuildContentId(),
                     temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
+                    userProvider.getByUsername(usernameTriggered).getId().toString()
             );
 
             logger.info("Build execution requested.");

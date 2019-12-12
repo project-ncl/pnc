@@ -33,6 +33,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.facade.executor.BuildExecutorTriggerer;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
 import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
@@ -73,6 +74,9 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     @Inject
     SystemConfig systemConfig;
 
+    @Inject
+    UserService userService;
+
     @Override
     public Response buildTaskCompleted(int buildId, BuildResultRest buildResult) throws InvalidEntityException {
 
@@ -86,6 +90,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 //        }
 //        MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(), buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporaryBuildExpireDate());
         logger.info("Received build task completed notification for id {}.", buildId);
+
 
         ValidationBuilder.validateObject(buildResult, WhenCreatingNew.class)
                 .validateAnnotations();
@@ -107,7 +112,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             MDCUtils.addBuildContext(
                     buildTask.getContentId(),
                     temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
+                    userService.currentUser().getId().toString()
             );
             if (buildTask.getStatus().isCompleted()) {
                 logger.warn("Task with id: {} is already completed with status: {}", buildTask.getId(), buildTask.getStatus());
@@ -126,23 +132,23 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     @Override
     public Response build(BuildExecutionConfigurationRest buildExecutionConfiguration, String usernameTriggered, String callbackUrl) {
-
         try {
-
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
+
+            AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
+            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
             boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
             MDCUtils.addBuildContext(
                     buildExecutionConfiguration.getBuildContentId(),
                     temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
+                    userService.currentUser().getId().toString()
             );
 
             logger.info("Build execution requested.");
             logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
 
-            AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
-            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
             BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
                     buildExecutionConfiguration.toBuildExecutionConfiguration(),
@@ -170,9 +176,12 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                      buildExecutionConfigurationId,
                      request.getRemoteAddr());
 
+        AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
+        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
+
         try {
 
-            Optional<BuildTaskContext> mdcMeta = buildExecutorTriggerer.getMdcMeta(buildExecutionConfigurationId);
+            Optional<BuildTaskContext> mdcMeta = buildExecutorTriggerer.getMdcMeta(buildExecutionConfigurationId, loginInUser.getUserName());
 
             if (mdcMeta.isPresent()) {
                 MDCUtils.addContext(mdcMeta.get());

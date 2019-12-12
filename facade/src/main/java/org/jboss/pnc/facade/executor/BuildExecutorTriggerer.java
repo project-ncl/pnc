@@ -170,7 +170,7 @@ public class BuildExecutorTriggerer {
         buildExecutor.cancel(buildExecutionConfigId);
     }
 
-    public Optional<BuildTaskContext> getMdcMeta(Integer buildExecutionConfigId) {
+    public Optional<BuildTaskContext> getMdcMeta(Integer buildExecutionConfigId, String userId) {
 
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildExecutionConfigId);
 
@@ -181,6 +181,7 @@ public class BuildExecutorTriggerer {
 
             return Optional.of(new BuildTaskContext(
                     buildExecutionConfiguration.getBuildContentId(),
+                    userId,
                     temporaryBuild,
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
             ));
