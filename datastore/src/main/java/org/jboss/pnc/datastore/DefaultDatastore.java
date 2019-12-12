@@ -469,6 +469,8 @@ public class DefaultDatastore implements Datastore {
                 .map(Artifact::getId)
                 .collect(Collectors.toSet());
 
+        logger.debug("Finding built artifacts for dependencies: {}", dependenciesId);
+
         return dependenciesId.isEmpty() ? Collections.emptyList() : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
     }
 

@@ -26,6 +26,8 @@ import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,6 +46,9 @@ import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
  * Time: 12:04 PM
  */
 public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
+
+    public static final Logger log = LoggerFactory.getLogger(BuildRecordRepositoryMock.class);
+
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
         return queryById(id);
@@ -122,7 +127,10 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     }
 
     @Override
-    public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesId) {
+    public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId) {
+
+        log.info("Looking for BuildRecords which built artifacts {}", artifactsId);
+
         return data.stream()
                 .filter(buildRecord -> {
                     Set<Integer> builtArtifactsId =
@@ -131,8 +139,10 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
                     .map(Artifact::getId)
                     .collect(Collectors.toSet());
 
+                    log.info("BuildRecord {} built artifacts {}", buildRecord, builtArtifactsId);
+
                     // Get the build records which have any built artifact ids corresponding to a list of dependencies
-                    return !Collections.disjoint(dependenciesId, builtArtifactsId);
+                    return !Collections.disjoint(artifactsId, builtArtifactsId);
                 }).collect(Collectors.toSet());
     }
 }

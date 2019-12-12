@@ -401,8 +401,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             BuildConfiguration nextConfig = configsToCheck.get(0);
             for (BuildConfiguration nextDep : nextConfig.getDependencies()) {
                 if (!indirectDependencies.contains(nextDep)) {
+                    // Do not add an indirect dependency multiple times
                     indirectDependencies.add(nextDep);
-                    configsToCheck.add(nextDep);
+                    // Do not check a config multiple times
+                    if (!configsToCheck.contains(nextDep)) {
+                        configsToCheck.add(nextDep);
+                    }
                 }
             }
             configsToCheck.remove(nextConfig);
