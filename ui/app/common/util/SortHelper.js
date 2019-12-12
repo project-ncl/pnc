@@ -27,7 +27,7 @@
     //Todo: use regular expression to validate every Json object that stores in Local Storage, if not match just drop it
 
     const defaultSortConfig = {
-      projectList: { field: { id: "name", title: "Name" }, asc: true }
+      projectList: { field: { id: 'name', title: 'Name' }, asc: true }
     };
 
     var helper = {};
@@ -56,7 +56,7 @@
       if (currentSortConfig) {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSortConfig));
       }
-    }
+    };
 
     return helper;
   });
