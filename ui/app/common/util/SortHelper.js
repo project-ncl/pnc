@@ -32,26 +32,24 @@
 
     var helper = {};
 
-    //Global level default sort configuration in case page does not pass any default config
     const DEFAULT_CONFIG = defaultSortConfig['projectList'];
 
     /**
      * The helper that read specific sort configuration from localStorage according to the page name that passed in(the
      * first parameter). If there is no such config in the local storage, it will use the default config (the second
-     * parameter) passed in, or use Global level default config if both of them are empty.\
+     * parameter) passed in.
      * @pageName: The name of the sorting page;
-     * @defaultSortConfig: Default sort config object if not found in localStorage;
      * returns: An object of sort config that should be used for current page
      */
-    helper.getSortConfigFromLocalStorage = function (pageName, defaultSortConfig) {
+    helper.getSortConfigFromLocalStorage = function (pageName) {
       const STORAGE_KEY = pageName + 'SortingConfig';
       let sortConfigJson = window.localStorage.getItem(STORAGE_KEY);
-      return sortConfigJson ? JSON.parse(sortConfigJson) : defaultSortConfig ? defaultSortConfig : DEFAULT_CONFIG;
+      return sortConfigJson ? JSON.parse(sortConfigJson) : DEFAULT_CONFIG;
     };
 
     /**
      * The helper that set specific sort configuration to localStorage according to the page name that passed in(the
-     * first parameter). If no currentSortConfig passed in then use global level default config.
+     * first parameter).
      * @pageName: The name of the sorting page;
      * @currentSortConfig: The current sort config to be saved into local storage.
      */
@@ -59,8 +57,6 @@
       const STORAGE_KEY = pageName + 'SortingConfig';
       if (currentSortConfig) {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSortConfig));
-      } else {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CONFIG));
       }
     }
 
