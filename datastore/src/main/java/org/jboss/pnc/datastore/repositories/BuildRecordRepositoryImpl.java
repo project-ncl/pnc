@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
@@ -165,6 +166,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         } else {
             return buildRecords.get(0);
         }
+    }
+
+    @Override
+    public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId) {
+        return repository.findByBuiltArtifacts(artifactsId);
     }
 
 }
