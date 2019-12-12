@@ -274,7 +274,11 @@ public class BuildTasksInitializer {
                 MDCUtils.addBuildContext(
                         buildContentId,
                         buildOptions.isTemporaryBuild(),
-                        ExpiresDate.getTemporaryBuildExpireDate(temporaryBuildLifespanDays, buildOptions.isTemporaryBuild()));
+                        ExpiresDate.getTemporaryBuildExpireDate(
+                                temporaryBuildLifespanDays,
+                                buildOptions.isTemporaryBuild()),
+                                user.getId().toString()
+                        );
 
                 buildTask = BuildTask.build(
                         buildConfigAudited,

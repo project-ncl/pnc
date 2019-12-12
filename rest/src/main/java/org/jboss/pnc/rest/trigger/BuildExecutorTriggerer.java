@@ -174,6 +174,7 @@ public class BuildExecutorTriggerer {
             boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
             return Optional.of(new BuildTaskContext(
                     buildExecutionConfiguration.getBuildContentId(),
+                    buildExecutionConfiguration.getUserId(),
                     temporaryBuild,
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
             ));

@@ -31,6 +31,8 @@ public class BuildTaskContext {
 
     private final String buildContentId;
 
+    private final String userId;
+
     private final boolean temporaryBuild;
 
     private final Instant temporaryBuildExpireDate;

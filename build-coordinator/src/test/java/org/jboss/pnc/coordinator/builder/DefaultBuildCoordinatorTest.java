@@ -18,9 +18,13 @@
 package org.jboss.pnc.coordinator.builder;
 
 import org.apache.commons.lang3.RandomStringUtils;
-
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
@@ -30,14 +34,10 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -47,13 +47,12 @@ import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -71,9 +70,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.jboss.pnc.mapper.api.GroupBuildMapper;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -157,6 +153,9 @@ public class DefaultBuildCoordinatorTest {
         when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class))).thenReturn(true);
         when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class))).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
+
+        USER.setId(1);
+
         coordinator = new DefaultBuildCoordinator(
                 datastoreAdapter,
                 buildStatusChangedEventNotifier,

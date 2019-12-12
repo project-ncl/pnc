@@ -44,13 +44,18 @@ public class MDCUtils {
         addBuildContext(
                 buildTaskContext.getBuildContentId(),
                 buildTaskContext.isTemporaryBuild(),
-                buildTaskContext.getTemporaryBuildExpireDate()
+                buildTaskContext.getTemporaryBuildExpireDate(),
+                buildTaskContext.getUserId()
         );
     }
 
-    public static void addBuildContext(String processContext, Boolean temporaryBuild, Instant temporaryBuildExpireDate) {
+    public static void addBuildContext(String processContext,
+            Boolean temporaryBuild,
+            Instant temporaryBuildExpireDate,
+            String userId) {
         Map<String, String> context = getContextMap();
         addProcessContext(processContext, context);
+        context.put(USER_ID_KEY, userId);
         context.put(TMP_KEY, temporaryBuild.toString());
         context.put(EXP_KEY, temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);

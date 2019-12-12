@@ -30,6 +30,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
 
+import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
+
 @Stateless
 public class UserProvider extends AbstractProvider<User, UserRest> {
 
@@ -64,5 +66,10 @@ public class UserProvider extends AbstractProvider<User, UserRest> {
         if(repository.count(UserPredicates.withUserName(restEntity.getUsername())) != 0) {
             throw new IllegalArgumentException("Username already in use by another user");
         }
+    }
+
+    public UserRest getByUsername(String username) {
+        User user = repository.queryByPredicates(withUserName(username));
+        return new UserRest(user);
     }
 }
