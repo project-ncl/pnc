@@ -101,8 +101,8 @@
   <properties>
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
-<!--    <maven.compiler.source>1.8</maven.compiler.source>-->
-<!--    <maven.compiler.target>1.8</maven.compiler.target>-->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <maven.min.version>3.2</maven.min.version>
     <version.javax.enterprise>2.0.SP1</version.javax.enterprise>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
@@ -110,7 +110,7 @@
     <atlasVersion>1.1.0</atlasVersion>
     <indyVersion>1.9.2</indyVersion>
     <version.assertj-core>3.13.2</version.assertj-core>
-    <version.mockito>2.8.47</version.mockito>
+    <version.mockito>3.2.0</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.guava>25.0-jre</version.guava>
     <version.org.apache.httpcomponents.httpclient>4.5.2</version.org.apache.httpcomponents.httpclient>
@@ -857,6 +857,11 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>1.10.3</version> <!-- force version provided by mockito to override hibernate version -->
+      </dependency>
+      <dependency>
         <groupId>com.googlecode.catch-exception</groupId>
         <artifactId>catch-exception</artifactId>
         <version>${version.catch-exception}</version>
@@ -1362,6 +1367,10 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
+<!--TODO works only with J11 -->
+<!--      <configuration>-->
+<!--            <release>8</release>-->
+<!--          </configuration>-->
         </plugin>
 
       </plugins>
