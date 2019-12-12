@@ -32,7 +32,6 @@
   function Controller(filteringPaginator,sortHelper) {
     const $ctrl = this;
 
-    //Page level default configuration especially for current component.
     const PAGE_NAME = 'projectList';
 
     // -- Controller API --
