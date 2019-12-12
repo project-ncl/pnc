@@ -148,7 +148,7 @@ public class BuildEndpointTest {
         buildConfigurationAudited.setIdRev(idRev);
         when(buildConfigurationAuditedRepository.queryById(idRev)).thenReturn(buildConfigurationAudited);
 
-        buildTasks.add( BuildTask.build(buildConfigurationAudited, buildOptions, user, buildId, buildSetTask, null, null, "context-id"));
+        buildTasks.add( BuildTask.build(buildConfigurationAudited, buildOptions, user, buildId, buildSetTask, null, null, "context-id", Optional.empty()));
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(buildTasks);
 
         // when
