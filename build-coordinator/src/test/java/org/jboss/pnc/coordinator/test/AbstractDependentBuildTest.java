@@ -102,6 +102,7 @@ public abstract class AbstractDependentBuildTest {
     protected static final AtomicInteger configIdSequence = new AtomicInteger(0);
     protected static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
     protected static final AtomicInteger buildRecordIdSequence = new AtomicInteger(0);
+    protected static final AtomicInteger artifactsIdSequence = new AtomicInteger(0);
 
     protected List<BuildTask> builtTasks;
 
@@ -398,6 +399,7 @@ public abstract class AbstractDependentBuildTest {
                     .map(this::mockArtifactBuiltWith)
                     .collect(Collectors.toSet());
             record.setDependencies(artifacts);
+            artifacts.stream().forEach(artifact -> artifact.addDependantBuildRecord(record));
         }
 
         private Artifact mockArtifactBuiltWith(BuildConfiguration config) {
@@ -405,9 +407,13 @@ public abstract class AbstractDependentBuildTest {
 
             Set<BuildRecord> records = new HashSet<>();
             records.add(record);
-            return  Artifact.Builder.newBuilder()
+
+            Artifact artifact = Artifact.Builder.newBuilder()
+                    .id(artifactsIdSequence.incrementAndGet())
                     .buildRecords(records)
                     .build();
+            record.addBuiltArtifact(artifact);
+            return artifact;
         }
     }
 }
