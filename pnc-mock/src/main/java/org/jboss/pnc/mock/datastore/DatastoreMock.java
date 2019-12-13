@@ -150,7 +150,7 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public boolean requiresRebuild(BuildTask task) {
+    public boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache) {
         return true;
     }
 
@@ -161,7 +161,7 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies,
-            boolean temporaryBuild) {
+            boolean temporaryBuild, Set<Integer> processedDependenciesCache) {
         return true;
     }
 

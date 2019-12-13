@@ -98,6 +98,8 @@ public class BuildTasksInitializer {
 
         toBuild.add(buildConfigurationAudited);
         if (buildOptions.isBuildDependencies()) {
+
+            Set<Integer> processedDependenciesCache = new HashSet<Integer>();
             buildConfigurationAudited.getBuildConfiguration().getDependencies().forEach(dependencyConfiguration ->
                     collectDependentConfigurations(
                             dependencyConfiguration,
@@ -106,7 +108,8 @@ public class BuildTasksInitializer {
                             visited,
                             buildOptions.isImplicitDependenciesCheck(),
                             buildOptions.isForceRebuild(),
-                            buildOptions.isTemporaryBuild()));
+                            buildOptions.isTemporaryBuild(),
+                            processedDependenciesCache));
         }
     }
 
@@ -117,7 +120,10 @@ public class BuildTasksInitializer {
      * @param buildConfigurationAudited Specific revision of a BuildConfiguration (passed as first parameter) to be potentially built
      * @param toBuild Set of BuildConfigurationAudited entities planned to be built
      * @param visited Set of BuildConfigurations, which were already evaluated, if should be built
-     * @param checkImplicitDependencies
+     * @param checkImplicitDependencies if implicit check of dependencies needs to be done
+     * @param forceRebuild if force build is required
+     * @param temporaryBuild if build is temporary
+     * @param processedDependenciesCache list containing any dependency which was already processed in previous iterations
      * @return Returns true, if the buildConfiguration should be rebuilt, otherwise returns false.
      */
     private boolean collectDependentConfigurations(BuildConfiguration buildConfiguration,
@@ -126,13 +132,14 @@ public class BuildTasksInitializer {
             Set<BuildConfiguration> visited,
             boolean checkImplicitDependencies,
             boolean forceRebuild,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache) {
         if (visited.contains(buildConfiguration)) {
             return toBuild.contains(buildConfigurationAudited);
         }
         visited.add(buildConfiguration);
 
-        boolean requiresRebuild = forceRebuild || datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild);
+        boolean requiresRebuild = forceRebuild || datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild, processedDependenciesCache);
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
             boolean dependencyRequiresRebuild = collectDependentConfigurations(dependency,
                     datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()),
@@ -140,7 +147,8 @@ public class BuildTasksInitializer {
                     visited,
                     checkImplicitDependencies,
                     forceRebuild,
-                    temporaryBuild);
+                    temporaryBuild,
+                    processedDependenciesCache);
 
             requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
 
