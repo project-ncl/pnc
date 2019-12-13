@@ -196,7 +196,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     @GET
     @Path("/{buildRecordPushResultId}")
     public Response get(
-            @PathParam("buildRecordId") Integer buildRecordPushResultId
+            @PathParam("buildRecordPushResultId") Integer buildRecordPushResultId
     ) throws RestValidationException, ProcessException {
         return getSpecific(buildRecordPushResultId);
     }
