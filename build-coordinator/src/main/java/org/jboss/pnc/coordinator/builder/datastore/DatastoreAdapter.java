@@ -350,14 +350,16 @@ public class DatastoreAdapter {
 
     public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
-            boolean temporaryBuild) {
-        return datastore.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild);
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache) {
+        return datastore.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild, processedDependenciesCache);
     }
 
-    public boolean requiresRebuild(BuildTask task) {
+    public boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache) {
         return datastore.requiresRebuild(task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
-                task.getBuildOptions().isTemporaryBuild());
+                task.getBuildOptions().isTemporaryBuild(),
+                processedDependenciesCache);
     }
 
     public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {

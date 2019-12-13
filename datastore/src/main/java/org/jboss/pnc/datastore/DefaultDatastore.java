@@ -350,7 +350,8 @@ public class DefaultDatastore implements Datastore {
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache) {
         IdRev idRev = buildConfigurationAudited.getIdRev();
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
@@ -362,7 +363,7 @@ public class DefaultDatastore implements Datastore {
         }
         if (checkImplicitDependencies) {
             logger.debug("Checking if BCA: {} has implicit dependencies that need rebuild", idRev);
-            boolean rebuild = hasARebuiltImplicitDependency(latestSuccessfulBuildRecord, temporaryBuild);
+            boolean rebuild = hasARebuiltImplicitDependency(latestSuccessfulBuildRecord, temporaryBuild, processedDependenciesCache);
             logger.debug("Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.", idRev, rebuild);
             if (rebuild) {
                 return rebuild;
@@ -378,10 +379,11 @@ public class DefaultDatastore implements Datastore {
     @Deprecated
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public boolean requiresRebuild(BuildTask task) {
+    public boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache) {
         return requiresRebuild(task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
-                task.getBuildOptions().isTemporaryBuild());
+                task.getBuildOptions().isTemporaryBuild(),
+                processedDependenciesCache);
     }
 
     /**
@@ -404,9 +406,10 @@ public class DefaultDatastore implements Datastore {
     /**
      * Check is some of the dependencies from the previous build were rebuild.
      * Checking is done based on captured dependencies which are stored in the Build Record.
+     * Dependencies which have already been processed and are contained in the provided cache processedDependenciesCache (if any), are not processed again
      */
-    private boolean hasARebuiltImplicitDependency(BuildRecord latestSuccessfulBuildRecord, boolean temporaryBuild) {
-        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(latestSuccessfulBuildRecord);
+    private boolean hasARebuiltImplicitDependency(BuildRecord latestSuccessfulBuildRecord, boolean temporaryBuild, Set<Integer> processedDependenciesCache) {
+        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(latestSuccessfulBuildRecord, processedDependenciesCache);
         return lastBuiltFrom.stream()
                 .anyMatch(br -> {
                     if(hasNewerVersion(br, temporaryBuild)) {
@@ -448,11 +451,24 @@ public class DefaultDatastore implements Datastore {
     /**
      * @return BuildRecords that produced captured dependencies artifacts
      */
-    private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record) {
+    private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record, Set<Integer> processedDependenciesCache) {
         Set<Integer> dependenciesId = ofNullableCollection(record.getDependencies())
                 .stream()
                 .map(Artifact::getId)
                 .collect(Collectors.toSet());
+
+        logger.debug("Retrieved dependencies size: {}, list: {}", dependenciesId.size(), dependenciesId);
+        // If there are no dependencies to process, return
+        if (dependenciesId.isEmpty()) {
+            return Collections.emptyList();
+        }
+        // If the cache of already processed dependencies is not null, remove them from the list of dependencies still to be processed to avoid multiple iterated checks on same items
+        if (processedDependenciesCache != null) {
+            dependenciesId.removeAll(processedDependenciesCache);
+            logger.debug("Retrieved dependencies after removal of already processed cache size: {}, list: {}", dependenciesId.size(), dependenciesId);
+        }
+        // Populate the cache with the list of processed dependencies
+        processedDependenciesCache.addAll(dependenciesId);
 
         logger.debug("Finding built artifacts for dependencies: {}", dependenciesId);
         return dependenciesId.isEmpty() ? Collections.emptyList() : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
