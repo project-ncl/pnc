@@ -462,13 +462,15 @@ public class DefaultDatastore implements Datastore {
         if (dependenciesId.isEmpty()) {
             return Collections.emptyList();
         }
-        // If the cache of already processed dependencies is not null, remove them from the list of dependencies still to be processed to avoid multiple iterated checks on same items
+
         if (processedDependenciesCache != null) {
+            // If the cache of already processed dependencies is not null, remove them from the list of dependencies still to be processed to avoid multiple iterated checks on same items
             dependenciesId.removeAll(processedDependenciesCache);
             logger.debug("Retrieved dependencies after removal of already processed cache size: {}, list: {}", dependenciesId.size(), dependenciesId);
+
+            // Populate the cache with the list of processed dependencies
+            processedDependenciesCache.addAll(dependenciesId);
         }
-        // Populate the cache with the list of processed dependencies
-        processedDependenciesCache.addAll(dependenciesId);
 
         logger.debug("Finding built artifacts for dependencies: {}", dependenciesId);
         return dependenciesId.isEmpty() ? Collections.emptyList() : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
