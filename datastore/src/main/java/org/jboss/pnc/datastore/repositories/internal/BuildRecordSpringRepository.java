@@ -38,7 +38,8 @@ public interface BuildRecordSpringRepository
             + "left join fetch br.user "
             + "where br.id = ?1")
     BuildRecord findByIdFetchProperties(Integer id);
-    @Query("SELECT DISTINCT br.id, br.buildConfigurationId, br.buildConfigurationRev FROM BuildRecord br "
+
+    @Query("SELECT DISTINCT br FROM BuildRecord br "
             + "JOIN br.builtArtifacts builtArtifacts "
             + "WHERE builtArtifacts.id IN (?1)")
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesIds);
