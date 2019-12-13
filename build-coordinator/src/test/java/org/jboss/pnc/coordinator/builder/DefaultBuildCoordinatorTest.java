@@ -76,6 +76,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anySet;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -142,8 +143,8 @@ public class DefaultBuildCoordinatorTest {
     public void setUp() throws DatastoreException {
         MockitoAnnotations.initMocks(this);
         when(systemConfig.getTemporalBuildExpireDate()).thenReturn(new Date(1));
-        when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class))).thenReturn(true);
-        when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class))).thenReturn(true);
+        when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class), anySet())).thenReturn(true);
+        when(datastore.requiresRebuild(any(BuildConfigurationAudited.class), any(Boolean.class), any(Boolean.class), anySet())).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
         coordinator = new DefaultBuildCoordinator(
                 datastoreAdapter,
