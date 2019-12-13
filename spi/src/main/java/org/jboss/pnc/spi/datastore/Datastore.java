@@ -114,10 +114,11 @@ public interface Datastore {
      */
     boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
-            boolean temporaryBuild);
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache);
 
     @Deprecated
-    boolean requiresRebuild(BuildTask task);
+    boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache);
 
     Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet);
 }

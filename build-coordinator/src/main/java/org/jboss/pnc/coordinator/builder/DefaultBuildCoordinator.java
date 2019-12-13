@@ -66,6 +66,7 @@ import javax.inject.Inject;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -277,10 +278,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
         int requiresRebuild = buildConfigurations.size();
         log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
+
+        Set<Integer> processedDependenciesCache = new HashSet<Integer>();
         for (BuildConfiguration buildConfiguration : buildConfigurations) {
             BuildConfigurationAudited buildConfigurationAudited =
                     datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
-            if (!datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild)) {
+            if (!datastoreAdapter.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild, processedDependenciesCache)) {
                 requiresRebuild--;
             }
         }
@@ -549,7 +552,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     return;
                 }
 
-                if (!task.getBuildOptions().isForceRebuild() && !datastoreAdapter.requiresRebuild(task)) {
+                if (!task.getBuildOptions().isForceRebuild() && !datastoreAdapter.requiresRebuild(task, new HashSet<Integer>())) {
                     completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED);
                     return;
                 }
