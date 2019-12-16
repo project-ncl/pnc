@@ -17,17 +17,16 @@
  */
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.response.Response;
-
+import io.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
+import org.jboss.pnc.bpm.model.RepositoryCreationResultRest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.RepositoryConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
-import org.jboss.pnc.bpm.model.RepositoryCreationResultRest;
 import org.jboss.pnc.rest.restmodel.bpm.RepositoryCreationUrlAutoRest;
 import org.jboss.pnc.rest.restmodel.mock.RepositoryCreationUrlAutoRestMockBuilder;
 import org.jboss.pnc.test.category.ContainerTest;

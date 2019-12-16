@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.integration.utils;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;

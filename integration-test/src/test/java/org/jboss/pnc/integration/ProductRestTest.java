@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;

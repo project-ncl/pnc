@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.integration.client.util;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 
 import java.util.Optional;
 

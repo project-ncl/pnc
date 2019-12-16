@@ -25,7 +25,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.jayway.restassured.path.json.JsonPath.from;
+import static io.restassured.path.json.JsonPath.from;
+
 
 public class JsonMatcher {
 

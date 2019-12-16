@@ -18,8 +18,8 @@
 package org.jboss.pnc.integration.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.RequestSpecification;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

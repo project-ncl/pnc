@@ -25,6 +25,7 @@
     <container qualifier="jboss" default="true">
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
+            <property name="javaVmArguments">--add-modules=java.se</property>
         </configuration>
     </container>
 
