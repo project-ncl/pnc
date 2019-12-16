@@ -159,6 +159,9 @@
                 </goals>
                 <configuration>
                   <jbossHome>${test.server.build.dir}</jbossHome>
+                  <java-opts>
+                    <java-opt>--add-modules=java.se</java-opt>
+                  </java-opts>
                 </configuration>
               </execution>
                 <execution>
@@ -225,6 +228,11 @@
                 </goals>
                 <configuration>
                   <jbossHome>${test.server.build.dir}</jbossHome>
+                  <java-opts>
+                    <java-opt>--add-modules=java.se</java-opt>
+                    <java-opt>--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</java-opt>
+                    <java-opt>-Dio.netty.tryReflectionSetAccessible=true</java-opt>
+                  </java-opts>
                 </configuration>
               </execution>
               <execution>

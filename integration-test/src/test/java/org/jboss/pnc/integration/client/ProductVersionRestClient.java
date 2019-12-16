@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;

@@ -18,8 +18,8 @@
 
 package org.jboss.pnc;
 
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import org.apache.http.message.BasicHeader;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.junit.BeforeClass;

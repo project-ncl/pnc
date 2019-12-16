@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.integration.assertions;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 import org.assertj.core.api.AbstractAssert;
 
 import java.util.regex.Pattern;

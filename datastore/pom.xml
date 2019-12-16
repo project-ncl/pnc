@@ -237,6 +237,9 @@
                 </goals>
                 <configuration>
                   <jbossHome>${test.server.build.dir}</jbossHome>
+                  <java-opts>
+                    <java-opt>--add-modules=java.se</java-opt>
+                  </java-opts>
                 </configuration>
               </execution>
               <execution>

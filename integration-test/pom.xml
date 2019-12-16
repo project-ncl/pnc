@@ -84,7 +84,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.jayway.restassured</groupId>
+      <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
     </dependency>
     <!-- TODO only here as lombok is too eager to do everything-->
@@ -311,6 +311,9 @@
                 </goals>
                 <configuration>
                   <jbossHome>${test.server.build.dir}</jbossHome>
+                  <java-opts>
+                    <java-opt>--add-modules=java.se</java-opt>
+                  </java-opts>
                 </configuration>
               </execution>
               <!-- HSQLDB JDBC driver installation and datasource configuration -->

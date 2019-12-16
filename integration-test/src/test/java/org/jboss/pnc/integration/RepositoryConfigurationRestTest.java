@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -44,7 +44,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_EXTERNAL_REPO;
 import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_INTERNAL_REPO;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
