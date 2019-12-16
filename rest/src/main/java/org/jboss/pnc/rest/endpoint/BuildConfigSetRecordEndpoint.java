@@ -186,6 +186,11 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             throws RepositoryViolationException {
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
 
+        if (currentUser == null) {
+            logger.warn("Failed to load current user! Remote user:" + httpServletRequest.getRemoteUser());
+            throw new RuntimeException("Failed to load user metadata.");
+        }
+
         try {
             if (temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(),
                     notifyOnDeletionCompletion(callbackUrl))) {
