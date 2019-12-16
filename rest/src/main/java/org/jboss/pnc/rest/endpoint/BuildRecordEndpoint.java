@@ -221,6 +221,11 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             throws RepositoryViolationException {
         User currentUser = authProvider.getCurrentUser(httpServletRequest);
 
+        if (currentUser == null) {
+            logger.warn("Failed to load current user! Remote user:" + httpServletRequest.getRemoteUser());
+            throw new RuntimeException("Failed to load user metadata.");
+        }
+
         try {
             if (temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(id, currentUser.getLoginToken(), notifyOnBuildDeletionCompletion(callbackUrl))) {
                 return Response.ok().build();

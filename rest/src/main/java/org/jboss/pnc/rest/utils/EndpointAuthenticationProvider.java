@@ -63,6 +63,7 @@ public class EndpointAuthenticationProvider {
         User currentUser = null;
         if(StringUtils.isNotEmpty(loggedUser)) {
             currentUser = datastore.retrieveUserByUsername(loggedUser);
+            logger.trace("User loaded from database: {}", currentUser);
             if(currentUser != null) {
                 currentUser.setLoginToken(loginInUser.getTokenString());
             }
