@@ -471,13 +471,13 @@ public class DefaultDatastore implements Datastore {
                 .map(Artifact::getId)
                 .collect(Collectors.toSet());
 
-        logger.debug("Retrieved dependencies size: {}, list: {}", dependenciesId.size(), dependenciesId);
         // If there are no dependencies to process, return
         if (dependenciesId.isEmpty()) {
             return Collections.emptyList();
         }
 
-        if (processedDependenciesCache != null) {
+        logger.debug("Retrieved dependencies size: {}, list: {}", dependenciesId.size(), dependenciesId);
+        if (processedDependenciesCache != null && !processedDependenciesCache.isEmpty()) {
             // If the cache of already processed dependencies is not null, remove them from the list of dependencies still to be processed to avoid multiple iterated checks on same items
             dependenciesId.removeAll(processedDependenciesCache);
             logger.debug("Retrieved dependencies after removal of already processed cache size: {}, list: {}", dependenciesId.size(), dependenciesId);
