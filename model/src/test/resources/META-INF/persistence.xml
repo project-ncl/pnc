@@ -26,7 +26,6 @@
   <persistence-unit name="newcastle-test" transaction-type="RESOURCE_LOCAL">
 
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
 
     <!-- Load the model entities -->
     <class>org.jboss.pnc.model.Artifact</class>
