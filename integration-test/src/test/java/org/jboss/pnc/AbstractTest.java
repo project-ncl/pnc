@@ -20,7 +20,6 @@ package org.jboss.pnc;
 
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
-import org.apache.http.message.BasicHeader;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.junit.BeforeClass;
 
@@ -70,10 +69,6 @@ public class AbstractTest {
 
     public static Header getAuthenticationHeader() {
         return new Header("Authorization", "Basic " + encodedCredentials());
-    }
-
-    public static org.apache.http.Header getAuthenticationHeaderApache() {
-        return new BasicHeader("Authorization", "Basic " + encodedCredentials());
     }
 
     public static String encodedCredentials() {

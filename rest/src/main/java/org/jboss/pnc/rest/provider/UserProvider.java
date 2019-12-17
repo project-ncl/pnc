@@ -70,6 +70,10 @@ public class UserProvider extends AbstractProvider<User, UserRest> {
 
     public UserRest getByUsername(String username) {
         User user = repository.queryByPredicates(withUserName(username));
-        return new UserRest(user);
+        if (user != null) {
+            return new UserRest(user);
+        } else {
+            return null;
+        }
     }
 }
