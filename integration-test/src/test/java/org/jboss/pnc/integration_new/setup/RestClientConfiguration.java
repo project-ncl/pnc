@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration_new.setup;
 
+import org.apache.http.message.BasicHeader;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.integration.env.IntegrationTestEnv;
@@ -59,5 +60,13 @@ public class RestClientConfiguration {
     public static Configuration asSystem(){
         return getConfiguration(AuthenticateAs.SYSTEM_USER);
     }
+
+    public static org.apache.http.Header getAuthenticationHeaderApache(RestClientConfiguration.AuthenticateAs user) {
+        String base64Credentials = getConfiguration(user)
+                .getBasicAuth()
+                .getBase64Credentials();
+        return new BasicHeader("Authorization", "Basic " + base64Credentials);
+    }
+
 
 }

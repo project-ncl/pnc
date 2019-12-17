@@ -29,10 +29,13 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
-import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.integration_new.setup.Deployments;
+import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -51,8 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.jboss.pnc.AbstractTest.getAuthenticationHeaderApache;
-import org.jboss.pnc.integration_new.setup.Deployments;
+import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.getAuthenticationHeaderApache;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -73,9 +75,9 @@ public class BuildTaskEndpointTest {
     }
 
     @Test
-    public void shouldTriggerBuildExecution() {
+    public void shouldTriggerBuildExecution() throws RemoteResourceException {
         HttpPost request = new HttpPost(url + "/pnc-rest-new/rest-new/build-tasks/execute-build");
-        request.addHeader(getAuthenticationHeaderApache());
+        request.addHeader(getAuthenticationHeaderApache(RestClientConfiguration.AuthenticateAs.USER));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1,

@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.Getter;
 import org.jboss.pnc.common.logging.MDCUtils;
 
+import java.util.Base64;
 import java.util.Map;
 
 /**
@@ -63,6 +64,11 @@ public class Configuration {
             this.username = username;
             this.password = password;
         }
+
+        public String getBase64Credentials() {
+            return Base64.getEncoder().encodeToString((username + ":"  + password).getBytes());
+        }
+
     }
 
     public static final class ConfigurationBuilder {

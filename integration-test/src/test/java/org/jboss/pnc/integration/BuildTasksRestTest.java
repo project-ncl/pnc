@@ -35,6 +35,7 @@ import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
@@ -58,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
+import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.getAuthenticationHeaderApache;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -89,7 +91,7 @@ public class BuildTasksRestTest extends AbstractTest{
     @Test
     public void shouldTriggerBuildExecution() {
         HttpPost request = new HttpPost(url + "/pnc-rest/rest/build-tasks/execute-build");
-        request.addHeader(getAuthenticationHeaderApache());
+        request.addHeader(getAuthenticationHeaderApache(RestClientConfiguration.AuthenticateAs.USER));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1,

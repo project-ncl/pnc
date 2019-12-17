@@ -35,11 +35,13 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.rest.provider.UserProvider;
+import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.utils.ErrorResponse;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -171,11 +173,23 @@ public class BuildTaskEndpoint {
         try {
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
             boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
+            UserRest currentUser = userProvider.getByUsername(usernameTriggered);
+            if (currentUser == null) {
+                logger.warn("Username passed '" + usernameTriggered + "' does not exists.");
+                AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
+                LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
+                currentUser = userProvider.getByUsername(loginInUser.getUserName());
+                if (currentUser == null) {
+                    String messages = "User '" + loginInUser.getUserName() + "' does not exists.";
+                    logger.warn(messages);
+                    throw new EmptyEntityException(messages);
+                }
+            }
             MDCUtils.addBuildContext(
                     buildExecutionConfiguration.getBuildContentId(),
                     temporaryBuild,
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
-                    userProvider.getByUsername(usernameTriggered).getId().toString()
+                    currentUser.getId().toString()
             );
 
             logger.info("Build execution requested.");
