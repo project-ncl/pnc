@@ -26,6 +26,7 @@
   <persistence-unit name="newcastle-test" transaction-type="RESOURCE_LOCAL">
 
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
 
     <!-- Load the model entities -->
     <class>org.jboss.pnc.model.Artifact</class>
@@ -57,8 +58,8 @@
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
 
       <property name="hibernate.cache.use_reference_entries" value="true" />
-<!--       <property name="hibernate.cache.use_second_level_cache" value="true" /> -->
-<!--       <property name="hibernate.cache.use_query_cache" value="false" /> -->
+      <property name="hibernate.cache.use_second_level_cache" value="true" />
+      <property name="hibernate.cache.use_query_cache" value="false" />
       <property name="hibernate.generate_statistics" value="true" />
     </properties>
 

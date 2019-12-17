@@ -207,5 +207,4 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
         SessionFactory sessionFactory = session.getSessionFactory();
         sessionFactory.getCurrentSession().doWork(work);
     }
-
 }
