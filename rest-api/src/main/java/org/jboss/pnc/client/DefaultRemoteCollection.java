@@ -62,8 +62,9 @@ public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        while (iterator().hasNext()) {
-            action.accept(iterator().next());
+        final Iterator<T> iterator = iterator();
+        while (iterator.hasNext()) {
+            action.accept(iterator.next());
         }
     }
 
