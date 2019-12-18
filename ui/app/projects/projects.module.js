@@ -57,7 +57,7 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['ProjectResource', 'SortHelper', (ProjectResource, helper) => ProjectResource.query(getSortFromLocalStorage(helper)).$promise]
+          projects: ['ProjectResource', 'SortHelper', (ProjectResource, sortHelper) => ProjectResource.query(getSortFromLocalStorage(sortHelper)).$promise]
         }
       });
 

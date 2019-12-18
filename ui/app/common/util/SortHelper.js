@@ -26,7 +26,7 @@
 
     //Todo: use regular expression to validate every Json object that stores in Local Storage, if not match just drop it
 
-    const defaultSortConfig = {
+    const DEFAULT_SORT_CONFIG = {
       projectList: { field: { id: 'name', title: 'Name' }, asc: true }
     };
 
@@ -42,7 +42,7 @@
     helper.getSortConfigFromLocalStorage = function (pageName) {
       const STORAGE_KEY = pageName + 'SortingConfig';
       let sortConfigJson = window.localStorage.getItem(STORAGE_KEY);
-      return sortConfigJson ? JSON.parse(sortConfigJson) : defaultSortConfig[pageName];
+      return sortConfigJson ? JSON.parse(sortConfigJson) : DEFAULT_SORT_CONFIG[pageName];
     };
 
     /**
