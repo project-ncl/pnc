@@ -98,7 +98,6 @@
     <dependency>
       <groupId>org.infinispan</groupId>
       <artifactId>infinispan-hibernate-cache-v53</artifactId>
-      <version>9.3.6.Final-redhat-00001</version>
       <scope>test</scope>  
     </dependency>
 
