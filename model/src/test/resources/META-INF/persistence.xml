@@ -61,7 +61,7 @@
       <property name="hibernate.cache.use_query_cache" value="false" />
       <property name="hibernate.generate_statistics" value="true" />
 
-      <property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.infinispan.InfinispanRegionFactory"/>
+      <property name="hibernate.cache.region.factory_class" value="infinispan"/>
       <property name="hibernate.cache.infinispan.cachemanager" value="java:CacheManager" />
     </properties>
 
