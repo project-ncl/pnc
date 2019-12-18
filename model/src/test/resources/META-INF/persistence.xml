@@ -62,7 +62,6 @@
       <property name="hibernate.generate_statistics" value="true" />
 
       <property name="hibernate.cache.region.factory_class" value="infinispan"/>
-      <property name="hibernate.cache.infinispan.cachemanager" value="java:CacheManager" />
     </properties>
 
   </persistence-unit>
