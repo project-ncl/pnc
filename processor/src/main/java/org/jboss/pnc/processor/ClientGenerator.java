@@ -124,12 +124,20 @@ public class ClientGenerator extends AbstractProcessor {
                         ClassName returnClass = ClassName.get("org.jboss.pnc.client", "RemoteCollection");
 
                         for (VariableElement parameter : restApiMethod.getParameters()) {
-                            if (!ClassName.get(parameter.asType()).toString().equals("org.jboss.pnc.rest.api.parameters.PageParameters")) {
-                                defaultParameters.add(parameter);
-                                endpointParameters.add(parameter.getSimpleName().toString());
-                            } else {
-                                hasPageParameters = true;
-                                endpointParameters.add("pageParameters");
+                            final String parameterName = ClassName.get(parameter.asType()).toString();
+                            switch (parameterName) {
+                                case "org.jboss.pnc.rest.api.parameters.PageParameters":
+                                    hasPageParameters = true;
+                                    endpointParameters.add("pageParameters");
+                                    break;
+                                case "org.jboss.pnc.rest.api.parameters.PaginationParameters":
+                                    hasPageParameters = false;
+                                    endpointParameters.add("pageParameters");
+                                    break;
+                                default:
+                                    defaultParameters.add(parameter);
+                                    endpointParameters.add(parameter.getSimpleName().toString());
+                                    break;
                             }
                         }
 
