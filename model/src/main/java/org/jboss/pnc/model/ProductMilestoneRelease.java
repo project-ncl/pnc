@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+//import org.hibernate.annotations.Cache;
+//import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Cacheable;
@@ -45,7 +45,7 @@ import java.util.Date;
  * Time: 12:57 PM
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
 public class ProductMilestoneRelease implements GenericEntity<Integer> {

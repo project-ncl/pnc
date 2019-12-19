@@ -19,8 +19,8 @@ package org.jboss.pnc.model;
 
 import javax.persistence.Cacheable;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+//import org.hibernate.annotations.Cache;
+//import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -30,7 +30,7 @@ import org.hibernate.annotations.Immutable;
  */
 @Immutable
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+//@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public enum MilestoneReleaseStatus {
     IN_PROGRESS,
     FAILED,

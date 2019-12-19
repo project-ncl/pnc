@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+//import org.hibernate.annotations.Cache;
+//import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.util.StringPropertyReplacer;
 
 import javax.persistence.Cacheable;
@@ -56,7 +56,7 @@ import java.util.Set;
  * @author avibelli
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_productversion_version_prod_id", columnNames = {"version", "product_id"}),
        indexes = {
@@ -93,11 +93,11 @@ public class ProductVersion implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productversion_product"))
     private Product product;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "productVersion")
     private Set<ProductMilestone> productMilestones;
 
@@ -105,11 +105,11 @@ public class ProductVersion implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productversion_currentmilestone"))
     private ProductMilestone currentProductMilestone;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfiguration> buildConfigurations;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id", foreignKey = @ForeignKey(name = "fk_product_version_attributes_productversion")))
     @MapKeyColumn(name="key")

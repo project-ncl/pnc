@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+//import org.hibernate.annotations.Cache;
+//import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Cacheable;
@@ -50,7 +50,7 @@ import java.util.Set;
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(
     uniqueConstraints = @UniqueConstraint(name = "uk_project_name", columnNames = {"name"}),
@@ -89,7 +89,7 @@ public class Project implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_project_license"))
     private License license;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     private Set<BuildConfiguration> buildConfigurations;
 
