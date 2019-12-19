@@ -46,6 +46,10 @@
     <class>org.jboss.pnc.model.TargetRepository</class>
     <class>org.jboss.pnc.model.User</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <validation-mode>AUTO</validation-mode>
+
     <!-- Configure hibernate with HSQL -->
     <properties>
       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
@@ -56,12 +60,19 @@
       <property name="hibernate.format_sql" value="true"/>
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
 
+
       <property name="hibernate.cache.use_reference_entries" value="true" />
       <property name="hibernate.cache.use_second_level_cache" value="true" />
       <property name="hibernate.cache.use_query_cache" value="false" />
       <property name="hibernate.generate_statistics" value="true" />
+      <property name="hibernate.cache.infinispan.statistics" value="true"/>
 
-      <property name="hibernate.cache.region.factory_class" value="infinispan"/>
+<!--       <property name="hibernate.cache.region.factory_class" value="infinispan"/> -->
+<!--       <property name="hibernate.cache.infinispan.entity.eviction.strategy" value="LRU"/> -->
+<!--       <property name="hibernate.cache.infinispan.entity.eviction.wake_up_interval" value="1000"/> -->
+<!--       <property name="hibernate.cache.infinispan.entity.eviction.max_entries" value="10000"/> -->
+<!--       <property name="hibernate.cache.infinispan.entity.expiration.lifespan" value="-1"/> -->
+<!--       <property name="hibernate.cache.infinispan.entity.expiration.max_idle" value="10000"/> -->
     </properties>
 
   </persistence-unit>
