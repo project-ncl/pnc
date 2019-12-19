@@ -66,6 +66,10 @@
       <property name="hibernate.cache.use_query_cache" value="false" />
       <property name="hibernate.generate_statistics" value="true" />
       <property name="hibernate.cache.infinispan.statistics" value="true"/>
+      <!-- Optional: Force using local configuration when only using a single node.
+           Otherwise a clustered configuration is loaded. -->
+      <property name="hibernate.cache.infinispan.cfg"
+                value="org/hibernate/cache/infinispan/builder/infinispan-configs-local.xml"/>
 
 <!--       <property name="hibernate.cache.region.factory_class" value="infinispan"/> -->
 <!--       <property name="hibernate.cache.infinispan.entity.eviction.strategy" value="LRU"/> -->
