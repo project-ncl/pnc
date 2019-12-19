@@ -127,7 +127,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
      * failed builds consumed machine and human resources even though they were not delivered with
      * the product distribution.
      */
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "productMilestone", fetch = FetchType.EAGER)
     private Set<BuildRecord> performedBuilds;
 
@@ -139,7 +138,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
      * The BuildRecordSets associated with a milestone should be created when the milestone
      * is first created, and never updated after that.
      */
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ManyToMany(fetch = FetchType.EAGER) //TODO remove eager fetch
     @JoinTable(name = "product_milestone_distributed_artifacts_map", joinColumns = {
             @JoinColumn(

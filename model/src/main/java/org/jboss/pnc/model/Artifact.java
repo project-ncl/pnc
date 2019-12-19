@@ -39,8 +39,8 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-//import org.hibernate.annotations.Cache;
-//import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -58,7 +58,7 @@ import java.util.Set;
  *
  */
 @Cacheable
-//@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Entity
 @Table(
     uniqueConstraints = @UniqueConstraint(name="uk_artifact_name", columnNames = { "identifier", "sha256", "targetRepository_id"}),
@@ -133,7 +133,6 @@ public class Artifact implements GenericEntity<Integer> {
      * However some other build may produce the same artifact (same checksum)
      * in such case we link the BuildRecord to the same artifact.
      */
-//    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @ManyToMany(mappedBy = "builtArtifacts")
     private Set<BuildRecord> buildRecords;
 
@@ -141,7 +140,6 @@ public class Artifact implements GenericEntity<Integer> {
      * The list of builds which depend on this artifact.
      * For example, if the build downloaded this artifact as a Maven dependency.
      */
-//    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
 
@@ -160,7 +158,6 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The product milestone releases which distribute this artifact
      */
-//    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
 

@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-//import org.hibernate.annotations.Cache;
-//import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Cacheable;
@@ -44,7 +44,7 @@ import java.util.Set;
  *
  */
 @Cacheable
-//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(uniqueConstraints = {
         @UniqueConstraint(name="uk_product_abbreviation", columnNames = "abbreviation"),

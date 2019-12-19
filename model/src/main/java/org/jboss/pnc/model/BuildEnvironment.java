@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-//import org.hibernate.annotations.Cache;
-//import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Cacheable;
@@ -51,7 +51,7 @@ import java.util.Map;
  * @author avibelli
  */
 @Cacheable
-//@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name="uk_buildenvironment_name", columnNames = "name"),
        indexes = {
@@ -99,7 +99,6 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Enumerated(EnumType.STRING)
     private SystemImageType systemImageType;
 
-//    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id", foreignKey = @ForeignKey(name = "fk_build_environment_attributes_buildenvironment")))
     @MapKeyColumn(name="name")
