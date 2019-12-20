@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class CacheHandlerTest extends AbstractModelTest {
 
-    protected Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    protected Logger logger = LoggerFactory.getLogger(CacheHandlerTest.class.getSimpleName());
 
     /** located in src/test/resources */
     final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
@@ -74,12 +74,10 @@ public class CacheHandlerTest extends AbstractModelTest {
         Statistics statistics = sessionFactory.getStatistics();
 
         String[] collectionRoleNames = statistics.getCollectionRoleNames();
-        assertArrayEquals(collectionRoleNames, new String[] {});
-        Stream.of(collectionRoleNames).forEach(crN -> System.out.println("Collection role name: " + crN));
+        Stream.of(collectionRoleNames).forEach(crN -> System.err.println("Collection role name: " + crN));
         
         long connectionsCount = statistics.getConnectCount();
-        assertEquals(connectionsCount, 0);
-        System.out.println("Connections count: " + connectionsCount);
+        System.err.println("Connections count: " + connectionsCount);
         
         String[] entityNames = statistics.getEntityNames();
         Stream.of(entityNames).forEach(eN -> {
@@ -97,9 +95,9 @@ public class CacheHandlerTest extends AbstractModelTest {
                     + "optimisticFailureCount: " + entityStatistics.getOptimisticFailureCount()
                     + "updateCount: " + entityStatistics.getUpdateCount();
             
-            assertEquals(log, "");
+            System.err.println(log);
 
-            logger.debug("Entity name: {}, "
+            logger.error("Entity name: {}, "
                     + "cacheHitCount: {}, "
                     + "cacheMissCount: {}, "
                     + "cachePutCount: {}, "
@@ -125,23 +123,20 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         long queryExecutionMaxTime = statistics.getQueryExecutionMaxTime();
         String queryExecutionMaxTimeQueryString = statistics.getQueryExecutionMaxTimeQueryString();
-        logger.debug("ExecutionMaxTime: {}, ExecutionMaxTimeQueryString : {}", queryExecutionMaxTime, queryExecutionMaxTimeQueryString);
-        assertEquals("ExecutionMaxTime: " + queryExecutionMaxTime +", ExecutionMaxTimeQueryString : " + queryExecutionMaxTimeQueryString, "");
-        System.out.println("ExecutionMaxTime: " + queryExecutionMaxTime +", ExecutionMaxTimeQueryString : " + queryExecutionMaxTimeQueryString);
+        logger.error("ExecutionMaxTime: {}, ExecutionMaxTimeQueryString : {}", queryExecutionMaxTime, queryExecutionMaxTimeQueryString);
+        System.err.println("ExecutionMaxTime: " + queryExecutionMaxTime +", ExecutionMaxTimeQueryString : " + queryExecutionMaxTimeQueryString);
 
         long secondLevelCacheHitCount = statistics.getSecondLevelCacheHitCount();
         long secondLevelCacheMissCount = statistics.getSecondLevelCacheMissCount();
         long secondLevelCachePutCount = statistics.getSecondLevelCachePutCount();
         double hitRatio = (double) secondLevelCacheHitCount / ( secondLevelCacheHitCount + secondLevelCacheMissCount );
-        logger.debug("secondLevelCacheHitCount: {}, secondLevelCacheMissCount : {}, secondLevelCachePutCount: {}, hitRatio : {}", secondLevelCacheHitCount, secondLevelCacheMissCount, secondLevelCachePutCount, hitRatio);
-        assertEquals("secondLevelCacheHitCount: " + secondLevelCacheHitCount +", secondLevelCacheMissCount : " + secondLevelCacheMissCount + "secondLevelCachePutCount: " + secondLevelCachePutCount +", hitRatio : " + hitRatio, "");
-
-        System.out.println("secondLevelCacheHitCount: " + secondLevelCacheHitCount +", secondLevelCacheMissCount : " + secondLevelCacheMissCount + "secondLevelCachePutCount: " + secondLevelCachePutCount +", hitRatio : " + hitRatio);
+        logger.error("secondLevelCacheHitCount: {}, secondLevelCacheMissCount : {}, secondLevelCachePutCount: {}, hitRatio : {}", secondLevelCacheHitCount, secondLevelCacheMissCount, secondLevelCachePutCount, hitRatio);
+        System.err.println("secondLevelCacheHitCount: " + secondLevelCacheHitCount +", secondLevelCacheMissCount : " + secondLevelCacheMissCount + "secondLevelCachePutCount: " + secondLevelCachePutCount +", hitRatio : " + hitRatio);
 
         String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
         Stream.of(cacheRegionNames).forEach(crN -> {
             CacheRegionStatistics secondLevelCacheStatistics = statistics.getDomainDataRegionStatistics(crN);
-            logger.debug("Cache region name: {}, "
+            logger.error("Cache region name: {}, "
                     + "elementCountInMemory: {}, "
                     + "elementCountOnDisk: {}, "
                     + "hitCount: {}, "
@@ -166,7 +161,7 @@ public class CacheHandlerTest extends AbstractModelTest {
                     + "putCount: " + secondLevelCacheStatistics.getPutCount()
                     + "regionName: " + secondLevelCacheStatistics.getRegionName()
                     + "sizeInMemory: " + secondLevelCacheStatistics.getSizeInMemory();
-            assertEquals(log2, "");
+            System.err.println(log2);
 
         });
     }
