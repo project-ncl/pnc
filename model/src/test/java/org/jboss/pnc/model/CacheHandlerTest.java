@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import java.lang.invoke.MethodHandles;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
@@ -38,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class CacheHandlerTest extends AbstractModelTest {
 
-    protected Logger logger = LoggerFactory.getLogger(CacheHandlerTest.class.getSimpleName());
+    protected Logger logger = LoggerFactory.getLogger(CacheHandlerTest.class);
 
     /** located in src/test/resources */
     final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";

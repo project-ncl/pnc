@@ -1518,6 +1518,10 @@
                 <configuration>
                   <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
                   <test>${test}</test>
+                    <systemPropertyVariables>
+                      <org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel>
+                      <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
+                    </systemPropertyVariables>
                 </configuration>
               </execution>
             </executions>
