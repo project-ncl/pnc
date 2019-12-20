@@ -55,12 +55,12 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
         insertExampleBuildConfigurations(em, basicRepositoryConfiguration);
-        em.close();
     }
 
     @After
     public void cleanup() {
         clearDatabaseTables();
+        em.close();
     }
 
     @Test
