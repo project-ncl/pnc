@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.model;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.lang.invoke.MethodHandles;
 import java.util.stream.Stream;
 
@@ -71,15 +74,18 @@ public class CacheHandlerTest extends AbstractModelTest {
         Statistics statistics = sessionFactory.getStatistics();
 
         String[] collectionRoleNames = statistics.getCollectionRoleNames();
+        assertArrayEquals(collectionRoleNames, new String[] {});
         Stream.of(collectionRoleNames).forEach(crN -> System.out.println("Collection role name: " + crN));
         
         long connectionsCount = statistics.getConnectCount();
+        assertEquals(connectionsCount, 0);
         System.out.println("Connections count: " + connectionsCount);
         
         String[] entityNames = statistics.getEntityNames();
         Stream.of(entityNames).forEach(eN -> {
             EntityStatistics entityStatistics = statistics.getEntityStatistics(eN);
-            System.out.println("Entity name: " + eN 
+            
+            String log = "Entity name: " + eN 
                     + "cacheHitCount: " + entityStatistics.getCacheHitCount()
                     + "cacheMissCount: " + entityStatistics.getCacheMissCount()
                     + "cachePutCount: " + entityStatistics.getCachePutCount()
@@ -89,7 +95,9 @@ public class CacheHandlerTest extends AbstractModelTest {
                     + "insertCount: " + entityStatistics.getInsertCount()
                     + "loadCount: " + entityStatistics.getLoadCount()
                     + "optimisticFailureCount: " + entityStatistics.getOptimisticFailureCount()
-                    + "updateCount: " + entityStatistics.getUpdateCount());
+                    + "updateCount: " + entityStatistics.getUpdateCount();
+            
+            assertEquals(log, "");
 
             logger.debug("Entity name: {}, "
                     + "cacheHitCount: {}, "
@@ -118,6 +126,7 @@ public class CacheHandlerTest extends AbstractModelTest {
         long queryExecutionMaxTime = statistics.getQueryExecutionMaxTime();
         String queryExecutionMaxTimeQueryString = statistics.getQueryExecutionMaxTimeQueryString();
         logger.debug("ExecutionMaxTime: {}, ExecutionMaxTimeQueryString : {}", queryExecutionMaxTime, queryExecutionMaxTimeQueryString);
+        assertEquals("ExecutionMaxTime: " + queryExecutionMaxTime +", ExecutionMaxTimeQueryString : " + queryExecutionMaxTimeQueryString, "");
         System.out.println("ExecutionMaxTime: " + queryExecutionMaxTime +", ExecutionMaxTimeQueryString : " + queryExecutionMaxTimeQueryString);
 
         long secondLevelCacheHitCount = statistics.getSecondLevelCacheHitCount();
@@ -125,6 +134,8 @@ public class CacheHandlerTest extends AbstractModelTest {
         long secondLevelCachePutCount = statistics.getSecondLevelCachePutCount();
         double hitRatio = (double) secondLevelCacheHitCount / ( secondLevelCacheHitCount + secondLevelCacheMissCount );
         logger.debug("secondLevelCacheHitCount: {}, secondLevelCacheMissCount : {}, secondLevelCachePutCount: {}, hitRatio : {}", secondLevelCacheHitCount, secondLevelCacheMissCount, secondLevelCachePutCount, hitRatio);
+        assertEquals("secondLevelCacheHitCount: " + secondLevelCacheHitCount +", secondLevelCacheMissCount : " + secondLevelCacheMissCount + "secondLevelCachePutCount: " + secondLevelCachePutCount +", hitRatio : " + hitRatio, "");
+
         System.out.println("secondLevelCacheHitCount: " + secondLevelCacheHitCount +", secondLevelCacheMissCount : " + secondLevelCacheMissCount + "secondLevelCachePutCount: " + secondLevelCachePutCount +", hitRatio : " + hitRatio);
 
         String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
@@ -147,14 +158,16 @@ public class CacheHandlerTest extends AbstractModelTest {
                     secondLevelCacheStatistics.getRegionName(),
                     secondLevelCacheStatistics.getSizeInMemory());
 
-            System.out.println("Cache region name: " + crN 
+            String log2 = "Cache region name: " + crN 
                     + "elementCountInMemory: " + secondLevelCacheStatistics.getElementCountInMemory()
                     + "elementCountOnDisk: " + secondLevelCacheStatistics.getElementCountOnDisk()
                     + "hitCount: " + secondLevelCacheStatistics.getHitCount()
                     + "missCount: " + secondLevelCacheStatistics.getMissCount()
                     + "putCount: " + secondLevelCacheStatistics.getPutCount()
                     + "regionName: " + secondLevelCacheStatistics.getRegionName()
-                    + "sizeInMemory: " + secondLevelCacheStatistics.getSizeInMemory());
+                    + "sizeInMemory: " + secondLevelCacheStatistics.getSizeInMemory();
+            assertEquals(log2, "");
+
         });
     }
 
