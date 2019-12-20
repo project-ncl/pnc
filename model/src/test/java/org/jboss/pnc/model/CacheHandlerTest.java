@@ -71,14 +71,26 @@ public class CacheHandlerTest extends AbstractModelTest {
         Statistics statistics = sessionFactory.getStatistics();
 
         String[] collectionRoleNames = statistics.getCollectionRoleNames();
-        Stream.of(collectionRoleNames).forEach(crN -> logger.debug("Collection role name: {}", crN));
+        Stream.of(collectionRoleNames).forEach(crN -> System.out.println("Collection role name: " + crN));
         
         long connectionsCount = statistics.getConnectCount();
-        logger.debug("Connections count: {}", connectionsCount);
+        System.out.println("Connections count: " + connectionsCount);
         
         String[] entityNames = statistics.getEntityNames();
         Stream.of(entityNames).forEach(eN -> {
             EntityStatistics entityStatistics = statistics.getEntityStatistics(eN);
+            System.out.println("Entity name: " + eN 
+                    + "cacheHitCount: " + entityStatistics.getCacheHitCount()
+                    + "cacheMissCount: " + entityStatistics.getCacheMissCount()
+                    + "cachePutCount: " + entityStatistics.getCachePutCount()
+                    + "cacheRegionName: " + entityStatistics.getCacheRegionName()
+                    + "deleteCount: " + entityStatistics.getDeleteCount()
+                    + "fetchCount: " + entityStatistics.getFetchCount()
+                    + "insertCount: " + entityStatistics.getInsertCount()
+                    + "loadCount: " + entityStatistics.getLoadCount()
+                    + "optimisticFailureCount: " + entityStatistics.getOptimisticFailureCount()
+                    + "updateCount: " + entityStatistics.getUpdateCount());
+
             logger.debug("Entity name: {}, "
                     + "cacheHitCount: {}, "
                     + "cacheMissCount: {}, "
@@ -106,12 +118,14 @@ public class CacheHandlerTest extends AbstractModelTest {
         long queryExecutionMaxTime = statistics.getQueryExecutionMaxTime();
         String queryExecutionMaxTimeQueryString = statistics.getQueryExecutionMaxTimeQueryString();
         logger.debug("ExecutionMaxTime: {}, ExecutionMaxTimeQueryString : {}", queryExecutionMaxTime, queryExecutionMaxTimeQueryString);
+        System.out.println("ExecutionMaxTime: " + queryExecutionMaxTime +", ExecutionMaxTimeQueryString : " + queryExecutionMaxTimeQueryString);
 
         long secondLevelCacheHitCount = statistics.getSecondLevelCacheHitCount();
         long secondLevelCacheMissCount = statistics.getSecondLevelCacheMissCount();
         long secondLevelCachePutCount = statistics.getSecondLevelCachePutCount();
         double hitRatio = (double) secondLevelCacheHitCount / ( secondLevelCacheHitCount + secondLevelCacheMissCount );
         logger.debug("secondLevelCacheHitCount: {}, secondLevelCacheMissCount : {}, secondLevelCachePutCount: {}, hitRatio : {}", secondLevelCacheHitCount, secondLevelCacheMissCount, secondLevelCachePutCount, hitRatio);
+        System.out.println("secondLevelCacheHitCount: " + secondLevelCacheHitCount +", secondLevelCacheMissCount : " + secondLevelCacheMissCount + "secondLevelCachePutCount: " + secondLevelCachePutCount +", hitRatio : " + hitRatio);
 
         String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
         Stream.of(cacheRegionNames).forEach(crN -> {
@@ -132,6 +146,15 @@ public class CacheHandlerTest extends AbstractModelTest {
                     secondLevelCacheStatistics.getPutCount(),
                     secondLevelCacheStatistics.getRegionName(),
                     secondLevelCacheStatistics.getSizeInMemory());
+
+            System.out.println("Cache region name: " + crN 
+                    + "elementCountInMemory: " + secondLevelCacheStatistics.getElementCountInMemory()
+                    + "elementCountOnDisk: " + secondLevelCacheStatistics.getElementCountOnDisk()
+                    + "hitCount: " + secondLevelCacheStatistics.getHitCount()
+                    + "missCount: " + secondLevelCacheStatistics.getMissCount()
+                    + "putCount: " + secondLevelCacheStatistics.getPutCount()
+                    + "regionName: " + secondLevelCacheStatistics.getRegionName()
+                    + "sizeInMemory: " + secondLevelCacheStatistics.getSizeInMemory());
         });
     }
 
