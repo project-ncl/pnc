@@ -154,6 +154,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-slf4j-test</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -592,6 +596,12 @@
         <groupId>org.jboss.weld</groupId>
         <artifactId>weld-core-impl</artifactId>
         <version>3.0.6.Final</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.spf4j</groupId>
+        <artifactId>spf4j-slf4j-test</artifactId>
+        <version>8.6.29</version>
       </dependency>
 
       <dependency>
@@ -1518,10 +1528,12 @@
                 <configuration>
                   <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
                   <test>${test}</test>
-                    <systemPropertyVariables>
-                      <org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel>
-                      <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
-                    </systemPropertyVariables>
+                  <properties>
+                    <property>
+                      <name>listener</name>
+                      <value>org.spf4j.test.log.junit4.Spf4jTestLogRunListener</value> <!-- comma separate multiple listeners -->
+                    </property>
+                  </properties>
                 </configuration>
               </execution>
             </executions>
