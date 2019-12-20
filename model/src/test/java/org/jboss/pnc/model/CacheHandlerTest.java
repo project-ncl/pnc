@@ -50,7 +50,7 @@ public class CacheHandlerTest extends AbstractModelTest {
         clearDatabaseTables();
 
         // Initialize data from xml dataset file
-        EntityManager em = getEmFactory().createEntityManager();
+        em = getEmFactory().createEntityManager();
         initDatabaseUsingDataset(em, DBUNIT_DATASET_FILE);
 
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
