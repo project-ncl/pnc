@@ -53,7 +53,7 @@ import java.util.Set;
  * performed during a development cycle from the previous milestone until the end of the current milestone.
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name="uk_productmilestone_vers_prodversid", columnNames = {"version", "productVersion_id"}),
        indexes = @Index(name = "idx_productmilestone_productversion", columnList = "productversion_id")

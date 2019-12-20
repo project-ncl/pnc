@@ -44,7 +44,7 @@ import java.util.Set;
  *
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = {
         @UniqueConstraint(name="uk_product_abbreviation", columnNames = "abbreviation"),

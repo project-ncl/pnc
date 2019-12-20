@@ -56,7 +56,7 @@ import java.util.Set;
  * @author avibelli
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_productversion_version_prod_id", columnNames = {"version", "product_id"}),
        indexes = {

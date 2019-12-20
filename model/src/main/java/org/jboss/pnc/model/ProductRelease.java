@@ -48,7 +48,7 @@ import java.util.Date;
  * which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productrelease_milestone", columnList = "productmilestone_id"))
 public class ProductRelease implements GenericEntity<Integer> {

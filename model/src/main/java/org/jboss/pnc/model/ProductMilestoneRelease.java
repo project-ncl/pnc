@@ -45,7 +45,7 @@ import java.util.Date;
  * Time: 12:57 PM
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
 public class ProductMilestoneRelease implements GenericEntity<Integer> {
