@@ -154,10 +154,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-slf4j-test</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -1528,12 +1524,6 @@
                 <configuration>
                   <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
                   <test>${test}</test>
-                  <properties>
-                    <property>
-                      <name>listener</name>
-                      <value>org.spf4j.test.log.junit4.Spf4jTestLogRunListener</value> <!-- comma separate multiple listeners -->
-                    </property>
-                  </properties>
                 </configuration>
               </execution>
             </executions>

@@ -61,7 +61,6 @@
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
       <property name="hibernate.default_batch_fetch_size" value="8"/>
 
-
       <property name="hibernate.cache.use_reference_entries" value="true" />
       <property name="hibernate.cache.use_second_level_cache" value="true" />
       <property name="hibernate.cache.use_query_cache" value="false" />
