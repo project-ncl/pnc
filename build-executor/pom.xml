@@ -61,6 +61,11 @@
       <artifactId>cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <!-- TODO only here as lombok is too eager to do everything-->
     <dependency>
       <groupId>org.hibernate</groupId>
