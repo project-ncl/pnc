@@ -71,14 +71,14 @@
       id: 'status',
       title: 'Status',
     }, {
+      id: 'groupConfig.name',
+      title: 'Build Config',
+    }, {
       id: 'startTime',
       title: 'Start Time'
     }, {
       id: 'endTime',
       title: 'End Time',
-    }, {
-      id: 'groupConfig.name',
-      title: 'Build Config',
     }, {
       id: 'user.username',
       title: 'User',
