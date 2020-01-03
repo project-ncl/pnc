@@ -48,9 +48,9 @@
     }];
 
     $ctrl.scmRepositoriesSortingFields = [{
-      id: 'name',
-      title: 'Name',
-    },{
+//      id: 'name',
+//      title: 'Name',
+//    },{
       id: 'internalUrl',
       title: 'Internal URL',
     }, {
