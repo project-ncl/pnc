@@ -27,13 +27,13 @@
     /* default setting for sort configuration */
     const DEFAULT_SORT_CONFIG = {
       projectsList: { field: { id: 'name', title: 'Name' }, asc: true },
-      productList: { field: { id: 'name', title: 'Name' }, asc: true },
-      buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      // productList: { field: { id: 'name', title: 'Name' }, asc: true },
+      // buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
       groupConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
-      scmRepositoriesList: { field: { id: 'name', title: 'Name' }, asc: true },
+      // scmRepositoriesList: { field: { id: 'name', title: 'Name' }, asc: true },
       artifactsList: { field: { id: 'identifier', title: 'Identifier' }, asc: true },
-      buildsList: { field: { id: 'id', title: 'Id' }, asc: true },
-      groupBuildsList: { field: { id: 'id', title: 'Id' }, asc: true },
+      buildsList: { field: { id: 'submitTime', title: 'Id' }, asc: false },
+      // groupBuildsList: { field: { id: 'id', title: 'Id' }, asc: true },
     };
 
     var helper = {};

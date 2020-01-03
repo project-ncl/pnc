@@ -23,11 +23,13 @@
       builds: '<'
     },
     templateUrl: 'builds/list/pnc-builds-list-page.html',
-    controller: ['$scope', 'eventTypes', 'filteringPaginator', Controller]
+    controller: ['$scope', 'eventTypes', 'filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller($scope, eventTypes, filteringPaginator) {
+  function Controller($scope, eventTypes, filteringPaginator,sortHelper) {
     const $ctrl = this;
+
+    const PAGE_NAME = 'buildsList';
 
     // -- Controller API --
     $ctrl.buildsFilteringFields = [{
@@ -50,7 +52,7 @@
         'REJECTED',
         'FAILED',
         'CANCELLED',
-        'BUILDING', 
+        'BUILDING',
         'NO_REBUILD_REQUIRED',
         'SYSTEM_ERROR'
       ]
@@ -64,12 +66,35 @@
         'TRUE'
       ]
     }];
-  
+
+    $ctrl.buildsSortingFields = [{
+      id: 'submitTime',
+      title: 'Id',
+    }, {
+      id: 'user.username',
+      title: 'Username',
+    }, {
+      id: 'buildConfig.name',
+      title: 'Build Config name',
+    }, {
+      id: 'status',
+      title: 'Status',
+    }, {
+      id: 'temporaryBuild',
+      title: 'Temporary Build',
+    }];
+
 
     // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.buildsFilteringPage = filteringPaginator($ctrl.builds);
+
+      $ctrl.buildsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+
+      $ctrl.buildsFilteringPage.addSortChangeListener(currentSortConfig => {
+        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
+      });
 
       /* NCL-4433 group builds need to be updated
       function processEvent() {}
