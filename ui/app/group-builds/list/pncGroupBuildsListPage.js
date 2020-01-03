@@ -68,17 +68,20 @@
     }];
 
     $ctrl.groupBuildsSortingFields = [{
-      id: 'user.username',
-      title: 'Username',
-    }, {
-      id: 'groupConfig.name',
-      title: 'Group Config name',
-    }, {
       id: 'status',
       title: 'Status',
     }, {
-      id: 'temporaryBuild',
-      title: 'Temporary Build',
+      id: 'startTime',
+      title: 'Start Time'
+    }, {
+      id: 'endTime',
+      title: 'End Time',
+    }, {
+      id: 'groupConfig.name',
+      title: 'Build Config',
+    }, {
+      id: 'user.username',
+      title: 'User',
     }];
 
     // --------------------

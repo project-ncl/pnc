@@ -30,10 +30,10 @@
       // productList: { field: { id: 'name', title: 'Name' }, asc: true },
       // buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
       groupConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
-      // scmRepositoriesList: { field: { id: 'name', title: 'Name' }, asc: true },
+      scmRepositoriesList: { field: { id: 'name', title: 'Name' }, asc: true },
       artifactsList: { field: { id: 'identifier', title: 'Identifier' }, asc: true },
-      buildsList: { field: { id: 'submitTime', title: 'Id' }, asc: false },
-      groupBuildsList: { field: { id: 'startTime', title: 'Id' }, asc: false },
+      buildsList: { field: { id: 'startTime', title: 'Start Time' }, asc: false },
+      groupBuildsList: { field: { id: 'startTime', title: 'Start Time' }, asc: false },
     };
 
     var helper = {};

@@ -26,11 +26,13 @@
       scmRepositories: '<'
     },
     templateUrl: 'scm-repositories/list/pnc-scm-repositories-list-page.html',
-    controller: ['filteringPaginator', Controller]
+    controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator, sortHelper) {
     var $ctrl = this;
+
+    const PAGE_NAME = 'projectsList';
 
     // -- Controller API --
     $ctrl.scmRepositoriesFilteringFields = [{
@@ -44,11 +46,28 @@
       placeholder: 'Filter by External URL',
       filterType: 'text'
     }];
-    
+
+    $ctrl.scmRepositoriesSortingFields = [{
+      id: 'name',
+      title: 'Name',
+    },{
+      id: 'internalUrl',
+      title: 'Internal URL',
+    }, {
+      id: 'externalUrl',
+      title: 'External URL',
+    }];
+
     // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.scmRepositoriesFilteringPage = filteringPaginator($ctrl.scmRepositories);
+
+      $ctrl.scmRepositoriesSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+
+      $ctrl.scmRepositoriesFilteringPage.addSortChangeListener(currentSortConfig => {
+        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
+      });
     };
 
   }
