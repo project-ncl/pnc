@@ -96,14 +96,14 @@
       id: 'identifier',
       title: 'Identifier',
     }, {
+      id: 'artifactQuality',
+      title: 'Quality',
+    }, {
       id: 'filename',
       title: 'File Name',
     }, {
       id: 'targetRepository.repositoryType',
       title: 'Repo Type',
-    }, {
-      id: 'artifactQuality',
-      title: 'Quality',
     }, {
       id: 'md5',
       title: 'md5',
