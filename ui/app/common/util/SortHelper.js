@@ -33,7 +33,7 @@
       // scmRepositoriesList: { field: { id: 'name', title: 'Name' }, asc: true },
       artifactsList: { field: { id: 'identifier', title: 'Identifier' }, asc: true },
       buildsList: { field: { id: 'submitTime', title: 'Id' }, asc: false },
-      // groupBuildsList: { field: { id: 'id', title: 'Id' }, asc: true },
+      groupBuildsList: { field: { id: 'startTime', title: 'Id' }, asc: false },
     };
 
     var helper = {};
