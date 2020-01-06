@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.mapper;
 
-import javax.inject.Inject;
-
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
@@ -41,11 +39,12 @@ import org.mapstruct.MappingTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.function.Consumer;
 
 /**
- * @author Jan Michalov <jmichalo@redhat.com>
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Mapper(config = MapperCentralConfig.class,
         uses = { BuildConfigurationMapper.class, TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class})

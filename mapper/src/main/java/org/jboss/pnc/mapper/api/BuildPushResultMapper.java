@@ -24,7 +24,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * @author Jan Michalov <jmichalo@redhat.com>
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {BuildMapper.IDMapper.class})
 public interface BuildPushResultMapper {

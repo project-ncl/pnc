@@ -50,7 +50,7 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 /**
  *
- * @author jmichalo
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)

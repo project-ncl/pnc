@@ -31,7 +31,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author <a href="mailto:jmichalo@gmail.com">Jan Michalov</a>
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
