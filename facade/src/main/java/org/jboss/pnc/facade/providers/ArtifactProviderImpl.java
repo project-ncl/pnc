@@ -43,7 +43,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 /**
- * @author Jan Michalov <jmichalo@redhat.com>
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @PermitAll
 @Stateless

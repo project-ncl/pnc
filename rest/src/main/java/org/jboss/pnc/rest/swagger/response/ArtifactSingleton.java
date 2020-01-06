@@ -22,7 +22,7 @@ import org.jboss.pnc.rest.restmodel.response.Singleton;
 
 /**
  *
- * @author jmichalo
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 public class ArtifactSingleton extends Singleton<ArtifactRest> {
 }

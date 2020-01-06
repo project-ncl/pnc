@@ -46,7 +46,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 
 /**
  *
- * @author jmichalo
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Hidden
 @Path("/artifacts")

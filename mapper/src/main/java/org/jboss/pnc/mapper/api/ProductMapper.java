@@ -24,7 +24,7 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 
 /**
- * @author Jan Michalov <jmichalo@redhat.com>
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Mapper(config = MapperCentralConfig.class, uses = {MapSetMapper.class})
 public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.pnc.dto.Product,ProductRef> {

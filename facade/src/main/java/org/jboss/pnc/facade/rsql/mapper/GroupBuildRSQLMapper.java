@@ -26,7 +26,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
- * @author Jan Michalov <jmichalo@redhat.com>
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @ApplicationScoped
 public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildConfigSetRecord> {

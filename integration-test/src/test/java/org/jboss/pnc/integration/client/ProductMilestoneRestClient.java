@@ -20,7 +20,7 @@ package org.jboss.pnc.integration.client;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 
 /**
- * @author jmichalo
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 public class ProductMilestoneRestClient extends AbstractRestClient<ProductMilestoneRest> {
     private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/";
