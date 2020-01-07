@@ -109,24 +109,24 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private ProductRelease productRelease;
 
     /**
-     * The builds which were executed/performed during this milestone build cycle. This includes 
-     * failed builds and builds which produced artifacts which were later replaced by subsequent 
-     * builds. The intent of this field is to track total effort of a milestone, so for example, 
+     * The builds which were executed/performed during this milestone build cycle. This includes
+     * failed builds and builds which produced artifacts which were later replaced by subsequent
+     * builds. The intent of this field is to track total effort of a milestone, so for example,
      * failed builds consumed machine and human resources even though they were not delivered with
      * the product distribution.
      */
-    @OneToMany(mappedBy = "productMilestone", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "productMilestone")
     private Set<BuildRecord> performedBuilds;
 
     /**
      * Set of artifacts which were distributed in this product milestone.  At a minimum, this includes
-     * the runtime artifacts of a product.  Some additional artifacts could be included if they 
+     * the runtime artifacts of a product.  Some additional artifacts could be included if they
      * are supported  and could include some
-     * 
+     *
      * The BuildRecordSets associated with a milestone should be created when the milestone
      * is first created, and never updated after that.
      */
-    @ManyToMany(fetch = FetchType.EAGER) //TODO remove eager fetch
+    @ManyToMany()
     @JoinTable(name = "product_milestone_distributed_artifacts_map", joinColumns = {
             @JoinColumn(
                 name = "product_milestone_id",
@@ -220,7 +220,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
     /**
      * URL which can be used to download the product distribution
-     * 
+     *
      * @return The url where this milestone distribution can be downloaded
      */
     public String getDownloadUrl() {
@@ -265,7 +265,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
     /**
      * If this milestone was promoted to a release, this field will be set. Will be null if the milestone was not relesed.
-     * 
+     *
      * @return the product release or null
      */
     public ProductRelease getProductRelease() {
@@ -407,7 +407,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         /**
          * Safe way to try to get the associated product name without worrying about null pointers
-         * 
+         *
          * @return The associated product name, or an empty string
          */
         public String getProductName() {
