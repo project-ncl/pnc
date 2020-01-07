@@ -76,7 +76,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 
 /**
  *
- * @author jmichalo
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Api(value = "/artifacts", description = "Artifact entities")
 @Path("/artifacts")
