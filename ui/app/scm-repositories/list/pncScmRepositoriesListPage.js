@@ -32,7 +32,7 @@
   function Controller(filteringPaginator, sortHelper) {
     var $ctrl = this;
 
-    const PAGE_NAME = 'projectsList';
+    const PAGE_NAME = 'scmRepositoriesList';
 
     // -- Controller API --
     $ctrl.scmRepositoriesFilteringFields = [{
