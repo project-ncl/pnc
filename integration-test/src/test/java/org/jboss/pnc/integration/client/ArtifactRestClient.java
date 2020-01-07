@@ -21,7 +21,7 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
 
 /**
  *
- * @author jmichalo
+ * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 public class ArtifactRestClient extends AbstractRestClient<ArtifactRest>{
 
