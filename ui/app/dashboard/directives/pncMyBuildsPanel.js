@@ -38,17 +38,21 @@
     'BuildConfigurationDAO',
     'BuildResource',
     'UserDAO',
-    'eventTypes',
+    'events',
     'paginator',
-    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildResource, UserDAO, eventTypes, paginator) {
+    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildResource, UserDAO, events, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
         scope: {},
         link: function (scope) {
 
-          scope.update = function() {
-            scope.page.refresh();
+          var pncUser;
+
+          scope.update = function(event, build) {
+            if (pncUser.id === build.user.id) {
+              scope.page.refresh();
+            }
           };
 
           scope.show = function() {
@@ -58,18 +62,20 @@
           function init() {
 
             authService.getPncUser().then(function(result) {
+              pncUser = result;
               return BuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10
               }).$promise.then(function(page){
                 scope.page = paginator(page);
-              }); 
+              });
             });
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
 
-            scope.$on(eventTypes.BUILD_STARTED, scope.update);
-            scope.$on(eventTypes.BUILD_FINISHED, scope.update);
+            scope.$on(events.BUILD_PENDING, scope.update);
+            scope.$on(events.BUILD_IN_PROGRESS, scope.update);
+            scope.$on(events.BUILD_FINISHED, scope.update);
           }
 
           if (authService.isAuthenticated()) {

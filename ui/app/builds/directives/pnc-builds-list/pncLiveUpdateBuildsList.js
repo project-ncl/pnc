@@ -36,10 +36,10 @@
       hideHead: '<?'
     },
     templateUrl: 'builds/directives/pnc-builds-list/pnc-live-update-builds-list.html',
-    controller: ['$scope', 'eventTypes', Controller]
+    controller: ['$scope', 'events', Controller]
   });
 
-  function Controller($scope, eventTypes) {
+  function Controller($scope, events) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -49,7 +49,7 @@
     // --------------------
 
     $ctrl.$onInit = function () {
-      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, onUpdate);
+      $scope.$on(events.BUILD_STATUS_CHANGED, onUpdate);
     };
 
     function onUpdate(event, payload) {

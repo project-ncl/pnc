@@ -21,75 +21,35 @@
   angular.module('pnc.common.pnc-client.message-bus').factory('messageBus', [
     'restConfig',
     '$rootScope',
-    function (restConfig, $rootScope) {
+    'events',
+    'BuildResource',
+    'GroupBuildResource',
+    function (restConfig, $rootScope, events, BuildResource, GroupBuildResource) {
 
       const messageBus = new PncJsLibs.MessageBus(restConfig.getPncNotificationsUrl());
 
-      messageBus.onBuildStatusChange((build, notification) => {
-         let payload = {
-           id: parseInt(build.id),
-           buildCoordinationStatus: build.status,
-           userId: parseInt(build.user.id),
-           buildConfigurationId: parseInt(build.buildConfigRevision.id),
-           buildConfigurationName: build.buildConfigRevision.name,
-           buildStartTime: build.startTime,
-           buildEndTime: build.endTime
-         };
+      function newBuildProgressEventHandler(eventType) {
+        return (build, notification) => $rootScope.$broadcast(eventType, new BuildResource(build), notification);
+      }
 
-         let eventType;
+      messageBus.onBuildProgress('PENDING', newBuildProgressEventHandler(events.BUILD_PENDING));
+      messageBus.onBuildProgress('IN_PROGRESS', newBuildProgressEventHandler(events.BUILD_IN_PROGRESS));
+      messageBus.onBuildProgress('FINISHED', newBuildProgressEventHandler(events.BUILD_FINISHED));
 
-         if (notification.progress === 'IN_PROGRESS') {
-           eventType = 'BUILD_STARTED';
-         } else if (notification.progress === 'FINISHED') {
-           eventType = 'BUILD_FINISHED';
-         }
+      messageBus.onBuildProgressChange(newBuildProgressEventHandler(events.BUILD_PROGRESS_CHANGED));
+      messageBus.onBuildStatusChange(newBuildProgressEventHandler(events.BUILD_STATUS_CHANGED));
 
-         $rootScope.$broadcast(eventType, payload);
 
-         $rootScope.$broadcast('BUILD_STATUS_CHANGED', {
-          id: payload.id,
-          status: payload.buildCoordinationStatus,
-          userId: payload.userId,
-          buildConfigurationId: payload.buildConfigurationId,
-          buildConfigurationName: payload.buildConfigurationName,
-          startTime: payload.buildStartTime,
-          endTime: payload.buildEndTime
-        });
+      function newGroupBuildProgressEventHandler(eventType) {
+        return (groupBuild, notification) => $rootScope.$broadcast(eventType, new GroupBuildResource(groupBuild), notification);
+      }
 
-      });
+      messageBus.onGroupBuildProgress('IN_PROGRESS', newGroupBuildProgressEventHandler(events.GROUP_BUILD_IN_PROGRESS));
+      messageBus.onGroupBuildProgress('FINISHED', newGroupBuildProgressEventHandler(events.GROUP_BUILD_FINISHED));
 
-      messageBus.onGroupBuildStatusChange((groupBuild, notification) => {
+      messageBus.onGroupBuildProgressChange(newGroupBuildProgressEventHandler(events.GROUP_BUILD_PROGRESS_CHANGED));
+      messageBus.onGroupBuildStatusChange(newGroupBuildProgressEventHandler(events.GROUP_BUILD_STATUS_CHANGED));
 
-        let payload = {
-          id: parseInt(groupBuild.id),
-          buildStatus: groupBuild.status,
-          userId: parseInt(groupBuild.user.id),
-          buildSetConfigurationId: parseInt(groupBuild.groupConfig.id),
-          buildSetConfigurationName: groupBuild.groupConfig.name,
-          startTime: groupBuild.startTime,
-          endTime: groupBuild.endTime
-        };
-
-        let eventType;
-
-        if (notification.progress === 'IN_PROGRESS') {
-          eventType = 'BUILD_SET_STARTED';
-        } else if (notification.progress === 'FINISHED') {
-          eventType = 'BUILD_SET_FINISHED';
-        }
-
-        $rootScope.$broadcast(eventType, payload);
-
-        $rootScope.$broadcast('BUILD_SET_STATUS_CHANGED', {
-          id: payload.id,
-          status: payload.buildStatus,
-          userId: payload.userId,
-          buildConfigurationSetId: payload.buildSetConfigurationId,
-          buildConfigurationSetName: payload.buildSetConfigurationName,
-          startTime: payload.buildSetStartTime,
-          endTime: payload.buildSetEndTime
-        });
-      });
 
       return messageBus;
     }

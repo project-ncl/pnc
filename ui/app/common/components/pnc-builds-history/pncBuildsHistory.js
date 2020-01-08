@@ -26,17 +26,13 @@
         /**
          * Object: The configuration representing Build Configuration
          */
-        buildConfig: '<?',
-        /**
-         * Object: The configuration representing Build Group Configuration
-         */
-        buildGroup: '<?'
+        buildConfig: '<'
       },
       templateUrl: 'common/components/pnc-builds-history/pnc-builds-history.html',
-      controller: ['eventTypes', '$scope', 'BuildRecord', 'BuildConfigurationSet', 'paginator', Controller]
+      controller: ['events', '$scope', 'BuildRecord', 'BuildConfigurationSet', 'paginator', Controller]
     });
 
-    function Controller(eventTypes, $scope, BuildRecord, BuildConfigurationSet, paginator) {
+    function Controller(events, $scope, BuildRecord, BuildConfigurationSet, paginator) {
       var $ctrl = this;
 
       function loadBuildsHistory() {
@@ -51,10 +47,10 @@
         });
       }
 
-      function processEvent(event, payload) {
-        console.log(' yoyoyo event: %O, payload: %O', event, payload);
-        if (($ctrl.buildGroup  && payload.buildSetConfigurationId === $ctrl.buildGroup.id ) ||
-            ($ctrl.buildConfig && payload.buildConfigurationId    === $ctrl.buildConfig.id)) {
+      function processEvent(event, entity) {
+        if (($ctrl.buildGroup  && entity.groupConfig.id === $ctrl.buildGroup.id.toString() ) ||
+            ($ctrl.buildConfig && entity.buildConfigRevision.id  === $ctrl.buildConfig.id.toString())) {
+
           $ctrl.page.refresh();
         }
       }
@@ -63,11 +59,12 @@
         loadBuildsHistory();
 
         if ($ctrl.buildGroup) {
-          $scope.$on(eventTypes.BUILD_SET_STARTED, processEvent);
-          $scope.$on(eventTypes.BUILD_SET_FINISHED, processEvent);
+          $scope.$on(events.GROUP_BUILD_IN_PROGRESS, processEvent);
+          $scope.$on(events.GROUP_BUILD_FINISHED, processEvent);
         } else {
-          $scope.$on(eventTypes.BUILD_STARTED, processEvent);
-          $scope.$on(eventTypes.BUILD_FINISHED, processEvent);
+          $scope.$on(events.BUILD_PENDING, processEvent);
+          $scope.$on(events.BUILD_IN_PROGRESS, processEvent);
+          $scope.$on(events.BUILD_FINISHED, processEvent);
         }
       };
 

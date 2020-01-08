@@ -20,6 +20,15 @@
 
   angular.module('pnc.common.pnc-client.message-bus', [
     'angular-websocket'
-  ]);
+  ])
+
+  .run(['$rootScope', 'events', ($rootScope, events) => {
+    for (const [key, value] of Object.entries(events)) {
+      $rootScope.$on(key, (...args) => {
+        console.log('EVENT: %s -> %O', key, ...args);
+      });
+    }
+
+  }]);
 
 })();
