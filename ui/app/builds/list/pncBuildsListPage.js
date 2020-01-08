@@ -26,7 +26,7 @@
     controller: ['$scope', 'eventTypes', 'filteringPaginator', Controller]
   });
 
-  function Controller($scope, eventTypes, filteringPaginator) {
+  function Controller($scope, events, filteringPaginator) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -50,7 +50,7 @@
         'REJECTED',
         'FAILED',
         'CANCELLED',
-        'BUILDING', 
+        'BUILDING',
         'NO_REBUILD_REQUIRED',
         'SYSTEM_ERROR'
       ]
@@ -64,18 +64,14 @@
         'TRUE'
       ]
     }];
-  
+
 
     // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.buildsFilteringPage = filteringPaginator($ctrl.builds);
 
-      /* NCL-4433 group builds need to be updated
-      function processEvent() {}
-      $scope.$on(eventTypes.BUILD_STARTED, processEvent);
-      $scope.$on(eventTypes.BUILD_FINISHED, processEvent);
-      */
+      $scope.$on(events.BUILD_PROGRESS_CHANGED, () => $ctrl.buildsFilteringPage.refresh());
     };
 
   }

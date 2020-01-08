@@ -36,6 +36,10 @@
     controller: ['eventTypes', '$scope', 'BuildRecord', 'BuildConfigurationSetDAO', 'UserDAO', Controller]
   });
 
+
+  /*
+   * This component requires extensive refactoring when BC refactor takes place
+   */
   function Controller(eventTypes, $scope, BuildRecord, BuildConfigurationSetDAO, UserDAO) {
     var $ctrl = this;
 
@@ -95,13 +99,6 @@
     $ctrl.$onInit = function() {
       loadLatestBuild();
 
-      if ($ctrl.buildGroup) {
-        $scope.$on(eventTypes.BUILD_SET_STARTED, processLatestBuild);
-        $scope.$on(eventTypes.BUILD_SET_FINISHED, processLatestBuild);
-      } else {
-        $scope.$on(eventTypes.BUILD_STARTED, processLatestBuild);
-        $scope.$on(eventTypes.BUILD_FINISHED, processLatestBuild);
-      }
     };
 
   }

@@ -24,11 +24,11 @@
       dependencyGraph: '<'
     },
     templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
-    controller: ['buildStatusHelper', Controller]
+    controller: ['$scope', 'events', 'buildStatusHelper', Controller]
   });
 
 
-  function Controller(buildStatusHelper) {
+  function Controller($scope, events, buildStatusHelper) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -38,29 +38,13 @@
 
     $ctrl.$onInit = function () {
       $ctrl.buildStatusHelper = buildStatusHelper;
+
+      $scope.$on(events.BUILD_STATUS_CHANGED, (event, build) => {
+        if ($ctrl.build.id === build.id) {
+          $scope.$applyAsync(() => $ctrl.build = build);
+        }
+      });
     };
-
-
-    /* NCL-4433
-    $scope.$on(eventTypes.BUILD_FINISHED, function (event, payload) {
-      if (recordDetail.id === payload.id) {
-        recordDetail.$get();
-      }
-    });
-
-    $scope.$on(eventTypes.BREW_PUSH_RESULT, function (event, payload) {
-      if (payload.buildRecordId === recordDetail.id) {
-        $scope.$applyAsync(function () { hasPushResult = true; });
-      }
-    });
-
-    var unsubscribe = messageBus.subscribe({
-      topic: 'component-build',
-      id: recordDetail.id
-    });
-
-    $scope.$on('$destroy', unsubscribe);
-    */
   }
 
 })();
