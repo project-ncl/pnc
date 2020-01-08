@@ -686,13 +686,13 @@
       <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-jpa</artifactId>
-        <version>1.11.16.RELEASE</version>
+        <version>1.11.23.RELEASE</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-commons</artifactId>
-        <version>1.13.16.RELEASE</version>
+        <version>1.13.23.RELEASE</version>
       </dependency>
 
       <dependency>
