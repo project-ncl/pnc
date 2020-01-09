@@ -34,10 +34,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
+import org.jboss.pnc.common.util.StringUtils;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
- * 
+ *
  * The class Project incapsulates the basic properties of a Project, i.e. the name, description, license. It is linked to a list
  * of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is also
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
@@ -124,7 +125,7 @@ public class Project implements GenericEntity<Integer> {
      * @param description the description to set
      */
     public void setDescription(String description) {
-        this.description = description;
+        this.description = StringUtils.nullIfBlank(description);
     }
 
     /**
@@ -138,7 +139,7 @@ public class Project implements GenericEntity<Integer> {
      * @param issueTrackerUrl the issueTrackerUrl to set
      */
     public void setIssueTrackerUrl(String issueTrackerUrl) {
-        this.issueTrackerUrl = issueTrackerUrl;
+        this.issueTrackerUrl = StringUtils.nullIfBlank(issueTrackerUrl);
     }
 
     /**
@@ -152,7 +153,7 @@ public class Project implements GenericEntity<Integer> {
      * @param projectUrl the projectUrl to set
      */
     public void setProjectUrl(String projectUrl) {
-        this.projectUrl = projectUrl;
+        this.projectUrl = StringUtils.nullIfBlank(projectUrl);
     }
 
     /**
