@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jboss.pnc.common.util.StringUtils;
 
 /**
  * The Class BuildConfiguration cointains the information needed to execute a build of a project, i.e. the sources,
@@ -274,7 +275,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = StringUtils.nullIfBlank(description);
     }
 
     public Project getProject() {

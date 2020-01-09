@@ -37,6 +37,7 @@ import javax.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.jboss.pnc.common.util.StringUtils;
 
 /**
  * @author avibelli
@@ -99,7 +100,7 @@ public class Product implements GenericEntity<Integer> {
     public Product(String name, String description) {
         this();
         this.name = name;
-        this.description = description;
+        this.description = StringUtils.nullIfBlank(description);
     }
 
     /**
@@ -142,7 +143,7 @@ public class Product implements GenericEntity<Integer> {
      * @param description the description to set
      */
     public void setDescription(String description) {
-        this.description = description;
+        this.description = StringUtils.nullIfBlank(description);
     }
 
     /**
@@ -164,7 +165,7 @@ public class Product implements GenericEntity<Integer> {
     }
 
     public void setProductCode(String productCode) {
-        this.productCode = productCode;
+        this.productCode = StringUtils.nullIfBlank(productCode);
     }
 
     /**
@@ -175,7 +176,7 @@ public class Product implements GenericEntity<Integer> {
     }
 
     public void setPgmSystemName(String pgmSystemName) {
-        this.pgmSystemName = pgmSystemName;
+        this.pgmSystemName = StringUtils.nullIfBlank(pgmSystemName);
     }
 
     /**
@@ -194,7 +195,7 @@ public class Product implements GenericEntity<Integer> {
 
     /**
      * Add a version for the Product
-     * 
+     *
      * @param version Associate a new version with this product
      * @return True if the product did not already contain this version
      */
