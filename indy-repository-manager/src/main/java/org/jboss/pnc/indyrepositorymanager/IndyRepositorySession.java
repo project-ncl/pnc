@@ -443,6 +443,9 @@ public class IndyRepositorySession implements RepositorySession {
             throw new RepositoryManagerException("Repository type " + repoType
                     + " is not supported by Indy repo manager driver.");
         }
+        if (!repoPath.endsWith("/")) {
+            repoPath += '/';
+        }
 
         return TargetRepository.newBuilder()
                 .identifier(identifier)
@@ -503,6 +506,9 @@ public class IndyRepositorySession implements RepositorySession {
         }
 
         String repoPath = "/api/" + content.contentPath(storeKey);
+        if (!repoPath.endsWith("/")) {
+            repoPath += '/';
+        }
         return TargetRepository.newBuilder()
                 .identifier(identifier)
                 .repositoryType(repoType)
